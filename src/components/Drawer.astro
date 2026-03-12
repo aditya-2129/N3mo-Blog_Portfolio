@@ -5,6 +5,8 @@ const { pathname } = Astro.url
 const subpath = pathname.match(/[^/]+/g)
 ---
 
+<div id="drawer-overlay" class="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden"></div>
+
 <div id="drawer" class="fixed inset-0 h-0 z-40 overflow-hidden flex flex-col items-center justify-center md:hidden bg-neutral-100 dark:bg-neutral-900 transition-[height] duration-300 ease-in-out">
   <nav class="flex flex-col items-center space-y-2">
     {
@@ -44,4 +46,33 @@ const subpath = pathname.match(/[^/]+/g)
   #drawer.open {
     @apply h-full;
   }
+  #drawer.open + #drawer-overlay,
+  #drawer-overlay.open {
+    @apply opacity-100 pointer-events-auto;
+  }
 </style>
+
+<script is:inline>
+  function initDrawerOverlay() {
+    const overlay = document.getElementById("drawer-overlay");
+    const drawer = document.getElementById("drawer");
+    if (overlay && drawer) {
+      overlay.addEventListener("click", function () {
+        drawer.classList.remove("open");
+        overlay.classList.remove("open");
+      });
+
+      // Sync overlay with drawer open state
+      const observer = new MutationObserver(function () {
+        if (drawer.classList.contains("open")) {
+          overlay.classList.add("open");
+        } else {
+          overlay.classList.remove("open");
+        }
+      });
+      observer.observe(drawer, { attributes: true, attributeFilter: ["class"] });
+    }
+  }
+  document.addEventListener("astro:after-swap", initDrawerOverlay);
+  initDrawerOverlay();
+</script>

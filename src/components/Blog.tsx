@@ -9,11 +9,14 @@ type Props = {
   data: CollectionEntry<"blog">[]
 }
 
+const POSTS_PER_PAGE = 10
+
 export default function Blog({ data, tags, difficulties = [] }: Props) {
   const [filter, setFilter] = createSignal(new Set<string>())
   const [difficultyFilter, setDifficultyFilter] = createSignal(new Set<string>())
   const [posts, setPosts] = createSignal<CollectionEntry<"blog">[]>([])
   const [filtersOpen, setFiltersOpen] = createSignal(false)
+  const [page, setPage] = createSignal(1)
 
   createEffect(() => {
     const selectedTags = filter()
@@ -40,7 +43,14 @@ export default function Blog({ data, tags, difficulties = [] }: Props) {
         return matchesTags && matchesDifficulty
       })
     )
+    setPage(1)
   })
+
+  const totalPages = () => Math.max(1, Math.ceil(posts().length / POSTS_PER_PAGE))
+  const paginatedPosts = () => {
+    const start = (page() - 1) * POSTS_PER_PAGE
+    return posts().slice(start, start + POSTS_PER_PAGE)
+  }
 
   function toggleTag(tag: string) {
     setFilter((prev) => 
@@ -144,15 +154,49 @@ export default function Blog({ data, tags, difficulties = [] }: Props) {
       <div class="col-span-3 sm:col-span-2">
         <div class="flex flex-col">
           <div class="text-sm uppercase mb-2">
-            SHOWING {posts().length} OF {data.length} POSTS
+            SHOWING {paginatedPosts().length} OF {posts().length} POSTS
+            {totalPages() > 1 && <span> — PAGE {page()} OF {totalPages()}</span>}
           </div>
           <ul class="flex flex-col gap-3">
-            {posts().map((post) => (
+            {paginatedPosts().map((post) => (
               <li>
                 <ArrowCard entry={post} />
               </li>
             ))}
           </ul>
+          {totalPages() > 1 && (
+            <div class="flex items-center justify-center gap-4 mt-6">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page() === 1}
+                class={cn(
+                  "px-4 py-2 rounded border text-sm",
+                  "border-black/15 dark:border-white/20",
+                  "hover:bg-black/5 hover:dark:bg-white/10",
+                  "transition-colors duration-300 ease-in-out",
+                  page() === 1 && "opacity-40 pointer-events-none"
+                )}
+              >
+                ← Previous
+              </button>
+              <span class="text-sm text-black dark:text-white font-medium">
+                {page()} / {totalPages()}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages(), p + 1))}
+                disabled={page() === totalPages()}
+                class={cn(
+                  "px-4 py-2 rounded border text-sm",
+                  "border-black/15 dark:border-white/20",
+                  "hover:bg-black/5 hover:dark:bg-white/10",
+                  "transition-colors duration-300 ease-in-out",
+                  page() === totalPages() && "opacity-40 pointer-events-none"
+                )}
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

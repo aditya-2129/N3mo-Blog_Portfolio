@@ -19,6 +19,11 @@ export default function ArrowCard({entry, pill}: Props) {
           <div class="text-sm uppercase">
             {formatDate(entry.data.date)}
           </div>
+          {entry.collection === "blog" &&
+            <div class="text-xs opacity-60">
+              · {Math.max(1, Math.ceil(entry.data.summary.split(/\s+/).length / 40 + 2))} min read
+            </div>
+          }
         </div>
         <div class="font-semibold mt-3 text-black dark:text-white">
           {entry.data.title}
@@ -28,7 +33,7 @@ export default function ArrowCard({entry, pill}: Props) {
           {entry.data.summary}
         </div>
         <ul class="flex flex-wrap mt-2 gap-1">
-          {entry.data.tags.map((tag:string) => ( // this line has an error; Parameter 'tag' implicitly has an 'any' type.ts(7006)
+          {entry.data.tags.map((tag: string) => (
             <li class="text-xs uppercase py-0.5 px-1 rounded bg-black/5 dark:bg-white/20 text-black/75 dark:text-white/75">
               {tag}
             </li>

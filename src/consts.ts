@@ -66,14 +66,14 @@ export const SOCIALS: Socials = [
   { 
     NAME: "Email",
     ICON: "email", 
-    TEXT: "adityafulzele1122@gmail.com",
-    HREF: "mailto:adityafulzele1122@gmail.com",
+    TEXT: "adityafulzele2129@gmail.com",
+    HREF: "mailto:adityafulzele2129@gmail.com",
   },
   { 
     NAME: "Github",
     ICON: "github",
-    TEXT: "leonardoo210399",
-    HREF: "https://github.com/leonardoo210399"
+    TEXT: "Aditya-2129",
+    HREF: "https://github.com/aditya-2129"
   },
   { 
     NAME: "LinkedIn",
@@ -85,7 +85,7 @@ export const SOCIALS: Socials = [
     NAME: "Instagram",
     ICON: "instagram",
     TEXT: "aditya.2129",
-    HREF: "https://google.com",
+    HREF: "https://www.instagram.com/aditya.2129",
   },
 ]
 
