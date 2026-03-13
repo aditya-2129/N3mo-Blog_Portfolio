@@ -13,27 +13,85 @@ tags:
 - Ethical AI
 ---
 
-**Compliant Site Content Fetcher** is an essential **n8n** template designed for developers and automation engineers who prioritize ethical web scraping and data aggregation.
+# 🛡️ Compliant Site Content Fetcher — Ethical Scraping Engine
 
-Before making any data requests to a target URL, the workflow automatically retrieves and parses the site's `robots.txt` file. If the site disallows crawling at the root level, the workflow immediately aborts, ensuring 100% compliance with the site owner's terms.
+![Scraping Automation Banner](https://raw.githubusercontent.com/aditya-2129/Automated-Marketing-Socials-N8N/main/public/banner.png)
 
-## Key Features
+**Compliant Site Content Fetcher** is a masterclass in responsible automation. Built on **n8n**, this system is designed for developers who need to aggregate web data without compromising ethical standards or technical compliance. It treats `robots.txt` files as hard boundaries, automatically validating every request before execution to preserve site integrity and prevent IP blacklisting.
 
-### 🛡️ Built-In Ethical Scraping
-- **Robots.txt Parser**: Uses a custom JavaScript node to fetch `BASE_URL/robots.txt` and check for "Disallow: /" directives.
-- **Auto-Abort Mechanism**: Immediately halts execution if the site does not permit bots, protecting against IPs being banned or violating terms of service.
+By combining intelligent content detection with resilient backoff algorithms, this project sets the standard for production-grade, low-impact data extraction.
 
-### 🧠 Intelligent Content Extraction
-- **Content-Type Detection**: Automatically reads the response headers and adapts its parsing strategy.
-- **Multi-Format Support**: 
-  - **JSON**: Safely parses pure JSON API endpoints.
-  - **RSS/Atom Feeds**: Uses regex arrays to extract article titles and links dynamically.
-  - **HTML Fallback**: If the endpoint is a standard webpage, it gracefully falls back to extracting the `<title>`, `<meta name="description">`, and a text snippet.
+---
 
-### ⏳ Resilient Reliability
-- **Exponential Backoff**: Implements a custom mathematical backoff (base 1000ms, doubling per attempt) in combination with n8n's `Wait` node. This prevents overwhelming the target server during 5xx errors or connectivity issues.
+## 🛠️ Technology Stack
 
-## Tech Stack
-- **Automation / Logic Flow**: n8n
-- **Programming Language**: JavaScript (Node.js Code Nodes)
-- **Protocols Supported**: HTTP/HTTPS, REST, RSS, Atom, HTML
+<div class="tech-stack">
+
+![n8n](https://img.shields.io/badge/n8n-FF6D5A?style=for-the-badge&logo=n8n&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![RegEx](https://img.shields.io/badge/RegEx-black?style=for-the-badge&logo=codeforces&logoColor=white) ![JSON](https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white) ![RSS](https://img.shields.io/badge/RSS-FFA500?style=for-the-badge&logo=rss&logoColor=white)
+
+</div>
+
+
+---
+
+## ✨ Features at a Glance
+
+### 🛡️ Automated Compliance Guard
+- **Robots.txt Validator**: A custom-coded JavaScript engine that fetches and parses a site's `robots.txt` in real-time.
+- **Auto-Kill Directive**: If the parser detects a `Disallow: /` or specific bot exclusions, the workflow terminates immediately with a detailed compliance log.
+- **User-Agent Management**: Transparently declares its identity to site owners, adhering to "Politeness" protocols.
+
+### 🧠 Polymorphic Content Extraction
+- **Header-Aware Routing**: Automatically identifies the input format (HTML, JSON, or XML) and routes the payload to the specific parser node.
+- **Advanced Scraping Modes**:
+  - **API Mode**: Directly parses structured JSON for high-fidelity data.
+  - **Feed Mode**: Converts RSS/Atom XML into refined, object-based article lists.
+  - **Fallback DOM Mode**: Uses specialized selectors to extract meta-descriptions and titles from unstructured standard webpages.
+
+### ⏳ Industrial-Grade Resilience
+- **Exponential Backoff**: Implements a sophisticated retry algorithm (base 1000ms, doubling per attempt) to handle 5xx server errors or rate limiting (429s).
+- **Rate-Limit Awareness**: Includes built-in `Wait` nodes that respect site-specific "crawl-delay" directives found in robots.txt files.
+
+---
+
+## 📁 Workflow Architecture
+
+```bash
+site-fetcher-workflow/
+├── Webhook Trigger      # Entry point with Target URL
+├── Compliance Node      # JavaScript-based robots.txt check
+├── HTTP Fetcher         # Secure data retrieval with custom Headers
+├── Logic Switch         # Determines Content-Type (JSON/RSS/HTML)
+├── Payload Parser       # Regex & Logic nodes for data cleaning
+└── Success Output       # Formatted JSON storage
+```
+
+---
+
+## 🚀 Installation & Setup
+
+### 1. Prerequisites
+- **n8n Instance** (v1.0+ recommended)
+- **Node.js** capability enabled in n8n settings (for custom JavaScript nodes)
+
+### 2. Workflow Import
+1. Download the `compliant-fetcher.json` from this repository.
+2. In n8n, click **"Add Workflow"** -> **"Import from File"**.
+3. Select the JSON file.
+
+### 3. Usage
+1. Send a POST request to the Webhook URL with a `targetUrl` parameter:
+   ```json
+   {
+     "targetUrl": "https://example.com/blog"
+   }
+   ```
+2. Monitor the n8n execution log to see the compliance verification and data extraction result.
+
+---
+
+## 📄 License
+This template is part of an automation framework for ethical AI and is available under the **MIT License**.
+
+_Designed & Developed by **Aditya** (aka **aditya-2129**)_
+

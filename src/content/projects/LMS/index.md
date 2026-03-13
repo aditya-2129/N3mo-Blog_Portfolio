@@ -28,776 +28,121 @@ demoUrl: https://lms-pink-ten.vercel.app/
 repoUrl: https://github.com/leonardoo210399/lms.git
 ---
 
-<p align="center">
-  <img src="https://cdn-icons-png.flaticon.com/512/6295/6295417.png" width="100" />
-</p>
-<p align="center">
-    <h1 align="center">LMS</h1>
-</p>
-<p align="center">
-    <em><code>A comprehensive Learning Management System built with modern web technologies to deliver a seamless online education experience.</code></em>
-</p>
+# 🎓 Learning Management System (LMS) — Enterprise Education Platform
 
-<p align="center">
-    <em>Developed with the software and tools below.</em>
-</p>
-<p align="center" style="display:ruby">
-    <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript">
-    <img src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=TypeScript&logoColor=white" alt="TypeScript">
-    <img src="https://img.shields.io/badge/React-61DAFB.svg?style=flat&logo=React&logoColor=black" alt="React">
-    <img src="https://img.shields.io/badge/Next.js-000000.svg?style=flat&logo=Next.js&logoColor=white" alt="Next.js">
-    <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4.svg?style=flat&logo=Tailwind%20CSS&logoColor=white" alt="Tailwind CSS">
-    <img src="https://img.shields.io/badge/Prisma-2D3748.svg?style=flat&logo=Prisma&logoColor=white" alt="Prisma">
-    <img src="https://img.shields.io/badge/Clerk-6C47FF?logo=clerk&logoColor=white&style=flat" alt="Clerk">
-    <img src="https://img.shields.io/badge/Stripe-008CDD.svg?style=flat&logo=Stripe&logoColor=white" alt="Stripe">
-    <img src="https://img.shields.io/badge/MongoDB-47A248.svg?style=flat&logo=MongoDB&logoColor=white" alt="MongoDB">
-    <img src="https://img.shields.io/badge/MySQL-F29111.svg?style=flat&logo=MySQL&logoColor=white" alt="MySQL">
-    <img src="https://img.shields.io/badge/Axios-5A29E4.svg?style=flat&logo=Axios&logoColor=white" alt="Axios">
-    <img src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=flat&logo=ESLint&logoColor=white" alt="ESLint">
-    <img src="https://img.shields.io/badge/PostCSS-DD3A0A.svg?style=flat&logo=PostCSS&logoColor=white" alt="PostCSS">
-</p>
+![LMS Banner](https://cdn-icons-png.flaticon.com/512/6295/6295417.png)
 
-<hr>
-
-## 🔗 Quick Links
-
-> - [📍 Overview](#-overview)
-> - [📦 Features](#-features)
-> - [📸 Screenshots](#-screenshots)
-> - [🚀 Getting Started](#-getting-started)
->   - [⚙️ Installation](#️-installation)
->   - [🤖 Running Locally](#-running-locally)
->   - [🧪 Testing](#-testing)
->   - [🔧 Linting](#-linting)
->   - [🛠️ Post-Install](#-post-install)
-> - [🌍 Environment Variables](#-environment-variables)
-> - [🚀 Optimizations](#-optimizations)
->   - [🛠️ Code Refactoring](#-code-refactoring)
->   - [⚡ Performance Improvements](#-performance-improvements)
->   - [♿ Accessibility Enhancements](#-accessibility-enhancements)
->   - [🔒 Security Enhancements](#-security-enhancements)
->   - [🎨 UX/UI Improvements](#-uxui-improvements)
-> - [🛣️ Project Roadmap](#-project-roadmap)
-> - [👏 Acknowledgments](#-acknowledgments)
+A comprehensive, industry-grade **Learning Management System** built with **Next.js**, **React**, and **Tailwind CSS**. This platform is designed to provide a seamless online education experience, featuring sophisticated course management, high-performance video streaming, and secure financial integrations.
 
 ---
 
-## 📍 Overview
+## 🛠️ Technology Stack
 
-The LMS (Learning Management System) is an advanced platform designed for both students and educators to facilitate online learning. Developed with modern technologies like JavaScript, Node.js, Express, MongoDB, and React, this system aims to deliver a seamless educational experience. The LMS is equipped with features that support course creation, management, and delivery, making it a comprehensive solution for online education.
+<div class="tech-stack">
 
----
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white) ![MySQL](https://img.shields.io/badge/MySQL-F29111?style=for-the-badge&logo=mysql&logoColor=white) ![Stripe](https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white) ![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=for-the-badge&logo=clerk&logoColor=white) ![Mux](https://img.shields.io/badge/Mux_Video-black?style=for-the-badge&logo=mux&logoColor=white) ![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=for-the-badge&logo=radix-ui&logoColor=white)
 
-## 📦 Features
+</div>
 
-- **Browse & Filter Courses**: Users can explore and find courses that match their interests and needs.
-- **Purchase Courses using Stripe**: Secure and reliable payment processing integrated with Stripe.
-- **Progress Tracking**: Students can mark chapters as completed or uncompleted and track their progress.
-- **Student Dashboard**: A personalized dashboard for students to manage their courses and track progress.
-- **Teacher Mode**: Tools and features specifically designed for educators to create and manage their courses.
-- **Course Creation**: Instructors can create new courses and chapters, upload thumbnails, attachments, and videos.
-- **Drag and Drop Chapter Reordering**: Easily reorder chapters within a course.
-- **Video Processing and HLS Player**: Videos are processed and played using Mux for a smooth viewing experience.
-- **Rich Text Editor**: A powerful editor for creating detailed chapter descriptions.
-- **Authentication with Clerk**: Secure user authentication and management.
-- **ORM with Prisma**: Efficient database interactions using Prisma.
-- **MySQL Database**: Reliable data storage with Render.
-- **Course Grid & Card UI**: Intuitive and visually appealing UI for course display.
-- **Stripe Integration**: Seamless payment processing for purchasing courses.
-- **Teacher Analytics Dashboard**: Detailed analytics for teachers to monitor student engagement and performance.
-- **Admin Protection (Optional)**: Additional security features for admin users.
-- **Deployment**: Easy deployment process for making the LMS available online.
 
 ---
 
-## 📸 Screenshots
+## ✨ Features at a Glance
 
-<table>
-  <tr>
-    <td><strong>Homepage Overview</strong> 🏠<br><img src="https://i.postimg.cc/tJRrFP34/Screenshot-3.png" alt="Homepage Screenshot" width="300"/></td>
-    <td><strong>Course Listing</strong> 📚<br><img src="https://i.postimg.cc/FzPTpRpg/Screenshot-4.png" alt="Course Listing Screenshot" width="300"/></td>
-    <td><strong>Course Details</strong> 📖<br><img src="https://i.postimg.cc/tCTST3Rr/Screenshot-5.png" alt="Course Details Screenshot" width="300"/></td>
-  </tr>
-  <tr>
-    <td><strong>Student Dashboard</strong> 👨‍🎓<br><img src="https://i.postimg.cc/zDp28tNb/Screenshot-6.png" alt="Student Dashboard Screenshot" width="300"/></td>
-    <td><strong>Teacher Dashboard</strong> 👩‍🏫<br><img src="https://i.postimg.cc/BQVh1jXJ/Screenshot-7.png" alt="Teacher Dashboard Screenshot" width="300"/></td>
-    <td><strong>Settings and Profile</strong> ⚙️<br><img src="https://i.postimg.cc/Vk0K9zCn/Screenshot-8.png" alt="Settings Screenshot" width="300"/></td>
-  </tr>
-</table>
+### 🧑‍🎓 Student Experience
+- **Course Discovery**: Advanced filtering and search to find the perfect learning path.
+- **Progress Tracking**: Real-time progress bars for every course, with the ability to mark individual chapters as complete.
+- **Student Dashboard**: A unified view of all enrolled courses, highlighting ongoing progress and recently accessed materials.
+- **Secure Purchases**: Integrated **Stripe** checkout for one-click course enrollment.
 
-## 📂 Repository Structure
+### 👩‍🏫 Teacher & Admin Tools
+- **Course Studio**: Powerful tools for creating courses, defining chapters, and uploading learning materials.
+- **Video Processing**: Powered by **Mux**, allowing for high-quality video uploads and smooth HLS streaming playback.
+- **Drag-and-Drop Reordering**: Intuitively rearrange chapters to optimize the learning flow.
+- **Teacher Analytics**: High-level data visualization with charts (powered by **Recharts**) to monitor student engagement and total revenue.
+- **Rich Text Content**: Edit chapter descriptions with a full feature rich text editor.
 
-```sh
-└── lms/
-    ├── README.md
-    ├── actions
-    │   ├── get-analytics.ts
-    │   ├── get-chapter.ts
-    │   ├── get-courses.ts
-    │   ├── get-dashboard-courses.ts
-    │   └── get-progress.tsx
-    ├── app
-    │   ├── (auth)
-    │   │   ├── (routes)
-    │   │   │   ├── sign-in
-    │   │   │   │   └── [[...sign-in]]
-    │   │   │   └── sign-up
-    │   │   │       └── [[...sign-up]]
-    │   │   └── layout.tsx
-    │   ├── (course)
-    │   │   └── courses
-    │   │       └── [courseId]
-    │   │           ├── _components
-    │   │           ├── chapters
-    │   │           ├── layout.tsx
-    │   │           └── page.tsx
-    │   ├── (dashboard)
-    │   │   ├── (routes)
-    │   │   │   ├── (root)
-    │   │   │   │   ├── _components
-    │   │   │   │   └── page.tsx
-    │   │   │   ├── search
-    │   │   │   │   ├── _components
-    │   │   │   │   └── page.tsx
-    │   │   │   └── teacher
-    │   │   │       ├── analytics
-    │   │   │       ├── courses
-    │   │   │       ├── create
-    │   │   │       └── layout.tsx
-    │   │   ├── _components
-    │   │   │   ├── Logo.tsx
-    │   │   │   ├── mobile-Sidebar.tsx
-    │   │   │   ├── navbar.tsx
-    │   │   │   ├── sidebar-item.tsx
-    │   │   │   ├── sidebar-routes.tsx
-    │   │   │   └── sidebar.tsx
-    │   │   └── layout.tsx
-    │   ├── api
-    │   │   ├── courses
-    │   │   │   ├── [courseId]
-    │   │   │   │   ├── attachments
-    │   │   │   │   ├── chapters
-    │   │   │   │   ├── checkout
-    │   │   │   │   ├── publish
-    │   │   │   │   ├── route.ts
-    │   │   │   │   └── unpublish
-    │   │   │   └── route.ts
-    │   │   ├── uploadthing
-    │   │   │   ├── core.ts
-    │   │   │   └── route.ts
-    │   │   └── webhook
-    │   │       └── route.ts
-    │   ├── favicon.ico
-    │   ├── globals.css
-    │   └── layout.tsx
-    ├── components
-    │   ├── banner.tsx
-    │   ├── course-card.tsx
-    │   ├── course-progress.tsx
-    │   ├── courses-list.tsx
-    │   ├── editor.tsx
-    │   ├── file-upload.tsx
-    │   ├── icon-badge.tsx
-    │   ├── modals
-    │   │   └── confirm-modal.tsx
-    │   ├── navbar-routes.tsx
-    │   ├── preview.tsx
-    │   ├── providers
-    │   │   ├── confetii-provider.tsx
-    │   │   └── toaster-provider.tsx
-    │   ├── search-input.tsx
-    │   └── ui
-    │       ├── alert-dialog.tsx
-    │       ├── badge.tsx
-    │       ├── button.tsx
-    │       ├── card.tsx
-    │       ├── checkbox.tsx
-    │       ├── combobox.tsx
-    │       ├── command.tsx
-    │       ├── dialog.tsx
-    │       ├── dropdown-menu.tsx
-    │       ├── form.tsx
-    │       ├── input.tsx
-    │       ├── label.tsx
-    │       ├── popover.tsx
-    │       ├── progress.tsx
-    │       ├── separator.tsx
-    │       ├── sheet.tsx
-    │       ├── table.tsx
-    │       └── textarea.tsx
-    ├── components.json
-    ├── hooks
-    │   ├── use-confetti-store.ts
-    │   └── use-debounce.ts
-    ├── lib
-    │   ├── db.ts
-    │   ├── format.ts
-    │   ├── stripe.ts
-    │   ├── teacher.ts
-    │   ├── uploadthing.ts
-    │   └── utils.ts
-    ├── middleware.ts
-    ├── next.config.mjs
-    ├── package-lock.json
-    ├── package.json
-    ├── postcss.config.mjs
-    ├── prisma
-    │   └── schema.prisma
-    ├── public
-    │   ├── logo.svg
-    │   ├── next.svg
-    │   └── vercel.svg
-    ├── scripts
-    │   └── seed.ts
-    ├── tailwind.config.ts
-    └── tsconfig.json
+### ⚙️ Robust Backend Architecture
+- **Authentication**: Enterprise-grade security via **Clerk**.
+- **Database Architecture**: Efficient relationships and data mapping using **Prisma ORM** with **MySQL**.
+- **File Handling**: High-speed uploads for thumbnails and attachments using **UploadThing**.
+
+---
+
+## 📁 Project Structure
+
+```bash
+lms/
+├── app/                  # Next.js App Router
+│   ├── (dashboard)/      # Student & Teacher Dashboard views
+│   ├── (course)/         # Course view & playback logic
+│   └── api/              # API Endpoints (Stripe, Mux, UploadThing)
+├── components/           # Reusable UI Library (Shadcn UI based)
+│   ├── courses/          # Course cards, lists, and filtering
+│   ├── editor/           # Rich text editor components
+│   └── ui/               # Core atomic components
+├── actions/              # Server Actions for data fetching & mutations
+├── lib/                  # Shared utilities (Prisma, Stripe config)
+└── prisma/               # Database schema & migrations
 ```
 
 ---
 
-## 🧩 Modules
+## 🚀 Installation & Setup
+
+### 1. Prerequisites
+- **Node.js 18+**
+- **MySQL Database** (Local or hosted like PlanetScale/Aiven)
+
+### 2. Clone & Install
+```bash
+git clone https://github.com/leonardoo210399/lms.git
+cd lms
+npm install
+```
+
+### 3. Environment Variables
+Create a `.env` file with the following:
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+DATABASE_URL=...
+STRIPE_API_KEY=...
+STRIPE_WEBHOOK_SECRET=...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+MUX_TOKEN_ID=...
+MUX_TOKEN_SECRET=...
+UPLOADTHING_SECRET=...
+UPLOADTHING_APP_ID=...
+```
+
+### 4. Database Setup
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Running the App
+```bash
+npm run dev
+```
+
+---
+
+## 🏗️ Database Schema Setup
+This project uses **Prisma** to manage the following core models:
+- **Course**: Title, description, price, and publication status.
+- **Chapter**: Video content, descriptions, and user progress associations.
+- **MuxData**: Storage for video assets and playback IDs.
+- **Purchase**: Tracks student enrollments and Stripe associations.
+
+---
+
+## 📄 License
+Distributed under the **MIT License**.
+
+_Designed & Developed by **Aditya** (aka **aditya-2129**)_
 
-<details closed><summary>.</summary>
-
-| File                                                                                        | Summary                                                                                                                                             |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [middleware.ts](https://github.com/leonardoo210399/lms/blob/master/middleware.ts)           | Contains custom middleware functions used for processing requests and managing authentication, logging, and error handling.                         |
-| [postcss.config.mjs](https://github.com/leonardoo210399/lms/blob/master/postcss.config.mjs) | Configuration file for PostCSS, which is used to process CSS files and apply plugins for optimizing and transforming styles.                        |
-| [tailwind.config.ts](https://github.com/leonardoo210399/lms/blob/master/tailwind.config.ts) | Configuration file for Tailwind CSS, defining custom themes, colors, and breakpoints to style the application.                                      |
-| [components.json](https://github.com/leonardoo210399/lms/blob/master/components.json)       | JSON file listing all reusable UI components used throughout the application, including their properties and configuration.                         |
-| [tsconfig.json](https://github.com/leonardoo210399/lms/blob/master/tsconfig.json)           | TypeScript configuration file specifying compiler options, type checking rules, and project settings for the TypeScript compiler.                   |
-| [package.json](https://github.com/leonardoo210399/lms/blob/master/package.json)             | Defines the project's dependencies, scripts, and metadata, including project name, version, and description.                                        |
-| [next.config.mjs](https://github.com/leonardoo210399/lms/blob/master/next.config.mjs)       | Configuration file for Next.js, used to customize the Next.js build and runtime behavior, such as webpack configurations and environment variables. |
-| [package-lock.json](https://github.com/leonardoo210399/lms/blob/master/package-lock.json)   | Automatically generated file that locks the versions of dependencies used in the project to ensure consistent installations across environments.    |
-
-</details>
-
-<details closed><summary>actions</summary>
-
----
-
-| File                                                                                                            | Summary                                                                                                                   |
-| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| [get-dashboard-courses.ts](https://github.com/leonardoo210399/lms/blob/master/actions/get-dashboard-courses.ts) | Handles fetching the list of courses available on the user's dashboard, including course details and progress.            |
-| [get-progress.tsx](https://github.com/leonardoo210399/lms/blob/master/actions/get-progress.tsx)                 | Retrieves and displays the progress of a specific course or chapter for a user, used in progress tracking.                |
-| [get-courses.ts](https://github.com/leonardoo210399/lms/blob/master/actions/get-courses.ts)                     | Fetches the list of all courses available on the platform, including filtering and search functionality.                  |
-| [get-chapter.ts](https://github.com/leonardoo210399/lms/blob/master/actions/get-chapter.ts)                     | Retrieves information for a specific chapter of a course, including chapter content and metadata.                         |
-| [get-analytics.ts](https://github.com/leonardoo210399/lms/blob/master/actions/get-analytics.ts)                 | Provides analytical data related to courses and user interactions, such as engagement metrics and performance statistics. |
-
----
-
-</details>
-
-<details closed><summary>components</summary>
-
----
-
-| File                                                                                                     | Summary                                                                                                         |
-| -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [navbar-routes.tsx](https://github.com/leonardoo210399/lms/blob/master/components/navbar-routes.tsx)     | Defines the navigation routes and links in the application’s navigation bar for seamless user experience.       |
-| [preview.tsx](https://github.com/leonardoo210399/lms/blob/master/components/preview.tsx)                 | Renders previews of course content or materials, allowing users to view content before enrolling or purchasing. |
-| [icon-badge.tsx](https://github.com/leonardoo210399/lms/blob/master/components/icon-badge.tsx)           | Displays badge icons for various course or user statuses, such as completion or achievements.                   |
-| [search-input.tsx](https://github.com/leonardoo210399/lms/blob/master/components/search-input.tsx)       | Provides a search input field for filtering and finding courses or content within the platform.                 |
-| [editor.tsx](https://github.com/leonardoo210399/lms/blob/master/components/editor.tsx)                   | Implements a rich text editor for creating and editing course chapters and descriptions.                        |
-| [course-card.tsx](https://github.com/leonardoo210399/lms/blob/master/components/course-card.tsx)         | Displays individual course cards with key details and actions like enrollment or preview.                       |
-| [file-upload.tsx](https://github.com/leonardoo210399/lms/blob/master/components/file-upload.tsx)         | Handles file uploads for course materials, including videos, attachments, and thumbnails.                       |
-| [course-progress.tsx](https://github.com/leonardoo210399/lms/blob/master/components/course-progress.tsx) | Shows progress for each course, including completed chapters and overall course completion status.              |
-| [courses-list.tsx](https://github.com/leonardoo210399/lms/blob/master/components/courses-list.tsx)       | Lists all available courses with options for browsing, filtering, and sorting.                                  |
-| [banner.tsx](https://github.com/leonardoo210399/lms/blob/master/components/banner.tsx)                   | Displays promotional banners or notifications to users, such as special offers or important updates.            |
-
----
-
-</details>
-
-<details closed><summary>components.modals</summary>
-
----
-
-| File                                                                                                        | Summary                                                                                                       |
-| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| [confirm-modal.tsx](https://github.com/leonardoo210399/lms/blob/master/components/modals/confirm-modal.tsx) | Displays a confirmation modal for user actions requiring confirmation, such as deletions or critical changes. |
-
----
-
-</details>
-
-<details closed><summary>components.ui</summary>
-
----
-
-| File                                                                                                    | Summary                                                                                                   |
-| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [popover.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/popover.tsx)             | Implements a popover component for displaying additional information or controls in a floating overlay.   |
-| [combobox.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/combobox.tsx)           | Provides a combobox component for selecting an item from a dropdown list with an optional search feature. |
-| [separator.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/separator.tsx)         | Renders a visual separator line to distinguish sections or groups of content.                             |
-| [label.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/label.tsx)                 | Displays labels for form fields or other UI elements to provide context and guidance to users.            |
-| [textarea.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/textarea.tsx)           | Provides a multiline input field for user text input, typically used in forms and content editors.        |
-| [sheet.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/sheet.tsx)                 | Implements a sheet component for displaying side panels or sliding overlays with additional content.      |
-| [checkbox.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/checkbox.tsx)           | Renders a checkbox input for binary selection, allowing users to choose between two options.              |
-| [dropdown-menu.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/dropdown-menu.tsx) | Provides a dropdown menu component for displaying a list of actions or options in a collapsible menu.     |
-| [badge.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/badge.tsx)                 | Displays a badge component to show counts, statuses, or notifications in a small, visible label.          |
-| [progress.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/progress.tsx)           | Implements a progress bar or indicator to show the completion status of a task or process.                |
-| [card.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/card.tsx)                   | Renders a card component for grouping related information or actions into a visually distinct container.  |
-| [alert-dialog.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/alert-dialog.tsx)   | Implements an alert dialog component for displaying important messages or alerts to users.                |
-| [dialog.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/dialog.tsx)               | Provides a dialog component for creating modal windows or interactive pop-ups.                            |
-| [command.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/command.tsx)             | Implements a command input component for executing actions or commands through user input.                |
-| [input.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/input.tsx)                 | Renders a standard input field for single-line text entry in forms or user interfaces.                    |
-| [table.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/table.tsx)                 | Provides a table component for displaying data in a structured grid with rows and columns.                |
-| [button.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/button.tsx)               | Renders a button component for triggering actions or navigating within the application.                   |
-| [form.tsx](https://github.com/leonardoo210399/lms/blob/master/components/ui/form.tsx)                   | Implements a form component for handling user input and submitting data with validation.                  |
-
----
-
-</details>
-
-<details closed><summary>components.providers</summary>
-
----
-
-| File                                                                                                                   | Summary                                                                                               |
-| ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [toaster-provider.tsx](https://github.com/leonardoo210399/lms/blob/master/components/providers/toaster-provider.tsx)   | Provides the context and functionality for displaying toast notifications throughout the application. |
-| [confetii-provider.tsx](https://github.com/leonardoo210399/lms/blob/master/components/providers/confetii-provider.tsx) | Implements the confetti effect provider for adding celebratory animations or visual effects.          |
-
----
-
-</details>
-
-<details closed><summary>scripts</summary>
-
----
-
-| File                                                                          | Summary                                                                                           |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| [seed.ts](https://github.com/leonardoo210399/lms/blob/master/scripts/seed.ts) | Contains the script for seeding the database with initial data, such as default courses or users. |
-
----
-
-</details>
-
-<details closed><summary>lib</summary>
-
----
-
-| File                                                                                    | Summary                                                                                          |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [utils.ts](https://github.com/leonardoo210399/lms/blob/master/lib/utils.ts)             | Contains utility functions used across the application for common tasks and operations.          |
-| [uploadthing.ts](https://github.com/leonardoo210399/lms/blob/master/lib/uploadthing.ts) | Provides functions and configurations for handling file uploads through the UploadThing service. |
-| [db.ts](https://github.com/leonardoo210399/lms/blob/master/lib/db.ts)                   | Manages database connections and interactions, including setup and configuration.                |
-| [format.ts](https://github.com/leonardoo210399/lms/blob/master/lib/format.ts)           | Includes functions for formatting data, such as dates and numbers, for consistent presentation.  |
-| [stripe.ts](https://github.com/leonardoo210399/lms/blob/master/lib/stripe.ts)           | Contains integration logic for Stripe payment processing, including API interactions and setup.  |
-| [teacher.ts](https://github.com/leonardoo210399/lms/blob/master/lib/teacher.ts)         | Provides functions and data management related to teacher-specific features and operations.      |
-
----
-
-</details>
-
-<details closed><summary>hooks</summary>
-
----
-
-| File                                                                                                    | Summary                                                                                                      |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [use-confetti-store.ts](https://github.com/leonardoo210399/lms/blob/master/hooks/use-confetti-store.ts) | Implements a custom hook for managing and triggering confetti effects in the application.                    |
-| [use-debounce.ts](https://github.com/leonardoo210399/lms/blob/master/hooks/use-debounce.ts)             | Provides a custom hook for debouncing values, which helps in reducing the frequency of updates or API calls. |
-
----
-
-</details>
-
-<details closed><summary>prisma</summary>
-
----
-
-| File                                                                                     | Summary                                                                                                      |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [schema.prisma](https://github.com/leonardoo210399/lms/blob/master/prisma/schema.prisma) | Defines the Prisma schema, including models, relationships, and database configurations for the application. |
-
----
-
-</details>
-
-<details closed><summary>app</summary>
-
----
-
-| File                                                                              | Summary                                                                                                        |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| [globals.css](https://github.com/leonardoo210399/lms/blob/master/app/globals.css) | Contains global CSS styles for the application, providing a consistent look and feel across all pages.         |
-| [layout.tsx](https://github.com/leonardoo210399/lms/blob/master/app/layout.tsx)   | Defines the layout component for the application, including the structure and placement of common UI elements. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard)</summary>
-
----
-
-| File                                                                                          | Summary                                                                                                                          |
-| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [layout.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/layout.tsx>) | Defines the layout specific to the dashboard section of the application, including dashboard-specific UI elements and structure. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher</summary>
-
----
-
-| File                                                                                                           | Summary                                                                                                                       |
-| -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| [layout.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/layout.tsx>) | Defines the layout specific to the teacher routes within the dashboard, including teacher-specific UI elements and structure. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.create</summary>
-
----
-
-| File                                                                                                              | Summary                                                                                                                                      |
-| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/create/page.tsx>) | Contains the page component for creating new teacher-related content or resources, including forms and UI elements for the creation process. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.analytics</summary>
-
----
-
-| File                                                                                                                 | Summary                                                                                                                                   |
-| -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/analytics/page.tsx>) | Contains the page component for displaying teacher analytics, including data visualizations and performance metrics relevant to teachers. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.analytics._components</summary>
-
----
-
-| File                                                                                                                                       | Summary                                                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| [chart.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/analytics/_components/chart.tsx>)         | Contains the component for rendering charts and visualizations, used to display analytical data.               |
-| [data-card.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/analytics/_components/data-card.tsx>) | Defines the component for displaying individual data cards, showcasing metrics and key performance indicators. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses</summary>
-
----
-
-| File                                                                                                               | Summary                                                                                                      |
-| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/page.tsx>) | Contains the page component for managing and displaying teacher courses, including course lists and details. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses.[courseId]</summary>
-
----
-
-| File                                                                                                                          | Summary                                                                                                                                                                     |
-| ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/page.tsx>) | Contains the page component for displaying and managing a specific course identified by its ID, including details such as course content, progress, and management options. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses.[courseId]._components</summary>
-
----
-
-| File                                                                                                                                                              | Summary                                                                                                                  |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [chapters-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/chapters-form.tsx>)       | Provides a form component for managing course chapters, including adding, editing, and deleting chapters.                |
-| [attachment-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/attachment-form.tsx>)   | Contains a form component for managing course attachments, such as documents or additional resources.                    |
-| [description-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/description-form.tsx>) | Includes a form for editing the course description, allowing updates to course content and details.                      |
-| [price-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/price-form.tsx>)             | Manages the form for setting or updating the price of the course, including pricing details and options.                 |
-| [category-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/category-form.tsx>)       | Provides a form component for setting or updating course categories, enabling better organization and filtering.         |
-| [actions.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/actions.tsx>)                   | Contains action buttons and components for performing course-related actions, such as saving or deleting course data.    |
-| [chapters-list.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/chapters-list.tsx>)       | Displays a list of course chapters, including options to manage or reorder chapters within the course.                   |
-| [image-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/image-form.tsx>)             | Manages the form for uploading and setting course images or thumbnails, enhancing the visual presentation of the course. |
-| [title-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/_components/title-form.tsx>)             | Provides a form for editing or setting the course title, ensuring that the title accurately reflects the course content. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses.[courseId].chapters.[chapterId]</summary>
-
----
-
-| File                                                                                                                                               | Summary                                                                                                                                   |
-| -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/page.tsx>) | Displays the details and content of a specific chapter within a course, allowing for viewing and potentially editing chapter information. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses.[courseId].chapters.[chapterId]._components</summary>
-
----
-
-| File                                                                                                                                                                                                   | Summary                                                                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| [chapter-title-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/_components/chapter-title-form.tsx>)             | Provides a form to edit or update the title of a chapter within a course.                  |
-| [chapter-description-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/_components/chapter-description-form.tsx>) | Allows editing or updating the description of a chapter within a course.                   |
-| [chapter-access-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/_components/chapter-access-form.tsx>)           | Manages access settings or permissions for a chapter, determining who can view or edit it. |
-| [chapter-video-form.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/_components/chapter-video-form.tsx>)             | Facilitates the upload or editing of video content associated with a chapter.              |
-| [chapter-actions.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/[courseId]/chapters/[chapterId]/_components/chapter-actions.tsx>)                   | Provides actions for managing a chapter, such as save, delete, or reorder options.         |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).teacher.courses._components</summary>
-
----
-
-| File                                                                                                                                       | Summary                                                                                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| [data-table.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/_components/data-table.tsx>) | Displays a table view of course data, allowing for sorting, filtering, and pagination of course information. |
-| [columns.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/teacher/courses/_components/columns.tsx>)       | Defines the structure and content of columns used in tables for displaying course data.                      |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).search</summary>
-
-| File                                                                                                      | Summary                                                                                                                                               |
-| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/search/page.tsx>) | Implements the search functionality, providing users with the ability to search through courses or content using various filters and search criteria. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).search._components</summary>
-
----
-
-| File                                                                                                                                    | Summary                                                                                                      |
-| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [categories.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/search/_components/categories.tsx>)       | Renders a list of categories for search filtering, allowing users to narrow down search results by category. |
-| [category-item.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/search/_components/category-item.tsx>) | Represents individual category items in the search filter, providing clickable options for users.            |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).(root)</summary>
-
----
-
-| File                                                                                                      | Summary                                                                                                                                                 |
-| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [page.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/(root)/page.tsx>) | Serves as the main page layout or entry point for the root route in the dashboard. It may include overall navigation and high-level dashboard features. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard).(routes).(root)._components</summary>
-
----
-
-| File                                                                                                                            | Summary                                                                                          |
-| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [info-card.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/(routes)/(root)/_components/info-card.tsx>) | Displays informational cards on the main dashboard page, providing quick insights or statistics. |
-
----
-
-</details>
-
-<details closed><summary>app.(dashboard)._components</summary>
-
----
-
-| File                                                                                                                      | Summary                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Logo.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/Logo.tsx>)                     | Renders the logo component, typically used in the header or sidebar for branding and navigation.                                              |
-| [mobile-Sidebar.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/mobile-Sidebar.tsx>) | Implements a mobile-friendly sidebar, providing navigation options and potentially collapsing or hiding features on smaller screens.          |
-| [sidebar.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/sidebar.tsx>)               | Displays the main sidebar with navigation links, often including features like course lists, user settings, and other dashboard sections.     |
-| [sidebar-item.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/sidebar-item.tsx>)     | Represents an individual item within the sidebar, used for navigation between different sections or pages.                                    |
-| [sidebar-routes.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/sidebar-routes.tsx>) | Defines and manages the routing and links within the sidebar, ensuring navigation flows correctly between different parts of the application. |
-| [navbar.tsx](<https://github.com/leonardoo210399/lms/blob/master/app/(dashboard)/_components/navbar.tsx>)                 | Implements the top navigation bar, including features like logo, search, user profile options, and other navigation elements.                 |
-
----
-
-</details>
-
-<details closed><summary>app.api.uploadthing</summary>
-
----
-
-| File                                                                                        | Summary                                                                                                      |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/uploadthing/route.ts) | Defines API routes for handling upload-related operations, such as file uploads and related requests.        |
-| [core.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/uploadthing/core.ts)   | Implements core functionality for the upload service, including file processing, validation, and management. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses</summary>
-
----
-
-| File                                                                                    | Summary                                                                                                                  |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/route.ts) | Defines API routes related to course management, including endpoints for creating, updating, and retrieving course data. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId]</summary>
-
----
-
-| File                                                                                               | Summary                                                                                                                                                    |
-| -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/route.ts) | Manages API routes for operations on a specific course identified by `courseId`, including endpoints for retrieving, updating, or deleting course details. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].unpublish</summary>
-
----
-
-| File                                                                                                         | Summary                                                                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/unpublish/route.ts) | Manages the API route for unpublishing a specific course identified by `courseId`. This endpoint is used to change the status of the course, making it unavailable to students. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].publish</summary>
-
----
-
-| File                                                                                                       | Summary                                                                                                                                          |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/publish/route.ts) | Manages the API route for publishing a specific course identified by `courseId`. This endpoint is used to make the course available to students. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].checkout</summary>
-
----
-
-| File                                                                                                        | Summary                                                                                                                                                                         |
-| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/checkout/route.ts) | Handles the API route for initiating a checkout process for a specific course identified by `courseId`. This endpoint typically involves payment processing and order creation. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].attachments</summary>
-
----
-
-| File                                                                                                           | Summary                                                                                                                                                                                        |
-| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/attachments/route.ts) | Manages the API routes for handling course attachments. This includes operations such as uploading, retrieving, and managing files associated with a specific course identified by `courseId`. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].attachments.[attachmentId]</summary>
-
----
-
-| File                                                                                                                          | Summary                                                                                                                                                                                                                  |
-| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/attachments/[attachmentId]/route.ts) | Manages the API routes for handling operations on a specific attachment within a course. This includes actions like retrieving, updating, or deleting an attachment identified by `attachmentId` for a given `courseId`. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters</summary>
-
----
-
-| File                                                                                                        | Summary                                                                                                                                                                |
-| ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/chapters/route.ts) | Defines API routes for managing course chapters, including operations like creating, updating, and retrieving chapters for a specific course identified by `courseId`. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters.[chapterId]</summary>
-
----
-
-| File                                                                                                                    | Summary                                                                                                                                                                                                         |
-| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/chapters/[chapterId]/route.ts) | Defines API routes for managing a specific chapter within a course, identified by `courseId` and `chapterId`. This includes operations such as updating, deleting, and retrieving information for that chapter. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters.[chapterId].progress</summary>
-
----
-
-| File                                                                                                                             | Summary                                                                                                                                                                                      |
-| -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/chapters/[chapterId]/progress/route.ts) | Defines API routes for managing the progress of a specific chapter within a course, identified by `courseId` and `chapterId`. This includes tracking and updating progress status for users. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters.[chapterId].unpublish</summary>
-
----
-
-| File                                                                                                                              | Summary                                                                                                                                                                                                             |
-| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/chapters/[chapterId]/unpublish/route.ts) | Manages API routes for unpublishing a specific chapter within a course, identified by `courseId` and `chapterId`. This typically involves changing the chapter's visibility or status to not available to students. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters.[chapterId].publish</summary>
-
----
-
-| File                                                                                                                            | Summary                                                                                                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [route.ts](https://github.com/leonardoo210399/lms/blob/master/app/api/courses/[courseId]/chapters/[chapterId]/publish/route.ts) | Handles API routes for publishing a specific chapter within a course, identified by `courseId` and `chapterId`. This usually involves updating the chapter's status to make it visible and accessible to students. |
-
----
-
-</details>
-
-<details closed><summary>app.api.courses.[courseId].chapters.reorder</summary>
 
 ---
 
