@@ -1,0 +1,511 @@
+---
+title: "Find a Corresponding Node of a Binary Tree in a Clone of That Tree"
+summary: "Given two binary trees, original and cloned, and a node in the original, return the corresponding node in the cloned tree."
+date: "Jan 03, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.80% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given two binary trees original and cloned and given a reference to a node target in the original tree.
+
+The cloned tree is a copy of the original tree.
+
+Return a reference to the same node in the cloned tree.
+
+Note that you are not allowed to change any of the two trees and the answer must be a reference to a node in the cloned tree.
+
+- Examples
+- Constraints
+- [Recursive DFS](#recursive-dfs)
+- [Iterative DFS](#iterative-dfs)
+- [BFS](#bfs)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: tree = [7,4,3,null,null,6,19], target = 3
+Output: 3
+Explanation: In all examples the original and cloned trees are shown. The target node is a green node from the original tree. The answer is the yellow node from the cloned tree.
+```
+
+**Example 2:**
+
+```text
+Input: tree = [7], target =  7
+Output: 7
+```
+
+**Example 3:**
+
+```text
+Input: tree = [8,null,6,null,5,null,4,null,3,null,2,null,1], target = 4
+Output: 4
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 10⁴].
+The values of the nodes of the tree are unique.
+target node is a node from the original tree and is not null.
+```
+
+---
+## Recursive DFS
+
+**Intuition**
+Since the cloned tree is an exact copy of the original tree, we can traverse both trees simultaneously. When we find the target node in the original tree, the corresponding node in the cloned tree is the answer.
+
+**Steps**
+- If the original node is null, return null.
+- If the original node is the target, return the cloned node.
+- Recursively search the left subtree. If found, return the result.
+- Otherwise, recursively search the right subtree and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def getTargetCopy(self, original: TreeNode, cloned: TreeNode, target: TreeNode) -> TreeNode:
+        if not original:
+            return None
+        if original is target:
+            return cloned
+        left = self.getTargetCopy(original.left, cloned.left, target)
+        if left:
+            return left
+        return self.getTargetCopy(original.right, cloned.right, target)
+` },
+{ name: "Java", lang: "java", code: `
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+class Solution {
+    public final TreeNode getTargetCopy(final TreeNode original, final TreeNode cloned, final TreeNode target) {
+        if (original == null) return null;
+        if (original == target) return cloned;
+        TreeNode left = getTargetCopy(original.left, cloned.left, target);
+        if (left != null) return left;
+        return getTargetCopy(original.right, cloned.right, target);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
+class Solution {
+public:
+    TreeNode* getTargetCopy(TreeNode* original, TreeNode* cloned, TreeNode* target) {
+        if (!original) return nullptr;
+        if (original == target) return cloned;
+        TreeNode* left = getTargetCopy(original->left, cloned->left, target);
+        if (left) return left;
+        return getTargetCopy(original->right, cloned->right, target);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = null;
+ *     this.right = null;
+ * }
+ */
+/**
+ * @param {TreeNode} original
+ * @param {TreeNode} cloned
+ * @param {TreeNode} target
+ * @return {TreeNode}
+ */
+
+var getTargetCopy = function(original, cloned, target) {
+    if (!original) return null;
+    if (original === target) return cloned;
+    let left = getTargetCopy(original.left, cloned.left, target);
+    if (left) return left;
+    return getTargetCopy(original.right, cloned.right, target);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function getTargetCopy(original: TreeNode | null, cloned: TreeNode | null, target: TreeNode | null): TreeNode | null {
+    if (!original) return null;
+    if (original === target) return cloned;
+    let left = getTargetCopy(original.left, cloned.left, target);
+    if (left) return left;
+    return getTargetCopy(original.right, cloned.right, target);
+}
+` },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree. In the worst case, we visit all nodes.
+- Space: O(H) where H is the height of the tree, due to the recursion stack. In the worst case (skewed tree), this is O(N).
+- Notes: This is the most straightforward approach and leverages the call stack for traversal.
+
+---
+## Iterative DFS
+
+**Intuition**
+We can simulate the recursive approach using an explicit stack data structure. This avoids potential stack overflow issues with deep recursion and is often slightly faster in practice due to less overhead.
+
+**Steps**
+- Initialize a stack with pairs of (original node, cloned node).
+- While the stack is not empty, pop a pair.
+- If the original node is the target, return the cloned node.
+- Push the left children pair onto the stack if they exist.
+- Push the right children pair onto the stack if they exist.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def getTargetCopy(self, original: TreeNode, cloned: TreeNode, target: TreeNode) -> TreeNode:
+        stack = [(original, cloned)]
+        while stack:
+            o, c = stack.pop()
+            if o is target:
+                return c
+            if o.right:
+                stack.append((o.right, c.right))
+            if o.left:
+                stack.append((o.left, c.left))
+        return None
+` },
+{ name: "Java", lang: "java", code: `
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+class Solution {
+    public final TreeNode getTargetCopy(final TreeNode original, final TreeNode cloned, final TreeNode target) {
+        Stack<TreeNode[]&gt; stack = new Stack&lt;&gt;();
+        stack.push(new TreeNode[]{original, cloned});
+        
+        while (!stack.isEmpty()) {
+            TreeNode[] nodes = stack.pop();
+            TreeNode o = nodes[0];
+            TreeNode c = nodes[1];
+            
+            if (o == target) return c;
+            
+            if (o.right != null) stack.push(new TreeNode[]{o.right, c.right});
+            if (o.left != null) stack.push(new TreeNode[]{o.left, c.left});
+        }
+        return null;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
+class Solution {
+public:
+    TreeNode* getTargetCopy(TreeNode* original, TreeNode* cloned, TreeNode* target) {
+        stack<pair<TreeNode*, TreeNode*&gt;&gt; st;
+        st.push({original, cloned});
+        
+        while (!st.empty()) {
+            auto [o, c] = st.top();
+            st.pop();
+            
+            if (o == target) return c;
+            
+            if (o->right) st.push({o->right, c->right});
+            if (o->left) st.push({o->left, c->left});
+        }
+        return nullptr;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = null;
+ *     this.right = null;
+ * }
+ */
+/**
+ * @param {TreeNode} original
+ * @param {TreeNode} cloned
+ * @param {TreeNode} target
+ * @return {TreeNode}
+ */
+
+var getTargetCopy = function(original, cloned, target) {
+    let stack = [[original, cloned]];
+    while (stack.length) {
+        let [o, c] = stack.pop();
+        if (o === target) return c;
+        if (o.right) stack.push([o.right, c.right]);
+        if (o.left) stack.push([o.left, c.left]);
+    }
+    return null;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function getTargetCopy(original: TreeNode | null, cloned: TreeNode | null, target: TreeNode | null): TreeNode | null {
+    let stack: [TreeNode | null, TreeNode | null][] = [[original, cloned]];
+    while (stack.length &gt; 0) {
+        let [o, c] = stack.pop()!;
+        if (o === target) return c;
+        if (o?.right) stack.push([o.right, c!.right]);
+        if (o?.left) stack.push([o.left, c!.left]);
+    }
+    return null;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree.
+- Space: O(H) where H is the height of the tree, for the stack. In the worst case (skewed tree), this is O(N).
+- Notes: Iterative DFS is generally preferred in production to avoid recursion depth limits.
+
+---
+## BFS
+
+**Intuition**
+We can also traverse the tree level by level using a queue. This approach guarantees that we find the target based on its proximity to the root (shortest path in terms of edges), though the problem does not require this specific order.
+
+**Steps**
+- Initialize a queue with the pair of (original node, cloned node).
+- While the queue is not empty, dequeue a pair from the front.
+- If the original node is the target, return the cloned node.
+- Enqueue the left children pair if they exist.
+- Enqueue the right children pair if they exist.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+from collections import deque
+
+class Solution:
+    def getTargetCopy(self, original: TreeNode, cloned: TreeNode, target: TreeNode) -> TreeNode:
+        q = deque([(original, cloned)])
+        while q:
+            o, c = q.popleft()
+            if o is target:
+                return c
+            if o.left:
+                q.append((o.left, c.left))
+            if o.right:
+                q.append((o.right, c.right))
+        return None
+` },
+{ name: "Java", lang: "java", code: `
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+class Solution {
+    public final TreeNode getTargetCopy(final TreeNode original, final TreeNode cloned, final TreeNode target) {
+        Queue<TreeNode[]&gt; queue = new LinkedList&lt;&gt;();
+        queue.offer(new TreeNode[]{original, cloned});
+        
+        while (!queue.isEmpty()) {
+            TreeNode[] nodes = queue.poll();
+            TreeNode o = nodes[0];
+            TreeNode c = nodes[1];
+            
+            if (o == target) return c;
+            
+            if (o.left != null) queue.offer(new TreeNode[]{o.left, c.left});
+            if (o.right != null) queue.offer(new TreeNode[]{o.right, c.right});
+        }
+        return null;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
+#include <queue>
+
+class Solution {
+public:
+    TreeNode* getTargetCopy(TreeNode* original, TreeNode* cloned, TreeNode* target) {
+        queue<pair<TreeNode*, TreeNode*&gt;&gt; q;
+        q.push({original, cloned});
+        
+        while (!q.empty()) {
+            auto [o, c] = q.front();
+            q.pop();
+            
+            if (o == target) return c;
+            
+            if (o->left) q.push({o->left, c->left});
+            if (o->right) q.push({o->right, c->right});
+        }
+        return nullptr;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = null;
+ *     this.right = null;
+ * }
+ */
+/**
+ * @param {TreeNode} original
+ * @param {TreeNode} cloned
+ * @param {TreeNode} target
+ * @return {TreeNode}
+ */
+
+var getTargetCopy = function(original, cloned, target) {
+    let queue = [[original, cloned]];
+    while (queue.length) {
+        let [o, c] = queue.shift();
+        if (o === target) return c;
+        if (o.left) queue.push([o.left, c.left]);
+        if (o.right) queue.push([o.right, c.right]);
+    }
+    return null;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function getTargetCopy(original: TreeNode | null, cloned: TreeNode | null, target: TreeNode | null): TreeNode | null {
+    let queue: [TreeNode | null, TreeNode | null][] = [[original, cloned]];
+    while (queue.length &gt; 0) {
+        let [o, c] = queue.shift()!;
+        if (o === target) return c;
+        if (o?.left) queue.push([o.left, c!.left]);
+        if (o?.right) queue.push([o.right, c!.right]);
+    }
+    return null;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree.
+- Space: O(W) where W is the maximum width of the tree. In the worst case (perfectly balanced tree), the last level has N/2 nodes, so space is O(N).
+- Notes: BFS uses more memory than DFS for wide trees but is useful if the target is expected to be near the top levels.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find a Corresponding Node of a Binary Tree in a Clone of That Tree Solutions","datePublished":"2026-01-03","description":"Given two binary trees, original and cloned, and a node in the original, return the corresponding node in the cloned tree.","keywords":"LeetCode, Find a Corresponding Node of a Binary Tree in a Clone of That Tree, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Recursive DFS?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of Recursive DFS?","acceptedAnswer":{"@type":"Answer","text":"O(H) where H is the height of the tree, due to the recursion stack."}},{"@type":"Question","name":"What is the time complexity of Iterative DFS?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of Iterative DFS?","acceptedAnswer":{"@type":"Answer","text":"O(H) where H is the height of the tree, for the stack."}},{"@type":"Question","name":"What is the time complexity of BFS?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of BFS?","acceptedAnswer":{"@type":"Answer","text":"O(W) where W is the maximum width of the tree."}}]}).replace(/</g,'\u003c')}
+</script>

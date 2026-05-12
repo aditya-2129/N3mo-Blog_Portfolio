@@ -1,0 +1,117 @@
+---
+title: "Reshape Data: Melt"
+summary: "Transform a wide-format DataFrame into a long-format DataFrame by unpivoting subject columns into rows."
+date: "Sep 26, 2024"
+tags:
+  - Pandas
+  - DataFrame
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.90% | **Paid:** No
+> **Topics:** N/A
+
+Write a solution to reshape the data as shown in the output format.
+
+An output should have the student id, the subject name, and the score for each subject.
+
+- Examples
+- Constraints
+- [Approach 1: Using melt](#approach-1-using-melt)
+- [Approach 2: Manual Unpivoting with Union](#approach-2-manual-unpivoting-with-union)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
++-------------+-----------+-----------+-----------+-----------+
+| product     | quarter_1 | quarter_2 | quarter_3 | quarter_4 |
++-------------+-----------+-----------+-----------+-----------+
+| Umbrella    | 417       | 224       | 379       | 611       |
+| SleepingBag | 800       | 936       | 93        | 875       |
++-------------+-----------+-----------+-----------+-----------+
+```
+
+**Output:**
+```text
++-------------+-----------+-------+
+| product     | quarter   | sales |
++-------------+-----------+-------+
+| Umbrella    | quarter_1 | 417   |
+| SleepingBag | quarter_1 | 800   |
+| Umbrella    | quarter_2 | 224   |
+| SleepingBag | quarter_2 | 936   |
+| Umbrella    | quarter_3 | 379   |
+| SleepingBag | quarter_3 | 93    |
+| Umbrella    | quarter_4 | 611   |
+| SleepingBag | quarter_4 | 875   |
++-------------+-----------+-------+
+```
+
+**Explanation:**
+The DataFrame is reshaped from wide to long format. Each row represents the sales of a product in a quarter.
+
+## Constraints
+
+```text
+2 <= number of rows <= 100
+2 <= number of columns <= 100
+```
+
+---
+## Approach 1: Using melt
+
+**Intuition**
+The `melt` function is specifically designed to unpivot a DataFrame from wide format to long format, converting column headers into data values.
+
+**Steps**
+- Identify the identifier column (`student`) to keep fixed.
+- Identify the value columns (`math`, `physics`, `chemistry`) to unpivot.
+- Specify the new column names for the unpivoted headers (`subject`) and values (`score`).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    return pd.melt(df, id_vars=['student'], var_name='subject', value_name='score')" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\nimport java.util.List;\n\nclass Solution {\n    public DataFrame reshapeData(DataFrame df) {\n        List&lt;String&gt; idVars = Arrays.asList(\"student\");\n        List&lt;String&gt; valueVars = Arrays.asList(\"math\", \"physics\", \"chemistry\");\n        return df.melt(idVars, valueVars, \"subject\", \"score\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    DataFrame* reshapeData(DataFrame* df) {\n        std::vector&lt;std::string&gt; idVars = {\"student\"};\n        std::vector&lt;std::string&gt; valueVars = {\"math\", \"physics\", \"chemistry\"};\n        return df-&gt;melt(idVars, valueVars, \"subject\", \"score\");\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {DataFrame} df\n * @return {DataFrame}\n */\nvar Solution = function() {\n    this.reshapeData = function(df) {\n        return df.melt([\"student\"], [\"math\", \"physics\", \"chemistry\"], \"subject\", \"score\");\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    reshapeData(df: DataFrame): DataFrame {\n        return df.melt([\"student\"], [\"math\", \"physics\", \"chemistry\"], \"subject\", \"score\");\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of cells in the DataFrame.
+- Space: O(n) to store the reshaped DataFrame.
+- Notes: This is the most idiomatic and efficient approach for this problem.
+
+---
+## Approach 2: Manual Unpivoting with Union
+
+**Intuition**
+Simulate the melting process by manually selecting each subject column, renaming it appropriately, and then combining (unioning) all the resulting DataFrames.
+
+**Steps**
+- Select the `student` column and the first subject column (e.g., `math`).
+- Rename the subject column to `subject` (with literal value 'math') and the value column to `score`.
+- Repeat this for all other subject columns.
+- Union all the intermediate DataFrames together.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    subjects = ['math', 'physics', 'chemistry']\n    dfs = []\n    for sub in subjects:\n        temp = df[['student']].copy()\n        temp['subject'] = sub\n        temp['score'] = df[sub]\n        dfs.append(temp)\n    return pd.concat(dfs)" },
+{ name: "Java", lang: "java", code: "import org.apache.spark.sql.*;\nimport static org.apache.spark.sql.functions.*;\n\nclass Solution {\n    public DataFrame reshapeData(DataFrame df) {\n        DataFrame math = df.select(\"student\", lit(\"math\").as(\"subject\"), col(\"math\").as(\"score\"));\n        DataFrame physics = df.select(\"student\", lit(\"physics\").as(\"subject\"), col(\"physics\").as(\"score\"));\n        DataFrame chemistry = df.select(\"student\", lit(\"chemistry\").as(\"subject\"), col(\"chemistry\").as(\"score\"));\n        return math.union(physics).union(chemistry);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    DataFrame* reshapeData(DataFrame* df) {\n        DataFrame* math = df-&gt;select(\"student\", lit(\"math\").as(\"subject\"), col(\"math\").as(\"score\"));\n        DataFrame* physics = df-&gt;select(\"student\", lit(\"physics\").as(\"subject\"), col(\"physics\").as(\"score\"));\n        DataFrame* chemistry = df-&gt;select(\"student\", lit(\"chemistry\").as(\"subject\"), col(\"chemistry\").as(\"score\"));\n        return math-&gt;unionAll(physics)-&gt;unionAll(chemistry);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {DataFrame} df\n * @return {DataFrame}\n */\nvar Solution = function() {\n    this.reshapeData = function(df) {\n        const math = df.select(\"student\", lit(\"math\").as(\"subject\"), col(\"math\").as(\"score\"));\n        const physics = df.select(\"student\", lit(\"physics\").as(\"subject\"), col(\"physics\").as(\"score\"));\n        const chemistry = df.select(\"student\", lit(\"chemistry\").as(\"subject\"), col(\"chemistry\").as(\"score\"));\n        return math.union(physics).union(chemistry);\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    reshapeData(df: DataFrame): DataFrame {\n        const math = df.select(\"student\", lit(\"math\").as(\"subject\"), col(\"math\").as(\"score\"));\n        const physics = df.select(\"student\", lit(\"physics\").as(\"subject\"), col(\"physics\").as(\"score\"));\n        const chemistry = df.select(\"student\", lit(\"chemistry\").as(\"subject\"), col(\"chemistry\").as(\"score\"));\n        return math.union(physics).union(chemistry);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n * m) where n is rows and m is columns (subjects), as we scan the table multiple times.
+- Space: O(n * m) to store the intermediate and final results.
+- Notes: More verbose and less efficient than `melt`, but demonstrates the underlying mechanics.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reshape Data: Melt Solutions","datePublished":"2024-09-26","description":"Transform a wide-format DataFrame into a long-format DataFrame by unpivoting subject columns into rows.","keywords":"LeetCode, Reshape Data: Melt, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of using melt?","acceptedAnswer":{"@type":"Answer","text":"O(n), where n is the total number of cells in the DataFrame."}},{"@type":"Question","name":"What is the space complexity of the melt approach?","acceptedAnswer":{"@type":"Answer","text":"O(n), as it creates a new DataFrame containing all the original data."}},{"@type":"Question","name":"Is melt more efficient than manual union?","acceptedAnswer":{"@type":"Answer","text":"Yes, melt is generally more efficient and concise than manually selecting and unioning columns."}}]}).replace(/</g,'\u003c')}
+</script>

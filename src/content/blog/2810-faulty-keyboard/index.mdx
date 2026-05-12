@@ -1,0 +1,134 @@
+---
+title: "Faulty Keyboard"
+summary: "Your laptop keyboard is faulty: typing 'i' reverses the string typed so far. Return the final string displayed."
+date: "Jan 27, 2025"
+tags:
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.20% | **Paid:** No
+> **Topics:** String, Simulation
+
+Your laptop keyboard is faulty, and whenever you type a character 'i' on it, it reverses the string that has been typed so far. For example, if you type the string "hello", then type 'i', the string becomes "olleh". If you type more characters after typing 'i', they are added to the end of the string as usual.
+
+Given a string s, return the final string that would be displayed on the screen.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Deque Approach](#deque-approach)
+- [String Concatenation with Reverse Flag](#string-concatenation-with-reverse-flag)
+
+## Examples
+
+```text
+Input: s = "string"
+Output: "rtsng"
+Explanation: 
+After typing 's', 't', 'r', the string is "str".
+After typing 'i', the string becomes "rts".
+Then we type 'n' and 'g' to get "rtsng".
+```
+
+```text
+Input: s = "poiinter"
+Output: "ponter"
+Explanation: 
+After typing 'p', 'o', the string is "po".
+After typing 'i', the string becomes "op".
+After typing 'i', the string becomes "po".
+Then we type 'n', 't', 'e', 'r' to get "ponter".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of lowercase English letters.
+s[0] != 'i'
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Simulate the typing process directly: build the result character by character, reversing the entire string whenever 'i' is encountered.
+
+**Steps**
+- Initialize an empty list to build the result
+- Iterate through each character in the input string
+- If the character is 'i', reverse the current result list
+- Otherwise, append the character to the result
+- Join the list into a string and return
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def finalString(self, s: str) -&gt; str:\n        result = []\n        for c in s:\n            if c == 'i':\n                result.reverse()\n            else:\n                result.append(c)\n        return ''.join(result)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String finalString(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (c == 'i') {\n                sb.reverse();\n            } else {\n                sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string finalString(string s) {\n        string result;\n        for (char c : s) {\n            if (c == 'i') {\n                reverse(result.begin(), result.end());\n            } else {\n                result.push_back(c);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    finalString(s) {\n        let result = [];\n        for (let c of s) {\n            if (c === 'i') {\n                result.reverse();\n            } else {\n                result.push(c);\n            }\n        }\n        return result.join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    finalString(s: string): string {\n        let result: string[] = [];\n        for (let c of s) {\n            if (c === 'i') {\n                result.reverse();\n            } else {\n                result.push(c);\n            }\n        }\n        return result.join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case, where n is the length of the string. Each 'i' causes a full reversal which takes O(n).
+- Space: O(n) for storing the result
+- Notes: Simple to implement but inefficient for strings with many 'i' characters.
+
+---
+## Deque Approach
+
+**Intuition**
+Instead of actually reversing, track whether we're in "reverse mode" and use a deque to efficiently add characters to either the front or back.
+
+**Steps**
+- Initialize an empty deque and a boolean flag to track reverse mode
+- Iterate through each character in the input string
+- If the character is 'i', toggle the reverse mode flag
+- Otherwise, add the character to the front of the deque if in reverse mode, or to the back otherwise
+- At the end, if in reverse mode, read the deque from back to front; otherwise, read from front to back
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def finalString(self, s: str) -&gt; str:\n        dq = deque()\n        reversed = False\n        for c in s:\n            if c == 'i':\n                reversed = not reversed\n            else:\n                if reversed:\n                    dq.appendleft(c)\n                else:\n                    dq.append(c)\n        if reversed:\n            return ''.join(reversed(dq))\n        return ''.join(dq)" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayDeque;\nimport java.util.Deque;\n\nclass Solution {\n    public String finalString(String s) {\n        Deque&lt;Character&gt; dq = new ArrayDeque&lt;&gt;();\n        boolean reversed = false;\n        for (char c : s.toCharArray()) {\n            if (c == 'i') {\n                reversed = !reversed;\n            } else {\n                if (reversed) {\n                    dq.addFirst(c);\n                } else {\n                    dq.addLast(c);\n                }\n            }\n        }\n        StringBuilder sb = new StringBuilder();\n        if (reversed) {\n            while (!dq.isEmpty()) {\n                sb.append(dq.pollLast());\n            }\n        } else {\n            while (!dq.isEmpty()) {\n                sb.append(dq.pollFirst());\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;deque&gt;\n\nclass Solution {\npublic:\n    string finalString(string s) {\n        deque&lt;char&gt; dq;\n        bool reversed = false;\n        for (char c : s) {\n            if (c == 'i') {\n                reversed = !reversed;\n            } else {\n                if (reversed) {\n                    dq.push_front(c);\n                } else {\n                    dq.push_back(c);\n                }\n            }\n        }\n        string result;\n        if (reversed) {\n            while (!dq.empty()) {\n                result += dq.back();\n                dq.pop_back();\n            }\n        } else {\n            while (!dq.empty()) {\n                result += dq.front();\n                dq.pop_front();\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    finalString(s) {\n        let dq = [];\n        let reversed = false;\n        for (let c of s) {\n            if (c === 'i') {\n                reversed = !reversed;\n            } else {\n                if (reversed) {\n                    dq.unshift(c);\n                } else {\n                    dq.push(c);\n                }\n            }\n        }\n        if (reversed) {\n            return dq.reverse().join('');\n        }\n        return dq.join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    finalString(s: string): string {\n        let dq: string[] = [];\n        let reversed = false;\n        for (let c of s) {\n            if (c === 'i') {\n                reversed = !reversed;\n            } else {\n                if (reversed) {\n                    dq.unshift(c);\n                } else {\n                    dq.push(c);\n                }\n            }\n        }\n        if (reversed) {\n            return dq.reverse().join('');\n        }\n        return dq.join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. Each character is processed exactly once with O(1) operations.
+- Space: O(n) for the deque
+- Notes: Efficient and optimal for this problem. Uses a deque to achieve O(1) insertions at both ends.
+
+---
+## String Concatenation with Reverse Flag
+
+**Intuition**
+Track whether we're in reverse mode and build the string by prepending or appending characters accordingly. Reverse once at the end if needed.
+
+**Steps**
+- Initialize an empty string and a boolean flag to track reverse mode
+- Iterate through each character in the input string
+- If the character is 'i', toggle the reverse mode flag
+- Otherwise, prepend the character to the result if in reverse mode, or append otherwise
+- At the end, if in reverse mode, reverse the entire result string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def finalString(self, s: str) -&gt; str:\n        result = ''\n        reversed = False\n        for c in s:\n            if c == 'i':\n                reversed = not reversed\n            elif reversed:\n                result = c + result\n            else:\n                result = result + c\n        if reversed:\n            result = result[::-1]\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String finalString(String s) {\n        StringBuilder sb = new StringBuilder();\n        boolean reversed = false;\n        for (char c : s.toCharArray()) {\n            if (c == 'i') {\n                reversed = !reversed;\n            } else if (reversed) {\n                sb.insert(0, c);\n            } else {\n                sb.append(c);\n            }\n        }\n        if (reversed) {\n            return sb.reverse().toString();\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string finalString(string s) {\n        string result;\n        bool reversed = false;\n        for (char c : s) {\n            if (c == 'i') {\n                reversed = !reversed;\n            } else if (reversed) {\n                result.insert(0, 1, c);\n            } else {\n                result.push_back(c);\n            }\n        }\n        if (reversed) {\n            std::reverse(result.begin(), result.end());\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    finalString(s) {\n        let result = '';\n        let reversed = false;\n        for (let c of s) {\n            if (c === 'i') {\n                reversed = !reversed;\n            } else if (reversed) {\n                result = c + result;\n            } else {\n                result = result + c;\n            }\n        }\n        if (reversed) {\n            result = result.split('').reverse().join('');\n        }\n        return result;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    finalString(s: string): string {\n        let result = '';\n        let reversed = false;\n        for (let c of s) {\n            if (c === 'i') {\n                reversed = !reversed;\n            } else if (reversed) {\n                result = c + result;\n            } else {\n                result = result + c;\n            }\n        }\n        if (reversed) {\n            result = result.split('').reverse().join('');\n        }\n        return result;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case, where n is the length of the string. String concatenation/insertion at the beginning is O(n).
+- Space: O(n) for the result string
+- Notes: Intuitive but inefficient due to the cost of string concatenation. Similar to the brute force approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Faulty Keyboard Solutions","datePublished":"2025-01-27","description":"Your laptop keyboard is faulty: typing 'i' reverses the string typed so far. Return the final string displayed.","keywords":"LeetCode, Faulty Keyboard, Easy, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case, where n is the length of the string. This is because each 'i' character causes us to reverse the entire string, which takes O(n) time."}},{"@type":"Question","name":"What is the time complexity of the Deque approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string. This is because we process each character exactly once, and all deque operations are O(1)."}},{"@type":"Question","name":"What is the time complexity of the String Concatenation with Reverse Flag approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case, where n is the length of the string. This is because string concatenation is O(n) in most languages, and we do this for each character."}}]}).replace(/</g,'\u003c')}
+</script>

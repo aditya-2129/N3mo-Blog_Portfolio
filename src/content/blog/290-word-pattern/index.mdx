@@ -1,0 +1,141 @@
+---
+title: "Word Pattern"
+summary: "Given a pattern and a string s, find if s follows the same pattern. Requires a bijection between pattern letters and words."
+date: "Jul 09, 2025"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 44.10% | **Paid:** No
+> **Topics:** Hash Table, String
+
+Given a pattern and a string s, find if s follows the same pattern.
+
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in s.
+
+- Examples
+- Constraints
+- [Approach 1: Two Hash Maps](#approach-1-two-hash-maps)
+- [Approach 2: Hash Map and Set](#approach-2-hash-map-and-set)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+pattern = "abba", s = "dog cat cat dog"
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+The bijection can be established as:
+
+'a' maps to "dog".
+
+'b' maps to "cat".
+
+### Example 2
+
+**Input:**
+```text
+pattern = "abba", s = "dog cat cat fish"
+```
+
+**Output:**
+```text
+false
+```
+
+### Example 3
+
+**Input:**
+```text
+pattern = "aaaa", s = "dog cat cat dog"
+```
+
+**Output:**
+```text
+false
+```
+
+## Constraints
+
+```text
+1 <= pattern.length <= 300
+pattern contains only lower-case English letters.
+s contains only lower-case English letters and spaces ' '.
+s does not contain any leading or trailing spaces.
+All the words in s are separated by a single space.
+```
+
+---
+## Approach 1: Two Hash Maps
+
+**Intuition**
+To establish a bijection (one-to-one mapping) between characters and words, we need to verify two conditions: a character always maps to the same word, and a word is always mapped by the same character. We use two hash maps to store these relationships in both directions.
+
+**Steps**
+- Split the string `s` into an array of words.
+- If the number of words does not match the length of the pattern, return false immediately.
+- Initialize two hash maps: one for character-to-word mapping and another for word-to-character mapping.
+- Iterate through the pattern and words simultaneously.
+- If the character exists in the first map, check if the mapped word matches the current word. If not, return false.
+- If the word exists in the second map, check if the mapped character matches the current character. If not, return false.
+- If neither exists, create the mapping in both maps.
+- If the loop completes without mismatches, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def wordPattern(self, pattern: str, s: str) -&gt; bool:\n        words = s.split()\n        if len(pattern) != len(words):\n            return False\n        \n        char_to_word = {}\n        word_to_char = {}\n        \n        for char, word in zip(pattern, words):\n            if char in char_to_word:\n                if char_to_word[char] != word:\n                    return False\n            else:\n                char_to_word[char] = word\n            \n            if word in word_to_char:\n                if word_to_char[word] != char:\n                    return False\n            else:\n                word_to_char[word] = char\n                \n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean wordPattern(String pattern, String s) {\n        String[] words = s.split(\" \");\n        if (words.length != pattern.length()) {\n            return false;\n        }\n        \n        Map&lt;Character, String&gt; c2w = new HashMap&lt;&gt;();\n        Map&lt;String, Character&gt; w2c = new HashMap&lt;&gt;();\n        \n        for (int i = 0; i &lt; pattern.length(); i++) {\n            char c = pattern.charAt(i);\n            String w = words[i];\n            \n            if (c2w.containsKey(c)) {\n                if (!c2w.get(c).equals(w)) {\n                    return false;\n                }\n            } else {\n                c2w.put(c, w);\n            }\n            \n            if (w2c.containsKey(w)) {\n                if (w2c.get(w) != c) {\n                    return false;\n                }\n            } else {\n                w2c.put(w, c);\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool wordPattern(string pattern, string s) {\n        vector&lt;string&gt; words;\n        stringstream ss(s);\n        string word;\n        while (ss &gt;&gt; word) {\n            words.push_back(word);\n        }\n        \n        if (words.size() != pattern.size()) {\n            return false;\n        }\n        \n        unordered_map&lt;char, string&gt; c2w;\n        unordered_map&lt;string, char&gt; w2c;\n        \n        for (int i = 0; i &lt; pattern.size(); i++) {\n            char c = pattern[i];\n            string w = words[i];\n            \n            if (c2w.count(c)) {\n                if (c2w[c] != w) return false;\n            } else {\n                c2w[c] = w;\n            }\n            \n            if (w2c.count(w)) {\n                if (w2c[w] != c) return false;\n            } else {\n                w2c[w] = c;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var wordPattern = function(pattern, s) {\n    const words = s.split(' ');\n    if (words.length !== pattern.length) {\n        return false;\n    }\n    \n    const c2w = new Map();\n    const w2c = new Map();\n    \n    for (let i = 0; i &lt; pattern.length; i++) {\n        const c = pattern[i];\n        const w = words[i];\n        \n        if (c2w.has(c)) {\n            if (c2w.get(c) !== w) return false;\n        } else {\n            c2w.set(c, w);\n        }\n        \n        if (w2c.has(w)) {\n            if (w2c.get(w) !== c) return false;\n        } else {\n            w2c.set(w, c);\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function wordPattern(pattern: string, s: string): boolean {\n    const words: string[] = s.split(' ');\n    if (words.length !== pattern.length) {\n        return false;\n    }\n    \n    const c2w = new Map&lt;string, string&gt;();\n    const w2c = new Map&lt;string, string&gt;();\n    \n    for (let i = 0; i &lt; pattern.length; i++) {\n        const c = pattern[i];\n        const w = words[i];\n        \n        if (c2w.has(c)) {\n            if (c2w.get(c) !== w) return false;\n        } else {\n            c2w.set(c, w);\n        }\n        \n        if (w2c.has(w)) {\n            if (w2c.get(w) !== c) return false;\n        } else {\n            w2c.set(w, c);\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the string or pattern. We iterate through the pattern once.
+- Space: O(N) to store the hash maps.
+- Notes: This approach explicitly checks the bijection property using two maps, making the logic very clear.
+
+---
+## Approach 2: Hash Map and Set
+
+**Intuition**
+We can optimize space slightly by using only one hash map to store the character-to-word mapping. To ensure the word is not mapped by a different character (bijection), we maintain a set of words that have already been assigned.
+
+**Steps**
+- Split the string `s` into an array of words.
+- If the number of words does not match the length of the pattern, return false.
+- Initialize a hash map for character-to-word mapping and a set to store used words.
+- Iterate through the pattern and words.
+- If the character is already in the map, verify that the mapped word matches the current word.
+- If the character is not in the map, check if the current word is already in the set of used words. If it is, return false because another character already maps to it.
+- Otherwise, add the mapping to the map and add the word to the set.
+- Return true if the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def wordPattern(self, pattern: str, s: str) -&gt; bool:\n        words = s.split()\n        if len(pattern) != len(words):\n            return False\n        \n        char_to_word = {}\n        used_words = set()\n        \n        for char, word in zip(pattern, words):\n            if char in char_to_word:\n                if char_to_word[char] != word:\n                    return False\n            else:\n                if word in used_words:\n                    return False\n                char_to_word[char] = word\n                used_words.add(word)\n                \n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean wordPattern(String pattern, String s) {\n        String[] words = s.split(\" \");\n        if (words.length != pattern.length()) {\n            return false;\n        }\n        \n        Map&lt;Character, String&gt; map = new HashMap&lt;&gt;();\n        Set&lt;String&gt; set = new HashSet&lt;&gt;();\n        \n        for (int i = 0; i &lt; pattern.length(); i++) {\n            char c = pattern.charAt(i);\n            String w = words[i];\n            \n            if (map.containsKey(c)) {\n                if (!map.get(c).equals(w)) {\n                    return false;\n                }\n            } else {\n                if (set.contains(w)) {\n                    return false;\n                }\n                map.put(c, w);\n                set.add(w);\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool wordPattern(string pattern, string s) {\n        vector&lt;string&gt; words;\n        stringstream ss(s);\n        string word;\n        while (ss &gt;&gt; word) {\n            words.push_back(word);\n        }\n        \n        if (words.size() != pattern.size()) {\n            return false;\n        }\n        \n        unordered_map&lt;char, string&gt; c2w;\n        unordered_set&lt;string&gt; used;\n        \n        for (int i = 0; i &lt; pattern.size(); i++) {\n            char c = pattern[i];\n            string w = words[i];\n            \n            if (c2w.count(c)) {\n                if (c2w[c] != w) return false;\n            } else {\n                if (used.count(w)) return false;\n                c2w[c] = w;\n                used.insert(w);\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var wordPattern = function(pattern, s) {\n    const words = s.split(' ');\n    if (words.length !== pattern.length) {\n        return false;\n    }\n    \n    const map = new Map();\n    const set = new Set();\n    \n    for (let i = 0; i &lt; pattern.length; i++) {\n        const c = pattern[i];\n        const w = words[i];\n        \n        if (map.has(c)) {\n            if (map.get(c) !== w) return false;\n        } else {\n            if (set.has(w)) return false;\n            map.set(c, w);\n            set.add(w);\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function wordPattern(pattern: string, s: string): boolean {\n    const words: string[] = s.split(' ');\n    if (words.length !== pattern.length) {\n        return false;\n    }\n    \n    const map = new Map&lt;string, string&gt;();\n    const set = new Set&lt;string&gt;();\n    \n    for (let i = 0; i &lt; pattern.length; i++) {\n        const c = pattern[i];\n        const w = words[i];\n        \n        if (map.has(c)) {\n            if (map.get(c) !== w) return false;\n        } else {\n            if (set.has(w)) return false;\n            map.set(c, w);\n            set.add(w);\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the string or pattern.
+- Space: O(N) to store the map and the set.
+- Notes: This approach is functionally similar to the two-map approach but uses a set to check for value collisions, which can be slightly more intuitive for some.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Word Pattern Solutions","datePublished":"2025-07-09","description":"Given a pattern and a string s, find if s follows the same pattern. Requires a bijection between pattern letters and words.","keywords":"LeetCode, Word Pattern, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Hash Maps approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the pattern or the number of words in the string s."}},{"@type":"Question","name":"What is the space complexity of the Hash Map and Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the mappings and the set of used words."}},{"@type":"Question","name":"Why do we need to check the length of the pattern and words array?","acceptedAnswer":{"@type":"Answer","text":"If the lengths differ, a bijection is impossible because every character must map to exactly one word and vice versa."}}]}).replace(/</g,'\u003c')}
+</script>

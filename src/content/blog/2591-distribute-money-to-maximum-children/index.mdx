@@ -1,0 +1,135 @@
+---
+title: "Distribute Money to Maximum Children"
+summary: "Distribute money to children such that no child gets 4 dollars and the number of children getting 8 dollars is maximized."
+date: "Dec 25, 2024"
+tags:
+  - Math
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 20.60% | **Paid:** No
+> **Topics:** Math, Greedy
+
+You are given an integer money representing the amount of money (in dollars) and an integer children representing the number of children that you need to distribute the money to.
+
+You need to distribute the money according to the following rules:
+
+1. Every child must receive at least 1 dollar.
+2. Every child must receive an integer amount of money.
+3. If a child receives exactly 8 dollars, it is considered a "maximum" amount.
+4. No child should receive exactly 4 dollars.
+
+Return the maximum number of children who can receive a "maximum" amount of 8 dollars. If it is impossible to distribute the money following the rules, return -1.
+
+- Examples
+- Constraints
+- [Mathematical Greedy](#mathematical-greedy)
+- [Brute Force / Iterative Check](#brute-force-iterative-check)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+money = 20, children = 3
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+The maximum number of children with 8 dollars will be 1. One of the ways to distribute the money is:
+- 8 dollars to the first child.
+- 9 dollars to the second child.
+- 3 dollars to the third child.
+It can be proven that no distribution exists such that number of children getting 8 dollars is greater than 1.
+
+### Example 2
+
+**Input:**
+```text
+money = 16, children = 2
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+Each child can be given 8 dollars.
+
+## Constraints
+
+```text
+- 1 <= money <= 200
+- 2 <= children <= 30
+```
+
+---
+## Mathematical Greedy
+
+**Intuition**
+First, ensure every child gets at least 1 dollar. Then, try to give 7 more dollars (to make 8) to as many children as possible. If the remaining money after this distribution leaves a remainder that forces a child to have 4 dollars, we adjust by taking 7 dollars back from one child who already has 8.
+
+**Steps**
+- If `money` is less than `children`, return -1 (not enough money for everyone to get 1).
+- Calculate `remaining` money after giving 1 dollar to each child: `remaining = money - children`.
+- Calculate the maximum number of children that can get 8 dollars: `count = remaining // 7`.
+- Calculate the remainder: `rem = remaining % 7`.
+- If the remainder is 3:
+  - If `count` is 0, it means we have exactly 3 extra dollars to give to one child (making it 4), which is invalid. Return -1.
+  - Otherwise, we must reduce `count` by 1. We take 7 dollars from one child (who now has 1) and add it to the 3 remainder, giving 10 to the last child (1 + 10 = 11), which is valid.
+- Return `count`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def distMoney(self, money: int, children: int) -&gt; int:\n        if money &lt; children:\n            return -1\n        remaining = money - children\n        count = remaining // 7\n        rem = remaining % 7\n        if rem == 3:\n            if count == 0:\n                return -1\n            count -= 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int distMoney(int money, int children) {\n        if (money &lt; children) return -1;\n        int remaining = money - children;\n        int count = remaining / 7;\n        int rem = remaining % 7;\n        if (rem == 3) {\n            if (count == 0) return -1;\n            count--;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int distMoney(int money, int children) {\n        if (money &lt; children) return -1;\n        int remaining = money - children;\n        int count = remaining / 7;\n        int rem = remaining % 7;\n        if (rem == 3) {\n            if (count == 0) return -1;\n            count--;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distMoney = function(money, children) {\n    if (money &lt; children) return -1;\n    let remaining = money - children;\n    let count = Math.floor(remaining / 7);\n    let rem = remaining % 7;\n    if (rem === 3) {\n        if (count === 0) return -1;\n        count--;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distMoney(money: number, children: number): number {\n    if (money &lt; children) return -1;\n    let remaining = money - children;\n    let count = Math.floor(remaining / 7);\n    let rem = remaining % 7;\n    if (rem === 3) {\n        if (count === 0) return -1;\n        count--;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: This is the optimal solution as it uses constant arithmetic operations.
+
+---
+## Brute Force / Iterative Check
+
+**Intuition**
+Try to give 8 dollars to the maximum possible number of children, then check if the remaining money can be distributed to the remaining children without violating the rules. If not, reduce the number of children getting 8 dollars and try again.
+
+**Steps**
+- Iterate `k` from `min(children, money // 8)` down to 0.
+- For each `k`, calculate the remaining money `rem_money = money - 8 * k` and remaining children `rem_children = children - k`.
+- Check if the distribution is valid:
+  - `rem_money` must be at least `rem_children` (everyone gets at least 1).
+  - If there is only 1 remaining child (`rem_children == 1`), ensure they don't get exactly 4 dollars (`rem_money != 4`).
+- If valid, return `k`.
+- If the loop finishes without finding a valid `k`, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def distMoney(self, money: int, children: int) -&gt; int:\n        max_k = min(children, money // 8)\n        for k in range(max_k, -1, -1):\n            rem_money = money - 8 * k\n            rem_children = children - k\n            if rem_money &lt; rem_children:\n                continue\n            if rem_children == 1 and rem_money == 4:\n                continue\n            return k\n        return -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int distMoney(int money, int children) {\n        int maxK = Math.min(children, money / 8);\n        for (int k = maxK; k &gt;= 0; k--) {\n            int remMoney = money - 8 * k;\n            int remChildren = children - k;\n            if (remMoney &lt; remChildren) continue;\n            if (remChildren == 1 && remMoney == 4) continue;\n            return k;\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int distMoney(int money, int children) {\n        int maxK = min(children, money / 8);\n        for (int k = maxK; k &gt;= 0; k--) {\n            int remMoney = money - 8 * k;\n            int remChildren = children - k;\n            if (remMoney &lt; remChildren) continue;\n            if (remChildren == 1 && remMoney == 4) continue;\n            return k;\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distMoney = function(money, children) {\n    let maxK = Math.min(children, Math.floor(money / 8));\n    for (let k = maxK; k &gt;= 0; k--) {\n        let remMoney = money - 8 * k;\n        let remChildren = children - k;\n        if (remMoney &lt; remChildren) continue;\n        if (remChildren === 1 && remMoney === 4) continue;\n        return k;\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distMoney(money: number, children: number): number {\n    let maxK = Math.min(children, Math.floor(money / 8));\n    for (let k = maxK; k &gt;= 0; k--) {\n        let remMoney = money - 8 * k;\n        let remChildren = children - k;\n        if (remMoney &lt; remChildren) continue;\n        if (remChildren === 1 && remMoney === 4) continue;\n        return k;\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of children or money (up to 10⁹ in worst case).
+- Space: O(1)
+- Notes: This approach is conceptually simple but inefficient for large inputs compared to the mathematical solution.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Distribute Money to Maximum Children Solutions","datePublished":"2024-12-25","description":"Distribute money to children such that no child gets 4 dollars and the number of children getting 8 dollars is maximized.","keywords":"LeetCode, Distribute Money to Maximum Children, Easy, Math, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Mathematical Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) as it involves a constant number of arithmetic operations."}},{"@type":"Question","name":"What is the space complexity of the Mathematical Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since no additional data structures are used."}},{"@type":"Question","name":"Why do we need to handle the remainder 3 specifically?","acceptedAnswer":{"@type":"Answer","text":"If the remainder is 3, the last child would receive 1 (base) + 3 = 4 dollars, which is forbidden. We must take 7 dollars back from a child with 8 to make the distribution valid."}}]}).replace(/</g,'\u003c')}
+</script>

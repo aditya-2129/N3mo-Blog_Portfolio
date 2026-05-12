@@ -1,0 +1,149 @@
+---
+title: "Minimum Positive Sum Subarray"
+summary: "Find the smallest sum of any non-empty subarray that is strictly positive."
+date: "Nov 23, 2024"
+tags:
+  - Array
+  - Sliding Window
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 45.00% | **Paid:** No
+> **Topics:** Array, Sliding Window, Prefix Sum
+
+You are given an integer array `nums`. Return the minimum sum of a non-empty subarray of `nums` that is strictly positive. If no such subarray exists, return -1.
+
+A subarray is a contiguous non-empty sequence of elements within the array.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window](#sliding-window)
+- [Prefix Sum](#prefix-sum)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [3, -2, 1, 4, -5]
+Output: 1
+Explanation: The subarray [1] has the minimum positive sum of 1.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [-2, -3, -1]
+Output: -1
+Explanation: There is no subarray with a positive sum.
+```
+
+**Example 3:**
+
+```text
+Input: nums = [5, 4, -10, 2]
+Output: 1
+Explanation: The subarray [5, 4, -10, 2] has a sum of 1, which is the minimum positive sum.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 50
+-1000 <= nums[i] <= 1000
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+We can iterate through every possible starting index of the subarray. For each starting index, we expand the subarray to the right, calculating the running sum. If the running sum becomes positive, we check if it is the smallest positive sum found so far.
+
+**Steps**
+- Initialize `min_sum` to infinity.
+- Iterate `i` from 0 to `n-1` (start index).
+- Initialize `current_sum` to 0.
+- Iterate `j` from `i` to `n-1` (end index).
+- Add `nums[j]` to `current_sum`.
+- If `current_sum` is greater than 0 and less than `min_sum`, update `min_sum`.
+- After loops, if `min_sum` is still infinity, return -1. Otherwise, return `min_sum`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minPositiveSumSubarray(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        min_sum = float('inf')\n        for i in range(n):\n            current_sum = 0\n            for j in range(i, n):\n                current_sum += nums[j]\n                if current_sum &gt; 0 and current_sum &lt; min_sum:\n                    min_sum = current_sum\n        return -1 if min_sum == float('inf') else min_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minPositiveSumSubarray(int[] nums) {\n        int n = nums.length;\n        int minSum = Integer.MAX_VALUE;\n        for (int i = 0; i &lt; n; i++) {\n            int currentSum = 0;\n            for (int j = i; j &lt; n; j++) {\n                currentSum += nums[j];\n                if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                    minSum = currentSum;\n                }\n            }\n        }\n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minPositiveSumSubarray(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int minSum = INT_MAX;\n        for (int i = 0; i &lt; n; i++) {\n            int currentSum = 0;\n            for (int j = i; j &lt; n; j++) {\n                currentSum += nums[j];\n                if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                    minSum = currentSum;\n                }\n            }\n        }\n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minPositiveSumSubarray = function(nums) {\n    const n = nums.length;\n    let minSum = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        let currentSum = 0;\n        for (let j = i; j &lt; n; j++) {\n            currentSum += nums[j];\n            if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                minSum = currentSum;\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minPositiveSumSubarray(nums: number[]): number {\n    const n = nums.length;\n    let minSum = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        let currentSum = 0;\n        for (let j = i; j &lt; n; j++) {\n            currentSum += nums[j];\n            if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                minSum = currentSum;\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple to implement and efficient enough given the constraint n &lt;= 50.
+
+---
+
+## Sliding Window
+
+**Intuition**
+We can iterate through all possible window sizes `k` from 1 to `n`. For each fixed window size `k`, we use the sliding window technique to calculate the sum of every subarray of length `k` in O(n) time. We track the minimum positive sum encountered across all window sizes.
+
+**Steps**
+- Initialize `min_sum` to infinity.
+- Iterate `k` from 1 to `n` (window size).
+- Calculate the sum of the first window of size `k`.
+- If this sum is positive, update `min_sum`.
+- Slide the window from index 1 to `n - k`:
+  - Subtract the element leaving the window and add the new element entering.
+  - If the new sum is positive and smaller than `min_sum`, update `min_sum`.
+- Return `min_sum` (or -1 if unchanged).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minPositiveSumSubarray(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        min_sum = float('inf')\n        \n        for k in range(1, n + 1):\n            window_sum = sum(nums[:k])\n            if window_sum &gt; 0:\n                min_sum = min(min_sum, window_sum)\n            \n            for i in range(1, n - k + 1):\n                window_sum = window_sum - nums[i - 1] + nums[i + k - 1]\n                if window_sum &gt; 0:\n                    min_sum = min(min_sum, window_sum)\n                    \n        return -1 if min_sum == float('inf') else min_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minPositiveSumSubarray(int[] nums) {\n        int n = nums.length;\n        int minSum = Integer.MAX_VALUE;\n        \n        for (int k = 1; k &lt;= n; k++) {\n            int windowSum = 0;\n            for (int i = 0; i &lt; k; i++) {\n                windowSum += nums[i];\n            }\n            if (windowSum &gt; 0) {\n                minSum = Math.min(minSum, windowSum);\n            }\n            \n            for (int i = 1; i &lt;= n - k; i++) {\n                windowSum = windowSum - nums[i - 1] + nums[i + k - 1];\n                if (windowSum &gt; 0) {\n                    minSum = Math.min(minSum, windowSum);\n                }\n            }\n        }\n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minPositiveSumSubarray(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int minSum = INT_MAX;\n        \n        for (int k = 1; k &lt;= n; k++) {\n            int windowSum = 0;\n            for (int i = 0; i &lt; k; i++) {\n                windowSum += nums[i];\n            }\n            if (windowSum &gt; 0) {\n                minSum = min(minSum, windowSum);\n            }\n            \n            for (int i = 1; i &lt;= n - k; i++) {\n                windowSum = windowSum - nums[i - 1] + nums[i + k - 1];\n                if (windowSum &gt; 0) {\n                    minSum = min(minSum, windowSum);\n                }\n            }\n        }\n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minPositiveSumSubarray = function(nums) {\n    const n = nums.length;\n    let minSum = Infinity;\n    \n    for (let k = 1; k &lt;= n; k++) {\n        let windowSum = 0;\n        for (let i = 0; i &lt; k; i++) {\n            windowSum += nums[i];\n        }\n        if (windowSum &gt; 0) {\n            minSum = Math.min(minSum, windowSum);\n        }\n        \n        for (let i = 1; i &lt;= n - k; i++) {\n            windowSum = windowSum - nums[i - 1] + nums[i + k - 1];\n            if (windowSum &gt; 0) {\n                minSum = Math.min(minSum, windowSum);\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minPositiveSumSubarray(nums: number[]): number {\n    const n = nums.length;\n    let minSum = Infinity;\n    \n    for (let k = 1; k &lt;= n; k++) {\n        let windowSum = 0;\n        for (let i = 0; i &lt; k; i++) {\n            windowSum += nums[i];\n        }\n        if (windowSum &gt; 0) {\n            minSum = Math.min(minSum, windowSum);\n        }\n        \n        for (let i = 1; i &lt;= n - k; i++) {\n            windowSum = windowSum - nums[i - 1] + nums[i + k - 1];\n            if (windowSum &gt; 0) {\n                minSum = Math.min(minSum, windowSum);\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Also O(n²) time, but conceptually distinct by iterating over window sizes first.
+
+---
+
+## Prefix Sum
+
+**Intuition**
+We can precompute prefix sums where `prefix[i]` is the sum of the first `i` elements. The sum of any subarray from index `i` to `j-1` is `prefix[j] - prefix[i]`. We iterate through all pairs `(i, j)` to find the minimum positive difference.
+
+**Steps**
+- Create a `prefix` array of size `n+1`, initialized with 0.
+- Fill `prefix` such that `prefix[i] = prefix[i-1] + nums[i-1]`.
+- Iterate `i` from 0 to `n-1`.
+- Iterate `j` from `i+1` to `n`.
+- Calculate `current_sum = prefix[j] - prefix[i]`.
+- If `current_sum &gt; 0` and `current_sum &lt; min_sum`, update `min_sum`.
+- Return result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minPositiveSumSubarray(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(1, n + 1):\n            prefix[i] = prefix[i - 1] + nums[i - 1]\n        \n        min_sum = float('inf')\n        for i in range(n):\n            for j in range(i + 1, n + 1):\n                current_sum = prefix[j] - prefix[i]\n                if current_sum &gt; 0 and current_sum &lt; min_sum:\n                    min_sum = current_sum\n                    \n        return -1 if min_sum == float('inf') else min_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minPositiveSumSubarray(int[] nums) {\n        int n = nums.length;\n        int[] prefix = new int[n + 1];\n        for (int i = 1; i &lt;= n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i - 1];\n        }\n        \n        int minSum = Integer.MAX_VALUE;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt;= n; j++) {\n                int currentSum = prefix[j] - prefix[i];\n                if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                    minSum = currentSum;\n                }\n            }\n        }\n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minPositiveSumSubarray(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        vector&lt;int&gt; prefix(n + 1, 0);\n        for (int i = 1; i &lt;= n; i++) {\n            prefix[i] = prefix[i - 1] + nums[i - 1];\n        }\n        \n        int minSum = INT_MAX;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt;= n; j++) {\n                int currentSum = prefix[j] - prefix[i];\n                if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                    minSum = currentSum;\n                }\n            }\n        }\n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minPositiveSumSubarray = function(nums) {\n    const n = nums.length;\n    const prefix = new Array(n + 1).fill(0);\n    for (let i = 1; i &lt;= n; i++) {\n        prefix[i] = prefix[i - 1] + nums[i - 1];\n    }\n    \n    let minSum = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt;= n; j++) {\n            const currentSum = prefix[j] - prefix[i];\n            if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                minSum = currentSum;\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minPositiveSumSubarray(nums: number[]): number {\n    const n = nums.length;\n    const prefix: number[] = new Array(n + 1).fill(0);\n    for (let i = 1; i &lt;= n; i++) {\n        prefix[i] = prefix[i - 1] + nums[i - 1];\n    }\n    \n    let minSum = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt;= n; j++) {\n            const currentSum = prefix[j] - prefix[i];\n            if (currentSum &gt; 0 && currentSum &lt; minSum) {\n                minSum = currentSum;\n            }\n        }\n    }\n    return minSum === Infinity ? -1 : minSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Uses extra space for the prefix array, but allows O(1) sum calculation for any subarray.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Positive Sum Subarray  Solutions","datePublished":"2024-11-23","description":"Find the smallest sum of any non-empty subarray that is strictly positive.","keywords":"LeetCode, Minimum Positive Sum Subarray , Easy, Array, Sliding Window, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) with O(n) additional space for the prefix array."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) as we iterate through all possible window sizes from 1 to n."}}]}).replace(/</g,'\u003c')}
+</script>

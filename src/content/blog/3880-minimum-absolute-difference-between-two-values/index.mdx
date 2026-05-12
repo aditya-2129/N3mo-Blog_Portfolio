@@ -1,0 +1,133 @@
+---
+title: "Minimum Absolute Difference Between Two Values"
+summary: "Find the minimum absolute difference between any two elements in an array where the distance between their indices is at least k."
+date: "May 09, 2024"
+tags:
+  - Array
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.40% | **Paid:** No
+> **Topics:** Array, Enumeration
+
+You are given a 0-indexed integer array `nums` and an integer `k`.
+
+Return the minimum absolute difference between any two elements `nums[i]` and `nums[j]` such that `abs(i - j) &gt;= k`.
+
+The absolute difference between two numbers `nums[i]` and `nums[j]` is defined as `abs(nums[i] - nums[j])`.
+
+- Examples
+- Constraints
+- [Brute Force Enumeration](#brute-force-enumeration)
+- [Sorting by Value](#sorting-by-value)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,0,0,2,0,1]
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The valid pairs are:
+
+(0, 3) which has absolute difference of abs(0 - 3) = 3.
+
+(5, 3) which has absolute difference of abs(5 - 3) = 2.
+
+Thus, the answer is 2.
+
+### Example 2
+
+**Input:**
+```text
+nums = [1,0,1,0]
+```
+
+**Output:**
+```text
+-1
+```
+
+**Explanation:**
+There are no valid pairs in the array, thus the answer is -1.
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 0 <= nums[i] <= 2
+```
+
+---
+
+## Brute Force Enumeration
+
+**Intuition**
+Since the constraint on the array length is very small ($N \le 100$), we can simply check every possible pair of elements in the array. We calculate the absolute difference of their indices to see if it meets the requirement `abs(i - j) &gt;= k`, and if so, we update our minimum difference found so far.
+
+**Steps**
+- Initialize a variable `min_diff` to a very large number (e.g., infinity).
+- Iterate through the array with index `i` from `0` to `n-1`.
+- Iterate through the array with index `j` from `0` to `n-1`.
+- Check if `abs(i - j) &gt;= k`.
+- If true, calculate `abs(nums[i] - nums[j])` and update `min_diff` if this value is smaller.
+- Return `min_diff`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minDifference(self, nums: list[int], k: int) -&gt; int:\n        n = len(nums)\n        min_diff = float('inf')\n        for i in range(n):\n            for j in range(n):\n                if abs(i - j) &gt;= k:\n                    diff = abs(nums[i] - nums[j])\n                    if diff &lt; min_diff:\n                        min_diff = diff\n        return min_diff" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minDifference(int[] nums, int k) {\n        int n = nums.length;\n        int minDiff = Integer.MAX_VALUE;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (Math.abs(i - j) &gt;= k) {\n                    int diff = Math.abs(nums[i] - nums[j]);\n                    if (diff &lt; minDiff) {\n                        minDiff = diff;\n                    }\n                }\n            }\n        }\n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minDifference(vector&lt;int&gt;& nums, int k) {\n        int n = nums.size();\n        int minDiff = INT_MAX;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (abs(i - j) &gt;= k) {\n                    int diff = abs(nums[i] - nums[j]);\n                    if (diff &lt; minDiff) {\n                        minDiff = diff;\n                    }\n                }\n            }\n        }\n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar minDifference = function(nums, k) {\n    const n = nums.length;\n    let minDiff = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (Math.abs(i - j) &gt;= k) {\n                const diff = Math.abs(nums[i] - nums[j]);\n                if (diff &lt; minDiff) {\n                    minDiff = diff;\n                }\n            }\n        }\n    }\n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minDifference(nums: number[], k: number): number {\n    const n = nums.length;\n    let minDiff = Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (Math.abs(i - j) &gt;= k) {\n                const diff = Math.abs(nums[i] - nums[j]);\n                if (diff &lt; minDiff) {\n                    minDiff = diff;\n                }\n            }\n        }\n    }\n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) — We iterate through all pairs of indices.
+- Space: O(1) — We only use a few variables for storage.
+- Notes: This is the most straightforward approach and is efficient enough given the constraint `n &lt;= 100`.
+
+---
+
+## Sorting by Value
+
+**Intuition**
+The minimum absolute difference between any two numbers in a set is always achieved by two adjacent numbers when the set is sorted. We can leverage this property by sorting the array elements while keeping track of their original indices. Then, we only need to check adjacent elements in this sorted list to see if their original indices satisfy the distance constraint `abs(i - j) &gt;= k`.
+
+**Steps**
+- Create a list of pairs `(value, original_index)` from the input array.
+- Sort this list based on the `value`.
+- Initialize `min_diff` to a large number.
+- Iterate through the sorted list from index `0` to `n-2`.
+- For each element at `i`, compare it with the element at `i+1`.
+- Check if `abs(original_index_i - original_index_j) &gt;= k`.
+- If true, calculate the difference in values and update `min_diff`.
+- Return `min_diff`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minDifference(self, nums: list[int], k: int) -&gt; int:\n        # Create list of (value, index)\n        indexed_nums = [(val, idx) for idx, val in enumerate(nums)]\n        # Sort by value\n        indexed_nums.sort(key=lambda x: x[0])\n        \n        min_diff = float('inf')\n        n = len(indexed_nums)\n        \n        for i in range(n - 1):\n            val1, idx1 = indexed_nums[i]\n            val2, idx2 = indexed_nums[i + 1]\n            \n            if abs(idx1 - idx2) &gt;= k:\n                diff = abs(val1 - val2)\n                if diff &lt; min_diff:\n                    min_diff = diff\n                    \n        return min_diff" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int minDifference(int[] nums, int k) {\n        int n = nums.length;\n        int[][] arr = new int[n][2];\n        for (int i = 0; i &lt; n; i++) {\n            arr[i][0] = nums[i];\n            arr[i][1] = i;\n        }\n        \n        // Sort based on value\n        Arrays.sort(arr, (a, b) -&gt; Integer.compare(a[0], b[0]));\n        \n        int minDiff = Integer.MAX_VALUE;\n        for (int i = 0; i &lt; n - 1; i++) {\n            int val1 = arr[i][0];\n            int idx1 = arr[i][1];\n            int val2 = arr[i+1][0];\n            int idx2 = arr[i+1][1];\n            \n            if (Math.abs(idx1 - idx2) &gt;= k) {\n                int diff = Math.abs(val1 - val2);\n                if (diff &lt; minDiff) {\n                    minDiff = diff;\n                }\n            }\n        }\n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;cmath&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minDifference(vector&lt;int&gt;& nums, int k) {\n        int n = nums.size();\n        vector&lt;pair&lt;int, int&gt;&gt; indexedNums;\n        for (int i = 0; i &lt; n; i++) {\n            indexedNums.push_back({nums[i], i});\n        }\n        \n        // Sort by value\n        sort(indexedNums.begin(), indexedNums.end());\n        \n        int minDiff = INT_MAX;\n        for (int i = 0; i &lt; n - 1; i++) {\n            int val1 = indexedNums[i].first;\n            int idx1 = indexedNums[i].second;\n            int val2 = indexedNums[i+1].first;\n            int idx2 = indexedNums[i+1].second;\n            \n            if (abs(idx1 - idx2) &gt;= k) {\n                int diff = abs(val1 - val2);\n                if (diff &lt; minDiff) {\n                    minDiff = diff;\n                }\n            }\n        }\n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar minDifference = function(nums, k) {\n    const n = nums.length;\n    // Create array of objects {val, idx}\n    const indexedNums = nums.map((val, idx) =&gt; ({ val, idx }));\n    \n    // Sort by value\n    indexedNums.sort((a, b) =&gt; a.val - b.val);\n    \n    let minDiff = Infinity;\n    for (let i = 0; i &lt; n - 1; i++) {\n        const val1 = indexedNums[i].val;\n        const idx1 = indexedNums[i].idx;\n        const val2 = indexedNums[i+1].val;\n        const idx2 = indexedNums[i+1].idx;\n        \n        if (Math.abs(idx1 - idx2) &gt;= k) {\n            const diff = Math.abs(val1 - val2);\n            if (diff &lt; minDiff) {\n                minDiff = diff;\n            }\n        }\n    }\n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "interface Pair {\n    val: number;\n    idx: number;\n}\n\nfunction minDifference(nums: number[], k: number): number {\n    const n = nums.length;\n    const indexedNums: Pair[] = nums.map((val, idx) =&gt; ({ val, idx }));\n    \n    // Sort by value\n    indexedNums.sort((a, b) =&gt; a.val - b.val);\n    \n    let minDiff = Infinity;\n    for (let i = 0; i &lt; n - 1; i++) {\n        const val1 = indexedNums[i].val;\n        const idx1 = indexedNums[i].idx;\n        const val2 = indexedNums[i+1].val;\n        const idx2 = indexedNums[i+1].idx;\n        \n        if (Math.abs(idx1 - idx2) &gt;= k) {\n            const diff = Math.abs(val1 - val2);\n            if (diff &lt; minDiff) {\n                minDiff = diff;\n            }\n        }\n    }\n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) — Sorting the array dominates the time complexity.
+- Space: O(n) — We need extra space to store the `(value, index)` pairs.
+- Notes: While this approach is theoretically faster for large `n`, the overhead of sorting and extra space might not be worth it for `n &lt;= 100` compared to the simple brute force method.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Absolute Difference Between Two Values Solutions","datePublished":"2024-05-09","description":"Find the minimum absolute difference between any two elements in an array where the distance between their indices is at least k.","keywords":"LeetCode, Minimum Absolute Difference Between Two Values, Easy, Array, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sorting approach is O(n log n) due to the sorting step."}},{"@type":"Question","name":"Why is the Brute Force approach acceptable for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach is acceptable because the problem constraints limit the array length to 100, making O(n²) operations very fast."}}]}).replace(/</g,'\u003c')}
+</script>

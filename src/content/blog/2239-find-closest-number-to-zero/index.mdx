@@ -1,0 +1,321 @@
+---
+title: "Find Closest Number to Zero"
+summary: "Given an integer array nums, find the number with the value closest to 0. If there is a tie, return the positive number."
+date: "Sep 18, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 47.90% | **Paid:** No
+> **Topics:** Array
+
+Given an integer array nums of size n, find the number with the value closest to 0. If there are multiple answers, return the number with the largest value.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Sorting](#sorting)
+- [Built-in Min Function](#built-in-min-function)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [-4,-2,1,4,8]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+The distance from -4 to 0 is |-4| = 4.
+The distance from -2 to 0 is |-2| = 2.
+The distance from 1 to 0 is |1| = 1.
+The distance from 4 to 0 is |4| = 4.
+The distance from 8 to 0 is |8| = 8.
+Thus, the closest number to 0 in the array is 1.
+
+### Example 2
+
+**Input:**
+```text
+nums = [2,-1,1]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+1 and -1 are both the closest numbers to 0, so 1 being larger is returned.
+
+## Constraints
+
+```text
+1 <= nums.length <= 1000
+-10⁵ <= nums[i] <= 10⁵
+```
+
+---
+## Linear Scan
+
+**Intuition**
+We iterate through the array once, keeping track of the number closest to zero found so far. We compare the absolute values of the current number and the tracked number. If the current number is closer, we update the tracker. If they are equidistant, we update the tracker only if the current number is positive (larger value).
+
+**Steps**
+- Initialize a variable `closest` to the first element of the array.
+- Iterate through each number `num` in the array.
+- Calculate the absolute value of `num` and `closest`.
+- If `abs(num) &lt; abs(closest)`, update `closest = num`.
+- Else if `abs(num) == abs(closest)` and `num &gt; closest`, update `closest = num`.
+- Return `closest` after the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findClosestNumber(self, nums: list[int]) -> int:
+        closest = nums[0]
+        for num in nums:
+            if abs(num) &lt; abs(closest):
+                closest = num
+            elif abs(num) == abs(closest) and num &gt; closest:
+                closest = num
+        return closest
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findClosestNumber(int[] nums) {
+        int closest = nums[0];
+        for (int num : nums) {
+            if (Math.abs(num) &lt; Math.abs(closest)) {
+                closest = num;
+            } else if (Math.abs(num) == Math.abs(closest) && num &gt; closest) {
+                closest = num;
+            }
+        }
+        return closest;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findClosestNumber(vector<int>& nums) {
+        int closest = nums[0];
+        for (int num : nums) {
+            if (abs(num) &lt; abs(closest)) {
+                closest = num;
+            } else if (abs(num) == abs(closest) && num &gt; closest) {
+                closest = num;
+            }
+        }
+        return closest;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var findClosestNumber = function(nums) {
+    let closest = nums[0];
+    for (let num of nums) {
+        if (Math.abs(num) &lt; Math.abs(closest)) {
+            closest = num;
+        } else if (Math.abs(num) === Math.abs(closest) && num &gt; closest) {
+            closest = num;
+        }
+    }
+    return closest;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findClosestNumber(nums: number[]): number {
+    let closest = nums[0];
+    for (let num of nums) {
+        if (Math.abs(num) &lt; Math.abs(closest)) {
+            closest = num;
+        } else if (Math.abs(num) === Math.abs(closest) && num &gt; closest) {
+            closest = num;
+        }
+    }
+    return closest;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) — We traverse the array once.
+- Space: O(1) — We only use a single variable for storage.
+- Notes: This is the most optimal approach for this problem.
+
+---
+## Sorting
+
+**Intuition**
+We can sort the array based on the absolute value of the numbers. The number at the first index will be the closest to zero. If there are multiple numbers with the same absolute value (e.g., -1 and 1), we need to ensure the positive one comes first in the sort order or handle the tie after sorting.
+
+**Steps**
+- Create a copy of the array or sort the array in place.
+- Sort the array using a custom comparator:
+  - Primary key: Absolute value of the number (ascending).
+  - Secondary key: The number itself (descending), so that positive numbers come before negative numbers when distances are equal.
+- Return the first element of the sorted array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findClosestNumber(self, nums: list[int]) -> int:
+        # Sort by absolute value, then by negative of value (so larger value comes first)
+        nums.sort(key=lambda x: (abs(x), -x))
+        return nums[0]
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+import java.util.Comparator;
+
+class Solution {
+    public int findClosestNumber(int[] nums) {
+        // Box the array to use Comparator
+        Integer[] boxed = Arrays.stream(nums).boxed().toArray(Integer[]::new);
+        
+        Arrays.sort(boxed, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer a, Integer b) {
+                int absCompare = Integer.compare(Math.abs(a), Math.abs(b));
+                if (absCompare != 0) {
+                    return absCompare;
+                }
+                // If absolute values are equal, sort by value descending
+                return Integer.compare(b, a);
+            }
+        });
+        
+        return boxed[0];
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+#include <vector>
+
+class Solution {
+public:
+    int findClosestNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end(), [](int a, int b) {
+            if (abs(a) != abs(b)) {
+                return abs(a) &lt; abs(b);
+            }
+            // If absolute values are equal, larger number comes first
+            return a &gt; b;
+        });
+        return nums[0];
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var findClosestNumber = function(nums) {
+    nums.sort((a, b) =&gt; {
+        if (Math.abs(a) !== Math.abs(b)) {
+            return Math.abs(a) - Math.abs(b);
+        }
+        // If absolute values are equal, larger number comes first
+        return b - a;
+    });
+    return nums[0];
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findClosestNumber(nums: number[]): number {
+    nums.sort((a, b) =&gt; {
+        if (Math.abs(a) !== Math.abs(b)) {
+            return Math.abs(a) - Math.abs(b);
+        }
+        // If absolute values are equal, larger number comes first
+        return b - a;
+    });
+    return nums[0];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) — Due to the sorting step.
+- Space: O(1) or O(n) — Depending on the sorting algorithm and whether we modify the array in place.
+- Notes: Less efficient than linear scan but demonstrates the use of custom comparators.
+
+---
+## Built-in Min Function
+
+**Intuition**
+Many languages provide a built-in `min` function that accepts a key or a comparator. We can leverage this to find the element that minimizes the distance to zero. To handle the tie-breaker (positive number preferred), we construct a composite key or comparison logic.
+
+**Steps**
+- Use the language's built-in minimum function.
+- Define the comparison logic to prioritize smaller absolute values.
+- If absolute values are equal, prioritize the larger number (positive over negative).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findClosestNumber(self, nums: list[int]) -> int:
+        # Key is a tuple: (absolute value, negative of value)
+        # Minimizing abs(x) and -x effectively maximizes x on tie
+        return min(nums, key=lambda x: (abs(x), -x))
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+import java.util.Comparator;
+
+class Solution {
+    public int findClosestNumber(int[] nums) {
+        return Arrays.stream(nums)
+                .min(Comparator
+                        .comparingInt((Integer x) -> Math.abs(x))
+                        .thenComparing(Comparator.comparingInt((Integer x) -> -x)))
+                .get();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+#include <vector>
+
+class Solution {
+public:
+    int findClosestNumber(vector<int>& nums) {
+        return *min_element(nums.begin(), nums.end(), [](int a, int b) {
+            if (abs(a) != abs(b)) {
+                return abs(a) &lt; abs(b);
+            }
+            return a &gt; b; // Prefer larger number on tie
+        });
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var findClosestNumber = function(nums) {
+    return nums.reduce((closest, current) =&gt; {
+        if (Math.abs(current) &lt; Math.abs(closest)) {
+            return current;
+        }
+        if (Math.abs(current) === Math.abs(closest)) {
+            return Math.max(closest, current);
+        }
+        return closest;
+    });
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findClosestNumber(nums: number[]): number {
+    return nums.reduce((closest, current) =&gt; {
+        if (Math.abs(current) &lt; Math.abs(closest)) {
+            return current;
+        }
+        if (Math.abs(current) === Math.abs(closest)) {
+            return Math.max(closest, current);
+        }
+        return closest;
+    });
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) — The `min` function traverses the array once.
+- Space: O(1) — No extra space proportional to input size is used.
+- Notes: This is a concise, idiomatic solution in languages like Python.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Closest Number to Zero Solutions","datePublished":"2024-09-18","description":"Given an integer array nums, find the number with the value closest to 0. If there is a tie, return the positive number.","keywords":"LeetCode, Find Closest Number to Zero, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we iterate through the array once."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"How do we handle ties when two numbers are equally close to zero?","acceptedAnswer":{"@type":"Answer","text":"If two numbers have the same absolute distance to zero, we return the positive number (the one with the larger value)."}}]}).replace(/</g,'\u003c')}
+</script>

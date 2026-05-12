@@ -1,0 +1,126 @@
+---
+title: "Maximum Population Year"
+summary: "Find the year with the highest population based on birth and death years."
+date: "Dec 07, 2024"
+tags:
+  - Array
+  - Counting
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.00% | **Paid:** No
+> **Topics:** Array, Counting, Prefix Sum
+
+You are given a 2D integer array logs where each logs[i] = [birthi, deathi] indicates the birth and death years of the ith person.
+
+The population of some year x is the number of people alive during that year. The ith person is counted in year x's population if x is in the inclusive range [birthi, deathi - 1]. Note that the person is not counted in the year they die.
+
+Return the year with the maximum population. If there are multiple years with the maximum population, return the smallest year.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Prefix Sum / Line Sweep](#prefix-sum-line-sweep)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+logs = [[1993,1999],[2000,2010]]
+```
+
+**Output:**
+```text
+1993
+```
+
+**Explanation:**
+The maximum population is 1, and 1993 is the earliest year with this population.
+
+### Example 2
+
+**Input:**
+```text
+logs = [[1950,1961],[1960,1971],[1970,1981]]
+```
+
+**Output:**
+```text
+1960
+```
+
+**Explanation:**
+The maximum population is 2, and it had happened in years 1960 and 1970.
+The earlier year between them is 1960.
+
+## Constraints
+
+```text
+1 <= logs.length <= 100
+1950 <= birthi < deathi <= 2050
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Since the range of years is fixed and small (1950 to 2050), we can create an array representing each year and increment the count for every year a person is alive.
+
+**Steps**
+- Initialize an array `population` of size 101 (for years 1950 to 2050) with zeros.
+- Iterate through each person in `logs`.
+- For each person, iterate from their `birth` year to `death - 1` year.
+- Increment the corresponding index in the `population` array (index = `year - 1950`).
+- Iterate through the `population` array to find the index with the maximum value.
+- Return the year corresponding to that index (`index + 1950`).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def maximumPopulation(self, logs: List[List[int]]) -&gt; int:\r\n        # Array to store population count for years 1950 to 2050\r\n        population = [0] * 101\r\n        \r\n        for birth, death in logs:\r\n            # Increment population for each year the person is alive\r\n            for year in range(birth, death):\r\n                population[year - 1950] += 1\r\n        \r\n        max_pop = 0\r\n        max_year = 1950\r\n        \r\n        # Find the earliest year with maximum population\r\n        for i in range(101):\r\n            if population[i] &gt; max_pop:\r\n                max_pop = population[i]\r\n                max_year = i + 1950\r\n                \r\n        return max_year" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int maximumPopulation(int[][] logs) {\r\n        // Array to store population count for years 1950 to 2050\r\n        int[] population = new int[101];\r\n        \r\n        for (int[] log : logs) {\r\n            int birth = log[0];\r\n            int death = log[1];\r\n            // Increment population for each year the person is alive\r\n            for (int year = birth; year &lt; death; year++) {\r\n                population[year - 1950]++;\r\n            }\r\n        }\r\n        \r\n        int maxPop = 0;\r\n        int maxYear = 1950;\r\n        \r\n        // Find the earliest year with maximum population\r\n        for (int i = 0; i &lt; 101; i++) {\r\n            if (population[i] &gt; maxPop) {\r\n                maxPop = population[i];\r\n                maxYear = i + 1950;\r\n            }\r\n        }\r\n        \r\n        return maxYear;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    int maximumPopulation(vector&lt;vector&lt;int&gt;&gt;& logs) {\r\n        // Array to store population count for years 1950 to 2050\r\n        int population[101] = {0};\r\n        \r\n        for (const auto& log : logs) {\r\n            int birth = log[0];\r\n            int death = log[1];\r\n            // Increment population for each year the person is alive\r\n            for (int year = birth; year &lt; death; year++) {\r\n                population[year - 1950]++;\r\n            }\r\n        }\r\n        \r\n        int maxPop = 0;\r\n        int maxYear = 1950;\r\n        \r\n        // Find the earliest year with maximum population\r\n        for (int i = 0; i &lt; 101; i++) {\r\n            if (population[i] &gt; maxPop) {\r\n                maxPop = population[i];\r\n                maxYear = i + 1950;\r\n            }\r\n        }\r\n        \r\n        return maxYear;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumPopulation = function(logs) {\r\n    // Array to store population count for years 1950 to 2050\r\n    let population = new Array(101).fill(0);\r\n    \r\n    for (let log of logs) {\r\n        let birth = log[0];\r\n        let death = log[1];\r\n        // Increment population for each year the person is alive\r\n        for (let year = birth; year &lt; death; year++) {\r\n            population[year - 1950]++;\r\n        }\r\n    }\r\n    \r\n    let maxPop = 0;\r\n    let maxYear = 1950;\r\n    \r\n    // Find the earliest year with maximum population\r\n    for (let i = 0; i &lt; 101; i++) {\r\n        if (population[i] &gt; maxPop) {\r\n            maxPop = population[i];\r\n            maxYear = i + 1950;\r\n        }\r\n    }\r\n    \r\n    return maxYear;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumPopulation(logs: number[][]): number {\r\n    // Array to store population count for years 1950 to 2050\r\n    let population: number[] = new Array(101).fill(0);\r\n    \r\n    for (let log of logs) {\r\n        let birth: number = log[0];\r\n        let death: number = log[1];\r\n        // Increment population for each year the person is alive\r\n        for (let year = birth; year &lt; death; year++) {\r\n            population[year - 1950]++;\r\n        }\r\n    }\r\n    \r\n    let maxPop: number = 0;\r\n    let maxYear: number = 1950;\r\n    \r\n    // Find the earliest year with maximum population\r\n    for (let i = 0; i &lt; 101; i++) {\r\n        if (population[i] &gt; maxPop) {\r\n            maxPop = population[i];\r\n            maxYear = i + 1950;\r\n        }\r\n    }\r\n    \r\n    return maxYear;\r\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of logs and L is the maximum lifespan (max 100). Effectively O(N).
+- Space: O(1) as the array size is fixed (101).
+- Notes: Simple to implement and very efficient given the constraints.
+
+---
+## Prefix Sum / Line Sweep
+
+**Intuition**
+Instead of iterating through every year of every person's life, we can mark the start (+1) and end (-1) of a life. By calculating the running sum (prefix sum) of these changes, we can determine the population for each year in a single pass.
+
+**Steps**
+- Initialize an array `changes` of size 102 (1950 to 2051) with zeros.
+- Iterate through each person in `logs`.
+- Increment `changes[birth - 1950]` by 1.
+- Decrement `changes[death - 1950]` by 1 (since the person is not alive in the death year).
+- Iterate through the `changes` array, maintaining a running sum `currentPop`.
+- Track the maximum population encountered and the corresponding year.
+- Return the earliest year with the maximum population.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def maximumPopulation(self, logs: List[List[int]]) -&gt; int:\r\n        # Array to store population changes (delta)\r\n        # Size 102 to accommodate index 2050 (death year)\r\n        changes = [0] * 102\r\n        \r\n        for birth, death in logs:\r\n            changes[birth - 1950] += 1\r\n            changes[death - 1950] -= 1\r\n        \r\n        max_pop = 0\r\n        current_pop = 0\r\n        max_year = 1950\r\n        \r\n        # Calculate prefix sum to find population for each year\r\n        for i in range(101):\r\n            current_pop += changes[i]\r\n            if current_pop &gt; max_pop:\r\n                max_pop = current_pop\r\n                max_year = i + 1950\r\n                \r\n        return max_year" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int maximumPopulation(int[][] logs) {\r\n        // Array to store population changes (delta)\r\n        // Size 102 to accommodate index 2050 (death year)\r\n        int[] changes = new int[102];\r\n        \r\n        for (int[] log : logs) {\r\n            int birth = log[0];\r\n            int death = log[1];\r\n            changes[birth - 1950]++;\r\n            changes[death - 1950]--;\r\n        }\r\n        \r\n        int maxPop = 0;\r\n        int currentPop = 0;\r\n        int maxYear = 1950;\r\n        \r\n        // Calculate prefix sum to find population for each year\r\n        for (int i = 0; i &lt; 101; i++) {\r\n            currentPop += changes[i];\r\n            if (currentPop &gt; maxPop) {\r\n                maxPop = currentPop;\r\n                maxYear = i + 1950;\r\n            }\r\n        }\r\n        \r\n        return maxYear;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    int maximumPopulation(vector&lt;vector&lt;int&gt;&gt;& logs) {\r\n        // Array to store population changes (delta)\r\n        // Size 102 to accommodate index 2050 (death year)\r\n        int changes[102] = {0};\r\n        \r\n        for (const auto& log : logs) {\r\n            int birth = log[0];\r\n            int death = log[1];\r\n            changes[birth - 1950]++;\r\n            changes[death - 1950]--;\r\n        }\r\n        \r\n        int maxPop = 0;\r\n        int currentPop = 0;\r\n        int maxYear = 1950;\r\n        \r\n        // Calculate prefix sum to find population for each year\r\n        for (int i = 0; i &lt; 101; i++) {\r\n            currentPop += changes[i];\r\n            if (currentPop &gt; maxPop) {\r\n                maxPop = currentPop;\r\n                maxYear = i + 1950;\r\n            }\r\n        }\r\n        \r\n        return maxYear;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumPopulation = function(logs) {\r\n    // Array to store population changes (delta)\r\n    // Size 102 to accommodate index 2050 (death year)\r\n    let changes = new Array(102).fill(0);\r\n    \r\n    for (let log of logs) {\r\n        let birth = log[0];\r\n        let death = log[1];\r\n        changes[birth - 1950]++;\r\n        changes[death - 1950]--;\r\n    }\r\n    \r\n    let maxPop = 0;\r\n    let currentPop = 0;\r\n    let maxYear = 1950;\r\n    \r\n    // Calculate prefix sum to find population for each year\r\n    for (let i = 0; i &lt; 101; i++) {\r\n        currentPop += changes[i];\r\n        if (currentPop &gt; maxPop) {\r\n            maxPop = currentPop;\r\n            maxYear = i + 1950;\r\n        }\r\n    }\r\n    \r\n    return maxYear;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumPopulation(logs: number[][]): number {\r\n    // Array to store population changes (delta)\r\n    // Size 102 to accommodate index 2050 (death year)\r\n    let changes: number[] = new Array(102).fill(0);\r\n    \r\n    for (let log of logs) {\r\n        let birth: number = log[0];\r\n        let death: number = log[1];\r\n        changes[birth - 1950]++;\r\n        changes[death - 1950]--;\r\n    }\r\n    \r\n    let maxPop: number = 0;\r\n    let currentPop: number = 0;\r\n    let maxYear: number = 1950;\r\n    \r\n    // Calculate prefix sum to find population for each year\r\n    for (let i = 0; i &lt; 101; i++) {\r\n        currentPop += changes[i];\r\n        if (currentPop &gt; maxPop) {\r\n            maxPop = currentPop;\r\n            maxYear = i + 1950;\r\n        }\r\n    }\r\n    \r\n    return maxYear;\r\n}" },]} />
+
+**Complexity**
+- Time: O(N + Y) where N is the number of logs and Y is the number of years (101).
+- Space: O(1) as the array size is fixed.
+- Notes: More optimal than brute force if the year range was large, as it processes each life in O(1) time.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Population Year Solutions","datePublished":"2024-12-07","description":"Find the year with the highest population based on birth and death years.","keywords":"LeetCode, Maximum Population Year, Easy, Array, Counting, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of logs and L is the maximum lifespan (max 100)."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + Y), where N is the number of logs and Y is the number of years (101)."}},{"@type":"Question","name":"What is the space complexity for both approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for both approaches because the auxiliary array size is fixed (101 or 102) regardless of the input size."}}]}).replace(/</g,'\u003c')}
+</script>

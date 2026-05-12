@@ -1,0 +1,127 @@
+---
+title: "Subtree of Another Tree"
+summary: "Given two binary trees, check if one tree is a subtree of the other by comparing structure and node values."
+date: "Aug 06, 2024"
+tags:
+  - Tree
+  - Depth-First Search
+  - String Matching
+  - Binary Tree
+  - Hash Function
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.60% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, String Matching, Binary Tree, Hash Function
+
+Given the roots of two binary trees root and subRoot, return true if there is a subtree of root with the same structure and node values of subRoot or false otherwise.
+
+A subtree of a binary tree tree is a tree that consists of a node in tree and all of this node's descendants. The tree tree could also be considered as a subtree of itself.
+
+- Examples
+- Constraints
+- [Approach 1: Depth-First Search (Recursive)](#approach-1-depth-first-search-recursive)
+- [Approach 2: Tree Serialization (String Matching)](#approach-2-tree-serialization-string-matching)
+- [Approach 3: Merkle Hashing]((#approach-3-merkle-hashing)
+
+## Examples
+
+```text
+Input: root = [3,4,5,1,2], subRoot = [4,1,2]
+Output: true
+```
+
+```text
+Input: root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
+Output: false
+```
+
+## Constraints
+
+```text
+The number of nodes in the root tree is in the range [1, 2000].
+The number of nodes in the subRoot tree is in the range [1, 1000].
+-10⁴ <= root.val <= 10⁴
+-10⁴ <= subRoot.val <= 10⁴
+```
+
+---
+
+## Approach 1: Depth-First Search (Recursive)
+
+**Intuition**
+We traverse the main tree and for every node, we check if the subtree starting at that node is identical to the target subtree.
+
+**Steps**
+- Define a helper function `isSameTree(s, t)` that checks if two trees are identical.
+- In the main function `isSubtree`, if the current node of `root` is null, return false.
+- If `isSameTree(root, subRoot)` returns true, we found a match.
+- Otherwise, recursively check the left subtree and the right subtree.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubtree(self, root: Optional[TreeNode], subRoot: Optional[TreeNode]) -&gt; bool:\n        if not subRoot: return True\n        if not root: return False\n        if self.isSameTree(root, subRoot): return True\n        return self.isSubtree(root.left, subRoot) or self.isSubtree(root.right, subRoot)\n\n    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -&gt; bool:\n        if not p and not q: return True\n        if not p or not q: return False\n        if p.val != q.val: return False\n        return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSubtree(TreeNode root, TreeNode subRoot) {\n        if (subRoot == null) return true;\n        if (root == null) return false;\n        if (isSameTree(root, subRoot)) return true;\n        return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);\n    }\n    private boolean isSameTree(TreeNode p, TreeNode q) {\n        if (p == null && q == null) return true;\n        if (p == null || q == null) return false;\n        if (p.val != q.val) return false;\n        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSubtree(TreeNode* root, TreeNode* subRoot) {\n        if (!subRoot) return true;\n        if (!root) return false;\n        if (isSameTree(root, subRoot)) return true;\n        return isSubtree(root-&gt;left, subRoot) || isSubtree(root-&gt;right, subRoot);\n    }\n    bool isSameTree(TreeNode* p, TreeNode* q) {\n        if (!p && !q) return true;\n        if (!p || !q) return false;\n        if (p-&gt;val != q-&gt;val) return false;\n        return isSameTree(p-&gt;left, q-&gt;left) && isSameTree(p-&gt;right, q-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSubtree = function(root, subRoot) {\n    if (!subRoot) return true;\n    if (!root) return false;\n    if (isSameTree(root, subRoot)) return true;\n    return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);\n};\n\nvar isSameTree = function(p, q) {\n    if (!p && !q) return true;\n    if (!p || !q) return false;\n    if (p.val !== q.val) return false;\n    return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {\n    if (!subRoot) return true;\n    if (!root) return false;\n    if (isSameTree(root, subRoot)) return true;\n    return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);\n}\n\nfunction isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {\n    if (!p && !q) return true;\n    if (!p || !q) return false;\n    if (p.val !== q.val) return false;\n    return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n}" },]} />
+
+**Complexity**
+- Time: O(M * N) in the worst case, where M and N are the number of nodes in root and subRoot.
+- Space: O(max(M, N)) for the recursion stack.
+- Notes: Simple to implement but can be slow for large trees.
+
+---
+
+## Approach 2: Tree Serialization (String Matching)
+
+**Intuition**
+Serialize both trees into strings (e.g., using pre-order traversal with markers for null nodes) and check if the serialized string of `subRoot` is a substring of the serialized string of `root`.
+
+**Steps**
+- Serialize `root` into a string `s` using a pre-order traversal, adding delimiters and null markers.
+- Serialize `subRoot` into a string `t` using the same method.
+- Check if `t` is a substring of `s`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubtree(self, root: Optional[TreeNode], subRoot: Optional[TreeNode]) -&gt; bool:\n        def serialize(node):\n            if not node: return \"#\"\n            return \",\" + str(node.val) + serialize(node.left) + serialize(node.right)\n        return serialize(subRoot) in serialize(root)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSubtree(TreeNode root, TreeNode subRoot) {\n        String s = serialize(root);\n        String t = serialize(subRoot);\n        return s.contains(t);\n    }\n    private String serialize(TreeNode node) {\n        if (node == null) return \"#\";\n        return \",\" + node.val + serialize(node.left) + serialize(node.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSubtree(TreeNode* root, TreeNode* subRoot) {\n        string s = serialize(root);\n        string t = serialize(subRoot);\n        return s.find(t) != string::npos;\n    }\n    string serialize(TreeNode* node) {\n        if (!node) return \"#\";\n        return \",\" + to_string(node-&gt;val) + serialize(node-&gt;left) + serialize(node-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSubtree = function(root, subRoot) {\n    var serialize = function(node) {\n        if (!node) return \"#\";\n        return \",\" + node.val + serialize(node.left) + serialize(node.right);\n    };\n    return serialize(root).indexOf(serialize(subRoot)) !== -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {\n    function serialize(node: TreeNode | null): string {\n        if (!node) return \"#\";\n        return \",\" + node.val + serialize(node.left) + serialize(node.right);\n    }\n    return serialize(root).indexOf(serialize(subRoot)) !== -1;\n}" },]} />
+
+**Complexity**
+- Time: O(M² + N²) for string concatenation in naive implementations, or O(M + N) with StringBuilder/KMP.
+- Space: O(M + N) to store the serialized strings.
+- Notes: Leverages standard string search algorithms but requires careful serialization to avoid collisions.
+
+---
+
+## Approach 3: Merkle Hashing
+
+**Intuition**
+Assign a unique hash to every node based on its value and the hashes of its children. If the hash of a node in `root` matches the hash of `subRoot`'s root, we verify the structure.
+
+**Steps**
+- Compute a hash for every node in `subRoot` and store the hash of the root.
+- Compute a hash for every node in `root`.
+- If a hash in `root` matches the target hash, perform a full tree comparison to confirm.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubtree(self, root: Optional[TreeNode], subRoot: Optional[TreeNode]) -&gt; bool:\n        from hashlib import sha256\n        \n        def merkle(node):\n            if not node:\n                return \"#\"\n            m = sha256()\n            m.update(str(node.val).encode())\n            m.update(merkle(node.left).encode())\n            m.update(merkle(node.right).encode())\n            return m.hexdigest()\n        \n        target = merkle(subRoot)\n        \n        def dfs(node):\n            if not node: return False\n            h = merkle(node)\n            if h == target and self.isSameTree(node, subRoot):\n                return True\n            return dfs(node.left) or dfs(node.right)\n        \n        return dfs(root)\n    \n    def isSameTree(self, p, q):\n        if not p and not q: return True\n        if not p or not q: return False\n        if p.val != q.val: return False\n        return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean isSubtree(TreeNode root, TreeNode subRoot) {\n        String target = merkle(subRoot);\n        return dfs(root, subRoot, target);\n    }\n    \n    private String merkle(TreeNode node) {\n        if (node == null) return \"#\";\n        return \"(\" + node.val + merkle(node.left) + merkle(node.right) + \")\";\n    }\n    \n    private boolean dfs(TreeNode node, TreeNode subRoot, String target) {\n        if (node == null) return false;\n        if (merkle(node).equals(target) && isSameTree(node, subRoot)) return true;\n        return dfs(node.left, subRoot, target) || dfs(node.right, subRoot, target);\n    }\n    \n    private boolean isSameTree(TreeNode p, TreeNode q) {\n        if (p == null && q == null) return true;\n        if (p == null || q == null) return false;\n        if (p.val != q.val) return false;\n        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSubtree(TreeNode* root, TreeNode* subRoot) {\n        string target = merkle(subRoot);\n        return dfs(root, subRoot, target);\n    }\n    \n    string merkle(TreeNode* node) {\n        if (!node) return \"#\";\n        return \"(\" + to_string(node-&gt;val) + merkle(node-&gt;left) + merkle(node-&gt;right) + \")\";\n    }\n    \n    bool dfs(TreeNode* node, TreeNode* subRoot, string& target) {\n        if (!node) return false;\n        if (merkle(node) == target && isSameTree(node, subRoot)) return true;\n        return dfs(node-&gt;left, subRoot, target) || dfs(node-&gt;right, subRoot, target);\n    }\n    \n    bool isSameTree(TreeNode* p, TreeNode* q) {\n        if (!p && !q) return true;\n        if (!p || !q) return false;\n        if (p-&gt;val != q-&gt;val) return false;\n        return isSameTree(p-&gt;left, q-&gt;left) && isSameTree(p-&gt;right, q-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSubtree = function(root, subRoot) {\n    var target = merkle(subRoot);\n    return dfs(root, subRoot, target);\n};\n\nvar merkle = function(node) {\n    if (!node) return \"#\";\n    return \"(\" + node.val + merkle(node.left) + merkle(node.right) + \")\";\n};\n\nvar dfs = function(node, subRoot, target) {\n    if (!node) return false;\n    if (merkle(node) === target && isSameTree(node, subRoot)) return true;\n    return dfs(node.left, subRoot, target) || dfs(node.right, subRoot, target);\n};\n\nvar isSameTree = function(p, q) {\n    if (!p && !q) return true;\n    if (!p || !q) return false;\n    if (p.val !== q.val) return false;\n    return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {\n    const target = merkle(subRoot);\n    return dfs(root, subRoot, target);\n}\n\nfunction merkle(node: TreeNode | null): string {\n    if (!node) return \"#\";\n    return \"(\" + node.val + merkle(node.left) + merkle(node.right) + \")\";\n}\n\nfunction dfs(node: TreeNode | null, subRoot: TreeNode | null, target: string): boolean {\n    if (!node) return false;\n    if (merkle(node) === target && isSameTree(node, subRoot)) return true;\n    return dfs(node.left, subRoot, target) || dfs(node.right, subRoot, target);\n}\n\nfunction isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {\n    if (!p && !q) return true;\n    if (!p || !q) return false;\n    if (p.val !== q.val) return false;\n    return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);\n}" },]} />
+
+**Complexity**
+- Time: O(M + N) on average for hash computation, O(M * N) worst case if hash collisions occur frequently.
+- Space: O(M + N) for recursion stack and hash storage.
+- Notes: Efficient for very large trees where early pruning via hash is beneficial.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Subtree of Another Tree Solutions","datePublished":"2024-08-06","description":"Given two binary trees, check if one tree is a subtree of the other by comparing structure and node values.","keywords":"LeetCode, Subtree of Another Tree, Easy, Tree, Depth-First Search, String Matching, Binary Tree, Hash Function"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(M * N), where M and N are the number of nodes in the main tree and the subtree, respectively."}},{"@type":"Question","name":"How does the Tree Serialization approach work?","acceptedAnswer":{"@type":"Answer","text":"It converts both trees into strings using a traversal (like pre-order) and checks if the subtree's string is a substring of the main tree's string."}},{"@type":"Question","name":"What is the advantage of Merkle Hashing?","acceptedAnswer":{"@type":"Answer","text":"Merkle Hashing allows for early pruning by comparing hash values before performing a full tree comparison, which can be faster for large trees."}}]}).replace(/</g,'\u003c')}
+</script>

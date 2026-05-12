@@ -1,0 +1,422 @@
+---
+title: "Sort Integers by Binary Reflection"
+summary: "Sort an array of integers based on the value of their binary reflection (reversed bits)."
+date: "Oct 07, 2024"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.00% | **Paid:** No
+> **Topics:** Array, Sorting
+
+You are given an array of integers. Sort the array in ascending order based on the value of each integer's binary reflection. The binary reflection of an integer is obtained by reversing the bits in its binary representation.
+
+For example, the binary representation of 6 is 110. Reversing the bits gives 011, which is 3 in decimal. Therefore, the binary reflection of 6 is 3.
+
+Return the sorted array.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force with Pair Array](#approach-1-brute-force-with-pair-array)
+- [Approach 2: Custom Sort Comparator](#approach-2-custom-sort-comparator)
+- [Approach 3: Precompute Reflections with Index Mapping](#approach-3-precompute-reflections-with-index-mapping)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [5, 2, 3, 6]
+Output: [2, 3, 6, 5]
+Explanation: 
+- Binary reflection of 5 (101) is 5
+- Binary reflection of 2 (10) is 1
+- Binary reflection of 3 (11) is 3
+- Binary reflection of 6 (110) is 3
+Sorted by reflection: [2(1), 3(3), 6(3), 5(5)]
+```
+
+### Example 2
+```text
+Input: nums = [1, 2, 3, 4]
+Output: [1, 2, 4, 3]
+Explanation:
+- Binary reflection of 1 (1) is 1
+- Binary reflection of 2 (10) is 1
+- Binary reflection of 3 (11) is 3
+- Binary reflection of 4 (100) is 1
+Sorted by reflection: [1(1), 2(1), 4(1), 3(3)]
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 1 <= nums[i] <= 10^9
+```
+
+---
+## Approach 1: Brute Force with Pair Array
+
+**Intuition**
+Create pairs of (binary reflection, original value) for each number, then sort these pairs by the reflection value and extract the original values.
+
+**Steps**
+- Calculate binary reflection for each number
+- Create an array of pairs (reflection, original)
+- Sort the array by reflection values
+- Extract and return original values in sorted order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def binaryReflection(self, n: int) -> int:
+        result = 0
+        while n &gt; 0:
+            result = (result &lt;&lt; 1) | (n & 1)
+            n &gt;&gt;= 1
+        return result
+    
+    def sortIntegersByBinaryReflection(self, nums: list[int]) -> list[int]:
+        pairs = [(self.binaryReflection(num), num) for num in nums]
+        pairs.sort(key=lambda x: x[0])
+        return [num for _, num in pairs]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    private int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    public int[] sortIntegersByBinaryReflection(int[] nums) {
+        int n = nums.length;
+        int[][] pairs = new int[n][2];
+        for (int i = 0; i &lt; n; i++) {
+            pairs[i][0] = binaryReflection(nums[i]);
+            pairs[i][1] = nums[i];
+        }
+        java.util.Arrays.sort(pairs, (a, b) -> Integer.compare(a[0], b[0]));
+        int[] result = new int[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = pairs[i][1];
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+private:
+    int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+public:
+    vector<int> sortIntegersByBinaryReflection(vector<int>& nums) {
+        int n = nums.size();
+        vector<pair<int, int>&gt; pairs(n);
+        for (int i = 0; i &lt; n; i++) {
+            pairs[i] = {binaryReflection(nums[i]), nums[i]};
+        }
+        sort(pairs.begin(), pairs.end());
+        vector<int> result(n);
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = pairs[i].second;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    binaryReflection(n) {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums) {
+        const pairs = nums.map(num =&gt; [this.binaryReflection(num), num]);
+        pairs.sort((a, b) =&gt; a[0] - b[0]);
+        return pairs.map(pair =&gt; pair[1]);
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    private binaryReflection(n: number): number {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums: number[]): number[] {
+        const pairs = nums.map(num =&gt; [this.binaryReflection(num), num]);
+        pairs.sort((a, b) =&gt; a[0] - b[0]);
+        return pairs.map(pair =&gt; pair[1]);
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n × k) where k is the average number of bits in each number
+- Space: O(n) for storing pairs
+- Notes: Simple and readable, but uses extra space for pairs
+
+---
+## Approach 2: Custom Sort Comparator
+
+**Intuition**
+Use the language's built-in sort with a custom comparator that compares binary reflections directly, avoiding the need to create separate pair arrays.
+
+**Steps**
+- Define a comparator function that compares binary reflections
+- Apply the comparator to sort the array
+- Return the sorted array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def binaryReflection(self, n: int) -> int:
+        result = 0
+        while n &gt; 0:
+            result = (result &lt;&lt; 1) | (n & 1)
+            n &gt;&gt;= 1
+        return result
+    
+    def sortIntegersByBinaryReflection(self, nums: list[int]) -> list[int]:
+        nums.sort(key=lambda x: self.binaryReflection(x))
+        return nums
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+import java.util.stream.IntStream;
+
+class Solution {
+    private int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    public int[] sortIntegersByBinaryReflection(int[] nums) {
+        Integer[] boxed = IntStream.of(nums).boxed().toArray(Integer[]::new);
+        Arrays.sort(boxed, (a, b) -> Integer.compare(binaryReflection(a), binaryReflection(b)));
+        for (int i = 0; i &lt; nums.length; i++) {
+            nums[i] = boxed[i];
+        }
+        return nums;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+private:
+    int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+public:
+    vector<int> sortIntegersByBinaryReflection(vector<int>& nums) {
+        sort(nums.begin(), nums.end(), [this](int a, int b) {
+            return binaryReflection(a) &lt; binaryReflection(b);
+        });
+        return nums;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    binaryReflection(n) {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums) {
+        nums.sort((a, b) =&gt; this.binaryReflection(a) - this.binaryReflection(b));
+        return nums;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    private binaryReflection(n: number): number {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums: number[]): number[] {
+        nums.sort((a, b) =&gt; this.binaryReflection(a) - this.binaryReflection(b));
+        return nums;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n × k) where k is the average number of bits
+- Space: O(1) extra space (in-place sort)
+- Notes: More memory efficient but may compute binary reflection multiple times for the same element during sorting
+
+---
+## Approach 3: Precompute Reflections with Index Mapping
+
+**Intuition**
+Precompute all binary reflections once and store them, then use these precomputed values during sorting to avoid redundant calculations.
+
+**Steps**
+- Calculate and store binary reflection for each number
+- Create indexed array with original indices
+- Sort indices based on precomputed reflections
+- Build result array using sorted indices
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def binaryReflection(self, n: int) -> int:
+        result = 0
+        while n &gt; 0:
+            result = (result &lt;&lt; 1) | (n & 1)
+            n &gt;&gt;= 1
+        return result
+    
+    def sortIntegersByBinaryReflection(self, nums: list[int]) -> list[int]:
+        reflections = [self.binaryReflection(num) for num in nums]
+        indexed = list(enumerate(nums))
+        indexed.sort(key=lambda x: reflections[x[0]])
+        return [num for _, num in indexed]
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    private int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    public int[] sortIntegersByBinaryReflection(int[] nums) {
+        int n = nums.length;
+        int[] reflections = new int[n];
+        for (int i = 0; i &lt; n; i++) {
+            reflections[i] = binaryReflection(nums[i]);
+        }
+        Integer[] indices = new Integer[n];
+        for (int i = 0; i &lt; n; i++) {
+            indices[i] = i;
+        }
+        Arrays.sort(indices, (a, b) -> Integer.compare(reflections[a], reflections[b]));
+        int[] result = new int[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = nums[indices[i]];
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <numeric>
+
+class Solution {
+private:
+    int binaryReflection(int n) {
+        int result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+public:
+    vector<int> sortIntegersByBinaryReflection(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> reflections(n);
+        for (int i = 0; i &lt; n; i++) {
+            reflections[i] = binaryReflection(nums[i]);
+        }
+        vector<int> indices(n);
+        iota(indices.begin(), indices.end(), 0);
+        sort(indices.begin(), indices.end(), [&reflections](int a, int b) {
+            return reflections[a] &lt; reflections[b];
+        });
+        vector<int> result(n);
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = nums[indices[i]];
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    binaryReflection(n) {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums) {
+        const reflections = nums.map(num =&gt; this.binaryReflection(num));
+        const indexed = nums.map((num, i) =&gt; ({ num, reflection: reflections[i] }));
+        indexed.sort((a, b) =&gt; a.reflection - b.reflection);
+        return indexed.map(item =&gt; item.num);
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    private binaryReflection(n: number): number {
+        let result = 0;
+        while (n &gt; 0) {
+            result = (result &lt;&lt; 1) | (n & 1);
+            n &gt;&gt;= 1;
+        }
+        return result;
+    }
+    
+    sortIntegersByBinaryReflection(nums: number[]): number[] {
+        const reflections = nums.map(num =&gt; this.binaryReflection(num));
+        const indexed = nums.map((num, i) =&gt; ({ num, reflection: reflections[i] }));
+        indexed.sort((a, b) =&gt; a.reflection - b.reflection);
+        return indexed.map(item =&gt; item.num);
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × k + n log n) where k is the average number of bits
+- Space: O(n) for storing reflections
+- Notes: Computes each reflection exactly once, optimal for large arrays
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort Integers by Binary Reflection Solutions","datePublished":"2024-10-07","description":"Sort an array of integers based on the value of their binary reflection (reversed bits).","keywords":"LeetCode, Sort Integers by Binary Reflection, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of sorting by binary reflection?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n × k) where n is the number of elements and k is the average number of bits in each number."}},{"@type":"Question","name":"What is the space complexity of the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing precomputed binary reflections, or O(1) if using in-place sort with a custom comparator."}},{"@type":"Question","name":"How is binary reflection calculated?","acceptedAnswer":{"@type":"Answer","text":"Binary reflection is calculated by reversing the bits of a number. For each bit from LSB to MSB, we build the result by shifting left and adding the current bit."}}]}).replace(/</g,'\u003c')}
+</script>

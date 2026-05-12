@@ -1,0 +1,132 @@
+---
+title: "Count Symmetric Integers"
+summary: "Count integers in a range where the sum of the first half of digits equals the sum of the second half."
+date: "Aug 02, 2025"
+tags:
+  - Math
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.00% | **Paid:** No
+> **Topics:** Math, Enumeration
+
+You are given two positive integers low and high.
+
+An integer x is symmetric if the sum of the first half of the digits equals the sum of the second half of the digits. The number of digits must be even.
+
+Return the count of symmetric integers in the range [low, high].
+
+- Examples
+- Constraints
+- [Approach 1: String Conversion](#approach-1-string-conversion)
+- [Approach 2: Mathematical Digit Extraction](#approach-2-mathematical-digit-extraction)
+- [Approach 3: Precomputation](#approach-3-precomputation)
+
+## Examples
+
+```text
+Input: low = 1, high = 100
+Output: 9
+Explanation: There are 9 symmetric integers between 1 and 100: 11, 22, 33, 44, 55, 66, 77, 88, 99.
+```
+
+```text
+Input: low = 1200, high = 1230
+Output: 4
+Explanation: There are 4 symmetric integers between 1200 and 1230: 1203, 1212, 1221, 1230.
+```
+
+## Constraints
+
+```text
+1 <= low <= high <= 10^4
+```
+
+---
+
+## Approach 1: String Conversion
+
+**Intuition**
+Convert each number to a string to easily access individual digits and check the length. If the length is even, split the string in half and compare the sums of the characters.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through each number from `low` to `high` (inclusive).
+- Convert the number to a string.
+- If the string length is odd, skip the number.
+- Calculate the sum of the first half of the characters and the second half.
+- If the sums are equal, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countSymmetricIntegers(self, low: int, high: int) -&gt; int:\n        count = 0\n        for num in range(low, high + 1):\n            s = str(num)\n            n = len(s)\n            if n % 2 != 0:\n                continue\n            half = n // 2\n            sum1 = sum(int(c) for c in s[:half])\n            sum2 = sum(int(c) for c in s[half:])\n            if sum1 == sum2:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; num++) {\n            String s = String.valueOf(num);\n            int n = s.length();\n            if (n % 2 != 0) continue;\n            int half = n / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; i++) {\n                sum1 += s.charAt(i) - '0';\n            }\n            for (int i = half; i &lt; n; i++) {\n                sum2 += s.charAt(i) - '0';\n            }\n            if (sum1 == sum2) count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; ++num) {\n            string s = to_string(num);\n            int n = s.size();\n            if (n % 2 != 0) continue;\n            int half = n / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; ++i) sum1 += s[i] - '0';\n            for (int i = half; i &lt; n; ++i) sum2 += s[i] - '0';\n            if (sum1 == sum2) count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countSymmetricIntegers = function(low, high) {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        let s = num.toString();\n        let n = s.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += parseInt(s[i]);\n        for (let i = half; i &lt; n; i++) sum2 += parseInt(s[i]);\n        if (sum1 === sum2) count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countSymmetricIntegers(low: number, high: number): number {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        let s = num.toString();\n        let n = s.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += parseInt(s[i]);\n        for (let i = half; i &lt; n; i++) sum2 += parseInt(s[i]);\n        if (sum1 === sum2) count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * D) where N is the size of the range and D is the number of digits (max 5).
+- Space: O(D) to store the string representation.
+- Notes: Simple to implement but involves string allocation overhead.
+
+---
+
+## Approach 2: Mathematical Digit Extraction
+
+**Intuition**
+Instead of converting to a string, use modulo and division operations to extract digits. This avoids string allocation and is generally more performant in lower-level languages.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through each number from `low` to `high`.
+- Extract digits into a list or array by repeatedly taking `num % 10` and dividing `num` by 10.
+- If the number of digits is odd, skip.
+- Sum the first half and the second half of the extracted digits.
+- Compare sums and update the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countSymmetricIntegers(self, low: int, high: int) -&gt; int:\n        count = 0\n        for num in range(low, high + 1):\n            digits = []\n            temp = num\n            while temp &gt; 0:\n                digits.append(temp % 10)\n                temp //= 10\n            digits.reverse()\n            n = len(digits)\n            if n % 2 != 0:\n                continue\n            half = n // 2\n            sum1 = sum(digits[:half])\n            sum2 = sum(digits[half:])\n            if sum1 == sum2:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; num++) {\n            int[] digits = new int[5];\n            int len = 0;\n            int temp = num;\n            while (temp &gt; 0) {\n                digits[len++] = temp % 10;\n                temp /= 10;\n            }\n            if (len % 2 != 0) continue;\n            int half = len / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; i++) sum1 += digits[len - 1 - i];\n            for (int i = 0; i &lt; half; i++) sum2 += digits[half - 1 - i];\n            if (sum1 == sum2) count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; ++num) {\n            int digits[5];\n            int len = 0;\n            int temp = num;\n            while (temp &gt; 0) {\n                digits[len++] = temp % 10;\n                temp /= 10;\n            }\n            if (len % 2 != 0) continue;\n            int half = len / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; ++i) sum1 += digits[len - 1 - i];\n            for (int i = 0; i &lt; half; ++i) sum2 += digits[half - 1 - i];\n            if (sum1 == sum2) count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countSymmetricIntegers = function(low, high) {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        let digits = [];\n        let temp = num;\n        while (temp &gt; 0) {\n            digits.push(temp % 10);\n            temp = Math.floor(temp / 10);\n        }\n        digits.reverse();\n        let n = digits.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += digits[i];\n        for (let i = half; i &lt; n; i++) sum2 += digits[i];\n        if (sum1 === sum2) count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countSymmetricIntegers(low: number, high: number): number {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        let digits: number[] = [];\n        let temp = num;\n        while (temp &gt; 0) {\n            digits.push(temp % 10);\n            temp = Math.floor(temp / 10);\n        }\n        digits.reverse();\n        let n = digits.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += digits[i];\n        for (let i = half; i &lt; n; i++) sum2 += digits[i];\n        if (sum1 === sum2) count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * D) where N is the range size and D is the number of digits.
+- Space: O(D) to store the digits array.
+- Notes: Avoids string overhead, suitable for environments where string manipulation is expensive.
+
+---
+
+## Approach 3: Precomputation
+
+**Intuition**
+Since the constraint `high` is limited to 10⁴, there are only a finite number of symmetric integers. We can precompute all symmetric integers up to 10⁴ once and store them in a set. Then, for any query, we simply iterate through the range and check membership in the set.
+
+**Steps**
+- Generate all numbers from 1 to 10⁴.
+- Check if each number is symmetric (using logic from Approach 1 or 2).
+- Store valid numbers in a HashSet (or Set).
+- Iterate from `low` to `high` and count how many numbers are present in the set.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def __init__(self):\n        self.symmetric_set = set()\n        for num in range(1, 10001):\n            s = str(num)\n            n = len(s)\n            if n % 2 != 0:\n                continue\n            half = n // 2\n            if sum(int(c) for c in s[:half]) == sum(int(c) for c in s[half:]):\n                self.symmetric_set.add(num)\n\n    def countSymmetricIntegers(self, low: int, high: int) -&gt; int:\n        count = 0\n        for num in range(low, high + 1):\n            if num in self.symmetric_set:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    private Set&lt;Integer&gt; symmetricSet;\n\n    public Solution() {\n        symmetricSet = new HashSet&lt;&gt;();\n        for (int num = 1; num &lt;= 10000; num++) {\n            String s = String.valueOf(num);\n            int n = s.length();\n            if (n % 2 != 0) continue;\n            int half = n / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; i++) sum1 += s.charAt(i) - '0';\n            for (int i = half; i &lt; n; i++) sum2 += s.charAt(i) - '0';\n            if (sum1 == sum2) symmetricSet.add(num);\n        }\n    }\n\n    public int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; num++) {\n            if (symmetricSet.contains(num)) count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_set&gt;\n\nclass Solution {\nprivate:\n    std::unordered_set&lt;int&gt; symmetricSet;\n\n    void precompute() {\n        static bool computed = false;\n        if (computed) return;\n        computed = true;\n        for (int num = 1; num &lt;= 10000; ++num) {\n            string s = to_string(num);\n            int n = s.size();\n            if (n % 2 != 0) continue;\n            int half = n / 2;\n            int sum1 = 0, sum2 = 0;\n            for (int i = 0; i &lt; half; ++i) sum1 += s[i] - '0';\n            for (int i = half; i &lt; n; ++i) sum2 += s[i] - '0';\n            if (sum1 == sum2) symmetricSet.insert(num);\n        }\n    }\n\npublic:\n    Solution() {\n        precompute();\n    }\n\n    int countSymmetricIntegers(int low, int high) {\n        int count = 0;\n        for (int num = low; num &lt;= high; ++num) {\n            if (symmetricSet.count(num)) count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var symmetricSet = new Set();\n\n(function precompute() {\n    for (let num = 1; num &lt;= 10000; num++) {\n        let s = num.toString();\n        let n = s.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += parseInt(s[i]);\n        for (let i = half; i &lt; n; i++) sum2 += parseInt(s[i]);\n        if (sum1 === sum2) symmetricSet.add(num);\n    }\n})();\n\nvar countSymmetricIntegers = function(low, high) {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        if (symmetricSet.has(num)) count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "const symmetricSet: Set&lt;number&gt; = new Set();\n\n(function precompute() {\n    for (let num = 1; num &lt;= 10000; num++) {\n        let s = num.toString();\n        let n = s.length;\n        if (n % 2 !== 0) continue;\n        let half = n / 2;\n        let sum1 = 0, sum2 = 0;\n        for (let i = 0; i &lt; half; i++) sum1 += parseInt(s[i]);\n        for (let i = half; i &lt; n; i++) sum2 += parseInt(s[i]);\n        if (sum1 === sum2) symmetricSet.add(num);\n    }\n})();\n\nfunction countSymmetricIntegers(low: number, high: number): number {\n    let count = 0;\n    for (let num = low; num &lt;= high; num++) {\n        if (symmetricSet.has(num)) count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(1) for the query logic (iterating range is O(N), but the check is O(1)), O(10⁴) for precomputation.
+- Space: O(10⁴) to store the set of valid numbers.
+- Notes: Best for multiple queries, but overkill for a single query given the small constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode   Count Symmetric Integers Solutions","datePublished":"2025-08-02","description":"Count integers in a range where the sum of the first half of digits equals the sum of the second half.","keywords":"LeetCode,   Count Symmetric Integers, Easy, Math, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: String Conversion?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * D), where N is the size of the range [low, high] and D is the maximum number of digits (5 for this problem)."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Mathematical Digit Extraction?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(D) to store the extracted digits in an array or list."}},{"@type":"Question","name":"When is Approach 3: Precomputation most useful?","acceptedAnswer":{"@type":"Answer","text":"Precomputation is most useful when there are multiple queries to be answered, as the symmetric numbers are calculated only once."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,127 @@
+---
+title: "Sum of All Odd Length Subarrays"
+summary: "Given an array of positive integers, return the sum of all possible odd-length subarrays of the array."
+date: "Sep 07, 2025"
+tags:
+  - Array
+  - Math
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.00% | **Paid:** No
+> **Topics:** Array, Math, Prefix Sum
+
+Given an array of positive integers arr, return the sum of all possible odd-length subarrays of arr.
+
+A subarray is a contiguous subsequence of the array.
+
+## Examples
+
+### Example 1:
+```text
+Input: arr = [1,4,2,5,3]
+Output: 58
+Explanation: The odd-length subarrays are [1], [4], [2], [5], [3], [1,4,2], [4,2,5], [2,5,3], [1,4,2,5,3].
+Their sum is 1 + 4 + 2 + 5 + 3 + 7 + 11 + 10 + 15 = 58.
+```
+
+### Example 2:
+```text
+Input: arr = [1,2]
+Output: 3
+Explanation: There are only 2 subarrays of odd length, [1] and [2]. Their sum is 3.
+```
+
+### Example 3:
+```text
+Input: arr = [10,11,12]
+Output: 66
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 100
+1 <= arr[i] <= 1000
+```
+
+- [Brute Force](#brute-force)
+- [Prefix Sum](#prefix-sum)
+- [Math](#math)
+
+## Brute Force
+
+**Intuition**
+We can generate every possible subarray, check if its length is odd, and if so, sum its elements.
+
+**Steps**
+- Iterate through the array to define the starting index `i` of the subarray.
+- Iterate through the array starting from `i` to define the ending index `j`.
+- Calculate the length of the subarray as `j - i + 1`.
+- If the length is odd, iterate from `i` to `j` to sum the elements and add to the total result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOddLengthSubarrays(self, arr: list[int]) -&gt; int:\n        n = len(arr)\n        total_sum = 0\n        for i in range(n):\n            for j in range(i, n):\n                length = j - i + 1\n                if length % 2 == 1:\n                    for k in range(i, j + 1):\n                        total_sum += arr[k]\n        return total_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int sumOddLengthSubarrays(int[] arr) {\n        int n = arr.length;\n        int sum = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                if ((j - i + 1) % 2 == 1) {\n                    for (int k = i; k &lt;= j; k++) {\n                        sum += arr[k];\n                    }\n                }\n            }\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int sumOddLengthSubarrays(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        int sum = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i; j &lt; n; ++j) {\n                if ((j - i + 1) % 2 == 1) {\n                    for (int k = i; k &lt;= j; ++k) {\n                        sum += arr[k];\n                    }\n                }\n            }\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOddLengthSubarrays = function(arr) {\n    let n = arr.length;\n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            if ((j - i + 1) % 2 === 1) {\n                for (let k = i; k &lt;= j; k++) {\n                    sum += arr[k];\n                }\n            }\n        }\n    }\n    return sum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOddLengthSubarrays(arr: number[]): number {\n    let n = arr.length;\n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            if ((j - i + 1) % 2 === 1) {\n                for (let k = i; k &lt;= j; k++) {\n                    sum += arr[k];\n                }\n            }\n        }\n    }\n    return sum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³) - Three nested loops are used.
+- Space: O(1) - No extra space is used apart from variables.
+- Notes: Simple to implement but inefficient for large arrays.
+
+## Prefix Sum
+
+**Intuition**
+We can optimize the summation step by precomputing prefix sums. This allows us to calculate the sum of any subarray in O(1) time.
+
+**Steps**
+- Create a prefix sum array where `prefix[i]` is the sum of elements from `arr[0]` to `arr[i-1]`. Initialize `prefix[0] = 0`.
+- Iterate through all possible start indices `i` and end indices `j`.
+- If the subarray length `j - i + 1` is odd, calculate the sum using `prefix[j+1] - prefix[i]` and add it to the total.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOddLengthSubarrays(self, arr: list[int]) -&gt; int:\n        n = len(arr)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + arr[i]\n        \n        total_sum = 0\n        for i in range(n):\n            for j in range(i, n):\n                length = j - i + 1\n                if length % 2 == 1:\n                    total_sum += prefix[j + 1] - prefix[i]\n        return total_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int sumOddLengthSubarrays(int[] arr) {\n        int n = arr.length;\n        int[] prefix = new int[n + 1];\n        for (int i = 0; i &lt; n; i++) {\n            prefix[i + 1] = prefix[i] + arr[i];\n        }\n        \n        int sum = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                if ((j - i + 1) % 2 == 1) {\n                    sum += prefix[j + 1] - prefix[i];\n                }\n            }\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int sumOddLengthSubarrays(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        vector&lt;int&gt; prefix(n + 1, 0);\n        for (int i = 0; i &lt; n; ++i) {\n            prefix[i + 1] = prefix[i] + arr[i];\n        }\n        \n        int sum = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i; j &lt; n; ++j) {\n                if ((j - i + 1) % 2 == 1) {\n                    sum += prefix[j + 1] - prefix[i];\n                }\n            }\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOddLengthSubarrays = function(arr) {\n    let n = arr.length;\n    let prefix = new Array(n + 1).fill(0);\n    for (let i = 0; i &lt; n; i++) {\n        prefix[i + 1] = prefix[i] + arr[i];\n    }\n    \n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            if ((j - i + 1) % 2 === 1) {\n                sum += prefix[j + 1] - prefix[i];\n            }\n        }\n    }\n    return sum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOddLengthSubarrays(arr: number[]): number {\n    let n = arr.length;\n    let prefix = new Array(n + 1).fill(0);\n    for (let i = 0; i &lt; n; i++) {\n        prefix[i + 1] = prefix[i] + arr[i];\n    }\n    \n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            if ((j - i + 1) % 2 === 1) {\n                sum += prefix[j + 1] - prefix[i];\n            }\n        }\n    }\n    return sum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²) - Two nested loops to iterate over subarrays, with O(1) sum calculation.
+- Space: O(n) - For storing the prefix sum array.
+- Notes: Better time complexity than brute force, but uses extra space.
+
+## Math
+
+**Intuition**
+Instead of finding subarrays, we can calculate the contribution of each element `arr[i]` to the final sum. An element `arr[i]` appears in `(i + 1) * (n - i)` subarrays in total (choices for start * choices for end). Exactly half of these (rounded up) will be of odd length.
+
+**Steps**
+- Iterate through each element `arr[i]` in the array.
+- Calculate the total number of subarrays where `arr[i]` appears: `total = (i + 1) * (n - i)`.
+- Calculate the number of odd-length subarrays: `odd_count = (total + 1) / 2` (using integer division).
+- Add `arr[i] * odd_count` to the total sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOddLengthSubarrays(self, arr: list[int]) -&gt; int:\n        n = len(arr)\n        total_sum = 0\n        for i in range(n):\n            total_subarrays = (i + 1) * (n - i)\n            odd_subarrays = (total_subarrays + 1) // 2\n            total_sum += arr[i] * odd_subarrays\n        return total_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int sumOddLengthSubarrays(int[] arr) {\n        int n = arr.length;\n        int sum = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int totalSubarrays = (i + 1) * (n - i);\n            int oddSubarrays = (totalSubarrays + 1) / 2;\n            sum += arr[i] * oddSubarrays;\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int sumOddLengthSubarrays(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        int sum = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            int totalSubarrays = (i + 1) * (n - i);\n            int oddSubarrays = (totalSubarrays + 1) / 2;\n            sum += arr[i] * oddSubarrays;\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOddLengthSubarrays = function(arr) {\n    let n = arr.length;\n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let totalSubarrays = (i + 1) * (n - i);\n        let oddSubarrays = Math.floor((totalSubarrays + 1) / 2);\n        sum += arr[i] * oddSubarrays;\n    }\n    return sum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOddLengthSubarrays(arr: number[]): number {\n    let n = arr.length;\n    let sum = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let totalSubarrays = (i + 1) * (n - i);\n        let oddSubarrays = Math.floor((totalSubarrays + 1) / 2);\n        sum += arr[i] * oddSubarrays;\n    }\n    return sum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the array.
+- Space: O(1) - No extra space used.
+- Notes: The most optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sum of All Odd Length Subarrays Solutions","datePublished":"2025-09-07","description":"Given an array of positive integers, return the sum of all possible odd-length subarrays of the array.","keywords":"LeetCode, Sum of All Odd Length Subarrays, Easy, Array, Math, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n³)."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Prefix Sum approach is O(n²)."}},{"@type":"Question","name":"What is the time complexity of the Math approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Math approach is O(n)."}}]}).replace(/</g,'\u003c')}
+</script>

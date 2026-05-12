@@ -1,0 +1,122 @@
+---
+title: "Redistribute Characters to Make All Strings Equal"
+summary: "Determine if you can redistribute characters between strings to make all strings equal."
+date: "May 19, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.90% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+You are given an array of strings words (0-indexed).
+
+In one operation, pick two distinct indices i and j, pick a character from words[i] and move it to words[j].
+
+Return true if you can make all the strings equal, and false otherwise.
+
+- Examples
+- Constraints
+- [Hash Map Counting](#hash-map-counting)
+- [Array Counting](#array-counting)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+words = ["abc","aabc","bc"]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Move the first 'a' in words[1] to the front of words[2],
+to make words[1] = "abc" and words[2] = "abc".
+All the strings are now equal to "abc", so return true.
+
+### Example 2
+
+**Input:**
+```text
+words = ["ab","a"]
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+It is impossible to make all the strings equal using the operation.
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] consists of lowercase English letters.
+```
+
+---
+## Hash Map Counting
+
+**Intuition**
+For all strings to be equal after redistribution, the total count of each character across all strings must be evenly divisible by the number of strings.
+
+**Steps**
+- Count the frequency of each character across all strings using a hash map
+- Check if every character count is divisible by the number of strings
+- If any count is not divisible, return false; otherwise return true
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\nfrom typing import List\n\nclass Solution:\n    def makeEqual(self, words: List[str]) -&gt; bool:\n        n = len(words)\n        if n == 1:\n            return True\n        \n        counter = Counter()\n        for word in words:\n            counter.update(word)\n        \n        for count in counter.values():\n            if count % n != 0:\n                return False\n        \n        return True\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean makeEqual(String[] words) {\n        int n = words.length;\n        if (n == 1) {\n            return true;\n        }\n        \n        Map&lt;Character, Integer&gt; count = new HashMap&lt;&gt;();\n        for (String word : words) {\n            for (char c : word.toCharArray()) {\n                count.put(c, count.getOrDefault(c, 0) + 1);\n            }\n        }\n        \n        for (int c : count.values()) {\n            if (c % n != 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool makeEqual(vector&lt;string&gt;& words) {\n        int n = words.size();\n        if (n == 1) {\n            return true;\n        }\n        \n        unordered_map&lt;char, int&gt; count;\n        for (const string& word : words) {\n            for (char c : word) {\n                count[c]++;\n            }\n        }\n        \n        for (const auto& [c, cnt] : count) {\n            if (cnt % n != 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    makeEqual(words) {\n        const n = words.length;\n        if (n === 1) {\n            return true;\n        }\n        \n        const count = new Map();\n        for (const word of words) {\n            for (const c of word) {\n                count.set(c, (count.get(c) || 0) + 1);\n            }\n        }\n        \n        for (const cnt of count.values()) {\n            if (cnt % n !== 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    makeEqual(words: string[]): boolean {\n        const n = words.length;\n        if (n === 1) {\n            return true;\n        }\n        \n        const count = new Map&lt;string, number&gt;();\n        for (const word of words) {\n            for (const c of word) {\n                count.set(c, (count.get(c) || 0) + 1);\n            }\n        }\n        \n        for (const cnt of count.values()) {\n            if (cnt % n !== 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of strings and m is the average string length
+- Space: O(1) since we only store 26 lowercase letters
+- Notes: Hash map overhead is minimal for lowercase letters
+
+---
+## Array Counting
+
+**Intuition**
+Since the input only contains lowercase English letters, we can use a fixed-size array of 26 elements for counting, which is more efficient than a hash map.
+
+**Steps**
+- Create an array of size 26 initialized to zero
+- Iterate through all strings and increment the count for each character
+- Check if every count is divisible by the number of strings
+- Return true if all counts are divisible, false otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def makeEqual(self, words: List[str]) -&gt; bool:\n        n = len(words)\n        if n == 1:\n            return True\n        \n        count = [0] * 26\n        for word in words:\n            for c in word:\n                count[ord(c) - ord('a')] += 1\n        \n        for c in count:\n            if c % n != 0:\n                return False\n        \n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean makeEqual(String[] words) {\n        int n = words.length;\n        if (n == 1) {\n            return true;\n        }\n        \n        int[] count = new int[26];\n        for (String word : words) {\n            for (char c : word.toCharArray()) {\n                count[c - 'a']++;\n            }\n        }\n        \n        for (int c : count) {\n            if (c % n != 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool makeEqual(vector&lt;string&gt;& words) {\n        int n = words.size();\n        if (n == 1) {\n            return true;\n        }\n        \n        vector&lt;int&gt; count(26, 0);\n        for (const string& word : words) {\n            for (char c : word) {\n                count[c - 'a']++;\n            }\n        }\n        \n        for (int c : count) {\n            if (c % n != 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    makeEqual(words) {\n        const n = words.length;\n        if (n === 1) {\n            return true;\n        }\n        \n        const count = new Array(26).fill(0);\n        for (const word of words) {\n            for (const c of word) {\n                count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n            }\n        }\n        \n        for (const c of count) {\n            if (c % n !== 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    makeEqual(words: string[]): boolean {\n        const n = words.length;\n        if (n === 1) {\n            return true;\n        }\n        \n        const count = new Array(26).fill(0);\n        for (const word of words) {\n            for (const c of word) {\n                count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n            }\n        }\n        \n        for (const c of count) {\n            if (c % n !== 0) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of strings and m is the average string length
+- Space: O(1) fixed array of 26 integers
+- Notes: More efficient than hash map for lowercase letters due to direct indexing
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Redistribute Characters to Make All Strings Equal Solutions","datePublished":"2025-05-19","description":"Determine if you can redistribute characters between strings to make all strings equal.","keywords":"LeetCode, Redistribute Characters to Make All Strings Equal, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of strings and m is the average string length."}},{"@type":"Question","name":"What is the space complexity of Array Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since we use a fixed array of 26 integers for lowercase letters."}},{"@type":"Question","name":"Why do we check if character counts are divisible by the number of strings?","acceptedAnswer":{"@type":"Answer","text":"For all strings to be equal after redistribution, each string must receive the same number of each character, meaning total count of each character must be evenly distributed."}}]}).replace(/</g,'\u003c')}
+</script>

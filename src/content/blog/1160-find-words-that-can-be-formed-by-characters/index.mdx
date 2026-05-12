@@ -1,0 +1,502 @@
+---
+title: "Find Words That Can Be Formed by Characters"
+summary: "You are given an array of strings words and a string chars. Return the sum of lengths of all strings in words that can be formed using characters from chars."
+date: "Mar 30, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.60% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Counting
+
+You are given an array of strings words and a string chars.
+
+A string is good if it can be formed by characters from chars (each character can only be used once).
+
+Return the sum of lengths of all good strings in words.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Counting](#hash-map-frequency-counting)
+- [Fixed Array Counting](#fixed-array-counting)
+- [Sorting and Two Pointers](#sorting-and-two-pointers)
+
+## Examples
+
+Example 1:
+```text
+Input: words = ["cat","bt","hat","tree"], chars = "atach"
+Output: 6
+Explanation: The strings that can be formed are "cat" and "hat" so the answer is 3 + 3 = 6.
+```
+
+Example 2:
+```text
+Input: words = ["hello","world","leetcode"], chars = "welldonehoneyr"
+Output: 10
+Explanation: The strings that can be formed are "hello" and "world" so the answer is 5 + 5 = 10.
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 1000
+1 <= words[i].length, chars.length <= 100
+All strings consist of lowercase English letters.
+```
+
+---
+## Hash Map Frequency Counting
+
+**Intuition**
+We can count the frequency of each character available in `chars` using a hash map. Then, for each word in `words`, we count its character frequencies and check if the `chars` map contains at least that many of each character.
+
+**Steps**
+- Create a frequency map for the string `chars`.
+- Iterate through each word in the `words` array.
+- For each word, create a temporary frequency map.
+- Compare the temporary map with the `chars` map. If the count for any character in the word exceeds the count in `chars`, the word cannot be formed.
+- If the word is valid, add its length to the result sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from collections import Counter
+from typing import List
+
+class Solution:
+    def countCharacters(self, words: List[str], chars: str) -> int:
+        chars_count = Counter(chars)
+        res = 0
+        for w in words:
+            w_count = Counter(w)
+            if all(w_count[c] &lt;= chars_count.get(c, 0) for c in w_count):
+                res += len(w)
+        return res` },
+{ name: "Java", lang: "java", code: `import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int countCharacters(String[] words, String chars) {
+        Map<Character, Integer> charsCount = new HashMap&lt;&gt;();
+        for (char c : chars.toCharArray()) {
+            charsCount.put(c, charsCount.getOrDefault(c, 0) + 1);
+        }
+        
+        int res = 0;
+        for (String w : words) {
+            Map<Character, Integer> wCount = new HashMap&lt;&gt;();
+            for (char c : w.toCharArray()) {
+                wCount.put(c, wCount.getOrDefault(c, 0) + 1);
+            }
+            
+            boolean good = true;
+            for (Map.Entry<Character, Integer> entry : wCount.entrySet()) {
+                if (charsCount.getOrDefault(entry.getKey(), 0) &lt; entry.getValue()) {
+                    good = false;
+                    break;
+                }
+            }
+            if (good) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    int countCharacters(vector<string>& words, string chars) {
+        unordered_map<char, int> charsCount;
+        for (char c : chars) {
+            charsCount[c]++;
+        }
+        
+        int res = 0;
+        for (string& w : words) {
+            unordered_map<char, int> wCount;
+            for (char c : w) {
+                wCount[c]++;
+            }
+            
+            bool good = true;
+            for (auto& entry : wCount) {
+                if (charsCount[entry.first] &lt; entry.second) {
+                    good = false;
+                    break;
+                }
+            }
+            if (good) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var countCharacters = function(words, chars) {
+    const charsCount = new Map();
+    for (const c of chars) {
+        charsCount.set(c, (charsCount.get(c) || 0) + 1);
+    }
+    
+    let res = 0;
+    for (const w of words) {
+        const wCount = new Map();
+        for (const c of w) {
+            wCount.set(c, (wCount.get(c) || 0) + 1);
+        }
+        
+        let good = true;
+        for (const [char, count] of wCount) {
+            if ((charsCount.get(char) || 0) &lt; count) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
+            res += w.length;
+        }
+    }
+    return res;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countCharacters(words: string[], chars: string): number {
+    const charsCount = new Map<string, number>();
+    for (const c of chars) {
+        charsCount.set(c, (charsCount.get(c) || 0) + 1);
+    }
+    
+    let res = 0;
+    for (const w of words) {
+        const wCount = new Map<string, number>();
+        for (const c of w) {
+            wCount.set(c, (wCount.get(c) || 0) + 1);
+        }
+        
+        let good = true;
+        for (const [char, count] of wCount) {
+            if ((charsCount.get(char) || 0) &lt; count) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
+            res += w.length;
+        }
+    }
+    return res;
+}` },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of words and L is the average length of a word. We iterate through every character to build maps.
+- Space: O(1) or O(K), where K is the size of the character set (26 for lowercase English letters). The space used for the hash maps is constant relative to the input size.
+- Notes: Hash maps provide flexible counting but have slightly more overhead than arrays.
+
+---
+## Fixed Array Counting
+
+**Intuition**
+Since the problem states that strings consist only of lowercase English letters, we can optimize the Hash Map approach by using a fixed-size integer array of length 26. This reduces overhead and improves cache locality.
+
+**Steps**
+- Create an integer array `counts` of size 26, initialized to 0.
+- Iterate through `chars` and increment the index corresponding to each character (e.g., `index = char - 'a'`).
+- Iterate through each word in `words`.
+- For each word, create a temporary array `wordCounts` of size 26.
+- Iterate through the word, incrementing the corresponding index in `wordCounts`.
+- Compare `wordCounts` with `counts`. If `wordCounts[i] &gt; counts[i]` for any index `i`, the word is invalid.
+- If valid, add the word's length to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def countCharacters(self, words: List[str], chars: str) -> int:
+        counts = [0] * 26
+        for c in chars:
+            counts[ord(c) - ord('a')] += 1
+        
+        res = 0
+        for w in words:
+            w_counts = [0] * 26
+            for c in w:
+                w_counts[ord(c) - ord('a')] += 1
+            
+            if all(w_counts[i] &lt;= counts[i] for i in range(26)):
+                res += len(w)
+        return res` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countCharacters(String[] words, String chars) {
+        int[] counts = new int[26];
+        for (char c : chars.toCharArray()) {
+            counts[c - 'a']++;
+        }
+        
+        int res = 0;
+        for (String w : words) {
+            int[] wCounts = new int[26];
+            for (char c : w.toCharArray()) {
+                wCounts[c - 'a']++;
+            }
+            
+            boolean good = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wCounts[i] &gt; counts[i]) {
+                    good = false;
+                    break;
+                }
+            }
+            if (good) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    int countCharacters(vector<string>& words, string chars) {
+        vector<int> counts(26, 0);
+        for (char c : chars) {
+            counts[c - 'a']++;
+        }
+        
+        int res = 0;
+        for (string& w : words) {
+            vector<int> wCounts(26, 0);
+            for (char c : w) {
+                wCounts[c - 'a']++;
+            }
+            
+            bool good = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wCounts[i] &gt; counts[i]) {
+                    good = false;
+                    break;
+                }
+            }
+            if (good) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var countCharacters = function(words, chars) {
+    const counts = new Array(26).fill(0);
+    for (const c of chars) {
+        counts[c.charCodeAt(0) - 97]++;
+    }
+    
+    let res = 0;
+    for (const w of words) {
+        const wCounts = new Array(26).fill(0);
+        for (const c of w) {
+            wCounts[c.charCodeAt(0) - 97]++;
+        }
+        
+        let good = true;
+        for (let i = 0; i &lt; 26; i++) {
+            if (wCounts[i] &gt; counts[i]) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
+            res += w.length;
+        }
+    }
+    return res;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countCharacters(words: string[], chars: string): number {
+    const counts = new Array(26).fill(0);
+    for (const c of chars) {
+        counts[c.charCodeAt(0) - 97]++;
+    }
+    
+    let res = 0;
+    for (const w of words) {
+        const wCounts = new Array(26).fill(0);
+        for (const c of w) {
+            wCounts[c.charCodeAt(0) - 97]++;
+        }
+        
+        let good = true;
+        for (let i = 0; i &lt; 26; i++) {
+            if (wCounts[i] &gt; counts[i]) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
+            res += w.length;
+        }
+    }
+    return res;
+}` },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of words and L is the average length of a word.
+- Space: O(1), as the array size is fixed at 26 regardless of input size.
+- Notes: This is generally the fastest approach for this problem due to low overhead and direct memory access.
+
+---
+## Sorting and Two Pointers
+
+**Intuition**
+We can sort the `chars` string and each word. Then, we can use a two-pointer technique to check if the sorted word is a subsequence (in terms of character counts) of the sorted `chars` string.
+
+**Steps**
+- Sort the `chars` string.
+- Initialize the result sum to 0.
+- Iterate through each word in `words`.
+- Sort the current word.
+- Use two pointers: one for the sorted `chars` (`i`) and one for the sorted word (`j`).
+- While both pointers are within bounds:
+    - If `chars[i] == word[j]`, increment both pointers (we found a match).
+    - If `chars[i] &lt; word[j]`, increment `i` (current char in `chars` is too small).
+    - If `chars[i] &gt; word[j]`, the word cannot be formed (break).
+- If we successfully traverse the entire word (`j == word.length`), the word is good. Add its length to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def countCharacters(self, words: List[str], chars: str) -> int:
+        sorted_chars = sorted(chars)
+        res = 0
+        
+        for w in words:
+            sorted_w = sorted(w)
+            i = j = 0
+            while i &lt; len(sorted_chars) and j &lt; len(sorted_w):
+                if sorted_chars[i] == sorted_w[j]:
+                    j += 1
+                i += 1
+            
+            if j == len(sorted_w):
+                res += len(w)
+        return res` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int countCharacters(String[] words, String chars) {
+        char[] charsArr = chars.toCharArray();
+        Arrays.sort(charsArr);
+        
+        int res = 0;
+        for (String w : words) {
+            char[] wArr = w.toCharArray();
+            Arrays.sort(wArr);
+            
+            int i = 0, j = 0;
+            while (i &lt; charsArr.length && j &lt; wArr.length) {
+                if (charsArr[i] == wArr[j]) {
+                    j++;
+                }
+                i++;
+            }
+            
+            if (j == wArr.length) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int countCharacters(vector<string>& words, string chars) {
+        sort(chars.begin(), chars.end());
+        int res = 0;
+        
+        for (string& w : words) {
+            string sorted_w = w;
+            sort(sorted_w.begin(), sorted_w.end());
+            
+            int i = 0, j = 0;
+            while (i &lt; chars.size() && j &lt; sorted_w.size()) {
+                if (chars[i] == sorted_w[j]) {
+                    j++;
+                }
+                i++;
+            }
+            
+            if (j == sorted_w.size()) {
+                res += w.length();
+            }
+        }
+        return res;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var countCharacters = function(words, chars) {
+    const sortedChars = chars.split('').sort();
+    let res = 0;
+    
+    for (const w of words) {
+        const sortedW = w.split('').sort();
+        let i = 0, j = 0;
+        while (i &lt; sortedChars.length && j &lt; sortedW.length) {
+            if (sortedChars[i] === sortedW[j]) {
+                j++;
+            }
+            i++;
+        }
+        
+        if (j === sortedW.length) {
+            res += w.length;
+        }
+    }
+    return res;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countCharacters(words: string[], chars: string): number {
+    const sortedChars: string[] = chars.split('').sort();
+    let res = 0;
+    
+    for (const w of words) {
+        const sortedW: string[] = w.split('').sort();
+        let i = 0, j = 0;
+        while (i &lt; sortedChars.length && j &lt; sortedW.length) {
+            if (sortedChars[i] === sortedW[j]) {
+                j++;
+            }
+            i++;
+        }
+        
+        if (j === sortedW.length) {
+            res += w.length;
+        }
+    }
+    return res;
+}` },]} />
+
+**Complexity**
+- Time: O(N * L log L), where N is the number of words and L is the average length of a word. Sorting each word dominates the time complexity.
+- Space: O(L) to store the sorted version of the strings (or O(1) if sorting in-place).
+- Notes: This approach is less efficient than counting (O(N * L)) because of the sorting overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Words That Can Be Formed by Characters Solutions","datePublished":"2025-03-30","description":"You are given an array of strings words and a string chars. Return the sum of lengths of all strings in words that can be formed using characters from chars.","keywords":"LeetCode, Find Words That Can Be Formed by Characters, Easy, Array, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of words and L is the average length of the words. This is because we iterate through each character of every word to build and compare frequency maps."}},{"@type":"Question","name":"What is the space complexity of the Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we use a fixed-size array of length 26, regardless of the input size."}},{"@type":"Question","name":"Is the Sorting approach efficient?","acceptedAnswer":{"@type":"Answer","text":"No, the Sorting approach has a time complexity of O(N * L log L) due to sorting each word, which is slower than the counting approaches O(N * L)."}}]}).replace(/</g,'\u003c')}
+</script>

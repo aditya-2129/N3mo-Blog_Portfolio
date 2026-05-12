@@ -1,0 +1,134 @@
+---
+title: "Increasing Order Search Tree"
+summary: "Rearrange a binary search tree into a right-skewed tree with increasing order values."
+date: "Feb 18, 2024"
+tags:
+  - Stack
+  - Tree
+  - Depth-First Search
+  - Binary Search Tree
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.00% | **Paid:** No
+> **Topics:** Stack, Tree, Depth-First Search, Binary Search Tree, Binary Tree
+
+Given the root of a binary search tree, rearrange the tree in in-order so that the leftmost node in the tree is now the root of the tree, and every node has no left child and only one right child.
+
+- Examples
+- Constraints
+- [Approach 1: Recursive In-order Traversal with List](#approach-1-recursive-in-order-traversal-with-list)
+- [Approach 2: Recursive In-order Relinking](#approach-2-recursive-in-order-relinking)
+- [Approach 3: Iterative In-order Relinking](#approach-3-iterative-in-order-relinking)
+
+## Examples
+
+### Example 1
+```text
+Input: root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
+Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+```
+
+### Example 2
+```text
+Input: root = [5,1,7]
+Output: [1,null,5,null,7]
+```
+
+## Constraints
+
+```text
+The number of nodes in the given tree will be in the range [1, 100].
+0 <= Node.val <= 1000
+```
+
+---
+## Approach 1: Recursive In-order Traversal with List
+
+**Intuition**
+Perform a standard in-order traversal to collect all node values into a list, then iterate through that list to construct a new tree where each node only has a right child.
+
+**Steps**
+- Define an empty list to store values.
+- Perform recursive in-order traversal (Left -> Root -> Right) to populate the list with values in sorted order.
+- Create a dummy node to act as the starting point.
+- Iterate through the sorted list, creating a new TreeNode for each value and linking it to the previous node's right pointer.
+- Return the dummy node's right child as the new root.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def increasingBST(self, root: TreeNode) -&gt; TreeNode:\n        vals = []\n        \n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            vals.append(node.val)\n            inorder(node.right)\n        \n        inorder(root)\n        \n        dummy = TreeNode(0)\n        curr = dummy\n        for v in vals:\n            curr.right = TreeNode(v)\n            curr = curr.right\n            \n        return dummy.right\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private List&lt;Integer&gt; vals = new ArrayList&lt;&gt;();\n    \n    public TreeNode increasingBST(TreeNode root) {\n        inorder(root);\n        TreeNode dummy = new TreeNode(0);\n        TreeNode curr = dummy;\n        for (int v : vals) {\n            curr.right = new TreeNode(v);\n            curr = curr.right;\n        }\n        return dummy.right;\n    }\n    \n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n        vals.add(node.val);\n        inorder(node.right);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; vals;\n    \n    TreeNode* increasingBST(TreeNode* root) {\n        inorder(root);\n        TreeNode* dummy = new TreeNode(0);\n        TreeNode* curr = dummy;\n        for (int v : vals) {\n            curr-&gt;right = new TreeNode(v);\n            curr = curr-&gt;right;\n        }\n        return dummy-&gt;right;\n    }\n    \n    void inorder(TreeNode* node) {\n        if (!node) return;\n        inorder(node-&gt;left);\n        vals.push_back(node-&gt;val);\n        inorder(node-&gt;right);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var increasingBST = function(root) {\n    const vals = [];\n    \n    const inorder = (node) =&gt; {\n        if (!node) return;\n        inorder(node.left);\n        vals.push(node.val);\n        inorder(node.right);\n    };\n    \n    inorder(root);\n    \n    const dummy = new TreeNode(0);\n    let curr = dummy;\n    for (const v of vals) {\n        curr.right = new TreeNode(v);\n        curr = curr.right;\n    }\n    return dummy.right;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    private vals: number[] = [];\n    \n    increasingBST(root: TreeNode | null): TreeNode | null {\n        this.inorder(root);\n        const dummy = new TreeNode(0);\n        let curr = dummy;\n        for (const v of this.vals) {\n            curr.right = new TreeNode(v);\n            curr = curr.right;\n        }\n        return dummy.right;\n    }\n    \n    private inorder(node: TreeNode | null): void {\n        if (!node) return;\n        this.inorder(node.left);\n        this.vals.push(node.val);\n        this.inorder(node.right);\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes, as we visit each node twice (once for traversal, once for construction).
+- Space: O(N) to store the list of values and the recursion stack.
+- Notes: Simple to implement but uses extra space proportional to the number of nodes.
+
+---
+## Approach 2: Recursive In-order Relinking
+
+**Intuition**
+Instead of storing values in a separate list, rearrange the tree nodes themselves during the in-order traversal. We maintain a `prev` pointer to keep track of the last node processed and link it to the current node.
+
+**Steps**
+- Initialize a dummy node and a `prev` pointer pointing to the dummy.
+- Perform in-order traversal recursively.
+- When visiting a node:
+    - Sever its left child (set to null).
+    - Link the `prev` node's right child to the current node.
+    - Update `prev` to the current node.
+- Recursively process the right subtree.
+- Return the dummy node's right child.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def increasingBST(self, root: TreeNode) -&gt; TreeNode:\n        dummy = TreeNode(0)\n        self.prev = dummy\n        \n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            \n            node.left = None\n            self.prev.right = node\n            self.prev = node\n            \n            inorder(node.right)\n            \n        inorder(root)\n        return dummy.right\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private TreeNode prev;\n    \n    public TreeNode increasingBST(TreeNode root) {\n        TreeNode dummy = new TreeNode(0);\n        prev = dummy;\n        inorder(root);\n        return dummy.right;\n    }\n    \n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n        \n        node.left = null;\n        prev.right = node;\n        prev = node;\n        \n        inorder(node.right);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    TreeNode* prev;\n    \n    TreeNode* increasingBST(TreeNode* root) {\n        TreeNode* dummy = new TreeNode(0);\n        prev = dummy;\n        inorder(root);\n        return dummy-&gt;right;\n    }\n    \n    void inorder(TreeNode* node) {\n        if (!node) return;\n        inorder(node-&gt;left);\n        \n        node-&gt;left = nullptr;\n        prev-&gt;right = node;\n        prev = node;\n        \n        inorder(node-&gt;right);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var increasingBST = function(root) {\n    const dummy = new TreeNode(0);\n    let prev = dummy;\n    \n    const inorder = (node) =&gt; {\n        if (!node) return;\n        inorder(node.left);\n        \n        node.left = null;\n        prev.right = node;\n        prev = node;\n        \n        inorder(node.right);\n    };\n    \n    inorder(root);\n    return dummy.right;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    private prev: TreeNode;\n    \n    increasingBST(root: TreeNode | null): TreeNode | null {\n        const dummy = new TreeNode(0);\n        this.prev = dummy;\n        this.inorder(root);\n        return dummy.right;\n    }\n    \n    private inorder(node: TreeNode | null): void {\n        if (!node) return;\n        this.inorder(node.left);\n        \n        node.left = null;\n        this.prev.right = node;\n        this.prev = node;\n        \n        this.inorder(node.right);\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) as we visit each node exactly once.
+- Space: O(H) for the recursion stack, where H is the height of the tree.
+- Notes: More space-efficient than the list approach as it modifies the tree in-place without extra storage for values.
+
+---
+## Approach 3: Iterative In-order Relinking
+
+**Intuition**
+Convert the recursive relinking approach into an iterative one using a stack. This avoids potential stack overflow issues on very deep trees and follows the standard iterative in-order traversal pattern.
+
+**Steps**
+- Initialize a dummy node and a `curr` pointer.
+- Use a stack to simulate the recursion.
+- While the stack is not empty or the current node is not null:
+    - Push all left children onto the stack.
+    - Pop a node from the stack.
+    - Set its left child to null.
+    - Link `curr.right` to this node and advance `curr`.
+    - Move to the right child of the popped node.
+- Return the dummy node's right child.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def increasingBST(self, root: TreeNode) -&gt; TreeNode:\n        dummy = TreeNode(0)\n        curr = dummy\n        stack = []\n        node = root\n        \n        while stack or node:\n            while node:\n                stack.append(node)\n                node = node.left\n            \n            node = stack.pop()\n            node.left = None\n            \n            curr.right = node\n            curr = node\n            \n            node = node.right\n            \n        return dummy.right\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public TreeNode increasingBST(TreeNode root) {\n        TreeNode dummy = new TreeNode(0);\n        TreeNode curr = dummy;\n        Deque&lt;TreeNode&gt; stack = new ArrayDeque&lt;&gt;();\n        TreeNode node = root;\n        \n        while (!stack.isEmpty() || node != null) {\n            while (node != null) {\n                stack.push(node);\n                node = node.left;\n            }\n            \n            node = stack.pop();\n            node.left = null;\n            \n            curr.right = node;\n            curr = node;\n            \n            node = node.right;\n        }\n        return dummy.right;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    TreeNode* increasingBST(TreeNode* root) {\n        TreeNode* dummy = new TreeNode(0);\n        TreeNode* curr = dummy;\n        stack&lt;TreeNode*&gt; st;\n        TreeNode* node = root;\n        \n        while (!st.empty() || node) {\n            while (node) {\n                st.push(node);\n                node = node-&gt;left;\n            }\n            \n            node = st.top();\n            st.pop();\n            node-&gt;left = nullptr;\n            \n            curr-&gt;right = node;\n            curr = node;\n            \n            node = node-&gt;right;\n        }\n        return dummy-&gt;right;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var increasingBST = function(root) {\n    const dummy = new TreeNode(0);\n    let curr = dummy;\n    const stack = [];\n    let node = root;\n    \n    while (stack.length || node) {\n        while (node) {\n            stack.push(node);\n            node = node.left;\n        }\n        \n        node = stack.pop();\n        node.left = null;\n        \n        curr.right = node;\n        curr = node;\n        \n        node = node.right;\n    }\n    return dummy.right;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    increasingBST(root: TreeNode | null): TreeNode | null {\n        const dummy = new TreeNode(0);\n        let curr = dummy;\n        const stack: TreeNode[] = [];\n        let node = root;\n        \n        while (stack.length || node) {\n            while (node) {\n                stack.push(node);\n                node = node.left;\n            }\n            \n            node = stack.pop()!;\n            node.left = null;\n            \n            curr.right = node;\n            curr = node;\n            \n            node = node.right;\n        }\n        return dummy.right;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) as we visit each node exactly once.
+- Space: O(H) for the stack, where H is the height of the tree.
+- Notes: Iterative approach avoids recursion depth limits and is generally preferred in production environments for robustness.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Increasing Order Search Tree Solutions","datePublished":"2024-02-18","description":"Rearrange a binary search tree into a right-skewed tree with increasing order values.","keywords":"LeetCode, Increasing Order Search Tree, Easy, Stack, Tree, Depth-First Search, Binary Search Tree, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Recursive In-order Traversal with List?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of nodes. We traverse the tree once to collect values and once to build the new tree."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Recursive In-order Relinking?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(H), where H is the height of the tree. This space is used by the recursion stack. In the worst case (skewed tree), it is O(N)."}},{"@type":"Question","name":"Why use an iterative approach for In-order Relinking?","acceptedAnswer":{"@type":"Answer","text":"The iterative approach uses O(H) space for a stack instead of the call stack, avoiding potential stack overflow errors on very deep trees and is generally more robust."}}]}).replace(/</g,'\u003c')}
+</script>

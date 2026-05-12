@@ -1,0 +1,606 @@
+---
+title: "Average Selling Price"
+summary: "Calculate the average selling price for each product based on unit sales and applicable price ranges."
+date: "Dec 17, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 37.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Prices
+
+| Column Name   | Type    |
+|---------------|---------|
+| product_id    | int     |
+| start_date    | date    |
+| end_date      | date    |
+| price         | int     |
+
+(product_id, start_date, end_date) is the primary key (combination of columns with unique values) of this table.
+Table: UnitsSold
+
+| Column Name   | Type    |
+|---------------|---------|
+| product_id    | int     |
+| purchase_date | date    |
+| units         | int     |
+
+There is no primary key (column with unique values) for this table. It may contain duplicates.
+Each row of this table indicates that the product with the given product_id was sold in units units on the given purchase_date.
+
+Write a solution to find the average selling price for each product. The average selling price is equal to the total price of all sales of the product divided by the total number of units sold.
+
+The results should be rounded to two decimal places. Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Aggregation](#approach-1-hash-map-aggregation)
+- [Approach 2: Brute Force Iteration](#approach-2-brute-force-iteration)
+
+## Examples
+
+### Example 1:
+```text
+Input:
+Prices table:
++------------+------------+------------+--------+
+| product_id | start_date | end_date   | price  |
++------------+------------+------------+--------+
+| 1          | 2019-02-17 | 2019-02-28 | 5      |
+| 1          | 2019-03-01 | 2019-03-22 | 20     |
+| 2          | 2019-02-01 | 2019-02-20 | 15     |
+| 2          | 2019-02-21 | 2019-03-31 | 30     |
++------------+------------+------------+--------+
+UnitsSold table:
++------------+--------------+-------+
+| product_id | purchase_date| units |
++------------+--------------+-------+
+| 1          | 2019-02-25   | 100   |
+| 1          | 2019-03-01   | 15    |
+| 2          | 2019-02-10   | 200   |
+| 2          | 2019-03-22   | 30    |
++------------+--------------+-------+
+Output:
++------------+---------------+
+| product_id | average_price |
++------------+---------------+
+| 1          | 6.96          |
+| 2          | 16.96         |
++------------+---------------+
+Explanation:
+Average selling price for product 1 is ((5 * 100) + (20 * 15)) / (100 + 15) = 500 + 300 / 115 = 800 / 115 = 6.96
+Average selling price for product 2 is ((15 * 200) + (30 * 30)) / (200 + 30) = 3000 + 900 / 230 = 3900 / 230 = 16.96
+```
+
+## Constraints
+
+```text
+Prices table:
+- 1 <= product_id <= 1000
+- start_date and end_date are between 2000-01-01 and 2099-12-31 inclusive.
+- price is between 1 and 1000 inclusive.
+
+UnitsSold table:
+- 1 <= product_id <= 1000
+- purchase_date is between 2000-01-01 and 2099-12-31 inclusive.
+- units is between 1 and 1000 inclusive.
+```
+
+---
+## Approach 1: Hash Map Aggregation
+
+**Intuition**
+We can simulate the SQL `GROUP BY` and `JOIN` operations using a hash map. First, we organize the price ranges by `product_id` for quick lookup. Then, we iterate through the sales records, find the applicable price for each sale, and accumulate the total revenue and total units per product.
+
+**Steps**
+- Create a map where the key is `product_id` and the value is a list of price ranges (start_date, end_date, price).
+- Initialize a result map to store `total_revenue` and `total_units` for each product.
+- Iterate through the `UnitsSold` data. For each record:
+  - Retrieve the list of price ranges for the corresponding `product_id`.
+  - Find the range where `purchase_date` falls between `start_date` and `end_date`.
+  - If a valid price is found, update the result map: `total_revenue += price * units` and `total_units += units`.
+- Finally, calculate the average price for each product (`total_revenue / total_units`), round to 2 decimal places, and format the output.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+from collections import defaultdict
+
+class Solution:
+    def averageSellingPrice(self, prices: list[list], unitsSold: list[list]) -> list[list]:
+        # Map product_id -> list of (start_date, end_date, price)
+        price_map = defaultdict(list)
+        for p in prices:
+            pid, start, end, price = p
+            price_map[pid].append((start, end, price))
+        
+        # Map product_id -> [total_revenue, total_units]
+        stats = defaultdict(lambda: [0, 0])
+        
+        for u in unitsSold:
+            pid, purchase_date, units = u
+            if pid not in price_map:
+                continue
+            
+            # Find matching price range
+            # Assuming dates are strings in YYYY-MM-DD format, they are lexicographically comparable
+            for start, end, price in price_map[pid]:
+                if start &lt;= purchase_date &lt;= end:
+                    stats[pid][0] += price * units
+                    stats[pid][1] += units
+                    break
+        
+        result = []
+        for pid in sorted(stats.keys()):
+            revenue, total_units = stats[pid]
+            if total_units &gt; 0:
+                avg = round(revenue / total_units, 2)
+                result.append([pid, avg])
+        
+        return result
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.*;
+
+class Solution {
+    public List<List<Object>&gt; averageSellingPrice(List<List<Object>&gt; prices, List<List<Object>&gt; unitsSold) {
+        // Map product_id -> list of price ranges
+        Map<Integer, List<int[]&gt;&gt; priceMap = new HashMap&lt;&gt;();
+        for (List<Object> p : prices) {
+            int pid = (int) p.get(0);
+            String start = (String) p.get(1);
+            String end = (String) p.get(2);
+            int price = (int) p.get(3);
+            priceMap.computeIfAbsent(pid, k -> new ArrayList&lt;&gt;()).add(new int[]{0, 0, price}); // Simplified for logic
+            // Storing indices to compare strings later or parsing dates. 
+            // For simplicity in this logic block, we assume string comparison works or we parse.
+            // Let's use a helper class or map structure for clarity.
+        }
+        
+        // Re-building map with proper structure for clarity
+        Map<Integer, List<PriceRange>&gt; map = new HashMap&lt;&gt;();
+        for (List<Object> p : prices) {
+            int pid = (int) p.get(0);
+            String start = (String) p.get(1);
+            String end = (String) p.get(2);
+            int price = (int) p.get(3);
+            map.computeIfAbsent(pid, k -> new ArrayList&lt;&gt;()).add(new PriceRange(start, end, price));
+        }
+
+        // Map product_id -> [revenue, units]
+        Map<Integer, long[]&gt; stats = new HashMap&lt;&gt;();
+
+        for (List<Object> u : unitsSold) {
+            int pid = (int) u.get(0);
+            String purchaseDate = (String) u.get(1);
+            int units = (int) u.get(2);
+
+            if (!map.containsKey(pid)) continue;
+
+            for (PriceRange range : map.get(pid)) {
+                if (range.start.compareTo(purchaseDate) &lt;= 0 && range.end.compareTo(purchaseDate) &gt;= 0) {
+                    stats.computeIfAbsent(pid, k -> new long[2]);
+                    stats.get(pid)[0] += (long) range.price * units;
+                    stats.get(pid)[1] += units;
+                    break;
+                }
+            }
+        }
+
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        List<Integer> pids = new ArrayList&lt;&gt;(stats.keySet());
+        Collections.sort(pids);
+
+        for (int pid : pids) {
+            long[] data = stats.get(pid);
+            double avg = (double) data[0] / data[1];
+            // Rounding to 2 decimal places
+            avg = Math.round(avg * 100.0) / 100.0;
+            result.add(Arrays.asList(pid, avg));
+        }
+        return result;
+    }
+
+    static class PriceRange {
+        String start;
+        String end;
+        int price;
+        PriceRange(String s, String e, int p) { start = s; end = e; price = p; }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <string>
+#include <map>
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+struct PriceRange {
+    string start;
+    string end;
+    int price;
+};
+
+class Solution {
+public:
+    vector<vector<double>&gt; averageSellingPrice(vector<vector<string>&gt;& prices, vector<vector<string>&gt;& unitsSold) {
+        map<int, vector<PriceRange>&gt; priceMap;
+        
+        for (const auto& p : prices) {
+            int pid = stoi(p[0]);
+            priceMap[pid].push_back({p[1], p[2], stoi(p[3])});
+        }
+        
+        map<int, pair<long long, long long>&gt; stats; // pid -> {revenue, units}
+        
+        for (const auto& u : unitsSold) {
+            int pid = stoi(u[0]);
+            string purchaseDate = u[1];
+            int units = stoi(u[2]);
+            
+            if (priceMap.find(pid) == priceMap.end()) continue;
+            
+            for (const auto& range : priceMap[pid]) {
+                if (range.start &lt;= purchaseDate && range.end &gt;= purchaseDate) {
+                    stats[pid].first += (long long)range.price * units;
+                    stats[pid].second += units;
+                    break;
+                }
+            }
+        }
+        
+        vector<vector<double>&gt; result;
+        for (const auto& entry : stats) {
+            double avg = (double)entry.second.first / entry.second.second;
+            // Round to 2 decimal places
+            avg = round(avg * 100.0) / 100.0;
+            result.push_back({(double)entry.first, avg});
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[][]} prices
+ * @param {number[][]} unitsSold
+ * @return {number[][]}
+ */
+var averageSellingPrice = function(prices, unitsSold) {
+    // Map product_id -> list of {start, end, price}
+    const priceMap = new Map();
+    
+    for (const p of prices) {
+        const [pid, start, end, price] = p;
+        if (!priceMap.has(pid)) {
+            priceMap.set(pid, []);
+        }
+        priceMap.get(pid).push({ start, end, price });
+    }
+    
+    // Map product_id -> {revenue, units}
+    const stats = new Map();
+    
+    for (const u of unitsSold) {
+        const [pid, purchaseDate, units] = u;
+        
+        if (!priceMap.has(pid)) continue;
+        
+        const ranges = priceMap.get(pid);
+        for (const range of ranges) {
+            if (range.start &lt;= purchaseDate && range.end &gt;= purchaseDate) {
+                if (!stats.has(pid)) {
+                    stats.set(pid, { revenue: 0, units: 0 });
+                }
+                const s = stats.get(pid);
+                s.revenue += range.price * units;
+                s.units += units;
+                break;
+            }
+        }
+    }
+    
+    const result = [];
+    // Sort keys
+    const sortedPids = Array.from(stats.keys()).sort((a, b) =&gt; a - b);
+    
+    for (const pid of sortedPids) {
+        const { revenue, units: totalUnits } = stats.get(pid);
+        const avg = Math.round((revenue / totalUnits) * 100) / 100;
+        result.push([pid, avg]);
+    }
+    
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+interface PriceRange {
+    start: string;
+    end: string;
+    price: number;
+}
+
+interface Stats {
+    revenue: number;
+    units: number;
+}
+
+function averageSellingPrice(prices: number[][], unitsSold: number[][]): number[][] {
+    const priceMap = new Map<number, PriceRange[]&gt;();
+    
+    for (const p of prices) {
+        const [pid, start, end, price] = p;
+        if (!priceMap.has(pid)) {
+            priceMap.set(pid, []);
+        }
+        priceMap.get(pid)!.push({ start, end, price });
+    }
+    
+    const stats = new Map<number, Stats>();
+    
+    for (const u of unitsSold) {
+        const [pid, purchaseDate, units] = u;
+        
+        if (!priceMap.has(pid)) continue;
+        
+        const ranges = priceMap.get(pid)!;
+        for (const range of ranges) {
+            if (range.start &lt;= purchaseDate && range.end &gt;= purchaseDate) {
+                if (!stats.has(pid)) {
+                    stats.set(pid, { revenue: 0, units: 0 });
+                }
+                const s = stats.get(pid)!;
+                s.revenue += range.price * units;
+                s.units += units;
+                break;
+            }
+        }
+    }
+    
+    const result: number[][] = [];
+    const sortedPids = Array.from(stats.keys()).sort((a, b) =&gt; a - b);
+    
+    for (const pid of sortedPids) {
+        const { revenue, units: totalUnits } = stats.get(pid)!;
+        const avg = Math.round((revenue / totalUnits) * 100) / 100;
+        result.push([pid, avg]);
+    }
+    
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N + M * K), where N is the number of price entries, M is the number of sales, and K is the average number of price ranges per product.
+- Space: O(N + M) to store the maps.
+- Notes: This approach efficiently handles the join logic by grouping data first, reducing the need for nested loops over the entire dataset.
+
+---
+## Approach 2: Brute Force Iteration
+
+**Intuition**
+For every sale record, iterate through all price records to find a match. This is the most straightforward implementation of the logic but is less efficient than using a hash map for lookups.
+
+**Steps**
+- Initialize a map to store `total_revenue` and `total_units` for each product.
+- Iterate through each record in `UnitsSold`.
+- For each sale, iterate through every record in `Prices`.
+- Check if `product_id` matches and if `purchase_date` falls within the date range.
+- If a match is found, update the totals and break the inner loop.
+- Calculate averages and format the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+from collections import defaultdict
+
+class Solution:
+    def averageSellingPrice(self, prices: list[list], unitsSold: list[list]) -> list[list]:
+        stats = defaultdict(lambda: [0, 0])
+        
+        for u in unitsSold:
+            u_pid, u_date, u_units = u
+            found = False
+            for p in prices:
+                p_pid, p_start, p_end, p_price = p
+                if p_pid == u_pid and p_start &lt;= u_date &lt;= p_end:
+                    stats[u_pid][0] += p_price * u_units
+                    stats[u_pid][1] += u_units
+                    found = True
+                    break
+        
+        result = []
+        for pid in sorted(stats.keys()):
+            revenue, total_units = stats[pid]
+            if total_units &gt; 0:
+                avg = round(revenue / total_units, 2)
+                result.append([pid, avg])
+        
+        return result
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.*;
+
+class Solution {
+    public List<List<Object>&gt; averageSellingPrice(List<List<Object>&gt; prices, List<List<Object>&gt; unitsSold) {
+        Map<Integer, long[]&gt; stats = new HashMap&lt;&gt;();
+
+        for (List<Object> u : unitsSold) {
+            int uPid = (int) u.get(0);
+            String uDate = (String) u.get(1);
+            int uUnits = (int) u.get(2);
+
+            for (List<Object> p : prices) {
+                int pPid = (int) p.get(0);
+                String pStart = (String) p.get(1);
+                String pEnd = (String) p.get(2);
+                int pPrice = (int) p.get(3);
+
+                if (pPid == uPid && pStart.compareTo(uDate) &lt;= 0 && pEnd.compareTo(uDate) &gt;= 0) {
+                    stats.computeIfAbsent(uPid, k -> new long[2]);
+                    stats.get(uPid)[0] += (long) pPrice * uUnits;
+                    stats.get(uPid)[1] += uUnits;
+                    break;
+                }
+            }
+        }
+
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        List<Integer> pids = new ArrayList&lt;&gt;(stats.keySet());
+        Collections.sort(pids);
+
+        for (int pid : pids) {
+            long[] data = stats.get(pid);
+            double avg = (double) data[0] / data[1];
+            avg = Math.round(avg * 100.0) / 100.0;
+            result.add(Arrays.asList(pid, avg));
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <string>
+#include <map>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<double>&gt; averageSellingPrice(vector<vector<string>&gt;& prices, vector<vector<string>&gt;& unitsSold) {
+        map<int, pair<long long, long long>&gt; stats;
+        
+        for (const auto& u : unitsSold) {
+            int uPid = stoi(u[0]);
+            string uDate = u[1];
+            int uUnits = stoi(u[2]);
+            
+            for (const auto& p : prices) {
+                int pPid = stoi(p[0]);
+                string pStart = p[1];
+                string pEnd = p[2];
+                int pPrice = stoi(p[3]);
+                
+                if (pPid == uPid && pStart &lt;= uDate && pEnd &gt;= uDate) {
+                    stats[uPid].first += (long long)pPrice * uUnits;
+                    stats[uPid].second += uUnits;
+                    break;
+                }
+            }
+        }
+        
+        vector<vector<double>&gt; result;
+        for (const auto& entry : stats) {
+            double avg = (double)entry.second.first / entry.second.second;
+            avg = round(avg * 100.0) / 100.0;
+            result.push_back({(double)entry.first, avg});
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[][]} prices
+ * @param {number[][]} unitsSold
+ * @return {number[][]}
+ */
+var averageSellingPrice = function(prices, unitsSold) {
+    const stats = new Map();
+    
+    for (const u of unitsSold) {
+        const [uPid, uDate, uUnits] = u;
+        
+        for (const p of prices) {
+            const [pPid, pStart, pEnd, pPrice] = p;
+            
+            if (pPid === uPid && pStart &lt;= uDate && pEnd &gt;= uDate) {
+                if (!stats.has(uPid)) {
+                    stats.set(uPid, { revenue: 0, units: 0 });
+                }
+                const s = stats.get(uPid);
+                s.revenue += pPrice * uUnits;
+                s.units += uUnits;
+                break;
+            }
+        }
+    }
+    
+    const result = [];
+    const sortedPids = Array.from(stats.keys()).sort((a, b) =&gt; a - b);
+    
+    for (const pid of sortedPids) {
+        const { revenue, units: totalUnits } = stats.get(pid);
+        const avg = Math.round((revenue / totalUnits) * 100) / 100;
+        result.push([pid, avg]);
+    }
+    
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+interface Stats {
+    revenue: number;
+    units: number;
+}
+
+function averageSellingPrice(prices: number[][], unitsSold: number[][]): number[][] {
+    const stats = new Map<number, Stats>();
+    
+    for (const u of unitsSold) {
+        const [uPid, uDate, uUnits] = u;
+        
+        for (const p of prices) {
+            const [pPid, pStart, pEnd, pPrice] = p;
+            
+            if (pPid === uPid && pStart &lt;= uDate && pEnd &gt;= uDate) {
+                if (!stats.has(uPid)) {
+                    stats.set(uPid, { revenue: 0, units: 0 });
+                }
+                const s = stats.get(uPid)!;
+                s.revenue += pPrice * uUnits;
+                s.units += uUnits;
+                break;
+            }
+        }
+    }
+    
+    const result: number[][] = [];
+    const sortedPids = Array.from(stats.keys()).sort((a, b) =&gt; a - b);
+    
+    for (const pid of sortedPids) {
+        const { revenue, units: totalUnits } = stats.get(pid)!;
+        const avg = Math.round((revenue / totalUnits) * 100) / 100;
+        result.push([pid, avg]);
+    }
+    
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(M * N), where M is the number of sales and N is the number of price entries. This is because for every sale, we scan the entire price list.
+- Space: O(M) to store the result statistics.
+- Notes: This approach is simple to implement but inefficient for large datasets compared to the Hash Map approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Average Selling Price Solutions","datePublished":"2025-12-17","description":"Calculate the average selling price for each product based on unit sales and applicable price ranges.","keywords":"LeetCode, Average Selling Price, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M * K), where N is the number of price entries, M is the number of sales, and K is the average number of price ranges per product."}},{"@type":"Question","name":"What is the time complexity of the Brute Force Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(M * N), where M is the number of sales and N is the number of price entries, as it scans the price list for every sale."}},{"@type":"Question","name":"How is the average price calculated?","acceptedAnswer":{"@type":"Answer","text":"The average selling price is calculated as the sum of (price * units) for all sales divided by the total units sold, rounded to two decimal places."}}]}).replace(/</g,'\u003c')}
+</script>

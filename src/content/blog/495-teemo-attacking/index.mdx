@@ -1,0 +1,134 @@
+---
+title: "Teemo Attacking"
+summary: "Calculate the total time Ashe is poisoned based on Teemo's attack timings and poison duration."
+date: "Dec 01, 2025"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.70% | **Paid:** No
+> **Topics:** Array, Simulation
+
+Our hero Teemo is attacking an enemy Ashe with poison attacks! When Teemo attacks Ashe, Ashe gets poisoned for a exactly duration seconds. More formally, an attack at second t will mean Ashe is poisoned during the inclusive time interval [t, t + duration - 1].
+
+If Teemo attacks again before the poison effect ends, the timer for it is reset, and the poison effect will end duration seconds after the new attack.
+
+You are given a non-decreasing integer array timeSeries, where timeSeries[i] denotes that Teemo attacks Ashe at second timeSeries[i], and an integer duration.
+
+Return the total number of seconds that Ashe is poisoned.
+
+## Examples
+
+### Example 1:
+**Input:** timeSeries = [1,4], duration = 2
+**Output:** 4
+**Explanation:** At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned immediately. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+And at time point 4, Teemo attacks Ashe again, and causes Ashe to be in poisoned status for another 2 seconds. 
+So you finally need to output 4.
+
+### Example 2:
+**Input:** timeSeries = [1,2], duration = 2
+**Output:** 3
+**Explanation:** At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+However, at the beginning of time point 2, Teemo attacks Ashe again who is already in poisoned status. 
+Since the poisoned status won't add up, the total time is 3.
+
+## Constraints
+
+```text
+- 1 <= timeSeries.length <= 10^4
+- 0 <= timeSeries[i], duration <= 10^7
+- timeSeries is sorted in non-decreasing order.
+```
+
+---
+
+## Brute Force Simulation
+
+**Intuition**
+We can simulate the poison effect by keeping track of every second Ashe is poisoned. We iterate through each attack and mark all seconds from the attack time until the attack time plus duration as "poisoned". Finally, we count the unique marked seconds.
+
+**Steps**
+- Initialize a set to store unique poisoned seconds.
+- Iterate through each attack time in `timeSeries`.
+- For each attack, loop from `t` to `t + duration - 1` and add each second to the set.
+- Return the size of the set.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findPoisonedDuration(self, timeSeries: list[int], duration: int) -&gt; int:\n        poisoned = set()\n        for t in timeSeries:\n            for i in range(t, t + duration):\n                poisoned.add(i)\n        return len(poisoned)" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int findPoisonedDuration(int[] timeSeries, int duration) {\n        Set&lt;Integer&gt; poisoned = new HashSet&lt;&gt;();\n        for (int t : timeSeries) {\n            for (int i = t; i &lt; t + duration; i++) {\n                poisoned.add(i);\n            }\n        }\n        return poisoned.size();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findPoisonedDuration(vector&lt;int&gt;& timeSeries, int duration) {\n        unordered_set&lt;int&gt; poisoned;\n        for (int t : timeSeries) {\n            for (int i = t; i &lt; t + duration; ++i) {\n                poisoned.insert(i);\n            }\n        }\n        return poisoned.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findPoisonedDuration = function(timeSeries, duration) {\n    const poisoned = new Set();\n    for (const t of timeSeries) {\n        for (let i = t; i &lt; t + duration; i++) {\n            poisoned.add(i);\n        }\n    }\n    return poisoned.size();\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findPoisonedDuration(timeSeries: number[], duration: number): number {\n    const poisoned = new Set&lt;number&gt;();\n    for (const t of timeSeries) {\n        for (let i = t; i &lt; t + duration; i++) {\n            poisoned.add(i);\n        }\n    }\n    return poisoned.size();\n}" }]} />
+
+**Complexity**
+- Time: O(N * duration) - In the worst case, we iterate through duration seconds for each of the N attacks. This is inefficient for large duration.
+- Space: O(N * duration) - To store the set of poisoned seconds.
+- Notes: This approach will Time Limit Exceed (TLE) on LeetCode due to large constraints (duration up to 10⁹).
+
+---
+
+## Iterative Comparison
+
+**Intuition**
+Instead of tracking every second, we can look at the gap between consecutive attacks. If the time between the current attack and the next attack is greater than or equal to the `duration`, the full `duration` counts. If the gap is smaller, only the gap counts because the poison is refreshed by the next attack.
+
+**Steps**
+- If `timeSeries` is empty, return 0.
+- Initialize `total` to 0.
+- Iterate from the first element to the second-to-last element.
+- For each element at index `i`, calculate the difference with the next element: `diff = timeSeries[i+1] - timeSeries[i]`.
+- Add `min(diff, duration)` to `total`.
+- After the loop, add `duration` to `total` to account for the full effect of the last attack.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findPoisonedDuration(self, timeSeries: list[int], duration: int) -&gt; int:\n        if not timeSeries:\n            return 0\n        total = 0\n        n = len(timeSeries)\n        for i in range(n - 1):\n            diff = timeSeries[i + 1] - timeSeries[i]\n            total += min(diff, duration)\n        return total + duration" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findPoisonedDuration(int[] timeSeries, int duration) {\n        if (timeSeries.length == 0) return 0;\n        int total = 0;\n        for (int i = 0; i &lt; timeSeries.length - 1; i++) {\n            int diff = timeSeries[i + 1] - timeSeries[i];\n            total += Math.min(diff, duration);\n        }\n        return total + duration;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findPoisonedDuration(vector&lt;int&gt;& timeSeries, int duration) {\n        if (timeSeries.empty()) return 0;\n        int total = 0;\n        for (int i = 0; i &lt; timeSeries.size() - 1; ++i) {\n            int diff = timeSeries[i + 1] - timeSeries[i];\n            total += min(diff, duration);\n        }\n        return total + duration;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findPoisonedDuration = function(timeSeries, duration) {\n    if (timeSeries.length === 0) return 0;\n    let total = 0;\n    for (let i = 0; i &lt; timeSeries.length - 1; i++) {\n        const diff = timeSeries[i + 1] - timeSeries[i];\n        total += Math.min(diff, duration);\n    }\n    return total + duration;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findPoisonedDuration(timeSeries: number[], duration: number): number {\n    if (timeSeries.length === 0) return 0;\n    let total = 0;\n    for (let i = 0; i &lt; timeSeries.length - 1; i++) {\n        const diff = timeSeries[i + 1] - timeSeries[i];\n        total += Math.min(diff, duration);\n    }\n    return total + duration;\n}" }]} />
+
+**Complexity**
+- Time: O(N) - We iterate through the array once.
+- Space: O(1) - We only use a few variables for storage.
+- Notes: This is the optimal approach for this problem.
+
+---
+
+## Tracking End Time
+
+**Intuition**
+We can keep track of the moment the current poison effect ends (`end`). For each new attack at time `t`, if `t` is greater than or equal to `end`, it means the previous poison has worn off, so we add the full `duration`. If `t` is less than `end`, the previous poison is still active, so we only add the overlap (`t + duration - end`). We then update `end` to `t + duration`.
+
+**Steps**
+- Initialize `total` and `end` to 0.
+- Iterate through each attack time `t` in `timeSeries`.
+- If `t &gt;= end`, add `duration` to `total`.
+- Else, add `t + duration - end` to `total`.
+- Update `end = t + duration`.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findPoisonedDuration(self, timeSeries: list[int], duration: int) -&gt; int:\n        total = 0\n        end = 0\n        for t in timeSeries:\n            if t &gt;= end:\n                total += duration\n            else:\n                total += t + duration - end\n            end = t + duration\n        return total" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findPoisonedDuration(int[] timeSeries, int duration) {\n        int total = 0;\n        long end = 0; // Use long to prevent potential overflow during calculation\n        for (int t : timeSeries) {\n            if (t &gt;= end) {\n                total += duration;\n            } else {\n                total += t + duration - end;\n            }\n            end = (long) t + duration;\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findPoisonedDuration(vector&lt;int&gt;& timeSeries, int duration) {\n        int total = 0;\n        long long end = 0;\n        for (int t : timeSeries) {\n            if (t &gt;= end) {\n                total += duration;\n            } else {\n                total += t + duration - end;\n            }\n            end = (long long) t + duration;\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findPoisonedDuration = function(timeSeries, duration) {\n    let total = 0;\n    let end = 0;\n    for (const t of timeSeries) {\n        if (t &gt;= end) {\n            total += duration;\n        } else {\n            total += t + duration - end;\n        }\n        end = t + duration;\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findPoisonedDuration(timeSeries: number[], duration: number): number {\n    let total = 0;\n    let end = 0;\n    for (const t of timeSeries) {\n        if (t &gt;= end) {\n            total += duration;\n        } else {\n            total += t + duration - end;\n        }\n        end = t + duration;\n    }\n    return total;\n}" }]} />
+
+**Complexity**
+- Time: O(N) - Single pass through the array.
+- Space: O(1) - Constant extra space.
+- Notes: This logic is essentially the same as the Iterative Comparison approach but handles the "last element" implicitly.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Teemo Attacking Solutions","datePublished":"2025-12-01","description":"Calculate the total time Ashe is poisoned based on Teemo's attack timings and poison duration.","keywords":"LeetCode, Teemo Attacking, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of attacks, as we iterate through the time series once."}},{"@type":"Question","name":"What is the space complexity of the Tracking End Time approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few variables to track the total time and the end time."}},{"@type":"Question","name":"Why does the Brute Force Simulation approach fail?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(N * duration). Since duration can be as large as 10^9, this results in a Time Limit Exceeded error on LeetCode."}}]}).replace(/</g,'\u003c')}
+</script>

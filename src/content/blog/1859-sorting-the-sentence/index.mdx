@@ -1,0 +1,121 @@
+---
+title: "Sorting the Sentence"
+summary: "A sentence where each word has a trailing digit needs to be sorted based on that digit and reconstructed."
+date: "Jan 25, 2026"
+tags:
+  - String
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.10% | **Paid:** No
+> **Topics:** String, Sorting
+
+A sentence is a list of words that are separated by a single space with no leading or trailing spaces. Each word consists of lowercase and uppercase English letters.
+
+Convert the sentence to a sentence where the words are sorted in ascending order based on the digit at the end of each word.
+
+The digit at the end of a word represents its position in the sorted sentence (1-indexed).
+
+Remove the digit from the end of each word and return the reconstructed sentence.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting](#approach-1-sorting)
+- [Approach 2: Bucket Sort (Array Placement)](#approach-2-bucket-sort-array-placement)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "is2 sentence4 This1 a3"
+Output: "This is a sentence"
+Explanation: Sort the words by the number at the end:
+"This1" -> "This"
+"is2" -> "is"
+"a3" -> "a"
+"sentence4" -> "sentence"
+Join them with a space to get "This is a sentence".
+```
+
+**Example 2:**
+
+```text
+Input: s = "Myself2 Me1 I4 and3"
+Output: "Me Myself and I"
+Explanation: Sort the words by the number at the end:
+"Me1" -> "Me"
+"Myself2" -> "Myself"
+"and3" -> "and"
+"I4" -> "I"
+Join them with a space to get "Me Myself and I".
+```
+
+## Constraints
+
+```text
+2 <= s.length <= 200
+s consists of lowercase and uppercase English letters, spaces, and digits from 1 to 9.
+The number of words in s is between 1 and 9.
+s does not contain leading or trailing spaces.
+All words are separated by a single space.
+```
+
+---
+## Approach 1: Sorting
+
+**Intuition**
+We can split the sentence into individual words. Since the last character of each word is its target index, we can sort the array of words based on this character. Finally, we strip the trailing digit from each word and join them back together.
+
+**Steps**
+- Split the input string `s` by spaces to get an array of words.
+- Sort the array using a custom comparator that compares the last character of each word.
+- Iterate through the sorted array, removing the last character from each word.
+- Join the processed words with a space and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortSentence(self, s: str) -&gt; str:\n        words = s.split()\n        words.sort(key=lambda x: x[-1])\n        return ' '.join(w[:-1] for w in words)" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public String sortSentence(String s) {\n        String[] words = s.split(\" \");\n        Arrays.sort(words, (a, b) -&gt; a.charAt(a.length() - 1) - b.charAt(b.length() - 1));\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; words.length; i++) {\n            sb.append(words[i].substring(0, words[i].length() - 1));\n            if (i &lt; words.length - 1) sb.append(\" \");\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;sstream&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string sortSentence(string s) {\n        vector&lt;string&gt; words;\n        string word;\n        stringstream ss(s);\n        while (ss &gt;&gt; word) words.push_back(word);\n        sort(words.begin(), words.end(), [](const string& a, const string& b) {\n            return a.back() &lt; b.back();\n        });\n        string res;\n        for (int i = 0; i &lt; words.size(); ++i) {\n            words[i].pop_back();\n            res += words[i] + (i &lt; words.size() - 1 ? \" \" : \"\");\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar sortSentence = function(s) {\n    let words = s.split(' ');\n    words.sort((a, b) =&gt; a.charCodeAt(a.length - 1) - b.charCodeAt(b.length - 1));\n    return words.map(w =&gt; w.slice(0, -1)).join(' ');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortSentence(s: string): string {\n    let words: string[] = s.split(' ');\n    words.sort((a: string, b: string) =&gt; a.charCodeAt(a.length - 1) - b.charCodeAt(b.length - 1));\n    return words.map((w: string) =&gt; w.slice(0, -1)).join(' ');\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting, where N is the number of words.
+- Space: O(N) to store the array of words.
+- Notes: Simple and readable, leveraging built-in sort functions.
+
+---
+## Approach 2: Bucket Sort (Array Placement)
+
+**Intuition**
+Since the digits at the end of the words are unique and range from 1 to 9, we can use a bucket sort approach. We create an array (or list) of size equal to the number of words and place each word directly into its correct position based on the trailing digit. This avoids the O(N log N) sorting step.
+
+**Steps**
+- Split the input string `s` by spaces to get an array of words.
+- Initialize a result array of strings with the same length as the words array.
+- Iterate through the words. For each word, extract the last character to determine the index (convert char to int, subtract 1).
+- Place the word (without the last character) into the result array at the calculated index.
+- Join the result array with spaces and return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortSentence(self, s: str) -&gt; str:\n        words = s.split()\n        res = [''] * len(words)\n        for w in words:\n            idx = int(w[-1]) - 1\n            res[idx] = w[:-1]\n        return ' '.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String sortSentence(String s) {\n        String[] words = s.split(\" \");\n        String[] res = new String[words.length];\n        for (String w : words) {\n            int idx = w.charAt(w.length() - 1) - '0';\n            res[idx - 1] = w.substring(0, w.length() - 1);\n        }\n        return String.join(\" \", res);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string sortSentence(string s) {\n        vector&lt;string&gt; words;\n        string word;\n        stringstream ss(s);\n        while (ss &gt;&gt; word) words.push_back(word);\n        vector&lt;string&gt; res(words.size());\n        for (string& w : words) {\n            int idx = w.back() - '0';\n            w.pop_back();\n            res[idx - 1] = w;\n        }\n        string ans;\n        for (int i = 0; i &lt; res.size(); ++i) {\n            ans += res[i] + (i &lt; res.size() - 1 ? \" \" : \"\");\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar sortSentence = function(s) {\n    let words = s.split(' ');\n    let res = new Array(words.length);\n    for (let w of words) {\n        let idx = parseInt(w[w.length - 1]) - 1;\n        res[idx] = w.slice(0, -1);\n    }\n    return res.join(' ');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortSentence(s: string): string {\n    let words: string[] = s.split(' ');\n    let res: string[] = new Array(words.length);\n    for (let w of words) {\n        let idx: number = parseInt(w[w.length - 1]) - 1;\n        res[idx] = w.slice(0, -1);\n    }\n    return res.join(' ');\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of words. We iterate through the words once to place them.
+- Space: O(N) to store the result array.
+- Notes: More efficient than sorting as it runs in linear time relative to the number of words.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sorting the Sentence Solutions","datePublished":"2026-01-25","description":"A sentence where each word has a trailing digit needs to be sorted based on that digit and reconstructed.","keywords":"LeetCode, Sorting the Sentence, Easy, String, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step, where N is the number of words."}},{"@type":"Question","name":"What is the time complexity of the Bucket Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N) because we place each word directly into its correct index without sorting."}},{"@type":"Question","name":"Why is Bucket Sort applicable here?","acceptedAnswer":{"@type":"Answer","text":"Bucket Sort is applicable because the digits at the end of the words are unique and range from 1 to 9, allowing us to map them directly to array indices."}}]}).replace(/</g,'\u003c')}
+</script>

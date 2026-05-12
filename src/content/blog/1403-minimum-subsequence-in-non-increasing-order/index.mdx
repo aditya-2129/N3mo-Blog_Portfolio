@@ -1,0 +1,125 @@
+---
+title: "Minimum Subsequence in Non-Increasing Order"
+summary: "Find the minimum size subsequence where the sum of its elements is strictly greater than the sum of the remaining elements."
+date: "Nov 21, 2024"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.70% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting
+
+Given the array nums, obtain a subsequence of the array whose sum of elements is strictly greater than the sum of the non included elements in such subsequence.
+
+If there are multiple solutions, return the subsequence with minimum size and if there still exist multiple solutions, return the subsequence with the maximum total sum of all its elements.
+
+A subsequence of an array is a sequence that can be derived from the array by deleting some or no elements without changing the order of the remaining elements.
+
+- Examples
+- Constraints
+- [Greedy Sorting](#greedy-sorting)
+- [Counting Sort](#counting-sort)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [4,3,10,9,8]
+```
+
+**Output:**
+```text
+[10,9]
+```
+
+**Explanation:**
+The subsequences [10,9] and [10,8] are minimal such that the sum of their elements is strictly greater than the sum of elements not included. However, the subsequence [10,9] has the maximum total sum of its elements.
+
+### Example 2
+
+**Input:**
+```text
+nums = [4,4,7,6,7]
+```
+
+**Output:**
+```text
+[7,7,6]
+```
+
+**Explanation:**
+The subsequence [7,7] has the sum of its elements equal to 14 which is not strictly greater than the sum of elements not included (14 = 4 + 4 + 6). Therefore, the subsequence [7,6,7] is the minimal satisfying the conditions. Note the subsequence has to be returned in non-increasing order.
+
+## Constraints
+
+```text
+1 <= nums.length <= 500
+1 <= nums[i] <= 100
+```
+
+---
+## Greedy Sorting
+
+**Intuition**
+To minimize the size of the subsequence while ensuring its sum is strictly greater than the sum of the remaining elements, we should prioritize picking the largest numbers available. This greedy strategy ensures that we reach the required sum threshold with the fewest number of elements.
+
+**Steps**
+- Calculate the total sum of all elements in the array.
+- Sort the array in non-increasing (descending) order.
+- Iterate through the sorted array, accumulating the sum of the selected elements into a running total.
+- Add each element to the result list.
+- Stop the iteration as soon as the running total of the selected elements is strictly greater than the sum of the remaining elements (total sum - running total).
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minSubsequence(self, nums: List[int]) -&gt; List[int]:\n        nums.sort(reverse=True)\n        total_sum = sum(nums)\n        sub_sum = 0\n        res = []\n        for num in nums:\n            sub_sum += num\n            res.append(num)\n            if sub_sum &gt; total_sum - sub_sum:\n                break\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\nclass Solution {\n    public List&lt;Integer&gt; minSubsequence(int[] nums) {\n        Arrays.sort(nums);\n        int totalSum = 0;\n        for (int num : nums) {\n            totalSum += num;\n        }\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        int subSum = 0;\n        \n        for (int i = nums.length - 1; i &gt;= 0; i--) {\n            subSum += nums[i];\n            result.add(nums[i]);\n            if (subSum &gt; totalSum - subSum) {\n                break;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;numeric&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; minSubsequence(vector&lt;int&gt;& nums) {\n        sort(nums.rbegin(), nums.rend());\n        int totalSum = accumulate(nums.begin(), nums.end(), 0);\n        int subSum = 0;\n        vector&lt;int&gt; result;\n        \n        for (int num : nums) {\n            subSum += num;\n            result.push_back(num);\n            if (subSum &gt; totalSum - subSum) {\n                break;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number[]}\n */\nvar minSubsequence = function(nums) {\n    nums.sort((a, b) =&gt; b - a);\n    const totalSum = nums.reduce((a, b) =&gt; a + b, 0);\n    let subSum = 0;\n    const result = [];\n    \n    for (const num of nums) {\n        subSum += num;\n        result.push(num);\n        if (subSum &gt; totalSum - subSum) {\n            break;\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minSubsequence(nums: number[]): number[] {\n    nums.sort((a, b) =&gt; b - a);\n    const totalSum = nums.reduce((a, b) =&gt; a + b, 0);\n    let subSum = 0;\n    const result: number[] = [];\n    \n    for (const num of nums) {\n        subSum += num;\n        result.push(num);\n        if (subSum &gt; totalSum - subSum) {\n            break;\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step, where N is the number of elements in the array.
+- Space: O(1) or O(N) depending on the sorting algorithm's implementation (e.g., heapsort uses O(1), quicksort uses O(log N), Timsort uses O(N)). The result list uses O(N) space in the worst case.
+- Notes: This is the most standard and intuitive approach for this problem.
+
+---
+## Counting Sort
+
+**Intuition**
+Since the problem constraints specify that `nums[i]` is between 1 and 100, we can optimize the sorting step using Counting Sort. Instead of comparing elements, we can count the frequency of each number and iterate from the largest number down to the smallest. This reduces the time complexity from O(N log N) to O(N).
+
+**Steps**
+- Initialize a frequency array (or bucket) of size 101 (indices 0 to 100) with zeros.
+- Iterate through the input array to populate the frequency array and calculate the total sum of all elements.
+- Initialize an empty result list and a variable `sub_sum` to 0.
+- Iterate from the largest possible value (100) down to 1.
+- For each value, if its frequency is greater than 0, add that value to the result list and increment `sub_sum` by that value. Decrement the frequency.
+- Repeat this process for the current value until its frequency is 0 or the condition `sub_sum &gt; total_sum - sub_sum` is met.
+- If the condition is met, return the result immediately.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minSubsequence(self, nums: List[int]) -&gt; List[int]:\n        count = [0] * 101\n        total_sum = 0\n        for num in nums:\n            count[num] += 1\n            total_sum += num\n        \n        res = []\n        sub_sum = 0\n        for i in range(100, 0, -1):\n            while count[i] &gt; 0:\n                res.append(i)\n                sub_sum += i\n                count[i] -= 1\n                if sub_sum &gt; total_sum - sub_sum:\n                    return res\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List&lt;Integer&gt; minSubsequence(int[] nums) {\n        int[] count = new int[101];\n        int totalSum = 0;\n        for (int num : nums) {\n            count[num]++;\n            totalSum += num;\n        }\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        int subSum = 0;\n        \n        for (int i = 100; i &gt;= 1; i--) {\n            while (count[i] &gt; 0) {\n                result.add(i);\n                subSum += i;\n                count[i]--;\n                if (subSum &gt; totalSum - subSum) {\n                    return result;\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; minSubsequence(vector&lt;int&gt;& nums) {\n        int count[101] = {0};\n        int totalSum = 0;\n        for (int num : nums) {\n            count[num]++;\n            totalSum += num;\n        }\n        \n        vector&lt;int&gt; result;\n        int subSum = 0;\n        \n        for (int i = 100; i &gt;= 1; i--) {\n            while (count[i] &gt; 0) {\n                result.push_back(i);\n                subSum += i;\n                count[i]--;\n                if (subSum &gt; totalSum - subSum) {\n                    return result;\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number[]}\n */\nvar minSubsequence = function(nums) {\n    const count = new Array(101).fill(0);\n    let totalSum = 0;\n    for (const num of nums) {\n        count[num]++;\n        totalSum += num;\n    }\n    \n    const result = [];\n    let subSum = 0;\n    \n    for (let i = 100; i &gt;= 1; i--) {\n        while (count[i] &gt; 0) {\n            result.push(i);\n            subSum += i;\n            count[i]--;\n            if (subSum &gt; totalSum - subSum) {\n                return result;\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minSubsequence(nums: number[]): number[] {\n    const count: number[] = new Array(101).fill(0);\n    let totalSum: number = 0;\n    for (const num of nums) {\n        count[num]++;\n        totalSum += num;\n    }\n    \n    const result: number[] = [];\n    let subSum: number = 0;\n    \n    for (let i = 100; i &gt;= 1; i--) {\n        while (count[i] &gt; 0) {\n            result.push(i);\n            subSum += i;\n            count[i]--;\n            if (subSum &gt; totalSum - subSum) {\n                return result;\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + K), where N is the length of the array and K is the range of values (100). Since K is constant, this is effectively O(N).
+- Space: O(K) for the frequency array, which is constant space O(1) as K=101.
+- Notes: This approach is more efficient than standard sorting when the range of input values is small and fixed.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Subsequence in Non-Increasing Order Solutions","datePublished":"2024-11-21","description":"Find the minimum size subsequence where the sum of its elements is strictly greater than the sum of the remaining elements.","keywords":"LeetCode, Minimum Subsequence in Non-Increasing Order, Easy, Array, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"What is the most efficient approach for this problem given the constraints?","acceptedAnswer":{"@type":"Answer","text":"The Counting Sort approach is the most efficient with O(N) time complexity because the values are constrained between 1 and 100."}},{"@type":"Question","name":"Why do we sort the array in descending order?","acceptedAnswer":{"@type":"Answer","text":"Sorting in descending order allows us to greedily pick the largest elements first, ensuring we find the subsequence with the minimum size and maximum total sum."}}]}).replace(/</g,'\u003c')}
+</script>

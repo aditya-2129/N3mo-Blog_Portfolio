@@ -1,0 +1,120 @@
+---
+title: "Height Checker"
+summary: "Count how many students are not standing in the correct position when arranged by height in non-decreasing order."
+date: "Feb 18, 2024"
+tags:
+  - Array
+  - Sorting
+  - Counting Sort
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.70% | **Paid:** No
+> **Topics:** Array, Sorting, Counting Sort
+
+A school is trying to take an annual photo of all the students. The students are asked to stand in a single file line in non-decreasing order by height. Let this ordering be represented by the integer array expected where expected[i] is the expected height of the ith student in line.
+
+You are given an integer array heights representing the current order that the students are standing in. Each heights[i] is the height of the ith student in line (0-indexed).
+
+Return the number of indices where heights[i] != expected[i].
+
+- Examples
+- Constraints
+- [Sorting Approach](#sorting-approach)
+- [Counting Sort Approach](#counting-sort-approach)
+
+## Examples
+
+```text
+Input: heights = [1,1,4,2,1,3]
+Output: 3
+Explanation: 
+heights:  [1,1,4,2,1,3]
+expected: [1,1,1,2,3,4]
+Indices 2, 4, and 5 do not match.
+```
+
+```text
+Input: heights = [5,1,2,3,4]
+Output: 5
+Explanation:
+heights:  [5,1,2,3,4]
+expected: [1,2,3,4,5]
+All indices do not match.
+```
+
+```text
+Input: heights = [1,2,3,4,5]
+Output: 0
+Explanation:
+heights:  [1,2,3,4,5]
+expected: [1,2,3,4,5]
+All indices match.
+```
+
+## Constraints
+
+```text
+1 <= heights.length <= 100
+1 <= heights[i] <= 100
+```
+
+---
+
+## Sorting Approach
+
+**Intuition**
+Create a sorted copy of the heights array and compare it with the original array element by element to count mismatches.
+
+**Steps**
+- Create a copy of the heights array and sort it in non-decreasing order
+- Iterate through both arrays simultaneously
+- Count positions where elements differ
+- Return the count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def heightChecker(self, heights: List[int]) -&gt; int:\n        expected = sorted(heights)\n        count = 0\n        for i in range(len(heights)):\n            if heights[i] != expected[i]:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int heightChecker(int[] heights) {\n        int[] expected = heights.clone();\n        Arrays.sort(expected);\n        int count = 0;\n        for (int i = 0; i &lt; heights.length; i++) {\n            if (heights[i] != expected[i]) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int heightChecker(vector&lt;int&gt;& heights) {\n        vector&lt;int&gt; expected = heights;\n        sort(expected.begin(), expected.end());\n        int count = 0;\n        for (int i = 0; i &lt; heights.size(); i++) {\n            if (heights[i] != expected[i]) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} heights\n * @return {number}\n */\nvar heightChecker = function(heights) {\n    const expected = [...heights].sort((a, b) =&gt; a - b);\n    let count = 0;\n    for (let i = 0; i &lt; heights.length; i++) {\n        if (heights[i] !== expected[i]) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function heightChecker(heights: number[]): number {\n    const expected = [...heights].sort((a, b) =&gt; a - b);\n    let count = 0;\n    for (let i = 0; i &lt; heights.length; i++) {\n        if (heights[i] !== expected[i]) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) for sorting
+- Space: O(n) for the sorted copy
+- Notes: Simple and intuitive, but not optimal given the constraint that heights are limited to 1-100
+
+---
+
+## Counting Sort Approach
+
+**Intuition**
+Since heights are constrained between 1 and 100, we can use counting sort to achieve O(n) time complexity by counting frequency of each height.
+
+**Steps**
+- Create a count array of size 101 initialized to 0
+- Count the frequency of each height in the input array
+- Iterate through heights 1 to 100, and for each height, compare with original array positions
+- Count mismatches and decrement frequency as we consume each height
+- Return the total mismatch count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def heightChecker(self, heights: List[int]) -&gt; int:\n        count = [0] * 101\n        for h in heights:\n            count[h] += 1\n        \n        result = 0\n        i = 0\n        for h in range(1, 101):\n            while count[h] &gt; 0:\n                if heights[i] != h:\n                    result += 1\n                count[h] -= 1\n                i += 1\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int heightChecker(int[] heights) {\n        int[] count = new int[101];\n        for (int h : heights) {\n            count[h]++;\n        }\n        \n        int result = 0;\n        int i = 0;\n        for (int h = 1; h &lt;= 100; h++) {\n            while (count[h] &gt; 0) {\n                if (heights[i] != h) {\n                    result++;\n                }\n                count[h]--;\n                i++;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int heightChecker(vector&lt;int&gt;& heights) {\n        int count[101] = {0};\n        for (int h : heights) {\n            count[h]++;\n        }\n        \n        int result = 0;\n        int i = 0;\n        for (int h = 1; h &lt;= 100; h++) {\n            while (count[h] &gt; 0) {\n                if (heights[i] != h) {\n                    result++;\n                }\n                count[h]--;\n                i++;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} heights\n * @return {number}\n */\nvar heightChecker = function(heights) {\n    const count = new Array(101).fill(0);\n    for (const h of heights) {\n        count[h]++;\n    }\n    \n    let result = 0;\n    let i = 0;\n    for (let h = 1; h &lt;= 100; h++) {\n        while (count[h] &gt; 0) {\n            if (heights[i] !== h) {\n                result++;\n            }\n            count[h]--;\n            i++;\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function heightChecker(heights: number[]): number {\n    const count = new Array(101).fill(0);\n    for (const h of heights) {\n        count[h]++;\n    }\n    \n    let result = 0;\n    let i = 0;\n    for (let h = 1; h &lt;= 100; h++) {\n        while (count[h] &gt; 0) {\n            if (heights[i] !== h) {\n                result++;\n            }\n            count[h]--;\n            i++;\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of heights array
+- Space: O(1) since count array is fixed size 101
+- Notes: Optimal solution leveraging the constraint that heights are between 1 and 100
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Height Checker Solutions","datePublished":"2024-02-18","description":"Count how many students are not standing in the correct position when arranged by height in non-decreasing order.","keywords":"LeetCode, Height Checker, Easy, Array, Sorting, Counting Sort"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has a time complexity of O(n log n) due to the sorting operation."}},{"@type":"Question","name":"What is the time complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The Counting Sort approach has a time complexity of O(n) since we only iterate through the array once and then through the fixed range of 1-100."}},{"@type":"Question","name":"Why is Counting Sort optimal for this problem?","acceptedAnswer":{"@type":"Answer","text":"Counting Sort is optimal because the problem constraints limit heights to values between 1 and 100, allowing us to use a fixed-size count array and achieve linear time complexity."}},{"@type":"Question","name":"What is the space complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the count array has a fixed size of 101 regardless of the input size."}}]}).replace(/</g,'\u003c')}
+</script>

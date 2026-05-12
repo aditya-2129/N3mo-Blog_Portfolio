@@ -1,0 +1,144 @@
+---
+title: "Summary Ranges"
+summary: "You are given a sorted unique integer array nums. Return the smallest sorted list of ranges that cover all the numbers in the array exactly."
+date: "Feb 12, 2026"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.20% | **Paid:** No
+> **Topics:** Array
+
+You are given a sorted unique integer array nums.
+
+Return the smallest sorted list of ranges that cover all the numbers in the array exactly. That is, each element of nums is covered by exactly one of the ranges, and there is no integer x such that x is in one of the ranges but not in nums.
+
+Each range [a,b] should be output as:
+
+"a->b" if a != b
+"a" if a == b
+
+- Examples
+- Constraints
+- [Approach 1: Linear Scan](#approach-1-linear-scan)
+- [Approach 2: Two Pointers](#approach-2-two-pointers)
+- [Approach 3: Brute Force](#approach-3-brute-force)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [0,1,2,4,5,7]
+Output: ["0->2","4->5","7"]
+Explanation: The ranges are:
+[0,2] --> "0->2"
+[4,5] --> "4->5"
+[7,7] --> "7"
+```
+
+Example 2:
+```text
+Input: nums = [0,2,3,4,6,8,9]
+Output: ["0","2->4","6","8->9"]
+Explanation: The ranges are:
+[0,0] --> "0"
+[2,4] --> "2->4"
+[6,6] --> "6"
+[8,9] --> "8->9"
+```
+
+## Constraints
+
+```text
+- 0 <= nums.length <= 20
+- -2^31 <= nums[i] <= 2^31 - 1
+- All the values of nums are unique.
+- nums is sorted in ascending order.
+```
+
+---
+## Approach 1: Linear Scan
+
+**Intuition**
+We iterate through the array once. We keep track of the start of the current range. If the next number is not consecutive to the current one, the current range ends, and we add it to the result.
+
+**Steps**
+- Initialize an empty list `res` to store the result strings.
+- Iterate through the `nums` array using index `i`.
+- For each element, consider it as the `start` of a potential range.
+- Extend the range as long as the next element is exactly 1 greater than the current element (`nums[i+1] == nums[i] + 1`).
+- Once the consecutive sequence breaks, format the range from `start` to `nums[i]` and add it to `res`.
+- Continue until the end of the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def summaryRanges(self, nums: List[int]) -&gt; List[str]:\n        res = []\n        i = 0\n        n = len(nums)\n        while i &lt; n:\n            start = nums[i]\n            # Extend the range while numbers are consecutive\n            while i + 1 &lt; n and nums[i + 1] == nums[i] + 1:\n                i += 1\n            end = nums[i]\n            if start == end:\n                res.append(str(start))\n            else:\n                res.append(str(start) + \"-&gt;\" + str(end))\n            i += 1\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; summaryRanges(int[] nums) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            int start = nums[i];\n            // Extend the range while numbers are consecutive\n            while (i + 1 &lt; n && nums[i + 1] == nums[i] + 1) {\n                i++;\n            }\n            int end = nums[i];\n            if (start == end) {\n                res.add(String.valueOf(start));\n            } else {\n                res.add(start + \"-&gt;\" + end);\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; summaryRanges(vector&lt;int&gt;& nums) {\n        vector&lt;string&gt; res;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; ++i) {\n            int start = nums[i];\n            // Extend the range while numbers are consecutive\n            while (i + 1 &lt; n && nums[i + 1] == nums[i] + 1) {\n                ++i;\n            }\n            int end = nums[i];\n            if (start == end) {\n                res.push_back(to_string(start));\n            } else {\n                res.push_back(to_string(start) + \"-&gt;\" + to_string(end));\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var summaryRanges = function(nums) {\n    const res = [];\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        const start = nums[i];\n        // Extend the range while numbers are consecutive\n        while (i + 1 &lt; n && nums[i + 1] === nums[i] + 1) {\n            i++;\n        }\n        const end = nums[i];\n        if (start === end) {\n            res.push(start.toString());\n        } else {\n            res.push(start.toString() + \"-&gt;\" + end.toString());\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function summaryRanges(nums: number[]): string[] {\n    const res: string[] = [];\n    const n: number = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        const start: number = nums[i];\n        // Extend the range while numbers are consecutive\n        while (i + 1 &lt; n && nums[i + 1] === nums[i] + 1) {\n            i++;\n        }\n        const end: number = nums[i];\n        if (start === end) {\n            res.push(start.toString());\n        } else {\n            res.push(start.toString() + \"-&gt;\" + end.toString());\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1) (excluding the space required for the output list)
+- Notes: This is the most efficient approach, visiting each element at most twice (once by the outer loop and once by the inner loop).
+
+---
+## Approach 2: Two Pointers
+
+**Intuition**
+We use two pointers, `start` and `end`, to explicitly define the boundaries of the current range. We move the `end` pointer forward as long as the sequence remains consecutive.
+
+**Steps**
+- Initialize `start` pointer at 0.
+- Use a `while` loop to iterate while `start` is less than the array length.
+- Initialize `end` to be equal to `start`.
+- Move `end` forward while `nums[end + 1]` equals `nums[end] + 1`.
+- Format the string from `nums[start]` to `nums[end]` and add to result.
+- Update `start` to `end + 1` to begin checking the next range.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def summaryRanges(self, nums: List[int]) -&gt; List[str]:\n        res = []\n        n = len(nums)\n        start = 0\n        while start &lt; n:\n            end = start\n            # Move end pointer to find the limit of the consecutive sequence\n            while end + 1 &lt; n and nums[end + 1] == nums[end] + 1:\n                end += 1\n            \n            if start == end:\n                res.append(str(nums[start]))\n            else:\n                res.append(str(nums[start]) + \"-&gt;\" + str(nums[end]))\n            \n            start = end + 1\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; summaryRanges(int[] nums) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int n = nums.length;\n        int start = 0;\n        while (start &lt; n) {\n            int end = start;\n            // Move end pointer to find the limit of the consecutive sequence\n            while (end + 1 &lt; n && nums[end + 1] == nums[end] + 1) {\n                end++;\n            }\n            if (start == end) {\n                res.add(String.valueOf(nums[start]));\n            } else {\n                res.add(nums[start] + \"-&gt;\" + nums[end]);\n            }\n            start = end + 1;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; summaryRanges(vector&lt;int&gt;& nums) {\n        vector&lt;string&gt; res;\n        int n = nums.size();\n        int start = 0;\n        while (start &lt; n) {\n            int end = start;\n            // Move end pointer to find the limit of the consecutive sequence\n            while (end + 1 &lt; n && nums[end + 1] == nums[end] + 1) {\n                end++;\n            }\n            if (start == end) {\n                res.push_back(to_string(nums[start]));\n            } else {\n                res.push_back(to_string(nums[start]) + \"-&gt;\" + to_string(nums[end]));\n            }\n            start = end + 1;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var summaryRanges = function(nums) {\n    const res = [];\n    const n = nums.length;\n    let start = 0;\n    while (start &lt; n) {\n        let end = start;\n        // Move end pointer to find the limit of the consecutive sequence\n        while (end + 1 &lt; n && nums[end + 1] === nums[end] + 1) {\n            end++;\n        }\n        if (start === end) {\n            res.push(nums[start].toString());\n        } else {\n            res.push(nums[start].toString() + \"-&gt;\" + nums[end].toString());\n        }\n        start = end + 1;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function summaryRanges(nums: number[]): string[] {\n    const res: string[] = [];\n    const n: number = nums.length;\n    let start: number = 0;\n    while (start &lt; n) {\n        let end: number = start;\n        // Move end pointer to find the limit of the consecutive sequence\n        while (end + 1 &lt; n && nums[end + 1] === nums[end] + 1) {\n            end++;\n        }\n        if (start === end) {\n            res.push(nums[start].toString());\n        } else {\n            res.push(nums[start].toString() + \"-&gt;\" + nums[end].toString());\n        }\n        start = end + 1;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Logically similar to the Linear Scan approach, but uses explicit pointer variables for clarity.
+
+---
+## Approach 3: Brute Force
+
+**Intuition**
+For every number in the array, we check if it is already covered by a range we have previously added to our result list. If not, we scan forward to find the full range starting from that number.
+
+**Steps**
+- Initialize an empty result list.
+- Iterate through each number `num` in `nums`.
+- Check if `num` falls within any existing range in the result list.
+- If it is covered, skip to the next number.
+- If it is not covered, scan forward from `num` to find the end of the consecutive sequence.
+- Add the new range to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def summaryRanges(self, nums: List[int]) -&gt; List[str]:\n        res = []\n        n = len(nums)\n        for i in range(n):\n            num = nums[i]\n            # Check if current number is already covered by an existing range\n            covered = False\n            for r in res:\n                parts = r.split(\"-&gt;\")\n                start = int(parts[0])\n                end = int(parts[-1])\n                if start &lt;= num &lt;= end:\n                    covered = True\n                    break\n            \n            if covered:\n                continue\n            \n            # Find the end of the range starting at num\n            end = num\n            j = i + 1\n            while j &lt; n and nums[j] == end + 1:\n                end = nums[j]\n                j += 1\n                \n            if num == end:\n                res.append(str(num))\n            else:\n                res.append(str(num) + \"-&gt;\" + str(end))\n                \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; summaryRanges(int[] nums) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            int num = nums[i];\n            boolean covered = false;\n            // Check if current number is already covered by an existing range\n            for (String r : res) {\n                String[] parts = r.split(\"-&gt;\");\n                int start = Integer.parseInt(parts[0]);\n                int end = Integer.parseInt(parts[parts.length - 1]);\n                if (num &gt;= start && num &lt;= end) {\n                    covered = true;\n                    break;\n                }\n            }\n            if (covered) continue;\n\n            // Find the end of the range starting at num\n            int end = num;\n            int j = i + 1;\n            while (j &lt; n && nums[j] == end + 1) {\n                end = nums[j];\n                j++;\n            }\n            if (num == end) {\n                res.add(String.valueOf(num));\n            } else {\n                res.add(num + \"-&gt;\" + end);\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; summaryRanges(vector&lt;int&gt;& nums) {\n        vector&lt;string&gt; res;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; ++i) {\n            int num = nums[i];\n            bool covered = false;\n            // Check if current number is already covered by an existing range\n            for (const string& r : res) {\n                size_t arrowPos = r.find(\"-&gt;\");\n                int start, end;\n                if (arrowPos != string::npos) {\n                    start = stoi(r.substr(0, arrowPos));\n                    end = stoi(r.substr(arrowPos + 2));\n                } else {\n                    start = end = stoi(r);\n                }\n                if (num &gt;= start && num &lt;= end) {\n                    covered = true;\n                    break;\n                }\n            }\n            if (covered) continue;\n\n            // Find the end of the range starting at num\n            int end = num;\n            int j = i + 1;\n            while (j &lt; n && nums[j] == end + 1) {\n                end = nums[j];\n                ++j;\n            }\n            if (num == end) {\n                res.push_back(to_string(num));\n            } else {\n                res.push_back(to_string(num) + \"-&gt;\" + to_string(end));\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var summaryRanges = function(nums) {\n    const res = [];\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        const num = nums[i];\n        let covered = false;\n        // Check if current number is already covered by an existing range\n        for (const r of res) {\n            const parts = r.split(\"-&gt;\");\n            const start = parseInt(parts[0]);\n            const end = parseInt(parts[parts.length - 1]);\n            if (num &gt;= start && num &lt;= end) {\n                covered = true;\n                break;\n            }\n        }\n        if (covered) continue;\n\n        // Find the end of the range starting at num\n        let end = num;\n        let j = i + 1;\n        while (j &lt; n && nums[j] === end + 1) {\n            end = nums[j];\n            j++;\n        }\n        if (num === end) {\n            res.push(num.toString());\n        } else {\n            res.push(num.toString() + \"-&gt;\" + end.toString());\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function summaryRanges(nums: number[]): string[] {\n    const res: string[] = [];\n    const n: number = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        const num: number = nums[i];\n        let covered: boolean = false;\n        // Check if current number is already covered by an existing range\n        for (const r of res) {\n            const parts: string[] = r.split(\"-&gt;\");\n            const start: number = parseInt(parts[0]);\n            const end: number = parseInt(parts[parts.length - 1]);\n            if (num &gt;= start && num &lt;= end) {\n                covered = true;\n                break;\n            }\n        }\n        if (covered) continue;\n\n        // Find the end of the range starting at num\n        let end: number = num;\n        let j: number = i + 1;\n        while (j &lt; n && nums[j] === end + 1) {\n            end = nums[j];\n            j++;\n        }\n        if (num === end) {\n            res.push(num.toString());\n        } else {\n            res.push(num.toString() + \"-&gt;\" + end.toString());\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: This approach is inefficient because for every element, we scan the result list (which can grow to size n) and potentially scan the array again. It is included here for completeness as a brute-force strategy.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Summary Ranges Solutions","datePublished":"2026-02-12","description":"You are given a sorted unique integer array nums. Return the smallest sorted list of ranges that cover all the numbers in the array exactly.","keywords":"LeetCode, Summary Ranges, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Linear Scan?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of elements in the array. Each element is visited at most twice."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Two Pointers?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), excluding the space required for the output list. We only use a few pointers for iteration."}},{"@type":"Question","name":"Why is Approach 3: Brute Force inefficient?","acceptedAnswer":{"@type":"Answer","text":"Approach 3 has a time complexity of O(n²) because for each element, it checks against all previously formed ranges to see if the element is already covered, resulting in redundant comparisons."}}]}).replace(/</g,'\u003c')}
+</script>

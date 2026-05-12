@@ -1,0 +1,130 @@
+---
+title: "Sort By"
+summary: "Implement a function to sort an array of objects based on a function that returns a value to sort by."
+date: "Nov 29, 2025"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.10% | **Paid:** No
+> **Topics:** N/A
+
+Given an array arr and a function fn, return a sorted array sorted in ascending order by the results of running fn on each element of arr.
+
+- Examples
+- Constraints
+- [Built-in Sort with Custom Comparator](#built-in-sort-with-custom-comparator)
+- [Map-Sort-Map Pattern](#map-sort-map-pattern)
+- [Bubble Sort](#bubble-sort)
+
+## Examples
+
+**Example 1:**
+```text
+Input: arr = [5, 4, 1, 2, 3], fn = (x) => x
+Output: [1, 2, 3, 4, 5]
+Explanation: fn simply returns the value of the element so the array is sorted in ascending order.
+```
+
+**Example 2:**
+```text
+Input: arr = [{"x": 1}, {"x": 0}, {"x": -1}], fn = (d) => d["x"]
+Output: [{"x": -1}, {"x": 0}, {"x": 1}]
+Explanation: fn returns the value of the "x" key so the array is sorted by that value.
+```
+
+**Example 3:**
+```text
+Input: arr = [[3, 4], [5, 2], [10, 1]], fn = (x) => x[1]
+Output: [[10, 1], [5, 2], [3, 4]]
+Explanation: fn returns the second element of each sub-array so the array is sorted by that value.
+```
+
+## Constraints
+
+```text
+- arr is a valid JSON array
+- fn is a function that returns a number
+- The returned values are unique
+- 2 <= arr.length <= 5 * 10⁴
+```
+
+---
+## Built-in Sort with Custom Comparator
+
+**Intuition**
+Use the language's built-in sort function with a custom comparator that compares the values returned by fn for each element.
+
+**Steps**
+- Use the built-in sort function with a custom comparator
+- The comparator compares fn(a) and fn(b) to determine the order
+- Return the sorted array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable, Any\n\ndef sortBy(arr: List[Any], fn: Callable[[Any], int]) -&gt; List[Any]:\n    return sorted(arr, key=fn)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.function.Function;\n\nclass Solution {\n    public List&lt;Object&gt; sortBy(List&lt;Object&gt; arr, Function&lt;Object, Integer&gt; fn) {\n        List&lt;Object&gt; result = new ArrayList&lt;&gt;(arr);\n        result.sort((a, b) -&gt; Integer.compare(fn.apply(a), fn.apply(b)));\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;functional&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortBy(vector&lt;int&gt;& arr, function&lt;int(int)&gt; fn) {\n        sort(arr.begin(), arr.end(), [&](int a, int b) {\n            return fn(a) &lt; fn(b);\n        });\n        return arr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array} arr\n * @param {Function} fn\n * @return {Array}\n */\nvar sortBy = function(arr, fn) {\n    return arr.sort((a, b) =&gt; fn(a) - fn(b));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortBy(arr: any[], fn: (item: any) =&gt; number): any[] {\n    return arr.sort((a, b) =&gt; fn(a) - fn(b));\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n) for creating a new array (or O(1) for in-place sort)
+- Notes: This is the most efficient approach using built-in sorting algorithms.
+
+---
+## Map-Sort-Map Pattern
+
+**Intuition**
+Create pairs of (fn(value), value), sort by the fn(value), then extract the original values.
+
+**Steps**
+- Create an array of [fn(x), x] pairs for each element x in arr
+- Sort the pairs based on the first element (fn(x))
+- Extract and return the second element (x) from each sorted pair
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable, Any\n\ndef sortBy(arr: List[Any], fn: Callable[[Any], int]) -&gt; List[Any]:\n    indexed = [(fn(x), x) for x in arr]\n    indexed.sort(key=lambda p: p[0])\n    return [x for _, x in indexed]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.function.Function;\n\nclass Solution {\n    public List&lt;Object&gt; sortBy(List&lt;Object&gt; arr, Function&lt;Object, Integer&gt; fn) {\n        List&lt;Object[]&gt; indexed = new ArrayList&lt;&gt;();\n        for (Object x : arr) {\n            indexed.add(new Object[]{fn.apply(x), x});\n        }\n        indexed.sort((a, b) -&gt; Integer.compare((Integer)a[0], (Integer)b[0]));\n        List&lt;Object&gt; result = new ArrayList&lt;&gt;();\n        for (Object[] pair : indexed) {\n            result.add(pair[1]);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;utility&gt;\n#include &lt;functional&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortBy(vector&lt;int&gt;& arr, function&lt;int(int)&gt; fn) {\n        vector&lt;pair&lt;int, int&gt;&gt; indexed;\n        for (int x : arr) {\n            indexed.push_back({fn(x), x});\n        }\n        sort(indexed.begin(), indexed.end());\n        vector&lt;int&gt; result;\n        for (auto& p : indexed) {\n            result.push_back(p.second);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array} arr\n * @param {Function} fn\n * @return {Array}\n */\nvar sortBy = function(arr, fn) {\n    const indexed = arr.map(x =&gt; [fn(x), x]);\n    indexed.sort((a, b) =&gt; a[0] - b[0]);\n    return indexed.map(pair =&gt; pair[1]);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortBy(arr: any[], fn: (item: any) =&gt; number): any[] {\n    const indexed = arr.map(x =&gt; [fn(x), x]);\n    indexed.sort((a, b) =&gt; a[0] - b[0]);\n    return indexed.map(pair =&gt; pair[1]);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n) for storing the indexed pairs
+- Notes: This pattern is useful when you need to sort by a computed value but preserve the original objects.
+
+---
+## Bubble Sort
+
+**Intuition**
+Implement bubble sort manually, comparing elements based on their fn values.
+
+**Steps**
+- Create a copy of the input array
+- Repeatedly step through the array, comparing adjacent elements
+- Swap elements if fn(arr[j]) &gt; fn(arr[j+1])
+- Continue until no swaps are needed
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable, Any\n\ndef sortBy(arr: List[Any], fn: Callable[[Any], int]) -&gt; List[Any]:\n    result = arr[:]\n    n = len(result)\n    for i in range(n):\n        for j in range(0, n - i - 1):\n            if fn(result[j]) &gt; fn(result[j + 1]):\n                result[j], result[j + 1] = result[j + 1], result[j]\n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.function.Function;\n\nclass Solution {\n    public List&lt;Object&gt; sortBy(List&lt;Object&gt; arr, Function&lt;Object, Integer&gt; fn) {\n        List&lt;Object&gt; result = new ArrayList&lt;&gt;(arr);\n        int n = result.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n - i - 1; j++) {\n                if (fn.apply(result.get(j)) &gt; fn.apply(result.get(j + 1))) {\n                    Object temp = result.get(j);\n                    result.set(j, result.get(j + 1));\n                    result.set(j + 1, temp);\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;functional&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortBy(vector&lt;int&gt;& arr, function&lt;int(int)&gt; fn) {\n        vector&lt;int&gt; result = arr;\n        int n = result.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n - i - 1; j++) {\n                if (fn(result[j]) &gt; fn(result[j + 1])) {\n                    swap(result[j], result[j + 1]);\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array} arr\n * @param {Function} fn\n * @return {Array}\n */\nvar sortBy = function(arr, fn) {\n    const result = [...arr];\n    const n = result.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n - i - 1; j++) {\n            if (fn(result[j]) &gt; fn(result[j + 1])) {\n                [result[j], result[j + 1]] = [result[j + 1], result[j]];\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortBy(arr: any[], fn: (item: any) =&gt; number): any[] {\n    const result = [...arr];\n    const n = result.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n - i - 1; j++) {\n            if (fn(result[j]) &gt; fn(result[j + 1])) {\n                [result[j], result[j + 1]] = [result[j + 1], result[j]];\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n) for creating a copy of the array
+- Notes: This approach is for educational purposes only. It is inefficient for large arrays compared to built-in sort.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort By Solutions","datePublished":"2025-11-29","description":"Implement a function to sort an array of objects based on a function that returns a value to sort by.","keywords":"LeetCode, Sort By, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Built-in Sort with Custom Comparator approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of Map-Sort-Map Pattern approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of Bubble Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the length of the array."}}]}).replace(/</g,'\u003c')}
+</script>

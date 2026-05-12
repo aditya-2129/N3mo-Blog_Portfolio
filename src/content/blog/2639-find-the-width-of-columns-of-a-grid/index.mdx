@@ -1,0 +1,131 @@
+---
+title: "Find the Width of Columns of a Grid"
+summary: "Find the maximum string length of integers in each column of a grid matrix."
+date: "Jul 27, 2025"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.40% | **Paid:** No
+> **Topics:** Array, Matrix
+
+You are given a 0-indexed m x n integer matrix grid. The width of a column is the maximum length of its integers.
+
+For example, if grid = [[-10], [3], [12]], the width of the only column is 3 since -10 is of length 3.
+
+Return an array ans of size n where ans[i] is the width of the ith column.
+
+The width of an integer x is the number of digits if x &gt;= 0, or the number of digits plus 1 if x &lt; 0.
+
+- Examples
+- Constraints
+- [Column-wise Traversal](#column-wise-traversal)
+- [Transpose and Process](#transpose-and-process)
+- [Manual Digit Counting](#manual-digit-counting)
+
+## Examples
+
+```text
+Input: grid = [[1],[22],[333]]
+Output: [3]
+Explanation: In the 0th column, 333 is of length 3.
+```
+
+```text
+Input: grid = [[-15,1,3],[15,7,12],[5,6,-2]]
+Output: [3,1,2]
+Explanation: 
+- In the 0th column, only -15 is of length 3.
+- In the 1st column, all integers are of length 1.
+- In the 2nd column, 12 is of length 2.
+```
+
+## Constraints
+
+```text
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 100
+-10^9 <= grid[i][j] <= 10^9
+```
+
+---
+## Column-wise Traversal
+
+**Intuition**
+Iterate through each column and find the maximum string length by converting each number to a string.
+
+**Steps**
+- Initialize result array with n zeros
+- For each column j, iterate through all rows i
+- Convert grid[i][j] to string and track maximum length
+- Store the maximum width for column j in result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findColumnWidth(self, grid: List[List[int]]) -&gt; List[int]:\n        m, n = len(grid), len(grid[0])\n        result = [0] * n\n        for j in range(n):\n            max_width = 0\n            for i in range(m):\n                width = len(str(grid[i][j]))\n                max_width = max(max_width, width)\n            result[j] = max_width\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findColumnWidth(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        int[] result = new int[n];\n        for (int j = 0; j &lt; n; j++) {\n            int maxWidth = 0;\n            for (int i = 0; i &lt; m; i++) {\n                int width = String.valueOf(grid[i][j]).length();\n                maxWidth = Math.max(maxWidth, width);\n            }\n            result[j] = maxWidth;\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findColumnWidth(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int m = grid.size();\n        int n = grid[0].size();\n        vector&lt;int&gt; result(n, 0);\n        for (int j = 0; j &lt; n; j++) {\n            int maxWidth = 0;\n            for (int i = 0; i &lt; m; i++) {\n                int width = to_string(grid[i][j]).length();\n                maxWidth = max(maxWidth, width);\n            }\n            result[j] = maxWidth;\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number[]}\n */\nvar findColumnWidth = function(grid) {\n    const m = grid.length;\n    const n = grid[0].length;\n    const result = new Array(n).fill(0);\n    for (let j = 0; j &lt; n; j++) {\n        let maxWidth = 0;\n        for (let i = 0; i &lt; m; i++) {\n            const width = String(grid[i][j]).length;\n            maxWidth = Math.max(maxWidth, width);\n        }\n        result[j] = maxWidth;\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findColumnWidth(grid: number[][]): number[] {\n    const m = grid.length;\n    const n = grid[0].length;\n    const result: number[] = new Array(n).fill(0);\n    for (let j = 0; j &lt; n; j++) {\n        let maxWidth = 0;\n        for (let i = 0; i &lt; m; i++) {\n            const width = String(grid[i][j]).length;\n            maxWidth = Math.max(maxWidth, width);\n        }\n        result[j] = maxWidth;\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(n) for the result array
+- Notes: Simple and readable, uses built-in string conversion
+
+---
+## Transpose and Process
+
+**Intuition**
+Transpose the grid so columns become rows, then find max string length for each row.
+
+**Steps**
+- Extract each column as a separate array
+- For each column array, find the maximum string length
+- Build result array from these maximums
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findColumnWidth(self, grid: List[List[int]]) -&gt; List[int]:\n        m, n = len(grid), len(grid[0])\n        result = []\n        for j in range(n):\n            col = [grid[i][j] for i in range(m)]\n            result.append(max(len(str(x)) for x in col))\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.stream.IntStream;\n\nclass Solution {\n    public int[] findColumnWidth(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        int[] result = new int[n];\n        for (int j = 0; j &lt; n; j++) {\n            final int col = j;\n            result[j] = IntStream.range(0, m)\n                .map(i -&gt; String.valueOf(grid[i][col]).length())\n                .max()\n                .orElse(0);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findColumnWidth(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int m = grid.size();\n        int n = grid[0].size();\n        vector&lt;int&gt; result(n);\n        for (int j = 0; j &lt; n; j++) {\n            int maxWidth = 0;\n            for (int i = 0; i &lt; m; i++) {\n                string s = to_string(grid[i][j]);\n                maxWidth = max(maxWidth, (int)s.length());\n            }\n            result[j] = maxWidth;\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number[]}\n */\nvar findColumnWidth = function(grid) {\n    const m = grid.length;\n    const n = grid[0].length;\n    const result = [];\n    for (let j = 0; j &lt; n; j++) {\n        const col = grid.map(row =&gt; row[j]);\n        const maxWidth = Math.max(...col.map(x =&gt; String(x).length));\n        result.push(maxWidth);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findColumnWidth(grid: number[][]): number[] {\n    const m = grid.length;\n    const n = grid[0].length;\n    const result: number[] = [];\n    for (let j = 0; j &lt; n; j++) {\n        const col = grid.map(row =&gt; row[j]);\n        const maxWidth = Math.max(...col.map(x =&gt; String(x).length));\n        result.push(maxWidth);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(m) for temporary column extraction
+- Notes: More functional style, may use extra memory for column arrays
+
+---
+## Manual Digit Counting
+
+**Intuition**
+Count digits manually without string conversion by repeatedly dividing by 10, handling negative sign separately.
+
+**Steps**
+- For each number, handle zero as special case (length 1)
+- If negative, count the sign and work with absolute value
+- Repeatedly divide by 10 to count digits
+- Track maximum width for each column
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findColumnWidth(self, grid: List[List[int]]) -&gt; List[int]:\n        def count_digits(num):\n            if num == 0:\n                return 1\n            count = 0\n            if num &lt; 0:\n                count = 1\n                num = -num\n            while num &gt; 0:\n                count += 1\n                num //= 10\n            return count\n        \n        m, n = len(grid), len(grid[0])\n        result = [0] * n\n        for j in range(n):\n            max_width = 0\n            for i in range(m):\n                width = count_digits(grid[i][j])\n                max_width = max(max_width, width)\n            result[j] = max_width\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findColumnWidth(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        int[] result = new int[n];\n        for (int j = 0; j &lt; n; j++) {\n            int maxWidth = 0;\n            for (int i = 0; i &lt; m; i++) {\n                int width = countDigits(grid[i][j]);\n                maxWidth = Math.max(maxWidth, width);\n            }\n            result[j] = maxWidth;\n        }\n        return result;\n    }\n    \n    private int countDigits(int num) {\n        if (num == 0) return 1;\n        int count = 0;\n        if (num &lt; 0) {\n            count = 1;\n            num = -num;\n        }\n        while (num &gt; 0) {\n            count++;\n            num /= 10;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findColumnWidth(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int m = grid.size();\n        int n = grid[0].size();\n        vector&lt;int&gt; result(n, 0);\n        for (int j = 0; j &lt; n; j++) {\n            int maxWidth = 0;\n            for (int i = 0; i &lt; m; i++) {\n                int width = countDigits(grid[i][j]);\n                maxWidth = max(maxWidth, width);\n            }\n            result[j] = maxWidth;\n        }\n        return result;\n    }\n    \nprivate:\n    int countDigits(int num) {\n        if (num == 0) return 1;\n        int count = 0;\n        if (num &lt; 0) {\n            count = 1;\n            num = -num;\n        }\n        while (num &gt; 0) {\n            count++;\n            num /= 10;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number[]}\n */\nvar findColumnWidth = function(grid) {\n    const countDigits = (num) =&gt; {\n        if (num === 0) return 1;\n        let count = 0;\n        if (num &lt; 0) {\n            count = 1;\n            num = -num;\n        }\n        while (num &gt; 0) {\n            count++;\n            num = Math.floor(num / 10);\n        }\n        return count;\n    };\n    \n    const m = grid.length;\n    const n = grid[0].length;\n    const result = new Array(n).fill(0);\n    for (let j = 0; j &lt; n; j++) {\n        let maxWidth = 0;\n        for (let i = 0; i &lt; m; i++) {\n            const width = countDigits(grid[i][j]);\n            maxWidth = Math.max(maxWidth, width);\n        }\n        result[j] = maxWidth;\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findColumnWidth(grid: number[][]): number[] {\n    const countDigits = (num: number): number =&gt; {\n        if (num === 0) return 1;\n        let count = 0;\n        if (num &lt; 0) {\n            count = 1;\n            num = -num;\n        }\n        while (num &gt; 0) {\n            count++;\n            num = Math.floor(num / 10);\n        }\n        return count;\n    };\n    \n    const m = grid.length;\n    const n = grid[0].length;\n    const result: number[] = new Array(n).fill(0);\n    for (let j = 0; j &lt; n; j++) {\n        let maxWidth = 0;\n        for (let i = 0; i &lt; m; i++) {\n            const width = countDigits(grid[i][j]);\n            maxWidth = Math.max(maxWidth, width);\n        }\n        result[j] = maxWidth;\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n × d) where d is average digit count (max 10 for given constraints)
+- Space: O(n) for the result array
+- Notes: Avoids string allocation overhead, more efficient for large inputs
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Width of Columns of a Grid Solutions","datePublished":"2025-07-27","description":"Find the maximum string length of integers in each column of a grid matrix.","keywords":"LeetCode, Find the Width of Columns of a Grid, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Column-wise Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n) where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the time complexity of Transpose and Process approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n) where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the time complexity of Manual Digit Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n × d) where m is rows, n is columns, and d is the average digit count (max 10)."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the result array, with Transpose approach using O(m) additional space."}}]}).replace(/</g,'\u003c')}
+</script>

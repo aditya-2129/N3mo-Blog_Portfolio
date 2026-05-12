@@ -1,0 +1,146 @@
+---
+title: "Find Books with No Available Copies"
+summary: "Identify books in a library system that currently have zero copies available for borrowing."
+date: "Jan 22, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.10% | **Paid:** No
+> **Topics:** Database
+
+Table: Books
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| book_id     | int     |
+| title       | varchar |
+| author      | varchar |
+| published_year | int  |
+| stock_quantity | int  |
++-------------+---------+
+book_id is the primary key (column with unique values) for this table.
+
+Table: Loans
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| loan_id      | int     |
+| book_id      | int     |
+| user_id      | int     |
+| loan_date    | date    |
+| return_date  | date    |
++--------------+---------+
+loan_id is the primary key (column with unique values) for this table.
+return_date is NULL if the book has not been returned yet.
+book_id is a foreign key (reference column) to the Books table.
+
+Write a solution to find the book_id and title of books that have no available copies.
+
+A book has no available copies if the number of copies currently on loan (where return_date is NULL) is equal to the stock_quantity.
+
+The result can be returned in any order.
+
+- Examples
+- Constraints
+- [Approach 1: Subquery in WHERE Clause](#approach-1-subquery-in-where-clause)
+- [Approach 2: LEFT JOIN with Aggregation](#approach-2-left-join-with-aggregation)
+
+## Examples
+
+### Example 1:
+**Input:**
+Books table:
++---------+-----------------------+--------+----------------+----------------+
+| book_id | title                 | author | published_year | stock_quantity |
++---------+-----------------------+--------+----------------+----------------+
+| 1       | The Great Gatsby      | F.     | 1925           | 3              |
+| 2       | 1984                  | G.     | 1949           | 2              |
+| 3       | The Catcher in the Rye| J.     | 1951           | 1              |
++---------+-----------------------+--------+----------------+----------------+
+Loans table:
++----------+---------+---------+------------+--------------+
+| loan_id  | book_id | user_id | loan_date  | return_date  |
++----------+---------+---------+------------+--------------+
+| 1        | 1       | 101     | 2023-01-01 | 2023-01-10   |
+| 2        | 1       | 102     | 2023-01-05 | NULL         |
+| 3        | 1       | 103     | 2023-01-06 | NULL         |
+| 4        | 2       | 104     | 2023-01-07 | NULL         |
+| 5        | 2       | 105     | 2023-01-08 | NULL         |
++----------+---------+---------+------------+--------------+
+
+**Output:**
++---------+-------+
+| book_id | title |
++---------+-------+
+| 2       | 1984  |
++---------+-------+
+
+**Explanation:**
+- Book 1 has 3 copies in stock. 2 copies are currently on loan (loan_id 2 and 3). 3 != 2, so it has available copies.
+- Book 2 has 2 copies in stock. 2 copies are currently on loan (loan_id 4 and 5). 2 == 2, so it has no available copies.
+- Book 3 has 1 copy in stock. 0 copies are on loan. 1 != 0, so it has available copies.
+
+## Constraints
+
+```text
+1 <= stock_quantity <= 10^5
+```
+
+---
+## Approach 1: Subquery in WHERE Clause
+
+**Intuition**
+We can directly compare the `stock_quantity` of each book with the count of its active loans. A subquery in the `WHERE` clause allows us to filter books where the count of unreturned loans matches the total stock.
+
+**Steps**
+- Select `book_id` and `title` from the `Books` table.
+- Filter rows where `stock_quantity` equals the result of a subquery.
+- The subquery counts the number of records in the `Loans` table for the current `book_id` where `return_date` is `NULL`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# LeetCode SQL problems require SQL solutions.\n# This Python block contains the SQL query as a string for display purposes.\n\nsolution = \"\"\"\nSELECT book_id, title\nFROM Books\nWHERE stock_quantity = (\n    SELECT COUNT(*)\n    FROM Loans\n    WHERE book_id = Books.book_id AND return_date IS NULL\n)\n\"\"\"" },
+{ name: "Java", lang: "java", code: "// LeetCode SQL problems require SQL solutions.\n// This Java block contains the SQL query as a string for display purposes.\n\npublic class Solution {\n    public static String solve() {\n        return \"SELECT book_id, title \" +\n               \"FROM Books \" +\n               \"WHERE stock_quantity = ( \" +\n               \"    SELECT COUNT(*) \" +\n               \"    FROM Loans \" +\n               \"    WHERE book_id = Books.book_id AND return_date IS NULL \" +\n               \")\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "// LeetCode SQL problems require SQL solutions.\n// This C++ block contains the SQL query as a string for display purposes.\n\n#include &lt;string&gt;\n\nstd::string solve() {\n    return \"SELECT book_id, title \"\n           \"FROM Books \"\n           \"WHERE stock_quantity = ( \"\n           \"    SELECT COUNT(*) \"\n           \"    FROM Loans \"\n           \"    WHERE book_id = Books.book_id AND return_date IS NULL \"\n           \")\";\n}" },
+{ name: "JavaScript", lang: "javascript", code: "// LeetCode SQL problems require SQL solutions.\n// This JavaScript block contains the SQL query as a string for display purposes.\n\nconst solution = \"SELECT book_id, title\nFROM Books\nWHERE stock_quantity = (\n    SELECT COUNT(*)\n    FROM Loans\n    WHERE book_id = Books.book_id AND return_date IS NULL\n)\";" },
+{ name: "TypeScript", lang: "typescript", code: "// LeetCode SQL problems require SQL solutions.\n// This TypeScript block contains the SQL query as a string for display purposes.\n\nconst solution: string = \"SELECT book_id, title\nFROM Books\nWHERE stock_quantity = (\n    SELECT COUNT(*)\n    FROM Loans\n    WHERE book_id = Books.book_id AND return_date IS NULL\n)\";" },]} />
+
+**Complexity**
+- Time: O(n * m) in the worst case where n is books and m is loans, though optimized by database indexes.
+- Space: O(k) where k is the number of books with no available copies.
+- Notes: The correlated subquery runs once for each row in the `Books` table.
+
+---
+## Approach 2: LEFT JOIN with Aggregation
+
+**Intuition**
+We can pre-calculate the number of active loans for each book using a `GROUP BY` query, then join this result with the `Books` table to compare the counts.
+
+**Steps**
+- Create a derived table (subquery) that counts active loans (`return_date IS NULL`) grouped by `book_id`.
+- Perform a `LEFT JOIN` between the `Books` table and this derived table on `book_id`.
+- Use `COALESCE` to handle books with zero active loans (treating NULL as 0).
+- Filter the results where `stock_quantity` equals the count of active loans.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# LeetCode SQL problems require SQL solutions.\n# This Python block contains the SQL query as a string for display purposes.\n\nsolution = \"\"\"\nSELECT b.book_id, b.title\nFROM Books b\nLEFT JOIN (\n    SELECT book_id, COUNT(*) as active_loans\n    FROM Loans\n    WHERE return_date IS NULL\n    GROUP BY book_id\n) l ON b.book_id = l.book_id\nWHERE b.stock_quantity = COALESCE(l.active_loans, 0)\n\"\"\"" },
+{ name: "Java", lang: "java", code: "// LeetCode SQL problems require SQL solutions.\n// This Java block contains the SQL query as a string for display purposes.\n\npublic class Solution {\n    public static String solve() {\n        return \"SELECT b.book_id, b.title \" +\n               \"FROM Books b \" +\n               \"LEFT JOIN ( \" +\n               \"    SELECT book_id, COUNT(*) as active_loans \" +\n               \"    FROM Loans \" +\n               \"    WHERE return_date IS NULL \" +\n               \"    GROUP BY book_id \" +\n               \") l ON b.book_id = l.book_id \" +\n               \"WHERE b.stock_quantity = COALESCE(l.active_loans, 0)\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "// LeetCode SQL problems require SQL solutions.\n// This C++ block contains the SQL query as a string for display purposes.\n\n#include &lt;string&gt;\n\nstd::string solve() {\n    return \"SELECT b.book_id, b.title \"\n           \"FROM Books b \"\n           \"LEFT JOIN ( \"\n           \"    SELECT book_id, COUNT(*) as active_loans \"\n           \"    FROM Loans \"\n           \"    WHERE return_date IS NULL \"\n           \"    GROUP BY book_id \"\n           \") l ON b.book_id = l.book_id \"\n           \"WHERE b.stock_quantity = COALESCE(l.active_loans, 0)\";\n}" },
+{ name: "JavaScript", lang: "javascript", code: "// LeetCode SQL problems require SQL solutions.\n// This JavaScript block contains the SQL query as a string for display purposes.\n\nconst solution = \"SELECT b.book_id, b.title\nFROM Books b\nLEFT JOIN (\n    SELECT book_id, COUNT(*) as active_loans\n    FROM Loans\n    WHERE return_date IS NULL\n    GROUP BY book_id\n) l ON b.book_id = l.book_id\nWHERE b.stock_quantity = COALESCE(l.active_loans, 0)\";" },
+{ name: "TypeScript", lang: "typescript", code: "// LeetCode SQL problems require SQL solutions.\n// This TypeScript block contains the SQL query as a string for display purposes.\n\nconst solution: string = \"SELECT b.book_id, b.title\nFROM Books b\nLEFT JOIN (\n    SELECT book_id, COUNT(*) as active_loans\n    FROM Loans\n    WHERE return_date IS NULL\n    GROUP BY book_id\n) l ON b.book_id = l.book_id\nWHERE b.stock_quantity = COALESCE(l.active_loans, 0)\";" },]} />
+
+**Complexity**
+- Time: O(n + m) for scanning and joining, assuming efficient hashing or sorting.
+- Space: O(n) for storing the intermediate aggregation results.
+- Notes: This approach can be more efficient than a correlated subquery on large datasets because the aggregation happens once.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Books with No Available Copies Solutions","datePublished":"2024-01-22","description":"Identify books in a library system that currently have zero copies available for borrowing.","keywords":"LeetCode, Find Books with No Available Copies, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Subquery approach?","acceptedAnswer":{"@type":"Answer","text":"O(n * m) in the worst case, where n is the number of books and m is the number of loans, though database optimizations apply."}},{"@type":"Question","name":"What is the time complexity of the LEFT JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m), as it aggregates loans first and then joins with books."}},{"@type":"Question","name":"Why use COALESCE in the LEFT JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"COALESCE handles books with zero active loans by converting the NULL count from the LEFT JOIN to 0, allowing correct comparison with stock_quantity."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,128 @@
+---
+title: "Matrix Similarity After Cyclic Shifts"
+summary: "Check if a matrix remains identical after applying k cyclic shifts (right for even rows, left for odd rows)."
+date: "Dec 29, 2024"
+tags:
+  - Array
+  - Math
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.30% | **Paid:** No
+> **Topics:** Array, Math, Matrix, Simulation
+
+You are given a 0-indexed m x n integer matrix mat and an integer k. You have to apply exactly k cyclic shifts to the matrix.
+
+A cyclic shift is defined as:
+- For each row i:
+  - If i is even, shift the row to the right by 1 (move the last element to the first position).
+  - If i is odd, shift the row to the left by 1 (move the first element to the last position).
+
+Return true if the final matrix is identical to the original matrix, and false otherwise.
+
+- Examples
+- Constraints
+- [Direct Indexing](#direct-indexing)
+- [Simulation with Modulo](#simulation-with-modulo)
+
+## Examples
+
+### Example 1
+```text
+Input: mat = [[1,2,1,2],[5,5,5,5],[6,3,6,3]], k = 2
+Output: true
+Explanation:
+- Row 0 (even): [1,2,1,2] -> shift right 2 -> [1,2,1,2]
+- Row 1 (odd):  [5,5,5,5] -> shift left 2 -> [5,5,5,5]
+- Row 2 (even): [6,3,6,3] -> shift right 2 -> [6,3,6,3]
+The matrix remains identical.
+```
+
+### Example 2
+```text
+Input: mat = [[2,2],[2,2]], k = 3
+Output: true
+Explanation:
+Since all elements are the same, any shift results in the same matrix.
+```
+
+### Example 3
+```text
+Input: mat = [[1,2]], k = 1
+Output: false
+Explanation:
+Row 0 (even): [1,2] -> shift right 1 -> [2,1]. This is not equal to [1,2].
+```
+
+## Constraints
+
+```text
+m == mat.length
+n == mat[i].length
+1 <= m, n <= 50
+1 <= k <= 10⁹
+1 <= mat[i][j] <= 10⁵
+```
+
+---
+## Direct Indexing
+
+**Intuition**
+Shifting a row of length `n` by `n` positions brings it back to the original state. Therefore, applying `k` shifts is equivalent to applying `k % n` shifts. We can simply check if the element at each index `j` matches the element at the index it would move to after `k % n` shifts.
+
+**Steps**
+- Calculate `shift = k % n`. If `shift` is 0, the matrix is identical.
+- Iterate through each cell `(i, j)` in the matrix.
+- For even rows `i`, the element at `j` moves to `(j + shift) % n`. Check if `mat[i][j] == mat[i][(j + shift) % n]`.
+- For odd rows `i`, the element at `j` moves to `(j - shift) % n`. Check if `mat[i][j] == mat[i][(j - shift + n) % n]`.
+- If any check fails, return `false`. Otherwise, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def areSimilar(self, mat: list[list[int]], k: int) -&gt; bool:\n        m, n = len(mat), len(mat[0])\n        k %= n\n        if k == 0:\n            return True\n        \n        for i in range(m):\n            for j in range(n):\n                if i % 2 == 0:\n                    # Even row: shift right\n                    if mat[i][j] != mat[i][(j + k) % n]:\n                        return False\n                else:\n                    # Odd row: shift left\n                    if mat[i][j] != mat[i][(j - k) % n]:\n                        return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean areSimilar(int[][] mat, int k) {\n        int m = mat.length;\n        int n = mat[0].length;\n        k %= n;\n        if (k == 0) return true;\n\n        for (int i = 0; i &lt; m; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                int target;\n                if (i % 2 == 0) {\n                    target = (j + k) % n;\n                } else {\n                    target = (j - k + n) % n;\n                }\n                if (mat[i][j] != mat[i][target]) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool areSimilar(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        int m = mat.size();\n        int n = mat[0].size();\n        k %= n;\n        if (k == 0) return true;\n\n        for (int i = 0; i &lt; m; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                int target;\n                if (i % 2 == 0) {\n                    target = (j + k) % n;\n                } else {\n                    target = (j - k + n) % n;\n                }\n                if (mat[i][j] != mat[i][target]) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} mat\n * @param {number} k\n * @return {boolean}\n */\nvar areSimilar = function(mat, k) {\n    const m = mat.length;\n    const n = mat[0].length;\n    k %= n;\n    if (k === 0) return true;\n\n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            let target;\n            if (i % 2 === 0) {\n                target = (j + k) % n;\n            } else {\n                target = (j - k + n) % n;\n            }\n            if (mat[i][j] !== mat[i][target]) {\n                return false;\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function areSimilar(mat: number[][], k: number): boolean {\n    const m = mat.length;\n    const n = mat[0].length;\n    k %= n;\n    if (k === 0) return true;\n\n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            let target: number;\n            if (i % 2 === 0) {\n                target = (j + k) % n;\n            } else {\n                target = (j - k + n) % n;\n            }\n            if (mat[i][j] !== mat[i][target]) {\n                return false;\n            }\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(m * n)
+- Space: O(1)
+- Notes: Most efficient approach, avoids unnecessary data manipulation.
+
+---
+## Simulation with Modulo
+
+**Intuition**
+Since shifting `n` times returns the row to its original state, we only need to simulate `k % n` shifts. We can perform the shifts iteratively on the matrix (or a copy) and compare with the original.
+
+**Steps**
+- Calculate `shifts = k % n`.
+- Create a copy of the matrix (or work on the original if allowed, but copying is safer for comparison).
+- Loop `shifts` times:
+  - For each row `i`:
+    - If `i` is even, rotate the row right by 1.
+    - If `i` is odd, rotate the row left by 1.
+- After the loop, compare the modified matrix with the original.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def areSimilar(self, mat: list[list[int]], k: int) -&gt; bool:\n        m, n = len(mat), len(mat[0])\n        k %= n\n        if k == 0:\n            return True\n\n        # Convert rows to deques for efficient rotation\n        rows = [deque(row) for row in mat]\n        \n        for _ in range(k):\n            for i in range(m):\n                if i % 2 == 0:\n                    # Shift right\n                    rows[i].rotate(1)\n                else:\n                    # Shift left\n                    rows[i].rotate(-1)\n        \n        # Compare with original\n        for i in range(m):\n            if list(rows[i]) != mat[i]:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean areSimilar(int[][] mat, int k) {\n        int m = mat.length;\n        int n = mat[0].length;\n        k %= n;\n        if (k == 0) return true;\n\n        int[][] copy = new int[m][n];\n        for (int i = 0; i &lt; m; i++) {\n            copy[i] = mat[i].clone();\n        }\n\n        for (int s = 0; s &lt; k; s++) {\n            for (int i = 0; i &lt; m; i++) {\n                if (i % 2 == 0) {\n                    // Shift right\n                    int last = copy[i][n - 1];\n                    for (int j = n - 1; j &gt; 0; j--) {\n                        copy[i][j] = copy[i][j - 1];\n                    }\n                    copy[i][0] = last;\n                } else {\n                    // Shift left\n                    int first = copy[i][0];\n                    for (int j = 0; j &lt; n - 1; j++) {\n                        copy[i][j] = copy[i][j + 1];\n                    }\n                    copy[i][n - 1] = first;\n                }\n            }\n        }\n\n        for (int i = 0; i &lt; m; i++) {\n            if (!Arrays.equals(mat[i], copy[i])) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    bool areSimilar(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        int m = mat.size();\n        int n = mat[0].size();\n        k %= n;\n        if (k == 0) return true;\n\n        vector&lt;vector&lt;int&gt;&gt; copy = mat;\n\n        for (int s = 0; s &lt; k; s++) {\n            for (int i = 0; i &lt; m; i++) {\n                if (i % 2 == 0) {\n                    // Shift right\n                    rotate(copy[i].rbegin(), copy[i].rbegin() + 1, copy[i].rend());\n                } else {\n                    // Shift left\n                    rotate(copy[i].begin(), copy[i].begin() + 1, copy[i].end());\n                }\n            }\n        }\n\n        return copy == mat;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} mat\n * @param {number} k\n * @return {boolean}\n */\nvar areSimilar = function(mat, k) {\n    const m = mat.length;\n    const n = mat[0].length;\n    k %= n;\n    if (k === 0) return true;\n\n    // Deep copy\n    let copy = mat.map(row =&gt; [...row]);\n\n    for (let s = 0; s &lt; k; s++) {\n        for (let i = 0; i &lt; m; i++) {\n            if (i % 2 === 0) {\n                // Shift right\n                const last = copy[i].pop();\n                copy[i].unshift(last);\n            } else {\n                // Shift left\n                const first = copy[i].shift();\n                copy[i].push(first);\n            }\n        }\n    }\n\n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (mat[i][j] !== copy[i][j]) return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function areSimilar(mat: number[][], k: number): boolean {\n    const m = mat.length;\n    const n = mat[0].length;\n    k %= n;\n    if (k === 0) return true;\n\n    // Deep copy\n    let copy: number[][] = mat.map(row =&gt; [...row]);\n\n    for (let s = 0; s &lt; k; s++) {\n        for (let i = 0; i &lt; m; i++) {\n            if (i % 2 === 0) {\n                // Shift right\n                const last = copy[i].pop()!;\n                copy[i].unshift(last);\n            } else {\n                // Shift left\n                const first = copy[i].shift()!;\n                copy[i].push(first);\n            }\n        }\n    }\n\n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (mat[i][j] !== copy[i][j]) return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O((k % n) * m * n)
+- Space: O(m * n) for the copy (or O(1) if modifying in-place and restoring, though comparison requires original state).
+- Notes: Intuitive but less efficient than direct indexing. Since `k % n &lt; n &lt;= 50`, this is effectively O(m * n²), which is acceptable for given constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Matrix Similarity After Cyclic Shifts Solutions","datePublished":"2024-12-29","description":"Check if a matrix remains identical after applying k cyclic shifts (right for even rows, left for odd rows).","keywords":"LeetCode, Matrix Similarity After Cyclic Shifts, Easy, Array, Math, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Indexing approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n), where m is the number of rows and n is the number of columns. We iterate through the matrix once to check indices."}},{"@type":"Question","name":"Why is k % n used in the solution?","acceptedAnswer":{"@type":"Answer","text":"Shifting a row of length n by n positions results in the same row. Therefore, k shifts is equivalent to k % n shifts, reducing the number of operations significantly."}},{"@type":"Question","name":"What is the space complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m * n) because we create a copy of the matrix to perform the shifts without modifying the original data needed for comparison."}}]}).replace(/</g,'\u003c')}
+</script>

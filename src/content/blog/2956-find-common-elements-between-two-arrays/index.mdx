@@ -1,0 +1,520 @@
+---
+title: "Find Common Elements Between Two Arrays"
+summary: "Count elements in each array that also appear in the other array."
+date: "Aug 16, 2025"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.50% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+You are given two 0-indexed integer arrays nums1 and nums2 of sizes n and m, respectively.
+
+Return the answer array ans of size 2 such that:
+
+ans[0] is the number of indices i (0-indexed) such that nums1[i] exists in nums2.
+ans[1] is the number of indices i (0-indexed) such that nums2[i] exists in nums1.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Set](#hash-set)
+- [Hash Map](#hash-map)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums1 = [2,3,2], nums2 = [1,2]
+```
+
+**Output:**
+```text
+[2,1]
+```
+
+### Example 2
+
+**Input:**
+```text
+nums1 = [4,3,2,3,1], nums2 = [2,2,5,2,3,6]
+```
+
+**Output:**
+```text
+[3,4]
+```
+
+**Explanation:**
+The elements at indices 1, 2, and 3 in nums1 exist in nums2 as well. So answer1 is 3.
+
+The elements at indices 0, 1, 3, and 4 in nums2 exist in nums1. So answer2 is 4.
+
+### Example 3
+
+**Input:**
+```text
+nums1 = [3,4,2,3], nums2 = [1,5]
+```
+
+**Output:**
+```text
+[0,0]
+```
+
+**Explanation:**
+No numbers are common between nums1 and nums2, so answer is [0,0].
+
+## Constraints
+
+```text
+n == nums1.length
+m == nums2.length
+1 <= n, m <= 100
+1 <= nums1[i], nums2[i] <= 100
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each element in nums1, check if it exists in nums2. For each element in nums2, check if it exists in nums1.
+
+**Steps**
+- Initialize two counters to 0.
+- For each element in nums1, check if it exists in nums2 and increment the first counter.
+- For each element in nums2, check if it exists in nums1 and increment the second counter.
+- Return the two counters as an array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findIntersectionValues(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        count1 = 0
+        count2 = 0
+        
+        for num in nums1:
+            if num in nums2:
+                count1 += 1
+        
+        for num in nums2:
+            if num in nums1:
+                count2 += 1
+        
+        return [count1, count2]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] findIntersectionValues(int[] nums1, int[] nums2) {
+        int count1 = 0;
+        int count2 = 0;
+        
+        for (int num : nums1) {
+            if (contains(nums2, num)) {
+                count1++;
+            }
+        }
+        
+        for (int num : nums2) {
+            if (contains(nums1, num)) {
+                count2++;
+            }
+        }
+        
+        return new int[]{count1, count2};
+    }
+    
+    private boolean contains(int[] arr, int target) {
+        for (int num : arr) {
+            if (num == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findIntersectionValues(vector<int>& nums1, vector<int>& nums2) {
+        int count1 = 0;
+        int count2 = 0;
+        
+        for (int num : nums1) {
+            if (find(nums2.begin(), nums2.end(), num) != nums2.end()) {
+                count1++;
+            }
+        }
+        
+        for (int num : nums2) {
+            if (find(nums1.begin(), nums1.end(), num) != nums1.end()) {
+                count2++;
+            }
+        }
+        
+        return {count1, count2};
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findIntersectionValues = function(nums1, nums2) {
+    let count1 = 0;
+    let count2 = 0;
+    
+    for (const num of nums1) {
+        if (nums2.includes(num)) {
+            count1++;
+        }
+    }
+    
+    for (const num of nums2) {
+        if (nums1.includes(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findIntersectionValues(nums1: number[], nums2: number[]): number[] {
+    let count1 = 0;
+    let count2 = 0;
+    
+    for (const num of nums1) {
+        if (nums2.includes(num)) {
+            count1++;
+        }
+    }
+    
+    for (const num of nums2) {
+        if (nums1.includes(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the length of nums1 and m is the length of nums2
+- Space: O(1)
+- Notes: Simple but inefficient for large arrays
+
+---
+## Hash Set
+
+**Intuition**
+Convert both arrays to sets for O(1) lookup, then count how many elements in each array exist in the other set.
+
+**Steps**
+- Convert nums1 and nums2 to sets.
+- Count elements in nums1 that exist in set2.
+- Count elements in nums2 that exist in set1.
+- Return the two counts as an array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findIntersectionValues(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        set1 = set(nums1)
+        set2 = set(nums2)
+        
+        count1 = sum(1 for num in nums1 if num in set2)
+        count2 = sum(1 for num in nums2 if num in set1)
+        
+        return [count1, count2]
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] findIntersectionValues(int[] nums1, int[] nums2) {
+        Set<Integer> set1 = new HashSet&lt;&gt;();
+        Set<Integer> set2 = new HashSet&lt;&gt;();
+        
+        for (int num : nums1) {
+            set1.add(num);
+        }
+        
+        for (int num : nums2) {
+            set2.add(num);
+        }
+        
+        int count1 = 0;
+        for (int num : nums1) {
+            if (set2.contains(num)) {
+                count1++;
+            }
+        }
+        
+        int count2 = 0;
+        for (int num : nums2) {
+            if (set1.contains(num)) {
+                count2++;
+            }
+        }
+        
+        return new int[]{count1, count2};
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findIntersectionValues(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> set1(nums1.begin(), nums1.end());
+        unordered_set<int> set2(nums2.begin(), nums2.end());
+        
+        int count1 = 0;
+        for (int num : nums1) {
+            if (set2.count(num)) {
+                count1++;
+            }
+        }
+        
+        int count2 = 0;
+        for (int num : nums2) {
+            if (set1.count(num)) {
+                count2++;
+            }
+        }
+        
+        return {count1, count2};
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findIntersectionValues = function(nums1, nums2) {
+    const set1 = new Set(nums1);
+    const set2 = new Set(nums2);
+    
+    let count1 = 0;
+    for (const num of nums1) {
+        if (set2.has(num)) {
+            count1++;
+        }
+    }
+    
+    let count2 = 0;
+    for (const num of nums2) {
+        if (set1.has(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findIntersectionValues(nums1: number[], nums2: number[]): number[] {
+    const set1 = new Set(nums1);
+    const set2 = new Set(nums2);
+    
+    let count1 = 0;
+    for (const num of nums1) {
+        if (set2.has(num)) {
+            count1++;
+        }
+    }
+    
+    let count2 = 0;
+    for (const num of nums2) {
+        if (set1.has(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the length of nums1 and m is the length of nums2
+- Space: O(n + m) for the two sets
+- Notes: Optimal time complexity with reasonable space trade-off
+
+---
+## Hash Map
+
+**Intuition**
+Use hash maps to count frequencies of elements in both arrays, then check for common elements.
+
+**Steps**
+- Create frequency maps for both arrays.
+- Iterate through nums1 and count elements that exist in nums2's frequency map.
+- Iterate through nums2 and count elements that exist in nums1's frequency map.
+- Return the two counts as an array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import Counter
+
+class Solution:
+    def findIntersectionValues(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        count1 = Counter(nums1)
+        count2 = Counter(nums2)
+        
+        result1 = 0
+        for num in nums1:
+            if num in count2:
+                result1 += 1
+        
+        result2 = 0
+        for num in nums2:
+            if num in count1:
+                result2 += 1
+        
+        return [result1, result2]
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] findIntersectionValues(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> map1 = new HashMap&lt;&gt;();
+        Map<Integer, Integer> map2 = new HashMap&lt;&gt;();
+        
+        for (int num : nums1) {
+            map1.put(num, map1.getOrDefault(num, 0) + 1);
+        }
+        
+        for (int num : nums2) {
+            map2.put(num, map2.getOrDefault(num, 0) + 1);
+        }
+        
+        int count1 = 0;
+        for (int num : nums1) {
+            if (map2.containsKey(num)) {
+                count1++;
+            }
+        }
+        
+        int count2 = 0;
+        for (int num : nums2) {
+            if (map1.containsKey(num)) {
+                count2++;
+            }
+        }
+        
+        return new int[]{count1, count2};
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findIntersectionValues(vector<int>& nums1, vector<int>& nums2) {
+        unordered_map<int, int> map1, map2;
+        
+        for (int num : nums1) {
+            map1[num]++;
+        }
+        
+        for (int num : nums2) {
+            map2[num]++;
+        }
+        
+        int count1 = 0;
+        for (int num : nums1) {
+            if (map2.count(num)) {
+                count1++;
+            }
+        }
+        
+        int count2 = 0;
+        for (int num : nums2) {
+            if (map1.count(num)) {
+                count2++;
+            }
+        }
+        
+        return {count1, count2};
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findIntersectionValues = function(nums1, nums2) {
+    const map1 = new Map();
+    const map2 = new Map();
+    
+    for (const num of nums1) {
+        map1.set(num, (map1.get(num) || 0) + 1);
+    }
+    
+    for (const num of nums2) {
+        map2.set(num, (map2.get(num) || 0) + 1);
+    }
+    
+    let count1 = 0;
+    for (const num of nums1) {
+        if (map2.has(num)) {
+            count1++;
+        }
+    }
+    
+    let count2 = 0;
+    for (const num of nums2) {
+        if (map1.has(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findIntersectionValues(nums1: number[], nums2: number[]): number[] {
+    const map1 = new Map<number, number>();
+    const map2 = new Map<number, number>();
+    
+    for (const num of nums1) {
+        map1.set(num, (map1.get(num) || 0) + 1);
+    }
+    
+    for (const num of nums2) {
+        map2.set(num, (map2.get(num) || 0) + 1);
+    }
+    
+    let count1 = 0;
+    for (const num of nums1) {
+        if (map2.has(num)) {
+            count1++;
+        }
+    }
+    
+    let count2 = 0;
+    for (const num of nums2) {
+        if (map1.has(num)) {
+            count2++;
+        }
+    }
+    
+    return [count1, count2];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the length of nums1 and m is the length of nums2
+- Space: O(n + m) for the two maps
+- Notes: Similar to Hash Set approach but with frequency information (not needed for this problem)
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Common Elements Between Two Arrays Solutions","datePublished":"2025-08-16","description":"Count elements in each array that also appear in the other array.","keywords":"LeetCode, Find Common Elements Between Two Arrays, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m) where n is the length of nums1 and m is the length of nums2."}},{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n is the length of nums1 and m is the length of nums2."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) for storing the two sets."}}]}).replace(/</g,'\u003c')}
+</script>

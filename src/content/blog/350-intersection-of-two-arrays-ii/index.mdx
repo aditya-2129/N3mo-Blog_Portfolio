@@ -1,0 +1,166 @@
+---
+title: "Intersection of Two Arrays II"
+summary: "Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays."
+date: "Jan 06, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Two Pointers
+  - Binary Search
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.90% | **Paid:** No
+> **Topics:** Array, Hash Table, Two Pointers, Binary Search, Sorting
+
+Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays and you may return the result in any order.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map](#hash-map)
+- [Sorting + Two Pointers](#sorting-two-pointers)
+- [Binary Search](#binary-search)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums1 = [1,2,2,1], nums2 = [2,2]
+```
+
+**Output:**
+```text
+[2,2]
+```
+
+### Example 2
+
+**Input:**
+```text
+nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+```
+
+**Output:**
+```text
+[4,9]
+```
+
+**Explanation:**
+[9,4] is also accepted.
+
+## Constraints
+
+```text
+1 <= nums1.length, nums2.length <= 1000
+0 <= nums1[i], nums2[i] <= 1000
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through each element of the first array and try to find a matching unused element in the second array.
+
+**Steps**
+- Create a result list and a boolean array to track used elements in `nums2`.
+- Loop through each element `x` in `nums1`.
+- For each `x`, loop through `nums2` to find the first unused element equal to `x`.
+- If found, add `x` to the result and mark the index in `nums2` as used.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def intersect(self, nums1: list[int], nums2: list[int]) -&gt; list[int]:\n        res = []\n        used = [False] * len(nums2)\n        for n1 in nums1:\n            for i, n2 in enumerate(nums2):\n                if not used[i] and n1 == n2:\n                    res.append(n1)\n                    used[i] = True\n                    break\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] intersect(int[] nums1, int[] nums2) {\n        java.util.List&lt;Integer&gt; res = new java.util.ArrayList&lt;&gt;();\n        boolean[] used = new boolean[nums2.length];\n        for (int n1 : nums1) {\n            for (int j = 0; j &lt; nums2.length; j++) {\n                if (!used[j] && n1 == nums2[j]) {\n                    res.add(n1);\n                    used[j] = true;\n                    break;\n                }\n            }\n        }\n        int[] arr = new int[res.size()];\n        for (int i = 0; i &lt; res.size(); i++) arr[i] = res.get(i);\n        return arr;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    std::vector&lt;int&gt; intersect(std::vector&lt;int&gt;& nums1, std::vector&lt;int&gt;& nums2) {\n        std::vector&lt;int&gt; res;\n        std::vector&lt;bool&gt; used(nums2.size(), false);\n        for (int n1 : nums1) {\n            for (size_t j = 0; j &lt; nums2.size(); j++) {\n                if (!used[j] && n1 == nums2[j]) {\n                    res.push_back(n1);\n                    used[j] = true;\n                    break;\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var intersect = function(nums1, nums2) {\n    let res = [];\n    let used = new Array(nums2.length).fill(false);\n    for (let n1 of nums1) {\n        for (let j = 0; j &lt; nums2.length; j++) {\n            if (!used[j] && n1 === nums2[j]) {\n                res.push(n1);\n                used[j] = true;\n                break;\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function intersect(nums1: number[], nums2: number[]): number[] {\n    let res: number[] = [];\n    let used: boolean[] = new Array(nums2.length).fill(false);\n    for (let n1 of nums1) {\n        for (let j = 0; j &lt; nums2.length; j++) {\n            if (!used[j] && n1 === nums2[j]) {\n                res.push(n1);\n                used[j] = true;\n                break;\n            }\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n * m) where n and m are the lengths of the arrays.
+- Space: O(m) to store the used array.
+- Notes: Simple but inefficient for large inputs.
+
+---
+## Hash Map
+
+**Intuition**
+Count the frequency of each number in the first array using a hash map. Then iterate through the second array, decrementing the count in the map whenever a match is found.
+
+**Steps**
+- Create a hash map to store counts of elements in `nums1`.
+- Iterate through `nums2`. If the current number exists in the map with a count &gt; 0, add it to the result and decrement the count.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import collections\n\nclass Solution:\n    def intersect(self, nums1: list[int], nums2: list[int]) -&gt; list[int]:\n        counts = collections.Counter(nums1)\n        res = []\n        for n in nums2:\n            if counts.get(n, 0) &gt; 0:\n                res.append(n)\n                counts[n] -= 1\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] intersect(int[] nums1, int[] nums2) {\n        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();\n        for (int n : nums1) map.put(n, map.getOrDefault(n, 0) + 1);\n        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();\n        for (int n : nums2) {\n            if (map.getOrDefault(n, 0) &gt; 0) {\n                res.add(n);\n                map.put(n, map.get(n) - 1);\n            }\n        }\n        int[] arr = new int[res.size()];\n        for (int i = 0; i &lt; res.size(); i++) arr[i] = res.get(i);\n        return arr;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; intersect(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        unordered_map&lt;int, int&gt; counts;\n        for (int n : nums1) counts[n]++;\n        vector&lt;int&gt; res;\n        for (int n : nums2) {\n            if (counts[n] &gt; 0) {\n                res.push_back(n);\n                counts[n]--;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var intersect = function(nums1, nums2) {\n    let map = new Map();\n    for (let n of nums1) map.set(n, (map.get(n) || 0) + 1);\n    let res = [];\n    for (let n of nums2) {\n        if ((map.get(n) || 0) &gt; 0) {\n            res.push(n);\n            map.set(n, map.get(n) - 1);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function intersect(nums1: number[], nums2: number[]): number[] {\n    let map = new Map&lt;number, number&gt;();\n    for (let n of nums1) map.set(n, (map.get(n) || 0) + 1);\n    let res: number[] = [];\n    for (let n of nums2) {\n        if ((map.get(n) || 0) &gt; 0) {\n            res.push(n);\n            map.set(n, map.get(n) - 1);\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m)
+- Space: O(min(n, m))
+- Notes: Efficient time complexity, uses extra space for the hash map.
+
+---
+## Sorting + Two Pointers
+
+**Intuition**
+If both arrays are sorted, we can use two pointers to traverse them simultaneously, similar to the merge step in merge sort.
+
+**Steps**
+- Sort both arrays.
+- Initialize two pointers `i` and `j` to 0.
+- While both pointers are within bounds:
+  - If `nums1[i] &lt; nums2[j]`, increment `i`.
+  - If `nums1[i] &gt; nums2[j]`, increment `j`.
+  - If they are equal, add the value to the result and increment both pointers.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def intersect(self, nums1: list[int], nums2: list[int]) -&gt; list[int]:\n        nums1.sort()\n        nums2.sort()\n        i = j = 0\n        res = []\n        while i &lt; len(nums1) and j &lt; len(nums2):\n            if nums1[i] &lt; nums2[j]:\n                i += 1\n            elif nums1[i] &gt; nums2[j]:\n                j += 1\n            else:\n                res.append(nums1[i])\n                i += 1\n                j += 1\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] intersect(int[] nums1, int[] nums2) {\n        Arrays.sort(nums1);\n        Arrays.sort(nums2);\n        int i = 0, j = 0, k = 0;\n        while (i &lt; nums1.length && j &lt; nums2.length) {\n            if (nums1[i] &lt; nums2[j]) i++;\n            else if (nums1[i] &gt; nums2[j]) j++;\n            else {\n                nums1[k++] = nums1[i++];\n                j++;\n            }\n        }\n        return Arrays.copyOfRange(nums1, 0, k);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; intersect(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        sort(nums1.begin(), nums1.end());\n        sort(nums2.begin(), nums2.end());\n        int i = 0, j = 0;\n        vector&lt;int&gt; res;\n        while (i &lt; nums1.size() && j &lt; nums2.size()) {\n            if (nums1[i] &lt; nums2[j]) i++;\n            else if (nums1[i] &gt; nums2[j]) j++;\n            else {\n                res.push_back(nums1[i]);\n                i++; j++;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var intersect = function(nums1, nums2) {\n    nums1.sort((a, b) =&gt; a - b);\n    nums2.sort((a, b) =&gt; a - b);\n    let i = 0, j = 0;\n    let res = [];\n    while (i &lt; nums1.length && j &lt; nums2.length) {\n        if (nums1[i] &lt; nums2[j]) i++;\n        else if (nums1[i] &gt; nums2[j]) j++;\n        else {\n            res.push(nums1[i]);\n            i++; j++;\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function intersect(nums1: number[], nums2: number[]): number[] {\n    nums1.sort((a, b) =&gt; a - b);\n    nums2.sort((a, b) =&gt; a - b);\n    let i = 0, j = 0;\n    let res: number[] = [];\n    while (i &lt; nums1.length && j &lt; nums2.length) {\n        if (nums1[i] &lt; nums2[j]) i++;\n        else if (nums1[i] &gt; nums2[j]) j++;\n        else {\n            res.push(nums1[i]);\n            i++; j++;\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n + m log m) due to sorting.
+- Space: O(1) if we ignore the space required for the output and sorting stack (O(log n) for sorting).
+- Notes: Good if the input is already sorted or if space is limited.
+
+---
+## Binary Search
+
+**Intuition**
+If one array is significantly larger than the other, sort the smaller array and binary search for each element of the larger array within the smaller one.
+
+**Steps**
+- Ensure `nums1` is the smaller array. If not, swap.
+- Sort `nums1`.
+- Iterate through `nums2`. For each element, perform a binary search in `nums1`.
+- If found, add to result and remove that element from `nums1` to handle duplicates.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import bisect\n\nclass Solution:\n    def intersect(self, nums1: list[int], nums2: list[int]) -&gt; list[int]:\n        if len(nums1) &gt; len(nums2):\n            nums1, nums2 = nums2, nums1\n        nums1.sort()\n        res = []\n        for n in nums2:\n            i = bisect.bisect_left(nums1, n)\n            if i &lt; len(nums1) and nums1[i] == n:\n                res.append(n)\n                del nums1[i]\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] intersect(int[] nums1, int[] nums2) {\n        if (nums1.length &gt; nums2.length) return intersect(nums2, nums1);\n        Arrays.sort(nums1);\n        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();\n        for (int n : nums2) {\n            int i = Arrays.binarySearch(nums1, n);\n            if (i &gt;= 0) {\n                res.add(n);\n                int[] newArr = new int[nums1.length - 1];\n                System.arraycopy(nums1, 0, newArr, 0, i);\n                System.arraycopy(nums1, i + 1, newArr, i, nums1.length - i - 1);\n                nums1 = newArr;\n            }\n        }\n        int[] arr = new int[res.size()];\n        for (int i = 0; i &lt; res.size(); i++) arr[i] = res.get(i);\n        return arr;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; intersect(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        if (nums1.size() &gt; nums2.size()) return intersect(nums2, nums1);\n        sort(nums1.begin(), nums1.end());\n        vector&lt;int&gt; res;\n        for (int n : nums2) {\n            auto it = lower_bound(nums1.begin(), nums1.end(), n);\n            if (it != nums1.end() && *it == n) {\n                res.push_back(n);\n                nums1.erase(it);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var intersect = function(nums1, nums2) {\n    if (nums1.length &gt; nums2.length) [nums1, nums2] = [nums2, nums1];\n    nums1.sort((a, b) =&gt; a - b);\n    let res = [];\n    for (let n of nums2) {\n        let l = 0, r = nums1.length;\n        while (l &lt; r) {\n            let mid = Math.floor((l + r) / 2);\n            if (nums1[mid] &lt; n) l = mid + 1;\n            else r = mid;\n        }\n        if (l &lt; nums1.length && nums1[l] === n) {\n            res.push(n);\n            nums1.splice(l, 1);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function intersect(nums1: number[], nums2: number[]): number[] {\n    if (nums1.length &gt; nums2.length) [nums1, nums2] = [nums2, nums1];\n    nums1.sort((a, b) =&gt; a - b);\n    let res: number[] = [];\n    for (let n of nums2) {\n        let l = 0, r = nums1.length;\n        while (l &lt; r) {\n            let mid = Math.floor((l + r) / 2);\n            if (nums1[mid] &lt; n) l = mid + 1;\n            else r = mid;\n        }\n        if (l &lt; nums1.length && nums1[l] === n) {\n            res.push(n);\n            nums1.splice(l, 1);\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O((n + m) log n) where n is the length of the smaller array.
+- Space: O(1) (excluding result and sort space).
+- Notes: Efficient when one array is much smaller than the other.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Intersection of Two Arrays II Solutions","datePublished":"2025-01-06","description":"Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.","keywords":"LeetCode, Intersection of Two Arrays II, Easy, Array, Hash Table, Two Pointers, Binary Search, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the lengths of the two arrays."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) if we ignore the space required for the output and the sorting stack."}},{"@type":"Question","name":"When is the Binary Search approach most efficient?","acceptedAnswer":{"@type":"Answer","text":"The Binary Search approach is most efficient when one array is significantly smaller than the other."}}]}).replace(/</g,'\u003c')}
+</script>

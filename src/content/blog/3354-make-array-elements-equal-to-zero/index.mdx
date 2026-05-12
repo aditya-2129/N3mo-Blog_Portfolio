@@ -1,0 +1,133 @@
+---
+title: "Make Array Elements Equal to Zero"
+summary: "You are given an integer array nums. In one operation, select i where nums[i] &gt; 0, subtract 1 from nums[i] and all elements to its right. Return the minimum operations to make all elements zero."
+date: "May 03, 2024"
+tags:
+  - Array
+  - Simulation
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.30% | **Paid:** No
+> **Topics:** Array, Simulation, Prefix Sum
+
+You are given an integer array `nums`.
+
+You can perform the following operation any number of times:
+
+Select any index `i` such that `0 &lt;= i &lt; nums.length` and `nums[i] &gt; 0`, then subtract `1` from `nums[i]` and subtract `1` from all elements to the right of `i` (i.e., `nums[i+1]`, `nums[i+2]`, ...).
+
+Return the minimum number of operations to make all elements equal to zero.
+
+- Examples
+- Constraints
+- [Greedy Simulation](#greedy-simulation)
+- [Mathematical Optimization](#mathematical-optimization)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,0,2,0,3]
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The only possible valid selections are the following:
+
+Choose curr = 3, and a movement direction to the left.
+
+[1,0,2,0,3] -> [1,0,2,0,3] -> [1,0,1,0,3] -> [1,0,1,0,3] -> [1,0,1,0,2] -> [1,0,1,0,2] -> [1,0,0,0,2] -> [1,0,0,0,2] -> [1,0,0,0,1] -> [1,0,0,0,1] -> [1,0,0,0,1] -> [1,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,0].
+
+Choose curr = 3, and a movement direction to the right.
+
+[1,0,2,0,3] -> [1,0,2,0,3] -> [1,0,2,0,2] -> [1,0,2,0,2] -> [1,0,1,0,2] -> [1,0,1,0,2] -> [1,0,1,0,1] -> [1,0,1,0,1] -> [1,0,0,0,1] -> [1,0,0,0,1] -> [1,0,0,0,0] -> [1,0,0,0,0] -> [1,0,0,0,0] -> [1,0,0,0,0] -> [0,0,0,0,0].
+
+### Example 2
+
+**Input:**
+```text
+nums = [2,3,4,0,4,1,0]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+There are no possible valid selections.
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+0 <= nums[i] <= 10⁵
+```
+
+---
+
+## Greedy Simulation
+
+**Intuition**
+We must zero out elements from left to right. Only operations at index `i` affect `nums[i]`. Therefore, to make `nums[i]` zero, we must perform exactly `nums[i]` operations at index `i`, minus any operations already performed on previous indices (which also affect `i`).
+
+**Steps**
+- Initialize `ops` to 0 to track the total operations performed so far.
+- Iterate through the array from left to right.
+- At each index `i`, calculate the difference `diff = nums[i] - ops`.
+- If `diff` is negative, it means previous operations have already made `nums[i]` negative, which is impossible to recover from, so return -1 (or handle as invalid).
+- Add `diff` to `ops`.
+- Return the final `ops` count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minOperations(self, nums: list[int]) -&gt; int:\n        ops = 0\n        for i in range(len(nums)):\n            diff = nums[i] - ops\n            if diff &lt; 0:\n                return -1\n            ops += diff\n        return ops\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minOperations(int[] nums) {\n        long ops = 0;\n        for (int i = 0; i &lt; nums.length; i++) {\n            long diff = nums[i] - ops;\n            if (diff &lt; 0) {\n                return -1;\n            }\n            ops += diff;\n        }\n        return (int) ops;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minOperations(vector&lt;int&gt;& nums) {\n        long long ops = 0;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            long long diff = nums[i] - ops;\n            if (diff &lt; 0) {\n                return -1;\n            }\n            ops += diff;\n        }\n        return (int) ops;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minOperations = function(nums) {\n    let ops = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        const diff = nums[i] - ops;\n        if (diff &lt; 0) {\n            return -1;\n        }\n        ops += diff;\n    }\n    return ops;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minOperations(nums: number[]): number {\n    let ops = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        const diff = nums[i] - ops;\n        if (diff &lt; 0) {\n            return -1;\n        }\n        ops += diff;\n    }\n    return ops;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — We iterate through the array once.
+- Space: O(1) — We only use a few variables for tracking.
+- Notes: This approach directly simulates the process and handles edge cases where the array might not be non-decreasing.
+
+---
+
+## Mathematical Optimization
+
+**Intuition**
+From the simulation, we observe that `ops` at index `i` must equal `nums[i]`. This implies that the array must be non-decreasing (`nums[i] &gt;= nums[i-1]`) for a solution to exist. If valid, the total operations required is simply the value of the last element.
+
+**Steps**
+- Iterate through the array to check if it is non-decreasing.
+- If `nums[i] &lt; nums[i-1]` for any `i`, return -1 (impossible).
+- If the loop completes, return `nums[nums.length - 1]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minOperations(self, nums: list[int]) -&gt; int:\n        for i in range(1, len(nums)):\n            if nums[i] &lt; nums[i-1]:\n                return -1\n        return nums[-1] if nums else 0\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minOperations(int[] nums) {\n        for (int i = 1; i &lt; nums.length; i++) {\n            if (nums[i] &lt; nums[i - 1]) {\n                return -1;\n            }\n        }\n        return nums.length &gt; 0 ? nums[nums.length - 1] : 0;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minOperations(vector&lt;int&gt;& nums) {\n        for (int i = 1; i &lt; nums.size(); i++) {\n            if (nums[i] &lt; nums[i - 1]) {\n                return -1;\n            }\n        }\n        return nums.empty() ? 0 : nums.back();\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minOperations = function(nums) {\n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] &lt; nums[i - 1]) {\n            return -1;\n        }\n    }\n    return nums.length &gt; 0 ? nums[nums.length - 1] : 0;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minOperations(nums: number[]): number {\n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] &lt; nums[i - 1]) {\n            return -1;\n        }\n    }\n    return nums.length &gt; 0 ? nums[nums.length - 1] : 0;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — We traverse the array once to check the order.
+- Space: O(1) — No extra space is used.
+- Notes: This is the most optimal solution, reducing the problem to a simple monotonicity check.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Make Array Elements Equal to Zero Solutions","datePublished":"2024-05-03","description":"You are given an integer array nums. In one operation, select i where nums[i] &gt; 0, subtract 1 from nums[i] and all elements to its right. Return the minimum operations to make all elements zero.","keywords":"LeetCode, Make Array Elements Equal to Zero, Easy, Array, Simulation, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array, as we iterate through it once."}},{"@type":"Question","name":"What is the space complexity of the Mathematical Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we only use a constant amount of extra space for variables."}},{"@type":"Question","name":"Why is the answer equal to the last element of the array?","acceptedAnswer":{"@type":"Answer","text":"Because operations at index i affect all subsequent elements. To zero out the last element, we must perform exactly nums[n-1] operations, which will also zero out all previous elements if the array is non-decreasing."}}]}).replace(/</g,'\u003c')}
+</script>

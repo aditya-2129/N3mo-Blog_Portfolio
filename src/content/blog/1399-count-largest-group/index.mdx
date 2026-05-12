@@ -1,0 +1,533 @@
+---
+title: "Count Largest Group"
+summary: "Group numbers 1 to n by digit sum and count how many groups have the largest size."
+date: "Jun 17, 2025"
+tags:
+  - Hash Table
+  - Math
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.70% | **Paid:** No
+> **Topics:** Hash Table, Math, Counting
+
+You are given an integer n.
+
+Each number from 1 to n inclusive is grouped according to the sum of its digits.
+
+Return the number of groups that have the largest size.
+
+- Examples
+- Constraints
+- [Hash Map Approach](#hash-map-approach)
+- [Array-based Counting](#array-based-counting)
+- [Precompute Digit Sums](#precompute-digit-sums)
+
+## Examples
+
+```text
+Input: n = 13
+Output: 4
+Explanation: There are 9 groups in total, they are grouped according sum of its digits of [1,10], [2,11], [3,12], [4,13], [5], [6], [7], [8], [9]. There are 4 groups with largest size.
+```
+
+```text
+Input: n = 2
+Output: 2
+Explanation: There are 2 groups [1], [2] of size 1.
+```
+
+## Constraints
+
+```text
+1 <= n <= 10^4
+```
+
+---
+## Hash Map Approach
+
+**Intuition**
+Use a hash map to count how many numbers share each digit sum, then find the maximum count and count how many groups achieve it.
+
+**Steps**
+- Iterate from 1 to n, calculating digit sum for each number
+- Store counts in a hash map keyed by digit sum
+- Find the maximum group size
+- Count how many groups have this maximum size
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from collections import defaultdict
+
+class Solution:
+    def countLargestGroup(self, n: int) -> int:
+        groups = defaultdict(int)
+        
+        for i in range(1, n + 1):
+            sum_digits = 0
+            num = i
+            while num:
+                sum_digits += num % 10
+                num //= 10
+            groups[sum_digits] += 1
+        
+        max_size = max(groups.values())
+        return sum(1 for v in groups.values() if v == max_size)
+` },
+{ name: "Java", lang: "java", code: `import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int countLargestGroup(int n) {
+        Map<Integer, Integer> groups = new HashMap&lt;&gt;();
+        
+        for (int i = 1; i &lt;= n; i++) {
+            int sum = digitSum(i);
+            groups.put(sum, groups.getOrDefault(sum, 0) + 1);
+        }
+        
+        int maxSize = 0;
+        for (int count : groups.values()) {
+            maxSize = Math.max(maxSize, count);
+        }
+        
+        int result = 0;
+        for (int count : groups.values()) {
+            if (count == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    private int digitSum(int num) {
+        int sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <unordered_map>
+#include <algorithm>
+
+class Solution {
+public:
+    int countLargestGroup(int n) {
+        unordered_map<int, int> groups;
+        
+        for (int i = 1; i &lt;= n; i++) {
+            int sum = digitSum(i);
+            groups[sum]++;
+        }
+        
+        int maxSize = 0;
+        for (const auto& pair : groups) {
+            maxSize = max(maxSize, pair.second);
+        }
+        
+        int result = 0;
+        for (const auto& pair : groups) {
+            if (pair.second == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+private:
+    int digitSum(int num) {
+        int sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countLargestGroup(n) {
+        const groups = new Map();
+        
+        for (let i = 1; i &lt;= n; i++) {
+            const sum = this.digitSum(i);
+            groups.set(sum, (groups.get(sum) || 0) + 1);
+        }
+        
+        let maxSize = 0;
+        for (const count of groups.values()) {
+            maxSize = Math.max(maxSize, count);
+        }
+        
+        let result = 0;
+        for (const count of groups.values()) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    digitSum(num) {
+        let sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num = Math.floor(num / 10);
+        }
+        return sum;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countLargestGroup(n: number): number {
+        const groups: Map<number, number> = new Map();
+        
+        for (let i = 1; i &lt;= n; i++) {
+            const sum = this.digitSum(i);
+            groups.set(sum, (groups.get(sum) || 0) + 1);
+        }
+        
+        let maxSize = 0;
+        for (const count of groups.values()) {
+            maxSize = Math.max(maxSize, count);
+        }
+        
+        let result = 0;
+        for (const count of groups.values()) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    private digitSum(num: number): number {
+        let sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num = Math.floor(num / 10);
+        }
+        return sum;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × log₁₀n) for calculating digit sums
+- Space: O(n) for storing group counts
+- Notes: Simple and intuitive, uses extra space for hash map overhead
+
+---
+## Array-based Counting
+
+**Intuition**
+Since the maximum digit sum for n ≤ 10⁴ is 36 (for 9999), use a fixed-size array instead of a hash map for better performance.
+
+**Steps**
+- Create an array of size 37 to store counts for each possible digit sum
+- Iterate through 1 to n, calculating digit sum and incrementing the corresponding array index
+- Find the maximum value in the array
+- Count how many indices contain this maximum value
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countLargestGroup(self, n: int) -> int:
+        def digit_sum(num):
+            s = 0
+            while num:
+                s += num % 10
+                num //= 10
+            return s
+        
+        groups = [0] * 37
+        for i in range(1, n + 1):
+            groups[digit_sum(i)] += 1
+        
+        max_size = max(groups)
+        return groups.count(max_size)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countLargestGroup(int n) {
+        int[] groups = new int[37];
+        
+        for (int i = 1; i &lt;= n; i++) {
+            int sum = digitSum(i);
+            groups[sum]++;
+        }
+        
+        int maxSize = 0;
+        for (int count : groups) {
+            maxSize = Math.max(maxSize, count);
+        }
+        
+        int result = 0;
+        for (int count : groups) {
+            if (count == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    private int digitSum(int num) {
+        int sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countLargestGroup(int n) {
+        vector<int> groups(37, 0);
+        
+        for (int i = 1; i &lt;= n; i++) {
+            int sum = digitSum(i);
+            groups[sum]++;
+        }
+        
+        int maxSize = *max_element(groups.begin(), groups.end());
+        
+        int result = 0;
+        for (int count : groups) {
+            if (count == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+private:
+    int digitSum(int num) {
+        int sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countLargestGroup(n) {
+        const groups = new Array(37).fill(0);
+        
+        for (let i = 1; i &lt;= n; i++) {
+            const sum = this.digitSum(i);
+            groups[sum]++;
+        }
+        
+        const maxSize = Math.max(...groups);
+        
+        let result = 0;
+        for (const count of groups) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    digitSum(num) {
+        let sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num = Math.floor(num / 10);
+        }
+        return sum;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countLargestGroup(n: number): number {
+        const groups: number[] = new Array(37).fill(0);
+        
+        for (let i = 1; i &lt;= n; i++) {
+            const sum = this.digitSum(i);
+            groups[sum]++;
+        }
+        
+        const maxSize = Math.max(...groups);
+        
+        let result = 0;
+        for (const count of groups) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    private digitSum(num: number): number {
+        let sum = 0;
+        while (num &gt; 0) {
+            sum += num % 10;
+            num = Math.floor(num / 10);
+        }
+        return sum;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × log₁₀n) for calculating digit sums
+- Space: O(1) since array size is fixed at 37
+- Notes: More efficient than hash map due to direct array access and no overhead
+
+---
+## Precompute Digit Sums
+
+**Intuition**
+Use dynamic programming to precompute all digit sums, avoiding repeated digit extraction for each number.
+
+**Steps**
+- Create an array where digit_sums[i] = digit_sums[i // 10] + i % 10
+- Fill the array from 1 to n using the recurrence relation
+- Count groups using the precomputed digit sums
+- Find and count the maximum group size
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countLargestGroup(self, n: int) -> int:
+        digit_sums = [0] * (n + 1)
+        for i in range(1, n + 1):
+            digit_sums[i] = digit_sums[i // 10] + i % 10
+        
+        groups = [0] * 37
+        for i in range(1, n + 1):
+            groups[digit_sums[i]] += 1
+        
+        max_size = max(groups)
+        return groups.count(max_size)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countLargestGroup(int n) {
+        int[] digitSums = new int[n + 1];
+        for (int i = 1; i &lt;= n; i++) {
+            digitSums[i] = digitSums[i / 10] + i % 10;
+        }
+        
+        int[] groups = new int[37];
+        for (int i = 1; i &lt;= n; i++) {
+            groups[digitSums[i]]++;
+        }
+        
+        int maxSize = 0;
+        for (int count : groups) {
+            maxSize = Math.max(maxSize, count);
+        }
+        
+        int result = 0;
+        for (int count : groups) {
+            if (count == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countLargestGroup(int n) {
+        vector<int> digitSums(n + 1, 0);
+        for (int i = 1; i &lt;= n; i++) {
+            digitSums[i] = digitSums[i / 10] + i % 10;
+        }
+        
+        vector<int> groups(37, 0);
+        for (int i = 1; i &lt;= n; i++) {
+            groups[digitSums[i]]++;
+        }
+        
+        int maxSize = *max_element(groups.begin(), groups.end());
+        
+        int result = 0;
+        for (int count : groups) {
+            if (count == maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countLargestGroup(n) {
+        const digitSums = new Array(n + 1).fill(0);
+        for (let i = 1; i &lt;= n; i++) {
+            digitSums[i] = digitSums[Math.floor(i / 10)] + i % 10;
+        }
+        
+        const groups = new Array(37).fill(0);
+        for (let i = 1; i &lt;= n; i++) {
+            groups[digitSums[i]]++;
+        }
+        
+        const maxSize = Math.max(...groups);
+        
+        let result = 0;
+        for (const count of groups) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countLargestGroup(n: number): number {
+        const digitSums: number[] = new Array(n + 1).fill(0);
+        for (let i = 1; i &lt;= n; i++) {
+            digitSums[i] = digitSums[Math.floor(i / 10)] + i % 10;
+        }
+        
+        const groups: number[] = new Array(37).fill(0);
+        for (let i = 1; i &lt;= n; i++) {
+            groups[digitSums[i]]++;
+        }
+        
+        const maxSize = Math.max(...groups);
+        
+        let result = 0;
+        for (const count of groups) {
+            if (count === maxSize) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) for single pass precomputation
+- Space: O(n) for storing precomputed digit sums
+- Notes: Faster digit sum calculation at the cost of O(n) extra space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Largest Group Solutions","datePublished":"2025-06-17","description":"Group numbers 1 to n by digit sum and count how many groups have the largest size.","keywords":"LeetCode, Count Largest Group, Easy, Hash Table, Math, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × log₁₀n) for calculating digit sums, plus O(k) for finding max and counting, where k is the number of unique digit sums."}},{"@type":"Question","name":"What is the space complexity of the Array-based Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since the array size is fixed at 37, regardless of input size."}},{"@type":"Question","name":"Why is the Precompute Digit Sums approach faster?","acceptedAnswer":{"@type":"Answer","text":"It uses dynamic programming to compute digit sums in O(1) per number using the recurrence digit_sums[i] = digit_sums[i // 10] + i % 10, avoiding repeated digit extraction."}},{"@type":"Question","name":"What is the maximum possible digit sum for this problem?","acceptedAnswer":{"@type":"Answer","text":"36, which occurs for the number 9999 (the maximum n is 10⁴)."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,145 @@
+---
+title: "Vowel-Consonant Score"
+summary: "Given a string s and integer k, find the maximum score of any substring of length k where vowels are worth 1 and consonants are worth 2."
+date: "Mar 03, 2024"
+tags:
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.90% | **Paid:** No
+> **Topics:** String, Simulation
+
+You are given a 0-indexed string s and an integer k.
+
+The score of a character is defined as:
+- 1 if the character is a vowel (a, e, i, o, u).
+- 2 if the character is a consonant.
+
+The score of a substring is the sum of the scores of its characters.
+
+Return the maximum score of any substring of s with length exactly k.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window](#sliding-window)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "cooear"
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The string s = "cooear" contains v = 4 vowels ('o', 'o', 'e', 'a') and c = 2 consonants ('c', 'r').
+
+The score is floor(v / c) = floor(4 / 2) = 2.
+
+### Example 2
+
+**Input:**
+```text
+s = "axeyizou"
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+The string s = "axeyizou" contains v = 5 vowels ('a', 'e', 'i', 'o', 'u') and c = 3 consonants ('x', 'y', 'z').
+
+The score is floor(v / c) = floor(5 / 3) = 1.
+
+### Example 3
+
+**Input:**
+```text
+s = "au 123"
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+The string s = "au 123" contains no consonants (c = 0), so the score is 0.
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+1 <= k <= s.length
+s consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can iterate through every possible starting index for a substring of length k, calculate the score for that specific substring by summing the values of each character, and keep track of the maximum score found.
+
+**Steps**
+- Initialize a variable `max_score` to 0.
+- Iterate through the string `s` from index `0` to `n - k`.
+- For each starting index `i`, iterate from `i` to `i + k - 1` to calculate the sum of the substring.
+- Update `max_score` if the current substring's score is higher.
+- Return `max_score`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxScore(self, s: str, k: int) -&gt; int:\n        vowels = set('aeiou')\n        n = len(s)\n        max_score = 0\n        \n        for i in range(n - k + 1):\n            current_score = 0\n            for j in range(i, i + k):\n                if s[j] in vowels:\n                    current_score += 1\n                else:\n                    current_score += 2\n            max_score = max(max_score, current_score)\n            \n        return max_score" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxScore(String s, int k) {\n        int n = s.length();\n        int maxScore = 0;\n        \n        for (int i = 0; i &lt;= n - k; i++) {\n            int currentScore = 0;\n            for (int j = i; j &lt; i + k; j++) {\n                char c = s.charAt(j);\n                if (isVowel(c)) {\n                    currentScore += 1;\n                } else {\n                    currentScore += 2;\n                }\n            }\n            maxScore = Math.max(maxScore, currentScore);\n        }\n        \n        return maxScore;\n    }\n    \n    private boolean isVowel(char c) {\n        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxScore(string s, int k) {\n        int n = s.length();\n        int maxScore = 0;\n        \n        for (int i = 0; i &lt;= n - k; ++i) {\n            int currentScore = 0;\n            for (int j = i; j &lt; i + k; ++j) {\n                if (s[j] == 'a' || s[j] == 'e' || s[j] == 'i' || s[j] == 'o' || s[j] == 'u') {\n                    currentScore += 1;\n                } else {\n                    currentScore += 2;\n                }\n            }\n            maxScore = max(maxScore, currentScore);\n        }\n        \n        return maxScore;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxScore = function(s, k) {\n    const isVowel = (c) =&gt; 'aeiou'.includes(c);\n    const n = s.length;\n    let maxScore = 0;\n    \n    for (let i = 0; i &lt;= n - k; i++) {\n        let currentScore = 0;\n        for (let j = i; j &lt; i + k; j++) {\n            currentScore += isVowel(s[j]) ? 1 : 2;\n        }\n        maxScore = Math.max(maxScore, currentScore);\n    }\n    \n    return maxScore;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxScore(s: string, k: number): number {\n    const isVowel = (c: string) =&gt; 'aeiou'.includes(c);\n    const n = s.length;\n    let maxScore = 0;\n    \n    for (let i = 0; i &lt;= n - k; i++) {\n        let currentScore = 0;\n        for (let j = i; j &lt; i + k; j++) {\n            currentScore += isVowel(s[j]) ? 1 : 2;\n        }\n        maxScore = Math.max(maxScore, currentScore);\n    }\n    \n    return maxScore;\n}" },]} />
+
+**Complexity**
+- Time: O(n * k), where n is the length of the string. We iterate through n-k+1 starting positions, and for each, we sum k elements.
+- Space: O(1), we only use a few variables for storing scores.
+- Notes: This approach is simple but inefficient for large inputs (e.g., n = 10⁵, k = 10⁵).
+
+---
+## Sliding Window
+
+**Intuition**
+Since we are looking for the maximum sum of a fixed-size window (length k), we can optimize the calculation by reusing the sum from the previous window. When we slide the window one step to the right, we subtract the score of the character leaving the window and add the score of the new character entering the window.
+
+**Steps**
+- Calculate the score of the first window (indices 0 to k-1) and store it in `current_score` and `max_score`.
+- Iterate from index `k` to the end of the string.
+- In each iteration, update `current_score` by subtracting the score of `s[i - k]` and adding the score of `s[i]`.
+- Update `max_score` if `current_score` is greater.
+- Return `max_score`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxScore(self, s: str, k: int) -&gt; int:\n        vowels = set('aeiou')\n        \n        def get_score(c):\n            return 1 if c in vowels else 2\n        \n        # Calculate initial window score\n        current_score = 0\n        for i in range(k):\n            current_score += get_score(s[i])\n            \n        max_score = current_score\n        \n        # Slide the window\n        for i in range(k, len(s)):\n            current_score += get_score(s[i]) - get_score(s[i - k])\n            max_score = max(max_score, current_score)\n            \n        return max_score" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxScore(String s, int k) {\n        int n = s.length();\n        \n        // Calculate initial window score\n        int currentScore = 0;\n        for (int i = 0; i &lt; k; i++) {\n            currentScore += getScore(s.charAt(i));\n        }\n        \n        int maxScore = currentScore;\n        \n        // Slide the window\n        for (int i = k; i &lt; n; i++) {\n            currentScore += getScore(s.charAt(i)) - getScore(s.charAt(i - k));\n            maxScore = Math.max(maxScore, currentScore);\n        }\n        \n        return maxScore;\n    }\n    \n    private int getScore(char c) {\n        return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') ? 1 : 2;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxScore(string s, int k) {\n        auto getScore = [](char c) {\n            return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') ? 1 : 2;\n        };\n        \n        int n = s.length();\n        \n        // Calculate initial window score\n        int currentScore = 0;\n        for (int i = 0; i &lt; k; ++i) {\n            currentScore += getScore(s[i]);\n        }\n        \n        int maxScore = currentScore;\n        \n        // Slide the window\n        for (int i = k; i &lt; n; ++i) {\n            currentScore += getScore(s[i]) - getScore(s[i - k]);\n            maxScore = max(maxScore, currentScore);\n        }\n        \n        return maxScore;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxScore = function(s, k) {\n    const getScore = (c) =&gt; 'aeiou'.includes(c) ? 1 : 2;\n    const n = s.length;\n    \n    // Calculate initial window score\n    let currentScore = 0;\n    for (let i = 0; i &lt; k; i++) {\n        currentScore += getScore(s[i]);\n    }\n    \n    let maxScore = currentScore;\n    \n    // Slide the window\n    for (let i = k; i &lt; n; i++) {\n        currentScore += getScore(s[i]) - getScore(s[i - k]);\n        maxScore = Math.max(maxScore, currentScore);\n    }\n    \n    return maxScore;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxScore(s: string, k: number): number {\n    const getScore = (c: string): number =&gt; 'aeiou'.includes(c) ? 1 : 2;\n    const n = s.length;\n    \n    // Calculate initial window score\n    let currentScore = 0;\n    for (let i = 0; i &lt; k; i++) {\n        currentScore += getScore(s[i]);\n    }\n    \n    let maxScore = currentScore;\n    \n    // Slide the window\n    for (let i = k; i &lt; n; i++) {\n        currentScore += getScore(s[i]) - getScore(s[i - k]);\n        maxScore = Math.max(maxScore, currentScore);\n    }\n    \n    return maxScore;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We pass through the string once to calculate the initial window and once more to slide it.
+- Space: O(1), we only use a few variables for storing scores.
+- Notes: This is the optimal solution for this problem, significantly faster than the brute force approach for large inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Vowel-Consonant Score Solutions","datePublished":"2024-03-03","description":"Given a string s and integer k, find the maximum score of any substring of length k where vowels are worth 1 and consonants are worth 2.","keywords":"LeetCode, Vowel-Consonant Score, Easy, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n * k), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sliding Window approach is O(n), where n is the length of the string."}}]}).replace(/</g,'\u003c')}
+</script>

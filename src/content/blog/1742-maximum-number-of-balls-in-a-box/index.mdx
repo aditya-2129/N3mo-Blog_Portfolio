@@ -1,0 +1,118 @@
+---
+title: "Maximum Number of Balls in a Box"
+summary: "Count balls in boxes based on digit sum of ball numbers and find the box with maximum balls."
+date: "Feb 04, 2024"
+tags:
+  - Hash Table
+  - Math
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.90% | **Paid:** No
+> **Topics:** Hash Table, Math, Counting
+
+You are working in a ball factory where you have n balls numbered from lowLimit up to highLimit inclusive (i.e., n == highLimit - lowLimit + 1), and an infinite number of boxes numbered from 1 to infinity.
+
+Your job at this factory is to put each ball into the box whose number equals the sum of digits of the ball's number. For example, ball 321 will be put into the box number 3 + 2 + 1 = 6 and ball 10 will be put into the box number 1 + 0 = 1.
+
+Given two integers lowLimit and highLimit, return the number of balls in the box with the most balls.
+
+- Examples
+- Constraints
+- [Hash Map Counting](#hash-map-counting)
+- [Array-based Counting](#array-based-counting)
+
+## Examples
+
+```text
+Input: lowLimit = 1, highLimit = 10
+Output: 2
+Explanation:
+Box Number:  1 2 3 4 5 6 7 8 9 10 11 ...
+Ball Count:  2 1 1 1 1 1 1 1 1 0  0  ...
+Box 1 has the most number of balls with 2 balls.
+```
+
+```text
+Input: lowLimit = 5, highLimit = 15
+Output: 2
+Explanation:
+Box Number:  1 2 3 4 5 6 7 8 9 10 11 ...
+Ball Count:  1 1 1 1 2 2 1 1 1 0  0  ...
+Boxes 5 and 6 have the most number of balls with 2 balls in each.
+```
+
+```text
+Input: lowLimit = 19, highLimit = 28
+Output: 2
+Explanation:
+Box Number:  1 2 3 4 5 6 7 8 9 10 11 12 ...
+Ball Count:  0 1 1 1 1 1 1 1 1 2  0  0  ...
+Box 10 has the most number of balls with 2 balls.
+```
+
+## Constraints
+
+```text
+1 <= lowLimit <= highLimit <= 10^5
+```
+
+---
+## Hash Map Counting
+
+**Intuition**
+Iterate through each ball number, calculate its digit sum, and use a hash map to track how many balls go into each box. The maximum value in the hash map is our answer.
+
+**Steps**
+- Initialize a hash map to store ball counts for each box
+- Iterate from lowLimit to highLimit (inclusive)
+- For each number, calculate the sum of its digits
+- Increment the count for that digit sum in the hash map
+- Track and return the maximum count found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countBalls(self, lowLimit: int, highLimit: int) -&gt; int:\n        count = {}\n        max_balls = 0\n        \n        for num in range(lowLimit, highLimit + 1):\n            digit_sum = 0\n            n = num\n            while n &gt; 0:\n                digit_sum += n % 10\n                n //= 10\n            \n            count[digit_sum] = count.get(digit_sum, 0) + 1\n            max_balls = max(max_balls, count[digit_sum])\n        \n        return max_balls" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countBalls(int lowLimit, int highLimit) {\n        Map&lt;Integer, Integer&gt; count = new HashMap&lt;&gt;();\n        int maxBalls = 0;\n        \n        for (int num = lowLimit; num &lt;= highLimit; num++) {\n            int digitSum = 0;\n            int n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n /= 10;\n            }\n            \n            count.put(digitSum, count.getOrDefault(digitSum, 0) + 1);\n            maxBalls = Math.max(maxBalls, count.get(digitSum));\n        }\n        \n        return maxBalls;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countBalls(int lowLimit, int highLimit) {\n        unordered_map&lt;int, int&gt; count;\n        int maxBalls = 0;\n        \n        for (int num = lowLimit; num &lt;= highLimit; num++) {\n            int digitSum = 0;\n            int n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n /= 10;\n            }\n            \n            count[digitSum]++;\n            maxBalls = max(maxBalls, count[digitSum]);\n        }\n        \n        return maxBalls;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countBalls(lowLimit, highLimit) {\n        const count = new Map();\n        let maxBalls = 0;\n        \n        for (let num = lowLimit; num &lt;= highLimit; num++) {\n            let digitSum = 0;\n            let n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n = Math.floor(n / 10);\n            }\n            \n            count.set(digitSum, (count.get(digitSum) || 0) + 1);\n            maxBalls = Math.max(maxBalls, count.get(digitSum));\n        }\n        \n        return maxBalls;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countBalls(lowLimit: number, highLimit: number): number {\n        const count = new Map&lt;number, number&gt;();\n        let maxBalls = 0;\n        \n        for (let num = lowLimit; num &lt;= highLimit; num++) {\n            let digitSum = 0;\n            let n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n = Math.floor(n / 10);\n            }\n            \n            count.set(digitSum, (count.get(digitSum) || 0) + 1);\n            maxBalls = Math.max(maxBalls, count.get(digitSum));\n        }\n        \n        return maxBalls;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n × d) where n = highLimit - lowLimit + 1 and d is the average number of digits
+- Space: O(k) where k is the number of unique digit sums (at most 45)
+- Notes: Hash map provides O(1) average case for insert and lookup operations
+
+---
+## Array-based Counting
+
+**Intuition**
+Since the maximum digit sum for any number up to 10⁵ is 45 (9+9+9+9+9), we can use a fixed-size array instead of a hash map for better performance and simpler code.
+
+**Steps**
+- Create an array of size 46 to store counts for all possible digit sums (0-45)
+- Iterate from lowLimit to highLimit (inclusive)
+- For each number, calculate the sum of its digits
+- Increment the count at the index equal to the digit sum
+- Track and return the maximum count found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countBalls(self, lowLimit: int, highLimit: int) -&gt; int:\n        count = [0] * 46\n        max_balls = 0\n        \n        for num in range(lowLimit, highLimit + 1):\n            digit_sum = 0\n            n = num\n            while n &gt; 0:\n                digit_sum += n % 10\n                n //= 10\n            \n            count[digit_sum] += 1\n            max_balls = max(max_balls, count[digit_sum])\n        \n        return max_balls" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countBalls(int lowLimit, int highLimit) {\n        int[] count = new int[46];\n        int maxBalls = 0;\n        \n        for (int num = lowLimit; num &lt;= highLimit; num++) {\n            int digitSum = 0;\n            int n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n /= 10;\n            }\n            \n            count[digitSum]++;\n            maxBalls = Math.max(maxBalls, count[digitSum]);\n        }\n        \n        return maxBalls;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countBalls(int lowLimit, int highLimit) {\n        int count[46] = {0};\n        int maxBalls = 0;\n        \n        for (int num = lowLimit; num &lt;= highLimit; num++) {\n            int digitSum = 0;\n            int n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n /= 10;\n            }\n            \n            count[digitSum]++;\n            maxBalls = max(maxBalls, count[digitSum]);\n        }\n        \n        return maxBalls;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countBalls(lowLimit, highLimit) {\n        const count = new Array(46).fill(0);\n        let maxBalls = 0;\n        \n        for (let num = lowLimit; num &lt;= highLimit; num++) {\n            let digitSum = 0;\n            let n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n = Math.floor(n / 10);\n            }\n            \n            count[digitSum]++;\n            maxBalls = Math.max(maxBalls, count[digitSum]);\n        }\n        \n        return maxBalls;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countBalls(lowLimit: number, highLimit: number): number {\n        const count = new Array(46).fill(0);\n        let maxBalls = 0;\n        \n        for (let num = lowLimit; num &lt;= highLimit; num++) {\n            let digitSum = 0;\n            let n = num;\n            while (n &gt; 0) {\n                digitSum += n % 10;\n                n = Math.floor(n / 10);\n            }\n            \n            count[digitSum]++;\n            maxBalls = Math.max(maxBalls, count[digitSum]);\n        }\n        \n        return maxBalls;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n × d) where n = highLimit - lowLimit + 1 and d is the average number of digits
+- Space: O(1) since array size is fixed at 46 regardless of input
+- Notes: Array indexing is faster than hash map lookups and uses less memory overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Number of Balls in a Box Solutions","datePublished":"2024-02-04","description":"Count balls in boxes based on digit sum of ball numbers and find the box with maximum balls.","keywords":"LeetCode, Maximum Number of Balls in a Box, Easy, Hash Table, Math, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) where n = highLimit - lowLimit + 1 and d is the average number of digits."}},{"@type":"Question","name":"What is the space complexity of Array-based Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since the array size is fixed at 46 regardless of input size."}},{"@type":"Question","name":"Why is the array size 46 in the optimized approach?","acceptedAnswer":{"@type":"Answer","text":"The maximum digit sum for any number up to 10^5 is 45 (9+9+9+9+9), so we need indices 0-45, hence size 46."}}]}).replace(/</g,'\u003c')}
+</script>

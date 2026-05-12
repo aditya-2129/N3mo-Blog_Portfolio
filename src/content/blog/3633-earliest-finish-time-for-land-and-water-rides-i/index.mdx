@@ -1,0 +1,186 @@
+---
+title: "Earliest Finish Time for Land and Water Rides I"
+summary: "Find the minimum total time to complete one land ride and one water ride, where the land ride must be taken first."
+date: "Oct 14, 2024"
+tags:
+  - Array
+  - Two Pointers
+  - Binary Search
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.10% | **Paid:** No
+> **Topics:** Array, Two Pointers, Binary Search, Greedy, Sorting
+
+You are given two 0-indexed integer arrays `landRides` and `waterRides`. You want to take exactly one land ride and one water ride. You must take the land ride before the water ride. Return the minimum possible finish time.
+
+The finish time is the sum of the duration of the land ride and the duration of the water ride.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Greedy (Linear Scan)](#greedy-linear-scan)
+- [Sorting](#sorting)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+landStartTime = [2,8], landDuration = [4,1], waterStartTime = [6], waterDuration = [3]
+```
+
+**Output:**
+```text
+9
+```
+
+**Explanation:**
+​​​​​​​
+
+Plan A (land ride 0 &rarr; water ride 0):
+
+Start land ride 0 at time landStartTime[0] = 2. Finish at 2 + landDuration[0] = 6.
+
+Water ride 0 opens at time waterStartTime[0] = 6. Start immediately at 6, finish at 6 + waterDuration[0] = 9.
+
+Plan B (water ride 0 &rarr; land ride 1):
+
+Start water ride 0 at time waterStartTime[0] = 6. Finish at 6 + waterDuration[0] = 9.
+
+Land ride 1 opens at landStartTime[1] = 8. Start at time 9, finish at 9 + landDuration[1] = 10.
+
+Plan C (land ride 1 &rarr; water ride 0):
+
+Start land ride 1 at time landStartTime[1] = 8. Finish at 8 + landDuration[1] = 9.
+
+Water ride 0 opened at waterStartTime[0] = 6. Start at time 9, finish at 9 + waterDuration[0] = 12.
+
+Plan D (water ride 0 &rarr; land ride 0):
+
+Start water ride 0 at time waterStartTime[0] = 6. Finish at 6 + waterDuration[0] = 9.
+
+Land ride 0 opened at landStartTime[0] = 2. Start at time 9, finish at 9 + landDuration[0] = 13.
+
+Plan A gives the earliest finish time of 9.
+
+### Example 2
+
+**Input:**
+```text
+landStartTime = [5], landDuration = [3], waterStartTime = [1], waterDuration = [10]
+```
+
+**Output:**
+```text
+14
+```
+
+**Explanation:**
+​​​​​​​
+
+Plan A (water ride 0 &rarr; land ride 0):
+
+Start water ride 0 at time waterStartTime[0] = 1. Finish at 1 + waterDuration[0] = 11.
+
+Land ride 0 opened at landStartTime[0] = 5. Start immediately at 11 and finish at 11 + landDuration[0] = 14.
+
+Plan B (land ride 0 &rarr; water ride 0):
+
+Start land ride 0 at time landStartTime[0] = 5. Finish at 5 + landDuration[0] = 8.
+
+Water ride 0 opened at waterStartTime[0] = 1. Start immediately at 8 and finish at 8 + waterDuration[0] = 18.
+
+Plan A provides the earliest finish time of 14.​​​​​​​
+
+## Constraints
+
+```text
+- 1 <= n, m <= 100
+- landStartTime.length == landDuration.length == n
+- waterStartTime.length == waterDuration.length == m
+- 1 <= landStartTime[i], landDuration[i], waterStartTime[j], waterDuration[j] <= 1000
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair of land and water rides to find the minimum sum.
+
+**Steps**
+- Initialize `minTime` to a very large value.
+- Iterate through each land ride.
+- For each land ride, iterate through each water ride.
+- Calculate the sum of the current pair.
+- Update `minTime` if the current sum is smaller.
+- Return `minTime`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def earliestFinishTime(self, landRides: List[int], waterRides: List[int]) -&gt; int:\r\n        min_time = float('inf')\r\n        for l in landRides:\r\n            for w in waterRides:\r\n                total = l + w\r\n                if total &lt; min_time:\r\n                    min_time = total\r\n        return min_time\r\n" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int earliestFinishTime(int[] landRides, int[] waterRides) {\r\n        long minTime = Long.MAX_VALUE;\r\n        for (int l : landRides) {\r\n            for (int w : waterRides) {\r\n                long total = (long) l + w;\r\n                if (total &lt; minTime) {\r\n                    minTime = total;\r\n                }\r\n            }\r\n        }\r\n        return (int) minTime;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;climits&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int earliestFinishTime(vector&lt;int&gt;& landRides, vector&lt;int&gt;& waterRides) {\r\n        long long minTime = LLONG_MAX;\r\n        for (int l : landRides) {\r\n            for (int w : waterRides) {\r\n                long long total = (long long)l + w;\r\n                if (total &lt; minTime) {\r\n                    minTime = total;\r\n                }\r\n            }\r\n        }\r\n        return (int)minTime;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} landRides\r\n * @param {number[]} waterRides\r\n * @return {number}\r\n */\r\nvar earliestFinishTime = function(landRides, waterRides) {\r\n    let minTime = Number.MAX_SAFE_INTEGER;\r\n    for (let i = 0; i &lt; landRides.length; i++) {\r\n        for (let j = 0; j &lt; waterRides.length; j++) {\r\n            const total = landRides[i] + waterRides[j];\r\n            if (total &lt; minTime) {\r\n                minTime = total;\r\n            }\r\n        }\r\n    }\r\n    return minTime;\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function earliestFinishTime(landRides: number[], waterRides: number[]): number {\r\n    let minTime = Number.MAX_SAFE_INTEGER;\r\n    for (let i = 0; i &lt; landRides.length; i++) {\r\n        for (let j = 0; j &lt; waterRides.length; j++) {\r\n            const total = landRides[i] + waterRides[j];\r\n            if (total &lt; minTime) {\r\n                minTime = total;\r\n            }\r\n        }\r\n    }\r\n    return minTime;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(n * m), where n is the length of `landRides` and m is the length of `waterRides`.
+- Space: O(1)
+- Notes: This approach will time out on large inputs.
+
+---
+## Greedy (Linear Scan)
+
+**Intuition**
+To minimize the sum of two numbers, we should pick the smallest number from the first array and the smallest number from the second array.
+
+**Steps**
+- Find the minimum value in `landRides`.
+- Find the minimum value in `waterRides`.
+- Return the sum of these two minimum values.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def earliestFinishTime(self, landRides: List[int], waterRides: List[int]) -&gt; int:\r\n        min_land = min(landRides)\r\n        min_water = min(waterRides)\r\n        return min_land + min_water\r\n" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int earliestFinishTime(int[] landRides, int[] waterRides) {\r\n        int minLand = Integer.MAX_VALUE;\r\n        for (int ride : landRides) {\r\n            if (ride &lt; minLand) minLand = ride;\r\n        }\r\n        int minWater = Integer.MAX_VALUE;\r\n        for (int ride : waterRides) {\r\n            if (ride &lt; minWater) minWater = ride;\r\n        }\r\n        return minLand + minWater;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int earliestFinishTime(vector&lt;int&gt;& landRides, vector&lt;int&gt;& waterRides) {\r\n        int minLand = *min_element(landRides.begin(), landRides.end());\r\n        int minWater = *min_element(waterRides.begin(), waterRides.end());\r\n        return minLand + minWater;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} landRides\r\n * @param {number[]} waterRides\r\n * @return {number}\r\n */\r\nvar earliestFinishTime = function(landRides, waterRides) {\r\n    let minLand = Infinity;\r\n    for (let i = 0; i &lt; landRides.length; i++) {\r\n        if (landRides[i] &lt; minLand) minLand = landRides[i];\r\n    }\r\n    let minWater = Infinity;\r\n    for (let i = 0; i &lt; waterRides.length; i++) {\r\n        if (waterRides[i] &lt; minWater) minWater = waterRides[i];\r\n    }\r\n    return minLand + minWater;\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function earliestFinishTime(landRides: number[], waterRides: number[]): number {\r\n    let minLand = Infinity;\r\n    for (let i = 0; i &lt; landRides.length; i++) {\r\n        if (landRides[i] &lt; minLand) minLand = landRides[i];\r\n    }\r\n    let minWater = Infinity;\r\n    for (let i = 0; i &lt; waterRides.length; i++) {\r\n        if (waterRides[i] &lt; minWater) minWater = waterRides[i];\r\n    }\r\n    return minLand + minWater;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(n + m)
+- Space: O(1)
+- Notes: This is the optimal approach for this problem.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the arrays, the smallest elements will be at the beginning (index 0). We can simply sum the first elements of both sorted arrays.
+
+**Steps**
+- Sort `landRides` in ascending order.
+- Sort `waterRides` in ascending order.
+- Return `landRides[0] + waterRides[0]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def earliestFinishTime(self, landRides: List[int], waterRides: List[int]) -&gt; int:\r\n        landRides.sort()\r\n        waterRides.sort()\r\n        return landRides[0] + waterRides[0]\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\r\n\r\nclass Solution {\r\n    public int earliestFinishTime(int[] landRides, int[] waterRides) {\r\n        Arrays.sort(landRides);\r\n        Arrays.sort(waterRides);\r\n        return landRides[0] + waterRides[0];\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int earliestFinishTime(vector&lt;int&gt;& landRides, vector&lt;int&gt;& waterRides) {\r\n        sort(landRides.begin(), landRides.end());\r\n        sort(waterRides.begin(), waterRides.end());\r\n        return landRides[0] + waterRides[0];\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} landRides\r\n * @param {number[]} waterRides\r\n * @return {number}\r\n */\r\nvar earliestFinishTime = function(landRides, waterRides) {\r\n    landRides.sort((a, b) =&gt; a - b);\r\n    waterRides.sort((a, b) =&gt; a - b);\r\n    return landRides[0] + waterRides[0];\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function earliestFinishTime(landRides: number[], waterRides: number[]): number {\r\n    landRides.sort((a, b) =&gt; a - b);\r\n    waterRides.sort((a, b) =&gt; a - b);\r\n    return landRides[0] + waterRides[0];\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(n log n + m log m)
+- Space: O(1) or O(n) depending on the sorting algorithm's space complexity.
+- Notes: Sorting is less efficient than a linear scan but is a valid approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Earliest Finish Time for Land and Water Rides I Solutions","datePublished":"2024-10-14","description":"Find the minimum total time to complete one land ride and one water ride, where the land ride must be taken first.","keywords":"LeetCode, Earliest Finish Time for Land and Water Rides I, Easy, Array, Two Pointers, Binary Search, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n * m), where n is the length of landRides and m is the length of waterRides."}},{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m), as we scan both arrays once to find the minimums."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n + m log m), due to sorting both arrays."}}]}).replace(/</g,'\u003c')}
+</script>

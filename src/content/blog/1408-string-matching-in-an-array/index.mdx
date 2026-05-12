@@ -1,0 +1,261 @@
+---
+title: "String Matching in an Array"
+summary: "Find all strings in an array that are substrings of another string in the same array."
+date: "May 11, 2025"
+tags:
+  - Array
+  - String
+  - String Matching
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.80% | **Paid:** No
+> **Topics:** Array, String, String Matching
+
+Given an array of string words, return all strings in words that are a substring of another word in words. You can return the answer in any order.
+
+A substring is a contiguous sequence of characters within a string.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting by Length](#sorting-by-length)
+
+## Examples
+
+### Example 1
+
+```text
+Input: words = ["mass","as","hero","superhero"]
+Output: ["as","hero"]
+Explanation: "as" is substring of "mass" and "hero" is substring of "superhero".
+```
+
+### Example 2
+
+```text
+Input: words = ["leetcode","et","code"]
+Output: ["et","code"]
+Explanation: "et" and "code" are both substrings of "leetcode".
+```
+
+### Example 3
+
+```text
+Input: words = ["blue","green","bu"]
+Output: []
+Explanation: No string is a substring of another.
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 30
+words[i] consists of lowercase English letters.
+All strings in words are distinct.
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each word, check if it is a substring of any other word in the array using nested loops.
+
+**Steps**
+- Initialize an empty result list
+- For each word in the array, compare it with every other word
+- If the current word is a substring of another word, add it to the result
+- Return the result list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def stringMatching(self, words: List[str]) -> List[str]:
+        result = []
+        n = len(words)
+        for i in range(n):
+            for j in range(n):
+                if i != j and words[i] in words[j]:
+                    result.append(words[i])
+                    break
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<String> stringMatching(String[] words) {
+        List<String> result = new ArrayList&lt;&gt;();
+        int n = words.length;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && words[j].contains(words[i])) {
+                    result.add(words[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> stringMatching(vector<string>& words) {
+        vector<string> result;
+        int n = words.size();
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && words[j].find(words[i]) != string::npos) {
+                    result.push_back(words[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var stringMatching = function(words) {
+    const result = [];
+    const n = words.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && words[j].includes(words[i])) {
+                result.push(words[i]);
+                break;
+            }
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function stringMatching(words: string[]): string[] {
+    const result: string[] = [];
+    const n: number = words.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && words[j].includes(words[i])) {
+                result.push(words[i]);
+                break;
+            }
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n² × m) where n is the number of words and m is the average length of words
+- Space: O(n) for the result array
+- Notes: Simple and straightforward approach
+
+---
+## Sorting by Length
+
+**Intuition**
+Sort words by length so that shorter words are checked against longer words, reducing unnecessary comparisons.
+
+**Steps**
+- Sort the words array by length
+- For each word at index i, check if it's a substring of any word at index j &gt; i
+- If found, add the word to the result
+- Return the result list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def stringMatching(self, words: List[str]) -> List[str]:
+        words.sort(key=len)
+        result = []
+        n = len(words)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if words[i] in words[j]:
+                    result.append(words[i])
+                    break
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public List<String> stringMatching(String[] words) {
+        Arrays.sort(words, (a, b) -> a.length() - b.length());
+        List<String> result = new ArrayList&lt;&gt;();
+        int n = words.length;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (words[j].contains(words[i])) {
+                    result.add(words[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    vector<string> stringMatching(vector<string>& words) {
+        sort(words.begin(), words.end(), [](const string& a, const string& b) {
+            return a.length() &lt; b.length();
+        });
+        vector<string> result;
+        int n = words.size();
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (words[j].find(words[i]) != string::npos) {
+                    result.push_back(words[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var stringMatching = function(words) {
+    words.sort((a, b) =&gt; a.length - b.length);
+    const result = [];
+    const n = words.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (words[j].includes(words[i])) {
+                result.push(words[i]);
+                break;
+            }
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function stringMatching(words: string[]): string[] {
+    words.sort((a: string, b: string) =&gt; a.length - b.length);
+    const result: string[] = [];
+    const n: number = words.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (words[j].includes(words[i])) {
+                result.push(words[i]);
+                break;
+            }
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n² × m + n log n) where n is the number of words and m is the average length of words
+- Space: O(n) for the result array (sorting is in-place)
+- Notes: Slightly optimized by avoiding redundant comparisons
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode String Matching in an Array Solutions","datePublished":"2025-05-11","description":"Find all strings in an array that are substrings of another string in the same array.","keywords":"LeetCode, String Matching in an Array, Easy, Array, String, String Matching"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n² × m) where n is the number of words and m is the average length of words."}},{"@type":"Question","name":"What is the time complexity of the Sorting by Length approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n² × m + n log n) where n is the number of words and m is the average length of words."}},{"@type":"Question","name":"What is the space complexity of both approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the result array in both approaches."}}]}).replace(/</g,'\u003c')}
+</script>

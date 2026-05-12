@@ -1,0 +1,113 @@
+---
+title: "Maximum Enemy Forts That Can Be Captured"
+summary: "Find the maximum distance between your fort (1) and an enemy fort (-1) passing only through empty forts (0)."
+date: "Jan 03, 2026"
+tags:
+  - Array
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 41.30% | **Paid:** No
+> **Topics:** Array, Two Pointers
+
+You are given a 0-indexed integer array forts of length n. forts[i] is -1 if it is an enemy fort, 0 if it is empty, and 1 if it is your fort.
+
+You can move from your fort (1) to an empty fort (0), then to another empty fort, and so on, until you reach an enemy fort (-1). You cannot jump over forts.
+
+You want to capture the maximum number of enemy forts by moving from one of your forts to an enemy fort.
+
+Return the maximum number of enemy forts you can capture.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+```text
+Input: forts = [1,0,0,-1,0,0,0,0,1]
+Output: 4
+Explanation:
+- Moving from index 0 to index 3 captures 1 enemy fort. The number of empty forts moved through is 2.
+- Moving from index 8 to index 3 captures 1 enemy fort. The number of empty forts moved through is 4.
+The maximum is 4.
+```
+
+```text
+Input: forts = [0,0,1,-1,1,0,0,-1]
+Output: 2
+Explanation:
+- Moving from index 4 to index 7 captures 1 enemy fort. The number of empty forts moved through is 2.
+The maximum is 2.
+```
+
+## Constraints
+
+```text
+1 <= forts.length <= 1000
+-1 <= forts[i] <= 1
+```
+
+---
+## Brute Force
+
+**Intuition**
+For every fort that belongs to you (1), we can scan to the left and to the right to find the nearest enemy fort (-1). The distance between them (minus 1) represents the number of empty forts traversed. We keep track of the maximum such distance found.
+
+**Steps**
+- Initialize `max_captured` to 0.
+- Iterate through each index `i` in the array.
+- If `forts[i]` is 1 (your fort):
+    - **Scan Left:** Initialize `j = i - 1`. While `j` is within bounds and `forts[j]` is 0, decrement `j`. If `j` is within bounds and `forts[j]` is -1, update `max_captured` with `i - j - 1`.
+    - **Scan Right:** Initialize `j = i + 1`. While `j` is within bounds and `forts[j]` is 0, increment `j`. If `j` is within bounds and `forts[j]` is -1, update `max_captured` with `j - i - 1`.
+- Return `max_captured`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def captureForts(self, forts: list[int]) -&gt; int:\n        n = len(forts)\n        ans = 0\n        for i in range(n):\n            if forts[i] == 1:\n                # Check left\n                j = i - 1\n                while j &gt;= 0 and forts[j] == 0:\n                    j -= 1\n                if j &gt;= 0 and forts[j] == -1:\n                    ans = max(ans, i - j - 1)\n                # Check right\n                j = i + 1\n                while j &lt; n and forts[j] == 0:\n                    j += 1\n                if j &lt; n and forts[j] == -1:\n                    ans = max(ans, j - i - 1)\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int captureForts(int[] forts) {\n        int n = forts.length;\n        int ans = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (forts[i] == 1) {\n                int j = i - 1;\n                while (j &gt;= 0 && forts[j] == 0) j--;\n                if (j &gt;= 0 && forts[j] == -1) ans = Math.max(ans, i - j - 1);\n                j = i + 1;\n                while (j &lt; n && forts[j] == 0) j++;\n                if (j &lt; n && forts[j] == -1) ans = Math.max(ans, j - i - 1);\n            }\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int captureForts(vector&lt;int&gt;& forts) {\n        int n = forts.size();\n        int ans = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            if (forts[i] == 1) {\n                int j = i - 1;\n                while (j &gt;= 0 && forts[j] == 0) --j;\n                if (j &gt;= 0 && forts[j] == -1) ans = max(ans, i - j - 1);\n                j = i + 1;\n                while (j &lt; n && forts[j] == 0) ++j;\n                if (j &lt; n && forts[j] == -1) ans = max(ans, j - i - 1);\n            }\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var captureForts = function(forts) {\n    const n = forts.length;\n    let ans = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (forts[i] === 1) {\n            let j = i - 1;\n            while (j &gt;= 0 && forts[j] === 0) j--;\n            if (j &gt;= 0 && forts[j] === -1) ans = Math.max(ans, i - j - 1);\n            j = i + 1;\n            while (j &lt; n && forts[j] === 0) j++;\n            if (j &lt; n && forts[j] === -1) ans = Math.max(ans, j - i - 1);\n        }\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function captureForts(forts: number[]): number {\n    const n = forts.length;\n    let ans = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (forts[i] === 1) {\n            let j = i - 1;\n            while (j &gt;= 0 && forts[j] === 0) j--;\n            if (j &gt;= 0 && forts[j] === -1) ans = Math.max(ans, i - j - 1);\n            j = i + 1;\n            while (j &lt; n && forts[j] === 0) j++;\n            if (j &lt; n && forts[j] === -1) ans = Math.max(ans, j - i - 1);\n        }\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case, for every fort, we might traverse the entire array.
+- Space: O(1) - We only use a few variables for storage.
+- Notes: Simple to implement but inefficient for large inputs.
+
+---
+## Two Pointers
+
+**Intuition**
+We only care about pairs of forts where one is yours (1) and the other is the enemy's (-1). The empty forts (0) between them determine the distance. We can iterate through the array once, keeping track of the last non-zero fort we saw. If the current non-zero fort is of the opposite type to the last one, we calculate the distance between them.
+
+**Steps**
+- Initialize `last` to -1 (to store the index of the last non-zero fort) and `ans` to 0.
+- Iterate through the array with index `i`.
+- If `forts[i]` is not 0:
+    - If `last` is not -1 and `forts[last]` is not equal to `forts[i]` (meaning one is 1 and the other is -1):
+        - Update `ans` with `max(ans, i - last - 1)`.
+    - Update `last` to `i`.
+- Return `ans`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def captureForts(self, forts: list[int]) -&gt; int:\n        ans = 0\n        last = -1\n        for i, f in enumerate(forts):\n            if f != 0:\n                if last != -1 and forts[last] != f:\n                    ans = max(ans, i - last - 1)\n                last = i\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int captureForts(int[] forts) {\n        int ans = 0;\n        int last = -1;\n        for (int i = 0; i &lt; forts.length; i++) {\n            if (forts[i] != 0) {\n                if (last != -1 && forts[last] != forts[i]) {\n                    ans = Math.max(ans, i - last - 1);\n                }\n                last = i;\n            }\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int captureForts(vector&lt;int&gt;& forts) {\n        int ans = 0;\n        int last = -1;\n        for (int i = 0; i &lt; forts.size(); ++i) {\n            if (forts[i] != 0) {\n                if (last != -1 && forts[last] != forts[i]) {\n                    ans = max(ans, i - last - 1);\n                }\n                last = i;\n            }\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var captureForts = function(forts) {\n    let ans = 0;\n    let last = -1;\n    for (let i = 0; i &lt; forts.length; i++) {\n        if (forts[i] !== 0) {\n            if (last !== -1 && forts[last] !== forts[i]) {\n                ans = Math.max(ans, i - last - 1);\n            }\n            last = i;\n        }\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function captureForts(forts: number[]): number {\n    let ans = 0;\n    let last = -1;\n    for (let i = 0; i &lt; forts.length; i++) {\n        if (forts[i] !== 0) {\n            if (last !== -1 && forts[last] !== forts[i]) {\n                ans = Math.max(ans, i - last - 1);\n            }\n            last = i;\n        }\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the array exactly once.
+- Space: O(1) - We only use a constant amount of extra space.
+- Notes: This is the optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Enemy Forts That Can Be Captured Solutions","datePublished":"2026-01-03","description":"Find the maximum distance between your fort (1) and an enemy fort (-1) passing only through empty forts (0).","keywords":"LeetCode, Maximum Enemy Forts That Can Be Captured, Easy, Array, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the length of the array, as we check every fort and potentially scan the entire array for each."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) since we traverse the array only once."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few variables for tracking indices and the maximum distance."}}]}).replace(/</g,'\u003c')}
+</script>

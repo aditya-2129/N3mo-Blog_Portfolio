@@ -1,0 +1,137 @@
+---
+title: "Delete Duplicate Emails"
+summary: "Write a SQL query to delete all duplicate email entries in a table, keeping only the one with the smallest Id."
+date: "Oct 26, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.90% | **Paid:** No
+> **Topics:** Database
+
+Table: Person
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| email       | varchar |
++-------------+---------+
+id is the primary key column for this table.
+Each row of this table contains an email. The emails will not contain uppercase letters.
+
+Write a SQL delete statement to delete all duplicate email entries in a table named Person, keeping only the one with the smallest Id.
+
+- Examples
+- Constraints
+- [Approach 1: Delete via Self Join](#approach-1-delete-via-self-join)
+- [Approach 2: Delete via Group By and Subquery](#approach-2-delete-via-group-by-and-subquery)
+- [Approach 3: Delete via Window Functions](#approach-3-delete-via-window-functions)
+
+## Examples
+
+Example 1:
+```text
+Input:
+Person table:
++----+------------------+
+| id | email            |
++----+------------------+
+| 1  | john@example.com |
+| 2  | bob@example.com  |
+| 3  | john@example.com |
++----+------------------+
+Output:
++----+------------------+
+| id | email            |
++----+------------------+
+| 1  | john@example.com |
+| 2  | bob@example.com  |
++----+------------------+
+Explanation: john@example.com is repeated two times. We keep the row with the smallest Id = 1.
+```
+
+## Constraints
+
+```text
+The input table Person may contain duplicate emails.
+```
+
+---
+## Approach 1: Delete via Self Join
+
+**Intuition**
+We can join the table with itself on the email column. If we find two rows with the same email but different IDs, we delete the row with the larger ID.
+
+**Steps**
+- Join the `Person` table with itself (aliased as `p1` and `p2`) where the emails match.
+- Add a condition to ensure `p1.Id` is greater than `p2.Id`.
+- Delete `p1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id &gt; p2.Id" },
+{ name: "Java", lang: "java", code: "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id &gt; p2.Id" },
+{ name: "C++", lang: "cpp", code: "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id &gt; p2.Id" },
+{ name: "JavaScript", lang: "javascript", code: "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id &gt; p2.Id" },
+{ name: "TypeScript", lang: "typescript", code: "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id &gt; p2.Id" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case for the join operation.
+- Space: O(1)
+- Notes: This is a standard approach for MySQL where row deletion based on subqueries can be tricky.
+
+---
+## Approach 2: Delete via Group By and Subquery
+
+**Intuition**
+Identify the smallest ID for each email using `GROUP BY`. Then, delete any row whose ID is not in this list of minimum IDs.
+
+**Steps**
+- Create a subquery that selects the minimum `Id` for each `Email`.
+- Wrap this subquery in another subquery (alias `t`) to avoid MySQL errors regarding selecting from the same table during deletion.
+- Delete from `Person` where `Id` is not in the list of minimum IDs found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "DELETE FROM Person WHERE Id NOT IN (SELECT t.MinId FROM (SELECT MIN(Id) as MinId FROM Person GROUP BY Email) t)" },
+{ name: "Java", lang: "java", code: "DELETE FROM Person WHERE Id NOT IN (SELECT t.MinId FROM (SELECT MIN(Id) as MinId FROM Person GROUP BY Email) t)" },
+{ name: "C++", lang: "cpp", code: "DELETE FROM Person WHERE Id NOT IN (SELECT t.MinId FROM (SELECT MIN(Id) as MinId FROM Person GROUP BY Email) t)" },
+{ name: "JavaScript", lang: "javascript", code: "DELETE FROM Person WHERE Id NOT IN (SELECT t.MinId FROM (SELECT MIN(Id) as MinId FROM Person GROUP BY Email) t)" },
+{ name: "TypeScript", lang: "typescript", code: "DELETE FROM Person WHERE Id NOT IN (SELECT t.MinId FROM (SELECT MIN(Id) as MinId FROM Person GROUP BY Email) t)" },]} />
+
+**Complexity**
+- Time: O(n) to find groups, O(n) to delete, but depends on indexing.
+- Space: O(n) to store the temporary result of the subquery.
+- Notes: The double subquery wrapper is necessary for MySQL compliance.
+
+---
+## Approach 3: Delete via Window Functions
+
+**Intuition**
+Use the `ROW_NUMBER()` window function to assign a rank to each email partition, ordered by ID. Keep only the rows with rank 1.
+
+**Steps**
+- Select `Id` and `ROW_NUMBER()` partitioned by `Email` and ordered by `Id`.
+- Filter for rows where the row number is greater than 1.
+- Delete from `Person` where `Id` is in the result of this filtered subquery.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "DELETE FROM Person WHERE Id IN (SELECT Id FROM (SELECT ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) as rn, Id FROM Person) t WHERE rn &gt; 1)" },
+{ name: "Java", lang: "java", code: "DELETE FROM Person WHERE Id IN (SELECT Id FROM (SELECT ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) as rn, Id FROM Person) t WHERE rn &gt; 1)" },
+{ name: "C++", lang: "cpp", code: "DELETE FROM Person WHERE Id IN (SELECT Id FROM (SELECT ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) as rn, Id FROM Person) t WHERE rn &gt; 1)" },
+{ name: "JavaScript", lang: "javascript", code: "DELETE FROM Person WHERE Id IN (SELECT Id FROM (SELECT ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) as rn, Id FROM Person) t WHERE rn &gt; 1)" },
+{ name: "TypeScript", lang: "typescript", code: "DELETE FROM Person WHERE Id IN (SELECT Id FROM (SELECT ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) as rn, Id FROM Person) t WHERE rn &gt; 1)" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting required for window functions.
+- Space: O(n) for the window function buffer.
+- Notes: This approach is very readable and powerful but requires a database engine that supports window functions (e.g., MySQL 8.0+, SQL Server, PostgreSQL).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Delete Duplicate Emails Solutions","datePublished":"2025-10-26","description":"Write a SQL query to delete all duplicate email entries in a table, keeping only the one with the smallest Id.","keywords":"LeetCode, Delete Duplicate Emails, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Self Join approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case."}},{"@type":"Question","name":"What is the time complexity of the Group By approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is roughly O(n), depending on indexing."}},{"@type":"Question","name":"What is the time complexity of the Window Function approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting involved in window functions."}}]}).replace(/</g,'\u003c')}
+</script>

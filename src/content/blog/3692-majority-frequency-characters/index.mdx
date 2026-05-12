@@ -1,0 +1,141 @@
+---
+title: "Majority Frequency Characters"
+summary: "Find the character that appears more than half the time in a string using counting or voting algorithms."
+date: "Aug 06, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.10% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+Given a string s, return the character that appears more than n / 2 times, where n is the length of the string. If no such character exists, return an empty string.
+
+You may assume that the string is non-empty and contains only lowercase English letters.
+
+- Examples
+- Constraints
+- [Hash Map Counting](#hash-map-counting)
+- [Sorting](#sorting)
+- [Boyer-Moore Voting Algorithm](#boyer-moore-voting-algorithm)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "aaaabc"
+Output: "a"
+Explanation: The length of the string is 6. The character 'a' appears 4 times, which is greater than 6 / 2 = 3.
+```
+
+### Example 2
+```text
+Input: s = "abc"
+Output: ""
+Explanation: The length of the string is 3. No character appears more than 1.5 times.
+```
+
+### Example 3
+```text
+Input: s = "bba"
+Output: "b"
+Explanation: The length of the string is 3. The character 'b' appears 2 times, which is greater than 3 / 2 = 1.5.
+```
+
+## Constraints
+
+```text
+- 1 <= s.length <= 100
+- s consists only of lowercase English letters.
+```
+
+---
+## Hash Map Counting
+
+**Intuition**
+We can iterate through the string and count the frequency of each character using a hash map. After counting, we check which character has a frequency greater than n / 2.
+
+**Steps**
+- Initialize an empty hash map (or dictionary) to store character counts.
+- Iterate through each character in the string `s`.
+- For each character, increment its count in the hash map.
+- After the loop, iterate through the hash map entries.
+- If any character's count is greater than `s.length / 2`, return that character.
+- If no such character is found after checking all entries, return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def majorityFrequencyCharacters(self, s: str) -&gt; str:\n        n = len(s)\n        counts = Counter(s)\n        \n        for char, count in counts.items():\n            if count &gt; n // 2:\n                return char\n                \n        return \"\"" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public String majorityFrequencyCharacters(String s) {\n        int n = s.length();\n        Map&lt;Character, Integer&gt; counts = new HashMap&lt;&gt;();\n        \n        for (int i = 0; i &lt; n; i++) {\n            char c = s.charAt(i);\n            counts.put(c, counts.getOrDefault(c, 0) + 1);\n        }\n        \n        for (Map.Entry&lt;Character, Integer&gt; entry : counts.entrySet()) {\n            if (entry.getValue() &gt; n / 2) {\n                return String.valueOf(entry.getKey());\n            }\n        }\n        \n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string majorityFrequencyCharacters(string s) {\n        int n = s.size();\n        unordered_map&lt;char, int&gt; counts;\n        \n        for (char c : s) {\n            counts[c]++;\n        }\n        \n        for (auto const& [key, val] : counts) {\n            if (val &gt; n / 2) {\n                return string(1, key);\n            }\n        }\n        \n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar majorityFrequencyCharacters = function(s) {\n    const n = s.length;\n    const counts = {};\n    \n    for (let i = 0; i &lt; n; i++) {\n        const char = s[i];\n        counts[char] = (counts[char] || 0) + 1;\n    }\n    \n    for (const char in counts) {\n        if (counts[char] &gt; n / 2) {\n            return char;\n        }\n    }\n    \n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function majorityFrequencyCharacters(s: string): string {\n    const n = s.length;\n    const counts: Record&lt;string, number&gt; = {};\n    \n    for (let i = 0; i &lt; n; i++) {\n        const char = s[i];\n        counts[char] = (counts[char] || 0) + 1;\n    }\n    \n    for (const char in counts) {\n        if (counts[char] &gt; n / 2) {\n            return char;\n        }\n    }\n    \n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We iterate through the string once to count and once through the map (which has at most 26 entries for lowercase English letters, so effectively O(n)).
+- Space: O(1) - The hash map stores at most 26 entries (constant space relative to input size). If the character set were unlimited, it would be O(n).
+- Notes: This is the most intuitive approach and works well for the given constraints.
+
+---
+## Sorting
+
+**Intuition**
+If a character appears more than n / 2 times, it must occupy the middle position(s) in the sorted string. We can sort the string and check the character at the middle index.
+
+**Steps**
+- Convert the string to a character array (if necessary for the language).
+- Sort the character array.
+- The candidate for the majority element is the character at index `n / 2`.
+- Iterate through the string to count the frequency of this candidate character.
+- If the count is greater than `n / 2`, return the candidate.
+- Otherwise, return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def majorityFrequencyCharacters(self, s: str) -&gt; str:\n        n = len(s)\n        sorted_s = sorted(s)\n        candidate = sorted_s[n // 2]\n        \n        count = 0\n        for char in s:\n            if char == candidate:\n                count += 1\n                \n        if count &gt; n // 2:\n            return candidate\n        return \"\"" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public String majorityFrequencyCharacters(String s) {\n        int n = s.length();\n        char[] chars = s.toCharArray();\n        Arrays.sort(chars);\n        \n        char candidate = chars[n / 2];\n        int count = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (chars[i] == candidate) {\n                count++;\n            }\n        }\n        \n        return count &gt; n / 2 ? String.valueOf(candidate) : \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string majorityFrequencyCharacters(string s) {\n        int n = s.size();\n        sort(s.begin(), s.end());\n        \n        char candidate = s[n / 2];\n        int count = 0;\n        \n        for (char c : s) {\n            if (c == candidate) {\n                count++;\n            }\n        }\n        \n        return count &gt; n / 2 ? string(1, candidate) : \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar majorityFrequencyCharacters = function(s) {\n    const n = s.length;\n    const sortedS = s.split('').sort();\n    const candidate = sortedS[Math.floor(n / 2)];\n    \n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (s[i] === candidate) {\n            count++;\n        }\n    }\n    \n    return count &gt; n / 2 ? candidate : \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function majorityFrequencyCharacters(s: string): string {\n    const n = s.length;\n    const sortedS: string[] = s.split('').sort();\n    const candidate: string = sortedS[Math.floor(n / 2)];\n    \n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (s[i] === candidate) {\n            count++;\n        }\n    }\n    \n    return count &gt; n / 2 ? candidate : \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) - Due to the sorting step.
+- Space: O(n) or O(log n) - Depending on the sorting implementation and whether we modify the string in place.
+- Notes: While simple, sorting is slower than linear time approaches.
+
+---
+## Boyer-Moore Voting Algorithm
+
+**Intuition**
+The Boyer-Moore Voting Algorithm finds a majority element in a sequence (if it exists) in linear time and constant space. It maintains a count and a candidate. When the count drops to zero, we pick a new candidate.
+
+**Steps**
+- Initialize `candidate` as an empty character and `count` as 0.
+- Iterate through the string `s`:
+    - If `count` is 0, set `candidate` to the current character.
+    - If the current character is equal to `candidate`, increment `count`.
+    - Otherwise, decrement `count`.
+- After the loop, `candidate` holds the potential majority element.
+- Iterate through the string again to verify if `candidate` actually appears more than `n / 2` times.
+- Return `candidate` if verified, otherwise return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def majorityFrequencyCharacters(self, s: str) -&gt; str:\n        candidate = ''\n        count = 0\n        \n        for char in s:\n            if count == 0:\n                candidate = char\n                count = 1\n            elif char == candidate:\n                count += 1\n            else:\n                count -= 1\n        \n        # Verification step\n        count = 0\n        for char in s:\n            if char == candidate:\n                count += 1\n                \n        if count &gt; len(s) // 2:\n            return candidate\n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String majorityFrequencyCharacters(String s) {\n        char candidate = ' ';\n        int count = 0;\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (count == 0) {\n                candidate = c;\n                count = 1;\n            } else if (c == candidate) {\n                count++;\n            } else {\n                count--;\n            }\n        }\n        \n        // Verification step\n        count = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s.charAt(i) == candidate) {\n                count++;\n            }\n        }\n        \n        return count &gt; s.length() / 2 ? String.valueOf(candidate) : \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string majorityFrequencyCharacters(string s) {\n        char candidate = ' ';\n        int count = 0;\n        \n        for (char c : s) {\n            if (count == 0) {\n                candidate = c;\n                count = 1;\n            } else if (c == candidate) {\n                count++;\n            } else {\n                count--;\n            }\n        }\n        \n        // Verification step\n        count = 0;\n        for (char c : s) {\n            if (c == candidate) {\n                count++;\n            }\n        }\n        \n        return count &gt; s.size() / 2 ? string(1, candidate) : \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar majorityFrequencyCharacters = function(s) {\n    let candidate = '';\n    let count = 0;\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (count === 0) {\n            candidate = char;\n            count = 1;\n        } else if (char === candidate) {\n            count++;\n        } else {\n            count--;\n        }\n    }\n    \n    // Verification step\n    count = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === candidate) {\n            count++;\n        }\n    }\n    \n    return count &gt; Math.floor(s.length / 2) ? candidate : \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function majorityFrequencyCharacters(s: string): string {\n    let candidate: string = '';\n    let count: number = 0;\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (count === 0) {\n            candidate = char;\n            count = 1;\n        } else if (char === candidate) {\n            count++;\n        } else {\n            count--;\n        }\n    }\n    \n    // Verification step\n    count = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === candidate) {\n            count++;\n        }\n    }\n    \n    return count &gt; Math.floor(s.length / 2) ? candidate : \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Two passes through the string.
+- Space: O(1) - Only using a few variables for storage.
+- Notes: This is the optimal solution for space complexity, though for a fixed character set like lowercase English letters, the Hash Map approach is effectively O(1) space as well and often easier to implement.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Majority Frequency Characters Solutions","datePublished":"2025-08-06","description":"Find the character that appears more than half the time in a string using counting or voting algorithms.","keywords":"LeetCode, Majority Frequency Characters, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Boyer-Moore Voting Algorithm?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as it only uses a constant amount of extra space."}},{"@type":"Question","name":"Why is verification needed in the Boyer-Moore Voting Algorithm?","acceptedAnswer":{"@type":"Answer","text":"Verification is needed because the algorithm only guarantees to find a candidate if a majority element exists. If no majority element exists, it returns an arbitrary element, so we must count its occurrences to confirm."}}]}).replace(/</g,'\u003c')}
+</script>

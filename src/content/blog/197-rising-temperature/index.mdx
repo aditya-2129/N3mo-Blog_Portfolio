@@ -1,0 +1,123 @@
+---
+title: "Rising Temperature"
+summary: "Find all dates' Ids with higher temperature compared to its previous dates (yesterday)."
+date: "Jul 06, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Weather
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| recordDate    | date    |
+| temperature   | int     |
++---------------+---------+
+id is the primary key for this table.
+This table contains information about the temperature in a certain day.
+
+Write an SQL query to find all dates' Ids with higher temperatures compared to its previous dates (yesterday).
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Self Join](#self-join)
+- [Window Functions](#window-functions)
+
+## Examples
+
+### Example 1
+
+**Input:**
+Weather table:
++----+------------+-------------+
+| id | recordDate | temperature |
++----+------------+-------------+
+| 1  | 2015-01-01 | 10          |
+| 2  | 2015-01-02 | 25          |
+| 3  | 2015-01-03 | 20          |
+| 4  | 2015-01-04 | 30          |
++----+------------+-------------+
+
+**Output:**
++----+
+| id |
++----+
+| 2  |
+| 4  |
++----+
+
+**Explanation:**
+In 2015-01-02, the temperature was higher than the previous day (10 -> 25).
+In 2015-01-04, the temperature was higher than the previous day (20 -> 30).
+
+## Constraints
+
+```text
+recordDate is unique.
+```
+
+---
+## Self Join
+
+**Intuition**
+We can join the Weather table with itself. We match rows where the date of the first row is exactly one day after the date of the second row, and the temperature of the first row is higher.
+
+**Steps**
+- Select the id from the Weather table (aliased as w1).
+- Join Weather with itself (aliased as w2).
+- Filter for records where w1.recordDate is the next day of w2.recordDate.
+- Filter for records where w1.temperature is greater than w2.temperature.
+
+<CodeTabs client:load tabs={[{ name: "MySQL", lang: "sql", code: "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON w1.recordDate = DATE_ADD(w2.recordDate, INTERVAL 1 DAY)\nWHERE w1.temperature &gt; w2.temperature" },
+{ name: "MS SQL Server", lang: "sql", code: "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON DATEADD(day, 1, w2.recordDate) = w1.recordDate\nWHERE w1.temperature &gt; w2.temperature" },
+{ name: "Oracle", lang: "sql", code: "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON w2.recordDate + 1 = w1.recordDate\nWHERE w1.temperature &gt; w2.temperature" },
+{ name: "PostgreSQL", lang: "sql", code: "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON w2.recordDate + INTERVAL '1 day' = w1.recordDate\nWHERE w1.temperature &gt; w2.temperature" },
+{ name: "SQLite", lang: "sql", code: "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON date(w1.recordDate) = date(w2.recordDate, '+1 day')\nWHERE w1.temperature &gt; w2.temperature" },]} />
+
+**Complexity**
+- Time: O(N) assuming an index on recordDate, otherwise O(N²) for the join.
+- Space: O(1) (excluding output storage).
+- Notes: The Self Join approach is very standard for comparing rows in the same table based on a relationship (like date difference).
+
+---
+## Window Functions
+
+**Intuition**
+We can use the LAG() window function to access the temperature of the previous row (ordered by date) in the current row. Then we simply compare the current temperature with the previous temperature.
+
+**Steps**
+- Select id, temperature, and the previous temperature (LAG) from the Weather table, ordered by recordDate.
+- Wrap this in a subquery or CTE.
+- Filter the results where the current temperature is greater than the previous temperature.
+
+<CodeTabs client:load tabs={[{ name: "MySQL", lang: "sql", code: "SELECT id\nFROM (\n    SELECT id, temperature,\n    LAG(temperature) OVER (ORDER BY recordDate) as prev_temp\n    FROM Weather\n) as temp_table\nWHERE temperature &gt; prev_temp" },
+{ name: "MS SQL Server", lang: "sql", code: "SELECT id\nFROM (\n    SELECT id, temperature,\n    LAG(temperature) OVER (ORDER BY recordDate) as prev_temp\n    FROM Weather\n) as temp_table\nWHERE temperature &gt; prev_temp" },
+{ name: "Oracle", lang: "sql", code: "SELECT id\nFROM (\n    SELECT id, temperature,\n    LAG(temperature) OVER (ORDER BY recordDate) as prev_temp\n    FROM Weather\n)\nWHERE temperature &gt; prev_temp" },
+{ name: "PostgreSQL", lang: "sql", code: "SELECT id\nFROM (\n    SELECT id, temperature,\n    LAG(temperature) OVER (ORDER BY recordDate) as prev_temp\n    FROM Weather\n) as temp_table\nWHERE temperature &gt; prev_temp" },
+{ name: "SQLite", lang: "sql", code: "SELECT id\nFROM (\n    SELECT id, temperature,\n    LAG(temperature) OVER (ORDER BY recordDate) as prev_temp\n    FROM Weather\n)\nWHERE temperature &gt; prev_temp" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting required by the OVER (ORDER BY recordDate) clause.
+- Space: O(N) to store the window function results.
+- Notes: Window functions are often more readable but can be slightly less performant than indexed joins on very large datasets due to the sorting overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rising Temperature Solutions","datePublished":"2025-07-06","description":"Find all dates' Ids with higher temperature compared to its previous dates (yesterday).","keywords":"LeetCode, Rising Temperature, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Self Join approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) assuming an index on recordDate, otherwise O(N²)."}},{"@type":"Question","name":"What is the time complexity of the Window Function approach?","acceptedAnswer":{"@type":"Answer","text":"O(N log N) due to the sorting required by the OVER clause."}}]}).replace(/</g,'\u003c')}
+</script>

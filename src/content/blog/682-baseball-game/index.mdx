@@ -1,0 +1,354 @@
+---
+title: "Baseball Game"
+summary: "Calculate the sum of baseball scores based on operations like integer, '+', 'D', and 'C'."
+date: "Jun 25, 2025"
+tags:
+  - Array
+  - Stack
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.40% | **Paid:** No
+> **Topics:** Array, Stack, Simulation
+
+You are given a list of strings ops, where ops[i] is the ith operation applied to a record of baseball scores.
+
+The record starts empty. You can perform the following operations on the record:
+
+- An integer x - Record a new score of x.
+- "+" - Record a new score that is the sum of the previous two scores. It is guaranteed there will always be at least two previous scores.
+- "D" - Record a new score that is double the previous score. It is guaranteed there will always be at least one previous score.
+- "C" - Invalidate the previous score, removing it from the record. It is guaranteed there will always be at least one previous score.
+
+Return the sum of all the scores on the record.
+
+- Examples
+- Constraints
+- [Approach 1: Stack Simulation](#approach-1-stack-simulation)
+- [Approach 2: Array Pointer Simulation](#approach-2-array-pointer-simulation)
+
+## Examples
+
+Example 1:
+```text
+Input: ops = ["5","2","C","D","+"]
+Output: 30
+Explanation:
+"5" - Add 5 to the record, record is now [5].
+"2" - Add 2 to the record, record is now [5, 2].
+"C" - Invalidate and remove the previous score, record is now [5].
+"D" - Add 2 * 5 = 10 to the record, record is now [5, 10].
+"+" - Add 5 + 10 = 15 to the record, record is now [5, 10, 15].
+The total sum is 5 + 10 + 15 = 30.
+```
+
+Example 2:
+```text
+Input: ops = ["5","-2","4","C","D","9","+","+"]
+Output: 27
+Explanation:
+"5" - Add 5 to the record, record is now [5].
+"-2" - Add -2 to the record, record is now [5, -2].
+"4" - Add 4 to the record, record is now [5, -2, 4].
+"C" - Invalidate and remove the previous score, record is now [5, -2].
+"D" - Add 2 * -2 = -4 to the record, record is now [5, -2, -4].
+"9" - Add 9 to the record, record is now [5, -2, -4, 9].
+"+" - Add -4 + 9 = 5 to the record, record is now [5, -2, -4, 9, 5].
+"+" - Add 9 + 5 = 14 to the record, record is now [5, -2, -4, 9, 5, 14].
+The total sum is 5 + -2 + -4 + 9 + 5 + 14 = 27.
+```
+
+Example 3:
+```text
+Input: ops = ["1"]
+Output: 1
+```
+
+## Constraints
+
+```text
+1 <= ops.length <= 1000
+ops[i] is "C", "D", "+", or a string representing an integer in the range [-3 * 10^4, 3 * 10^4].
+For operation "+", "C", "D", there will always be at least two previous scores on the record for "+" and at least one previous score for "C" and "D".
+```
+
+---
+
+## Approach 1: Stack Simulation
+
+**Intuition**
+The operations "C" (remove last), "D" (access last), and "+" (access last two) naturally align with the Last-In-First-Out (LIFO) principle of a Stack data structure.
+
+**Steps**
+- Initialize an empty stack.
+- Iterate through each operation in the input list.
+- If the operation is an integer, push it onto the stack.
+- If the operation is "C", pop the top element from the stack.
+- If the operation is "D", peek the top element, multiply by 2, and push the result.
+- If the operation is "+", peek the top two elements, sum them, and push the result.
+- After processing all operations, sum all elements remaining in the stack and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def calPoints(self, ops: list[str]) -> int:
+        stack = []
+        for op in ops:
+            if op == "+":
+                stack.append(stack[-1] + stack[-2])
+            elif op == "D":
+                stack.append(2 * stack[-1])
+            elif op == "C":
+                stack.pop()
+            else:
+                stack.append(int(op))
+        return sum(stack)
+` },
+{ name: "Java", lang: "java", code: `import java.util.Stack;
+
+class Solution {
+    public int calPoints(String[] ops) {
+        Stack<Integer> stack = new Stack&lt;&gt;();
+        for (String op : ops) {
+            if (op.equals("+")) {
+                int top = stack.pop();
+                int newScore = top + stack.peek();
+                stack.push(top);
+                stack.push(newScore);
+            } else if (op.equals("D")) {
+                stack.push(2 * stack.peek());
+            } else if (op.equals("C")) {
+                stack.pop();
+            } else {
+                stack.push(Integer.parseInt(op));
+            }
+        }
+        int sum = 0;
+        for (int score : stack) {
+            sum += score;
+        }
+        return sum;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <numeric>
+
+using namespace std;
+
+class Solution {
+public:
+    int calPoints(vector<string>& ops) {
+        vector<int> stack;
+        for (const string& op : ops) {
+            if (op == "+") {
+                int n = stack.size();
+                stack.push_back(stack[n - 1] + stack[n - 2]);
+            } else if (op == "D") {
+                stack.push_back(stack.back() * 2);
+            } else if (op == "C") {
+                stack.pop_back();
+            } else {
+                stack.push_back(stoi(op));
+            }
+        }
+        return accumulate(stack.begin(), stack.end(), 0);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var calPoints = function(ops) {
+    let stack = [];
+    for (let op of ops) {
+        if (op === "+") {
+            stack.push(stack[stack.length - 1] + stack[stack.length - 2]);
+        } else if (op === "D") {
+            stack.push(2 * stack[stack.length - 1]);
+        } else if (op === "C") {
+            stack.pop();
+        } else {
+            stack.push(parseInt(op));
+        }
+    }
+    return stack.reduce((a, b) =&gt; a + b, 0);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function calPoints(ops: string[]): number {
+    let stack: number[] = [];
+    for (let op of ops) {
+        if (op === "+") {
+            stack.push(stack[stack.length - 1] + stack[stack.length - 2]);
+        } else if (op === "D") {
+            stack.push(2 * stack[stack.length - 1]);
+        } else if (op === "C") {
+            stack.pop();
+        } else {
+            stack.push(parseInt(op));
+        }
+    }
+    return stack.reduce((a, b) =&gt; a + b, 0);
+};
+` },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of operations. We iterate through the list once.
+- Space: O(n), in the worst case, we store all operations in the stack.
+- Notes: This is the most intuitive approach given the problem constraints.
+
+---
+
+## Approach 2: Array Pointer Simulation
+
+**Intuition**
+Instead of using a formal Stack class, we can simulate the stack behavior using a dynamic array and an integer pointer (or index) to track the top of the stack. This can be slightly more performant by avoiding the overhead of method calls associated with Stack classes in some languages.
+
+**Steps**
+- Initialize an integer array (or vector) with a size equal to the number of operations (max possible size).
+- Initialize an index `i` to -1.
+- Iterate through the operations.
+- If integer, increment `i` and store value at `arr[i]`.
+- If "C", decrement `i` (effectively removing the top element).
+- If "D", increment `i` and store `2 * arr[i-1]` at `arr[i]`.
+- If "+", increment `i` and store `arr[i-1] + arr[i-2]` at `arr[i]`.
+- Sum the elements from index 0 to `i`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def calPoints(self, ops: list[str]) -> int:
+        arr = [0] * len(ops)
+        i = -1
+        for op in ops:
+            if op == "+":
+                i += 1
+                arr[i] = arr[i-1] + arr[i-2]
+            elif op == "D":
+                i += 1
+                arr[i] = 2 * arr[i-1]
+            elif op == "C":
+                i -= 1
+            else:
+                i += 1
+                arr[i] = int(op)
+        return sum(arr[:i+1])
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int calPoints(String[] ops) {
+        int[] arr = new int[ops.length];
+        int i = -1;
+        for (String op : ops) {
+            if (op.equals("+")) {
+                i++;
+                arr[i] = arr[i - 1] + arr[i - 2];
+            } else if (op.equals("D")) {
+                i++;
+                arr[i] = 2 * arr[i - 1];
+            } else if (op.equals("C")) {
+                i--;
+            } else {
+                i++;
+                arr[i] = Integer.parseInt(op);
+            }
+        }
+        int sum = 0;
+        for (int j = 0; j &lt;= i; j++) {
+            sum += arr[j];
+        }
+        return sum;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <numeric>
+
+using namespace std;
+
+class Solution {
+public:
+    int calPoints(vector<string>& ops) {
+        vector<int> arr(ops.size());
+        int i = -1;
+        for (const string& op : ops) {
+            if (op == "+") {
+                i++;
+                arr[i] = arr[i - 1] + arr[i - 2];
+            } else if (op == "D") {
+                i++;
+                arr[i] = 2 * arr[i - 1];
+            } else if (op == "C") {
+                i--;
+            } else {
+                i++;
+                arr[i] = stoi(op);
+            }
+        }
+        int sum = 0;
+        for (int j = 0; j &lt;= i; j++) {
+            sum += arr[j];
+        }
+        return sum;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var calPoints = function(ops) {
+    let arr = new Array(ops.length).fill(0);
+    let i = -1;
+    for (let op of ops) {
+        if (op === "+") {
+            i++;
+            arr[i] = arr[i - 1] + arr[i - 2];
+        } else if (op === "D") {
+            i++;
+            arr[i] = 2 * arr[i - 1];
+        } else if (op === "C") {
+            i--;
+        } else {
+            i++;
+            arr[i] = parseInt(op);
+        }
+    }
+    let sum = 0;
+    for (let j = 0; j &lt;= i; j++) {
+        sum += arr[j];
+    }
+    return sum;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function calPoints(ops: string[]): number {
+    let arr: number[] = new Array(ops.length).fill(0);
+    let i: number = -1;
+    for (let op of ops) {
+        if (op === "+") {
+            i++;
+            arr[i] = arr[i - 1] + arr[i - 2];
+        } else if (op === "D") {
+            i++;
+            arr[i] = 2 * arr[i - 1];
+        } else if (op === "C") {
+            i--;
+        } else {
+            i++;
+            arr[i] = parseInt(op);
+        }
+    }
+    let sum: number = 0;
+    for (let j = 0; j &lt;= i; j++) {
+        sum += arr[j];
+    }
+    return sum;
+};
+` },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of operations.
+- Space: O(n), for the array storage.
+- Notes: This approach avoids dynamic resizing overhead (if pre-allocated) and method call overhead, though the difference is negligible for the given constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Baseball Game Solutions","datePublished":"2025-06-25","description":"Calculate the sum of baseball scores based on operations like integer, '+', 'D', and 'C'.","keywords":"LeetCode, Baseball Game, Easy, Array, Stack, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of operations, as we process each operation exactly once."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case, as we might store all valid scores in the stack."}},{"@type":"Question","name":"Why is a Stack suitable for this problem?","acceptedAnswer":{"@type":"Answer","text":"A Stack is suitable because the operations 'C', 'D', and '+' rely on accessing or modifying the most recent scores, which aligns with the Last-In-First-Out (LIFO) nature of a stack."}}]}).replace(/</g,'\u003c')}
+</script>

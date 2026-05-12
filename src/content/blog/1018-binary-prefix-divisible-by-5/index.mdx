@@ -1,0 +1,118 @@
+---
+title: "Binary Prefix Divisible By 5"
+summary: "Given a binary array, determine if the number formed by each prefix is divisible by 5."
+date: "Feb 07, 2025"
+tags:
+  - Array
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.70% | **Paid:** No
+> **Topics:** Array, Bit Manipulation
+
+You are given a binary array nums (0-indexed).
+
+We define xi as the number whose binary representation is the subarray nums[0..i] (from most-significant-bit to least-significant-bit).
+
+Return an array answer where answer[i] is true if xi is divisible by 5.
+
+- Examples
+- Constraints
+- [Modulo Arithmetic](#modulo-arithmetic)
+- [Finite State Machine](#finite-state-machine)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [0,1,1]
+```
+
+**Output:**
+```text
+[true,false,false]
+```
+
+**Explanation:**
+The input numbers in binary are 0, 01, 011; which are 0, 1, and 3 in base-10.
+Only the first number is divisible by 5, so answer[0] is true.
+
+### Example 2
+
+**Input:**
+```text
+nums = [1,1,1]
+```
+
+**Output:**
+```text
+[false,false,false]
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁴
+0 <= nums[i] <= 1
+```
+
+---
+
+## Modulo Arithmetic
+
+**Intuition**
+The binary number grows exponentially, potentially exceeding the storage capacity of standard integer types (e.g., 32-bit or 64-bit integers). However, we only need to know if the number is divisible by 5. We can use the property of modular arithmetic: $(a + b) \% m = ((a \% m) + (b \% m)) \% m$. When we append a bit $b$ to a number $x$, the new number is $2x + b$. Therefore, we can maintain the remainder modulo 5 at each step.
+
+**Steps**
+- Initialize a variable `remainder` to 0.
+- Iterate through each bit in the input array.
+- Update the remainder using the formula: `remainder = (remainder * 2 + current_bit) % 5`.
+- If the updated remainder is 0, append `true` to the result list; otherwise, append `false`.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def prefixesDivBy5(self, nums: List[int]) -&gt; List[bool]:\n        ans = []\n        remainder = 0\n        for num in nums:\n            remainder = (remainder * 2 + num) % 5\n            ans.append(remainder == 0)\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Boolean&gt; prefixesDivBy5(int[] nums) {\n        List&lt;Boolean&gt; ans = new ArrayList&lt;&gt;();\n        int remainder = 0;\n        for (int num : nums) {\n            remainder = (remainder * 2 + num) % 5;\n            ans.add(remainder == 0);\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;bool&gt; prefixesDivBy5(vector&lt;int&gt;& nums) {\n        vector&lt;bool&gt; ans;\n        int remainder = 0;\n        for (int num : nums) {\n            remainder = (remainder * 2 + num) % 5;\n            ans.push_back(remainder == 0);\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var prefixesDivBy5 = function(nums) {\n    let ans = [];\n    let remainder = 0;\n    for (let num of nums) {\n        remainder = (remainder * 2 + num) % 5;\n        ans.push(remainder === 0);\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function prefixesDivBy5(nums: number[]): boolean[] {\n    let ans: boolean[] = [];\n    let remainder: number = 0;\n    for (let num of nums) {\n        remainder = (remainder * 2 + num) % 5;\n        ans.push(remainder === 0);\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the array. We process each element exactly once.
+- Space: O(1), excluding the space required for the output array. We only use a single integer variable to track the remainder.
+- Notes: This approach avoids integer overflow by applying the modulo operation at every step.
+
+## Finite State Machine
+
+**Intuition**
+Since we are only interested in the remainder modulo 5, the possible remainders are limited to the set {0, 1, 2, 3, 4}. We can model the transitions between these states based on the next bit (0 or 1). This creates a Finite State Machine (FSM) where each state represents the current remainder, and edges represent the operation of appending a bit.
+
+**Steps**
+- Define a transition map or logic that determines the next state (remainder) given the current state and the input bit.
+- Start with an initial state of 0.
+- Iterate through the binary array, updating the state according to the transition rules.
+- Check if the current state is 0 to determine divisibility.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def prefixesDivBy5(self, nums: List[int]) -&gt; List[bool]:\n        # Transitions[state][bit] = next_state\n        transitions = {\n            0: {0: 0, 1: 1},\n            1: {0: 2, 1: 3},\n            2: {0: 4, 1: 0},\n            3: {0: 1, 1: 2},\n            4: {0: 3, 1: 4}\n        }\n        ans = []\n        state = 0\n        for num in nums:\n            state = transitions[state][num]\n            ans.append(state == 0)\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Boolean&gt; prefixesDivBy5(int[] nums) {\n        List&lt;Boolean&gt; ans = new ArrayList&lt;&gt;();\n        int state = 0;\n        for (int num : nums) {\n            // State transition logic: (state * 2 + num) % 5\n            state = ((state &lt;&lt; 1) | num) % 5;\n            ans.add(state == 0);\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;bool&gt; prefixesDivBy5(vector&lt;int&gt;& nums) {\n        vector&lt;bool&gt; ans;\n        int state = 0;\n        for (int num : nums) {\n            // State transition logic: (state * 2 + num) % 5\n            state = ((state &lt;&lt; 1) | num) % 5;\n            ans.push_back(state == 0);\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var prefixesDivBy5 = function(nums) {\n    let ans = [];\n    let state = 0;\n    for (let num of nums) {\n        // State transition logic: (state * 2 + num) % 5\n        state = ((state &lt;&lt; 1) | num) % 5;\n        ans.push(state === 0);\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function prefixesDivBy5(nums: number[]): boolean[] {\n    let ans: boolean[] = [];\n    let state: number = 0;\n    for (let num of nums) {\n        // State transition logic: (state * 2 + num) % 5\n        state = ((state &lt;&lt; 1) | num) % 5;\n        ans.push(state === 0);\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n), as we traverse the array once.
+- Space: O(1), as the number of states is constant (5).
+- Notes: This approach is conceptually equivalent to the Modulo Arithmetic approach but frames the solution in terms of state transitions, which is useful for hardware design or more complex sequence validation.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Binary Prefix Divisible By 5 Solutions","datePublished":"2025-02-07","description":"Given a binary array, determine if the number formed by each prefix is divisible by 5.","keywords":"LeetCode, Binary Prefix Divisible By 5, Easy, Array, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Modulo Arithmetic approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the binary array."}},{"@type":"Question","name":"Why do we need to use modulo 5 during iteration?","acceptedAnswer":{"@type":"Answer","text":"Using modulo 5 during iteration prevents integer overflow since the binary number can grow up to 2^30000, which exceeds the limit of standard integer types."}},{"@type":"Question","name":"What is the space complexity of these solutions?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space required for the output list."}}]}).replace(/</g,'\u003c')}
+</script>

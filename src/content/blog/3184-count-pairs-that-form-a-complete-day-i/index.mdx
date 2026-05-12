@@ -1,0 +1,330 @@
+---
+title: "Count Pairs That Form a Complete Day I"
+summary: "Count pairs of indices where the sum of hours is divisible by 24."
+date: "Apr 02, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.20% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+Given an integer array hours representing hours worked by employees, return the number of pairs (i, j) where i &lt; j and hours[i] + hours[j] forms a complete day.
+
+A complete day is defined as a time period of 24 hours. In other words, hours[i] + hours[j] is a multiple of 24.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map](#hash-map)
+- [Counting Array](#counting-array)
+
+## Examples
+
+### Example 1
+```text
+Input: hours = [12,12,30,24,24]
+Output: 2
+Explanation:
+- The pair (0, 1) forms a complete day: 12 + 12 = 24.
+- The pair (3, 4) forms a complete day: 24 + 24 = 48.
+```
+
+### Example 2
+```text
+Input: hours = [72,48,24,3]
+Output: 3
+Explanation:
+- The pair (0, 1) forms a complete day: 72 + 48 = 120.
+- The pair (0, 2) forms a complete day: 72 + 24 = 96.
+- The pair (1, 2) forms a complete day: 48 + 24 = 72.
+```
+
+## Constraints
+
+```text
+1 <= hours.length <= 100
+1 <= hours[i] <= 10^9
+```
+
+## Brute Force
+
+**Intuition**
+Check all possible pairs (i, j) where i &lt; j and count those where the sum is divisible by 24.
+
+**Steps**
+- Initialize count to 0
+- For each index i from 0 to n-2
+  - For each index j from i+1 to n-1
+    - If (hours[i] + hours[j]) % 24 == 0, increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countCompleteDayPairs(self, hours: List[int]) -> int:
+        n = len(hours)
+        count = 0
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                if (hours[i] + hours[j]) % 24 == 0:
+                    count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countCompleteDayPairs(int[] hours) {
+        int n = hours.length;
+        int count = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if ((hours[i] + hours[j]) % 24 == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countCompleteDayPairs(vector<int>& hours) {
+        int n = hours.size();
+        int count = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if ((hours[i] + hours[j]) % 24 == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} hours
+ * @return {number}
+ */
+var countCompleteDayPairs = function(hours) {
+    const n = hours.length;
+    let count = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if ((hours[i] + hours[j]) % 24 === 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countCompleteDayPairs(hours: number[]): number {
+    const n = hours.length;
+    let count = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if ((hours[i] + hours[j]) % 24 === 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but inefficient for large inputs
+
+## Hash Map
+
+**Intuition**
+For each hour, we need to find how many previous hours have a remainder that complements it to 24. Use a hash map to track remainders.
+
+**Steps**
+- Initialize a hash map to store counts of remainders modulo 24
+- Initialize result to 0
+- For each hour in hours:
+  - Calculate remainder = hour % 24
+  - Calculate complement = (24 - remainder) % 24
+  - Add map[complement] to result
+  - Increment map[remainder] by 1
+- Return result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countCompleteDayPairs(self, hours: List[int]) -> int:
+        from collections import defaultdict
+        remainder_count = defaultdict(int)
+        result = 0
+        for hour in hours:
+            remainder = hour % 24
+            complement = (24 - remainder) % 24
+            result += remainder_count[complement]
+            remainder_count[remainder] += 1
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countCompleteDayPairs(int[] hours) {
+        Map<Integer, Integer> remainderCount = new HashMap&lt;&gt;();
+        int result = 0;
+        for (int hour : hours) {
+            int remainder = hour % 24;
+            int complement = (24 - remainder) % 24;
+            result += remainderCount.getOrDefault(complement, 0);
+            remainderCount.put(remainder, remainderCount.getOrDefault(remainder, 0) + 1);
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countCompleteDayPairs(vector<int>& hours) {
+        unordered_map<int, int> remainderCount;
+        int result = 0;
+        for (int hour : hours) {
+            int remainder = hour % 24;
+            int complement = (24 - remainder) % 24;
+            result += remainderCount[complement];
+            remainderCount[remainder]++;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} hours
+ * @return {number}
+ */
+var countCompleteDayPairs = function(hours) {
+    const remainderCount = new Map();
+    let result = 0;
+    for (const hour of hours) {
+        const remainder = hour % 24;
+        const complement = (24 - remainder) % 24;
+        result += remainderCount.get(complement) || 0;
+        remainderCount.set(remainder, (remainderCount.get(remainder) || 0) + 1);
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countCompleteDayPairs(hours: number[]): number {
+    const remainderCount = new Map<number, number>();
+    let result = 0;
+    for (const hour of hours) {
+        const remainder = hour % 24;
+        const complement = (24 - remainder) % 24;
+        result += remainderCount.get(complement) || 0;
+        remainderCount.set(remainder, (remainderCount.get(remainder) || 0) + 1);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Efficient single pass solution with hash map overhead
+
+## Counting Array
+
+**Intuition**
+Since remainders are always in range [0, 23], use a fixed-size array instead of a hash map for better performance.
+
+**Steps**
+- Initialize an array of size 24 with zeros
+- Initialize result to 0
+- For each hour in hours:
+  - Calculate remainder = hour % 24
+  - Calculate complement = (24 - remainder) % 24
+  - Add count[complement] to result
+  - Increment count[remainder] by 1
+- Return result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countCompleteDayPairs(self, hours: List[int]) -> int:
+        count = [0] * 24
+        result = 0
+        for hour in hours:
+            remainder = hour % 24
+            complement = (24 - remainder) % 24
+            result += count[complement]
+            count[remainder] += 1
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countCompleteDayPairs(int[] hours) {
+        int[] count = new int[24];
+        int result = 0;
+        for (int hour : hours) {
+            int remainder = hour % 24;
+            int complement = (24 - remainder) % 24;
+            result += count[complement];
+            count[remainder]++;
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countCompleteDayPairs(vector<int>& hours) {
+        int count[24] = {0};
+        int result = 0;
+        for (int hour : hours) {
+            int remainder = hour % 24;
+            int complement = (24 - remainder) % 24;
+            result += count[complement];
+            count[remainder]++;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} hours
+ * @return {number}
+ */
+var countCompleteDayPairs = function(hours) {
+    const count = new Array(24).fill(0);
+    let result = 0;
+    for (const hour of hours) {
+        const remainder = hour % 24;
+        const complement = (24 - remainder) % 24;
+        result += count[complement];
+        count[remainder]++;
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countCompleteDayPairs(hours: number[]): number {
+    const count: number[] = new Array(24).fill(0);
+    let result = 0;
+    for (const hour of hours) {
+        const remainder = hour % 24;
+        const complement = (24 - remainder) % 24;
+        result += count[complement];
+        count[remainder]++;
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Most efficient approach with constant space due to fixed array size
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Pairs That Form a Complete Day I Solutions","datePublished":"2025-04-02","description":"Count pairs of indices where the sum of hours is divisible by 24.","keywords":"LeetCode, Count Pairs That Form a Complete Day I, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the brute force approach?","acceptedAnswer":{"@type":"Answer","text":"The brute force approach has a time complexity of O(n²) as it checks all possible pairs."}},{"@type":"Question","name":"What is the most efficient approach?","acceptedAnswer":{"@type":"Answer","text":"The counting array approach is most efficient with O(n) time and O(1) space complexity."}},{"@type":"Question","name":"Why use modulo 24?","acceptedAnswer":{"@type":"Answer","text":"We use modulo 24 because a complete day is 24 hours, so we only care about remainders when dividing by 24."}}]}).replace(/</g,'\u003c')}
+</script>

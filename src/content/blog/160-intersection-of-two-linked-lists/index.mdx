@@ -1,0 +1,662 @@
+---
+title: "Intersection of Two Linked Lists"
+summary: "Find the node where two singly linked lists intersect, or return null if they don't."
+date: "May 12, 2026"
+tags:
+  - Hash Table
+  - Linked List
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.70% | **Paid:** No
+> **Topics:** Hash Table, Linked List, Two Pointers
+
+Given the heads of two singly linked-lists headA and headB, return the node at which the two lists intersect. If the two linked lists have no intersection at all, return null.
+
+The test cases are generated such that there are no cycles anywhere in the entire linked structure.
+
+Note that the linked lists must retain their original structure after the function returns.
+
+Custom Judge:
+
+The inputs to the judge are given as follows (your program is not given these inputs):
+
+intersectVal - The value of the node where the intersection occurs. This is 0 if there is no intersected node.
+listA - The first linked list.
+listB - The second linked list.
+skipA - The number of nodes to skip ahead in listA (starting from the head) to get to the intersected node.
+skipB - The number of nodes to skip ahead in listB (starting from the head) to get to the intersected node.
+The judge will then create the linked structure based on these inputs and pass the two heads, headA and headB to your program. If you correctly return the intersected node, then your solution will be accepted.
+
+- Examples
+- Constraints
+- [Brute Force with Hash Set](#brute-force-with-hash-set)
+- [Length Difference Method](#length-difference-method)
+- [Two Pointers Technique](#two-pointers-technique)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+intersectVal = 8, listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3
+```
+
+**Output:**
+```text
+Intersected at '8'
+```
+
+**Explanation:**
+The intersected node's value is 8 (note that this must not be 0 if the two lists intersect).
+From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,6,1,8,4,5].
+There are 2 nodes before the intersection node in A; There are 3 nodes before the intersection node in B.
+- Note that your solution must return the node, not the value.
+
+### Example 2
+
+**Input:**
+```text
+intersectVal = 2, listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1
+```
+
+**Output:**
+```text
+Intersected at '2'
+```
+
+**Explanation:**
+The intersected node's value is 2 (note that this must not be 0 if the two lists intersect).
+From the head of A, it reads as [1,9,1,2,4]. From the head of B, it reads as [3,2,4].
+There are 3 nodes before the intersection node in A; There are 1 node before the intersection node in B.
+
+### Example 3
+
+**Input:**
+```text
+intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+```
+
+**Output:**
+```text
+null
+```
+
+**Explanation:**
+The two lists do not intersect, so return null.
+
+## Constraints
+
+```text
+- The number of nodes of listA is in the m.
+- The number of nodes of listB is in the n.
+- 1 <= m, n <= 3 * 10^4
+- 1 <= Node.val <= 10^5
+- 0 <= skipA <= m
+- 0 <= skipB <= n
+- intersectVal is 0 if listA and listB do not intersect.
+- intersectVal == listA[skipA] == listB[skipB] if listA and listB intersect.
+```
+
+---
+## Brute Force with Hash Set
+
+**Intuition**
+Store all nodes from the first list in a hash set, then traverse the second list and check if any node exists in the set.
+
+**Steps**
+- Traverse listA and store all node references in a hash set.
+- Traverse listB and for each node, check if it exists in the hash set.
+- Return the first node from listB that is found in the set, or null if no intersection exists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        seen = set()
+        curr = headA
+        while curr:
+            seen.add(curr)
+            curr = curr.next
+        
+        curr = headB
+        while curr:
+            if curr in seen:
+                return curr
+            curr = curr.next
+        
+        return None` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        Set<ListNode> seen = new HashSet<>();
+        ListNode curr = headA;
+        while (curr != null) {
+            seen.add(curr);
+            curr = curr.next;
+        }
+        
+        curr = headB;
+        while (curr != null) {
+            if (seen.contains(curr)) {
+                return curr;
+            }
+            curr = curr.next;
+        }
+        
+        return null;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        unordered_set<ListNode*> seen;
+        ListNode* curr = headA;
+        while (curr != nullptr) {
+            seen.insert(curr);
+            curr = curr->next;
+        }
+        
+        curr = headB;
+        while (curr != nullptr) {
+            if (seen.find(curr) != seen.end()) {
+                return curr;
+            }
+            curr = curr->next;
+        }
+        
+        return nullptr;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+
+/**
+ * @param {ListNode} headA
+ * @param {ListNode} headB
+ * @return {ListNode}
+ */
+var getIntersectionNode = function(headA, headB) {
+    const seen = new Set();
+    let curr = headA;
+    while (curr !== null) {
+        seen.add(curr);
+        curr = curr.next;
+    }
+    
+    curr = headB;
+    while (curr !== null) {
+        if (seen.has(curr)) {
+            return curr;
+        }
+        curr = curr.next;
+    }
+    
+    return null;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (val===undefined ? null : val)
+ *     }
+ * }
+ */
+
+function getIntersectionNode(headA: ListNode | null, headB: ListNode | null): ListNode | null {
+    const seen = new Set<ListNode>();
+    let curr = headA;
+    while (curr !== null) {
+        seen.add(curr);
+        curr = curr.next;
+    }
+    
+    curr = headB;
+    while (curr !== null) {
+        if (seen.has(curr)) {
+            return curr;
+        }
+        curr = curr.next;
+    }
+    
+    return null;
+}` },]} />
+
+**Complexity**
+- Time: O(m + n) where m and n are the lengths of the two lists
+- Space: O(m) or O(n) for storing nodes in the hash set
+- Notes: Simple to implement but uses extra space proportional to the size of one list.
+
+---
+## Length Difference Method
+
+**Intuition**
+Calculate the lengths of both lists, move the pointer of the longer list ahead by the difference, then traverse both lists simultaneously until they meet.
+
+**Steps**
+- Calculate the length of both lists.
+- Find the absolute difference between the lengths.
+- Move the pointer of the longer list ahead by the difference.
+- Move both pointers together until they either meet (intersection) or reach null (no intersection).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        def get_length(head):
+            length = 0
+            while head:
+                length += 1
+                head = head.next
+            return length
+        
+        lenA = get_length(headA)
+        lenB = get_length(headB)
+        
+        currA, currB = headA, headB
+        
+        if lenA > lenB:
+            for _ in range(lenA - lenB):
+                currA = currA.next
+        else:
+            for _ in range(lenB - lenA):
+                currB = currB.next
+        
+        while currA and currB:
+            if currA == currB:
+                return currA
+            currA = currA.next
+            currB = currB.next
+        
+        return None` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        int lenA = getLength(headA);
+        int lenB = getLength(headB);
+        
+        ListNode currA = headA;
+        ListNode currB = headB;
+        
+        if (lenA > lenB) {
+            for (int i = 0; i < lenA - lenB; i++) {
+                currA = currA.next;
+            }
+        } else {
+            for (int i = 0; i < lenB - lenA; i++) {
+                currB = currB.next;
+            }
+        }
+        
+        while (currA != null && currB != null) {
+            if (currA == currB) {
+                return currA;
+            }
+            currA = currA.next;
+            currB = currB.next;
+        }
+        
+        return null;
+    }
+    
+    private int getLength(ListNode head) {
+        int length = 0;
+        while (head != null) {
+            length++;
+            head = head.next;
+        }
+        return length;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        int lenA = getLength(headA);
+        int lenB = getLength(headB);
+        
+        ListNode* currA = headA;
+        ListNode* currB = headB;
+        
+        if (lenA > lenB) {
+            for (int i = 0; i < lenA - lenB; i++) {
+                currA = currA->next;
+            }
+        } else {
+            for (int i = 0; i < lenB - lenA; i++) {
+                currB = currB->next;
+            }
+        }
+        
+        while (currA != nullptr && currB != nullptr) {
+            if (currA == currB) {
+                return currA;
+            }
+            currA = currA->next;
+            currB = currB->next;
+        }
+        
+        return nullptr;
+    }
+    
+private:
+    int getLength(ListNode* head) {
+        int length = 0;
+        while (head != nullptr) {
+            length++;
+            head = head->next;
+        }
+        return length;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+
+/**
+ * @param {ListNode} headA
+ * @param {ListNode} headB
+ * @return {ListNode}
+ */
+var getIntersectionNode = function(headA, headB) {
+    function getLength(head) {
+        let length = 0;
+        while (head !== null) {
+            length++;
+            head = head.next;
+        }
+        return length;
+    }
+    
+    const lenA = getLength(headA);
+    const lenB = getLength(headB);
+    
+    let currA = headA;
+    let currB = headB;
+    
+    if (lenA > lenB) {
+        for (let i = 0; i < lenA - lenB; i++) {
+            currA = currA.next;
+        }
+    } else {
+        for (let i = 0; i < lenB - lenA; i++) {
+            currB = currB.next;
+        }
+    }
+    
+    while (currA !== null && currB !== null) {
+        if (currA === currB) {
+            return currA;
+        }
+        currA = currA.next;
+        currB = currB.next;
+    }
+    
+    return null;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (val===undefined ? null : val)
+ *     }
+ * }
+ */
+
+function getIntersectionNode(headA: ListNode | null, headB: ListNode | null): ListNode | null {
+    function getLength(head: ListNode | null): number {
+        let length = 0;
+        while (head !== null) {
+            length++;
+            head = head.next;
+        }
+        return length;
+    }
+    
+    const lenA = getLength(headA);
+    const lenB = getLength(headB);
+    
+    let currA = headA;
+    let currB = headB;
+    
+    if (lenA > lenB) {
+        for (let i = 0; i < lenA - lenB; i++) {
+            currA = currA.next;
+        }
+    } else {
+        for (let i = 0; i < lenB - lenA; i++) {
+            currB = currB.next;
+        }
+    }
+    
+    while (currA !== null && currB !== null) {
+        if (currA === currB) {
+            return currA;
+        }
+        currA = currA.next;
+        currB = currB.next;
+    }
+    
+    return null;
+}` },]} />
+
+**Complexity**
+- Time: O(m + n) where m and n are the lengths of the two lists
+- Space: O(1) constant extra space
+- Notes: Optimal space complexity but requires two passes to calculate lengths.
+
+---
+## Two Pointers Technique
+
+**Intuition**
+Use two pointers that traverse both lists. When one pointer reaches the end, it switches to the head of the other list. They will meet at the intersection node if it exists, or both reach null simultaneously if no intersection.
+
+**Steps**
+- Initialize two pointers, one for each list.
+- Move both pointers forward one step at a time.
+- When a pointer reaches the end of its list, redirect it to the head of the other list.
+- The pointers will meet at the intersection node, or both become null if no intersection exists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        if not headA or not headB:
+            return None
+        
+        pA, pB = headA, headB
+        
+        while pA != pB:
+            pA = pA.next if pA else headB
+            pB = pB.next if pB else headA
+        
+        return pA` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if (headA == null || headB == null) {
+            return null;
+        }
+        
+        ListNode pA = headA;
+        ListNode pB = headB;
+        
+        while (pA != pB) {
+            pA = (pA == null) ? headB : pA.next;
+            pB = (pB == null) ? headA : pB.next;
+        }
+        
+        return pA;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        if (headA == nullptr || headB == nullptr) {
+            return nullptr;
+        }
+        
+        ListNode* pA = headA;
+        ListNode* pB = headB;
+        
+        while (pA != pB) {
+            pA = (pA == nullptr) ? headB : pA->next;
+            pB = (pB == nullptr) ? headA : pB->next;
+        }
+        
+        return pA;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+
+/**
+ * @param {ListNode} headA
+ * @param {ListNode} headB
+ * @return {ListNode}
+ */
+var getIntersectionNode = function(headA, headB) {
+    if (headA === null || headB === null) {
+        return null;
+    }
+    
+    let pA = headA;
+    let pB = headB;
+    
+    while (pA !== pB) {
+        pA = (pA === null) ? headB : pA.next;
+        pB = (pB === null) ? headA : pB.next;
+    }
+    
+    return pA;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (val===undefined ? null : val)
+ *     }
+ * }
+ */
+
+function getIntersectionNode(headA: ListNode | null, headB: ListNode | null): ListNode | null {
+    if (headA === null || headB === null) {
+        return null;
+    }
+    
+    let pA: ListNode | null = headA;
+    let pB: ListNode | null = headB;
+    
+    while (pA !== pB) {
+        pA = (pA === null) ? headB : pA.next;
+        pB = (pB === null) ? headA : pB.next;
+    }
+    
+    return pA;
+}` },]} />
+
+**Complexity**
+- Time: O(m + n) where m and n are the lengths of the two lists
+- Space: O(1) constant extra space
+- Notes: Most elegant solution with optimal time and space complexity. Each pointer traverses at most m + n nodes.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Intersection of Two Linked Lists Solutions","datePublished":"2026-05-12","description":"Find the node where two singly linked lists intersect, or return null if they don't.","keywords":"LeetCode, Intersection of Two Linked Lists, Easy, Hash Table, Linked List, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force with Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"O(m + n) where m and n are the lengths of the two lists."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers Technique?","acceptedAnswer":{"@type":"Answer","text":"O(1) constant extra space."}},{"@type":"Question","name":"Which approach is the most optimal?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers Technique is the most optimal with O(m + n) time and O(1) space complexity."}},{"@type":"Question","name":"How does the Two Pointers Technique work?","acceptedAnswer":{"@type":"Answer","text":"Two pointers traverse both lists. When one reaches the end, it switches to the head of the other list. They meet at the intersection or both become null."}}]}).replace(/</g,'\u003c')}
+</script>

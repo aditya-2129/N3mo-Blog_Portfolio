@@ -1,0 +1,543 @@
+---
+title: "Merge Similar Items"
+summary: "Merge two lists of items by summing weights of items with the same value, then return sorted by value."
+date: "Jun 21, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+  - Ordered Set
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting, Ordered Set
+
+You are given two 2D integer arrays, items1 and items2, representing two sets of items. Each array items has the form items[i] = [valuei, weighti] where valuei is the value of the ith item and weighti is the weight of the ith item.
+
+The weight of the ith item is the number of times the ith item appears.
+
+You need to merge the two sets of items by summing the weights of items with the same value.
+
+Return the merged items sorted by value in ascending order.
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+items1 = [[1,1],[4,5],[3,8]], items2 = [[3,1],[1,5]]
+```
+
+**Output:**
+```text
+[[1,6],[3,9],[4,5]]
+```
+
+**Explanation:**
+The item with value = 1 occurs in items1 with weight = 1 and in items2 with weight = 5, total weight = 1 + 5 = 6.
+The item with value = 3 occurs in items1 with weight = 8 and in items2 with weight = 1, total weight = 8 + 1 = 9.
+The item with value = 4 occurs in items1 with weight = 5, total weight = 5.
+Therefore, we return [[1,6],[3,9],[4,5]].
+
+### Example 2
+
+**Input:**
+```text
+items1 = [[1,1],[3,2],[2,3]], items2 = [[2,1],[3,2],[1,3]]
+```
+
+**Output:**
+```text
+[[1,4],[2,4],[3,4]]
+```
+
+**Explanation:**
+The item with value = 1 occurs in items1 with weight = 1 and in items2 with weight = 3, total weight = 1 + 3 = 4.
+The item with value = 2 occurs in items1 with weight = 3 and in items2 with weight = 1, total weight = 3 + 1 = 4.
+The item with value = 3 occurs in items1 with weight = 2 and in items2 with weight = 2, total weight = 2 + 2 = 4.
+Therefore, we return [[1,4],[2,4],[3,4]].
+
+### Example 3
+
+**Input:**
+```text
+items1 = [[1,3],[2,2]], items2 = [[7,1],[2,2],[1,4]]
+```
+
+**Output:**
+```text
+[[1,7],[2,4],[7,1]]
+```
+
+**Explanation:**
+The item with value = 1 occurs in items1 with weight = 3 and in items2 with weight = 4, total weight = 3 + 4 = 7.
+The item with value = 2 occurs in items1 with weight = 2 and in items2 with weight = 2, total weight = 2 + 2 = 4.
+The item with value = 7 occurs in items2 with weight = 1, total weight = 1.
+Therefore, we return [[1,7],[2,4],[7,1]].
+
+## Constraints
+
+```
+1 <= items1.length, items2.length <= 1000
+items1[i].length == items2[i].length == 2
+1 <= valuei, weighti <= 1000
+```
+
+## Table of Contents
+
+- [Examples](#examples)
+- [Constraints](#constraints)
+- [Hash Map Approach](#hash-map-approach)
+- [Sorting + Two Pointers Approach](#sorting--two-pointers-approach)
+- [Ordered Map Approach](#ordered-map-approach)
+
+## Hash Map Approach
+
+**Intuition**
+Use a hash map to accumulate weights for each value from both arrays, then convert to a sorted list.
+
+**Steps**
+- Create a hash map to store value -> weight mappings
+- Iterate through items1 and add each value-weight pair to the map
+- Iterate through items2 and add each value-weight pair to the map (summing weights for existing values)
+- Convert the map entries to a list and sort by value
+- Return the sorted list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeSimilarItems(self, items1: List[List[int]], items2: List[List[int]]) -> List[List[int]]:
+        from collections import defaultdict
+        
+        weight_map = defaultdict(int)
+        
+        for value, weight in items1:
+            weight_map[value] += weight
+        
+        for value, weight in items2:
+            weight_map[value] += weight
+        
+        result = [[value, weight_map[value]] for value in sorted(weight_map.keys())]
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<List<Integer>&gt; mergeSimilarItems(int[][] items1, int[][] items2) {
+        Map<Integer, Integer> weightMap = new HashMap&lt;&gt;();
+        
+        for (int[] item : items1) {
+            weightMap.put(item[0], weightMap.getOrDefault(item[0], 0) + item[1]);
+        }
+        
+        for (int[] item : items2) {
+            weightMap.put(item[0], weightMap.getOrDefault(item[0], 0) + item[1]);
+        }
+        
+        List<List<Integer>&gt; result = new ArrayList&lt;&gt;();
+        for (int value : weightMap.keySet()) {
+            result.add(Arrays.asList(value, weightMap.get(value)));
+        }
+        
+        result.sort((a, b) -> a.get(0) - b.get(0));
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeSimilarItems(vector<vector<int>&gt;& items1, vector<vector<int>&gt;& items2) {
+        unordered_map<int, int> weightMap;
+        
+        for (const auto& item : items1) {
+            weightMap[item[0]] += item[1];
+        }
+        
+        for (const auto& item : items2) {
+            weightMap[item[0]] += item[1];
+        }
+        
+        vector<vector<int>&gt; result;
+        for (const auto& [value, weight] : weightMap) {
+            result.push_back({value, weight});
+        }
+        
+        sort(result.begin(), result.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[0] &lt; b[0];
+        });
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} items1
+ * @param {number[][]} items2
+ * @return {number[][]}
+ */
+var mergeSimilarItems = function(items1, items2) {
+    const weightMap = new Map();
+    
+    for (const [value, weight] of items1) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    for (const [value, weight] of items2) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    const result = [];
+    for (const [value, weight] of weightMap) {
+        result.push([value, weight]);
+    }
+    
+    result.sort((a, b) =&gt; a[0] - b[0]);
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeSimilarItems(items1: number[][], items2: number[][]): number[][] {
+    const weightMap = new Map<number, number>();
+    
+    for (const [value, weight] of items1) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    for (const [value, weight] of items2) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    const result: number[][] = [];
+    for (const [value, weight] of weightMap) {
+        result.push([value, weight]);
+    }
+    
+    result.sort((a, b) =&gt; a[0] - b[0]);
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the total number of unique values
+- Space: O(n) for the hash map
+- Notes: Simple and intuitive, but requires sorting at the end
+
+## Sorting + Two Pointers Approach
+
+**Intuition**
+Sort both arrays by value, then use two pointers to merge them like in merge sort.
+
+**Steps**
+- Sort items1 and items2 by value
+- Use two pointers to traverse both arrays
+- Compare values at current pointers:
+  - If equal, sum weights and advance both pointers
+  - If one is smaller, add that item and advance its pointer
+- Add remaining items from either array
+- Return the merged result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeSimilarItems(self, items1: List[List[int]], items2: List[List[int]]) -> List[List[int]]:
+        items1.sort()
+        items2.sort()
+        
+        result = []
+        i, j = 0, 0
+        n, m = len(items1), len(items2)
+        
+        while i &lt; n and j &lt; m:
+            val1, w1 = items1[i]
+            val2, w2 = items2[j]
+            
+            if val1 == val2:
+                result.append([val1, w1 + w2])
+                i += 1
+                j += 1
+            elif val1 &lt; val2:
+                result.append([val1, w1])
+                i += 1
+            else:
+                result.append([val2, w2])
+                j += 1
+        
+        while i &lt; n:
+            result.append(items1[i])
+            i += 1
+        
+        while j &lt; m:
+            result.append(items2[j])
+            j += 1
+        
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<List<Integer>&gt; mergeSimilarItems(int[][] items1, int[][] items2) {
+        Arrays.sort(items1, (a, b) -> a[0] - b[0]);
+        Arrays.sort(items2, (a, b) -> a[0] - b[0]);
+        
+        List<List<Integer>&gt; result = new ArrayList&lt;&gt;();
+        int i = 0, j = 0;
+        int n = items1.length, m = items2.length;
+        
+        while (i &lt; n && j &lt; m) {
+            int val1 = items1[i][0], w1 = items1[i][1];
+            int val2 = items2[j][0], w2 = items2[j][1];
+            
+            if (val1 == val2) {
+                result.add(Arrays.asList(val1, w1 + w2));
+                i++;
+                j++;
+            } else if (val1 &lt; val2) {
+                result.add(Arrays.asList(val1, w1));
+                i++;
+            } else {
+                result.add(Arrays.asList(val2, w2));
+                j++;
+            }
+        }
+        
+        while (i &lt; n) {
+            result.add(Arrays.asList(items1[i][0], items1[i][1]));
+            i++;
+        }
+        
+        while (j &lt; m) {
+            result.add(Arrays.asList(items2[j][0], items2[j][1]));
+            j++;
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeSimilarItems(vector<vector<int>&gt;& items1, vector<vector<int>&gt;& items2) {
+        sort(items1.begin(), items1.end());
+        sort(items2.begin(), items2.end());
+        
+        vector<vector<int>&gt; result;
+        int i = 0, j = 0;
+        int n = items1.size(), m = items2.size();
+        
+        while (i &lt; n && j &lt; m) {
+            int val1 = items1[i][0], w1 = items1[i][1];
+            int val2 = items2[j][0], w2 = items2[j][1];
+            
+            if (val1 == val2) {
+                result.push_back({val1, w1 + w2});
+                i++;
+                j++;
+            } else if (val1 &lt; val2) {
+                result.push_back({val1, w1});
+                i++;
+            } else {
+                result.push_back({val2, w2});
+                j++;
+            }
+        }
+        
+        while (i &lt; n) {
+            result.push_back(items1[i++]);
+        }
+        
+        while (j &lt; m) {
+            result.push_back(items2[j++]);
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} items1
+ * @param {number[][]} items2
+ * @return {number[][]}
+ */
+var mergeSimilarItems = function(items1, items2) {
+    items1.sort((a, b) =&gt; a[0] - b[0]);
+    items2.sort((a, b) =&gt; a[0] - b[0]);
+    
+    const result = [];
+    let i = 0, j = 0;
+    const n = items1.length, m = items2.length;
+    
+    while (i &lt; n && j &lt; m) {
+        const [val1, w1] = items1[i];
+        const [val2, w2] = items2[j];
+        
+        if (val1 === val2) {
+            result.push([val1, w1 + w2]);
+            i++;
+            j++;
+        } else if (val1 &lt; val2) {
+            result.push([val1, w1]);
+            i++;
+        } else {
+            result.push([val2, w2]);
+            j++;
+        }
+    }
+    
+    while (i &lt; n) {
+        result.push([...items1[i]]);
+        i++;
+    }
+    
+    while (j &lt; m) {
+        result.push([...items2[j]]);
+        j++;
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeSimilarItems(items1: number[][], items2: number[][]): number[][] {
+    items1.sort((a, b) =&gt; a[0] - b[0]);
+    items2.sort((a, b) =&gt; a[0] - b[0]);
+    
+    const result: number[][] = [];
+    let i = 0, j = 0;
+    const n = items1.length, m = items2.length;
+    
+    while (i &lt; n && j &lt; m) {
+        const [val1, w1] = items1[i];
+        const [val2, w2] = items2[j];
+        
+        if (val1 === val2) {
+            result.push([val1, w1 + w2]);
+            i++;
+            j++;
+        } else if (val1 &lt; val2) {
+            result.push([val1, w1]);
+            i++;
+        } else {
+            result.push([val2, w2]);
+            j++;
+        }
+    }
+    
+    while (i &lt; n) {
+        result.push([...items1[i]]);
+        i++;
+    }
+    
+    while (j &lt; m) {
+        result.push([...items2[j]]);
+        j++;
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) for sorting both arrays
+- Space: O(n) for the result array
+- Notes: More complex implementation but avoids hash map overhead
+
+## Ordered Map Approach
+
+**Intuition**
+Use an ordered map (TreeMap in Java, map in C++) that maintains keys in sorted order while allowing updates.
+
+**Steps**
+- Create an ordered map
+- Iterate through items1 and add each value-weight pair
+- Iterate through items2 and add each value-weight pair (summing weights)
+- Convert the ordered map to a list (already sorted)
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeSimilarItems(self, items1: List[List[int]], items2: List[List[int]]) -> List[List[int]]:
+        from collections import defaultdict
+        
+        weight_map = defaultdict(int)
+        
+        for value, weight in items1:
+            weight_map[value] += weight
+        
+        for value, weight in items2:
+            weight_map[value] += weight
+        
+        result = [[value, weight_map[value]] for value in sorted(weight_map.keys())]
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<List<Integer>&gt; mergeSimilarItems(int[][] items1, int[][] items2) {
+        TreeMap<Integer, Integer> weightMap = new TreeMap&lt;&gt;();
+        
+        for (int[] item : items1) {
+            weightMap.put(item[0], weightMap.getOrDefault(item[0], 0) + item[1]);
+        }
+        
+        for (int[] item : items2) {
+            weightMap.put(item[0], weightMap.getOrDefault(item[0], 0) + item[1]);
+        }
+        
+        List<List<Integer>&gt; result = new ArrayList&lt;&gt;();
+        for (int value : weightMap.keySet()) {
+            result.add(Arrays.asList(value, weightMap.get(value)));
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeSimilarItems(vector<vector<int>&gt;& items1, vector<vector<int>&gt;& items2) {
+        map<int, int> weightMap;
+        
+        for (const auto& item : items1) {
+            weightMap[item[0]] += item[1];
+        }
+        
+        for (const auto& item : items2) {
+            weightMap[item[0]] += item[1];
+        }
+        
+        vector<vector<int>&gt; result;
+        for (const auto& [value, weight] : weightMap) {
+            result.push_back({value, weight});
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} items1
+ * @param {number[][]} items2
+ * @return {number[][]}
+ */
+var mergeSimilarItems = function(items1, items2) {
+    const weightMap = new Map();
+    
+    for (const [value, weight] of items1) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    for (const [value, weight] of items2) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    const result = Array.from(weightMap.entries());
+    result.sort((a, b) =&gt; a[0] - b[0]);
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeSimilarItems(items1: number[][], items2: number[][]): number[][] {
+    const weightMap = new Map<number, number>();
+    
+    for (const [value, weight] of items1) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    for (const [value, weight] of items2) {
+        weightMap.set(value, (weightMap.get(value) || 0) + weight);
+    }
+    
+    const result: number[][] = Array.from(weightMap.entries());
+    result.sort((a, b) =&gt; a[0] - b[0]);
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) for ordered map operations
+- Space: O(n) for the ordered map
+- Notes: Cleanest solution in languages with built-in ordered maps (Java TreeMap, C++ map)
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Merge Similar Items Solutions","datePublished":"2025-06-21","description":"Merge two lists of items by summing weights of items with the same value, then return sorted by value.","keywords":"LeetCode, Merge Similar Items, Easy, Array, Hash Table, Sorting, Ordered Set"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the total number of unique values, due to the sorting step at the end."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the result array, where n is the total number of unique values."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"All approaches have O(n log n) time complexity. The Ordered Map approach is cleanest in languages with built-in ordered maps like Java TreeMap or C++ map."}}]}).replace(/</g,'\u003c')}
+</script>

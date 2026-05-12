@@ -1,0 +1,496 @@
+---
+title: "Longest Subsequence With Limited Sum"
+summary: "Find the length of the longest subsequence of nums with sum less than or equal to each query."
+date: "Feb 26, 2026"
+tags:
+  - Array
+  - Binary Search
+  - Greedy
+  - Sorting
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.60% | **Paid:** No
+> **Topics:** Array, Binary Search, Greedy, Sorting, Prefix Sum
+
+You are given an integer array nums and an integer array queries of the same length.
+
+For each queries[i], determine the maximum length of a subsequence of nums that satisfies the following conditions:
+
+The sum of the chosen elements is less than or equal to queries[i].
+The chosen elements are a subsequence of nums (i.e., they can be obtained by deleting some or no elements from nums without changing the order of the remaining elements).
+
+Return an array answer of length queries.length where answer[i] is the answer to the ith query.
+
+A subsequence of an array is a new array that is formed from the original array by deleting some (can be none) of the elements without disturbing the relative positions of the remaining elements.
+
+- Examples
+- Constraints
+- [Brute Force with Sorting](#brute-force-with-sorting)
+- [Sorting + Prefix Sum + Binary Search](#sorting-prefix-sum-binary-search)
+- [Sorting + Prefix Sum + Two Pointers](#sorting-prefix-sum-two-pointers)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [4,5,2,1], queries = [3,10,21]
+Output: [2,3,4]
+Explanation: 
+- For the query 3, we can pick the subsequence [2,1] which has a sum of 3. The length is 2.
+- For the query 10, we can pick the subsequence [4,5,1] which has a sum of 10. The length is 3.
+- For the query 21, we can pick the subsequence [4,5,2,1] which has a sum of 12. The length is 4.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [2,3,4,5], queries = [1]
+Output: [0]
+Explanation: No subsequence can have a sum less than or equal to 1, so the answer is 0.
+```
+
+## Constraints
+
+```text
+n == nums.length
+m == queries.length
+1 <= n, m <= 1000
+1 <= nums[i], queries[i] <= 10^6
+```
+
+---
+
+## Brute Force with Sorting
+
+**Intuition**
+To maximize the length of the subsequence for a limited sum, we should greedily pick the smallest numbers available. By sorting the array, we can simply iterate and accumulate elements until the sum exceeds the query.
+
+**Steps**
+- Sort the `nums` array in ascending order.
+- Iterate through each query in `queries`.
+- For each query, iterate through the sorted `nums`, accumulating the sum.
+- Count how many elements can be taken before the sum exceeds the query.
+- Store the count in the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def answerQueries(self, nums: List[int], queries: List[int]) -> List[int]:
+        nums.sort()
+        ans = []
+        for q in queries:
+            total = 0
+            count = 0
+            for num in nums:
+                if total + num &lt;= q:
+                    total += num
+                    count += 1
+                else:
+                    break
+            ans.append(count)
+        return ans
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int[] answerQueries(int[] nums, int[] queries) {
+        Arrays.sort(nums);
+        int[] ans = new int[queries.length];
+        for (int i = 0; i &lt; queries.length; i++) {
+            int total = 0;
+            int count = 0;
+            for (int num : nums) {
+                if (total + num &lt;= queries[i]) {
+                    total += num;
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            ans[i] = count;
+        }
+        return ans;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+class Solution {
+public:
+    vector<int> answerQueries(vector<int>& nums, vector<int>& queries) {
+        sort(nums.begin(), nums.end());
+        vector<int> ans;
+        for (int q : queries) {
+            long long total = 0;
+            int count = 0;
+            for (int num : nums) {
+                if (total + num &lt;= q) {
+                    total += num;
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            ans.push_back(count);
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} nums
+ * @param {number[]} queries
+ * @return {number[]}
+ */
+var answerQueries = function(nums, queries) {
+    nums.sort((a, b) =&gt; a - b);
+    const ans = [];
+    for (const q of queries) {
+        let total = 0;
+        let count = 0;
+        for (const num of nums) {
+            if (total + num &lt;= q) {
+                total += num;
+                count++;
+            } else {
+                break;
+            }
+        }
+        ans.push(count);
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function answerQueries(nums: number[], queries: number[]): number[] {
+    nums.sort((a, b) =&gt; a - b);
+    const ans: number[] = [];
+    for (const q of queries) {
+        let total = 0;
+        let count = 0;
+        for (const num of nums) {
+            if (total + num &lt;= q) {
+                total += num;
+                count++;
+            } else {
+                break;
+            }
+        }
+        ans.push(count);
+    }
+    return ans;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N * Q + N log N), where N is the length of nums and Q is the length of queries. Sorting takes O(N log N), and the nested loops take O(N * Q).
+- Space: O(1) or O(N) depending on the sorting algorithm.
+- Notes: Simple to implement, but inefficient if both N and Q are large.
+
+---
+
+## Sorting + Prefix Sum + Binary Search
+
+**Intuition**
+After sorting, the sum of the first `k` elements is the smallest possible sum for any subsequence of length `k`. We can precompute prefix sums. Then, for each query, we perform a binary search on the prefix sum array to find the largest index where the sum is less than or equal to the query.
+
+**Steps**
+- Sort the `nums` array.
+- Compute the prefix sum array `prefix` where `prefix[i]` is the sum of the first `i` elements of `nums`.
+- For each query `q`, perform a binary search on `prefix` to find the rightmost index `i` such that `prefix[i] &lt;= q`.
+- The index `i` represents the maximum length of the subsequence.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def answerQueries(self, nums: List[int], queries: List[int]) -> List[int]:
+        nums.sort()
+        prefix = [0]
+        for num in nums:
+            prefix.append(prefix[-1] + num)
+        
+        ans = []
+        for q in queries:
+            # bisect_right returns the insertion point to the right of any existing entries
+            count = bisect_right(prefix, q)
+            ans.append(count)
+        return ans
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int[] answerQueries(int[] nums, int[] queries) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int[] prefix = new int[n + 1];
+        for (int i = 0; i &lt; n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+        
+        int[] ans = new int[queries.length];
+        for (int i = 0; i &lt; queries.length; i++) {
+            ans[i] = binarySearch(prefix, queries[i]);
+        }
+        return ans;
+    }
+    
+    private int binarySearch(int[] prefix, int target) {
+        int left = 0;
+        int right = prefix.length - 1;
+        while (left &lt;= right) {
+            int mid = left + (right - left) / 2;
+            if (prefix[mid] &lt;= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return right;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+class Solution {
+public:
+    vector<int> answerQueries(vector<int>& nums, vector<int>& queries) {
+        sort(nums.begin(), nums.end());
+        int n = nums.size();
+        vector<long long> prefix(n + 1, 0);
+        for (int i = 0; i &lt; n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+        
+        vector<int> ans;
+        for (int q : queries) {
+            // upper_bound returns first element &gt; q
+            int count = upper_bound(prefix.begin(), prefix.end(), q) - prefix.begin();
+            ans.push_back(count);
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} nums
+ * @param {number[]} queries
+ * @return {number[]}
+ */
+var answerQueries = function(nums, queries) {
+    nums.sort((a, b) =&gt; a - b);
+    const prefix = [0];
+    for (const num of nums) {
+        prefix.push(prefix[prefix.length - 1] + num);
+    }
+    
+    const ans = [];
+    for (const q of queries) {
+        // Binary search for rightmost index where prefix[i] &lt;= q
+        let left = 0;
+        let right = prefix.length - 1;
+        let best = 0;
+        while (left &lt;= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (prefix[mid] &lt;= q) {
+                best = mid;
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        ans.push(best);
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function answerQueries(nums: number[], queries: number[]): number[] {
+    nums.sort((a, b) =&gt; a - b);
+    const prefix: number[] = [0];
+    for (const num of nums) {
+        prefix.push(prefix[prefix.length - 1] + num);
+    }
+    
+    const ans: number[] = [];
+    for (const q of queries) {
+        let left = 0;
+        let right = prefix.length - 1;
+        let best = 0;
+        while (left &lt;= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (prefix[mid] &lt;= q) {
+                best = mid;
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        ans.push(best);
+    }
+    return ans;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N log N + Q log N), where N is the length of nums and Q is the length of queries. Sorting takes O(N log N), and each query is answered in O(log N).
+- Space: O(N) for the prefix sum array.
+- Notes: This is the most efficient standard approach for this problem.
+
+---
+
+## Sorting + Prefix Sum + Two Pointers
+
+**Intuition**
+If we sort the queries as well, we can process them in increasing order. We maintain a pointer in the sorted `nums` array, accumulating the sum. As we move through the sorted queries, we advance the pointer in `nums` as long as the sum allows. This avoids binary search and processes queries in linear time relative to the number of elements.
+
+**Steps**
+- Sort `nums`.
+- Create a list of pairs `(query, original_index)` for `queries` and sort this list based on the query value.
+- Initialize a result array `ans`.
+- Iterate through the sorted queries with a pointer `i` starting at 0 for `nums`.
+- Maintain a running `total`.
+- For each query, move the pointer `i` forward while `total + nums[i] &lt;= query`.
+- The answer for the current query is `i`.
+- Place the answer in the correct position using the `original_index`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def answerQueries(self, nums: List[int], queries: List[int]) -> List[int]:
+        nums.sort()
+        # Create list of (value, index)
+        sorted_queries = sorted([(q, i) for i, q in enumerate(queries)])
+        
+        ans = [0] * len(queries)
+        total = 0
+        count = 0
+        
+        for q, idx in sorted_queries:
+            while count &lt; len(nums) and total + nums[count] &lt;= q:
+                total += nums[count]
+                count += 1
+            ans[idx] = count
+            
+        return ans
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int[] answerQueries(int[] nums, int[] queries) {
+        Arrays.sort(nums);
+        int m = queries.length;
+        int[][] sortedQueries = new int[m][2];
+        for (int i = 0; i &lt; m; i++) {
+            sortedQueries[i][0] = queries[i];
+            sortedQueries[i][1] = i;
+        }
+        Arrays.sort(sortedQueries, (a, b) -> a[0] - b[0]);
+        
+        int[] ans = new int[m];
+        int total = 0;
+        int count = 0;
+        int n = nums.length;
+        
+        for (int[] pair : sortedQueries) {
+            int q = pair[0];
+            int idx = pair[1];
+            while (count &lt; n && total + nums[count] &lt;= q) {
+                total += nums[count];
+                count++;
+            }
+            ans[idx] = count;
+        }
+        return ans;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+class Solution {
+public:
+    vector<int> answerQueries(vector<int>& nums, vector<int>& queries) {
+        sort(nums.begin(), nums.end());
+        int m = queries.size();
+        vector<pair<int, int>&gt; sortedQueries(m);
+        for (int i = 0; i &lt; m; i++) {
+            sortedQueries[i] = {queries[i], i};
+        }
+        sort(sortedQueries.begin(), sortedQueries.end());
+        
+        vector<int> ans(m);
+        long long total = 0;
+        int count = 0;
+        int n = nums.size();
+        
+        for (auto& p : sortedQueries) {
+            int q = p.first;
+            int idx = p.second;
+            while (count &lt; n && total + nums[count] &lt;= q) {
+                total += nums[count];
+                count++;
+            }
+            ans[idx] = count;
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} nums
+ * @param {number[]} queries
+ * @return {number[]}
+ */
+var answerQueries = function(nums, queries) {
+    nums.sort((a, b) =&gt; a - b);
+    const m = queries.length;
+    const sortedQueries = queries.map((q, i) =&gt; ({ q, i })).sort((a, b) =&gt; a.q - b.q);
+    
+    const ans = new Array(m);
+    let total = 0;
+    let count = 0;
+    const n = nums.length;
+    
+    for (const { q, i } of sortedQueries) {
+        while (count &lt; n && total + nums[count] &lt;= q) {
+            total += nums[count];
+            count++;
+        }
+        ans[i] = count;
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function answerQueries(nums: number[], queries: number[]): number[] {
+    nums.sort((a, b) =&gt; a - b);
+    const m = queries.length;
+    const sortedQueries = queries.map((q, i) =&gt; ({ q, i })).sort((a, b) =&gt; a.q - b.q);
+    
+    const ans: number[] = new Array(m);
+    let total = 0;
+    let count = 0;
+    const n = nums.length;
+    
+    for (const { q, i } of sortedQueries) {
+        while (count &lt; n && total + nums[count] &lt;= q) {
+            total += nums[count];
+            count++;
+        }
+        ans[i] = count;
+    }
+    return ans;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N log N + Q log Q), where N is the length of nums and Q is the length of queries. Sorting dominates the complexity.
+- Space: O(Q) to store the sorted queries with indices.
+- Notes: This approach is useful when Q is very large, as it avoids the log factor of binary search per query, though it requires sorting the queries.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longest Subsequence With Limited Sum Solutions","datePublished":"2026-02-26","description":"Find the length of the longest subsequence of nums with sum less than or equal to each query.","keywords":"LeetCode, Longest Subsequence With Limited Sum, Easy, Array, Binary Search, Greedy, Sorting, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * Q + N log N), where N is the length of nums and Q is the length of queries."}},{"@type":"Question","name":"What is the most efficient approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Sorting + Prefix Sum + Binary Search approach is generally the most efficient with a time complexity of O(N log N + Q log N)."}},{"@type":"Question","name":"Why do we sort the nums array?","acceptedAnswer":{"@type":"Answer","text":"We sort the array to greedily pick the smallest elements first, which allows us to maximize the length of the subsequence for any given sum limit."}},{"@type":"Question","name":"What is the space complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the prefix sum array."}}]}).replace(/</g,'\u003c')}
+</script>

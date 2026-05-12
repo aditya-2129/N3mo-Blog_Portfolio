@@ -1,0 +1,110 @@
+---
+title: "Tenth Line"
+summary: "Given a text file file.txt, print just the 10th line of the file."
+date: "Sep 01, 2025"
+tags:
+  - Shell
+  - File I/O
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 36.70% | **Paid:** No
+> **Topics:** Shell
+
+Given a text file `file.txt`, print just the 10th line of the file.
+
+## Examples
+
+Assume that `file.txt` has the following content:
+
+```text
+Line 1
+Line 2
+Line 3
+Line 4
+Line 5
+Line 6
+Line 7
+Line 8
+Line 9
+Line 10
+Line 11
+Line 12
+Line 13
+Line 14
+Line 15
+```
+
+Your script should output the tenth line:
+
+```text
+Line 10
+```
+
+## Constraints
+
+```text
+- 0 <= N (number of lines in the file) <= 1000
+- The file is named file.txt and is located in the current directory.
+```
+
+---
+
+## Approach 1: Iterative Line Reading
+
+**Intuition**
+The most memory-efficient way to solve this problem is to read the file line by line. We maintain a counter to track the current line number. Once the counter reaches 10, we print that line and immediately stop processing the file. This avoids loading the entire file into memory.
+
+**Steps**
+- Open the file `file.txt` for reading.
+- Initialize a counter to 0.
+- Loop through the file one line at a time:
+  - Increment the counter.
+  - If the counter equals 10, print the current line and exit the loop.
+- Close the file (handled automatically in some languages via context managers or destructors).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "with open('file.txt', 'r') as f:\n    for i, line in enumerate(f):\n        if i == 9:\n            print(line, end='')\n            break\n" },
+{ name: "Java", lang: "java", code: "import java.io.*;\n\npublic class Solution {\n    public static void main(String[] args) throws IOException {\n        BufferedReader br = new BufferedReader(new FileReader(\"file.txt\"));\n        String line;\n        int count = 0;\n        while ((line = br.readLine()) != null) {\n            count++;\n            if (count == 10) {\n                System.out.println(line);\n                break;\n            }\n        }\n        br.close();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;iostream&gt;\n#include &lt;fstream&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nint main() {\n    ifstream file(\"file.txt\");\n    string line;\n    int count = 0;\n    \n    while (getline(file, line)) {\n        count++;\n        if (count == 10) {\n            cout &lt;&lt; line &lt;&lt; endl;\n            break;\n        }\n    }\n    \n    file.close();\n    return 0;\n}\n" },
+{ name: "JavaScript", lang: "javascript", code: "const fs = require('fs');\nconst readline = require('readline');\n\nconst rl = readline.createInterface({\n  input: fs.createReadStream('file.txt'),\n  crlfDelay: Infinity\n});\n\nlet count = 0;\nrl.on('line', (line) =&gt; {\n  count++;\n  if (count === 10) {\n    console.log(line);\n    rl.close();\n    rl.pause();\n  }\n});\n" },
+{ name: "TypeScript", lang: "typescript", code: "import * as fs from 'fs';\nimport * as readline from 'readline';\n\nconst rl = readline.createInterface({\n  input: fs.createReadStream('file.txt'),\n  crlfDelay: Infinity\n});\n\nlet count: number = 0;\nrl.on('line', (line: string) =&gt; {\n  count++;\n  if (count === 10) {\n    console.log(line);\n    rl.close();\n    rl.pause();\n  }\n});\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of lines. In the worst case, we read the whole file.
+- Space: O(1), we only store the current line and a counter.
+- Notes: This is the optimal approach for very large files as it uses constant memory.
+
+---
+
+## Approach 2: Read All Lines
+
+**Intuition**
+If the file size is small (as per the constraints), we can simplify the code by reading the entire file into memory at once. We split the content into an array of lines and directly access the element at index 9 (the 10th line).
+
+**Steps**
+- Read the entire content of `file.txt`.
+- Split the content into a list or array of lines.
+- Check if the list has at least 10 elements.
+- If yes, print the element at index 9.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "with open('file.txt', 'r') as f:\n    lines = f.readlines()\n    if len(lines) &gt;= 10:\n        print(lines[9], end='')\n" },
+{ name: "Java", lang: "java", code: "import java.io.*;\nimport java.nio.file.*;\nimport java.util.List;\n\npublic class Solution {\n    public static void main(String[] args) throws IOException {\n        List&lt;String&gt; lines = Files.readAllLines(Paths.get(\"file.txt\"));\n        if (lines.size() &gt;= 10) {\n            System.out.println(lines.get(9));\n        }\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;iostream&gt;\n#include &lt;fstream&gt;\n#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nint main() {\n    ifstream file(\"file.txt\");\n    vector&lt;string&gt; lines;\n    string line;\n    \n    while (getline(file, line)) {\n        lines.push_back(line);\n    }\n    \n    if (lines.size() &gt;= 10) {\n        cout &lt;&lt; lines[9] &lt;&lt; endl;\n    }\n    \n    return 0;\n}\n" },
+{ name: "JavaScript", lang: "javascript", code: "const fs = require('fs');\n\ntry {\n  const data = fs.readFileSync('file.txt', 'utf8');\n  const lines = data.split('\\n');\n  if (lines.length &gt;= 10) {\n    console.log(lines[9]);\n  }\n} catch (err) {\n  console.error(err);\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "import * as fs from 'fs';\n\ntry {\n  const data: string = fs.readFileSync('file.txt', 'utf8');\n  const lines: string[] = data.split('\\n');\n  if (lines.length &gt;= 10) {\n    console.log(lines[9]);\n  }\n} catch (err) {\n  console.error(err);\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), to read the file and split it into lines.
+- Space: O(n), to store all lines in memory.
+- Notes: This approach is concise and easy to write but less memory-efficient for very large files compared to Approach 1.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Tenth Line Solutions","datePublished":"2025-09-01","description":"Given a text file file.txt, print just the 10th line of the file.","keywords":"LeetCode, Tenth Line, Easy, Shell"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Line Reading approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of lines in the file."}},{"@type":"Question","name":"What is the space complexity of the Read All Lines approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) because it stores all lines in memory."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,356 @@
+---
+title: "Largest 3-Same-Digit Number in String"
+summary: "You are given a string num representing a large integer. Return the largest-valued good integer as a string or an empty string if no such integer exists."
+date: "Dec 29, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.70% | **Paid:** No
+> **Topics:** String
+
+You are given a string num representing a large integer. An integer is good if it is a substring of num with length 3 and it consists of only one unique digit.
+
+Return the maximum good integer as a string or an empty string if no such integer exists.
+
+Note that a good integer occurs at most once in num.
+
+- Examples
+- Constraints
+- [Approach 1: Linear Scan](#approach-1-linear-scan)
+- [Approach 2: Regular Expressions](#approach-2-regular-expressions)
+- [Approach 3: Grouping Consecutive Digits](#approach-3-grouping-consecutive-digits)
+
+## Examples
+
+### Example 1:
+```text
+Input: num = "6777133339"
+Output: "777"
+Explanation: There are two distinct good integers: "777" and "333".
+"777" is the largest, so we return "777".
+```
+
+### Example 2:
+```text
+Input: num = "2300019"
+Output: "000"
+Explanation: "000" is the only good integer.
+```
+
+### Example 3:
+```text
+Input: num = "42352338"
+Output: ""
+Explanation: No good integer exists.
+```
+
+## Constraints
+
+```text
+3 <= num.length <= 1000
+num only consists of digits.
+```
+
+---
+
+## Approach 1: Linear Scan
+
+**Intuition**
+We iterate through the string once, checking every triplet of consecutive characters. If a triplet consists of the same digit, we compare it with the largest one found so far.
+
+**Steps**
+- Initialize a result string as empty.
+- Iterate from index 0 to the third-to-last character.
+- For each index `i`, check if `num[i]`, `num[i+1]`, and `num[i+2]` are equal.
+- If they are equal, extract the substring and update the result if this substring is lexicographically larger.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def largestGoodInteger(self, num: str) -> str:
+        res = ""
+        for i in range(len(num) - 2):
+            if num[i] == num[i+1] == num[i+2]:
+                sub = num[i:i+3]
+                if sub &gt; res:
+                    res = sub
+        return res
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String largestGoodInteger(String num) {
+        String res = "";
+        for (int i = 0; i &lt; num.length() - 2; i++) {
+            if (num.charAt(i) == num.charAt(i + 1) && num.charAt(i) == num.charAt(i + 2)) {
+                String sub = num.substring(i, i + 3);
+                if (sub.compareTo(res) &gt; 0) {
+                    res = sub;
+                }
+            }
+        }
+        return res;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string largestGoodInteger(string num) {
+        string res = "";
+        for (int i = 0; i &lt; num.size() - 2; i++) {
+            if (num[i] == num[i+1] && num[i] == num[i+2]) {
+                string sub = num.substr(i, 3);
+                if (sub &gt; res) {
+                    res = sub;
+                }
+            }
+        }
+        return res;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var largestGoodInteger = function(num) {
+    let res = "";
+    for (let i = 0; i &lt; num.length - 2; i++) {
+        if (num[i] === num[i+1] && num[i] === num[i+2]) {
+            let sub = num.substring(i, i+3);
+            if (sub &gt; res) {
+                res = sub;
+            }
+        }
+    }
+    return res;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function largestGoodInteger(num: string): string {
+    let res = "";
+    for (let i = 0; i &lt; num.length - 2; i++) {
+        if (num[i] === num[i+1] && num[i] === num[i+2]) {
+            let sub = num.substring(i, i+3);
+            if (sub &gt; res) {
+                res = sub;
+            }
+        }
+    }
+    return res;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string.
+- Space: O(1) as we only store a constant size result string.
+- Notes: This is the most efficient approach for this problem.
+
+---
+
+## Approach 2: Regular Expressions
+
+**Intuition**
+We can use a regular expression to find all substrings that match the pattern of three identical consecutive digits. Then we simply find the maximum value among them.
+
+**Steps**
+- Define a regex pattern to match three consecutive identical digits.
+- Find all matches in the input string.
+- If matches exist, return the maximum value.
+- Otherwise, return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+class Solution:
+    def largestGoodInteger(self, num: str) -> str:
+        matches = re.findall(r"(\d)\\1\\1", num)
+        if not matches:
+            return ""
+        return max(matches) * 3
+` },
+{ name: "Java", lang: "java", code: `import java.util.regex.*;
+class Solution {
+    public String largestGoodInteger(String num) {
+        Pattern p = Pattern.compile("(\\\\d)\\\\1\\\\1");
+        Matcher m = p.matcher(num);
+        String max = "";
+        while (m.find()) {
+            String match = m.group();
+            if (match.compareTo(max) &gt; 0) {
+                max = match;
+            }
+        }
+        return max;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <regex>
+class Solution {
+public:
+    string largestGoodInteger(string num) {
+        std::regex pattern("(\\\\d)\\\\1\\\\1");
+        string res = "";
+        auto words_begin = std::sregex_iterator(num.begin(), num.end(), pattern);
+        auto words_end = std::sregex_iterator();
+        for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+            std::smatch match = *i;
+            string s = match.str();
+            if (s &gt; res) {
+                res = s;
+            }
+        }
+        return res;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var largestGoodInteger = function(num) {
+    const matches = num.match(/(\d)\\1\\1/g);
+    if (!matches) return "";
+    return matches.reduce((a, b) =&gt; b &gt; a ? b : a);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function largestGoodInteger(num: string): string {
+    const matches = num.match(/(\d)\\1\\1/g);
+    if (!matches) return "";
+    return matches.reduce((a, b) =&gt; b &gt; a ? b : a);
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) for the regex engine to scan the string.
+- Space: O(n) to store the matches (or O(1) if iterating directly).
+- Notes: Regex is concise but often has higher constant overhead than a simple loop.
+
+---
+
+## Approach 3: Grouping Consecutive Digits
+
+**Intuition**
+We iterate through the string and count the length of consecutive runs of the same digit. If a run length is 3 or more, we check if that digit is the largest seen so far.
+
+**Steps**
+- Initialize `max_digit` to -1.
+- Iterate through the string, counting consecutive identical digits.
+- When the digit changes or the string ends, check if the run length was at least 3.
+- If so, update `max_digit` if the current digit is larger.
+- Finally, construct the result string by repeating `max_digit` three times, or return empty if `max_digit` is -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def largestGoodInteger(self, num: str) -> str:
+        max_digit = -1
+        count = 1
+        for i in range(1, len(num)):
+            if num[i] == num[i-1]:
+                count += 1
+            else:
+                if count &gt;= 3:
+                    max_digit = max(max_digit, int(num[i-1]))
+                count = 1
+        if count &gt;= 3:
+            max_digit = max(max_digit, int(num[-1]))
+        if max_digit == -1:
+            return ""
+        return str(max_digit) * 3
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String largestGoodInteger(String num) {
+        int maxDigit = -1;
+        int count = 1;
+        for (int i = 1; i &lt; num.length(); i++) {
+            if (num.charAt(i) == num.charAt(i - 1)) {
+                count++;
+            } else {
+                if (count &gt;= 3) {
+                    maxDigit = Math.max(maxDigit, num.charAt(i - 1) - '0');
+                }
+                count = 1;
+            }
+        }
+        if (count &gt;= 3) {
+            maxDigit = Math.max(maxDigit, num.charAt(num.length() - 1) - '0');
+        }
+        if (maxDigit == -1) {
+            return "";
+        }
+        return String.valueOf(maxDigit).repeat(3);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string largestGoodInteger(string num) {
+        int maxDigit = -1;
+        int count = 1;
+        for (int i = 1; i &lt; num.size(); i++) {
+            if (num[i] == num[i-1]) {
+                count++;
+            } else {
+                if (count &gt;= 3) {
+                    maxDigit = max(maxDigit, num[i-1] - '0');
+                }
+                count = 1;
+            }
+        }
+        if (count &gt;= 3) {
+            maxDigit = max(maxDigit, num[num.size()-1] - '0');
+        }
+        if (maxDigit == -1) {
+            return "";
+        }
+        return string(3, '0' + maxDigit);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var largestGoodInteger = function(num) {
+    let maxDigit = -1;
+    let count = 1;
+    for (let i = 1; i &lt; num.length; i++) {
+        if (num[i] === num[i-1]) {
+            count++;
+        } else {
+            if (count &gt;= 3) {
+                maxDigit = Math.max(maxDigit, parseInt(num[i-1]));
+            }
+            count = 1;
+        }
+    }
+    if (count &gt;= 3) {
+        maxDigit = Math.max(maxDigit, parseInt(num[num.length-1]));
+    }
+    if (maxDigit === -1) {
+        return "";
+    }
+    return String(maxDigit).repeat(3);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function largestGoodInteger(num: string): string {
+    let maxDigit: number = -1;
+    let count: number = 1;
+    for (let i = 1; i &lt; num.length; i++) {
+        if (num[i] === num[i-1]) {
+            count++;
+        } else {
+            if (count &gt;= 3) {
+                maxDigit = Math.max(maxDigit, parseInt(num[i-1]));
+            }
+            count = 1;
+        }
+    }
+    if (count &gt;= 3) {
+        maxDigit = Math.max(maxDigit, parseInt(num[num.length-1]));
+    }
+    if (maxDigit === -1) {
+        return "";
+    }
+    return String(maxDigit).repeat(3);
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) as we traverse the string once.
+- Space: O(1) extra space.
+- Notes: This approach is useful if the problem required finding runs of length k instead of just 3.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest 3-Same-Digit Number in String Solutions","datePublished":"2025-12-29","description":"You are given a string num representing a large integer. Return the largest-valued good integer as a string or an empty string if no such integer exists.","keywords":"LeetCode, Largest 3-Same-Digit Number in String, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we iterate through the string once."}},{"@type":"Question","name":"What is the space complexity of the Regular Expressions approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case to store all matches, though it can be O(1) if processed iteratively."}},{"@type":"Question","name":"Which approach is the most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Linear Scan approach is generally the most efficient due to its low constant overhead and O(n) time, O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

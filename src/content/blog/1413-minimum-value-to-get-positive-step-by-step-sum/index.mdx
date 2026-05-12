@@ -1,0 +1,118 @@
+---
+title: "Minimum Value to Get Positive Step by Step Sum"
+summary: "Find the minimum positive start value so that the running sum never drops below 1."
+date: "Apr 13, 2025"
+tags:
+  - Array
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.70% | **Paid:** No
+> **Topics:** Array, Prefix Sum
+
+Given an array of integers nums, you start with an initial positive value startValue.
+
+In each iteration, you calculate the step by step sum of startValue plus elements in nums (from left to right).
+
+Return the minimum positive value of startValue such that the step by step sum is never less than 1.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation](#approach-1-simulation)
+- [Approach 2: Prefix Sum](#approach-2-prefix-sum)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [-3,2,-3,4,2]
+Output: 5
+Explanation: If you choose startValue = 4, in the third iteration your step by step sum is less than 1.
+step by step sum
+startValue = 4 | startValue + nums[0] = 1
+startValue = 4 | startValue + nums[0] + nums[1] = 3
+startValue = 4 | startValue + nums[0] + nums[1] + nums[2] = 0
+startValue = 4 | startValue + nums[0] + nums[1] + nums[2] + nums[3] = 4
+startValue = 4 | startValue + nums[0] + nums[1] + nums[2] + nums[3] + nums[4] = 6
+```
+
+Example 2:
+```text
+Input: nums = [1,2]
+Output: 1
+Explanation: Minimum start value should be positive. 
+```
+
+Example 3:
+```text
+Input: nums = [1,-2,-3]
+Output: 5
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+-100 <= nums[i] <= 100
+```
+
+---
+## Approach 1: Simulation
+
+**Intuition**
+We can simulate the process by trying start values starting from 1. For each candidate start value, we calculate the running sum. If the running sum drops below 1 at any point, we increment the start value and try again.
+
+**Steps**
+- Initialize `startValue` to 1.
+- Enter a loop that continues indefinitely.
+- Inside the loop, initialize `total` to the current `startValue`.
+- Iterate through the `nums` array, adding each number to `total`.
+- If `total` becomes less than 1, break the inner loop and increment `startValue`.
+- If the inner loop completes successfully, return the current `startValue`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minStartValue(self, nums: list[int]) -&gt; int:\n        startValue = 1\n        while True:\n            total = startValue\n            valid = True\n            for n in nums:\n                total += n\n                if total &lt; 1:\n                    valid = False\n                    break\n            if valid:\n                return startValue\n            startValue += 1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minStartValue(int[] nums) {\n        int startValue = 1;\n        while (true) {\n            int total = startValue;\n            boolean valid = true;\n            for (int n : nums) {\n                total += n;\n                if (total &lt; 1) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) {\n                return startValue;\n            }\n            startValue++;\n        }\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minStartValue(vector&lt;int&gt;& nums) {\n        int startValue = 1;\n        while (true) {\n            int total = startValue;\n            bool valid = true;\n            for (int n : nums) {\n                total += n;\n                if (total &lt; 1) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) {\n                return startValue;\n            }\n            startValue++;\n        }\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minStartValue = function(nums) {\n    let startValue = 1;\n    while (true) {\n        let total = startValue;\n        let valid = true;\n        for (let n of nums) {\n            total += n;\n            if (total &lt; 1) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) {\n            return startValue;\n        }\n        startValue++;\n    }\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minStartValue(nums: number[]): number {\n    let startValue = 1;\n    while (true) {\n        let total = startValue;\n        let valid = true;\n        for (let n of nums) {\n            total += n;\n            if (total &lt; 1) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) {\n            return startValue;\n        }\n        startValue++;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the length of the array and M is the value of the result. In the worst case, this can be slow.
+- Space: O(1)
+- Notes: This approach is intuitive but inefficient for large inputs or large negative numbers.
+
+---
+## Approach 2: Prefix Sum
+
+**Intuition**
+Instead of simulating, we can determine the minimum start value mathematically. We need `startValue + prefixSum[i] &gt;= 1` for all indices `i`. This implies `startValue &gt;= 1 - prefixSum[i]`. To satisfy this for all steps, `startValue` must be at least `1 - minPrefixSum`. Since `startValue` must be positive, we take the maximum of 1 and this calculated value.
+
+**Steps**
+- Initialize `minSum` to 0 and `currentSum` to 0.
+- Iterate through the `nums` array.
+- Add the current number to `currentSum`.
+- Update `minSum` to be the minimum of `minSum` and `currentSum`.
+- After the loop, calculate the required start value as `max(1, 1 - minSum)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minStartValue(self, nums: list[int]) -&gt; int:\n        min_sum = 0\n        curr = 0\n        for n in nums:\n            curr += n\n            min_sum = min(min_sum, curr)\n        return max(1, 1 - min_sum)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minStartValue(int[] nums) {\n        int minSum = 0;\n        int curr = 0;\n        for (int n : nums) {\n            curr += n;\n            minSum = Math.min(minSum, curr);\n        }\n        return Math.max(1, 1 - minSum);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minStartValue(vector&lt;int&gt;& nums) {\n        int minSum = 0;\n        int curr = 0;\n        for (int n : nums) {\n            curr += n;\n            minSum = min(minSum, curr);\n        }\n        return max(1, 1 - minSum);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minStartValue = function(nums) {\n    let minSum = 0;\n    let curr = 0;\n    for (let n of nums) {\n        curr += n;\n        minSum = Math.min(minSum, curr);\n    }\n    return Math.max(1, 1 - minSum);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minStartValue(nums: number[]): number {\n    let minSum = 0;\n    let curr = 0;\n    for (let n of nums) {\n        curr += n;\n        minSum = Math.min(minSum, curr);\n    }\n    return Math.max(1, 1 - minSum);\n}\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the array. We pass through the array once.
+- Space: O(1), we only use a few variables for tracking sums.
+- Notes: This is the optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Value to Get Positive Step by Step Sum Solutions","datePublished":"2025-04-13","description":"Find the minimum positive start value so that the running sum never drops below 1.","keywords":"LeetCode, Minimum Value to Get Positive Step by Step Sum, Easy, Array, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of elements in the array."}},{"@type":"Question","name":"What is the space complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}},{"@type":"Question","name":"Why do we track the minimum prefix sum?","acceptedAnswer":{"@type":"Answer","text":"The minimum prefix sum represents the lowest point the running sum reaches. The start value must be large enough to offset this lowest point to keep the total sum at least 1."}}]}).replace(/</g,'\u003c')}
+</script>

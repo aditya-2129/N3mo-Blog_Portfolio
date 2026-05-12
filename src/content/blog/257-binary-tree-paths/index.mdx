@@ -1,0 +1,134 @@
+---
+title: "Binary Tree Paths"
+summary: "Given the root of a binary tree, return all root-to-leaf paths in any order."
+date: "Nov 20, 2024"
+tags:
+  - String
+  - Backtracking
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.60% | **Paid:** No
+> **Topics:** String, Backtracking, Tree, Depth-First Search, Binary Tree
+
+Given the root of a binary tree, return all root-to-leaf paths in any order.
+
+A leaf is a node with no children.
+
+- Examples
+- Constraints
+- [Approach 1: Depth-First Search (DFS) - Recursive](#approach-1-depth-first-search-dfs---recursive)
+- [Approach 2: Breadth-First Search (BFS)](#approach-2-breadth-first-search-bfs)
+- [Approach 3: Depth-First Search (DFS) - Iterative](#approach-3-depth-first-search-dfs---iterative)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [1,2,3,null,5]
+Output: ["1->2->5","1->3"]
+```
+
+**Example 2:**
+
+```text
+Input: root = [1]
+Output: ["1"]
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 100].
+-100 <= Node.val <= 100
+```
+
+---
+
+## Approach 1: Depth-First Search (DFS) - Recursive
+
+**Intuition**
+We traverse the tree using a pre-order depth-first search strategy. As we visit each node, we append its value to a string representing the current path. When we reach a leaf node (a node with no left or right children), we add the constructed path string to our result list.
+
+**Steps**
+- Define a helper function that takes a node and the current path string as arguments.
+- If the node is null, return immediately.
+- Append the current node's value to the path string.
+- Check if the node is a leaf (both left and right children are null). If so, add the path to the result list.
+- If the node is not a leaf, append "->" to the path string and recursively call the helper function for the left and right children.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def binaryTreePaths(self, root: Optional[TreeNode]) -&gt; List[str]:\n        paths = []\n        \n        def construct_paths(node, path):\n            if node:\n                path += str(node.val)\n                if not node.left and not node.right:\n                    paths.append(path)\n                else:\n                    path += \"-&gt;\"\n                    construct_paths(node.left, path)\n                    construct_paths(node.right, path)\n                    \n        construct_paths(root, \"\")\n        return paths" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; binaryTreePaths(TreeNode root) {\n        List&lt;String&gt; paths = new ArrayList&lt;&gt;();\n        if (root == null) return paths;\n        \n        dfs(root, \"\", paths);\n        return paths;\n    }\n    \n    private void dfs(TreeNode node, String path, List&lt;String&gt; paths) {\n        if (node == null) return;\n        \n        path += String.valueOf(node.val);\n        \n        if (node.left == null && node.right == null) {\n            paths.add(path);\n        } else {\n            path += \"-&gt;\";\n            dfs(node.left, path, paths);\n            dfs(node.right, path, paths);\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; binaryTreePaths(TreeNode* root) {\n        vector&lt;string&gt; paths;\n        dfs(root, \"\", paths);\n        return paths;\n    }\n    \nprivate:\n    void dfs(TreeNode* node, string path, vector&lt;string&gt;& paths) {\n        if (!node) return;\n        \n        path += to_string(node-&gt;val);\n        \n        if (!node-&gt;left && !node-&gt;right) {\n            paths.push_back(path);\n        } else {\n            path += \"-&gt;\";\n            dfs(node-&gt;left, path, paths);\n            dfs(node-&gt;right, path, paths);\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var binaryTreePaths = function(root) {\n    const paths = [];\n    \n    const dfs = (node, path) =&gt; {\n        if (!node) return;\n        \n        path += node.val.toString();\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        } else {\n            path += \"-&gt;\";\n            dfs(node.left, path);\n            dfs(node.right, path);\n        }\n    };\n    \n    dfs(root, \"\");\n    return paths;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function binaryTreePaths(root: TreeNode | null): string[] {\n    const paths: string[] = [];\n    \n    const dfs = (node: TreeNode | null, path: string) =&gt; {\n        if (!node) return;\n        \n        path += node.val.toString();\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        } else {\n            path += \"-&gt;\";\n            dfs(node.left, path);\n            dfs(node.right, path);\n        }\n    };\n    \n    dfs(root, \"\");\n    return paths;\n}" }]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes. We visit each node exactly once.
+- Space: O(N), in the worst case (skewed tree), the recursion stack can grow as deep as the number of nodes. Additionally, storing the output takes O(N * L) where L is the average path length, but typically we consider auxiliary space O(N).
+- Notes: This is the most intuitive approach for tree traversal problems.
+
+---
+
+## Approach 2: Breadth-First Search (BFS)
+
+**Intuition**
+We can solve this problem iteratively using a queue. Instead of recursion, we traverse the tree level by level. We store pairs of (node, path_string) in the queue. When we dequeue a node, we check if it is a leaf. If it is, we add the path to the results. If not, we enqueue its children with the updated path string.
+
+**Steps**
+- Initialize a queue containing the root node and its value converted to a string.
+- While the queue is not empty, dequeue an element (node, path).
+- If the node is a leaf (no children), add the path to the result list.
+- If the node has a left child, enqueue (left_child, path + "->" + left_child.val).
+- If the node has a right child, enqueue (right_child, path + "->" + right_child.val).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def binaryTreePaths(self, root: Optional[TreeNode]) -&gt; List[str]:\n        if not root:\n            return []\n        \n        paths = []\n        queue = deque([(root, str(root.val))])\n        \n        while queue:\n            node, path = queue.popleft()\n            \n            if not node.left and not node.right:\n                paths.append(path)\n            if node.left:\n                queue.append((node.left, path + \"-&gt;\" + str(node.left.val)))\n            if node.right:\n                queue.append((node.right, path + \"-&gt;\" + str(node.right.val)))\n                \n        return paths" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;String&gt; binaryTreePaths(TreeNode root) {\n        List&lt;String&gt; paths = new ArrayList&lt;&gt;();\n        if (root == null) return paths;\n        \n        Queue&lt;TreeNode&gt; nodeQueue = new LinkedList&lt;&gt;();\n        Queue&lt;String&gt; pathQueue = new LinkedList&lt;&gt;();\n        \n        nodeQueue.offer(root);\n        pathQueue.offer(String.valueOf(root.val));\n        \n        while (!nodeQueue.isEmpty()) {\n            TreeNode node = nodeQueue.poll();\n            String path = pathQueue.poll();\n            \n            if (node.left == null && node.right == null) {\n                paths.add(path);\n            }\n            if (node.left != null) {\n                nodeQueue.offer(node.left);\n                pathQueue.offer(path + \"-&gt;\" + node.left.val);\n            }\n            if (node.right != null) {\n                nodeQueue.offer(node.right);\n                pathQueue.offer(path + \"-&gt;\" + node.right.val);\n            }\n        }\n        return paths;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; binaryTreePaths(TreeNode* root) {\n        vector&lt;string&gt; paths;\n        if (!root) return paths;\n        \n        queue&lt;TreeNode*&gt; nodeQueue;\n        queue&lt;string&gt; pathQueue;\n        \n        nodeQueue.push(root);\n        pathQueue.push(to_string(root-&gt;val));\n        \n        while (!nodeQueue.empty()) {\n            TreeNode* node = nodeQueue.front();\n            nodeQueue.pop();\n            string path = pathQueue.front();\n            pathQueue.pop();\n            \n            if (!node-&gt;left && !node-&gt;right) {\n                paths.push_back(path);\n            }\n            if (node-&gt;left) {\n                nodeQueue.push(node-&gt;left);\n                pathQueue.push(path + \"-&gt;\" + to_string(node-&gt;left-&gt;val));\n            }\n            if (node-&gt;right) {\n                nodeQueue.push(node-&gt;right);\n                pathQueue.push(path + \"-&gt;\" + to_string(node-&gt;right-&gt;val));\n            }\n        }\n        return paths;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var binaryTreePaths = function(root) {\n    if (!root) return [];\n    \n    const paths = [];\n    const queue = [[root, root.val.toString()]];\n    \n    while (queue.length &gt; 0) {\n        const [node, path] = queue.shift();\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        }\n        if (node.left) {\n            queue.push([node.left, path + \"-&gt;\" + node.left.val]);\n        }\n        if (node.right) {\n            queue.push([node.right, path + \"-&gt;\" + node.right.val]);\n        }\n    }\n    return paths;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function binaryTreePaths(root: TreeNode | null): string[] {\n    if (!root) return [];\n    \n    const paths: string[] = [];\n    const queue: [TreeNode, string][] = [[root, root.val.toString()]];\n    \n    while (queue.length &gt; 0) {\n        const [node, path] = queue.shift()!;\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        }\n        if (node.left) {\n            queue.push([node.left, path + \"-&gt;\" + node.left.val]);\n        }\n        if (node.right) {\n            queue.push([node.right, path + \"-&gt;\" + node.right.val]);\n        }\n    }\n    return paths;\n}" }]} />
+
+**Complexity**
+- Time: O(N), we visit each node once.
+- Space: O(N), the queue can hold up to N nodes in the worst case (e.g., the last level of a complete binary tree).
+- Notes: Useful for avoiding recursion stack overflow, though generally slightly more memory overhead than DFS for deep trees.
+
+---
+
+## Approach 3: Depth-First Search (DFS) - Iterative
+
+**Intuition**
+Similar to the recursive DFS, but we simulate the call stack explicitly using a stack data structure. This avoids recursion depth limits. We push nodes onto the stack along with the path string representing the route taken to reach them.
+
+**Steps**
+- Initialize a stack with the root node and its string value.
+- While the stack is not empty, pop a (node, path) pair.
+- If the node is a leaf, add the path to the result list.
+- If the node has a right child, push (right_child, path + "->" + right_child.val) onto the stack.
+- If the node has a left child, push (left_child, path + "->" + left_child.val) onto the stack. (Note: We push right then left so that left is processed first, mimicking standard pre-order traversal).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def binaryTreePaths(self, root: Optional[TreeNode]) -&gt; List[str]:\n        if not root:\n            return []\n        \n        paths = []\n        stack = [(root, str(root.val))]\n        \n        while stack:\n            node, path = stack.pop()\n            \n            if not node.left and not node.right:\n                paths.append(path)\n            if node.right:\n                stack.append((node.right, path + \"-&gt;\" + str(node.right.val)))\n            if node.left:\n                stack.append((node.left, path + \"-&gt;\" + str(node.left.val)))\n                \n        return paths" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;String&gt; binaryTreePaths(TreeNode root) {\n        List&lt;String&gt; paths = new ArrayList&lt;&gt;();\n        if (root == null) return paths;\n        \n        Stack&lt;TreeNode&gt; nodeStack = new Stack&lt;&gt;();\n        Stack&lt;String&gt; pathStack = new Stack&lt;&gt;();\n        \n        nodeStack.push(root);\n        pathStack.push(String.valueOf(root.val));\n        \n        while (!nodeStack.isEmpty()) {\n            TreeNode node = nodeStack.pop();\n            String path = pathStack.pop();\n            \n            if (node.left == null && node.right == null) {\n                paths.add(path);\n            }\n            if (node.right != null) {\n                nodeStack.push(node.right);\n                pathStack.push(path + \"-&gt;\" + node.right.val);\n            }\n            if (node.left != null) {\n                nodeStack.push(node.left);\n                pathStack.push(path + \"-&gt;\" + node.left.val);\n            }\n        }\n        return paths;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; binaryTreePaths(TreeNode* root) {\n        vector&lt;string&gt; paths;\n        if (!root) return paths;\n        \n        stack&lt;TreeNode*&gt; nodeStack;\n        stack&lt;string&gt; pathStack;\n        \n        nodeStack.push(root);\n        pathStack.push(to_string(root-&gt;val));\n        \n        while (!nodeStack.empty()) {\n            TreeNode* node = nodeStack.top();\n            nodeStack.pop();\n            string path = pathStack.top();\n            pathStack.pop();\n            \n            if (!node-&gt;left && !node-&gt;right) {\n                paths.push_back(path);\n            }\n            if (node-&gt;right) {\n                nodeStack.push(node-&gt;right);\n                pathStack.push(path + \"-&gt;\" + to_string(node-&gt;right-&gt;val));\n            }\n            if (node-&gt;left) {\n                nodeStack.push(node-&gt;left);\n                pathStack.push(path + \"-&gt;\" + to_string(node-&gt;left-&gt;val));\n            }\n        }\n        return paths;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var binaryTreePaths = function(root) {\n    if (!root) return [];\n    \n    const paths = [];\n    const stack = [[root, root.val.toString()]];\n    \n    while (stack.length &gt; 0) {\n        const [node, path] = stack.pop();\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        }\n        if (node.right) {\n            stack.push([node.right, path + \"-&gt;\" + node.right.val]);\n        }\n        if (node.left) {\n            stack.push([node.left, path + \"-&gt;\" + node.left.val]);\n        }\n    }\n    return paths;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function binaryTreePaths(root: TreeNode | null): string[] {\n    if (!root) return [];\n    \n    const paths: string[] = [];\n    const stack: [TreeNode, string][] = [[root, root.val.toString()]];\n    \n    while (stack.length &gt; 0) {\n        const [node, path] = stack.pop()!;\n        \n        if (!node.left && !node.right) {\n            paths.push(path);\n        }\n        if (node.right) {\n            stack.push([node.right, path + \"-&gt;\" + node.right.val]);\n        }\n        if (node.left) {\n            stack.push([node.left, path + \"-&gt;\" + node.left.val]);\n        }\n    }\n    return paths;\n}" }]} />
+
+**Complexity**
+- Time: O(N), each node is processed once.
+- Space: O(N), the stack can hold up to N nodes in the worst case.
+- Notes: Iterative DFS is preferred in languages with strict recursion limits or for very deep trees.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Binary Tree Paths Solutions","datePublished":"2024-11-20","description":"Given the root of a binary tree, return all root-to-leaf paths in any order.","keywords":"LeetCode, Binary Tree Paths, Easy, String, Backtracking, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of nodes in the tree, as we visit each node exactly once."}},{"@type":"Question","name":"What is the space complexity of the BFS approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) because the queue may need to store up to N nodes in the worst case, such as the last level of a complete binary tree."}},{"@type":"Question","name":"Why use Iterative DFS over Recursive DFS?","acceptedAnswer":{"@type":"Answer","text":"Iterative DFS is useful to avoid stack overflow errors that can occur with recursion in languages with strict recursion limits or when the tree is extremely deep."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,135 @@
+---
+title: "Reverse Only Letters"
+summary: "Given a string s, reverse the string while keeping all non-letter characters in their original positions."
+date: "Feb 08, 2026"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.40% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Given a string s, reverse the string according to the following rules:
+
+All the characters that are not English letters remain in the same position.
+All the English letters (lowercase or uppercase) should be reversed.
+
+Return s after reversing it.
+
+- Examples
+- Constraints
+- [Two Pointers Approach](#two-pointers-approach)
+- [Stack Approach](#stack-approach)
+- [String Builder Approach](#string-builder-approach)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "ab-cd"
+Output: "dc-ba"
+```
+
+Example 2:
+```text
+Input: s = "a-bC-dEf-ghIj"
+Output: "j-Ih-gfE-dCba"
+```
+
+Example 3:
+```text
+Input: s = "Test1ng-Leet=code-Q!"
+Output: "Qedo1ct-eeLg=ntse-T!"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of characters with ASCII values in the range [33, 122].
+s does not contain '\"' or '\\'.
+```
+
+---
+## Two Pointers Approach
+
+**Intuition**
+Use two pointers starting from both ends of the string, moving towards each other while swapping only the letters.
+
+**Steps**
+- Initialize left pointer at 0 and right pointer at the end of the string
+- Convert string to a mutable character array
+- While left &lt; right, skip non-letter characters by moving pointers
+- When both pointers point to letters, swap them and move both pointers
+- Return the joined character array as a string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseOnlyLetters(self, s: str) -&gt; str:\n        s_list = list(s)\n        left, right = 0, len(s) - 1\n        \n        while left &lt; right:\n            if not s_list[left].isalpha():\n                left += 1\n            elif not s_list[right].isalpha():\n                right -= 1\n            else:\n                s_list[left], s_list[right] = s_list[right], s_list[left]\n                left += 1\n                right -= 1\n        \n        return ''.join(s_list)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reverseOnlyLetters(String s) {\n        char[] chars = s.toCharArray();\n        int left = 0, right = chars.length - 1;\n        \n        while (left &lt; right) {\n            if (!Character.isLetter(chars[left])) {\n                left++;\n            } else if (!Character.isLetter(chars[right])) {\n                right--;\n            } else {\n                char temp = chars[left];\n                chars[left] = chars[right];\n                chars[right] = temp;\n                left++;\n                right--;\n            }\n        }\n        \n        return new String(chars);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reverseOnlyLetters(string s) {\n        int left = 0, right = s.size() - 1;\n        \n        while (left &lt; right) {\n            if (!isalpha(s[left])) {\n                left++;\n            } else if (!isalpha(s[right])) {\n                right--;\n            } else {\n                swap(s[left], s[right]);\n                left++;\n                right--;\n            }\n        }\n        \n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseOnlyLetters = function(s) {\n    const chars = s.split('');\n    let left = 0, right = chars.length - 1;\n    \n    while (left &lt; right) {\n        if (!isLetter(chars[left])) {\n            left++;\n        } else if (!isLetter(chars[right])) {\n            right--;\n        } else {\n            [chars[left], chars[right]] = [chars[right], chars[left]];\n            left++;\n            right--;\n        }\n    }\n    \n    return chars.join('');\n};\n\nfunction isLetter(c) {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseOnlyLetters(s: string): string {\n    const chars = s.split('');\n    let left = 0, right = chars.length - 1;\n    \n    while (left &lt; right) {\n        if (!isLetter(chars[left])) {\n            left++;\n        } else if (!isLetter(chars[right])) {\n            right--;\n        } else {\n            [chars[left], chars[right]] = [chars[right], chars[left]];\n            left++;\n            right--;\n        }\n    }\n    \n    return chars.join('');\n}\n\nfunction isLetter(c: string): boolean {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array (or O(1) if using in-place modification in languages that support it)
+- Notes: Most space-efficient approach with optimal time complexity
+
+---
+## Stack Approach
+
+**Intuition**
+Collect all letters in a stack, then iterate through the string replacing each letter with the top of the stack (which gives reversed order).
+
+**Steps**
+- Iterate through the string and push all letters onto a stack
+- Iterate through the string again, building the result
+- For each character, if it's a letter, pop from the stack; otherwise, keep the original character
+- Return the constructed result string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseOnlyLetters(self, s: str) -&gt; str:\n        letters = [c for c in s if c.isalpha()]\n        result = []\n        \n        for c in s:\n            if c.isalpha():\n                result.append(letters.pop())\n            else:\n                result.append(c)\n        \n        return ''.join(result)" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public String reverseOnlyLetters(String s) {\n        Stack&lt;Character&gt; stack = new Stack&lt;&gt;();\n        \n        for (char c : s.toCharArray()) {\n            if (Character.isLetter(c)) {\n                stack.push(c);\n            }\n        }\n        \n        StringBuilder result = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (Character.isLetter(c)) {\n                result.append(stack.pop());\n            } else {\n                result.append(c);\n            }\n        }\n        \n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;stack&gt;\n\nclass Solution {\npublic:\n    string reverseOnlyLetters(string s) {\n        stack&lt;char&gt; st;\n        \n        for (char c : s) {\n            if (isalpha(c)) {\n                st.push(c);\n            }\n        }\n        \n        string result = \"\";\n        for (char c : s) {\n            if (isalpha(c)) {\n                result += st.top();\n                st.pop();\n            } else {\n                result += c;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseOnlyLetters = function(s) {\n    const stack = [];\n    \n    for (const c of s) {\n        if (isLetter(c)) {\n            stack.push(c);\n        }\n    }\n    \n    let result = '';\n    for (const c of s) {\n        if (isLetter(c)) {\n            result += stack.pop();\n        } else {\n            result += c;\n        }\n    }\n    \n    return result;\n};\n\nfunction isLetter(c) {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseOnlyLetters(s: string): string {\n    const stack: string[] = [];\n    \n    for (const c of s) {\n        if (isLetter(c)) {\n            stack.push(c);\n        }\n    }\n    \n    let result = '';\n    for (const c of s) {\n        if (isLetter(c)) {\n            result += stack.pop()!;\n        } else {\n            result += c;\n        }\n    }\n    \n    return result;\n}\n\nfunction isLetter(c: string): boolean {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the stack to store all letters
+- Notes: Intuitive approach but uses extra space for the stack
+
+---
+## String Builder Approach
+
+**Intuition**
+Convert the string to a mutable character array and use two pointers with inner while loops to skip non-letter characters before swapping.
+
+**Steps**
+- Convert string to a character array/list
+- Initialize left and right pointers
+- Use inner while loops to advance pointers past non-letter characters
+- Swap letters when both pointers are valid
+- Continue until pointers meet or cross
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseOnlyLetters(self, s: str) -&gt; str:\n        s_list = list(s)\n        left, right = 0, len(s) - 1\n        \n        while left &lt; right:\n            while left &lt; right and not s_list[left].isalpha():\n                left += 1\n            while left &lt; right and not s_list[right].isalpha():\n                right -= 1\n            \n            if left &lt; right:\n                s_list[left], s_list[right] = s_list[right], s_list[left]\n                left += 1\n                right -= 1\n        \n        return ''.join(s_list)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reverseOnlyLetters(String s) {\n        char[] chars = s.toCharArray();\n        int left = 0, right = chars.length - 1;\n        \n        while (left &lt; right) {\n            while (left &lt; right && !Character.isLetter(chars[left])) {\n                left++;\n            }\n            while (left &lt; right && !Character.isLetter(chars[right])) {\n                right--;\n            }\n            \n            if (left &lt; right) {\n                char temp = chars[left];\n                chars[left] = chars[right];\n                chars[right] = temp;\n                left++;\n                right--;\n            }\n        }\n        \n        return new String(chars);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reverseOnlyLetters(string s) {\n        int left = 0, right = s.size() - 1;\n        \n        while (left &lt; right) {\n            while (left &lt; right && !isalpha(s[left])) {\n                left++;\n            }\n            while (left &lt; right && !isalpha(s[right])) {\n                right--;\n            }\n            \n            if (left &lt; right) {\n                swap(s[left], s[right]);\n                left++;\n                right--;\n            }\n        }\n        \n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseOnlyLetters = function(s) {\n    const chars = s.split('');\n    let left = 0, right = chars.length - 1;\n    \n    while (left &lt; right) {\n        while (left &lt; right && !isLetter(chars[left])) {\n            left++;\n        }\n        while (left &lt; right && !isLetter(chars[right])) {\n            right--;\n        }\n        \n        if (left &lt; right) {\n            [chars[left], chars[right]] = [chars[right], chars[left]];\n            left++;\n            right--;\n        }\n    }\n    \n    return chars.join('');\n};\n\nfunction isLetter(c) {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseOnlyLetters(s: string): string {\n    const chars = s.split('');\n    let left = 0, right = chars.length - 1;\n    \n    while (left &lt; right) {\n        while (left &lt; right && !isLetter(chars[left])) {\n            left++;\n        }\n        while (left &lt; right && !isLetter(chars[right])) {\n            right--;\n        }\n        \n        if (left &lt; right) {\n            [chars[left], chars[right]] = [chars[right], chars[left]];\n            left++;\n            right--;\n        }\n    }\n    \n    return chars.join('');\n}\n\nfunction isLetter(c: string): boolean {\n    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array
+- Notes: Similar to two pointers but with cleaner inner loop structure for skipping non-letters
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Only Letters Solutions","datePublished":"2026-02-08","description":"Given a string s, reverse the string while keeping all non-letter characters in their original positions.","keywords":"LeetCode, Reverse Only Letters, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we traverse the string once with two pointers."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the stack to store all letters in the string."}},{"@type":"Question","name":"Which approach is most space-efficient?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers and String Builder approaches are most space-efficient with O(n) space for the character array, while the Stack approach also uses O(n) additional space."}}]}).replace(/</g,'\u003c')}
+</script>

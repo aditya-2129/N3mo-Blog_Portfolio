@@ -1,0 +1,107 @@
+---
+title: "Monotonic Array"
+summary: "An array is monotonic if it is either entirely non-increasing or non-decreasing. Check if the given array satisfies this property."
+date: "Jul 22, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.30% | **Paid:** No
+> **Topics:** Array
+
+An array is monotonic if it is either monotone increasing or monotone decreasing.
+
+An array nums is monotone increasing if for all i &lt;= j, nums[i] &lt;= nums[j]. An array nums is monotone decreasing if for all i &lt;= j, nums[i] &gt;= nums[j].
+
+Given an integer array nums, return true if the given array is monotonic, or false otherwise.
+
+- Examples
+- Constraints
+- [Two Pass Check](#two-pass-check)
+- [One Pass State Tracking](#one-pass-state-tracking)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [1,2,2,3]
+Output: true
+```
+
+Example 2:
+```text
+Input: nums = [6,5,4,4]
+Output: true
+```
+
+Example 3:
+```text
+Input: nums = [1,3,2]
+Output: false
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+-10⁹ <= nums[i] <= 10⁹
+```
+
+---
+## Two Pass Check
+
+**Intuition**
+We can simply check if the array is sorted in non-decreasing order. If it is, we return true. If not, we check if it is sorted in non-increasing order. If either check passes, the array is monotonic.
+
+**Steps**
+- Iterate through the array to check if it is monotone increasing.
+- If the check fails, iterate through the array to check if it is monotone decreasing.
+- Return true if either check passes, otherwise return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isMonotonic(self, nums: list[int]) -&gt; bool:\n        def is_increasing():\n            for i in range(len(nums) - 1):\n                if nums[i] &gt; nums[i + 1]:\n                    return False\n            return True\n\n        def is_decreasing():\n            for i in range(len(nums) - 1):\n                if nums[i] &lt; nums[i + 1]:\n                    return False\n            return True\n\n        return is_increasing() or is_decreasing()" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isMonotonic(int[] nums) {\n        return isIncreasing(nums) || isDecreasing(nums);\n    }\n\n    private boolean isIncreasing(int[] nums) {\n        for (int i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &gt; nums[i + 1]) return false;\n        }\n        return true;\n    }\n\n    private boolean isDecreasing(int[] nums) {\n        for (int i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &lt; nums[i + 1]) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isMonotonic(vector&lt;int&gt;& nums) {\n        return isIncreasing(nums) || isDecreasing(nums);\n    }\n\n    bool isIncreasing(vector&lt;int&gt;& nums) {\n        for (int i = 0; i &lt; nums.size() - 1; i++) {\n            if (nums[i] &gt; nums[i + 1]) return false;\n        }\n        return true;\n    }\n\n    bool isDecreasing(vector&lt;int&gt;& nums) {\n        for (int i = 0; i &lt; nums.size() - 1; i++) {\n            if (nums[i] &lt; nums[i + 1]) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isMonotonic = function(nums) {\n    const isIncreasing = () =&gt; {\n        for (let i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &gt; nums[i + 1]) return false;\n        }\n        return true;\n    };\n\n    const isDecreasing = () =&gt; {\n        for (let i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &lt; nums[i + 1]) return false;\n        }\n        return true;\n    };\n\n    return isIncreasing() || isDecreasing();\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isMonotonic(nums: number[]): boolean {\n    const isIncreasing = (): boolean =&gt; {\n        for (let i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &gt; nums[i + 1]) return false;\n        }\n        return true;\n    };\n\n    const isDecreasing = (): boolean =&gt; {\n        for (let i = 0; i &lt; nums.length - 1; i++) {\n            if (nums[i] &lt; nums[i + 1]) return false;\n        }\n        return true;\n    };\n\n    return isIncreasing() || isDecreasing();\n}" },]} />
+
+**Complexity**
+- Time: O(N) - We may traverse the array twice in the worst case.
+- Space: O(1) - We only use a constant amount of extra space.
+- Notes: Simple to implement, but performs redundant checks if the array is monotonic (it always checks the first condition).
+
+---
+## One Pass State Tracking
+
+**Intuition**
+We can determine the monotonicity in a single pass. We maintain two boolean flags, `increasing` and `decreasing`. Initially, both are true. As we iterate, if we find a pair that violates the increasing property, we set `increasing` to false. Similarly, if we find a pair that violates the decreasing property, we set `decreasing` to false. If both flags become false at any point, the array cannot be monotonic.
+
+**Steps**
+- Initialize `increasing = true` and `decreasing = true`.
+- Iterate through the array from index 1 to the end.
+- If `nums[i] &gt; nums[i-1]`, the array cannot be decreasing, so set `decreasing = false`.
+- If `nums[i] &lt; nums[i-1]`, the array cannot be increasing, so set `increasing = false`.
+- If both `increasing` and `decreasing` are false, return false immediately.
+- If the loop finishes, return true (at least one flag is still true).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isMonotonic(self, nums: list[int]) -&gt; bool:\n        inc = True\n        dec = True\n        for i in range(1, len(nums)):\n            if nums[i] &gt; nums[i - 1]:\n                dec = False\n            if nums[i] &lt; nums[i - 1]:\n                inc = False\n            if not inc and not dec:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isMonotonic(int[] nums) {\n        boolean inc = true;\n        boolean dec = true;\n        for (int i = 1; i &lt; nums.length; i++) {\n            if (nums[i] &gt; nums[i - 1]) dec = false;\n            if (nums[i] &lt; nums[i - 1]) inc = false;\n            if (!inc && !dec) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isMonotonic(vector&lt;int&gt;& nums) {\n        bool inc = true, dec = true;\n        for (int i = 1; i &lt; nums.size(); ++i) {\n            if (nums[i] &gt; nums[i - 1]) dec = false;\n            if (nums[i] &lt; nums[i - 1]) inc = false;\n            if (!inc && !dec) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isMonotonic = function(nums) {\n    let inc = true, dec = true;\n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] &gt; nums[i - 1]) dec = false;\n        if (nums[i] &lt; nums[i - 1]) inc = false;\n        if (!inc && !dec) return false;\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isMonotonic(nums: number[]): boolean {\n    let inc = true, dec = true;\n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] &gt; nums[i - 1]) dec = false;\n        if (nums[i] &lt; nums[i - 1]) inc = false;\n        if (!inc && !dec) return false;\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(N) - We traverse the array at most once.
+- Space: O(1) - We only use two boolean variables.
+- Notes: This is the optimal solution as it minimizes the number of comparisons and allows for early exit.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Monotonic Array Solutions","datePublished":"2024-07-22","description":"An array is monotonic if it is either entirely non-increasing or non-decreasing. Check if the given array satisfies this property.","keywords":"LeetCode, Monotonic Array, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the array. In the worst case, we iterate through the array twice."}},{"@type":"Question","name":"What is the time complexity of the One Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N). We iterate through the array once, and we can exit early if the array is proven not to be monotonic."}},{"@type":"Question","name":"What is the space complexity for these solutions?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for both approaches, as we only use a few variables for tracking state and do not allocate extra data structures proportional to the input size."}}]}).replace(/</g,'\u003c')}
+</script>

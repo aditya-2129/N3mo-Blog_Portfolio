@@ -1,0 +1,131 @@
+---
+title: "Number of 1 Bits"
+summary: "Write a function that takes the binary representation of an unsigned integer and returns the number of '1' bits it has (also known as the Hamming weight)."
+date: "Feb 16, 2026"
+tags:
+  - Divide and Conquer
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.80% | **Paid:** No
+> **Topics:** Divide and Conquer, Bit Manipulation
+
+Write a function that takes the binary representation of an unsigned integer n and returns the number of '1' bits it has (also known as the Hamming weight).
+
+- Examples
+- Constraints
+- [Approach 1: Loop and Bit Mask](#approach-1-loop-and-bit-mask)
+- [Approach 2: Brian Kernighan's Algorithm](#approach-2-brian-kernighans-algorithm)
+- [Approach 3: Divide and Conquer (Parallel Counting)](#approach-3-divide-and-conquer-parallel-counting)
+
+## Examples
+
+```text
+Input: n = 11 (binary representation: 00000000000000000000000000001011)
+Output: 3
+Explanation: The input binary string 00000000000000000000000000001011 has a total of three '1' bits.
+```
+
+```text
+Input: n = 128 (binary representation: 00000000000000000000000010000000)
+Output: 1
+Explanation: The input binary string 00000000000000000000000010000000 has a total of one '1' bit.
+```
+
+```text
+Input: n = 2147483645 (binary representation: 11111111111111111111111111111101)
+Output: 30
+Explanation: The input binary string 11111111111111111111111111111101 has a total of thirty '1' bits.
+```
+
+## Constraints
+
+```text
+The input must be a binary string of length 32.
+0 <= n <= 2³¹ - 1
+```
+
+---
+## Approach 1: Loop and Bit Mask
+
+**Intuition**
+We can inspect each bit of the integer one by one. By using a bit mask (usually 1), we can check if the least significant bit is set to 1. We then shift the integer to the right to process the next bit.
+
+**Steps**
+- Initialize a counter variable to 0.
+- Loop 32 times (since the integer is 32 bits).
+- In each iteration, perform a bitwise AND between the number and 1. If the result is 1, increment the counter.
+- Right-shift the number by 1 bit to discard the bit we just checked.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingWeight(self, n: int) -&gt; int:\n        count = 0\n        for _ in range(32):\n            count += n & 1\n            n &gt;&gt;= 1\n        return count" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    // you need to treat n as an unsigned value\n    public int hammingWeight(int n) {\n        int count = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            count += n & 1;\n            n &gt;&gt;&gt;= 1; // Unsigned right shift\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingWeight(uint32_t n) {\n        int count = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            count += n & 1;\n            n &gt;&gt;= 1;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number}\n */\nvar hammingWeight = function(n) {\n    let count = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        count += n & 1;\n        n &gt;&gt;&gt;= 1; // Unsigned right shift\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingWeight(n: number): number {\n    let count = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        count += n & 1;\n        n &gt;&gt;&gt;= 1; // Unsigned right shift\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(1) — We always iterate 32 times.
+- Space: O(1) — We only use a single variable for the count.
+- Notes: This is the most straightforward approach but always checks all 32 bits regardless of how many are set.
+
+---
+## Approach 2: Brian Kernighan's Algorithm
+
+**Intuition**
+This approach optimizes the loop approach by skipping over the 0 bits. The operation `n & (n - 1)` flips the least significant 1-bit to 0. We can repeat this operation until the number becomes 0.
+
+**Steps**
+- Initialize a counter variable to 0.
+- While n is greater than 0:
+    - Perform `n = n & (n - 1)` to flip the rightmost 1-bit to 0.
+    - Increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingWeight(self, n: int) -&gt; int:\n        count = 0\n        while n:\n            n &= n - 1\n            count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    // you need to treat n as an unsigned value\n    public int hammingWeight(int n) {\n        int count = 0;\n        while (n != 0) {\n            n &= (n - 1);\n            count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingWeight(uint32_t n) {\n        int count = 0;\n        while (n) {\n            n &= (n - 1);\n            count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number}\n */\nvar hammingWeight = function(n) {\n    let count = 0;\n    while (n !== 0) {\n        n &= (n - 1);\n        count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingWeight(n: number): number {\n    let count = 0;\n    while (n !== 0) {\n        n &= (n - 1);\n        count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(k) — Where k is the number of set bits (1s). In the worst case, it is O(32) or O(1).
+- Space: O(1) — Constant space usage.
+- Notes: This is generally faster than the loop approach when the number of set bits is small.
+
+---
+## Approach 3: Divide and Conquer (Parallel Counting)
+
+**Intuition**
+We can count bits in parallel using a divide and conquer strategy. We first count bits in pairs, then aggregate those counts into groups of 4, then 8, 16, and finally 32. This leverages bitwise operations to perform calculations simultaneously across the number.
+
+**Steps**
+- Mask the number to count bits in pairs: `n = (n & 0x55555555) + ((n &gt;&gt; 1) & 0x55555555)`.
+- Aggregate pairs into groups of 4: `n = (n & 0x33333333) + ((n &gt;&gt; 2) & 0x33333333)`.
+- Aggregate groups of 4 into groups of 8: `n = (n & 0x0F0F0F0F) + ((n &gt;&gt; 4) & 0x0F0F0F0F)`.
+- Aggregate groups of 8 into groups of 16: `n = (n & 0x00FF00FF) + ((n &gt;&gt; 8) & 0x00FF00FF)`.
+- Aggregate groups of 16 into the final 32-bit count: `n = (n & 0x0000FFFF) + ((n &gt;&gt; 16) & 0x0000FFFF)`.
+- Return n.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingWeight(self, n: int) -&gt; int:\n        n = (n & 0x55555555) + ((n &gt;&gt; 1) & 0x55555555)\n        n = (n & 0x33333333) + ((n &gt;&gt; 2) & 0x33333333)\n        n = (n & 0x0F0F0F0F) + ((n &gt;&gt; 4) & 0x0F0F0F0F)\n        n = (n & 0x00FF00FF) + ((n &gt;&gt; 8) & 0x00FF00FF)\n        n = (n & 0x0000FFFF) + ((n &gt;&gt; 16) & 0x0000FFFF)\n        return n" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    // you need to treat n as an unsigned value\n    public int hammingWeight(int n) {\n        n = (n & 0x55555555) + ((n &gt;&gt;&gt; 1) & 0x55555555);\n        n = (n & 0x33333333) + ((n &gt;&gt;&gt; 2) & 0x33333333);\n        n = (n & 0x0F0F0F0F) + ((n &gt;&gt;&gt; 4) & 0x0F0F0F0F);\n        n = (n & 0x00FF00FF) + ((n &gt;&gt;&gt; 8) & 0x00FF00FF);\n        n = (n & 0x0000FFFF) + ((n &gt;&gt;&gt; 16) & 0x0000FFFF);\n        return n;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingWeight(uint32_t n) {\n        n = (n & 0x55555555) + ((n &gt;&gt; 1) & 0x55555555);\n        n = (n & 0x33333333) + ((n &gt;&gt; 2) & 0x33333333);\n        n = (n & 0x0F0F0F0F) + ((n &gt;&gt; 4) & 0x0F0F0F0F);\n        n = (n & 0x00FF00FF) + ((n &gt;&gt; 8) & 0x00FF00FF);\n        n = (n & 0x0000FFFF) + ((n &gt;&gt; 16) & 0x0000FFFF);\n        return n;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number}\n */\nvar hammingWeight = function(n) {\n    n = (n & 0x55555555) + ((n &gt;&gt;&gt; 1) & 0x55555555);\n    n = (n & 0x33333333) + ((n &gt;&gt;&gt; 2) & 0x33333333);\n    n = (n & 0x0F0F0F0F) + ((n &gt;&gt;&gt; 4) & 0x0F0F0F0F);\n    n = (n & 0x00FF00FF) + ((n &gt;&gt;&gt; 8) & 0x00FF00FF);\n    n = (n & 0x0000FFFF) + ((n &gt;&gt;&gt; 16) & 0x0000FFFF);\n    return n;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingWeight(n: number): number {\n    n = (n & 0x55555555) + ((n &gt;&gt;&gt; 1) & 0x55555555);\n    n = (n & 0x33333333) + ((n &gt;&gt;&gt; 2) & 0x33333333);\n    n = (n & 0x0F0F0F0F) + ((n &gt;&gt;&gt; 4) & 0x0F0F0F0F);\n    n = (n & 0x00FF00FF) + ((n &gt;&gt;&gt; 8) & 0x00FF00FF);\n    n = (n & 0x0000FFFF) + ((n &gt;&gt;&gt; 16) & 0x0000FFFF);\n    return n;\n}" },]} />
+
+**Complexity**
+- Time: O(1) — Fixed number of bitwise operations.
+- Space: O(1) — No extra space used.
+- Notes: This is a highly optimized approach often used in low-level systems programming where performance is critical.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of 1 Bits Solutions","datePublished":"2026-02-16","description":"Write a function that takes the binary representation of an unsigned integer and returns the number of '1' bits it has (also known as the Hamming weight).","keywords":"LeetCode, Number of 1 Bits, Easy, Divide and Conquer, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Loop and Bit Mask approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we iterate exactly 32 times."}},{"@type":"Question","name":"How does Brian Kernighan's Algorithm improve performance?","acceptedAnswer":{"@type":"Answer","text":"It runs in O(k) time where k is the number of set bits, skipping over 0 bits entirely."}},{"@type":"Question","name":"What is the Divide and Conquer bit counting strategy?","acceptedAnswer":{"@type":"Answer","text":"It counts bits in parallel by aggregating counts from pairs, then groups of 4, 8, 16, and 32 using bitwise masks."}}]}).replace(/</g,'\u003c')}
+</script>

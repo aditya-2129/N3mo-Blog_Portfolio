@@ -1,0 +1,144 @@
+---
+title: "Maximum Odd Binary Number"
+summary: "You are given a binary string s. Rearrange the bits to form the maximum possible odd binary number."
+date: "Jul 15, 2025"
+tags:
+  - Math
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.90% | **Paid:** No
+> **Topics:** Math, String, Greedy
+
+You are given a binary string s. You are allowed to rearrange the bits in any order (including the original order).
+
+Return the maximum odd binary number that can be created from the bits in s.
+
+A binary number x is called odd if its last digit is 1. For example, 101, 1101 are odd while 1010, 100 are not.
+
+- Examples
+- Constraints
+- [Greedy Construction](#greedy-construction)
+- [Sorting](#sorting)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "010"
+```
+
+**Output:**
+```text
+"001"
+```
+
+**Explanation:**
+Because there is just one '1', it must be in the last position. So the answer is "001".
+
+### Example 2
+
+**Input:**
+```text
+s = "0101"
+```
+
+**Output:**
+```text
+"1001"
+```
+
+**Explanation:**
+One of the '1's must be in the last position. The maximum number that can be made with the remaining digits is "100". So the answer is "1001".
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s[i] is either '0' or '1'.
+s contains at least one '1'.
+```
+
+---
+## Greedy Construction
+
+**Intuition**
+To maximize a binary number, we want the most significant bits (leftmost) to be '1's. Since the number must be odd, the least significant bit (rightmost) must be '1'. Therefore, we place all '1's at the beginning except for one, which we place at the very end. All '0's fill the space in between.
+
+**Steps**
+- Count the number of '1's in the string.
+- Construct the result string by placing (count_ones - 1) '1's, followed by (length - count_ones) '0's, and finally a single '1'.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumOddBinaryNumber(self, s: str) -&gt; str:\n        ones = s.count('1')\n        zeros = len(s) - ones\n        return '1' * (ones - 1) + '0' * zeros + '1'" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String maximumOddBinaryNumber(String s) {\n        int ones = 0;\n        for (char c : s.toCharArray()) {\n            if (c == '1') ones++;\n        }\n        int zeros = s.length() - ones;\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; ones - 1; i++) sb.append('1');\n        for (int i = 0; i &lt; zeros; i++) sb.append('0');\n        sb.append('1');\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string maximumOddBinaryNumber(string s) {\n        int ones = count(s.begin(), s.end(), '1');\n        int zeros = s.size() - ones;\n        string res;\n        res.append(ones - 1, '1');\n        res.append(zeros, '0');\n        res += '1';\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumOddBinaryNumber = function(s) {\n    let ones = 0;\n    for (let c of s) {\n        if (c === '1') ones++;\n    }\n    let zeros = s.length - ones;\n    return '1'.repeat(ones - 1) + '0'.repeat(zeros) + '1';\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumOddBinaryNumber(s: string): string {\n    let ones = 0;\n    for (let c of s) {\n        if (c === '1') ones++;\n    }\n    let zeros = s.length - ones;\n    return '1'.repeat(ones - 1) + '0'.repeat(zeros) + '1';\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string once to count and once to build the result.
+- Space: O(n) to store the result string.
+- Notes: This is the most optimal approach for this problem.
+
+---
+## Sorting
+
+**Intuition**
+We can sort the string in descending order so that all '1's come first. If the last character is '0', we need to make the number odd by moving a '1' to the end. We can simply swap the last '1' with the last character.
+
+**Steps**
+- Convert the string to a character array.
+- Sort the array in descending order.
+- If the last character is '0', find the last '1' in the array and swap it with the last character.
+- Convert the array back to a string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumOddBinaryNumber(self, s: str) -&gt; str:\n        chars = sorted(s, reverse=True)\n        if chars[-1] == '0':\n            i = len(chars) - 1\n            while chars[i] == '0':\n                i -= 1\n            chars[i], chars[-1] = chars[-1], chars[i]\n        return ''.join(chars)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String maximumOddBinaryNumber(String s) {\n        Character[] chars = new Character[s.length()];\n        for (int i = 0; i &lt; s.length(); i++) chars[i] = s.charAt(i);\n        Arrays.sort(chars, Collections.reverseOrder());\n        if (chars[chars.length - 1] == '0') {\n            int i = chars.length - 1;\n            while (chars[i] == '0') i--;\n            char temp = chars[i];\n            chars[i] = chars[chars.length - 1];\n            chars[chars.length - 1] = temp;\n        }\n        StringBuilder sb = new StringBuilder();\n        for (char c : chars) sb.append(c);\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    string maximumOddBinaryNumber(string s) {\n        sort(s.rbegin(), s.rend());\n        if (s.back() == '0') {\n            int i = s.size() - 1;\n            while (s[i] == '0') i--;\n            swap(s[i], s.back());\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumOddBinaryNumber = function(s) {\n    let arr = s.split('').sort((a, b) =&gt; b - a);\n    if (arr[arr.length - 1] === '0') {\n        let i = arr.length - 1;\n        while (arr[i] === '0') i--;\n        let temp = arr[i];\n        arr[i] = arr[arr.length - 1];\n        arr[arr.length - 1] = temp;\n    }\n    return arr.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumOddBinaryNumber(s: string): string {\n    let arr = s.split('').sort((a, b) =&gt; b.localeCompare(a));\n    if (arr[arr.length - 1] === '0') {\n        let i = arr.length - 1;\n        while (arr[i] === '0') i--;\n        let temp = arr[i];\n        arr[i] = arr[arr.length - 1];\n        arr[arr.length - 1] = temp;\n    }\n    return arr.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(n) to store the character array.
+- Notes: Sorting is less efficient than the counting approach but is a straightforward brute-force method.
+
+---
+## Two Pointers
+
+**Intuition**
+We can use a two-pointer technique to move all '1's to the left side of the array. Once all '1's are clustered at the start, we swap the last '1' with the last element to ensure the number is odd.
+
+**Steps**
+- Convert the string to a mutable array.
+- Initialize a `left` pointer at 0.
+- Iterate with a `right` pointer. If `arr[right]` is '1', swap it with `arr[left]` and increment `left`.
+- After the loop, all '1's are at indices `0` to `left-1`. Swap the element at `left-1` (the last '1') with the last element in the array.
+- Convert the array back to a string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumOddBinaryNumber(self, s: str) -&gt; str:\n        arr = list(s)\n        left = 0\n        for right in range(len(arr)):\n            if arr[right] == '1':\n                arr[left], arr[right] = arr[right], arr[left]\n                left += 1\n        arr[left - 1], arr[-1] = arr[-1], arr[left - 1]\n        return ''.join(arr)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String maximumOddBinaryNumber(String s) {\n        char[] arr = s.toCharArray();\n        int left = 0;\n        for (int right = 0; right &lt; arr.length; right++) {\n            if (arr[right] == '1') {\n                char temp = arr[left];\n                arr[left] = arr[right];\n                arr[right] = temp;\n                left++;\n            }\n        }\n        char temp = arr[left - 1];\n        arr[left - 1] = arr[arr.length - 1];\n        arr[arr.length - 1] = temp;\n        return new String(arr);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string maximumOddBinaryNumber(string s) {\n        int left = 0;\n        for (int right = 0; right &lt; s.size(); right++) {\n            if (s[right] == '1') {\n                swap(s[left], s[right]);\n                left++;\n            }\n        }\n        swap(s[left - 1], s.back());\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumOddBinaryNumber = function(s) {\n    let arr = s.split('');\n    let left = 0;\n    for (let right = 0; right &lt; arr.length; right++) {\n        if (arr[right] === '1') {\n            let temp = arr[left];\n            arr[left] = arr[right];\n            arr[right] = temp;\n            left++;\n        }\n    }\n    let temp = arr[left - 1];\n    arr[left - 1] = arr[arr.length - 1];\n    arr[arr.length - 1] = temp;\n    return arr.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumOddBinaryNumber(s: string): string {\n    let arr = s.split('');\n    let left = 0;\n    for (let right = 0; right &lt; arr.length; right++) {\n        if (arr[right] === '1') {\n            let temp = arr[left];\n            arr[left] = arr[right];\n            arr[right] = temp;\n            left++;\n        }\n    }\n    let temp = arr[left - 1];\n    arr[left - 1] = arr[arr.length - 1];\n    arr[arr.length - 1] = temp;\n    return arr.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n) since we traverse the array once.
+- Space: O(n) to store the character array (strings are immutable in many languages).
+- Notes: This approach modifies the array in-place and is efficient, though slightly more complex to implement than the counting method.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Odd Binary Number Solutions","datePublished":"2025-07-15","description":"You are given a binary string s. Rearrange the bits to form the maximum possible odd binary number.","keywords":"LeetCode, Maximum Odd Binary Number, Easy, Math, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we traverse the array once."}}]}).replace(/</g,'\u003c')}
+</script>

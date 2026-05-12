@@ -1,0 +1,499 @@
+---
+title: "Find Products with Valid Serial Numbers"
+summary: "Find all products with valid serial numbers that contain only alphanumeric characters."
+date: "Jul 13, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 30.00% | **Paid:** No
+> **Topics:** Database
+
+# Find Products with Valid Serial Numbers
+
+Table: Products
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| product_id  | int     |
+| product_name| varchar |
+| serial_number| varchar |
++-------------+---------+
+
+product_id is the primary key of this table.
+Each row contains information about a product and its serial number.
+
+A serial number is valid if it:
+1. Is not NULL
+2. Is not an empty string
+3. Contains only alphanumeric characters (letters a-z, A-Z, and digits 0-9)
+
+Write a solution to find all products with valid serial numbers.
+
+Return the result table ordered by product_id in ascending order.
+
+## Examples
+
+### Example 1
+
+Input:
+Products table:
++------------+--------------+----------------+
+| product_id | product_name | serial_number  |
++------------+--------------+----------------+
+| 1          | Laptop       | ABC123         |
+| 2          | Mouse        | XYZ-789        |
+| 3          | Keyboard     |                |
+| 4          | Monitor      | NULL           |
+| 5          | Headphones   | DEF456         |
++------------+--------------+----------------+
+
+Output:
++------------+--------------+----------------+
+| product_id | product_name | serial_number  |
++------------+--------------+----------------+
+| 1          | Laptop       | ABC123         |
+| 5          | Headphones   | DEF456         |
++------------+--------------+----------------+
+
+Explanation:
+- Product 1 has serial number "ABC123" which is valid (only alphanumeric characters).
+- Product 2 has serial number "XYZ-789" which is invalid (contains hyphen).
+- Product 3 has an empty serial number which is invalid.
+- Product 4 has NULL serial number which is invalid.
+- Product 5 has serial number "DEF456" which is valid (only alphanumeric characters).
+
+## Constraints
+
+```
+The number of rows in the Products table is in the range [1, 1000].
+product_id values are unique and in the range [1, 1000].
+product_name length is in the range [1, 100].
+serial_number length is in the range [0, 50] or NULL.
+```
+
+- [Approach 1: Using REGEXP](#approach-1-using-regexp)
+- [Approach 2: Using RLIKE](#approach-2-using-rlike)
+- [Approach 3: Using String Functions](#approach-3-using-string-functions)
+
+## Approach 1: Using REGEXP
+
+**Intuition**
+Use regular expressions to match serial numbers that contain only alphanumeric characters.
+
+**Steps**
+- Filter rows where serial_number is not NULL and not empty
+- Use REGEXP to check if the serial number contains only alphanumeric characters
+- Order the results by product_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def find_valid_products():
+    conn = sqlite3.connect(':memory:')
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT *
+    FROM Products
+    WHERE serial_number IS NOT NULL
+      AND serial_number != ''
+      AND serial_number REGEXP '^[a-zA-Z0-9]+$'
+    ORDER BY product_id
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void findValidProducts() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT * FROM Products " +
+                       "WHERE serial_number IS NOT NULL " +
+                       "AND serial_number != '' " +
+                       "AND serial_number REGEXP '^[a-zA-Z0-9]+$' " +
+                       "ORDER BY product_id";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            // Process results
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mysql_driver.h>
+#include <mysql_connection.h>
+#include <cppconn/statement.h>
+#include <cppconn/resultset.h>
+
+using namespace sql;
+
+void findValidProducts() {
+    Driver *driver;
+    Connection *conn;
+    Statement *stmt;
+    ResultSet *rs;
+    
+    driver = get_driver_instance();
+    conn = driver->connect("tcp://127.0.0.1:3306", "user", "password");
+    conn->setSchema("db");
+    
+    stmt = conn->createStatement();
+    rs = stmt->executeQuery("SELECT * FROM Products "
+                            "WHERE serial_number IS NOT NULL "
+                            "AND serial_number != '' "
+                            "AND serial_number REGEXP '^[a-zA-Z0-9]+$' "
+                            "ORDER BY product_id");
+    
+    while (rs->next()) {
+        // Process results
+    }
+    
+    delete rs;
+    delete stmt;
+    delete conn;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts() {
+    const query = "SELECT * FROM Products " +
+                  "WHERE serial_number IS NOT NULL " +
+                  "AND serial_number != '' " +
+                  "AND serial_number REGEXP '^[a-zA-Z0-9]+$' " +
+                  "ORDER BY product_id";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts(): void {
+    const query: string = "SELECT * FROM Products " +
+                         "WHERE serial_number IS NOT NULL " +
+                         "AND serial_number != '' " +
+                         "AND serial_number REGEXP '^[a-zA-Z0-9]+$' " +
+                         "ORDER BY product_id";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: any[]) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(k) where k is the number of valid products
+- Notes: REGEXP provides a clean way to match patterns but may have performance overhead for large datasets.
+
+## Approach 2: Using RLIKE
+
+**Intuition**
+Use RLIKE (MySQL's equivalent of REGEXP) for pattern matching of valid serial numbers.
+
+**Steps**
+- Use RLIKE operator to check if serial number matches the alphanumeric pattern
+- RLIKE automatically handles NULL values (returns NULL for NULL input)
+- Order the results by product_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def find_valid_products():
+    conn = sqlite3.connect(':memory:')
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT *
+    FROM Products
+    WHERE serial_number RLIKE '^[a-zA-Z0-9]+$'
+    ORDER BY product_id
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void findValidProducts() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT * FROM Products " +
+                       "WHERE serial_number RLIKE '^[a-zA-Z0-9]+$' " +
+                       "ORDER BY product_id";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            // Process results
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mysql_driver.h>
+#include <mysql_connection.h>
+#include <cppconn/statement.h>
+#include <cppconn/resultset.h>
+
+using namespace sql;
+
+void findValidProducts() {
+    Driver *driver;
+    Connection *conn;
+    Statement *stmt;
+    ResultSet *rs;
+    
+    driver = get_driver_instance();
+    conn = driver->connect("tcp://127.0.0.1:3306", "user", "password");
+    conn->setSchema("db");
+    
+    stmt = conn->createStatement();
+    rs = stmt->executeQuery("SELECT * FROM Products "
+                            "WHERE serial_number RLIKE '^[a-zA-Z0-9]+$' "
+                            "ORDER BY product_id");
+    
+    while (rs->next()) {
+        // Process results
+    }
+    
+    delete rs;
+    delete stmt;
+    delete conn;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts() {
+    const query = "SELECT * FROM Products " +
+                  "WHERE serial_number RLIKE '^[a-zA-Z0-9]+$' " +
+                  "ORDER BY product_id";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts(): void {
+    const query: string = "SELECT * FROM Products " +
+                         "WHERE serial_number RLIKE '^[a-zA-Z0-9]+$' " +
+                         "ORDER BY product_id";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: any[]) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(k) where k is the number of valid products
+- Notes: RLIKE is a MySQL-specific operator that provides the same functionality as REGEXP.
+
+## Approach 3: Using String Functions
+
+**Intuition**
+Use built-in string functions to validate serial numbers without regular expressions.
+
+**Steps**
+- Check if serial_number is not NULL
+- Check if length is greater than 0
+- Use REPLACE to remove all alphanumeric characters and check if result is empty
+- Order the results by product_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def find_valid_products():
+    conn = sqlite3.connect(':memory:')
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT *
+    FROM Products
+    WHERE serial_number IS NOT NULL
+      AND LENGTH(serial_number) &gt; 0
+      AND LENGTH(
+          REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+          REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+          REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+          REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+          REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+          REPLACE(serial_number, 'a', ''), 'b', ''), 'c', ''), 'd', ''), 'e', ''), 'f', ''),
+          'g', ''), 'h', ''), 'i', ''), 'j', ''), 'k', ''), 'l', ''),
+          'm', ''), 'n', ''), 'o', ''), 'p', ''), 'q', ''), 'r', ''),
+          's', ''), 't', ''), 'u', ''), 'v', ''), 'w', ''), 'x', ''), 'y', ''), 'z', ''),
+          'A', ''), 'B', ''), 'C', ''), 'D', ''), 'E', ''), 'F', ''),
+          'G', ''), 'H', ''), 'I', ''), 'J', ''), 'K', ''), 'L', ''),
+          'M', ''), 'N', ''), 'O', ''), 'P', ''), 'Q', ''), 'R', ''),
+          'S', ''), 'T', ''), 'U', ''), 'V', ''), 'W', ''), 'X', ''), 'Y', ''), 'Z', ''),
+          '0', ''), '1', ''), '2', ''), '3', ''), '4', ''), '5', ''), '6', ''), '7', ''), '8', ''), '9', '')
+      ) = 0
+    ORDER BY product_id
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void findValidProducts() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT * FROM Products " +
+                       "WHERE serial_number IS NOT NULL " +
+                       "AND LENGTH(serial_number) &gt; 0 " +
+                       "AND LENGTH(" +
+                       "  REPLACE(REPLACE(REPLACE(serial_number, 'a', ''), 'b', ''), 'c', '')" +
+                       ") = LENGTH(serial_number) " +
+                       "ORDER BY product_id";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            // Process results
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mysql_driver.h>
+#include <mysql_connection.h>
+#include <cppconn/statement.h>
+#include <cppconn/resultset.h>
+
+using namespace sql;
+
+void findValidProducts() {
+    Driver *driver;
+    Connection *conn;
+    Statement *stmt;
+    ResultSet *rs;
+    
+    driver = get_driver_instance();
+    conn = driver->connect("tcp://127.0.0.1:3306", "user", "password");
+    conn->setSchema("db");
+    
+    stmt = conn->createStatement();
+    rs = stmt->executeQuery("SELECT * FROM Products "
+                            "WHERE serial_number IS NOT NULL "
+                            "AND LENGTH(serial_number) &gt; 0 "
+                            "ORDER BY product_id");
+    
+    while (rs->next()) {
+        // Process results
+    }
+    
+    delete rs;
+    delete stmt;
+    delete conn;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts() {
+    const query = "SELECT * FROM Products " +
+                  "WHERE serial_number IS NOT NULL " +
+                  "AND LENGTH(serial_number) &gt; 0 " +
+                  "ORDER BY product_id";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'db'
+});
+
+function findValidProducts(): void {
+    const query: string = "SELECT * FROM Products " +
+                         "WHERE serial_number IS NOT NULL " +
+                         "AND LENGTH(serial_number) &gt; 0 " +
+                         "ORDER BY product_id";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: any[]) =&gt; {
+        if (error) throw error;
+        // Process results
+    });
+}
+
+findValidProducts();
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(k) where k is the number of valid products
+- Notes: This approach avoids regular expressions but can be verbose and less readable. Performance may vary depending on the database engine's optimization of string functions.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Products with Valid Serial Numbers Solutions","datePublished":"2024-07-13","description":"Find all products with valid serial numbers that contain only alphanumeric characters.","keywords":"LeetCode, Find Products with Valid Serial Numbers, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1 using REGEXP?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Products table, as we need to scan through all rows to filter valid serial numbers."}},{"@type":"Question","name":"What is the space complexity of Approach 2 using RLIKE?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of valid products, as we need to store the result set."}},{"@type":"Question","name":"What are the trade-offs between using REGEXP and string functions?","acceptedAnswer":{"@type":"Answer","text":"REGEXP provides a clean and concise way to match patterns but may have performance overhead for large datasets. String functions can be more verbose but may offer better performance in some database engines."}}]}).replace(/</g,'\u003c')}
+</script>

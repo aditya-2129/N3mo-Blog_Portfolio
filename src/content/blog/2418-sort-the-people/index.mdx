@@ -1,0 +1,430 @@
+---
+title: "Sort the People"
+summary: "Sort people by their heights in descending order and return their names."
+date: "Mar 26, 2026"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.80% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Sorting
+
+You are given an array of strings names, and an array heights that consists of distinct positive integers. Both arrays are of length n.
+
+For each index i, names[i] and heights[i] denote the name and height of the ith person.
+
+Return names sorted in descending order by the people's heights.
+
+- Examples
+- Constraints
+- [Pair and Sort](#pair-and-sort)
+- [Index Array Sort](#index-array-sort)
+- [Bucket Sort](#bucket-sort)
+- [TreeMap Approach](#treemap-approach)
+
+## Examples
+
+Example 1:
+
+```text
+Input: names = ["Mary","John","Emma"], heights = [180,165,170]
+Output: ["Mary","Emma","John"]
+Explanation: Mary is the tallest, followed by Emma and John.
+```
+
+Example 2:
+
+```text
+Input: names = ["Alice","Bob","Bob"], heights = [155,185,150]
+Output: ["Bob","Alice","Bob"]
+Explanation: The first Bob is the tallest, followed by Alice and the second Bob.
+```
+
+## Constraints
+
+```text
+- n == names.length == heights.length
+- 1 <= n <= 10^3
+- 1 <= names[i].length <= 20
+- 1 <= heights[i] <= 10^5
+- names[i] consists of lower and upper case English letters.
+- All the values of heights are distinct.
+```
+
+---
+## Pair and Sort
+
+**Intuition**
+Create pairs of (height, name) and sort them by height in descending order, then extract the names.
+
+**Steps**
+- Create a list of pairs where each pair contains (height, name).
+- Sort the list in descending order by height.
+- Extract names from the sorted pairs.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def sortPeople(self, names: list[str], heights: list[int]) -> list[str]:
+        people = list(zip(heights, names))
+        people.sort(reverse=True)
+        return [name for _, name in people]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String[] sortPeople(String[] names, int[] heights) {
+        int n = names.length;
+        int[][] people = new int[n][2];
+        for (int i = 0; i &lt; n; i++) {
+            people[i][0] = heights[i];
+            people[i][1] = i;
+        }
+        Arrays.sort(people, (a, b) -> b[0] - a[0]);
+        String[] result = new String[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = names[people[i][1]];
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
+        int n = names.size();
+        vector<pair<int, int>&gt; people;
+        for (int i = 0; i &lt; n; i++) {
+            people.push_back({heights[i], i});
+        }
+        sort(people.begin(), people.end(), greater<pair<int, int>&gt;());
+        vector<string> result;
+        for (auto& p : people) {
+            result.push_back(names[p.second]);
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} names
+ * @param {number[]} heights
+ * @return {string[]}
+ */
+var sortPeople = function(names, heights) {
+    const n = names.length;
+    const people = [];
+    for (let i = 0; i &lt; n; i++) {
+        people.push({ height: heights[i], index: i });
+    }
+    people.sort((a, b) =&gt; b.height - a.height);
+    const result = [];
+    for (const p of people) {
+        result.push(names[p.index]);
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function sortPeople(names: string[], heights: number[]): string[] {
+    const n = names.length;
+    const people: { height: number, index: number }[] = [];
+    for (let i = 0; i &lt; n; i++) {
+        people.push({ height: heights[i], index: i });
+    }
+    people.sort((a, b) =&gt; b.height - a.height);
+    const result: string[] = [];
+    for (const p of people) {
+        result.push(names[p.index]);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Simple and straightforward approach using built-in sorting.
+
+---
+## Index Array Sort
+
+**Intuition**
+Create an array of indices and sort them based on heights in descending order, then use these sorted indices to get the names.
+
+**Steps**
+- Create an array of indices [0, 1, 2, ..., n-1].
+- Sort the indices based on heights in descending order.
+- Use the sorted indices to build the result array of names.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def sortPeople(self, names: list[str], heights: list[int]) -> list[str]:
+        indices = list(range(len(names)))
+        indices.sort(key=lambda i: heights[i], reverse=True)
+        return [names[i] for i in indices]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String[] sortPeople(String[] names, int[] heights) {
+        int n = names.length;
+        Integer[] indices = new Integer[n];
+        for (int i = 0; i &lt; n; i++) {
+            indices[i] = i;
+        }
+        Arrays.sort(indices, (a, b) -> heights[b] - heights[a]);
+        String[] result = new String[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = names[indices[i]];
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
+        int n = names.size();
+        vector<int> indices(n);
+        iota(indices.begin(), indices.end(), 0);
+        sort(indices.begin(), indices.end(), [&](int a, int b) {
+            return heights[a] &gt; heights[b];
+        });
+        vector<string> result;
+        for (int i : indices) {
+            result.push_back(names[i]);
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} names
+ * @param {number[]} heights
+ * @return {string[]}
+ */
+var sortPeople = function(names, heights) {
+    const n = names.length;
+    const indices = Array.from({ length: n }, (_, i) =&gt; i);
+    indices.sort((a, b) =&gt; heights[b] - heights[a]);
+    return indices.map(i =&gt; names[i]);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function sortPeople(names: string[], heights: number[]): string[] {
+    const n = names.length;
+    const indices: number[] = Array.from({ length: n }, (_, i) =&gt; i);
+    indices.sort((a, b) =&gt; heights[b] - heights[a]);
+    return indices.map(i =&gt; names[i]);
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Avoids creating additional pair objects, only uses indices.
+
+---
+## Bucket Sort
+
+**Intuition**
+Since heights have a limited range (1 to 10⁵), use bucket sort by creating an array where index represents height.
+
+**Steps**
+- Find the maximum height.
+- Create a bucket array where each index represents a height.
+- Place each name at its corresponding height index.
+- Iterate from max height to 1 and collect names.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def sortPeople(self, names: list[str], heights: list[int]) -> list[str]:
+        max_height = max(heights)
+        bucket = [[] for _ in range(max_height + 1)]
+        for name, height in zip(names, heights):
+            bucket[height].append(name)
+        result = []
+        for h in range(max_height, 0, -1):
+            result.extend(bucket[h])
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String[] sortPeople(String[] names, int[] heights) {
+        int n = names.length;
+        int maxHeight = 0;
+        for (int h : heights) {
+            maxHeight = Math.max(maxHeight, h);
+        }
+        List<String>[] bucket = new ArrayList[maxHeight + 1];
+        for (int i = 0; i &lt;= maxHeight; i++) {
+            bucket[i] = new ArrayList&lt;&gt;();
+        }
+        for (int i = 0; i &lt; n; i++) {
+            bucket[heights[i]].add(names[i]);
+        }
+        String[] result = new String[n];
+        int idx = 0;
+        for (int h = maxHeight; h &gt;= 1; h--) {
+            for (String name : bucket[h]) {
+                result[idx++] = name;
+            }
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
+        int n = names.size();
+        int maxHeight = *max_element(heights.begin(), heights.end());
+        vector<vector<string>&gt; bucket(maxHeight + 1);
+        for (int i = 0; i &lt; n; i++) {
+            bucket[heights[i]].push_back(names[i]);
+        }
+        vector<string> result;
+        for (int h = maxHeight; h &gt;= 1; h--) {
+            for (const string& name : bucket[h]) {
+                result.push_back(name);
+            }
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} names
+ * @param {number[]} heights
+ * @return {string[]}
+ */
+var sortPeople = function(names, heights) {
+    const n = names.length;
+    const maxHeight = Math.max(...heights);
+    const bucket = Array.from({ length: maxHeight + 1 }, () =&gt; []);
+    for (let i = 0; i &lt; n; i++) {
+        bucket[heights[i]].push(names[i]);
+    }
+    const result = [];
+    for (let h = maxHeight; h &gt;= 1; h--) {
+        result.push(...bucket[h]);
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function sortPeople(names: string[], heights: number[]): string[] {
+    const n = names.length;
+    const maxHeight = Math.max(...heights);
+    const bucket: string[][] = Array.from({ length: maxHeight + 1 }, () =&gt; []);
+    for (let i = 0; i &lt; n; i++) {
+        bucket[heights[i]].push(names[i]);
+    }
+    const result: string[] = [];
+    for (let h = maxHeight; h &gt;= 1; h--) {
+        result.push(...bucket[h]);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n + max_height)
+- Space: O(n + max_height)
+- Notes: Linear time complexity but uses more space when max_height is large.
+
+---
+## TreeMap Approach
+
+**Intuition**
+Use a TreeMap (or equivalent) to map heights to names, then iterate in descending order of keys.
+
+**Steps**
+- Create a map from height to name.
+- Iterate through the map in descending order of keys (heights).
+- Collect names in order.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def sortPeople(self, names: list[str], heights: list[int]) -> list[str]:
+        height_to_name = {}
+        for name, height in zip(names, heights):
+            height_to_name[height] = name
+        sorted_heights = sorted(height_to_name.keys(), reverse=True)
+        return [height_to_name[h] for h in sorted_heights]
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public String[] sortPeople(String[] names, int[] heights) {
+        int n = names.length;
+        TreeMap<Integer, String> map = new TreeMap&lt;&gt;(Collections.reverseOrder());
+        for (int i = 0; i &lt; n; i++) {
+            map.put(heights[i], names[i]);
+        }
+        String[] result = new String[n];
+        int idx = 0;
+        for (String name : map.values()) {
+            result[idx++] = name;
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
+        int n = names.size();
+        map<int, string, greater<int>&gt; heightToName;
+        for (int i = 0; i &lt; n; i++) {
+            heightToName[heights[i]] = names[i];
+        }
+        vector<string> result;
+        for (auto& [height, name] : heightToName) {
+            result.push_back(name);
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} names
+ * @param {number[]} heights
+ * @return {string[]}
+ */
+var sortPeople = function(names, heights) {
+    const n = names.length;
+    const map = new Map();
+    for (let i = 0; i &lt; n; i++) {
+        map.set(heights[i], names[i]);
+    }
+    const sortedHeights = [...map.keys()].sort((a, b) =&gt; b - a);
+    const result = [];
+    for (const h of sortedHeights) {
+        result.push(map.get(h));
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function sortPeople(names: string[], heights: number[]): string[] {
+    const n = names.length;
+    const map = new Map<number, string>();
+    for (let i = 0; i &lt; n; i++) {
+        map.set(heights[i], names[i]);
+    }
+    const sortedHeights = Array.from(map.keys()).sort((a, b) =&gt; b - a);
+    const result: string[] = [];
+    for (const h of sortedHeights) {
+        result.push(map.get(h)!);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Uses tree-based data structure for automatic sorting by keys.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort the People Solutions","datePublished":"2026-03-26","description":"Sort people by their heights in descending order and return their names.","keywords":"LeetCode, Sort the People, Easy, Array, Hash Table, String, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Pair and Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting operation."}},{"@type":"Question","name":"What is the space complexity of the Bucket Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + max_height) for the bucket array."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Pair and Sort approach is generally most practical with O(n log n) time and O(n) space."}},{"@type":"Question","name":"Can we achieve linear time complexity for this problem?","acceptedAnswer":{"@type":"Answer","text":"Yes, Bucket Sort achieves O(n + max_height) time complexity, but uses more space."}}]}).replace(/</g,'\u003c')}
+</script>

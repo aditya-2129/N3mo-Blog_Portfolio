@@ -1,0 +1,138 @@
+---
+title: "Delete Greatest Value in Each Row"
+summary: "Delete the greatest value from each row in each operation, add the max of deleted values to answer, repeat until grid is empty."
+date: "Jan 13, 2024"
+tags:
+  - Array
+  - Sorting
+  - Heap
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.90% | **Paid:** No
+> **Topics:** Array, Sorting, Heap (Priority Queue), Matrix, Simulation
+
+You are given an m x n matrix grid consisting of positive integers.
+
+Perform the following operation until grid becomes empty:
+
+- In each operation, delete the element with the greatest value from each row. If multiple elements have the greatest value, delete any of them.
+- Add the maximum of deleted elements to the answer.
+
+Return the answer after performing the operations described above.
+
+- Examples
+- Constraints
+- [Sorting Approach](#sorting-approach)
+- [Priority Queue Approach](#priority-queue-approach)
+- [Simulation Approach](#simulation-approach)
+
+## Examples
+
+```text
+Input: grid = [[1,2,4],[3,3,1]]
+Output: 8
+Explanation:
+- In the first operation, we delete 4 from the first row and 3 from the second row (the greatest values in the rows). The maximum of deleted elements is max(4,3) = 4.
+- In the second operation, we delete 2 from the first row and 3 from the second row. The maximum of deleted elements is max(2,3) = 3.
+- In the third operation, we delete 1 from the first row and 1 from the second row. The maximum of deleted elements is max(1,1) = 1.
+- The answer is 4 + 3 + 1 = 8.
+```
+
+```text
+Input: grid = [[10]]
+Output: 10
+Explanation:
+- In the first operation, we delete 10 from the first row. The maximum of deleted elements is max(10) = 10.
+- The answer is 10.
+```
+
+## Constraints
+
+```text
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 50
+1 <= grid[i][j] <= 10³
+```
+
+---
+## Sorting Approach
+
+**Intuition**
+Sort each row in descending order, then for each column position, the k-th operation will pick the k-th element from each row, so we just need to find the column maximums.
+
+**Steps**
+- Sort each row in descending order
+- For each column, find the maximum value across all rows
+- Sum all these column maximums
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def deleteGreatestValue(self, grid: List[List[int]]) -&gt; int:\n        for row in grid:\n            row.sort(reverse=True)\n        \n        ans = 0\n        for j in range(len(grid[0])):\n            max_val = 0\n            for i in range(len(grid)):\n                max_val = max(max_val, grid[i][j])\n            ans += max_val\n        \n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int deleteGreatestValue(int[][] grid) {\n        for (int[] row : grid) {\n            Arrays.sort(row);\n            for (int i = 0, j = row.length - 1; i &lt; j; i++, j--) {\n                int temp = row[i];\n                row[i] = row[j];\n                row[j] = temp;\n            }\n        }\n        \n        int ans = 0;\n        for (int j = 0; j &lt; grid[0].length; j++) {\n            int maxVal = 0;\n            for (int i = 0; i &lt; grid.length; i++) {\n                maxVal = Math.max(maxVal, grid[i][j]);\n            }\n            ans += maxVal;\n        }\n        \n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int deleteGreatestValue(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        for (auto& row : grid) {\n            sort(row.rbegin(), row.rend());\n        }\n        \n        int ans = 0;\n        for (int j = 0; j &lt; grid[0].size(); j++) {\n            int maxVal = 0;\n            for (int i = 0; i &lt; grid.size(); i++) {\n                maxVal = max(maxVal, grid[i][j]);\n            }\n            ans += maxVal;\n        }\n        \n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var deleteGreatestValue = function(grid) {\n    for (let row of grid) {\n        row.sort((a, b) =&gt; b - a);\n    }\n    \n    let ans = 0;\n    for (let j = 0; j &lt; grid[0].length; j++) {\n        let maxVal = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            maxVal = Math.max(maxVal, grid[i][j]);\n        }\n        ans += maxVal;\n    }\n    \n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function deleteGreatestValue(grid: number[][]): number {\n    for (let row of grid) {\n        row.sort((a, b) =&gt; b - a);\n    }\n    \n    let ans = 0;\n    for (let j = 0; j &lt; grid[0].length; j++) {\n        let maxVal = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            maxVal = Math.max(maxVal, grid[i][j]);\n        }\n        ans += maxVal;\n    }\n    \n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n × log n) for sorting each row
+- Space: O(1) if sorting in-place, O(m × n) otherwise
+- Notes: Most efficient approach, leverages the fact that sorting aligns elements by their deletion order
+
+---
+## Priority Queue Approach
+
+**Intuition**
+Use a max heap for each row to efficiently extract the maximum element in each operation, simulating the process directly.
+
+**Steps**
+- Create a max heap for each row
+- In each operation, pop the maximum from each heap
+- Add the maximum of these popped values to the answer
+- Continue until all heaps are empty
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def deleteGreatestValue(self, grid: List[List[int]]) -&gt; int:\n        heaps = []\n        for row in grid:\n            heap = [-x for x in row]\n            heapq.heapify(heap)\n            heaps.append(heap)\n        \n        ans = 0\n        while heaps[0]:\n            max_val = float('-inf')\n            for heap in heaps:\n                max_val = max(max_val, -heapq.heappop(heap))\n            ans += max_val\n        \n        return ans" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int deleteGreatestValue(int[][] grid) {\n        PriorityQueue&lt;Integer&gt;[] heaps = new PriorityQueue[grid.length];\n        \n        for (int i = 0; i &lt; grid.length; i++) {\n            heaps[i] = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n            for (int val : grid[i]) {\n                heaps[i].add(val);\n            }\n        }\n        \n        int ans = 0;\n        while (!heaps[0].isEmpty()) {\n            int maxVal = Integer.MIN_VALUE;\n            for (PriorityQueue&lt;Integer&gt; heap : heaps) {\n                maxVal = Math.max(maxVal, heap.poll());\n            }\n            ans += maxVal;\n        }\n        \n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int deleteGreatestValue(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        vector&lt;priority_queue&lt;int&gt;&gt; heaps;\n        \n        for (auto& row : grid) {\n            priority_queue&lt;int&gt; pq(row.begin(), row.end());\n            heaps.push_back(pq);\n        }\n        \n        int ans = 0;\n        while (!heaps[0].empty()) {\n            int maxVal = INT_MIN;\n            for (auto& heap : heaps) {\n                maxVal = max(maxVal, heap.top());\n                heap.pop();\n            }\n            ans += maxVal;\n        }\n        \n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var deleteGreatestValue = function(grid) {\n    for (let row of grid) {\n        row.sort((a, b) =&gt; b - a);\n    }\n    \n    let ans = 0;\n    for (let j = 0; j &lt; grid[0].length; j++) {\n        let maxVal = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            maxVal = Math.max(maxVal, grid[i][j]);\n        }\n        ans += maxVal;\n    }\n    \n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function deleteGreatestValue(grid: number[][]): number {\n    for (let row of grid) {\n        row.sort((a, b) =&gt; b - a);\n    }\n    \n    let ans = 0;\n    for (let j = 0; j &lt; grid[0].length; j++) {\n        let maxVal = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            maxVal = Math.max(maxVal, grid[i][j]);\n        }\n        ans += maxVal;\n    }\n    \n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n × log n) for heap operations
+- Space: O(m × n) for storing heaps
+- Notes: Directly simulates the process, useful when you need to process elements in order without full sorting
+
+---
+## Simulation Approach
+
+**Intuition**
+Directly simulate the process by finding and removing the maximum element from each row in each operation.
+
+**Steps**
+- While grid is not empty, for each row find the maximum element
+- Track the maximum across all rows in this operation
+- Remove the maximum element from each row
+- Add the tracked maximum to the answer
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def deleteGreatestValue(self, grid: List[List[int]]) -&gt; int:\n        ans = 0\n        \n        while grid[0]:\n            max_in_round = 0\n            for i in range(len(grid)):\n                max_idx = 0\n                for j in range(1, len(grid[i])):\n                    if grid[i][j] &gt; grid[i][max_idx]:\n                        max_idx = j\n                max_in_round = max(max_in_round, grid[i][max_idx])\n                grid[i].pop(max_idx)\n            ans += max_in_round\n        \n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int deleteGreatestValue(int[][] grid) {\n        int m = grid.length;\n        int n = grid[0].length;\n        int ans = 0;\n        \n        for (int round = 0; round &lt; n; round++) {\n            int maxInRound = Integer.MIN_VALUE;\n            for (int i = 0; i &lt; m; i++) {\n                int maxIdx = 0;\n                for (int j = 1; j &lt; n - round; j++) {\n                    if (grid[i][j] &gt; grid[i][maxIdx]) {\n                        maxIdx = j;\n                    }\n                }\n                maxInRound = Math.max(maxInRound, grid[i][maxIdx]);\n                for (int j = maxIdx; j &lt; n - round - 1; j++) {\n                    grid[i][j] = grid[i][j + 1];\n                }\n            }\n            ans += maxInRound;\n        }\n        \n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int deleteGreatestValue(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int m = grid.size();\n        int n = grid[0].size();\n        int ans = 0;\n        \n        for (int round = 0; round &lt; n; round++) {\n            int maxInRound = INT_MIN;\n            for (int i = 0; i &lt; m; i++) {\n                int maxIdx = 0;\n                for (int j = 1; j &lt; n - round; j++) {\n                    if (grid[i][j] &gt; grid[i][maxIdx]) {\n                        maxIdx = j;\n                    }\n                }\n                maxInRound = max(maxInRound, grid[i][maxIdx]);\n                for (int j = maxIdx; j &lt; n - round - 1; j++) {\n                    grid[i][j] = grid[i][j + 1];\n                }\n            }\n            ans += maxInRound;\n        }\n        \n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var deleteGreatestValue = function(grid) {\n    let ans = 0;\n    \n    while (grid[0].length &gt; 0) {\n        let maxInRound = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            let maxIdx = 0;\n            for (let j = 1; j &lt; grid[i].length; j++) {\n                if (grid[i][j] &gt; grid[i][maxIdx]) {\n                    maxIdx = j;\n                }\n            }\n            maxInRound = Math.max(maxInRound, grid[i][maxIdx]);\n            grid[i].splice(maxIdx, 1);\n        }\n        ans += maxInRound;\n    }\n    \n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function deleteGreatestValue(grid: number[][]): number {\n    let ans = 0;\n    \n    while (grid[0].length &gt; 0) {\n        let maxInRound = 0;\n        for (let i = 0; i &lt; grid.length; i++) {\n            let maxIdx = 0;\n            for (let j = 1; j &lt; grid[i].length; j++) {\n                if (grid[i][j] &gt; grid[i][maxIdx]) {\n                    maxIdx = j;\n                }\n            }\n            maxInRound = Math.max(maxInRound, grid[i][maxIdx]);\n            grid[i].splice(maxIdx, 1);\n        }\n        ans += maxInRound;\n    }\n    \n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n²) for finding max in each row and shifting elements
+- Space: O(1) additional space
+- Notes: Least efficient but most intuitive approach, good for understanding the problem
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Delete Greatest Value in Each Row Solutions","datePublished":"2024-01-13","description":"Delete the greatest value from each row in each operation, add the max of deleted values to answer, repeat until grid is empty.","keywords":"LeetCode, Delete Greatest Value in Each Row, Easy, Array, Sorting, Heap (Priority Queue), Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n × log n) where m is the number of rows and n is the number of columns, due to sorting each row."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) if sorting in-place, otherwise O(m × n) for the additional space needed."}},{"@type":"Question","name":"What is the time complexity of the Priority Queue approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n × log n) for heap operations across all elements."}},{"@type":"Question","name":"What is the space complexity of the Priority Queue approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n) for storing the priority queues."}},{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n²) due to finding maximum and shifting elements in each operation."}},{"@type":"Question","name":"What is the space complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) additional space as it operates in-place."}}]}).replace(/</g,'\u003c')}
+</script>

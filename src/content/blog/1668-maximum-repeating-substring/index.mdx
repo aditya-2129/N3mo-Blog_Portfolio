@@ -1,0 +1,185 @@
+---
+title: "Maximum Repeating Substring"
+summary: "Find the maximum k such that word repeated k times is a substring of sequence."
+date: "Aug 17, 2025"
+tags:
+  - String
+  - Dynamic Programming
+  - String Matching
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 41.60% | **Paid:** No
+> **Topics:** String, Dynamic Programming, String Matching
+
+For a string sequence, a string word is k-repeating if word concatenated k times is a substring of sequence. The word's maximum k-repeating value is the highest value k where word is k-repeating in sequence. If word is not a substring of sequence, word's maximum k-repeating value is 0.
+
+Given strings sequence and word, return the maximum k-repeating value of word in sequence.
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+sequence = "ababc", word = "ab"
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+"abab" is a substring in "ababc".
+
+### Example 2
+
+**Input:**
+```text
+sequence = "ababc", word = "ba"
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+"ba" is a substring in "ababc". "baba" is not a substring in "ababc".
+
+### Example 3
+
+**Input:**
+```text
+sequence = "ababc", word = "ac"
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+"ac" is not a substring in "ababc".
+
+## Constraints
+
+```text
+1 <= sequence.length <= 100
+1 <= word.length <= 100
+sequence and word consist of lowercase English letters.
+```
+
+- [Brute Force Simulation](#brute-force-simulation)
+- [Dynamic Programming](#dynamic-programming)
+- [KMP Algorithm](#kmp-algorithm)
+
+## Examples
+
+```text
+Example 1:
+Input: sequence = "ababc", word = "ab"
+Output: 2
+Explanation: "abab" is a substring in "ababc".
+
+Example 2:
+Input: sequence = "ababc", word = "ba"
+Output: 1
+Explanation: "ba" is a substring in "ababc". "baba" is not a substring in "ababc".
+
+Example 3:
+Input: sequence = "ababc", word = "ac"
+Output: 0
+Explanation: "ac" is not a substring in "ababc".
+```
+
+## Constraints
+
+```text
+1 <= sequence.length <= 100
+1 <= word.length <= 100
+sequence and word consist of lowercase English letters.
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Since the constraints are small (length ≤ 100), we can simply simulate the process by repeatedly concatenating `word` and checking if the result exists in `sequence`.
+
+**Steps**
+- Initialize `k = 0`.
+- Loop while `word` repeated `k + 1` times is a substring of `sequence`.
+- Increment `k` in each iteration.
+- Return `k`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def maxRepeating(self, sequence: str, word: str) -> int:\n        k = 0\n        while word * (k + 1) in sequence:\n            k += 1\n        return k' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int maxRepeating(String sequence, String word) {\n        int k = 0;\n        StringBuilder sb = new StringBuilder();\n        while (true) {\n            sb.append(word);\n            if (sequence.contains(sb.toString())) {\n                k++;\n            } else {\n                break;\n            }\n        }\n        return k;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    int maxRepeating(string sequence, string word) {\n        int k = 0;\n        string s = "";\n        while (true) {\n            s += word;\n            if (sequence.find(s) != string::npos) {\n                k++;\n            } else {\n                break;\n            }\n        }\n        return k;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var maxRepeating = function(sequence, word) {\n    let k = 0;\n    let s = "";\n    while (true) {\n        s += word;\n        if (sequence.includes(s)) {\n            k++;\n        } else {\n            break;\n        }\n    }\n    return k;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function maxRepeating(sequence: string, word: string): number {\n    let k = 0;\n    let s = "";\n    while (true) {\n        s += word;\n        if (sequence.includes(s)) {\n            k++;\n        } else {\n            break;\n        }\n    }\n    return k;\n}' },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case, where n is the length of `sequence`. The `in` / `contains` check can be O(n*m) or O(n) depending on implementation, and we do it up to n/m times.
+- Space: O(n) to store the repeated string.
+- Notes: Simple to implement and efficient enough for the given constraints.
+
+---
+## Dynamic Programming
+
+**Intuition**
+We can define `dp[i]` as the maximum k-repeating value ending at index `i` in `sequence`. If the substring ending at `i` matches `word`, we can extend the count from the position `i - len(word)`.
+
+**Steps**
+- Initialize a `dp` array of size `n` (length of `sequence`) with zeros.
+- Iterate through `sequence` from index `len(word) - 1` to `n - 1`.
+- Check if the substring `sequence[i - len(word) + 1 : i + 1]` equals `word`.
+- If it matches, `dp[i] = dp[i - len(word)] + 1`.
+- Keep track of the maximum value in the `dp` array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def maxRepeating(self, sequence: str, word: str) -> int:\n        n = len(sequence)\n        m = len(word)\n        dp = [0] * n\n        ans = 0\n        for i in range(m - 1, n):\n            if sequence[i - m + 1 : i + 1] == word:\n                dp[i] = (dp[i - m] if i >= m else 0) + 1\n                ans = max(ans, dp[i])\n        return ans' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int maxRepeating(String sequence, String word) {\n        int n = sequence.length();\n        int m = word.length();\n        int[] dp = new int[n];\n        int ans = 0;\n        for (int i = m - 1; i &lt; n; i++) {\n            if (sequence.substring(i - m + 1, i + 1).equals(word)) {\n                dp[i] = ((i - m &gt;= 0) ? dp[i - m] : 0) + 1;\n                ans = Math.max(ans, dp[i]);\n            }\n        }\n        return ans;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    int maxRepeating(string sequence, string word) {\n        int n = sequence.size();\n        int m = word.size();\n        vector<int> dp(n, 0);\n        int ans = 0;\n        for (int i = m - 1; i &lt; n; ++i) {\n            if (sequence.substr(i - m + 1, m) == word) {\n                dp[i] = (i &gt;= m ? dp[i - m] : 0) + 1;\n                ans = max(ans, dp[i]);\n            }\n        }\n        return ans;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var maxRepeating = function(sequence, word) {\n    const n = sequence.length;\n    const m = word.length;\n    const dp = new Array(n).fill(0);\n    let ans = 0;\n    for (let i = m - 1; i &lt; n; i++) {\n        if (sequence.substring(i - m + 1, i + 1) === word) {\n            dp[i] = (i &gt;= m ? dp[i - m] : 0) + 1;\n            ans = Math.max(ans, dp[i]);\n        }\n    }\n    return ans;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function maxRepeating(sequence: string, word: string): number {\n    const n = sequence.length;\n    const m = word.length;\n    const dp = new Array(n).fill(0);\n    let ans = 0;\n    for (let i = m - 1; i &lt; n; i++) {\n        if (sequence.substring(i - m + 1, i + 1) === word) {\n            dp[i] = (i &gt;= m ? dp[i - m] : 0) + 1;\n            ans = Math.max(ans, dp[i]);\n        }\n    }\n    return ans;\n}' },]} />
+
+**Complexity**
+- Time: O(n * m) where n is the length of `sequence` and m is the length of `word`. Substring comparison takes O(m).
+- Space: O(n) for the DP array.
+- Notes: More efficient than brute force for larger inputs and avoids repeated string concatenation.
+
+---
+## KMP Algorithm
+
+**Intuition**
+We can use the Knuth-Morris-Pratt algorithm to find all occurrences of `word` in `sequence`. Once we have the starting indices of all matches, we can iterate through them to find the longest chain of consecutive matches separated by exactly `word.length`.
+
+**Steps**
+- Compute the LPS (Longest Prefix Suffix) array for `word`.
+- Use the KMP search algorithm to find all start indices of `word` in `sequence`.
+- Iterate through the sorted list of start indices.
+- If the current index is exactly `word.length` greater than the previous index, increment the current chain count; otherwise, reset the chain count to 1.
+- Track the maximum chain count found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def maxRepeating(self, sequence: str, word: str) -> int:\n        def kmp_search(s, p):\n            lps = [0] * len(p)\n            # Build LPS\n            length = 0\n            i = 1\n            while i < len(p):\n                if p[i] == p[length]:\n                    length += 1\n                    lps[i] = length\n                    i += 1\n                else:\n                    if length != 0:\n                        length = lps[length - 1]\n                    else:\n                        lps[i] = 0\n                        i += 1\n            \n            # Search\n            i = 0 # index for s\n            j = 0 # index for p\n            indices = []\n            while i < len(s):\n                if s[i] == p[j]:\n                    i += 1\n                    j += 1\n                if j == len(p):\n                    indices.append(i - j)\n                    j = lps[j - 1]\n                elif i < len(s) and s[i] != p[j]:\n                    if j != 0:\n                        j = lps[j - 1]\n                    else:\n                        i += 1\n            return indices\n\n        matches = kmp_search(sequence, word)\n        if not matches:\n            return 0\n        \n        max_k = 1\n        curr_k = 1\n        m = len(word)\n        for i in range(1, len(matches)):\n            if matches[i] == matches[i - 1] + m:\n                curr_k += 1\n                max_k = max(max_k, curr_k)\n            else:\n                curr_k = 1\n        return max_k' },
+{ name: "Java", lang: "java", code: 'import java.util.*;\n\nclass Solution {\n    public int maxRepeating(String sequence, String word) {\n        List<Integer> matches = kmpSearch(sequence, word);\n        if (matches.isEmpty()) return 0;\n        \n        int maxK = 1;\n        int currK = 1;\n        int m = word.length();\n        for (int i = 1; i &lt; matches.size(); i++) {\n            if (matches.get(i) == matches.get(i - 1) + m) {\n                currK++;\n                maxK = Math.max(maxK, currK);\n            } else {\n                currK = 1;\n            }\n        }\n        return maxK;\n    }\n    \n    private List<Integer> kmpSearch(String s, String p) {\n        int[] lps = computeLPS(p);\n        List<Integer> indices = new ArrayList&lt;&gt;();\n        int i = 0, j = 0;\n        while (i &lt; s.length()) {\n            if (s.charAt(i) == p.charAt(j)) {\n                i++;\n                j++;\n            }\n            if (j == p.length()) {\n                indices.add(i - j);\n                j = lps[j - 1];\n            } else if (i &lt; s.length() && s.charAt(i) != p.charAt(j)) {\n                if (j != 0) j = lps[j - 1];\n                else i++;\n            }\n        }\n        return indices;\n    }\n    \n    private int[] computeLPS(String p) {\n        int[] lps = new int[p.length()];\n        int len = 0, i = 1;\n        while (i &lt; p.length()) {\n            if (p.charAt(i) == p.charAt(len)) {\n                len++;\n                lps[i] = len;\n                i++;\n            } else {\n                if (len != 0) len = lps[len - 1];\n                else {\n                    lps[i] = 0;\n                    i++;\n                }\n            }\n        }\n        return lps;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxRepeating(string sequence, string word) {\n        vector<int> matches = kmpSearch(sequence, word);\n        if (matches.empty()) return 0;\n        \n        int maxK = 1, currK = 1;\n        int m = word.size();\n        for (int i = 1; i &lt; matches.size(); ++i) {\n            if (matches[i] == matches[i - 1] + m) {\n                currK++;\n                maxK = max(maxK, currK);\n            } else {\n                currK = 1;\n            }\n        }\n        return maxK;\n    }\n    \nprivate:\n    vector<int> computeLPS(string p) {\n        vector<int> lps(p.size(), 0);\n        int len = 0, i = 1;\n        while (i &lt; p.size()) {\n            if (p[i] == p[len]) {\n                len++;\n                lps[i] = len;\n                i++;\n            } else {\n                if (len != 0) len = lps[len - 1];\n                else {\n                    lps[i] = 0;\n                    i++;\n                }\n            }\n        }\n        return lps;\n    }\n    \n    vector<int> kmpSearch(string s, string p) {\n        vector<int> lps = computeLPS(p);\n        vector<int> indices;\n        int i = 0, j = 0;\n        while (i &lt; s.size()) {\n            if (s[i] == p[j]) {\n                i++;\n                j++;\n            }\n            if (j == p.size()) {\n                indices.push_back(i - j);\n                j = lps[j - 1];\n            } else if (i &lt; s.size() && s[i] != p[j]) {\n                if (j != 0) j = lps[j - 1];\n                else i++;\n            }\n        }\n        return indices;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var maxRepeating = function(sequence, word) {\n    const matches = kmpSearch(sequence, word);\n    if (matches.length === 0) return 0;\n    \n    let maxK = 1, currK = 1;\n    const m = word.length;\n    for (let i = 1; i &lt; matches.length; i++) {\n        if (matches[i] === matches[i - 1] + m) {\n            currK++;\n            maxK = Math.max(maxK, currK);\n        } else {\n            currK = 1;\n        }\n    }\n    return maxK;\n};\n\nfunction computeLPS(p) {\n    const lps = new Array(p.length).fill(0);\n    let len = 0, i = 1;\n    while (i &lt; p.length) {\n        if (p[i] === p[len]) {\n            len++;\n            lps[i] = len;\n            i++;\n        } else {\n            if (len !== 0) len = lps[len - 1];\n            else {\n                lps[i] = 0;\n                i++;\n            }\n        }\n    }\n    return lps;\n}\n\nfunction kmpSearch(s, p) {\n    const lps = computeLPS(p);\n    const indices = [];\n    let i = 0, j = 0;\n    while (i &lt; s.length) {\n        if (s[i] === p[j]) {\n            i++;\n            j++;\n        }\n        if (j === p.length) {\n            indices.push(i - j);\n            j = lps[j - 1];\n        } else if (i &lt; s.length && s[i] !== p[j]) {\n            if (j !== 0) j = lps[j - 1];\n            else i++;\n        }\n    }\n    return indices;\n}' },
+{ name: "TypeScript", lang: "typescript", code: 'function maxRepeating(sequence: string, word: string): number {\n    const matches = kmpSearch(sequence, word);\n    if (matches.length === 0) return 0;\n    \n    let maxK = 1, currK = 1;\n    const m = word.length;\n    for (let i = 1; i &lt; matches.length; i++) {\n        if (matches[i] === matches[i - 1] + m) {\n            currK++;\n            maxK = Math.max(maxK, currK);\n        } else {\n            currK = 1;\n        }\n    }\n    return maxK;\n}\n\nfunction computeLPS(p: string): number[] {\n    const lps = new Array(p.length).fill(0);\n    let len = 0, i = 1;\n    while (i &lt; p.length) {\n        if (p[i] === p[len]) {\n            len++;\n            lps[i] = len;\n            i++;\n        } else {\n            if (len !== 0) len = lps[len - 1];\n            else {\n                lps[i] = 0;\n                i++;\n            }\n        }\n    }\n    return lps;\n}\n\nfunction kmpSearch(s: string, p: string): number[] {\n    const lps = computeLPS(p);\n    const indices: number[] = [];\n    let i = 0, j = 0;\n    while (i &lt; s.length) {\n        if (s[i] === p[j]) {\n            i++;\n            j++;\n        }\n        if (j === p.length) {\n            indices.push(i - j);\n            j = lps[j - 1];\n        } else if (i &lt; s.length && s[i] !== p[j]) {\n            if (j !== 0) j = lps[j - 1];\n            else i++;\n        }\n    }\n    return indices;\n}' },]} />
+
+**Complexity**
+- Time: O(n + m) for the KMP search and LPS construction, where n is the length of `sequence` and m is the length of `word`. Sorting indices is O(k log k) where k is the number of matches, but since we find them in order, we can just iterate, making it O(n + m).
+- Space: O(m) for the LPS array and O(k) for storing match indices.
+- Notes: Optimal time complexity for string matching, though more complex to implement than necessary for the given constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Repeating Substring Solutions","datePublished":"2025-08-17","description":"Find the maximum k such that word repeated k times is a substring of sequence.","keywords":"LeetCode, Maximum Repeating Substring, Easy, String, Dynamic Programming, String Matching"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case, where n is the length of the sequence."}},{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * m), where n is the length of the sequence and m is the length of the word."}},{"@type":"Question","name":"What is the time complexity of the KMP approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n is the length of the sequence and m is the length of the word."}}]}).replace(/</g,'\u003c')}
+</script>

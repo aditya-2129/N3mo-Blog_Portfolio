@@ -1,0 +1,115 @@
+---
+title: "Destination City"
+summary: "Find the destination city in a list of paths where the destination has no outgoing path."
+date: "Mar 21, 2026"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.50% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+You are given the array paths, where paths[i] = [cityAi, cityBi] means there exists a direct path going from cityAi to cityBi. Return the destination city, that is, the city without any path outgoing to another city.
+
+It is guaranteed that the graph of paths forms a line without any loop, therefore, there will be exactly one destination city.
+
+- Examples
+- Constraints
+- [Hash Set](#hash-set)
+- [Brute Force](#brute-force)
+
+## Examples
+
+Example 1:
+```text
+Input: paths = [["London","New York"],["New York","Lima"],["Lima","Sao Paulo"]]
+Output: "Sao Paulo" 
+Explanation: Starting at "London" you end the trip at "Sao Paulo".
+```
+
+Example 2:
+```text
+Input: paths = [["B","C"],["D","B"],["C","A"]]
+Output: "A"
+Explanation: All possible trips are: 
+"D" -> "B" -> "C" -> "A". 
+"B" -> "C" -> "A". 
+"C" -> "A". 
+"A". 
+Clearly the destination city is "A".
+```
+
+Example 3:
+```text
+Input: paths = [["A","Z"]]
+Output: "Z"
+```
+
+## Constraints
+
+```text
+1 <= paths.length <= 100
+paths[i].length == 2
+1 <= cityAi.length, cityBi.length <= 10
+cityAi != cityBi
+All strings consist of lowercase and uppercase English letters and the space character.
+```
+
+---
+## Hash Set
+
+**Intuition**
+The destination city is the only city that never appears as a starting point in any path. By collecting all starting cities in a set, we can efficiently check which ending city is not in that set.
+
+**Steps**
+- Initialize an empty set to store cities that have outgoing paths.
+- Iterate through the `paths` list and add the starting city (index 0) of each path to the set.
+- Iterate through the `paths` list again. For each path, check if the destination city (index 1) is present in the set.
+- The first destination city not found in the set is the answer.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def destCity(self, paths: List[List[str]]) -&gt; str:\n        outgoing = set()\n        for path in paths:\n            outgoing.add(path[0])\n        for path in paths:\n            if path[1] not in outgoing:\n                return path[1]\n        return \"\"" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String destCity(List&lt;List&lt;String&gt;&gt; paths) {\n        Set&lt;String&gt; set = new HashSet&lt;&gt;();\n        for (List&lt;String&gt; path : paths) {\n            set.add(path.get(0));\n        }\n        for (List&lt;String&gt; path : paths) {\n            if (!set.contains(path.get(1))) {\n                return path.get(1);\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string destCity(vector&lt;vector&lt;string&gt;&gt;& paths) {\n        unordered_set&lt;string&gt; outgoing;\n        for (const auto& path : paths) {\n            outgoing.insert(path[0]);\n        }\n        for (const auto& path : paths) {\n            if (outgoing.find(path[1]) == outgoing.end()) {\n                return path[1];\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var destCity = function(paths) {\n    const outgoing = new Set();\n    for (const path of paths) {\n        outgoing.add(path[0]);\n    }\n    for (const path of paths) {\n        if (!outgoing.has(path[1])) {\n            return path[1];\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function destCity(paths: string[][]): string {\n    const outgoing = new Set&lt;string&gt;();\n    for (const path of paths) {\n        outgoing.add(path[0]);\n    }\n    for (const path of paths) {\n        if (!outgoing.has(path[1])) {\n            return path[1];\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of paths. We iterate through the list twice.
+- Space: O(N), to store the set of outgoing cities.
+- Notes: This is the optimal solution for this problem.
+
+---
+## Brute Force
+
+**Intuition**
+For every city that appears as a destination, we can check if it ever appears as a departure in the entire list of paths. The city that never appears as a departure is our answer.
+
+**Steps**
+- Iterate through the `paths` list to collect all destination cities into a list.
+- For each candidate destination city, iterate through the `paths` list again to see if it exists as a starting city.
+- If a candidate city is never found as a starting city, return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def destCity(self, paths: List[List[str]]) -&gt; str:\n        destinations = [path[1] for path in paths]\n        for dest in destinations:\n            is_start = False\n            for path in paths:\n                if path[0] == dest:\n                    is_start = True\n                    break\n            if not is_start:\n                return dest\n        return \"\"" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String destCity(List&lt;List&lt;String&gt;&gt; paths) {\n        List&lt;String&gt; destinations = new ArrayList&lt;&gt;();\n        for (List&lt;String&gt; path : paths) {\n            destinations.add(path.get(1));\n        }\n        for (String dest : destinations) {\n            boolean isStart = false;\n            for (List&lt;String&gt; path : paths) {\n                if (path.get(0).equals(dest)) {\n                    isStart = true;\n                    break;\n                }\n            }\n            if (!isStart) {\n                return dest;\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string destCity(vector&lt;vector&lt;string&gt;&gt;& paths) {\n        vector&lt;string&gt; destinations;\n        for (const auto& path : paths) {\n            destinations.push_back(path[1]);\n        }\n        for (const auto& dest : destinations) {\n            bool isStart = false;\n            for (const auto& path : paths) {\n                if (path[0] == dest) {\n                    isStart = true;\n                    break;\n                }\n            }\n            if (!isStart) {\n                return dest;\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var destCity = function(paths) {\n    const destinations = paths.map(p =&gt; p[1]);\n    for (const dest of destinations) {\n        let isStart = false;\n        for (const path of paths) {\n            if (path[0] === dest) {\n                isStart = true;\n                break;\n            }\n        }\n        if (!isStart) {\n            return dest;\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function destCity(paths: string[][]): string {\n    const destinations: string[] = paths.map(p =&gt; p[1]);\n    for (const dest of destinations) {\n        let isStart = false;\n        for (const path of paths) {\n            if (path[0] === dest) {\n                isStart = true;\n                break;\n            }\n        }\n        if (!isStart) {\n            return dest;\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(N²), where N is the number of paths. For each destination, we scan the entire list of paths.
+- Space: O(N), to store the list of destination cities.
+- Notes: This approach is inefficient for large inputs but is conceptually simple.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Destination City Solutions","datePublished":"2026-03-21","description":"Find the destination city in a list of paths where the destination has no outgoing path.","keywords":"LeetCode, Destination City, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of paths."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the set of outgoing cities."}}]}).replace(/</g,'\u003c')}
+</script>

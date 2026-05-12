@@ -1,0 +1,132 @@
+---
+title: "Maximum Value of an Ordered Triplet I"
+summary: "Find the maximum value of (nums[i] - nums[j]) * nums[k] where i &lt; j &lt; k in an array."
+date: "Oct 30, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 58.20% | **Paid:** No
+> **Topics:** Array
+
+You are given a 0-indexed integer array nums of length n.
+
+Return the maximum value of (nums[i] - nums[j]) * nums[k] such that 0 &lt;= i &lt; j &lt; k &lt; n.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Prefix and Suffix Maximum](#prefix-and-suffix-maximum)
+- [Single Pass Optimization](#single-pass-optimization)
+
+## Examples
+
+**Example 1:**
+```text
+Input: nums = [12,6,1,2,7]
+Output: 77
+Explanation: The triplet (2, 1, 4) has a maximum value of (12 - 1) * 7 = 77.
+```
+
+**Example 2:**
+```text
+Input: nums = [1,10,3,4,19]
+Output: 133
+Explanation: The triplet (1, 2, 4) has a maximum value of (10 - 3) * 19 = 133.
+```
+
+**Example 3:**
+```text
+Input: nums = [1,2,3]
+Output: 0
+Explanation: The triplet (0, 1, 2) has a value of (1 - 2) * 3 = -3, but the maximum value is 0.
+```
+
+## Constraints
+
+```text
+3 <= nums.length <= 100
+1 <= nums[i] <= 10^6
+```
+
+---
+## Brute Force
+
+**Intuition**
+Try all possible triplets (i, j, k) where i &lt; j &lt; k and compute the value for each, keeping track of the maximum.
+
+**Steps**
+- Iterate through all valid combinations of i, j, k with i &lt; j &lt; k
+- Calculate (nums[i] - nums[j]) * nums[k] for each triplet
+- Track and return the maximum value found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maximumTripletValue(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        max_val = float('-inf')\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    val = (nums[i] - nums[j]) * nums[k]\n                    max_val = max(max_val, val)\n        return max(0, max_val)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long maximumTripletValue(int[] nums) {\n        int n = nums.length;\n        long maxVal = Long.MIN_VALUE;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    long val = (long)(nums[i] - nums[j]) * nums[k];\n                    maxVal = Math.max(maxVal, val);\n                }\n            }\n        }\n        return Math.max(0, maxVal);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    long long maximumTripletValue(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        long long maxVal = LLONG_MIN;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    long long val = (long long)(nums[i] - nums[j]) * nums[k];\n                    maxVal = max(maxVal, val);\n                }\n            }\n        }\n        return max(0LL, maxVal);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maximumTripletValue = function(nums) {\n    const n = nums.length;\n    let maxVal = -Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                const val = (nums[i] - nums[j]) * nums[k];\n                maxVal = Math.max(maxVal, val);\n            }\n        }\n    }\n    return Math.max(0, maxVal);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumTripletValue(nums: number[]): number {\n    const n = nums.length;\n    let maxVal = -Infinity;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                const val = (nums[i] - nums[j]) * nums[k];\n                maxVal = Math.max(maxVal, val);\n            }\n        }\n    }\n    return Math.max(0, maxVal);\n}" },]} />
+
+**Complexity**
+- Time: O(n³)
+- Space: O(1)
+- Notes: Simple but inefficient for larger arrays
+
+---
+## Prefix and Suffix Maximum
+
+**Intuition**
+For each index j, we need the maximum nums[i] to its left and maximum nums[k] to its right. Precompute these using prefix and suffix arrays.
+
+**Steps**
+- Build prefix_max array where prefix_max[i] = max(nums[0..i])
+- Build suffix_max array where suffix_max[i] = max(nums[i..n-1])
+- For each j from 1 to n-2, compute (prefix_max[j-1] - nums[j]) * suffix_max[j+1]
+- Return the maximum value found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maximumTripletValue(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        prefix_max = [0] * n\n        suffix_max = [0] * n\n        \n        prefix_max[0] = nums[0]\n        for i in range(1, n):\n            prefix_max[i] = max(prefix_max[i-1], nums[i])\n        \n        suffix_max[n-1] = nums[n-1]\n        for i in range(n-2, -1, -1):\n            suffix_max[i] = max(suffix_max[i+1], nums[i])\n        \n        max_val = float('-inf')\n        for j in range(1, n-1):\n            val = (prefix_max[j-1] - nums[j]) * suffix_max[j+1]\n            max_val = max(max_val, val)\n        \n        return max(0, max_val)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long maximumTripletValue(int[] nums) {\n        int n = nums.length;\n        long[] prefixMax = new long[n];\n        long[] suffixMax = new long[n];\n        \n        prefixMax[0] = nums[0];\n        for (int i = 1; i &lt; n; i++) {\n            prefixMax[i] = Math.max(prefixMax[i-1], nums[i]);\n        }\n        \n        suffixMax[n-1] = nums[n-1];\n        for (int i = n-2; i &gt;= 0; i--) {\n            suffixMax[i] = Math.max(suffixMax[i+1], nums[i]);\n        }\n        \n        long maxVal = Long.MIN_VALUE;\n        for (int j = 1; j &lt; n-1; j++) {\n            long val = (prefixMax[j-1] - nums[j]) * suffixMax[j+1];\n            maxVal = Math.max(maxVal, val);\n        }\n        \n        return Math.max(0, maxVal);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    long long maximumTripletValue(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        vector&lt;long long&gt; prefixMax(n);\n        vector&lt;long long&gt; suffixMax(n);\n        \n        prefixMax[0] = nums[0];\n        for (int i = 1; i &lt; n; i++) {\n            prefixMax[i] = max(prefixMax[i-1], (long long)nums[i]);\n        }\n        \n        suffixMax[n-1] = nums[n-1];\n        for (int i = n-2; i &gt;= 0; i--) {\n            suffixMax[i] = max(suffixMax[i+1], (long long)nums[i]);\n        }\n        \n        long long maxVal = LLONG_MIN;\n        for (int j = 1; j &lt; n-1; j++) {\n            long long val = (prefixMax[j-1] - nums[j]) * suffixMax[j+1];\n            maxVal = max(maxVal, val);\n        }\n        \n        return max(0LL, maxVal);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maximumTripletValue = function(nums) {\n    const n = nums.length;\n    const prefixMax = new Array(n);\n    const suffixMax = new Array(n);\n    \n    prefixMax[0] = nums[0];\n    for (let i = 1; i &lt; n; i++) {\n        prefixMax[i] = Math.max(prefixMax[i-1], nums[i]);\n    }\n    \n    suffixMax[n-1] = nums[n-1];\n    for (let i = n-2; i &gt;= 0; i--) {\n        suffixMax[i] = Math.max(suffixMax[i+1], nums[i]);\n    }\n    \n    let maxVal = -Infinity;\n    for (let j = 1; j &lt; n-1; j++) {\n        const val = (prefixMax[j-1] - nums[j]) * suffixMax[j+1];\n        maxVal = Math.max(maxVal, val);\n    }\n    \n    return Math.max(0, maxVal);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumTripletValue(nums: number[]): number {\n    const n = nums.length;\n    const prefixMax: number[] = new Array(n);\n    const suffixMax: number[] = new Array(n);\n    \n    prefixMax[0] = nums[0];\n    for (let i = 1; i &lt; n; i++) {\n        prefixMax[i] = Math.max(prefixMax[i-1], nums[i]);\n    }\n    \n    suffixMax[n-1] = nums[n-1];\n    for (let i = n-2; i &gt;= 0; i--) {\n        suffixMax[i] = Math.max(suffixMax[i+1], nums[i]);\n    }\n    \n    let maxVal = -Infinity;\n    for (let j = 1; j &lt; n-1; j++) {\n        const val = (prefixMax[j-1] - nums[j]) * suffixMax[j+1];\n        maxVal = Math.max(maxVal, val);\n    }\n    \n    return Math.max(0, maxVal);\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses extra space for prefix and suffix arrays
+
+---
+## Single Pass Optimization
+
+**Intuition**
+Track the maximum value seen so far (for nums[i]) and the maximum difference (nums[i] - nums[j]) seen so far as we iterate through the array.
+
+**Steps**
+- Initialize max_left to nums[0], max_diff to negative infinity, and result to negative infinity
+- For each position j from 1 to n-1:
+  - If j &gt;= 2, update result using max_diff * nums[j]
+  - Update max_diff with (max_left - nums[j])
+  - Update max_left with nums[j]
+- Return the maximum of 0 and result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maximumTripletValue(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        max_left = nums[0]\n        max_diff = float('-inf')\n        result = float('-inf')\n        \n        for j in range(1, n):\n            if j &gt;= 2:\n                result = max(result, max_diff * nums[j])\n            max_diff = max(max_diff, max_left - nums[j])\n            max_left = max(max_left, nums[j])\n        \n        return max(0, result)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long maximumTripletValue(int[] nums) {\n        int n = nums.length;\n        long maxLeft = nums[0];\n        long maxDiff = Long.MIN_VALUE;\n        long result = Long.MIN_VALUE;\n        \n        for (int j = 1; j &lt; n; j++) {\n            if (j &gt;= 2) {\n                result = Math.max(result, maxDiff * nums[j]);\n            }\n            maxDiff = Math.max(maxDiff, maxLeft - nums[j]);\n            maxLeft = Math.max(maxLeft, nums[j]);\n        }\n        \n        return Math.max(0, result);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    long long maximumTripletValue(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        long long maxLeft = nums[0];\n        long long maxDiff = LLONG_MIN;\n        long long result = LLONG_MIN;\n        \n        for (int j = 1; j &lt; n; j++) {\n            if (j &gt;= 2) {\n                result = max(result, maxDiff * nums[j]);\n            }\n            maxDiff = max(maxDiff, maxLeft - nums[j]);\n            maxLeft = max(maxLeft, (long long)nums[j]);\n        }\n        \n        return max(0LL, result);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maximumTripletValue = function(nums) {\n    const n = nums.length;\n    let maxLeft = nums[0];\n    let maxDiff = -Infinity;\n    let result = -Infinity;\n    \n    for (let j = 1; j &lt; n; j++) {\n        if (j &gt;= 2) {\n            result = Math.max(result, maxDiff * nums[j]);\n        }\n        maxDiff = Math.max(maxDiff, maxLeft - nums[j]);\n        maxLeft = Math.max(maxLeft, nums[j]);\n    }\n    \n    return Math.max(0, result);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumTripletValue(nums: number[]): number {\n    const n = nums.length;\n    let maxLeft = nums[0];\n    let maxDiff = -Infinity;\n    let result = -Infinity;\n    \n    for (let j = 1; j &lt; n; j++) {\n        if (j &gt;= 2) {\n            result = Math.max(result, maxDiff * nums[j]);\n        }\n        maxDiff = Math.max(maxDiff, maxLeft - nums[j]);\n        maxLeft = Math.max(maxLeft, nums[j]);\n    }\n    \n    return Math.max(0, result);\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with constant extra space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Value of an Ordered Triplet I Solutions","datePublished":"2025-10-30","description":"Find the maximum value of (nums[i] - nums[j]) * nums[k] where i &lt; j &lt; k in an array.","keywords":"LeetCode, Maximum Value of an Ordered Triplet I, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the brute force approach?","acceptedAnswer":{"@type":"Answer","text":"The brute force approach has O(n³) time complexity as it checks all possible triplets."}},{"@type":"Question","name":"What is the optimal time complexity for this problem?","acceptedAnswer":{"@type":"Answer","text":"The optimal time complexity is O(n) using a single pass approach."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The optimal solution uses O(1) extra space."}},{"@type":"Question","name":"Why do we return 0 when all triplet values are negative?","acceptedAnswer":{"@type":"Answer","text":"The problem specifies returning 0 as the maximum value when all valid triplets produce negative results."}}]}).replace(/</g,'\u003c')}
+</script>

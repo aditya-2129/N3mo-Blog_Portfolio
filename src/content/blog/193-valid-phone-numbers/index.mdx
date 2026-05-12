@@ -1,0 +1,524 @@
+---
+title: "Valid Phone Numbers"
+summary: "Given a text file, print all valid phone numbers that match specific formats."
+date: "Jul 29, 2025"
+tags:
+  - Shell
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 29.60% | **Paid:** No
+> **Topics:** Shell
+
+Given a text file file.txt that contains list of phone numbers (one per line), print all valid phone numbers.
+
+A valid phone number takes one of two formats:
+1. (xxx) xxx-xxxx
+2. xxx-xxx-xxxx
+
+where x is a digit.
+
+## Examples
+
+### Example 1
+Input:
+```text
+987-123-4567
+123 456 7890
+(123) 456-7890
+```
+Output:
+```text
+987-123-4567
+(123) 456-7890
+```
+
+### Example 2
+Input:
+```text
+-- 1-293-489-4859
+(02) 3456-7890
+(123) 456-7890
+```
+Output:
+```text
+(123) 456-7890
+```
+
+## Constraints
+```text
+There may be empty lines in the text file.
+```
+
+- [Approach 1: Grep with Regular Expression](#grep-with-regular-expression)
+- [Approach 2: Awk with Pattern Matching](#awk-with-pattern-matching)
+- [Approach 3: Sed with Substitution](#sed-with-substitution)
+
+---
+## Grep with Regular Expression
+
+**Intuition**
+Use grep with a regular expression to match lines that follow either of the two valid phone number formats.
+
+**Steps**
+- Construct a regex pattern that matches both formats
+- Use grep to filter lines matching the pattern
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+import sys
+
+pattern = re.compile(r'^\\([0-9]{3}\\) [0-9]{3}-[0-9]{4}$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$')
+for line in sys.stdin:
+    line = line.strip()
+    if pattern.match(line):
+        print(line)
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.regex.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Pattern pattern = Pattern.compile("^\\\\([0-9]{3}\\\\) [0-9]{3}-[0-9]{4}$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$");
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.matches()) {
+                System.out.println(line);
+            }
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <string>
+#include <regex>
+
+using namespace std;
+
+int main() {
+    string line;
+    regex pattern("^\\\\([0-9]{3}\\\\) [0-9]{3}-[0-9]{4}$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$");
+    while (getline(cin, line)) {
+        if (regex_match(line, pattern)) {
+            cout &lt;&lt; line &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const pattern = /^\\([0-9]{3}\\) [0-9]{3}-[0-9]{4}$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
+
+rl.on('line', (line) =&gt; {
+    line = line.trim();
+    if (pattern.test(line)) {
+        console.log(line);
+    }
+});
+` },
+{ name: "TypeScript", lang: "typescript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const pattern = /^\\([0-9]{3}\\) [0-9]{3}-[0-9]{4}$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
+
+rl.on('line', (line: string) =&gt; {
+    line = line.trim();
+    if (pattern.test(line)) {
+        console.log(line);
+    }
+});
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of lines
+- Space: O(1) excluding input storage
+- Notes: Simple and efficient for filtering lines
+
+---
+## Awk with Pattern Matching
+
+**Intuition**
+Use awk's pattern matching capability to filter lines that match the phone number formats.
+
+**Steps**
+- Define the pattern for valid phone numbers
+- Print lines that match the pattern
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sys
+
+def is_valid_format1(s):
+    if len(s) != 14:
+        return False
+    if s[0] != '(' or s[4] != ')' or s[5] != ' ' or s[9] != '-':
+        return False
+    return s[1:4].isdigit() and s[6:9].isdigit() and s[10:].isdigit()
+
+def is_valid_format2(s):
+    if len(s) != 12:
+        return False
+    if s[3] != '-' or s[7] != '-':
+        return False
+    return s[0:3].isdigit() and s[4:7].isdigit() and s[8:].isdigit()
+
+for line in sys.stdin:
+    line = line.strip()
+    if is_valid_format1(line) or is_valid_format2(line):
+        print(line)
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+public class Solution {
+    private static boolean isAllDigits(String s, int start, int end) {
+        for (int i = start; i &lt; end; i++) {
+            if (!Character.isDigit(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private static boolean isValid(String s) {
+        if (s.length() == 14) {
+            return s.charAt(0) == '(' && s.charAt(4) == ')' && s.charAt(5) == ' ' && s.charAt(9) == '-'
+                && isAllDigits(s, 1, 4) && isAllDigits(s, 6, 9) && isAllDigits(s, 10, 14);
+        }
+        if (s.length() == 12) {
+            return s.charAt(3) == '-' && s.charAt(7) == '-'
+                && isAllDigits(s, 0, 3) && isAllDigits(s, 4, 7) && isAllDigits(s, 8, 12);
+        }
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            if (isValid(line)) {
+                System.out.println(line);
+            }
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+bool isAllDigits(const string& s, size_t start, size_t end) {
+    for (size_t i = start; i &lt; end; i++) {
+        if (!isdigit(s[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isValid(const string& s) {
+    if (s.length() == 14) {
+        return s[0] == '(' && s[4] == ')' && s[5] == ' ' && s[9] == '-'
+            && isAllDigits(s, 1, 4) && isAllDigits(s, 6, 9) && isAllDigits(s, 10, 14);
+    }
+    if (s.length() == 12) {
+        return s[3] == '-' && s[7] == '-'
+            && isAllDigits(s, 0, 3) && isAllDigits(s, 4, 7) && isAllDigits(s, 8, 12);
+    }
+    return false;
+}
+
+int main() {
+    string line;
+    while (getline(cin, line)) {
+        if (isValid(line)) {
+            cout &lt;&lt; line &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function isAllDigits(s, start, end) {
+    for (let i = start; i &lt; end; i++) {
+        if (s[i] &lt; '0' || s[i] &gt; '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isValid(s) {
+    if (s.length === 14) {
+        return s[0] === '(' && s[4] === ')' && s[5] === ' ' && s[9] === '-'
+            && isAllDigits(s, 1, 4) && isAllDigits(s, 6, 9) && isAllDigits(s, 10, 14);
+    }
+    if (s.length === 12) {
+        return s[3] === '-' && s[7] === '-'
+            && isAllDigits(s, 0, 3) && isAllDigits(s, 4, 7) && isAllDigits(s, 8, 12);
+    }
+    return false;
+}
+
+rl.on('line', (line) =&gt; {
+    line = line.trim();
+    if (isValid(line)) {
+        console.log(line);
+    }
+});
+` },
+{ name: "TypeScript", lang: "typescript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function isAllDigits(s: string, start: number, end: number): boolean {
+    for (let i = start; i &lt; end; i++) {
+        if (s[i] &lt; '0' || s[i] &gt; '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isValid(s: string): boolean {
+    if (s.length === 14) {
+        return s[0] === '(' && s[4] === ')' && s[5] === ' ' && s[9] === '-'
+            && isAllDigits(s, 1, 4) && isAllDigits(s, 6, 9) && isAllDigits(s, 10, 14);
+    }
+    if (s.length === 12) {
+        return s[3] === '-' && s[7] === '-'
+            && isAllDigits(s, 0, 3) && isAllDigits(s, 4, 7) && isAllDigits(s, 8, 12);
+    }
+    return false;
+}
+
+rl.on('line', (line: string) =&gt; {
+    line = line.trim();
+    if (isValid(line)) {
+        console.log(line);
+    }
+});
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of lines
+- Space: O(1) excluding input storage
+- Notes: Manual character-by-character validation without regex
+
+---
+## Sed with Substitution
+
+**Intuition**
+Use sed to filter lines by deleting lines that don't match the phone number pattern.
+
+**Steps**
+- Define the pattern for valid phone numbers
+- Use sed to print only matching lines
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sys
+
+def check_digits(s, indices):
+    for i in indices:
+        if not s[i].isdigit():
+            return False
+    return True
+
+def is_valid(s):
+    n = len(s)
+    if n == 14:
+        if s[0] == '(' and s[4] == ')' and s[5] == ' ' and s[9] == '-':
+            return check_digits(s, [1, 2, 3, 6, 7, 8, 10, 11, 12, 13])
+    if n == 12:
+        if s[3] == '-' and s[7] == '-':
+            return check_digits(s, [0, 1, 2, 4, 5, 6, 8, 9, 10, 11])
+    return False
+
+for line in sys.stdin:
+    line = line.strip()
+    if is_valid(line):
+        print(line)
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+public class Solution {
+    private static boolean checkDigits(String s, int[] indices) {
+        for (int idx : indices) {
+            if (!Character.isDigit(s.charAt(idx))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private static boolean isValid(String s) {
+        int n = s.length();
+        if (n == 14) {
+            if (s.charAt(0) == '(' && s.charAt(4) == ')' && s.charAt(5) == ' ' && s.charAt(9) == '-') {
+                return checkDigits(s, new int[]{1, 2, 3, 6, 7, 8, 10, 11, 12, 13});
+            }
+        }
+        if (n == 12) {
+            if (s.charAt(3) == '-' && s.charAt(7) == '-') {
+                return checkDigits(s, new int[]{0, 1, 2, 4, 5, 6, 8, 9, 10, 11});
+            }
+        }
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            if (isValid(line)) {
+                System.out.println(line);
+            }
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+bool checkDigits(const string& s, const vector<int>& indices) {
+    for (int idx : indices) {
+        if (!isdigit(s[idx])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isValid(const string& s) {
+    int n = s.length();
+    if (n == 14) {
+        if (s[0] == '(' && s[4] == ')' && s[5] == ' ' && s[9] == '-') {
+            return checkDigits(s, {1, 2, 3, 6, 7, 8, 10, 11, 12, 13});
+        }
+    }
+    if (n == 12) {
+        if (s[3] == '-' && s[7] == '-') {
+            return checkDigits(s, {0, 1, 2, 4, 5, 6, 8, 9, 10, 11});
+        }
+    }
+    return false;
+}
+
+int main() {
+    string line;
+    while (getline(cin, line)) {
+        if (isValid(line)) {
+            cout &lt;&lt; line &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+` },
+{ name: "JavaScript", lang: "javascript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function checkDigits(s, indices) {
+    for (let idx of indices) {
+        if (s[idx] &lt; '0' || s[idx] &gt; '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isValid(s) {
+    const n = s.length;
+    if (n === 14) {
+        if (s[0] === '(' && s[4] === ')' && s[5] === ' ' && s[9] === '-') {
+            return checkDigits(s, [1, 2, 3, 6, 7, 8, 10, 11, 12, 13]);
+        }
+    }
+    if (n === 12) {
+        if (s[3] === '-' && s[7] === '-') {
+            return checkDigits(s, [0, 1, 2, 4, 5, 6, 8, 9, 10, 11]);
+        }
+    }
+    return false;
+}
+
+rl.on('line', (line) =&gt; {
+    line = line.trim();
+    if (isValid(line)) {
+        console.log(line);
+    }
+});
+` },
+{ name: "TypeScript", lang: "typescript", code: `const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function checkDigits(s: string, indices: number[]): boolean {
+    for (let idx of indices) {
+        if (s[idx] &lt; '0' || s[idx] &gt; '9') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isValid(s: string): boolean {
+    const n = s.length;
+    if (n === 14) {
+        if (s[0] === '(' && s[4] === ')' && s[5] === ' ' && s[9] === '-') {
+            return checkDigits(s, [1, 2, 3, 6, 7, 8, 10, 11, 12, 13]);
+        }
+    }
+    if (n === 12) {
+        if (s[3] === '-' && s[7] === '-') {
+            return checkDigits(s, [0, 1, 2, 4, 5, 6, 8, 9, 10, 11]);
+        }
+    }
+    return false;
+}
+
+rl.on('line', (line: string) =&gt; {
+    line = line.trim();
+    if (isValid(line)) {
+        console.log(line);
+    }
+});
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of lines
+- Space: O(1) excluding input storage
+- Notes: Alternative approach using manual validation with index checking
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Valid Phone Numbers Solutions","datePublished":"2025-07-29","description":"Given a text file, print all valid phone numbers that match specific formats.","keywords":"LeetCode, Valid Phone Numbers, Easy, Shell"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Grep with Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of lines in the input file."}},{"@type":"Question","name":"What is the space complexity of the Awk with Pattern Matching approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) excluding input storage, as we only process one line at a time."}},{"@type":"Question","name":"What are the valid phone number formats?","acceptedAnswer":{"@type":"Answer","text":"The valid formats are (xxx) xxx-xxxx and xxx-xxx-xxxx where x is a digit."}}]}).replace(/</g,'\u003c')}
+</script>

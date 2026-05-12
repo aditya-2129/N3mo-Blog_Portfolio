@@ -1,0 +1,132 @@
+---
+title: "Number Of Rectangles That Can Form The Largest Square"
+summary: "Given rectangles, find how many can form the largest possible square by cutting."
+date: "Oct 21, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.40% | **Paid:** No
+> **Topics:** Array
+
+You are given an array rectangles where rectangles[i] = [li, wi] represents the ith rectangle of length li and width wi.
+
+You can cut the ith rectangle to form a square with a side length of k if both k &lt;= li and k &lt;= wi. For example, if you have a rectangle [4,6], you can cut it to get a square with a side length of at most 4.
+
+Let maxLen be the side length of the largest square that you can obtain from any of the given rectangles.
+
+Return the number of rectangles that can make a square with a side length of maxLen.
+
+- Examples
+- Constraints
+- [Single Pass](#single-pass)
+- [Two Pass](#two-pass)
+- [Functional Approach](#functional-approach)
+
+## Examples
+
+**Example 1:**
+```text
+Input: rectangles = [[5,8],[3,9],[5,12],[16,5]]
+Output: 3
+Explanation: The largest square you can make from each rectangle is of length [5,3,5,5].
+The largest possible square is of length 5, and you can form it in 3 ways.
+```
+
+**Example 2:**
+```text
+Input: rectangles = [[2,3],[3,7],[4,3],[4,4]]
+Output: 1
+Explanation: The largest square you can make from each rectangle is of length [2,3,3,4].
+The largest possible square is of length 4, and you can form it in 1 way.
+```
+
+## Constraints
+
+```text
+- 1 <= rectangles.length <= 1000
+- rectangles[i].length == 2
+- 1 <= li, wi <= 10^9
+- li != wi
+```
+
+---
+## Single Pass
+
+**Intuition**
+Track the maximum square side and count rectangles that achieve it in a single iteration, updating both values as we go.
+
+**Steps**
+- Initialize max_side to 0 and count to 0
+- For each rectangle, compute the minimum of length and width (max square side)
+- If this side exceeds max_side, update max_side and reset count to 1
+- If this side equals max_side, increment count
+- Return the final count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodRectangles(self, rectangles: List[List[int]]) -&gt; int:\n        max_side = 0\n        count = 0\n        for rect in rectangles:\n            side = min(rect[0], rect[1])\n            if side &gt; max_side:\n                max_side = side\n                count = 1\n            elif side == max_side:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countGoodRectangles(int[][] rectangles) {\n        int maxSide = 0;\n        int count = 0;\n        for (int[] rect : rectangles) {\n            int side = Math.min(rect[0], rect[1]);\n            if (side &gt; maxSide) {\n                maxSide = side;\n                count = 1;\n            } else if (side == maxSide) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countGoodRectangles(vector&lt;vector&lt;int&gt;&gt;& rectangles) {\n        int maxSide = 0;\n        int count = 0;\n        for (auto& rect : rectangles) {\n            int side = min(rect[0], rect[1]);\n            if (side &gt; maxSide) {\n                maxSide = side;\n                count = 1;\n            } else if (side == maxSide) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countGoodRectangles(rectangles) {\n        let maxSide = 0;\n        let count = 0;\n        for (const rect of rectangles) {\n            const side = Math.min(rect[0], rect[1]);\n            if (side &gt; maxSide) {\n                maxSide = side;\n                count = 1;\n            } else if (side === maxSide) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countGoodRectangles(rectangles: number[][]): number {\n        let maxSide = 0;\n        let count = 0;\n        for (const rect of rectangles) {\n            const side = Math.min(rect[0], rect[1]);\n            if (side &gt; maxSide) {\n                maxSide = side;\n                count = 1;\n            } else if (side === maxSide) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rectangles
+- Space: O(1)
+- Notes: Most efficient approach with minimal memory usage
+
+---
+## Two Pass
+
+**Intuition**
+First find the maximum square side across all rectangles, then count how many rectangles achieve this maximum.
+
+**Steps**
+- First pass: iterate through rectangles to find the maximum square side
+- Second pass: count rectangles whose min dimension equals the maximum
+- Return the count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodRectangles(self, rectangles: List[List[int]]) -&gt; int:\n        max_side = 0\n        for rect in rectangles:\n            max_side = max(max_side, min(rect[0], rect[1]))\n        \n        count = 0\n        for rect in rectangles:\n            if min(rect[0], rect[1]) == max_side:\n                count += 1\n        \n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countGoodRectangles(int[][] rectangles) {\n        int maxSide = 0;\n        for (int[] rect : rectangles) {\n            maxSide = Math.max(maxSide, Math.min(rect[0], rect[1]));\n        }\n        \n        int count = 0;\n        for (int[] rect : rectangles) {\n            if (Math.min(rect[0], rect[1]) == maxSide) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countGoodRectangles(vector&lt;vector&lt;int&gt;&gt;& rectangles) {\n        int maxSide = 0;\n        for (auto& rect : rectangles) {\n            maxSide = max(maxSide, min(rect[0], rect[1]));\n        }\n        \n        int count = 0;\n        for (auto& rect : rectangles) {\n            if (min(rect[0], rect[1]) == maxSide) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countGoodRectangles(rectangles) {\n        let maxSide = 0;\n        for (const rect of rectangles) {\n            maxSide = Math.max(maxSide, Math.min(rect[0], rect[1]));\n        }\n        \n        let count = 0;\n        for (const rect of rectangles) {\n            if (Math.min(rect[0], rect[1]) === maxSide) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countGoodRectangles(rectangles: number[][]): number {\n        let maxSide = 0;\n        for (const rect of rectangles) {\n            maxSide = Math.max(maxSide, Math.min(rect[0], rect[1]));\n        }\n        \n        let count = 0;\n        for (const rect of rectangles) {\n            if (Math.min(rect[0], rect[1]) === maxSide) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rectangles
+- Space: O(1)
+- Notes: Slightly less efficient than single pass due to two iterations
+
+---
+## Functional Approach
+
+**Intuition**
+Use functional programming constructs to transform rectangles into their square sides, then find max and count occurrences.
+
+**Steps**
+- Map each rectangle to its minimum dimension (max square side)
+- Find the maximum value from the mapped array
+- Count occurrences of the maximum value
+- Return the count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodRectangles(self, rectangles: List[List[int]]) -&gt; int:\n        sides = [min(rect[0], rect[1]) for rect in rectangles]\n        max_side = max(sides)\n        return sides.count(max_side)" },
+{ name: "Java", lang: "java", code: "import java.util.stream.*;\n\nclass Solution {\n    public int countGoodRectangles(int[][] rectangles) {\n        int maxSide = Arrays.stream(rectangles)\n            .mapToInt(rect -&gt; Math.min(rect[0], rect[1]))\n            .max()\n            .orElse(0);\n        \n        return (int) Arrays.stream(rectangles)\n            .mapToInt(rect -&gt; Math.min(rect[0], rect[1]))\n            .filter(side -&gt; side == maxSide)\n            .count();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countGoodRectangles(vector&lt;vector&lt;int&gt;&gt;& rectangles) {\n        vector&lt;int&gt; sides;\n        for (auto& rect : rectangles) {\n            sides.push_back(min(rect[0], rect[1]));\n        }\n        int maxSide = *max_element(sides.begin(), sides.end());\n        return count(sides.begin(), sides.end(), maxSide);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countGoodRectangles(rectangles) {\n        const sides = rectangles.map(rect =&gt; Math.min(rect[0], rect[1]));\n        const maxSide = Math.max(...sides);\n        return sides.filter(side =&gt; side === maxSide).length;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countGoodRectangles(rectangles: number[][]): number {\n        const sides = rectangles.map(rect =&gt; Math.min(rect[0], rect[1]));\n        const maxSide = Math.max(...sides);\n        return sides.filter(side =&gt; side === maxSide).length;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rectangles
+- Space: O(n) for storing the sides array
+- Notes: More readable but uses extra memory for the intermediate array
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number Of Rectangles That Can Form The Largest Square Solutions","datePublished":"2024-10-21","description":"Given rectangles, find how many can form the largest possible square by cutting.","keywords":"LeetCode, Number Of Rectangles That Can Form The Largest Square, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rectangles"}},{"@type":"Question","name":"What is the space complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) constant space"}},{"@type":"Question","name":"What is the time complexity of the Two Pass approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rectangles"}},{"@type":"Question","name":"What is the space complexity of the Two Pass approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) constant space"}},{"@type":"Question","name":"What is the time complexity of the Functional approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rectangles"}},{"@type":"Question","name":"What is the space complexity of the Functional approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the sides array"}}]}).replace(/</g,'\u003c')}
+</script>

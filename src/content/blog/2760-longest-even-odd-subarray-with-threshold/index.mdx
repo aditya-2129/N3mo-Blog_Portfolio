@@ -1,0 +1,323 @@
+---
+title: "Longest Even Odd Subarray With Threshold"
+summary: "Find the longest subarray where elements alternate between even and odd and all elements are at most threshold."
+date: "Oct 26, 2025"
+tags:
+  - Array
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 32.10% | **Paid:** No
+> **Topics:** Array, Sliding Window
+
+You are given a 0-indexed integer array nums and an integer threshold.
+
+Find the length of the longest subarray of nums starting at index l and ending at index r (0 &lt;= l &lt;= r &lt; nums.length) such that for each index i in the range [l, r - 1], nums[i] % 2 != nums[i + 1] % 2 and for each index i in the range [l, r], nums[i] &lt;= threshold.
+
+Return the length of the longest such subarray.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Single Pass](#single-pass)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [3,2,5,4], threshold = 4
+Output: 3
+Explanation: The longest subarray is [2,5,4].
+```
+
+### Example 2
+```text
+Input: nums = [1,2], threshold = 2
+Output: 1
+Explanation: The longest subarray is [1] or [2].
+```
+
+### Example 3
+```text
+Input: nums = [2,3,4,5], threshold = 4
+Output: 3
+Explanation: The longest subarray is [2,3,4].
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+1 <= nums[i] <= 10⁹
+1 <= threshold <= 10⁹
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible starting position and extend the subarray as far as possible while maintaining the alternating parity and threshold conditions.
+
+**Steps**
+- Iterate through each index as a potential starting point
+- If the starting element exceeds threshold, skip it
+- Extend the subarray while elements are within threshold and alternate in parity
+- Track the maximum length found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def longestAlternatingSubarray(self, nums: List[int], threshold: int) -> int:
+        n = len(nums)
+        max_len = 0
+        
+        for i in range(n):
+            if nums[i] &gt; threshold:
+                continue
+            curr_len = 1
+            for j in range(i + 1, n):
+                if nums[j] &gt; threshold:
+                    break
+                if (nums[j] % 2) == (nums[j-1] % 2):
+                    break
+                curr_len += 1
+            max_len = max(max_len, curr_len)
+        
+        return max_len` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int longestAlternatingSubarray(int[] nums, int threshold) {
+        int n = nums.length;
+        int maxLen = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                continue;
+            }
+            int currLen = 1;
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[j] &gt; threshold) {
+                    break;
+                }
+                if ((nums[j] % 2) == (nums[j-1] % 2)) {
+                    break;
+                }
+                currLen++;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int longestAlternatingSubarray(vector<int>& nums, int threshold) {
+        int n = nums.size();
+        int maxLen = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                continue;
+            }
+            int currLen = 1;
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[j] &gt; threshold) {
+                    break;
+                }
+                if ((nums[j] % 2) == (nums[j-1] % 2)) {
+                    break;
+                }
+                currLen++;
+            }
+            maxLen = max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    longestAlternatingSubarray(nums, threshold) {
+        const n = nums.length;
+        let maxLen = 0;
+        
+        for (let i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                continue;
+            }
+            let currLen = 1;
+            for (let j = i + 1; j &lt; n; j++) {
+                if (nums[j] &gt; threshold) {
+                    break;
+                }
+                if ((nums[j] % 2) === (nums[j-1] % 2)) {
+                    break;
+                }
+                currLen++;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    longestAlternatingSubarray(nums: number[], threshold: number): number {
+        const n = nums.length;
+        let maxLen = 0;
+        
+        for (let i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                continue;
+            }
+            let currLen = 1;
+            for (let j = i + 1; j &lt; n; j++) {
+                if (nums[j] &gt; threshold) {
+                    break;
+                }
+                if ((nums[j] % 2) === (nums[j-1] % 2)) {
+                    break;
+                }
+                currLen++;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but inefficient for large inputs
+
+---
+## Single Pass
+
+**Intuition**
+Maintain a running count of the current valid subarray. When conditions are violated, reset or start a new subarray from the current position.
+
+**Steps**
+- Track current subarray length and maximum length
+- If current element exceeds threshold, reset current length to 0
+- If current element alternates parity with previous, extend current subarray
+- If parity doesn't alternate, start new subarray from current element
+- Update maximum length at each step
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def longestAlternatingSubarray(self, nums: List[int], threshold: int) -> int:
+        n = len(nums)
+        max_len = 0
+        curr_len = 0
+        
+        for i in range(n):
+            if nums[i] &gt; threshold:
+                curr_len = 0
+            elif curr_len == 0 or (nums[i] % 2) != (nums[i-1] % 2):
+                curr_len += 1
+            else:
+                curr_len = 1
+            
+            max_len = max(max_len, curr_len)
+        
+        return max_len` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int longestAlternatingSubarray(int[] nums, int threshold) {
+        int n = nums.length;
+        int maxLen = 0;
+        int currLen = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                currLen = 0;
+            } else if (currLen == 0 || (nums[i] % 2) != (nums[i-1] % 2)) {
+                currLen++;
+            } else {
+                currLen = 1;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int longestAlternatingSubarray(vector<int>& nums, int threshold) {
+        int n = nums.size();
+        int maxLen = 0;
+        int currLen = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                currLen = 0;
+            } else if (currLen == 0 || (nums[i] % 2) != (nums[i-1] % 2)) {
+                currLen++;
+            } else {
+                currLen = 1;
+            }
+            maxLen = max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    longestAlternatingSubarray(nums, threshold) {
+        const n = nums.length;
+        let maxLen = 0;
+        let currLen = 0;
+        
+        for (let i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                currLen = 0;
+            } else if (currLen === 0 || (nums[i] % 2) !== (nums[i-1] % 2)) {
+                currLen++;
+            } else {
+                currLen = 1;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    longestAlternatingSubarray(nums: number[], threshold: number): number {
+        const n = nums.length;
+        let maxLen = 0;
+        let currLen = 0;
+        
+        for (let i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; threshold) {
+                currLen = 0;
+            } else if (currLen === 0 || (nums[i] % 2) !== (nums[i-1] % 2)) {
+                currLen++;
+            } else {
+                currLen = 1;
+            }
+            maxLen = Math.max(maxLen, currLen);
+        }
+        
+        return maxLen;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with single pass through the array
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longest Even Odd Subarray With Threshold Solutions","datePublished":"2025-10-26","description":"Find the longest subarray where elements alternate between even and odd and all elements are at most threshold.","keywords":"LeetCode, Longest Even Odd Subarray With Threshold, Easy, Array, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) as we check every possible subarray."}},{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach has a time complexity of O(n) as we traverse the array only once."}},{"@type":"Question","name":"What is the space complexity of both approaches?","acceptedAnswer":{"@type":"Answer","text":"Both approaches have a space complexity of O(1) as we only use a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

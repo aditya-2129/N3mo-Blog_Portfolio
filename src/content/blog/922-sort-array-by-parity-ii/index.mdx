@@ -1,0 +1,109 @@
+---
+title: "Sort Array By Parity II"
+summary: "Given an array of integers where half are even and half are odd, sort the array so that every even index contains an even number and every odd index contains an odd number."
+date: "Feb 21, 2024"
+tags:
+  - Array
+  - Two Pointers
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.30% | **Paid:** No
+> **Topics:** Array, Two Pointers, Sorting
+
+Given an array of integers nums, half of the integers in nums are odd, and the other half are even.
+
+Sort the array so that whenever nums[i] is odd, i is odd, and whenever nums[i] is even, i is even.
+
+Return any answer array that satisfies this condition.
+
+- Examples
+- Constraints
+- [Approach 1: Two Pass with Extra Space](#approach-1-two-pass-with-extra-space)
+- [Approach 2: In-Place Two Pointers](#approach-2-in-place-two-pointers)
+
+## Examples
+
+```text
+Input: nums = [4,2,5,7]
+Output: [4,5,2,7]
+Explanation: [4,7,2,5], [2,5,4,7], [2,7,4,5] would also have been accepted.
+```
+
+```text
+Input: nums = [2,3]
+Output: [2,3]
+```
+
+## Constraints
+
+```text
+- 2 <= nums.length <= 2 * 10^4
+- nums.length is even.
+- Half of the integers in nums are even.
+- 0 <= nums[i] <= 1000
+```
+
+---
+
+## Approach 1: Two Pass with Extra Space
+
+**Intuition**
+We can separate the even and odd numbers into two different lists. Then, we iterate through the original array indices and place the even numbers at even indices and odd numbers at odd indices.
+
+**Steps**
+- Iterate through the input array and collect all even numbers into an `evens` list and all odd numbers into an `odds` list.
+- Initialize an index `e` for evens and `o` for odds to 0.
+- Iterate through the original array from `i = 0` to `n-1`.
+- If `i` is even, assign `nums[i] = evens[e]` and increment `e`.
+- If `i` is odd, assign `nums[i] = odds[o]` and increment `o`.
+- Return the modified array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortArrayByParityII(self, nums: list[int]) -&gt; list[int]:\n        evens = [x for x in nums if x % 2 == 0]\n        odds = [x for x in nums if x % 2 != 0]\n        \n        e, o = 0, 0\n        for i in range(len(nums)):\n            if i % 2 == 0:\n                nums[i] = evens[e]\n                e += 1\n            else:\n                nums[i] = odds[o]\n                o += 1\n        return nums" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] sortArrayByParityII(int[] nums) {\n        int n = nums.length;\n        int[] evens = new int[n / 2];\n        int[] odds = new int[n / 2];\n        int e = 0, o = 0;\n        \n        for (int num : nums) {\n            if (num % 2 == 0) {\n                evens[e++] = num;\n            } else {\n                odds[o++] = num;\n            }\n        }\n        \n        e = 0; \n        o = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (i % 2 == 0) {\n                nums[i] = evens[e++];\n            } else {\n                nums[i] = odds[o++];\n            }\n        }\n        return nums;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; sortArrayByParityII(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        vector&lt;int&gt; evens;\n        vector&lt;int&gt; odds;\n        \n        for (int num : nums) {\n            if (num % 2 == 0) {\n                evens.push_back(num);\n            } else {\n                odds.push_back(num);\n            }\n        }\n        \n        int e = 0, o = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (i % 2 == 0) {\n                nums[i] = evens[e++];\n            } else {\n                nums[i] = odds[o++];\n            }\n        }\n        return nums;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number[]}\n */\nvar sortArrayByParityII = function(nums) {\n    const evens = [];\n    const odds = [];\n    \n    for (const num of nums) {\n        if (num % 2 === 0) {\n            evens.push(num);\n        } else {\n            odds.push(num);\n        }\n    }\n    \n    let e = 0, o = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (i % 2 === 0) {\n            nums[i] = evens[e++];\n        } else {\n            nums[i] = odds[o++];\n        }\n    }\n    return nums;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortArrayByParityII(nums: number[]): number[] {\n    const evens: number[] = [];\n    const odds: number[] = [];\n    \n    for (const num of nums) {\n        if (num % 2 === 0) {\n            evens.push(num);\n        } else {\n            odds.push(num);\n        }\n    }\n    \n    let e = 0, o = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (i % 2 === 0) {\n            nums[i] = evens[e++];\n        } else {\n            nums[i] = odds[o++];\n        }\n    }\n    return nums;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the array. We iterate through the array a constant number of times.
+- Space: O(N) to store the separate lists of even and odd numbers.
+- Notes: This approach is straightforward and easy to understand but uses extra memory proportional to the input size.
+
+---
+
+## Approach 2: In-Place Two Pointers
+
+**Intuition**
+We can solve this in-place using two pointers. One pointer `i` iterates over even indices (0, 2, 4...), and another pointer `j` iterates over odd indices (1, 3, 5...). If `nums[i]` is odd, it means an odd number is at an even index. We then look for the next even number at an odd index `j` and swap them.
+
+**Steps**
+- Initialize pointer `i = 0` (for even indices) and `j = 1` (for odd indices).
+- Iterate while `j &lt; n` (since `j` starts at 1, it covers the array bounds).
+- If `nums[i]` is even, it is at the correct place, so increment `i` by 2.
+- Else if `nums[j]` is odd, it is at the correct place, so increment `j` by 2.
+- Else, `nums[i]` is odd and `nums[j]` is even. Swap `nums[i]` and `nums[j]`. Then increment both `i` and `j` by 2.
+- Return the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortArrayByParityII(self, nums: list[int]) -&gt; list[int]:\n        i, j = 0, 1\n        n = len(nums)\n        \n        while j &lt; n:\n            # If even index has even number, skip to next even index\n            if nums[i] % 2 == 0:\n                i += 2\n            # If odd index has odd number, skip to next odd index\n            elif nums[j] % 2 != 0:\n                j += 2\n            # Even index has odd, Odd index has even -&gt; Swap\n            else:\n                nums[i], nums[j] = nums[j], nums[i]\n                i += 2\n                j += 2\n                \n        return nums" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] sortArrayByParityII(int[] nums) {\n        int n = nums.length;\n        int i = 0, j = 1;\n        \n        while (j &lt; n) {\n            if (nums[i] % 2 == 0) {\n                i += 2;\n            } else if (nums[j] % 2 != 0) {\n                j += 2;\n            } else {\n                int temp = nums[i];\n                nums[i] = nums[j];\n                nums[j] = temp;\n                i += 2;\n                j += 2;\n            }\n        }\n        return nums;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; sortArrayByParityII(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int i = 0, j = 1;\n        \n        while (j &lt; n) {\n            if (nums[i] % 2 == 0) {\n                i += 2;\n            } else if (nums[j] % 2 != 0) {\n                j += 2;\n            } else {\n                swap(nums[i], nums[j]);\n                i += 2;\n                j += 2;\n            }\n        }\n        return nums;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number[]}\n */\nvar sortArrayByParityII = function(nums) {\n    let i = 0, j = 1;\n    const n = nums.length;\n    \n    while (j &lt; n) {\n        if (nums[i] % 2 === 0) {\n            i += 2;\n        } else if (nums[j] % 2 !== 0) {\n            j += 2;\n        } else {\n            // Swap\n            let temp = nums[i];\n            nums[i] = nums[j];\n            nums[j] = temp;\n            i += 2;\n            j += 2;\n        }\n    }\n    return nums;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortArrayByParityII(nums: number[]): number[] {\n    let i = 0, j = 1;\n    const n = nums.length;\n    \n    while (j &lt; n) {\n        if (nums[i] % 2 === 0) {\n            i += 2;\n        } else if (nums[j] % 2 !== 0) {\n            j += 2;\n        } else {\n            // Swap\n            const temp = nums[i];\n            nums[i] = nums[j];\n            nums[j] = temp;\n            i += 2;\n            j += 2;\n        }\n    }\n    return nums;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the array. Each pointer traverses the array at most once.
+- Space: O(1) as we modify the array in-place without using extra data structures.
+- Notes: This is the optimal solution in terms of space complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort Array By Parity II Solutions","datePublished":"2024-02-21","description":"Given an array of integers where half are even and half are odd, sort the array so that every even index contains an even number and every odd index contains an odd number.","keywords":"LeetCode, Sort Array By Parity II, Easy, Array, Two Pointers, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of elements in the array."}},{"@type":"Question","name":"What is the space complexity of the In-Place Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we modify the array in-place without using extra space proportional to the input size."}},{"@type":"Question","name":"Why does the Two Pointers approach work?","acceptedAnswer":{"@type":"Answer","text":"It works because we know exactly how many evens and odds there are. By placing one pointer at even indices and one at odd indices, we ensure that misplaced elements are swapped with their correct counterparts."}}]}).replace(/</g,'\u003c')}
+</script>

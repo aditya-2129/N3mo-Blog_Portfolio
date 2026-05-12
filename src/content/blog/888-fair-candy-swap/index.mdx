@@ -1,0 +1,185 @@
+---
+title: "Fair Candy Swap"
+summary: "Alice and Bob have different total candies. Exchange one candy box each so they have the same total amount."
+date: "Mar 22, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Binary Search
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.90% | **Paid:** No
+> **Topics:** Array, Hash Table, Binary Search, Sorting
+
+Alice and Bob have a different total number of candies. You are given two integer arrays aliceSizes and bobSizes where aliceSizes[i] is the number of candies in the ith box of candy that Alice has and bobSizes[j] is the number of candies in the jth box of candy that Bob has.
+
+Since they are friends, they would like to exchange one candy box each so that after the exchange, they both have the same total amount of candy. The total amount of candy a person has is the sum of the sizes of candy boxes they have.
+
+Return an integer array answer where answer[0] is the number of candies in the box that Alice must exchange, and answer[1] is the number of candies in the box that Bob must exchange. If there are multiple answers, you may return any one of them. It is guaranteed that at least one answer exists.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Hash Set](#approach-2-hash-set)
+- [Approach 3: Sorting + Binary Search](#approach-3-sorting--binary-search)
+- [Approach 4: Sorting + Two Pointers](#approach-4-sorting--two-pointers)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+aliceSizes = [1,1], bobSizes = [2,2]
+```
+
+**Output:**
+```text
+[1,2]
+```
+
+### Example 2
+
+**Input:**
+```text
+aliceSizes = [1,2], bobSizes = [2,3]
+```
+
+**Output:**
+```text
+[1,2]
+```
+
+### Example 3
+
+**Input:**
+```text
+aliceSizes = [2], bobSizes = [1,3]
+```
+
+**Output:**
+```text
+[2,3]
+```
+
+## Constraints
+
+```text
+- 1 <= aliceSizes.length, bobSizes.length <= 10^4
+- 1 <= aliceSizes[i], bobSizes[j] <= 10^5
+- Alice and Bob have a different total number of candies.
+- There will be at least one valid answer for the given input.
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Check every possible pair of candy boxes (one from Alice, one from Bob) to see if swapping them balances the total amounts.
+
+**Steps**
+- Calculate the total sum of candies for Alice (sumA) and Bob (sumB).
+- Calculate the target difference delta = (sumA - sumB) / 2.
+- Iterate through every candy size a in aliceSizes.
+- Iterate through every candy size b in bobSizes.
+- If a - b equals delta, return [a, b].
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def fairCandySwap(self, aliceSizes: list[int], bobSizes: list[int]) -&gt; list[int]:\n        sumA, sumB = sum(aliceSizes), sum(bobSizes)\n        delta = (sumA - sumB) // 2\n        for a in aliceSizes:\n            for b in bobSizes:\n                if a - b == delta:\n                    return [a, b]\n        return []" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] fairCandySwap(int[] aliceSizes, int[] bobSizes) {\n        int sumA = 0, sumB = 0;\n        for (int x : aliceSizes) sumA += x;\n        for (int x : bobSizes) sumB += x;\n        int delta = (sumA - sumB) / 2;\n        for (int a : aliceSizes) {\n            for (int b : bobSizes) {\n                if (a - b == delta) {\n                    return new int[]{a, b};\n                }\n            }\n        }\n        return new int[]{};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;numeric&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; fairCandySwap(vector&lt;int&gt;& aliceSizes, vector&lt;int&gt;& bobSizes) {\n        long long sumA = accumulate(aliceSizes.begin(), aliceSizes.end(), 0LL);\n        long long sumB = accumulate(bobSizes.begin(), bobSizes.end(), 0LL);\n        long long delta = (sumA - sumB) / 2;\n        for (int a : aliceSizes) {\n            for (int b : bobSizes) {\n                if (a - b == delta) {\n                    return {a, b};\n                }\n            }\n        }\n        return {};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var fairCandySwap = function(aliceSizes, bobSizes) {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    for (let a of aliceSizes) {\n        for (let b of bobSizes) {\n            if (a - b == delta) {\n                return [a, b];\n            }\n        }\n    }\n    return [];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function fairCandySwap(aliceSizes: number[], bobSizes: number[]): number[] {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    for (let a of aliceSizes) {\n        for (let b of bobSizes) {\n            if (a - b == delta) {\n                return [a, b];\n            }\n        }\n    }\n    return [];\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N and M are the lengths of the arrays.
+- Space: O(1)
+- Notes: Simple but inefficient for large inputs.
+
+---
+## Approach 2: Hash Set
+
+**Intuition**
+Store Bob's candy sizes in a hash set for O(1) lookups. For each candy Alice has, calculate the required candy size Bob needs to give and check if it exists in the set.
+
+**Steps**
+- Calculate sumA, sumB, and delta.
+- Convert bobSizes into a set setB.
+- Iterate through a in aliceSizes.
+- Calculate target = a - delta.
+- If target exists in setB, return [a, target].
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def fairCandySwap(self, aliceSizes: list[int], bobSizes: list[int]) -&gt; list[int]:\n        sumA, sumB = sum(aliceSizes), sum(bobSizes)\n        delta = (sumA - sumB) // 2\n        setB = set(bobSizes)\n        for a in aliceSizes:\n            if a - delta in setB:\n                return [a, a - delta]\n        return []" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int[] fairCandySwap(int[] aliceSizes, int[] bobSizes) {\n        int sumA = 0, sumB = 0;\n        for (int x : aliceSizes) sumA += x;\n        for (int x : bobSizes) sumB += x;\n        int delta = (sumA - sumB) / 2;\n        Set&lt;Integer&gt; setB = new HashSet&lt;&gt;();\n        for (int x : bobSizes) setB.add(x);\n        for (int a : aliceSizes) {\n            if (setB.contains(a - delta)) {\n                return new int[]{a, a - delta};\n            }\n        }\n        return new int[]{};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;numeric&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; fairCandySwap(vector&lt;int&gt;& aliceSizes, vector&lt;int&gt;& bobSizes) {\n        long long sumA = accumulate(aliceSizes.begin(), aliceSizes.end(), 0LL);\n        long long sumB = accumulate(bobSizes.begin(), bobSizes.end(), 0LL);\n        long long delta = (sumA - sumB) / 2;\n        unordered_set&lt;int&gt; setB(bobSizes.begin(), bobSizes.end());\n        for (int a : aliceSizes) {\n            if (setB.count(a - delta)) {\n                return {a, (int)(a - delta)};\n            }\n        }\n        return {};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var fairCandySwap = function(aliceSizes, bobSizes) {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    let setB = new Set(bobSizes);\n    for (let a of aliceSizes) {\n        if (setB.has(a - delta)) {\n            return [a, a - delta];\n        }\n    }\n    return [];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function fairCandySwap(aliceSizes: number[], bobSizes: number[]): number[] {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    let setB = new Set(bobSizes);\n    for (let a of aliceSizes) {\n        if (setB.has(a - delta)) {\n            return [a, a - delta];\n        }\n    }\n    return [];\n}" },]} />
+
+**Complexity**
+- Time: O(N + M)
+- Space: O(M) to store the set.
+- Notes: Optimal time complexity solution.
+
+---
+## Approach 3: Sorting + Binary Search
+
+**Intuition**
+Sort Bob's array. For each candy Alice has, use binary search to check if the required candy size exists in Bob's sorted array.
+
+**Steps**
+- Calculate sumA, sumB, and delta.
+- Sort bobSizes.
+- Iterate through a in aliceSizes.
+- Calculate target = a - delta.
+- Perform binary search for target in bobSizes.
+- If found, return [a, target].
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import bisect\n\nclass Solution:\n    def fairCandySwap(self, aliceSizes: list[int], bobSizes: list[int]) -&gt; list[int]:\n        sumA, sumB = sum(aliceSizes), sum(bobSizes)\n        delta = (sumA - sumB) // 2\n        bobSizes.sort()\n        for a in aliceSizes:\n            target = a - delta\n            i = bisect.bisect_left(bobSizes, target)\n            if i &lt; len(bobSizes) and bobSizes[i] == target:\n                return [a, target]\n        return []" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int[] fairCandySwap(int[] aliceSizes, int[] bobSizes) {\n        int sumA = 0, sumB = 0;\n        for (int x : aliceSizes) sumA += x;\n        for (int x : bobSizes) sumB += x;\n        int delta = (sumA - sumB) / 2;\n        Arrays.sort(bobSizes);\n        for (int a : aliceSizes) {\n            int target = a - delta;\n            int idx = Arrays.binarySearch(bobSizes, target);\n            if (idx &gt;= 0) {\n                return new int[]{a, target};\n            }\n        }\n        return new int[]{};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;numeric&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; fairCandySwap(vector&lt;int&gt;& aliceSizes, vector&lt;int&gt;& bobSizes) {\n        long long sumA = accumulate(aliceSizes.begin(), aliceSizes.end(), 0LL);\n        long long sumB = accumulate(bobSizes.begin(), bobSizes.end(), 0LL);\n        long long delta = (sumA - sumB) / 2;\n        sort(bobSizes.begin(), bobSizes.end());\n        for (int a : aliceSizes) {\n            int target = a - delta;\n            if (binary_search(bobSizes.begin(), bobSizes.end(), target)) {\n                return {a, target};\n            }\n        }\n        return {};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var fairCandySwap = function(aliceSizes, bobSizes) {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    bobSizes.sort((a, b) =&gt; a - b);\n    for (let a of aliceSizes) {\n        let target = a - delta;\n        let l = 0, r = bobSizes.length;\n        while (l &lt; r) {\n            let mid = Math.floor((l + r) / 2);\n            if (bobSizes[mid] &lt; target) {\n                l = mid + 1;\n            } else {\n                r = mid;\n            }\n        }\n        if (l &lt; bobSizes.length && bobSizes[l] === target) {\n            return [a, target];\n        }\n    }\n    return [];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function fairCandySwap(aliceSizes: number[], bobSizes: number[]): number[] {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    bobSizes.sort((a, b) =&gt; a - b);\n    for (let a of aliceSizes) {\n        let target = a - delta;\n        let l = 0, r = bobSizes.length;\n        while (l &lt; r) {\n            let mid = Math.floor((l + r) / 2);\n            if (bobSizes[mid] &lt; target) {\n                l = mid + 1;\n            } else {\n                r = mid;\n            }\n        }\n        if (l &lt; bobSizes.length && bobSizes[l] === target) {\n            return [a, target];\n        }\n    }\n    return [];\n}" },]} />
+
+**Complexity**
+- Time: O(M log M + N log M)
+- Space: O(1) or O(M) depending on sorting implementation.
+- Notes: Good alternative if space is tight, though generally slower than Hash Set due to sorting.
+
+---
+## Approach 4: Sorting + Two Pointers
+
+**Intuition**
+Sort both arrays. Use two pointers to traverse the arrays simultaneously to find the pair where the difference matches the required delta.
+
+**Steps**
+- Calculate sumA, sumB, and delta.
+- Sort aliceSizes and bobSizes.
+- Initialize pointers i = 0, j = 0.
+- While i &lt; len(aliceSizes) and j &lt; len(bobSizes):
+  - Calculate diff = aliceSizes[i] - bobSizes[j].
+  - If diff == delta, return [aliceSizes[i], bobSizes[j]].
+  - If diff &gt; delta, increment j (need a larger Bob candy to reduce diff).
+  - If diff &lt; delta, increment i (need a larger Alice candy to increase diff).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def fairCandySwap(self, aliceSizes: list[int], bobSizes: list[int]) -&gt; list[int]:\n        sumA, sumB = sum(aliceSizes), sum(bobSizes)\n        delta = (sumA - sumB) // 2\n        aliceSizes.sort()\n        bobSizes.sort()\n        i = j = 0\n        while i &lt; len(aliceSizes) and j &lt; len(bobSizes):\n            a = aliceSizes[i]\n            b = bobSizes[j]\n            if a - b == delta:\n                return [a, b]\n            elif a - b &gt; delta:\n                j += 1\n            else:\n                i += 1\n        return []" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int[] fairCandySwap(int[] aliceSizes, int[] bobSizes) {\n        int sumA = 0, sumB = 0;\n        for (int x : aliceSizes) sumA += x;\n        for (int x : bobSizes) sumB += x;\n        int delta = (sumA - sumB) / 2;\n        Arrays.sort(aliceSizes);\n        Arrays.sort(bobSizes);\n        int i = 0, j = 0;\n        while (i &lt; aliceSizes.length && j &lt; bobSizes.length) {\n            int a = aliceSizes[i];\n            int b = bobSizes[j];\n            if (a - b == delta) {\n                return new int[]{a, b};\n            } else if (a - b &gt; delta) {\n                j++;\n            } else {\n                i++;\n            }\n        }\n        return new int[]{};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;numeric&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; fairCandySwap(vector&lt;int&gt;& aliceSizes, vector&lt;int&gt;& bobSizes) {\n        long long sumA = accumulate(aliceSizes.begin(), aliceSizes.end(), 0LL);\n        long long sumB = accumulate(bobSizes.begin(), bobSizes.end(), 0LL);\n        long long delta = (sumA - sumB) / 2;\n        sort(aliceSizes.begin(), aliceSizes.end());\n        sort(bobSizes.begin(), bobSizes.end());\n        int i = 0, j = 0;\n        while (i &lt; aliceSizes.size() && j &lt; bobSizes.size()) {\n            int a = aliceSizes[i];\n            int b = bobSizes[j];\n            if (a - b == delta) {\n                return {a, b};\n            } else if (a - b &gt; delta) {\n                j++;\n            } else {\n                i++;\n            }\n        }\n        return {};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var fairCandySwap = function(aliceSizes, bobSizes) {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    aliceSizes.sort((a, b) =&gt; a - b);\n    bobSizes.sort((a, b) =&gt; a - b);\n    let i = 0, j = 0;\n    while (i &lt; aliceSizes.length && j &lt; bobSizes.length) {\n        let a = aliceSizes[i];\n        let b = bobSizes[j];\n        if (a - b == delta) {\n            return [a, b];\n        } else if (a - b &gt; delta) {\n            j++;\n        } else {\n            i++;\n        }\n    }\n    return [];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function fairCandySwap(aliceSizes: number[], bobSizes: number[]): number[] {\n    let sumA = aliceSizes.reduce((a, b) =&gt; a + b, 0);\n    let sumB = bobSizes.reduce((a, b) =&gt; a + b, 0);\n    let delta = (sumA - sumB) / 2;\n    aliceSizes.sort((a, b) =&gt; a - b);\n    bobSizes.sort((a, b) =&gt; a - b);\n    let i = 0, j = 0;\n    while (i &lt; aliceSizes.length && j &lt; bobSizes.length) {\n        let a = aliceSizes[i];\n        let b = bobSizes[j];\n        if (a - b == delta) {\n            return [a, b];\n        } else if (a - b &gt; delta) {\n            j++;\n        } else {\n            i++;\n        }\n    }\n    return [];\n}" },]} />
+
+**Complexity**
+- Time: O(N log N + M log M)
+- Space: O(1) or O(N + M) depending on sorting implementation.
+- Notes: Efficient if data is already sorted.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Fair Candy Swap Solutions","datePublished":"2024-03-22","description":"Alice and Bob have different total candies. Exchange one candy box each so they have the same total amount.","keywords":"LeetCode, Fair Candy Swap, Easy, Array, Hash Table, Binary Search, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * M), where N and M are the lengths of the arrays."}},{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), which is optimal for this problem."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(M) depending on the sorting implementation."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(N + M) depending on the sorting implementation."}}]}).replace(/</g,'\u003c')}
+</script>

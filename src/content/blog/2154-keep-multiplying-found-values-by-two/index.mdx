@@ -1,0 +1,291 @@
+---
+title: "Keep Multiplying Found Values by Two"
+summary: "Find original in nums, multiply by 2, repeat until not found. Return final value."
+date: "Dec 21, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting, Simulation
+
+You are given an array of positive integers nums and an integer original.
+
+Find original in nums. If found, multiply original by 2 and repeat the process. Continue this process until original is no longer found in nums.
+
+Return the final value of original.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Hash Set Approach](#hash-set-approach)
+- [Sorting + Binary Search](#sorting--binary-search)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [5,3,6,1,12], original = 3
+Output: 24
+Explanation: 
+- 3 is found in nums. 3 is multiplied by 2 to get 6.
+- 6 is found in nums. 6 is multiplied by 2 to get 12.
+- 12 is found in nums. 12 is multiplied by 2 to get 24.
+- 24 is not found in nums. Thus, 24 is returned.
+```
+
+Example 2:
+```text
+Input: nums = [2,7,9], original = 4
+Output: 4
+Explanation: 
+- 4 is not found in nums. Thus, 4 is returned.
+```
+
+## Constraints
+```text
+1 <= nums.length <= 1000
+1 <= nums[i], original <= 1000
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Repeatedly search for `original` in the array using linear search. If found, multiply by 2 and continue until not found.
+
+**Steps**
+- While `original` exists in `nums` (using linear search):
+  - Multiply `original` by 2
+- Return final `original`
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        while original in nums:
+            original *= 2
+        return original` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findFinalValue(int[] nums, int original) {
+        while (contains(nums, original)) {
+            original *= 2;
+        }
+        return original;
+    }
+    
+    private boolean contains(int[] nums, int target) {
+        for (int num : nums) {
+            if (num == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findFinalValue(vector<int>& nums, int original) {
+        while (find(nums.begin(), nums.end(), original) != nums.end()) {
+            original *= 2;
+        }
+        return original;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} original
+ * @return {number}
+ */
+var findFinalValue = function(nums, original) {
+    while (nums.includes(original)) {
+        original *= 2;
+    }
+    return original;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findFinalValue(nums: number[], original: number): number {
+    while (nums.includes(original)) {
+        original *= 2;
+    }
+    return original;
+}` },]} />
+
+**Complexity**
+- Time: O(n × k) where n is array length and k is number of multiplications
+- Space: O(1)
+- Notes: Simple but inefficient due to repeated linear searches
+
+---
+## Hash Set Approach
+
+**Intuition**
+Use a hash set for O(1) lookups. Convert array to set once, then repeatedly check and multiply.
+
+**Steps**
+- Convert `nums` to a hash set
+- While `original` exists in the set:
+  - Multiply `original` by 2
+- Return final `original`
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        s = set(nums)
+        while original in s:
+            original *= 2
+        return original` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findFinalValue(int[] nums, int original) {
+        Set<Integer> set = new HashSet&lt;&gt;();
+        for (int num : nums) {
+            set.add(num);
+        }
+        while (set.contains(original)) {
+            original *= 2;
+        }
+        return original;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findFinalValue(vector<int>& nums, int original) {
+        unordered_set<int> s(nums.begin(), nums.end());
+        while (s.count(original)) {
+            original *= 2;
+        }
+        return original;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} original
+ * @return {number}
+ */
+var findFinalValue = function(nums, original) {
+    const set = new Set(nums);
+    while (set.has(original)) {
+        original *= 2;
+    }
+    return original;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findFinalValue(nums: number[], original: number): number {
+    const set = new Set(nums);
+    while (set.has(original)) {
+        original *= 2;
+    }
+    return original;
+}` },]} />
+
+**Complexity**
+- Time: O(n + k) where n is array length and k is number of multiplications
+- Space: O(n)
+- Notes: Optimal time complexity with trade-off of extra space
+
+---
+## Sorting + Binary Search
+
+**Intuition**
+Sort the array and use binary search for each lookup. This avoids extra space but adds log factor.
+
+**Steps**
+- Sort `nums` array
+- While binary search finds `original` in array:
+  - Multiply `original` by 2
+- Return final `original`
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from bisect import bisect_left
+
+class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        nums.sort()
+        n = len(nums)
+        while True:
+            idx = bisect_left(nums, original)
+            if idx &lt; n and nums[idx] == original:
+                original *= 2
+            else:
+                break
+        return original` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int findFinalValue(int[] nums, int original) {
+        Arrays.sort(nums);
+        while (Arrays.binarySearch(nums, original) &gt;= 0) {
+            original *= 2;
+        }
+        return original;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    int findFinalValue(vector<int>& nums, int original) {
+        sort(nums.begin(), nums.end());
+        while (binary_search(nums.begin(), nums.end(), original)) {
+            original *= 2;
+        }
+        return original;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} original
+ * @return {number}
+ */
+var findFinalValue = function(nums, original) {
+    nums.sort((a, b) =&gt; a - b);
+    
+    const binarySearch = (target) =&gt; {
+        let left = 0, right = nums.length - 1;
+        while (left &lt;= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (nums[mid] === target) return true;
+            if (nums[mid] &lt; target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return false;
+    };
+    
+    while (binarySearch(original)) {
+        original *= 2;
+    }
+    return original;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findFinalValue(nums: number[], original: number): number {
+    nums.sort((a, b) =&gt; a - b);
+    
+    const binarySearch = (target: number): boolean =&gt; {
+        let left = 0, right = nums.length - 1;
+        while (left &lt;= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (nums[mid] === target) return true;
+            if (nums[mid] &lt; target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return false;
+    };
+    
+    while (binarySearch(original)) {
+        original *= 2;
+    }
+    return original;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n + k log n) where n is array length and k is number of multiplications
+- Space: O(1) or O(log n) for sorting recursion
+- Notes: Good when space is constrained, but slower than hash set
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Keep Multiplying Found Values by Two Solutions","datePublished":"2025-12-21","description":"Find original in nums, multiply by 2, repeat until not found. Return final value.","keywords":"LeetCode, Keep Multiplying Found Values by Two, Easy, Array, Hash Table, Sorting, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + k) where n is the array length and k is the number of multiplications performed."}},{"@type":"Question","name":"What is the space complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as no additional data structures are used."}},{"@type":"Question","name":"Which approach is optimal for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach is optimal with O(n + k) time complexity, trading O(n) space for faster lookups."}}]}).replace(/</g,'\u003c')}
+</script>

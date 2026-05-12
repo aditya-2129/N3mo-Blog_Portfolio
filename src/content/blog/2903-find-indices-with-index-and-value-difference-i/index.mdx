@@ -1,0 +1,122 @@
+---
+title: "Find Indices With Index and Value Difference I"
+summary: "Find indices i and j in an array such that the absolute difference of their indices is at least indexDifference and the absolute difference of their values is at least valueDifference."
+date: "Apr 21, 2024"
+tags:
+  - Array
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.30% | **Paid:** No
+> **Topics:** Array, Two Pointers
+
+You are given a 0-indexed integer array nums of length n, and two integers indexDifference and valueDifference.
+
+Return the indices i and j such that:
+
+- i != j,
+- abs(i - j) &gt;= indexDifference, and
+- abs(nums[i] - nums[j]) &gt;= valueDifference.
+
+If there are multiple valid pairs, return any of them.
+
+If no such pair exists, return [-1, -1].
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window with Min/Max Tracking](#sliding-window-with-minmax-tracking)
+
+## Examples
+
+```text
+Input: nums = [5,1,4,1], indexDifference = 2, valueDifference = 4
+Output: [0,3]
+Explanation: (0,3) is a valid pair because abs(0 - 3) >= 2 and abs(nums[0] - nums[3]) >= 4.
+```
+
+```text
+Input: nums = [2,2], indexDifference = 2, valueDifference = 0
+Output: [0,1]
+Explanation: (0,1) is a valid pair because abs(0 - 1) >= 2 and abs(nums[0] - nums[1]) >= 0.
+Note that (0,1) and (1,0) are both valid pairs.
+```
+
+```text
+Input: nums = [3,0,3,2,4,2], indexDifference = 2, valueDifference = 1
+Output: [0,2]
+Explanation: (0,2) is a valid pair because abs(0 - 2) >= 2 and abs(nums[0] - nums[2]) >= 1.
+```
+
+## Constraints
+
+```text
+n == nums.length
+1 <= n <= 100
+0 <= nums[i] <= 50
+0 <= indexDifference <= 100
+0 <= valueDifference <= 50
+```
+
+---
+## Brute Force
+
+**Intuition**
+Since the constraints are small (n &lt;= 100), we can simply check every possible pair of indices (i, j) to see if they satisfy the conditions.
+
+**Steps**
+- Iterate through the array with index `i`.
+- For each `i`, iterate through the array with index `j`.
+- Check if `i != j`, `abs(i - j) &gt;= indexDifference`, and `abs(nums[i] - nums[j]) &gt;= valueDifference`.
+- If a valid pair is found, return it immediately.
+- If the loops finish without finding a pair, return `[-1, -1]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findIndices(self, nums: list[int], indexDifference: int, valueDifference: int) -&gt; list[int]:\n        n = len(nums)\n        for i in range(n):\n            for j in range(n):\n                if abs(i - j) &gt;= indexDifference and abs(nums[i] - nums[j]) &gt;= valueDifference:\n                    return [i, j]\n        return [-1, -1]\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findIndices(int[] nums, int indexDifference, int valueDifference) {\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (Math.abs(i - j) &gt;= indexDifference && Math.abs(nums[i] - nums[j]) &gt;= valueDifference) {\n                    return new int[]{i, j};\n                }\n            }\n        }\n        return new int[]{-1, -1};\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findIndices(vector&lt;int&gt;& nums, int indexDifference, int valueDifference) {\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (abs(i - j) &gt;= indexDifference && abs(nums[i] - nums[j]) &gt;= valueDifference) {\n                    return {i, j};\n                }\n            }\n        }\n        return {-1, -1};\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findIndices = function(nums, indexDifference, valueDifference) {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (Math.abs(i - j) &gt;= indexDifference && Math.abs(nums[i] - nums[j]) &gt;= valueDifference) {\n                return [i, j];\n            }\n        }\n    }\n    return [-1, -1];\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findIndices(nums: number[], indexDifference: number, valueDifference: number): number[] {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (Math.abs(i - j) &gt;= indexDifference && Math.abs(nums[i] - nums[j]) &gt;= valueDifference) {\n                return [i, j];\n            }\n        }\n    }\n    return [-1, -1];\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple and effective for the given constraints.
+
+---
+## Sliding Window with Min/Max Tracking
+
+**Intuition**
+For a given index `i`, we only need to check indices `j` such that `abs(i - j) &gt;= indexDifference`. This means `j` must be at least `indexDifference` away from `i`. We can iterate through the array and maintain a sliding window of valid `j` indices. To satisfy the value difference efficiently, we only need to know the minimum and maximum values in the valid window, as these are the only candidates that can satisfy `abs(nums[i] - nums[j]) &gt;= valueDifference`.
+
+**Steps**
+- Initialize variables to track the minimum value (`minVal`), its index (`minIdx`), maximum value (`maxVal`), and its index (`maxIdx`) in the valid window.
+- Iterate through the array with index `i`.
+- The valid window for `j` is indices `0` to `i - indexDifference`.
+- If `i - indexDifference &gt;= 0`, we expand the window to include the element at `i - indexDifference`. Update `minVal`, `minIdx`, `maxVal`, and `maxIdx` if this new element is smaller or larger.
+- Check if `nums[i]` satisfies the value difference condition with `minVal` or `maxVal` from the window.
+- If `abs(nums[i] - minVal) &gt;= valueDifference` and `minIdx != i`, return `[i, minIdx]`.
+- If `abs(nums[i] - maxVal) &gt;= valueDifference` and `maxIdx != i`, return `[i, maxIdx]`.
+- If the loop completes, return `[-1, -1]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findIndices(self, nums: list[int], indexDifference: int, valueDifference: int) -&gt; list[int]:\n        n = len(nums)\n        min_val = nums[0]\n        min_idx = 0\n        max_val = nums[0]\n        max_idx = 0\n        \n        for i in range(n):\n            # The valid window for j is [0, i - indexDifference]\n            if i - indexDifference &gt;= 0:\n                j = i - indexDifference\n                if nums[j] &lt; min_val:\n                    min_val = nums[j]\n                    min_idx = j\n                if nums[j] &gt; max_val:\n                    max_val = nums[j]\n                    max_idx = j\n            \n            # Check against the min and max in the valid window\n            if abs(nums[i] - min_val) &gt;= valueDifference and min_idx != i:\n                return [i, min_idx]\n            if abs(nums[i] - max_val) &gt;= valueDifference and max_idx != i:\n                return [i, max_idx]\n                \n        return [-1, -1]\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findIndices(int[] nums, int indexDifference, int valueDifference) {\n        int n = nums.length;\n        int minVal = nums[0];\n        int minIdx = 0;\n        int maxVal = nums[0];\n        int maxIdx = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (i - indexDifference &gt;= 0) {\n                int j = i - indexDifference;\n                if (nums[j] &lt; minVal) {\n                    minVal = nums[j];\n                    minIdx = j;\n                }\n                if (nums[j] &gt; maxVal) {\n                    maxVal = nums[j];\n                    maxIdx = j;\n                }\n            }\n            \n            if (Math.abs(nums[i] - minVal) &gt;= valueDifference && minIdx != i) {\n                return new int[]{i, minIdx};\n            }\n            if (Math.abs(nums[i] - maxVal) &gt;= valueDifference && maxIdx != i) {\n                return new int[]{i, maxIdx};\n            }\n        }\n        return new int[]{-1, -1};\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findIndices(vector&lt;int&gt;& nums, int indexDifference, int valueDifference) {\n        int n = nums.size();\n        int minVal = nums[0];\n        int minIdx = 0;\n        int maxVal = nums[0];\n        int maxIdx = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (i - indexDifference &gt;= 0) {\n                int j = i - indexDifference;\n                if (nums[j] &lt; minVal) {\n                    minVal = nums[j];\n                    minIdx = j;\n                }\n                if (nums[j] &gt; maxVal) {\n                    maxVal = nums[j];\n                    maxIdx = j;\n                }\n            }\n            \n            if (abs(nums[i] - minVal) &gt;= valueDifference && minIdx != i) {\n                return {i, minIdx};\n            }\n            if (abs(nums[i] - maxVal) &gt;= valueDifference && maxIdx != i) {\n                return {i, maxIdx};\n            }\n        }\n        return {-1, -1};\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findIndices = function(nums, indexDifference, valueDifference) {\n    const n = nums.length;\n    let minVal = nums[0];\n    let minIdx = 0;\n    let maxVal = nums[0];\n    let maxIdx = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (i - indexDifference &gt;= 0) {\n            const j = i - indexDifference;\n            if (nums[j] &lt; minVal) {\n                minVal = nums[j];\n                minIdx = j;\n            }\n            if (nums[j] &gt; maxVal) {\n                maxVal = nums[j];\n                maxIdx = j;\n            }\n        }\n        \n        if (Math.abs(nums[i] - minVal) &gt;= valueDifference && minIdx !== i) {\n            return [i, minIdx];\n        }\n        if (Math.abs(nums[i] - maxVal) &gt;= valueDifference && maxIdx !== i) {\n            return [i, maxIdx];\n        }\n    }\n    return [-1, -1];\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findIndices(nums: number[], indexDifference: number, valueDifference: number): number[] {\n    const n = nums.length;\n    let minVal = nums[0];\n    let minIdx = 0;\n    let maxVal = nums[0];\n    let maxIdx = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (i - indexDifference &gt;= 0) {\n            const j = i - indexDifference;\n            if (nums[j] &lt; minVal) {\n                minVal = nums[j];\n                minIdx = j;\n            }\n            if (nums[j] &gt; maxVal) {\n                maxVal = nums[j];\n                maxIdx = j;\n            }\n        }\n        \n        if (Math.abs(nums[i] - minVal) &gt;= valueDifference && minIdx !== i) {\n            return [i, minIdx];\n        }\n        if (Math.abs(nums[i] - maxVal) &gt;= valueDifference && maxIdx !== i) {\n            return [i, maxIdx];\n        }\n    }\n    return [-1, -1];\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimized for larger input sizes by reducing the inner loop to constant time checks.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Indices With Index and Value Difference I Solutions","datePublished":"2024-04-21","description":"Find indices i and j in an array such that the absolute difference of their indices is at least indexDifference and the absolute difference of their values is at least valueDifference.","keywords":"LeetCode, Find Indices With Index and Value Difference I, Easy, Array, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sliding Window approach is O(n), where n is the length of the array."}}]}).replace(/</g,'\u003c')}
+</script>

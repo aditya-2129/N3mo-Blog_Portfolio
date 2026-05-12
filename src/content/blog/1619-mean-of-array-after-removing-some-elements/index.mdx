@@ -1,0 +1,405 @@
+---
+title: "Mean of Array After Removing Some Elements"
+summary: "Given an integer array, remove the smallest 5% and largest 5% of elements and return the average of the remaining elements."
+date: "Feb 21, 2024"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.80% | **Paid:** No
+> **Topics:** Array, Sorting
+
+Given an integer array arr, return the mean of the remaining elements after removing the smallest 5% and the largest 5% of the elements. Answers within 10⁻⁵ of the actual answer will be considered accepted.
+
+- Examples
+- Constraints
+- [Sorting Approach](#sorting-approach)
+- [Counting Sort Approach](#counting-sort-approach)
+
+## Examples
+
+Input: arr = [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3]
+Output: 2.00000
+Explanation: After erasing the smallest and the largest 5% elements, the array is [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2].
+
+Input: arr = [6,0,7,0,7,5,7,8,3,4,0,7,8,1,6,8,1,1,2,9,8,9,2,8,2,8,8,8,1,9]
+Output: 4.77778
+Explanation: After erasing the smallest and the largest 5% elements, the array is [7,7,7,5,7,8,3,4,7,8,1,6,8,1,1,2,9,8,9,2,8,2,8,8,8,1,9].
+
+Input: arr = [9,7,8,7,7,8,4,4,6,8,8,7,5,1,10]
+Output: 6.66667
+Explanation: After erasing the smallest and the largest 5% elements, the array is [9,7,8,7,7,8,4,4,6,8,8,7,5,1,10]. Since 15 * 0.05 = 0.75, we remove 0 elements from the smallest and largest.
+
+## Constraints
+
+```text
+20 <= arr.length <= 1000
+arr.length is a multiple of 20.
+1 <= arr[i] <= 10^5
+```
+
+---
+
+## Sorting Approach
+
+**Intuition**
+Sorting the array places the elements in ascending order. This allows us to easily identify and exclude the smallest 5% and largest 5% of elements, which will be located at the beginning and end of the sorted array respectively.
+
+**Steps**
+- Sort the array in non-decreasing order.
+- Calculate the number of elements to remove, `k`, which is 5% of the array length.
+- Sum the elements from index `k` to `length - k - 1`.
+- Divide the sum by the number of remaining elements (`length - 2 * k`) to get the mean.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def trimMean(self, arr: list[int]) -> float:
+        arr.sort()
+        n = len(arr)
+        k = n // 20
+        trimmed_sum = sum(arr[k:n - k])
+        return trimmed_sum / (n - 2 * k)
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.Arrays;
+
+class Solution {
+    public double trimMean(int[] arr) {
+        Arrays.sort(arr);
+        int n = arr.length;
+        int k = n / 20;
+        double sum = 0;
+        for (int i = k; i &lt; n - k; i++) {
+            sum += arr[i];
+        }
+        return sum / (n - 2 * k);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <numeric>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    double trimMean(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int n = arr.size();
+        int k = n / 20;
+        double sum = accumulate(arr.begin() + k, arr.begin() + n - k, 0.0);
+        return sum / (n - 2 * k);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} arr
+ * @return {number}
+ */
+var trimMean = function(arr) {
+    arr.sort((a, b) =&gt; a - b);
+    const n = arr.length;
+    const k = Math.floor(n / 20);
+    let sum = 0;
+    for (let i = k; i &lt; n - k; i++) {
+        sum += arr[i];
+    }
+    return sum / (n - 2 * k);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function trimMean(arr: number[]): number {
+    arr.sort((a, b) =&gt; a - b);
+    const n = arr.length;
+    const k = Math.floor(n / 20);
+    let sum = 0;
+    for (let i = k; i &lt; n - k; i++) {
+        sum += arr[i];
+    }
+    return sum / (n - 2 * k);
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(1) or O(n) depending on the sorting algorithm's memory usage.
+- Notes: This is the most straightforward approach and is efficient enough given the constraints (n &lt;= 1000).
+
+---
+
+## Counting Sort Approach
+
+**Intuition**
+Since the values in the array are constrained to a relatively small range (1 to 10⁵), we can use a frequency array (Counting Sort) to count occurrences of each number. This allows us to iterate through the value range to remove the smallest and largest elements without sorting the entire array.
+
+**Steps**
+- Create a frequency array of size 100001 initialized to 0.
+- Iterate through the input array and populate the frequency counts.
+- Calculate `k` (5% of length).
+- Iterate from the smallest value (1) upwards, decrementing the frequency count and `k` until we have removed `k` smallest elements.
+- Iterate from the largest value (100000) downwards, decrementing the frequency count and `k` until we have removed `k` largest elements.
+- Iterate through the frequency array again to sum the remaining values and count them.
+- Return the sum divided by the count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def trimMean(self, arr: list[int]) -> float:
+        n = len(arr)
+        k = n // 20
+        freq = [0] * 100001
+        
+        for x in arr:
+            freq[x] += 1
+            
+        # Remove smallest k elements
+        to_remove = k
+        i = 1
+        while to_remove &gt; 0:
+            if freq[i] &gt; 0:
+                freq[i] -= 1
+                to_remove -= 1
+            else:
+                i += 1
+                
+        # Remove largest k elements
+        to_remove = k
+        i = 100000
+        while to_remove &gt; 0:
+            if freq[i] &gt; 0:
+                freq[i] -= 1
+                to_remove -= 1
+            else:
+                i -= 1
+                
+        # Calculate mean of remaining
+        total_sum = 0
+        count = 0
+        for i in range(1, 100001):
+            if freq[i] &gt; 0:
+                total_sum += i * freq[i]
+                count += freq[i]
+                
+        return total_sum / count
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public double trimMean(int[] arr) {
+        int n = arr.length;
+        int k = n / 20;
+        int[] freq = new int[100001];
+        
+        for (int x : arr) {
+            freq[x]++;
+        }
+        
+        // Remove smallest k elements
+        int toRemove = k;
+        int i = 1;
+        while (toRemove &gt; 0) {
+            if (freq[i] &gt; 0) {
+                freq[i]--;
+                toRemove--;
+            } else {
+                i++;
+            }
+        }
+        
+        // Remove largest k elements
+        toRemove = k;
+        i = 100000;
+        while (toRemove &gt; 0) {
+            if (freq[i] &gt; 0) {
+                freq[i]--;
+                toRemove--;
+            } else {
+                i--;
+            }
+        }
+        
+        // Calculate mean of remaining
+        double sum = 0;
+        int count = 0;
+        for (int j = 1; j &lt;= 100000; j++) {
+            if (freq[j] &gt; 0) {
+                sum += (double) j * freq[j];
+                count += freq[j];
+            }
+        }
+        
+        return sum / count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double trimMean(vector<int>& arr) {
+        int n = arr.size();
+        int k = n / 20;
+        vector<int> freq(100001, 0);
+        
+        for (int x : arr) {
+            freq[x]++;
+        }
+        
+        // Remove smallest k elements
+        int toRemove = k;
+        int i = 1;
+        while (toRemove &gt; 0) {
+            if (freq[i] &gt; 0) {
+                freq[i]--;
+                toRemove--;
+            } else {
+                i++;
+            }
+        }
+        
+        // Remove largest k elements
+        toRemove = k;
+        i = 100000;
+        while (toRemove &gt; 0) {
+            if (freq[i] &gt; 0) {
+                freq[i]--;
+                toRemove--;
+            } else {
+                i--;
+            }
+        }
+        
+        // Calculate mean of remaining
+        double sum = 0;
+        int count = 0;
+        for (int j = 1; j &lt;= 100000; j++) {
+            if (freq[j] &gt; 0) {
+                sum += (double) j * freq[j];
+                count += freq[j];
+            }
+        }
+        
+        return sum / count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} arr
+ * @return {number}
+ */
+var trimMean = function(arr) {
+    const n = arr.length;
+    const k = Math.floor(n / 20);
+    const freq = new Array(100001).fill(0);
+    
+    for (const x of arr) {
+        freq[x]++;
+    }
+    
+    // Remove smallest k elements
+    let toRemove = k;
+    let i = 1;
+    while (toRemove &gt; 0) {
+        if (freq[i] &gt; 0) {
+            freq[i]--;
+            toRemove--;
+        } else {
+            i++;
+        }
+    }
+    
+    // Remove largest k elements
+    toRemove = k;
+    i = 100000;
+    while (toRemove &gt; 0) {
+        if (freq[i] &gt; 0) {
+            freq[i]--;
+            toRemove--;
+        } else {
+            i--;
+        }
+    }
+    
+    // Calculate mean of remaining
+    let sum = 0;
+    let count = 0;
+    for (let j = 1; j &lt;= 100000; j++) {
+        if (freq[j] &gt; 0) {
+            sum += j * freq[j];
+            count += freq[j];
+        }
+    }
+    
+    return sum / count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function trimMean(arr: number[]): number {
+    const n = arr.length;
+    const k = Math.floor(n / 20);
+    const freq = new Array(100001).fill(0);
+    
+    for (const x of arr) {
+        freq[x]++;
+    }
+    
+    // Remove smallest k elements
+    let toRemove = k;
+    let i = 1;
+    while (toRemove &gt; 0) {
+        if (freq[i] &gt; 0) {
+            freq[i]--;
+            toRemove--;
+        } else {
+            i++;
+        }
+    }
+    
+    // Remove largest k elements
+    toRemove = k;
+    i = 100000;
+    while (toRemove &gt; 0) {
+        if (freq[i] &gt; 0) {
+            freq[i]--;
+            toRemove--;
+        } else {
+            i--;
+        }
+    }
+    
+    // Calculate mean of remaining
+    let sum = 0;
+    let count = 0;
+    for (let j = 1; j &lt;= 100000; j++) {
+        if (freq[j] &gt; 0) {
+            sum += j * freq[j];
+            count += freq[j];
+        }
+    }
+    
+    return sum / count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n + C), where C is the range of values (100001). This is effectively O(n) since C is constant relative to input constraints.
+- Space: O(C) to store the frequency array.
+- Notes: This approach avoids the O(n log n) sorting cost, trading it for O(C) space. It is efficient when the range of values is limited.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Mean of Array After Removing Some Elements Solutions","datePublished":"2024-02-21","description":"Given an integer array, remove the smallest 5% and largest 5% of elements and return the average of the remaining elements.","keywords":"LeetCode, Mean of Array After Removing Some Elements, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + C), where C is the range of values (100001), which simplifies to O(n)."}},{"@type":"Question","name":"How many elements are removed from the array?","acceptedAnswer":{"@type":"Answer","text":"We remove 5% of the smallest elements and 5% of the largest elements, totaling 10% of the array length."}}]}).replace(/</g,'\u003c')}
+</script>

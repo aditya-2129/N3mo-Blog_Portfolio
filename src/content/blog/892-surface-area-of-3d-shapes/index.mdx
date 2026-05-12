@@ -1,0 +1,149 @@
+---
+title: "Surface Area of 3D Shapes"
+summary: "Calculate the total surface area of a 3D shape represented by an n x n grid of cube heights."
+date: "Aug 19, 2024"
+tags:
+  - Array
+  - Math
+  - Geometry
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.70% | **Paid:** No
+> **Topics:** Array, Math, Geometry, Matrix
+
+You are given an n x n grid where you have placed some 1 x 1 x 1 cubes. Each value v = grid[i][j] represents a tower of v cubes placed on top of the cell (i, j).
+
+Return the total surface area of the resulting shapes.
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+grid = [[1,2],[3,4]]
+```
+
+**Output:**
+```text
+34
+```
+
+### Example 2
+
+**Input:**
+```text
+grid = [[1,1,1],[1,0,1],[1,1,1]]
+```
+
+**Output:**
+```text
+32
+```
+
+### Example 3
+
+**Input:**
+```text
+grid = [[2,2,2],[2,1,2],[2,2,2]]
+```
+
+**Output:**
+```text
+46
+```
+
+## Constraints
+```text
+n == grid.length == grid[i].length
+1 <= n <= 50
+0 <= grid[i][j] <= 50
+```
+
+- Examples
+- Constraints
+- [Contribution Method](#contribution-method)
+- [Total Area Minus Overlaps](#total-area-minus-overlaps)
+- [Voxel Counting (Brute Force)](#voxel-counting-brute-force)
+
+---
+## Contribution Method
+
+**Intuition**
+Instead of calculating the total area and subtracting overlaps, we can calculate the contribution of each cell to the surface area individually. Each cell contributes its top and bottom faces, plus the exposed parts of its four side faces based on the height difference with its neighbors.
+
+**Steps**
+- Initialize `area` to 0.
+- Iterate through each cell `(i, j)` in the grid.
+- Add 2 to `area` for the top and bottom faces of the current tower.
+- Check the four adjacent neighbors (up, down, left, right).
+- For each neighbor, if it exists, add `max(0, current_height - neighbor_height)` to `area`. If the neighbor is out of bounds, add the full `current_height` (since the side is fully exposed).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def surfaceArea(self, grid: list[list[int]]) -&gt; int:\n        n = len(grid)\n        area = 0\n        for i in range(n):\n            for j in range(n):\n                if grid[i][j] &gt; 0:\n                    # Top and bottom\n                    area += 2\n                    # Check 4 neighbors\n                    # Up\n                    if i &gt; 0:\n                        area += max(0, grid[i][j] - grid[i-1][j])\n                    else:\n                        area += grid[i][j]\n                    # Down\n                    if i &lt; n - 1:\n                        area += max(0, grid[i][j] - grid[i+1][j])\n                    else:\n                        area += grid[i][j]\n                    # Left\n                    if j &gt; 0:\n                        area += max(0, grid[i][j] - grid[i][j-1])\n                    else:\n                        area += grid[i][j]\n                    # Right\n                    if j &lt; n - 1:\n                        area += max(0, grid[i][j] - grid[i][j+1])\n                    else:\n                        area += grid[i][j]\n        return area" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int surfaceArea(int[][] grid) {\n        int n = grid.length;\n        int area = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    area += 2; // top and bottom\n                    // Up\n                    area += (i &gt; 0) ? Math.max(0, grid[i][j] - grid[i - 1][j]) : grid[i][j];\n                    // Down\n                    area += (i &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i + 1][j]) : grid[i][j];\n                    // Left\n                    area += (j &gt; 0) ? Math.max(0, grid[i][j] - grid[i][j - 1]) : grid[i][j];\n                    // Right\n                    area += (j &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i][j + 1]) : grid[i][j];\n                }\n            }\n        }\n        return area;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int surfaceArea(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        int area = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                if (grid[i][j] &gt; 0) {\n                    area += 2; // top and bottom\n                    // Up\n                    area += (i &gt; 0) ? max(0, grid[i][j] - grid[i - 1][j]) : grid[i][j];\n                    // Down\n                    area += (i &lt; n - 1) ? max(0, grid[i][j] - grid[i + 1][j]) : grid[i][j];\n                    // Left\n                    area += (j &gt; 0) ? max(0, grid[i][j] - grid[i][j - 1]) : grid[i][j];\n                    // Right\n                    area += (j &lt; n - 1) ? max(0, grid[i][j] - grid[i][j + 1]) : grid[i][j];\n                }\n            }\n        }\n        return area;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number}\n */\nvar surfaceArea = function(grid) {\n    const n = grid.length;\n    let area = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                area += 2; // top and bottom\n                // Up\n                area += (i &gt; 0) ? Math.max(0, grid[i][j] - grid[i - 1][j]) : grid[i][j];\n                // Down\n                area += (i &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i + 1][j]) : grid[i][j];\n                // Left\n                area += (j &gt; 0) ? Math.max(0, grid[i][j] - grid[i][j - 1]) : grid[i][j];\n                // Right\n                area += (j &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i][j + 1]) : grid[i][j];\n            }\n        }\n    }\n    return area;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function surfaceArea(grid: number[][]): number {\n    const n = grid.length;\n    let area = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                area += 2; // top and bottom\n                // Up\n                area += (i &gt; 0) ? Math.max(0, grid[i][j] - grid[i - 1][j]) : grid[i][j];\n                // Down\n                area += (i &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i + 1][j]) : grid[i][j];\n                // Left\n                area += (j &gt; 0) ? Math.max(0, grid[i][j] - grid[i][j - 1]) : grid[i][j];\n                // Right\n                area += (j &lt; n - 1) ? Math.max(0, grid[i][j] - grid[i][j + 1]) : grid[i][j];\n            }\n        }\n    }\n    return area;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Most efficient approach with a single pass.
+
+---
+## Total Area Minus Overlaps
+
+**Intuition**
+Calculate the surface area of every tower as if it were isolated (4 sides + top + bottom), then subtract the area where adjacent towers touch each other.
+
+**Steps**
+- Calculate the sum of surface areas of all individual towers: `sum(4 * height + 2)`.
+- Iterate through the grid to find overlaps between adjacent towers (right and down neighbors).
+- For each adjacent pair, subtract `2 * min(height1, height2)` from the total area.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def surfaceArea(self, grid: list[list[int]]) -&gt; int:\n        n = len(grid)\n        area = 0\n        # Calculate total area of isolated towers\n        for i in range(n):\n            for j in range(n):\n                if grid[i][j] &gt; 0:\n                    area += grid[i][j] * 4 + 2\n        \n        # Subtract overlaps\n        for i in range(n):\n            for j in range(n):\n                # Check right neighbor\n                if j + 1 &lt; n:\n                    area -= min(grid[i][j], grid[i][j+1]) * 2\n                # Check down neighbor\n                if i + 1 &lt; n:\n                    area -= min(grid[i][j], grid[i+1][j]) * 2\n                    \n        return area" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int surfaceArea(int[][] grid) {\n        int n = grid.length;\n        int area = 0;\n        \n        // Calculate total area of isolated towers\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    area += grid[i][j] * 4 + 2;\n                }\n            }\n        }\n        \n        // Subtract overlaps\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                // Check right neighbor\n                if (j + 1 &lt; n) {\n                    area -= Math.min(grid[i][j], grid[i][j + 1]) * 2;\n                }\n                // Check down neighbor\n                if (i + 1 &lt; n) {\n                    area -= Math.min(grid[i][j], grid[i + 1][j]) * 2;\n                }\n            }\n        }\n        return area;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int surfaceArea(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        int area = 0;\n        \n        // Calculate total area of isolated towers\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                if (grid[i][j] &gt; 0) {\n                    area += grid[i][j] * 4 + 2;\n                }\n            }\n        }\n        \n        // Subtract overlaps\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                // Check right neighbor\n                if (j + 1 &lt; n) {\n                    area -= min(grid[i][j], grid[i][j + 1]) * 2;\n                }\n                // Check down neighbor\n                if (i + 1 &lt; n) {\n                    area -= min(grid[i][j], grid[i + 1][j]) * 2;\n                }\n            }\n        }\n        return area;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number}\n */\nvar surfaceArea = function(grid) {\n    const n = grid.length;\n    let area = 0;\n    \n    // Calculate total area of isolated towers\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                area += grid[i][j] * 4 + 2;\n            }\n        }\n    }\n    \n    // Subtract overlaps\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            // Check right neighbor\n            if (j + 1 &lt; n) {\n                area -= Math.min(grid[i][j], grid[i][j + 1]) * 2;\n            }\n            // Check down neighbor\n            if (i + 1 &lt; n) {\n                area -= Math.min(grid[i][j], grid[i + 1][j]) * 2;\n            }\n        }\n    }\n    return area;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function surfaceArea(grid: number[][]): number {\n    const n = grid.length;\n    let area = 0;\n    \n    // Calculate total area of isolated towers\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                area += grid[i][j] * 4 + 2;\n            }\n        }\n    }\n    \n    // Subtract overlaps\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            // Check right neighbor\n            if (j + 1 &lt; n) {\n                area -= Math.min(grid[i][j], grid[i][j + 1]) * 2;\n            }\n            // Check down neighbor\n            if (i + 1 &lt; n) {\n                area -= Math.min(grid[i][j], grid[i + 1][j]) * 2;\n            }\n        }\n    }\n    return area;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Conceptually simple, involves two passes over the grid.
+
+---
+## Voxel Counting (Brute Force)
+
+**Intuition**
+Treat the shape as a collection of 1x1x1 cubes. Iterate through every single cube in the 3D space and check if any of its 6 faces are exposed to air.
+
+**Steps**
+- Iterate through each cell `(i, j)` in the grid.
+- Iterate through the height `k` of the tower at `(i, j)` from 0 to `grid[i][j] - 1`.
+- For the cube at `(i, j, k)`, check its 6 neighbors.
+- If a neighbor is out of bounds or the height of the neighbor tower is less than or equal to `k`, the face is exposed. Increment the surface area.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def surfaceArea(self, grid: list[list[int]]) -&gt; int:\n        n = len(grid)\n        area = 0\n        directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n        \n        for i in range(n):\n            for j in range(n):\n                for k in range(grid[i][j]):\n                    for dx, dy, dz in directions:\n                        ni, nj, nk = i + dx, j + dy, k + dz\n                        # Check if neighbor is valid and has a cube at this level\n                        if not (0 &lt;= ni &lt; n and 0 &lt;= nj &lt; n and 0 &lt;= nk &lt; grid[ni][nj]):\n                            area += 1\n        return area" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int surfaceArea(int[][] grid) {\n        int n = grid.length;\n        int area = 0;\n        int[][] dirs = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                for (int k = 0; k &lt; grid[i][j]; k++) {\n                    for (int[] d : dirs) {\n                        int ni = i + d[0];\n                        int nj = j + d[1];\n                        int nk = k + d[2];\n                        \n                        boolean exposed = false;\n                        if (ni &lt; 0 || ni &gt;= n || nj &lt; 0 || nj &gt;= n) {\n                            exposed = true;\n                        } else if (nk &lt; 0 || nk &gt;= grid[ni][nj]) {\n                            exposed = true;\n                        }\n                        \n                        if (exposed) area++;\n                    }\n                }\n            }\n        }\n        return area;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int surfaceArea(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        int area = 0;\n        int dirs[6][3] = {{1,0,0}, {-1,0,0}, {0,1,0}, {0,-1,0}, {0,0,1}, {0,0,-1}};\n        \n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                for (int k = 0; k &lt; grid[i][j]; ++k) {\n                    for (auto& d : dirs) {\n                        int ni = i + d[0];\n                        int nj = j + d[1];\n                        int nk = k + d[2];\n                        \n                        bool exposed = false;\n                        if (ni &lt; 0 || ni &gt;= n || nj &lt; 0 || nj &gt;= n) {\n                            exposed = true;\n                        } else if (nk &lt; 0 || nk &gt;= grid[ni][nj]) {\n                            exposed = true;\n                        }\n                        \n                        if (exposed) area++;\n                    }\n                }\n            }\n        }\n        return area;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number}\n */\nvar surfaceArea = function(grid) {\n    const n = grid.length;\n    let area = 0;\n    const dirs = [[1,0,0], [-1,0,0], [0,1,0], [0,-1,0], [0,0,1], [0,0,-1]];\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            for (let k = 0; k &lt; grid[i][j]; k++) {\n                for (const d of dirs) {\n                    const ni = i + d[0];\n                    const nj = j + d[1];\n                    const nk = k + d[2];\n                    \n                    let exposed = false;\n                    if (ni &lt; 0 || ni &gt;= n || nj &lt; 0 || nj &gt;= n) {\n                        exposed = true;\n                    } else if (nk &lt; 0 || nk &gt;= grid[ni][nj]) {\n                        exposed = true;\n                    }\n                    \n                    if (exposed) area++;\n                }\n            }\n        }\n    }\n    return area;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function surfaceArea(grid: number[][]): number {\n    const n = grid.length;\n    let area = 0;\n    const dirs: number[][] = [[1,0,0], [-1,0,0], [0,1,0], [0,-1,0], [0,0,1], [0,0,-1]];\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            for (let k = 0; k &lt; grid[i][j]; k++) {\n                for (const d of dirs) {\n                    const ni = i + d[0];\n                    const nj = j + d[1];\n                    const nk = k + d[2];\n                    \n                    let exposed = false;\n                    if (ni &lt; 0 || ni &gt;= n || nj &lt; 0 || nj &gt;= n) {\n                        exposed = true;\n                    } else if (nk &lt; 0 || nk &gt;= grid[ni][nj]) {\n                        exposed = true;\n                    }\n                    \n                    if (exposed) area++;\n                }\n            }\n        }\n    }\n    return area;\n}" },]} />
+
+**Complexity**
+- Time: O(n² * H) where H is the maximum height in the grid.
+- Space: O(1)
+- Notes: Easiest to conceptualize but less efficient than the mathematical approaches. Feasible given constraints (n &lt;= 50, H &lt;= 50).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Surface Area of 3D Shapes Solutions","datePublished":"2024-08-19","description":"Calculate the total surface area of a 3D shape represented by an n x n grid of cube heights.","keywords":"LeetCode, Surface Area of 3D Shapes, Easy, Array, Math, Geometry, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Time Complexity of the Contribution Method approach?","acceptedAnswer":{"@type":"Answer","text":"The Time Complexity is O(n²), where n is the length of the grid."}},{"@type":"Question","name":"What is the Space Complexity of the Total Area Minus Overlaps approach?","acceptedAnswer":{"@type":"Answer","text":"The Space Complexity is O(1) as we only use a few variables for calculation."}},{"@type":"Question","name":"What is the Time Complexity of the Voxel Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The Time Complexity is O(n² * H), where n is the grid size and H is the maximum height of the towers."}}]}).replace(/</g,'\u003c')}
+</script>

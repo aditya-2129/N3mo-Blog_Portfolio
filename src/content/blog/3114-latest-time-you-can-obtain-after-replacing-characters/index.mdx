@@ -1,0 +1,120 @@
+---
+title: "Latest Time You Can Obtain After Replacing Characters"
+summary: "Given a time string with '?' characters, replace them to form the latest valid time."
+date: "Sep 01, 2024"
+tags:
+  - String
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 35.30% | **Paid:** No
+> **Topics:** String, Enumeration
+
+You are given a string s in the format "HH:MM" representing a time. Some digits in s are hidden (represented by '?'). Return the latest valid time you can obtain by replacing the hidden characters.
+
+- Examples
+- Constraints
+- [Greedy Replacement](#greedy-replacement)
+- [Brute Force Enumeration](#brute-force-enumeration)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "1?:?4"
+```
+
+**Output:**
+```text
+"11:54"
+```
+
+**Explanation:**
+The latest 12-hour format time we can achieve by replacing "?" characters is "11:54".
+
+### Example 2
+
+**Input:**
+```text
+s = "0?:5?"
+```
+
+**Output:**
+```text
+"09:59"
+```
+
+**Explanation:**
+The latest 12-hour format time we can achieve by replacing "?" characters is "09:59".
+
+## Constraints
+
+```text
+- s.length == 5
+- s[2] is equal to the character ":".
+- All characters except s[2] are digits or "?" characters.
+- The input is generated such that there is at least one time between "00:00" and "11:59" that you can obtain after replacing the "?" characters.
+```
+
+---
+## Greedy Replacement
+
+**Intuition**
+We can determine the maximum digit for each position independently based on the constraints of the time format and the fixed digits already present.
+
+**Steps**
+- Convert the string to a mutable list or array of characters.
+- If the first digit is '?', check the second digit. If the second digit is '?' or less than or equal to '3', the first digit can be '2'. Otherwise, it must be '1'.
+- If the second digit is '?', check the first digit. If the first digit is '2', the second digit can be at most '3'. Otherwise, it can be '9'.
+- If the third digit (first minute digit) is '?', set it to '5' (maximum for tens place of minutes).
+- If the fourth digit (second minute digit) is '?', set it to '9' (maximum for ones place of minutes).
+- Join the characters back into a string and return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumTime(self, s: str) -&gt; str:\n        s = list(s)\n        if s[0] == '?':\n            s[0] = '2' if (s[1] == '?' or s[1] &lt;= '3') else '1'\n        if s[1] == '?':\n            s[1] = '3' if s[0] == '2' else '9'\n        if s[3] == '?':\n            s[3] = '5'\n        if s[4] == '?':\n            s[4] = '9'\n        return \"\".join(s)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String maximumTime(String s) {\n        char[] arr = s.toCharArray();\n        if (arr[0] == '?') {\n            arr[0] = (arr[1] == '?' || arr[1] &lt;= '3') ? '2' : '1';\n        }\n        if (arr[1] == '?') {\n            arr[1] = (arr[0] == '2') ? '3' : '9';\n        }\n        if (arr[3] == '?') {\n            arr[3] = '5';\n        }\n        if (arr[4] == '?') {\n            arr[4] = '9';\n        }\n        return new String(arr);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string maximumTime(string s) {\n        if (s[0] == '?') {\n            s[0] = (s[1] == '?' || s[1] &lt;= '3') ? '2' : '1';\n        }\n        if (s[1] == '?') {\n            s[1] = (s[0] == '2') ? '3' : '9';\n        }\n        if (s[3] == '?') {\n            s[3] = '5';\n        }\n        if (s[4] == '?') {\n            s[4] = '9';\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumTime = function(s) {\n    let arr = s.split('');\n    if (arr[0] === '?') {\n        arr[0] = (arr[1] === '?' || arr[1] &lt;= '3') ? '2' : '1';\n    }\n    if (arr[1] === '?') {\n        arr[1] = (arr[0] === '2') ? '3' : '9';\n    }\n    if (arr[3] === '?') {\n        arr[3] = '5';\n    }\n    if (arr[4] === '?') {\n        arr[4] = '9';\n    }\n    return arr.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumTime(s: string): string {\n    let arr = s.split('');\n    if (arr[0] === '?') {\n        arr[0] = (arr[1] === '?' || arr[1] &lt;= '3') ? '2' : '1';\n    }\n    if (arr[1] === '?') {\n        arr[1] = (arr[0] === '2') ? '3' : '9';\n    }\n    if (arr[3] === '?') {\n        arr[3] = '5';\n    }\n    if (arr[4] === '?') {\n        arr[4] = '9';\n    }\n    return arr.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: We perform a constant number of operations regardless of input size.
+
+---
+## Brute Force Enumeration
+
+**Intuition**
+Since the total number of valid times in a day is small (24 * 60 = 1440), we can iterate backwards from the latest possible time ("23:59") to the earliest ("00:00") and return the first time that matches the pattern.
+
+**Steps**
+- Iterate hours from 23 down to 0.
+- Iterate minutes from 59 down to 0.
+- Format the current time as a string "HH:MM".
+- Compare this string with the input `s`. If a character in `s` is not '?' and does not match the corresponding character in the generated time, the time is invalid.
+- Return the first valid time found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumTime(self, s: str) -&gt; str:\n        for h in range(23, -1, -1):\n            for m in range(59, -1, -1):\n                time = \"%02d:%02d\" % (h, m)\n                valid = True\n                for i in range(5):\n                    if s[i] != '?' and s[i] != time[i]:\n                        valid = False\n                        break\n                if valid:\n                    return time\n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String maximumTime(String s) {\n        for (int h = 23; h &gt;= 0; h--) {\n            for (int m = 59; m &gt;= 0; m--) {\n                String time = String.format(\"%02d:%02d\", h, m);\n                boolean valid = true;\n                for (int i = 0; i &lt; 5; i++) {\n                    if (s.charAt(i) != '?' && s.charAt(i) != time.charAt(i)) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) return time;\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;sstream&gt;\n#include &lt;iomanip&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string maximumTime(string s) {\n        for (int h = 23; h &gt;= 0; h--) {\n            for (int m = 59; m &gt;= 0; m--) {\n                stringstream ss;\n                ss &lt;&lt; setfill('0') &lt;&lt; setw(2) &lt;&lt; h &lt;&lt; \":\" &lt;&lt; setfill('0') &lt;&lt; setw(2) &lt;&lt; m;\n                string time = ss.str();\n                bool valid = true;\n                for (int i = 0; i &lt; 5; i++) {\n                    if (s[i] != '?' && s[i] != time[i]) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) return time;\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumTime = function(s) {\n    for (let h = 23; h &gt;= 0; h--) {\n        for (let m = 59; m &gt;= 0; m--) {\n            let time = (h &lt; 10 ? \"0\" + h : h) + \":\" + (m &lt; 10 ? \"0\" + m : m);\n            let valid = true;\n            for (let i = 0; i &lt; 5; i++) {\n                if (s[i] !== '?' && s[i] !== time[i]) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) return time;\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumTime(s: string): string {\n    for (let h = 23; h &gt;= 0; h--) {\n        for (let m = 59; m &gt;= 0; m--) {\n            let time = (h &lt; 10 ? \"0\" + h : h) + \":\" + (m &lt; 10 ? \"0\" + m : m);\n            let valid = true;\n            for (let i = 0; i &lt; 5; i++) {\n                if (s[i] !== '?' && s[i] !== time[i]) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) return time;\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Specifically O(24 * 60 * 5), which is constant.
+- Space: O(1)
+- Notes: Less efficient than the greedy approach but conceptually simple and robust.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Latest Time You Can Obtain After Replacing Characters Solutions","datePublished":"2024-09-01","description":"Given a time string with '?' characters, replace them to form the latest valid time.","keywords":"LeetCode, Latest Time You Can Obtain After Replacing Characters, Easy, String, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Replacement approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a constant number of checks and assignments regardless of the input."}},{"@type":"Question","name":"What is the time complexity of the Brute Force Enumeration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1), specifically O(24 * 60 * 5), as we iterate through all possible minutes in a day."}}]}).replace(/</g,'\u003c')}
+</script>

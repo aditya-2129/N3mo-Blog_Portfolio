@@ -1,0 +1,121 @@
+---
+title: "Customer Placing the Largest Number of Orders"
+summary: "Find the customer who has placed the largest number of orders from the Orders table."
+date: "Jan 25, 2026"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.40% | **Paid:** No
+> **Topics:** Database
+
+Table: Orders
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| order_number  | int     |
+| customer_number | int   |
++---------------+---------+
+order_number is the primary key of this table.
+This table contains information about the order ID and the customer ID.
+
+Write a solution to find the customer_number for the customer who has placed the largest number of orders.
+
+The test cases are generated so that exactly one customer will have placed the largest number of orders.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map (Frequency Count)](#approach-1-hash-map-frequency-count)
+- [Approach 2: Sorting](#approach-2-sorting)
+
+## Examples
+
+### Example 1
+**Input:**
+Orders table:
++--------------+-----------------+
+| order_number | customer_number |
++--------------+-----------------+
+| 1            | 1               |
+| 2            | 2               |
+| 3            | 3               |
+| 4            | 3               |
++--------------+-----------------+
+
+**Output:**
++-----------------+
+| customer_number |
++-----------------+
+| 3               |
++-----------------+
+
+**Explanation:**
+Customer 3 has placed the most orders, which is 2 orders.
+
+## Constraints
+
+```text
+- 1 <= Orders table rows <= 1000
+```
+
+---
+## Approach 1: Hash Map (Frequency Count)
+
+**Intuition**
+We can iterate through the list of orders and use a hash map to count the frequency of each customer number. Then, we find the customer with the maximum count.
+
+**Steps**
+- Initialize a hash map (dictionary) to store customer counts.
+- Iterate through each order record.
+- For each record, extract the customer_number and increment its count in the map.
+- Iterate through the map to find the customer with the highest count.
+- Return the customer_number.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import Counter\n\nclass Solution:\n    def largestOrders(self, orders: List[List[int]]) -&gt; int:\n        counts = Counter()\n        for _, cust in orders:\n            counts[cust] += 1\n        return max(counts.items(), key=lambda x: x[1])[0]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int largestOrders(List&lt;List&lt;Integer&gt;&gt; orders) {\n        Map&lt;Integer, Integer&gt; counts = new HashMap&lt;&gt;();\n        for (List&lt;Integer&gt; order : orders) {\n            int cust = order.get(1);\n            counts.put(cust, counts.getOrDefault(cust, 0) + 1);\n        }\n        int maxCust = -1;\n        int maxCount = -1;\n        for (Map.Entry&lt;Integer, Integer&gt; entry : counts.entrySet()) {\n            if (entry.getValue() &gt; maxCount) {\n                maxCount = entry.getValue();\n                maxCust = entry.getKey();\n            }\n        }\n        return maxCust;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestOrders(vector&lt;vector&lt;int&gt;&gt;& orders) {\n        unordered_map&lt;int, int&gt; counts;\n        for (const auto& order : orders) {\n            counts[order[1]]++;\n        }\n        int maxCust = -1;\n        int maxCount = -1;\n        for (const auto& pair : counts) {\n            if (pair.second &gt; maxCount) {\n                maxCount = pair.second;\n                maxCust = pair.first;\n            }\n        }\n        return maxCust;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestOrders = function(orders) {\n    const counts = new Map();\n    for (const order of orders) {\n        const cust = order[1];\n        counts.set(cust, (counts.get(cust) || 0) + 1);\n    }\n    let maxCust = -1;\n    let maxCount = -1;\n    for (const [cust, count] of counts) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            maxCust = cust;\n        }\n    }\n    return maxCust;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestOrders(orders: number[][]): number {\n    const counts = new Map&lt;number, number&gt;();\n    for (const order of orders) {\n        const cust = order[1];\n        counts.set(cust, (counts.get(cust) || 0) + 1);\n    }\n    let maxCust = -1;\n    let maxCount = -1;\n    for (const [cust, count] of counts) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            maxCust = cust;\n        }\n    }\n    return maxCust;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of orders. We iterate through the list once to build the map and once through the map to find the max.
+- Space: O(k), where k is the number of unique customers. In the worst case, this is O(n).
+- Notes: This is the most efficient approach for unsorted data.
+
+---
+## Approach 2: Sorting
+
+**Intuition**
+If we sort the list of orders by customer_number, identical customer numbers will be adjacent. We can then iterate through the sorted list, counting consecutive occurrences to find the maximum frequency.
+
+**Steps**
+- Sort the list of orders based on customer_number.
+- Initialize variables to track the current customer, current count, max customer, and max count.
+- Iterate through the sorted list.
+- If the current customer is the same as the previous one, increment the current count.
+- If the customer changes, compare the current count with the max count and update if necessary, then reset the current count.
+- After the loop, perform a final check for the last customer segment.
+- Return the customer with the maximum count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def largestOrders(self, orders: List[List[int]]) -&gt; int:\n        if not orders:\n            return -1\n        orders.sort(key=lambda x: x[1])\n        max_cust = orders[0][1]\n        max_count = 1\n        curr_count = 1\n        for i in range(1, len(orders)):\n            if orders[i][1] == orders[i-1][1]:\n                curr_count += 1\n            else:\n                if curr_count &gt; max_count:\n                    max_count = curr_count\n                    max_cust = orders[i-1][1]\n                curr_count = 1\n        if curr_count &gt; max_count:\n            max_cust = orders[-1][1]\n        return max_cust\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int largestOrders(List&lt;List&lt;Integer&gt;&gt; orders) {\n        if (orders.isEmpty()) return -1;\n        orders.sort((a, b) -&gt; a.get(1).compareTo(b.get(1)));\n        int maxCust = orders.get(0).get(1);\n        int maxCount = 1;\n        int currCount = 1;\n        for (int i = 1; i &lt; orders.size(); i++) {\n            if (orders.get(i).get(1).equals(orders.get(i - 1).get(1))) {\n                currCount++;\n            } else {\n                if (currCount &gt; maxCount) {\n                    maxCount = currCount;\n                    maxCust = orders.get(i - 1).get(1);\n                }\n                currCount = 1;\n            }\n        }\n        if (currCount &gt; maxCount) {\n            maxCust = orders.get(orders.size() - 1).get(1);\n        }\n        return maxCust;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestOrders(vector&lt;vector&lt;int&gt;&gt;& orders) {\n        if (orders.empty()) return -1;\n        sort(orders.begin(), orders.end(), [](const vector&lt;int&gt;& a, const vector&lt;int&gt;& b) {\n            return a[1] &lt; b[1];\n        });\n        int maxCust = orders[0][1];\n        int maxCount = 1;\n        int currCount = 1;\n        for (int i = 1; i &lt; orders.size(); ++i) {\n            if (orders[i][1] == orders[i-1][1]) {\n                currCount++;\n            } else {\n                if (currCount &gt; maxCount) {\n                    maxCount = currCount;\n                    maxCust = orders[i-1][1];\n                }\n                currCount = 1;\n            }\n        }\n        if (currCount &gt; maxCount) {\n            maxCust = orders.back()[1];\n        }\n        return maxCust;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestOrders = function(orders) {\n    if (orders.length === 0) return -1;\n    orders.sort((a, b) =&gt; a[1] - b[1]);\n    let maxCust = orders[0][1];\n    let maxCount = 1;\n    let currCount = 1;\n    for (let i = 1; i &lt; orders.length; i++) {\n        if (orders[i][1] === orders[i-1][1]) {\n            currCount++;\n        } else {\n            if (currCount &gt; maxCount) {\n                maxCount = currCount;\n                maxCust = orders[i-1][1];\n            }\n            currCount = 1;\n        }\n    }\n    if (currCount &gt; maxCount) {\n        maxCust = orders[orders.length - 1][1];\n    }\n    return maxCust;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestOrders(orders: number[][]): number {\n    if (orders.length === 0) return -1;\n    orders.sort((a, b) =&gt; a[1] - b[1]);\n    let maxCust = orders[0][1];\n    let maxCount = 1;\n    let currCount = 1;\n    for (let i = 1; i &lt; orders.length; i++) {\n        if (orders[i][1] === orders[i-1][1]) {\n            currCount++;\n        } else {\n            if (currCount &gt; maxCount) {\n                maxCount = currCount;\n                maxCust = orders[i-1][1];\n            }\n            currCount = 1;\n        }\n    }\n    if (currCount &gt; maxCount) {\n        maxCust = orders[orders.length - 1][1];\n    }\n    return maxCust;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step, where n is the number of orders.
+- Space: O(1) or O(n) depending on the sorting algorithm's space complexity (e.g., O(log n) for quicksort stack space).
+- Notes: Sorting is less efficient than the hash map approach for this specific problem but is a valid alternative.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Customer Placing the Largest Number of Orders Solutions","datePublished":"2026-01-25","description":"Find the customer who has placed the largest number of orders from the Orders table.","keywords":"LeetCode, Customer Placing the Largest Number of Orders, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of orders, as we iterate through the list once."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}}]}).replace(/</g,'\u003c')}
+</script>

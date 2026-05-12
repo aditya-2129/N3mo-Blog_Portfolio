@@ -1,0 +1,129 @@
+---
+title: "Absolute Difference Between Maximum and Minimum K Elements"
+summary: "Find the minimum possible absolute difference between the maximum and minimum elements of any subset of size k from the array."
+date: "Jan 21, 2025"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.60% | **Paid:** No
+> **Topics:** Array, Sorting
+
+You are given an integer array `nums` and an integer `k`. You need to select `k` elements from `nums` such that the absolute difference between the maximum and minimum of the selected elements is minimized. Return that minimum absolute difference.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting](#approach-1-sorting)
+- [Approach 2: Brute Force](#approach-2-brute-force)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [5,2,2,4], k = 2
+```
+
+**Output:**
+```text
+5
+```
+
+**Explanation:**
+The k = 2 largest elements are 4 and 5. Their sum is 4 + 5 = 9.
+
+The k = 2 smallest elements are 2 and 2. Their sum is 2 + 2 = 4.
+
+The absolute difference is abs(9 - 4) = 5.
+
+### Example 2
+
+**Input:**
+```text
+nums = [100], k = 1
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+The largest element is 100.
+
+The smallest element is 100.
+
+The absolute difference is abs(100 - 100) = 0.
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+1 <= nums[i] <= 10⁹
+1 <= k <= nums.length
+```
+
+---
+
+## Approach 1: Sorting
+
+**Intuition**
+To minimize the difference between the maximum and minimum elements in a subset of size `k`, the elements should be as close to each other as possible in value. Sorting the array brings close values together, allowing us to check contiguous windows of size `k` to find the smallest range.
+
+**Steps**
+- Sort the array `nums` in ascending order.
+- Initialize `min_diff` to a large value (e.g., infinity).
+- Iterate through the sorted array from index `0` to `n - k`.
+- For each index `i`, calculate the difference between `nums[i + k - 1]` (the max in the current window) and `nums[i]` (the min in the current window).
+- Update `min_diff` if the current difference is smaller.
+- Return `min_diff`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumDifference(self, nums: list[int], k: int) -&gt; int:\n        nums.sort()\n        min_diff = float('inf')\n        for i in range(len(nums) - k + 1):\n            diff = nums[i + k - 1] - nums[i]\n            if diff &lt; min_diff:\n                min_diff = diff\n        return min_diff" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int minimumDifference(int[] nums, int k) {\n        Arrays.sort(nums);\n        int minDiff = Integer.MAX_VALUE;\n        for (int i = 0; i &lt;= nums.length - k; i++) {\n            int diff = nums[i + k - 1] - nums[i];\n            if (diff &lt; minDiff) {\n                minDiff = diff;\n            }\n        }\n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minimumDifference(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        int minDiff = INT_MAX;\n        for (int i = 0; i &lt;= nums.size() - k; i++) {\n            int diff = nums[i + k - 1] - nums[i];\n            if (diff &lt; minDiff) {\n                minDiff = diff;\n            }\n        }\n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minimumDifference = function(nums, k) {\n    nums.sort((a, b) =&gt; a - b);\n    let minDiff = Infinity;\n    for (let i = 0; i &lt;= nums.length - k; i++) {\n        let diff = nums[i + k - 1] - nums[i];\n        if (diff &lt; minDiff) {\n            minDiff = diff;\n        }\n    }\n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumDifference(nums: number[], k: number): number {\n    nums.sort((a, b) =&gt; a - b);\n    let minDiff = Infinity;\n    for (let i = 0; i &lt;= nums.length - k; i++) {\n        let diff = nums[i + k - 1] - nums[i];\n        if (diff &lt; minDiff) {\n            minDiff = diff;\n        }\n    }\n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step, where N is the length of `nums`. The sliding window part is O(N).
+- Space: O(1) or O(N) depending on the sorting algorithm's space complexity.
+- Notes: This is the most efficient approach for the given constraints.
+
+---
+
+## Approach 2: Brute Force
+
+**Intuition**
+Check every possible combination of `k` elements in the array to find the one with the smallest range. This approach directly implements the problem definition without optimization.
+
+**Steps**
+- Generate all possible subsets of size `k` from `nums`.
+- For each subset, find the maximum and minimum values.
+- Calculate the absolute difference (max - min).
+- Track the minimum difference found across all subsets.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from itertools import combinations\n\nclass Solution:\n    def minimumDifference(self, nums: list[int], k: int) -&gt; int:\n        min_diff = float('inf')\n        for combo in combinations(nums, k):\n            diff = max(combo) - min(combo)\n            if diff &lt; min_diff:\n                min_diff = diff\n        return min_diff" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    private int minDiff = Integer.MAX_VALUE;\n    \n    public int minimumDifference(int[] nums, int k) {\n        if (k == 1) return 0;\n        Arrays.sort(nums); // Optimization to prune, but logic is combinatorial\n        // Note: True brute force for k up to N is O(N choose k), which is too slow for N=10^5.\n        // This code demonstrates the logic for small N.\n        findMinDiff(nums, k, 0, new ArrayList&lt;&gt;());\n        return minDiff;\n    }\n    \n    private void findMinDiff(int[] nums, int k, int start, List&lt;Integer&gt; current) {\n        if (current.size() == k) {\n            int max = Collections.max(current);\n            int min = Collections.min(current);\n            minDiff = Math.min(minDiff, max - min);\n            return;\n        }\n        for (int i = start; i &lt; nums.length; i++) {\n            current.add(nums[i]);\n            findMinDiff(nums, k, i + 1, current);\n            current.remove(current.size() - 1);\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minDiff = INT_MAX;\n    \n    int minimumDifference(vector&lt;int&gt;& nums, int k) {\n        if (k == 1) return 0;\n        vector&lt;int&gt; current;\n        findMinDiff(nums, k, 0, current);\n        return minDiff;\n    }\n    \n    void findMinDiff(vector&lt;int&gt;& nums, int k, int start, vector&lt;int&gt;& current) {\n        if (current.size() == k) {\n            int maxVal = *max_element(current.begin(), current.end());\n            int minVal = *min_element(current.begin(), current.end());\n            minDiff = min(minDiff, maxVal - minVal);\n            return;\n        }\n        for (int i = start; i &lt; nums.size(); i++) {\n            current.push_back(nums[i]);\n            findMinDiff(nums, k, i + 1, current);\n            current.pop_back();\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minimumDifference = function(nums, k) {\n    if (k === 1) return 0;\n    let minDiff = Infinity;\n    \n    function findMinDiff(start, current) {\n        if (current.length === k) {\n            const max = Math.max(...current);\n            const min = Math.min(...current);\n            minDiff = Math.min(minDiff, max - min);\n            return;\n        }\n        for (let i = start; i &lt; nums.length; i++) {\n            current.push(nums[i]);\n            findMinDiff(i + 1, current);\n            current.pop();\n        }\n    }\n    \n    findMinDiff(0, []);\n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumDifference(nums: number[], k: number): number {\n    if (k === 1) return 0;\n    let minDiff = Infinity;\n    \n    function findMinDiff(start: number, current: number[]): void {\n        if (current.length === k) {\n            const max = Math.max(...current);\n            const min = Math.min(...current);\n            minDiff = Math.min(minDiff, max - min);\n            return;\n        }\n        for (let i = start; i &lt; nums.length; i++) {\n            current.push(nums[i]);\n            findMinDiff(i + 1, current);\n            current.pop();\n        }\n    }\n    \n    findMinDiff(0, []);\n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(N choose k) * k, which is exponential and extremely inefficient for large N.
+- Space: O(k) for the recursion stack or storing the current combination.
+- Notes: This approach is included for conceptual understanding but will result in a Time Limit Exceeded (TLE) error for large inputs due to high complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Absolute Difference Between Maximum and Minimum K Elements Solutions","datePublished":"2025-01-21","description":"Find the minimum possible absolute difference between the maximum and minimum elements of any subset of size k from the array.","keywords":"LeetCode, Absolute Difference Between Maximum and Minimum K Elements, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of elements in the array. This is due to the sorting step."}},{"@type":"Question","name":"Why does sorting help solve this problem?","acceptedAnswer":{"@type":"Answer","text":"Sorting arranges the elements in ascending order. The subset of k elements with the minimum difference will always be a contiguous block of k elements in the sorted array."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(N) depending on the sorting algorithm used (e.g., Heapsort uses O(1), Timsort uses O(N))."}}]}).replace(/</g,'\u003c')}
+</script>

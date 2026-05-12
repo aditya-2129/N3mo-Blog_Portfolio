@@ -1,0 +1,121 @@
+---
+title: "Shift 2D Grid"
+summary: "Shift all elements of the 2D grid to the right by k steps, moving elements to the beginning of the grid when they reach the end."
+date: "Apr 02, 2024"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.00% | **Paid:** No
+> **Topics:** Array, Matrix, Simulation
+
+Given a 2D grid of size m x n and an integer k. You need to shift the grid k times.
+
+In one shift, move each element grid[i][j] to grid[i][j + 1].
+If grid[i][j + 1] does not exist (i.e., j == n - 1), then move the element to grid[i + 1][0].
+If grid[i + 1][0] does not exist (i.e., i == m - 1), then move the element to grid[0][0].
+
+Return the 2D grid after applying shift to k.
+
+- Examples
+- Constraints
+- [Flatten and Shift](#flatten-and-shift)
+- [Direct Index Mapping](#direct-index-mapping)
+
+## Examples
+
+```text
+Input: grid = [[1,2,3],[4,5,6],[7,8,9]], k = 1
+Output: [[9,1,2],[3,4,5],[6,7,8]]
+Explanation:
+The diagram above shows the elements moving from their original positions to their new positions after shifting the grid once.
+```
+
+```text
+Input: grid = [[3,8,1,9],[19,7,2,5],[4,6,11,10],[12,0,21,13]], k = 4
+Output: [[12,0,21,13],[3,8,1,9],[19,7,2,5],[4,6,11,10]]
+Explanation:
+The diagram above shows the elements moving from their original positions to their new positions after shifting the grid 4 times.
+```
+
+```text
+Input: grid = [[1,2,3],[4,5,6],[7,8,9]], k = 9
+Output: [[1,2,3],[4,5,6],[7,8,9]]
+Explanation:
+Since the grid has 9 elements, shifting it 9 times results in the original grid.
+```
+
+## Constraints
+
+```text
+- m == grid.length
+- n == grid[i].length
+- 1 <= m <= 50
+- 1 <= n <= 50
+- -1000 <= grid[i][j] <= 1000
+- 0 <= k <= 100
+```
+
+---
+
+## Flatten and Shift
+
+**Intuition**
+Treat the 2D grid as a single 1D array. Shifting a 1D array is a standard problem (rotate array). After shifting, map the 1D array back to 2D.
+
+**Steps**
+- Flatten the 2D grid into a 1D list.
+- Normalize k by taking k modulo the total number of elements.
+- Slice the 1D list to perform the rotation: the last k elements become the first part, and the rest follow.
+- Reconstruct the 2D grid from the rotated 1D list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def shiftGrid(self, grid: list[list[int]], k: int) -&gt; list[list[int]]:\n        m, n = len(grid), len(grid[0])\n        flat = [num for row in grid for num in row]\n        k %= len(flat)\n        flat = flat[-k:] + flat[:-k]\n        \n        res = [[0] * n for _ in range(m)]\n        idx = 0\n        for i in range(m):\n            for j in range(n):\n                res[i][j] = flat[idx]\n                idx += 1\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\n\nclass Solution {\n    public List&lt;List&lt;Integer&gt;&gt; shiftGrid(int[][] grid, int k) {\n        int m = grid.length;\n        int n = grid[0].length;\n        List&lt;Integer&gt; flat = new ArrayList&lt;&gt;();\n        for (int[] row : grid) {\n            for (int val : row) {\n                flat.add(val);\n            }\n        }\n        int total = m * n;\n        k %= total;\n        Collections.rotate(flat, k);\n        \n        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();\n        int idx = 0;\n        for (int i = 0; i &lt; m; i++) {\n            List&lt;Integer&gt; row = new ArrayList&lt;&gt;();\n            for (int j = 0; j &lt; n; j++) {\n                row.add(flat.get(idx++));\n            }\n            res.add(row);\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; shiftGrid(vector&lt;vector&lt;int&gt;&gt;& grid, int k) {\n        int m = grid.size();\n        int n = grid[0].size();\n        vector&lt;int&gt; flat;\n        for (const auto& row : grid) {\n            for (int val : row) {\n                flat.push_back(val);\n            }\n        }\n        int total = m * n;\n        k %= total;\n        rotate(flat.begin(), flat.begin() + total - k, flat.end());\n        \n        vector&lt;vector&lt;int&gt;&gt; res(m, vector&lt;int&gt;(n));\n        int idx = 0;\n        for (int i = 0; i &lt; m; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                res[i][j] = flat[idx++];\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var shiftGrid = function(grid, k) {\n    const m = grid.length;\n    const n = grid[0].length;\n    const flat = grid.flat();\n    const total = m * n;\n    k = k % total;\n    \n    const rotated = flat.slice(total - k).concat(flat.slice(0, total - k));\n    \n    const res = [];\n    let idx = 0;\n    for (let i = 0; i &lt; m; i++) {\n        const row = [];\n        for (let j = 0; j &lt; n; j++) {\n            row.push(rotated[idx++]);\n        }\n        res.push(row);\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function shiftGrid(grid: number[][], k: number): number[][] {\n    const m = grid.length;\n    const n = grid[0].length;\n    const flat = grid.flat();\n    const total = m * n;\n    k = k % total;\n    \n    const rotated = flat.slice(total - k).concat(flat.slice(0, total - k));\n    \n    const res: number[][] = [];\n    let idx = 0;\n    for (let i = 0; i &lt; m; i++) {\n        const row: number[] = [];\n        for (let j = 0; j &lt; n; j++) {\n            row.push(rotated[idx++]);\n        }\n        res.push(row);\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(m * n)
+- Space: O(m * n)
+- Notes: We use extra space for the flattened array and the result grid.
+
+---
+
+## Direct Index Mapping
+
+**Intuition**
+Instead of creating a separate flat list, calculate the target index for each cell (i, j) directly using modulo arithmetic to determine its new position in the result grid.
+
+**Steps**
+- Calculate the total number of elements and normalize k.
+- Create a result grid of the same dimensions.
+- Iterate through every cell (i, j) in the original grid.
+- Calculate the 1D index of the current cell: idx = i * n + j.
+- Calculate the new 1D index after shifting: new_idx = (idx + k) % total.
+- Convert new_idx back to 2D coordinates: new_i = new_idx // n, new_j = new_idx % n.
+- Assign the value to the new position in the result grid.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def shiftGrid(self, grid: list[list[int]], k: int) -&gt; list[list[int]]:\n        m, n = len(grid), len(grid[0])\n        total = m * n\n        k %= total\n        res = [[0] * n for _ in range(m)]\n        \n        for i in range(m):\n            for j in range(n):\n                idx = (i * n + j + k) % total\n                res[idx // n][idx % n] = grid[i][j]\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; shiftGrid(int[][] grid, int k) {\n        int m = grid.length;\n        int n = grid[0].length;\n        int total = m * n;\n        k %= total;\n        \n        int[][] res = new int[m][n];\n        for (int i = 0; i &lt; m; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                int idx = (i * n + j + k) % total;\n                res[idx / n][idx % n] = grid[i][j];\n            }\n        }\n        \n        List&lt;List&lt;Integer&gt;&gt; ans = new ArrayList&lt;&gt;();\n        for (int[] row : res) {\n            List&lt;Integer&gt; listRow = new ArrayList&lt;&gt;();\n            for (int val : row) {\n                listRow.add(val);\n            }\n            ans.add(listRow);\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; shiftGrid(vector&lt;vector&lt;int&gt;&gt;& grid, int k) {\n        int m = grid.size();\n        int n = grid[0].size();\n        int total = m * n;\n        k %= total;\n        \n        vector&lt;vector&lt;int&gt;&gt; res(m, vector&lt;int&gt;(n));\n        for (int i = 0; i &lt; m; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                int idx = (i * n + j + k) % total;\n                res[idx / n][idx % n] = grid[i][j];\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var shiftGrid = function(grid, k) {\n    const m = grid.length;\n    const n = grid[0].length;\n    const total = m * n;\n    k = k % total;\n    \n    const res = Array.from({length: m}, () =&gt; new Array(n).fill(0));\n    \n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const idx = (i * n + j + k) % total;\n            res[Math.floor(idx / n)][idx % n] = grid[i][j];\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function shiftGrid(grid: number[][], k: number): number[][] {\n    const m = grid.length;\n    const n = grid[0].length;\n    const total = m * n;\n    k = k % total;\n    \n    const res: number[][] = Array.from({length: m}, () =&gt; new Array(n).fill(0));\n    \n    for (let i = 0; i &lt; m; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const idx = (i * n + j + k) % total;\n            res[Math.floor(idx / n)][idx % n] = grid[i][j];\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(m * n)
+- Space: O(m * n)
+- Notes: This approach avoids the overhead of creating an intermediate flattened list, though the space complexity remains dominated by the output grid.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Shift 2D Grid Solutions","datePublished":"2024-04-02","description":"Shift all elements of the 2D grid to the right by k steps, moving elements to the beginning of the grid when they reach the end.","keywords":"LeetCode, Shift 2D Grid, Easy, Array, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Flatten and Shift approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n), where m is the number of rows and n is the number of columns. We iterate through the grid to flatten it and again to reconstruct it."}},{"@type":"Question","name":"What is the space complexity of the Direct Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m * n) to store the result grid. It uses O(1) extra space excluding the output."}},{"@type":"Question","name":"Why do we use modulo operation on k?","acceptedAnswer":{"@type":"Answer","text":"Shifting the grid by the total number of elements (m * n) results in the original grid. Using k % (m * n) handles cases where k is larger than the grid size."}}]}).replace(/</g,'\u003c')}
+</script>

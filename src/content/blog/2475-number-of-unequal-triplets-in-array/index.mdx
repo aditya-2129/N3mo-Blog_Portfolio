@@ -1,0 +1,134 @@
+---
+title: "Number of Unequal Triplets in Array"
+summary: "Count the number of index triplets (i, j, k) where i &lt; j &lt; k and all three corresponding values are distinct."
+date: "Feb 09, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.30% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+You are given a 0-indexed array of positive integers nums. Find the number of triplets (i, j, k) such that i &lt; j &lt; k and nums[i] != nums[j], nums[i] != nums[k], and nums[j] != nums[k].
+
+Return the number of triplets that meet the conditions.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sorting and Grouping](#approach-2-sorting-and-grouping)
+- [Approach 3: Hash Map (Optimal)](#approach-3-hash-map-optimal)
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [4,4,2,4,3]
+Output: 3
+Explanation: The following triplets satisfy the conditions:
+- (0, 2, 4) because 4 != 2 != 3
+- (1, 2, 4) because 4 != 2 != 3
+- (2, 3, 4) because 2 != 4 != 3
+```
+
+### Example 2:
+```text
+Input: nums = [1,1,1,1,1]
+Output: 0
+Explanation: No triplets satisfy the conditions.
+```
+
+## Constraints
+
+```text
+3 <= nums.length <= 100
+1 <= nums[i] <= 1000
+```
+
+---
+
+## Approach 1: Brute Force
+
+**Intuition**
+Since the constraint on the array length is small (n &lt;= 100), we can simply check every possible triplet of indices (i, j, k) to see if they satisfy the inequality conditions.
+
+**Steps**
+- Initialize a counter to 0.
+- Use three nested loops to generate all combinations where 0 &lt;= i &lt; j &lt; k &lt; n.
+- For each triplet, check if nums[i], nums[j], and nums[k] are all distinct.
+- If they are, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def unequalTriplets(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        count = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    if nums[i] != nums[j] and nums[j] != nums[k] and nums[i] != nums[k]:\n                        count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int unequalTriplets(int[] nums) {\n        int n = nums.length;\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[i] != nums[j] && nums[j] != nums[k] && nums[i] != nums[k]) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int unequalTriplets(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[i] != nums[j] && nums[j] != nums[k] && nums[i] != nums[k]) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar unequalTriplets = function(nums) {\n    const n = nums.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                if (nums[i] !== nums[j] && nums[j] !== nums[k] && nums[i] !== nums[k]) {\n                    count++;\n                }\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function unequalTriplets(nums: number[]): number {\n    const n = nums.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                if (nums[i] !== nums[j] && nums[j] !== nums[k] && nums[i] !== nums[k]) {\n                    count++;\n                }\n            }\n        }\n    }\n    return count;\n}" }]} />
+
+**Complexity**
+- Time: O(n³) — We iterate through all possible triplets.
+- Space: O(1) — We only use a few variables for counting.
+- Notes: Simple to implement but inefficient for large arrays. Acceptable here due to small constraints.
+
+## Approach 2: Sorting and Grouping
+
+**Intuition**
+If we sort the array, identical numbers will be grouped together. We can then iterate through the array to identify the size of each group of identical numbers. Once we have the counts of each distinct number, we can calculate the number of triplets by choosing 3 distinct groups and multiplying their sizes.
+
+**Steps**
+- Sort the array in non-decreasing order.
+- Iterate through the sorted array to count the frequency of each distinct number. Store these frequencies in a list.
+- Use three nested loops to iterate through the frequency list. For every combination of three distinct frequencies (f1, f2, f3), add f1 * f2 * f3 to the result.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def unequalTriplets(self, nums: List[int]) -&gt; int:\n        nums.sort()\n        n = len(nums)\n        groups = []\n        i = 0\n        while i &lt; n:\n            j = i\n            while j &lt; n and nums[j] == nums[i]:\n                j += 1\n            groups.append(j - i)\n            i = j\n        \n        m = len(groups)\n        count = 0\n        for i in range(m):\n            for j in range(i + 1, m):\n                for k in range(j + 1, m):\n                    count += groups[i] * groups[j] * groups[k]\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\nclass Solution {\n    public int unequalTriplets(int[] nums) {\n        Arrays.sort(nums);\n        List&lt;Integer&gt; groups = new ArrayList&lt;&gt;();\n        int n = nums.length;\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            while (j &lt; n && nums[j] == nums[i]) {\n                j++;\n            }\n            groups.add(j - i);\n            i = j;\n        }\n        \n        int m = groups.size();\n        int count = 0;\n        for (int x = 0; x &lt; m; x++) {\n            for (int y = x + 1; y &lt; m; y++) {\n                for (int z = y + 1; z &lt; m; z++) {\n                    count += groups.get(x) * groups.get(y) * groups.get(z);\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int unequalTriplets(vector&lt;int&gt;& nums) {\n        sort(nums.begin(), nums.end());\n        vector&lt;int&gt; groups;\n        int n = nums.size();\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            while (j &lt; n && nums[j] == nums[i]) {\n                j++;\n            }\n            groups.push_back(j - i);\n            i = j;\n        }\n        \n        int m = groups.size();\n        int count = 0;\n        for (int x = 0; x &lt; m; x++) {\n            for (int y = x + 1; y &lt; m; y++) {\n                for (int z = y + 1; z &lt; m; z++) {\n                    count += groups[x] * groups[y] * groups[z];\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar unequalTriplets = function(nums) {\n    nums.sort((a, b) =&gt; a - b);\n    const groups = [];\n    const n = nums.length;\n    let i = 0;\n    while (i &lt; n) {\n        let j = i;\n        while (j &lt; n && nums[j] === nums[i]) {\n            j++;\n        }\n        groups.push(j - i);\n        i = j;\n    }\n    \n    const m = groups.length;\n    let count = 0;\n    for (let x = 0; x &lt; m; x++) {\n        for (let y = x + 1; y &lt; m; y++) {\n            for (let z = y + 1; z &lt; m; z++) {\n                count += groups[x] * groups[y] * groups[z];\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function unequalTriplets(nums: number[]): number {\n    nums.sort((a, b) =&gt; a - b);\n    const groups: number[] = [];\n    const n = nums.length;\n    let i = 0;\n    while (i &lt; n) {\n        let j = i;\n        while (j &lt; n && nums[j] === nums[i]) {\n            j++;\n        }\n        groups.push(j - i);\n        i = j;\n    }\n    \n    const m = groups.length;\n    let count = 0;\n    for (let x = 0; x &lt; m; x++) {\n        for (let y = x + 1; y &lt; m; y++) {\n            for (let z = y + 1; z &lt; m; z++) {\n                count += groups[x] * groups[y] * groups[z];\n            }\n        }\n    }\n    return count;\n}" }]} />
+
+**Complexity**
+- Time: O(n log n + m³) — Sorting takes O(n log n). The nested loops depend on m (number of distinct elements). In the worst case (all distinct), m = n, so O(n³). However, if values are limited, m is small.
+- Space: O(n) or O(m) — To store the groups.
+- Notes: Sorting simplifies the logic of finding distinct groups.
+
+## Approach 3: Hash Map (Optimal)
+
+**Intuition**
+We can count the frequency of each number using a hash map. Then, we iterate through the unique numbers. For each number `x`, we can calculate how many valid triplets have `x` as the "middle" value (in terms of value, not index). The number of such triplets is: (count of numbers smaller than `x`) * (count of `x`) * (count of numbers larger than `x`). Summing this for all unique numbers gives the total answer.
+
+**Steps**
+- Count the frequency of each number in `nums` using a hash map.
+- Get the unique keys (numbers) and sort them.
+- Initialize `left_count` to 0 and `total_count` to the length of `nums`.
+- Iterate through the sorted unique keys:
+    - Let `freq` be the frequency of the current number.
+    - Calculate `right_count` as `total_count - left_count - freq`.
+    - Add `left_count * freq * right_count` to the result.
+    - Update `left_count` by adding `freq`.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def unequalTriplets(self, nums: List[int]) -&gt; int:\n        counts = Counter(nums)\n        keys = sorted(counts.keys())\n        \n        res = 0\n        left = 0\n        total = len(nums)\n        \n        for k in keys:\n            freq = counts[k]\n            right = total - left - freq\n            res += left * freq * right\n            left += freq\n            \n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int unequalTriplets(int[] nums) {\n        Map&lt;Integer, Integer&gt; counts = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            counts.put(num, counts.getOrDefault(num, 0) + 1);\n        }\n        \n        List&lt;Integer&gt; keys = new ArrayList&lt;&gt;(counts.keySet());\n        Collections.sort(keys);\n        \n        int res = 0;\n        int left = 0;\n        int total = nums.length;\n        \n        for (int k : keys) {\n            int freq = counts.get(k);\n            int right = total - left - freq;\n            res += left * freq * right;\n            left += freq;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int unequalTriplets(vector&lt;int&gt;& nums) {\n        map&lt;int, int&gt; counts;\n        for (int num : nums) {\n            counts[num]++;\n        }\n        \n        int res = 0;\n        int left = 0;\n        int total = nums.size();\n        \n        for (auto const& [key, val] : counts) {\n            int right = total - left - val;\n            res += left * val * right;\n            left += val;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar unequalTriplets = function(nums) {\n    const counts = new Map();\n    for (const num of nums) {\n        counts.set(num, (counts.get(num) || 0) + 1);\n    }\n    \n    const keys = Array.from(counts.keys()).sort((a, b) =&gt; a - b);\n    \n    let res = 0;\n    let left = 0;\n    const total = nums.length;\n    \n    for (const k of keys) {\n        const freq = counts.get(k);\n        const right = total - left - freq;\n        res += left * freq * right;\n        left += freq;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function unequalTriplets(nums: number[]): number {\n    const counts = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        counts.set(num, (counts.get(num) || 0) + 1);\n    }\n    \n    const keys = Array.from(counts.keys()).sort((a, b) =&gt; a - b);\n    \n    let res = 0;\n    let left = 0;\n    const total = nums.length;\n    \n    for (const k of keys) {\n        const freq = counts.get(k)!;\n        const right = total - left - freq;\n        res += left * freq * right;\n        left += freq;\n    }\n    return res;\n}" }]} />
+
+**Complexity**
+- Time: O(n log n) — Counting is O(n), sorting keys is O(m log m). Since m &lt;= n, it is O(n log n).
+- Space: O(n) — To store the hash map.
+- Notes: This is the most efficient approach for larger inputs, reducing the problem to a single pass over distinct values.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Unequal Triplets in Array Solutions","datePublished":"2024-02-09","description":"Count the number of index triplets (i, j, k) where i &lt; j &lt; k and all three corresponding values are distinct.","keywords":"LeetCode, Number of Unequal Triplets in Array, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n³), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to sorting the unique keys."}},{"@type":"Question","name":"What is the space complexity of the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the frequency map of the elements."}}]}).replace(/</g,'\u003c')}
+</script>

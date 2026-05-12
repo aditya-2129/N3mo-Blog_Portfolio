@@ -1,0 +1,121 @@
+---
+title: "Move Zeroes"
+summary: "Move all zeros to the end of an array while maintaining the relative order of the non-zero elements."
+date: "May 12, 2026"
+tags:
+  - Array
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.80% | **Paid:** No
+> **Topics:** Array, Two Pointers
+
+Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements.
+
+Note that you must do this in-place without making a copy of the array.
+
+- Examples
+- Constraints
+- [Approach 1: Extra Space](#approach-1-extra-space)
+- [Approach 2: Snowball / Overwrite](#approach-2-snowball-overwrite)
+- [Approach 3: Two Pointers (Optimal)](#approach-3-two-pointers-optimal)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [0,1,0,3,12]
+Output: [1,3,12,0,0]
+```
+
+Example 2:
+```text
+Input: nums = [0]
+Output: [0]
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 10^4
+- -2^31 <= nums[i] <= 2^31 - 1
+```
+
+---
+## Approach 1: Extra Space
+
+**Intuition**
+Create a new list containing all non-zero elements in order, append the required number of zeros to the end, and then copy this new list back into the original array.
+
+**Steps**
+- Iterate through the input array and collect all non-zero elements into a temporary list.
+- Calculate the number of zeros needed (length of original array minus length of temporary list).
+- Append that many zeros to the temporary list.
+- Copy elements from the temporary list back into the original array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def moveZeroes(self, nums: List[int]) -&gt; None:\n        non_zeros = [num for num in nums if num != 0]\n        nums[:] = non_zeros + [0] * (len(nums) - len(non_zeros))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void moveZeroes(int[] nums) {\n        int[] arr = new int[nums.length];\n        int idx = 0;\n        for (int num : nums) {\n            if (num != 0) arr[idx++] = num;\n        }\n        for (int i = 0; i &lt; nums.length; i++) {\n            nums[i] = arr[i];\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void moveZeroes(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; temp;\n        for (int n : nums) {\n            if (n != 0) temp.push_back(n);\n        }\n        for (int i = 0; i &lt; temp.size(); i++) {\n            nums[i] = temp[i];\n        }\n        for (int i = temp.size(); i &lt; nums.size(); i++) {\n            nums[i] = 0;\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var moveZeroes = function(nums) {\n    let nonZeros = nums.filter(n =&gt; n !== 0);\n    let zeros = new Array(nums.length - nonZeros.length).fill(0);\n    for (let i = 0; i &lt; nums.length; i++) {\n        nums[i] = i &lt; nonZeros.length ? nonZeros[i] : 0;\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function moveZeroes(nums: number[]): void {\n    let nonZeros = nums.filter(n =&gt; n !== 0);\n    let zeros = new Array(nums.length - nonZeros.length).fill(0);\n    for (let i = 0; i &lt; nums.length; i++) {\n        nums[i] = i &lt; nonZeros.length ? nonZeros[i] : 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses extra memory proportional to the input size, which violates the strict "in-place" constraint if interpreted strictly, though it modifies the original array at the end.
+
+---
+## Approach 2: Snowball / Overwrite
+
+**Intuition**
+Use a pointer to track the position where the next non-zero element should be placed. Iterate through the array, moving non-zero elements to the front, then fill the remaining positions with zeros.
+
+**Steps**
+- Initialize a pointer `insertPos` to 0.
+- Loop through the array. If the current element is not 0, assign it to `nums[insertPos]` and increment `insertPos`.
+- After the loop, fill the rest of the array from `insertPos` to the end with 0s.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def moveZeroes(self, nums: List[int]) -&gt; None:\n        pos = 0\n        for i in range(len(nums)):\n            if nums[i] != 0:\n                nums[pos] = nums[i]\n                pos += 1\n        for i in range(pos, len(nums)):\n            nums[i] = 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void moveZeroes(int[] nums) {\n        int pos = 0;\n        for (int num : nums) {\n            if (num != 0) nums[pos++] = num;\n        }\n        while (pos &lt; nums.length) {\n            nums[pos++] = 0;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void moveZeroes(vector&lt;int&gt;& nums) {\n        int pos = 0;\n        for (int n : nums) {\n            if (n != 0) nums[pos++] = n;\n        }\n        while (pos &lt; nums.size()) {\n            nums[pos++] = 0;\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var moveZeroes = function(nums) {\n    let pos = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] !== 0) {\n            nums[pos++] = nums[i];\n        }\n    }\n    for (let i = pos; i &lt; nums.length; i++) {\n        nums[i] = 0;\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function moveZeroes(nums: number[]): void {\n    let pos = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] !== 0) {\n            nums[pos++] = nums[i];\n        }\n    }\n    for (let i = pos; i &lt; nums.length; i++) {\n        nums[i] = 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: True in-place operation. It requires two passes (one to move non-zeros, one to fill zeros).
+
+---
+## Approach 3: Two Pointers (Optimal)
+
+**Intuition**
+Optimize the previous approach by swapping elements. Instead of a second loop to fill zeros, swap the current non-zero element with the element at the insertion pointer. This naturally pushes zeros to the end.
+
+**Steps**
+- Initialize a pointer `lastNonZeroFoundAt` to 0.
+- Iterate through the array with index `i`.
+- If `nums[i]` is not 0, swap `nums[i]` with `nums[lastNonZeroFoundAt]` and increment `lastNonZeroFoundAt`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def moveZeroes(self, nums: List[int]) -&gt; None:\n        j = 0\n        for i in range(len(nums)):\n            if nums[i] != 0:\n                nums[i], nums[j] = nums[j], nums[i]\n                j += 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void moveZeroes(int[] nums) {\n        int j = 0;\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] != 0) {\n                int temp = nums[i];\n                nums[i] = nums[j];\n                nums[j] = temp;\n                j++;\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void moveZeroes(vector&lt;int&gt;& nums) {\n        int j = 0;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (nums[i] != 0) {\n                swap(nums[i], nums[j]);\n                j++;\n            }\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var moveZeroes = function(nums) {\n    let j = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] !== 0) {\n            [nums[i], nums[j]] = [nums[j], nums[i]];\n            j++;\n        }\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function moveZeroes(nums: number[]): void {\n    let j = 0;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] !== 0) {\n            [nums[i], nums[j]] = [nums[j], nums[i]];\n            j++;\n        }\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution. It performs the operation in a single pass (though swapping might technically be more writes than the overwrite method, it minimizes loops).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Move Zeroes Solutions","datePublished":"2026-05-12","description":"Move all zeros to the end of an array while maintaining the relative order of the non-zero elements.","keywords":"LeetCode, Move Zeroes, Easy, Array, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Extra Space approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of elements in the array."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as it modifies the array in-place without using extra memory proportional to the input size."}},{"@type":"Question","name":"Does the order of non-zero elements matter?","acceptedAnswer":{"@type":"Answer","text":"Yes, the problem requires maintaining the relative order of the non-zero elements."}}]}).replace(/</g,'\u003c')}
+</script>

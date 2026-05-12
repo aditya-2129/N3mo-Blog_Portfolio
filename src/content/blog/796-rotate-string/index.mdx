@@ -1,0 +1,497 @@
+---
+title: "Rotate String"
+summary: "Check if one string can become another by rotating characters."
+date: "Jul 28, 2025"
+tags:
+  - String
+  - String Matching
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.60% | **Paid:** No
+> **Topics:** String, String Matching
+
+Given two strings s and goal, return true if and only if s can become goal after some number of shifts on s.
+
+A shift on s consists of moving the leftmost character of s to the rightmost position.
+
+For example, if s = "abcde", then it will be "bcdea" after one shift.
+
+- Examples
+- Constraints
+- [Brute Force Rotation](#brute-force-rotation)
+- [Concatenation Trick](#concatenation-trick)
+- [KMP Algorithm](#kmp-algorithm)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "abcde", goal = "cdeab"
+Output: true
+Explanation: We can shift s 2 times to get goal.
+- "abcde" -> "bcdea" -> "cdeab"
+```
+
+### Example 2
+```text
+Input: s = "abcde", goal = "abced"
+Output: false
+```
+
+## Constraints
+
+```text
+1 <= s.length, goal.length <= 100
+s and goal consist of lowercase English letters.
+```
+
+---
+## Brute Force Rotation
+
+**Intuition**
+Try every possible rotation of s and check if it matches goal.
+
+**Steps**
+- If lengths differ, return false
+- For each rotation count from 0 to n-1:
+  - Create rotated string by moving first i characters to end
+  - Check if rotated string equals goal
+  - If match found, return true
+- Return false if no match found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        n = len(s)
+        for i in range(n):
+            rotated = s[i:] + s[:i]
+            if rotated == goal:
+                return True
+        return False
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean rotateString(String s, String goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        int n = s.length();
+        for (int i = 0; i &lt; n; i++) {
+            String rotated = s.substring(i) + s.substring(0, i);
+            if (rotated.equals(goal)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool rotateString(string s, string goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        int n = s.length();
+        for (int i = 0; i &lt; n; i++) {
+            string rotated = s.substr(i) + s.substr(0, i);
+            if (rotated == goal) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {string} goal
+ * @return {boolean}
+ */
+var rotateString = function(s, goal) {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    const n = s.length;
+    for (let i = 0; i &lt; n; i++) {
+        const rotated = s.slice(i) + s.slice(0, i);
+        if (rotated === goal) {
+            return true;
+        }
+    }
+    return false;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function rotateString(s: string, goal: string): boolean {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    const n = s.length;
+    for (let i = 0; i &lt; n; i++) {
+        const rotated = s.slice(i) + s.slice(0, i);
+        if (rotated === goal) {
+            return true;
+        }
+    }
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Simple but not optimal for large strings
+
+---
+## Concatenation Trick
+
+**Intuition**
+If goal is a rotation of s, then goal must be a substring of s + s.
+
+**Steps**
+- If lengths differ, return false
+- Concatenate s with itself
+- Check if goal is a substring of the concatenated string
+- Return result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        return goal in (s + s)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean rotateString(String s, String goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        return (s + s).contains(goal);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool rotateString(string s, string goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        string doubled = s + s;
+        return doubled.find(goal) != string::npos;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {string} goal
+ * @return {boolean}
+ */
+var rotateString = function(s, goal) {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    return (s + s).includes(goal);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function rotateString(s: string, goal: string): boolean {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    return (s + s).includes(goal);
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Elegant solution using string concatenation
+
+---
+## KMP Algorithm
+
+**Intuition**
+Use Knuth-Morris-Pratt algorithm for efficient substring matching to find goal in s + s.
+
+**Steps**
+- If lengths differ, return false
+- Build LPS (Longest Prefix Suffix) array for goal
+- Search for goal in s + s using KMP
+- Return true if found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        if not s and not goal:
+            return True
+        
+        def buildLPS(pattern):
+            lps = [0] * len(pattern)
+            length = 0
+            i = 1
+            while i &lt; len(pattern):
+                if pattern[i] == pattern[length]:
+                    length += 1
+                    lps[i] = length
+                    i += 1
+                else:
+                    if length != 0:
+                        length = lps[length - 1]
+                    else:
+                        lps[i] = 0
+                        i += 1
+            return lps
+        
+        def kmpSearch(text, pattern):
+            lps = buildLPS(pattern)
+            i = j = 0
+            while i &lt; len(text):
+                if text[i] == pattern[j]:
+                    i += 1
+                    j += 1
+                    if j == len(pattern):
+                        return True
+                else:
+                    if j != 0:
+                        j = lps[j - 1]
+                    else:
+                        i += 1
+            return False
+        
+        return kmpSearch(s + s, goal)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean rotateString(String s, String goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        if (s.isEmpty() && goal.isEmpty()) {
+            return true;
+        }
+        return kmpSearch(s + s, goal);
+    }
+    
+    private int[] buildLPS(String pattern) {
+        int[] lps = new int[pattern.length()];
+        int length = 0;
+        int i = 1;
+        while (i &lt; pattern.length()) {
+            if (pattern.charAt(i) == pattern.charAt(length)) {
+                length++;
+                lps[i] = length;
+                i++;
+            } else {
+                if (length != 0) {
+                    length = lps[length - 1];
+                } else {
+                    lps[i] = 0;
+                    i++;
+                }
+            }
+        }
+        return lps;
+    }
+    
+    private boolean kmpSearch(String text, String pattern) {
+        int[] lps = buildLPS(pattern);
+        int i = 0, j = 0;
+        while (i &lt; text.length()) {
+            if (text.charAt(i) == pattern.charAt(j)) {
+                i++;
+                j++;
+                if (j == pattern.length()) {
+                    return true;
+                }
+            } else {
+                if (j != 0) {
+                    j = lps[j - 1];
+                } else {
+                    i++;
+                }
+            }
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool rotateString(string s, string goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+        if (s.empty() && goal.empty()) {
+            return true;
+        }
+        return kmpSearch(s + s, goal);
+    }
+    
+private:
+    vector<int> buildLPS(string pattern) {
+        vector<int> lps(pattern.length(), 0);
+        int length = 0;
+        int i = 1;
+        while (i &lt; pattern.length()) {
+            if (pattern[i] == pattern[length]) {
+                length++;
+                lps[i] = length;
+                i++;
+            } else {
+                if (length != 0) {
+                    length = lps[length - 1];
+                } else {
+                    lps[i] = 0;
+                    i++;
+                }
+            }
+        }
+        return lps;
+    }
+    
+    bool kmpSearch(string text, string pattern) {
+        vector<int> lps = buildLPS(pattern);
+        int i = 0, j = 0;
+        while (i &lt; text.length()) {
+            if (text[i] == pattern[j]) {
+                i++;
+                j++;
+                if (j == pattern.length()) {
+                    return true;
+                }
+            } else {
+                if (j != 0) {
+                    j = lps[j - 1];
+                } else {
+                    i++;
+                }
+            }
+        }
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {string} goal
+ * @return {boolean}
+ */
+var rotateString = function(s, goal) {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    if (s.length === 0 && goal.length === 0) {
+        return true;
+    }
+    return kmpSearch(s + s, goal);
+};
+
+function buildLPS(pattern) {
+    const lps = new Array(pattern.length).fill(0);
+    let length = 0;
+    let i = 1;
+    while (i &lt; pattern.length) {
+        if (pattern[i] === pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        } else {
+            if (length !== 0) {
+                length = lps[length - 1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+    return lps;
+}
+
+function kmpSearch(text, pattern) {
+    const lps = buildLPS(pattern);
+    let i = 0, j = 0;
+    while (i &lt; text.length) {
+        if (text[i] === pattern[j]) {
+            i++;
+            j++;
+            if (j === pattern.length) {
+                return true;
+            }
+        } else {
+            if (j !== 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+    return false;
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function rotateString(s: string, goal: string): boolean {
+    if (s.length !== goal.length) {
+        return false;
+    }
+    if (s.length === 0 && goal.length === 0) {
+        return true;
+    }
+    return kmpSearch(s + s, goal);
+}
+
+function buildLPS(pattern: string): number[] {
+    const lps = new Array(pattern.length).fill(0);
+    let length = 0;
+    let i = 1;
+    while (i &lt; pattern.length) {
+        if (pattern[i] === pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        } else {
+            if (length !== 0) {
+                length = lps[length - 1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+    return lps;
+}
+
+function kmpSearch(text: string, pattern: string): boolean {
+    const lps = buildLPS(pattern);
+    let i = 0, j = 0;
+    while (i &lt; text.length) {
+        if (text[i] === pattern[j]) {
+            i++;
+            j++;
+            if (j === pattern.length) {
+                return true;
+            }
+        } else {
+            if (j !== 0) {
+                j = lps[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Most efficient for large strings with many pattern matches
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rotate String Solutions","datePublished":"2025-07-28","description":"Check if one string can become another by rotating characters.","keywords":"LeetCode, Rotate String, Easy, String, String Matching"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(n²) time complexity where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Concatenation Trick approach?","acceptedAnswer":{"@type":"Answer","text":"The Concatenation Trick approach has O(n) time complexity for substring search."}},{"@type":"Question","name":"What is the time complexity of the KMP Algorithm approach?","acceptedAnswer":{"@type":"Answer","text":"The KMP Algorithm approach has O(n) time complexity for both building the LPS array and searching."}},{"@type":"Question","name":"What is the space complexity of the Concatenation Trick approach?","acceptedAnswer":{"@type":"Answer","text":"The Concatenation Trick approach has O(n) space complexity for storing the concatenated string."}},{"@type":"Question","name":"What is the space complexity of the KMP Algorithm approach?","acceptedAnswer":{"@type":"Answer","text":"The KMP Algorithm approach has O(n) space complexity for the LPS array."}}]}).replace(/</g,'\u003c')}
+</script>

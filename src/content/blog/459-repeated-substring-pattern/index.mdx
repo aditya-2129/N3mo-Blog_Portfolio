@@ -1,0 +1,126 @@
+---
+title: "Repeated Substring Pattern"
+summary: "Given a string s, check if it can be constructed by taking a substring of it and appending multiple copies of the substring together."
+date: "Oct 26, 2025"
+tags:
+  - String
+  - String Matching
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.20% | **Paid:** No
+> **Topics:** String, String Matching
+
+Given a string s, check if it can be constructed by taking a substring of it and appending multiple copies of the substring together.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [String Concatenation Trick](#string-concatenation-trick)
+- [KMP Algorithm](#kmp-algorithm)
+
+## Examples
+
+```text
+Input: s = "abab"
+Output: true
+Explanation: It is the substring "ab" twice.
+```
+
+```text
+Input: s = "aba"
+Output: false
+```
+
+```text
+Input: s = "abcabcabc"
+Output: true
+Explanation: It is the substring "abc" three times.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁴
+s consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can iterate through all possible lengths of the repeating substring. For a string to be made of repeated substrings, the length of the substring must be a divisor of the total string length.
+
+**Steps**
+- Iterate through possible substring lengths `i` from 1 to `n / 2`.
+- If `n` is divisible by `i`, extract the substring `sub = s[0:i]`.
+- Repeat this substring `n / i` times and check if it equals the original string `s`.
+- If a match is found, return true. If the loop finishes without a match, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def repeatedSubstringPattern(self, s: str) -&gt; bool:\n        n = len(s)\n        for i in range(1, n // 2 + 1):\n            if n % i == 0:\n                sub = s[:i]\n                if sub * (n // i) == s:\n                    return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean repeatedSubstringPattern(String s) {\n        int n = s.length();\n        for (int i = 1; i &lt;= n / 2; i++) {\n            if (n % i == 0) {\n                String sub = s.substring(0, i);\n                StringBuilder sb = new StringBuilder();\n                for (int j = 0; j &lt; n / i; j++) {\n                    sb.append(sub);\n                }\n                if (sb.toString().equals(s)) return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool repeatedSubstringPattern(string s) {\n        int n = s.size();\n        for (int i = 1; i &lt;= n / 2; ++i) {\n            if (n % i == 0) {\n                string sub = s.substr(0, i);\n                string temp;\n                for (int j = 0; j &lt; n / i; ++j) {\n                    temp += sub;\n                }\n                if (temp == s) return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar repeatedSubstringPattern = function(s) {\n    let n = s.length;\n    for (let i = 1; i &lt;= n / 2; i++) {\n        if (n % i === 0) {\n            let sub = s.substring(0, i);\n            let temp = \"\";\n            for (let j = 0; j &lt; n / i; j++) {\n                temp += sub;\n            }\n            if (temp === s) return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function repeatedSubstringPattern(s: string): boolean {\n    const n = s.length;\n    for (let i = 1; i &lt;= n / 2; i++) {\n        if (n % i === 0) {\n            const sub = s.substring(0, i);\n            let temp = \"\";\n            for (let j = 0; j &lt; n / i; j++) {\n                temp += sub;\n            }\n            if (temp === s) return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case, we iterate O(n) times and construct a string of length O(n) for comparison.
+- Space: O(n) - To store the constructed string.
+- Notes: Simple to implement but not the most efficient for very large strings.
+
+---
+## String Concatenation Trick
+
+**Intuition**
+If the string `s` is formed by repeating a substring, then concatenating `s` with itself (`s + s`) will contain `s` starting from an index other than 0 or `n`. Specifically, removing the first and last characters of `s + s` destroys the original `s` at the start and end, but if `s` is repeating, a copy of `s` will still exist in the middle.
+
+**Steps**
+- Concatenate the string with itself: `double = s + s`.
+- Remove the first and last characters from `double`: `double = double[1:-1]`.
+- Check if the original string `s` is a substring of this modified `double`.
+- If yes, return true; otherwise, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def repeatedSubstringPattern(self, s: str) -&gt; bool:\n        return s in (s + s)[1:-1]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean repeatedSubstringPattern(String s) {\n        String doubled = s + s;\n        return doubled.substring(1, doubled.length() - 1).contains(s);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool repeatedSubstringPattern(string s) {\n        string doubled = s + s;\n        string temp = doubled.substr(1, doubled.size() - 2);\n        return temp.find(s) != string::npos;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar repeatedSubstringPattern = function(s) {\n    let doubled = s + s;\n    let temp = doubled.substring(1, doubled.length - 1);\n    return temp.includes(s);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function repeatedSubstringPattern(s: string): boolean {\n    const doubled = s + s;\n    const temp = doubled.substring(1, doubled.length - 1);\n    return temp.includes(s);\n}" },]} />
+
+**Complexity**
+- Time: O(n) - String search/contains operation is typically linear.
+- Space: O(n) - To store the concatenated string.
+- Notes: Very concise and elegant solution.
+
+---
+## KMP Algorithm
+
+**Intuition**
+We can use the Longest Prefix Suffix (LPS) array from the Knuth-Morris-Pratt algorithm. The LPS array stores the length of the longest proper prefix of the string which is also a suffix. If the length of the last element in the LPS array (`lps[n-1]`) is greater than 0 and `n` is divisible by `n - lps[n-1]`, then the string is made of a repeating substring.
+
+**Steps**
+- Compute the LPS array for the string `s`.
+- Let `len = lps[n-1]` (length of the longest prefix which is also a suffix).
+- Check if `len &gt; 0` and `n % (n - len) == 0`.
+- If both conditions are true, return true; otherwise, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def repeatedSubstringPattern(self, s: str) -&gt; bool:\n        n = len(s)\n        lps = [0] * n\n        \n        # Build LPS array\n        length = 0\n        i = 1\n        while i &lt; n:\n            if s[i] == s[length]:\n                length += 1\n                lps[i] = length\n                i += 1\n            else:\n                if length != 0:\n                    length = lps[length - 1]\n                else:\n                    lps[i] = 0\n                    i += 1\n        \n        longest_suffix = lps[-1]\n        return longest_suffix &gt; 0 and n % (n - longest_suffix) == 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean repeatedSubstringPattern(String s) {\n        int n = s.length();\n        int[] lps = new int[n];\n        \n        // Build LPS array\n        int len = 0;\n        int i = 1;\n        while (i &lt; n) {\n            if (s.charAt(i) == s.charAt(len)) {\n                len++;\n                lps[i] = len;\n                i++;\n            } else {\n                if (len != 0) {\n                    len = lps[len - 1];\n                } else {\n                    lps[i] = 0;\n                    i++;\n                }\n            }\n        }\n        \n        int longestSuffix = lps[n - 1];\n        return longestSuffix &gt; 0 && n % (n - longestSuffix) == 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool repeatedSubstringPattern(string s) {\n        int n = s.size();\n        vector&lt;int&gt; lps(n, 0);\n        \n        // Build LPS array\n        int len = 0;\n        int i = 1;\n        while (i &lt; n) {\n            if (s[i] == s[len]) {\n                len++;\n                lps[i] = len;\n                i++;\n            } else {\n                if (len != 0) {\n                    len = lps[len - 1];\n                } else {\n                    lps[i] = 0;\n                    i++;\n                }\n            }\n        }\n        \n        int longestSuffix = lps[n - 1];\n        return longestSuffix &gt; 0 && n % (n - longestSuffix) == 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar repeatedSubstringPattern = function(s) {\n    let n = s.length;\n    let lps = new Array(n).fill(0);\n    \n    // Build LPS array\n    let len = 0;\n    let i = 1;\n    while (i &lt; n) {\n        if (s[i] === s[len]) {\n            len++;\n            lps[i] = len;\n            i++;\n        } else {\n            if (len !== 0) {\n                len = lps[len - 1];\n            } else {\n                lps[i] = 0;\n                i++;\n            }\n        }\n    }\n    \n    let longestSuffix = lps[n - 1];\n    return longestSuffix &gt; 0 && n % (n - longestSuffix) === 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function repeatedSubstringPattern(s: string): boolean {\n    const n = s.length;\n    const lps = new Array(n).fill(0);\n    \n    // Build LPS array\n    let len = 0;\n    let i = 1;\n    while (i &lt; n) {\n        if (s[i] === s[len]) {\n            len++;\n            lps[i] = len;\n            i++;\n        } else {\n            if (len !== 0) {\n                len = lps[len - 1];\n            } else {\n                lps[i] = 0;\n                i++;\n            }\n        }\n    }\n    \n    const longestSuffix = lps[n - 1];\n    return longestSuffix &gt; 0 && n % (n - longestSuffix) === 0;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Building the LPS array takes linear time.
+- Space: O(n) - To store the LPS array.
+- Notes: Most efficient algorithmic approach for pattern matching problems.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Repeated Substring Pattern Solutions","datePublished":"2025-10-26","description":"Given a string s, check if it can be constructed by taking a substring of it and appending multiple copies of the substring together.","keywords":"LeetCode, Repeated Substring Pattern, Easy, String, String Matching"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n^2) where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the String Concatenation Trick?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as it involves a single substring search operation."}},{"@type":"Question","name":"What is the time complexity of the KMP Algorithm approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) for computing the LPS array and checking the condition."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,128 @@
+---
+title: "Divisor Game"
+summary: "Alice and Bob play a game with a number n. On each turn, a player chooses a divisor x of n and replaces n with n-x. Return true if Alice wins."
+date: "Aug 02, 2024"
+tags:
+  - Math
+  - Dynamic Programming
+  - Brainteaser
+  - Game Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.80% | **Paid:** No
+> **Topics:** Math, Dynamic Programming, Brainteaser, Game Theory
+
+Alice and Bob take turns playing a game, with Alice starting first.
+
+Initially, there is a number n on the chalkboard. On each player's turn, that player makes a move consisting of:
+
+Choosing any x with 0 &lt; x &lt; n and n % x == 0.
+Replacing the number n on the chalkboard with n - x.
+Also, if a player cannot make a move, they lose the game.
+
+Return true if and only if Alice wins the game, assuming both players play optimally.
+
+- Examples
+- Constraints
+- [Dynamic Programming](#dynamic-programming)
+- [Mathematical Observation](#mathematical-observation)
+- [Memoization](#memoization)
+
+## Examples
+
+```text
+Input: n = 2
+Output: true
+Explanation: Alice chooses 1, and Bob has no more moves.
+```
+
+```text
+Input: n = 3
+Output: false
+Explanation: Alice chooses 1, Bob chooses 1, and Alice has no more moves.
+```
+
+## Constraints
+
+```text
+1 <= n <= 1000
+```
+
+---
+## Dynamic Programming
+
+**Intuition**
+Use a bottom-up DP approach where dp[i] represents whether the current player can win with number i on the board.
+
+**Steps**
+- Initialize a dp array of size n+1 with false values.
+- For each number i from 2 to n, check all possible divisors x.
+- If there exists a divisor x such that dp[i-x] is false (opponent loses), set dp[i] = true.
+- Return dp[n] as the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def divisorGame(self, n: int) -&gt; bool:\n        dp = [False] * (n + 1)\n        for i in range(2, n + 1):\n            for x in range(1, i):\n                if i % x == 0 and not dp[i - x]:\n                    dp[i] = True\n                    break\n        return dp[n]\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean divisorGame(int n) {\n        boolean[] dp = new boolean[n + 1];\n        for (int i = 2; i &lt;= n; i++) {\n            for (int x = 1; x &lt; i; x++) {\n                if (i % x == 0 && !dp[i - x]) {\n                    dp[i] = true;\n                    break;\n                }\n            }\n        }\n        return dp[n];\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool divisorGame(int n) {\n        vector&lt;bool&gt; dp(n + 1, false);\n        for (int i = 2; i &lt;= n; i++) {\n            for (int x = 1; x &lt; i; x++) {\n                if (i % x == 0 && !dp[i - x]) {\n                    dp[i] = true;\n                    break;\n                }\n            }\n        }\n        return dp[n];\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar divisorGame = function(n) {\n    const dp = new Array(n + 1).fill(false);\n    for (let i = 2; i &lt;= n; i++) {\n        for (let x = 1; x &lt; i; x++) {\n            if (i % x === 0 && !dp[i - x]) {\n                dp[i] = true;\n                break;\n            }\n        }\n    }\n    return dp[n];\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function divisorGame(n: number): boolean {\n    const dp: boolean[] = new Array(n + 1).fill(false);\n    for (let i = 2; i &lt;= n; i++) {\n        for (let x = 1; x &lt; i; x++) {\n            if (i % x === 0 && !dp[i - x]) {\n                dp[i] = true;\n                break;\n            }\n        }\n    }\n    return dp[n];\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Straightforward DP approach but can be optimized mathematically.
+
+---
+## Mathematical Observation
+
+**Intuition**
+After analyzing the game pattern, Alice wins if and only if n is even. This is because Alice can always force Bob to receive odd numbers.
+
+**Steps**
+- Simply check if n is even by using n % 2 == 0.
+- Return true if even, false if odd.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def divisorGame(self, n: int) -&gt; bool:\n        return n % 2 == 0\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean divisorGame(int n) {\n        return n % 2 == 0;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool divisorGame(int n) {\n        return n % 2 == 0;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar divisorGame = function(n) {\n    return n % 2 === 0;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function divisorGame(n: number): boolean {\n    return n % 2 === 0;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Optimal solution based on mathematical insight about parity.
+
+---
+## Memoization
+
+**Intuition**
+Use top-down recursion with memoization to avoid recomputing results for the same numbers.
+
+**Steps**
+- Create a memo dictionary to store computed results.
+- Define a recursive function that checks if the current player can win with given number.
+- For each divisor x of the current number, recursively check if opponent loses with n-x.
+- Use memo to cache results and return the final answer.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def divisorGame(self, n: int) -&gt; bool:\n        memo = {}\n        \n        def canWin(num):\n            if num == 1:\n                return False\n            if num in memo:\n                return memo[num]\n            \n            for x in range(1, num):\n                if num % x == 0:\n                    if not canWin(num - x):\n                        memo[num] = True\n                        return True\n            \n            memo[num] = False\n            return False\n        \n        return canWin(n)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private Map&lt;Integer, Boolean&gt; memo;\n    \n    public boolean divisorGame(int n) {\n        memo = new HashMap&lt;&gt;();\n        return canWin(n);\n    }\n    \n    private boolean canWin(int num) {\n        if (num == 1) {\n            return false;\n        }\n        if (memo.containsKey(num)) {\n            return memo.get(num);\n        }\n        \n        for (int x = 1; x &lt; num; x++) {\n            if (num % x == 0) {\n                if (!canWin(num - x)) {\n                    memo.put(num, true);\n                    return true;\n                }\n            }\n        }\n        \n        memo.put(num, false);\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\nprivate:\n    unordered_map&lt;int, bool&gt; memo;\n    \n    bool canWin(int num) {\n        if (num == 1) {\n            return false;\n        }\n        if (memo.find(num) != memo.end()) {\n            return memo[num];\n        }\n        \n        for (int x = 1; x &lt; num; x++) {\n            if (num % x == 0) {\n                if (!canWin(num - x)) {\n                    memo[num] = true;\n                    return true;\n                }\n            }\n        }\n        \n        memo[num] = false;\n        return false;\n    }\n    \npublic:\n    bool divisorGame(int n) {\n        return canWin(n);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar divisorGame = function(n) {\n    const memo = new Map();\n    \n    function canWin(num) {\n        if (num === 1) {\n            return false;\n        }\n        if (memo.has(num)) {\n            return memo.get(num);\n        }\n        \n        for (let x = 1; x &lt; num; x++) {\n            if (num % x === 0) {\n                if (!canWin(num - x)) {\n                    memo.set(num, true);\n                    return true;\n                }\n            }\n        }\n        \n        memo.set(num, false);\n        return false;\n    }\n    \n    return canWin(n);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function divisorGame(n: number): boolean {\n    const memo: Map&lt;number, boolean&gt; = new Map();\n    \n    function canWin(num: number): boolean {\n        if (num === 1) {\n            return false;\n        }\n        if (memo.has(num)) {\n            return memo.get(num)!;\n        }\n        \n        for (let x = 1; x &lt; num; x++) {\n            if (num % x === 0) {\n                if (!canWin(num - x)) {\n                    memo.set(num, true);\n                    return true;\n                }\n            }\n        }\n        \n        memo.set(num, false);\n        return false;\n    }\n    \n    return canWin(n);\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Top-down approach with same complexity as bottom-up DP but may have better cache locality.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Divisor Game Solutions","datePublished":"2024-08-02","description":"Alice and Bob play a game with a number n. On each turn, a player chooses a divisor x of n and replaces n with n-x. Return true if Alice wins.","keywords":"LeetCode, Divisor Game, Easy, Math, Dynamic Programming, Brainteaser, Game Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) as we iterate through each number and check all possible divisors."}},{"@type":"Question","name":"What is the optimal solution for Divisor Game?","acceptedAnswer":{"@type":"Answer","text":"The optimal solution is the Mathematical Observation approach with O(1) time and space complexity, which simply checks if n is even."}},{"@type":"Question","name":"Why does Alice win only when n is even?","acceptedAnswer":{"@type":"Answer","text":"When n is even, Alice can always choose x=1 to give Bob an odd number. Any divisor of an odd number is odd, so Bob must give Alice an even number. This continues until Bob receives 1 and loses."}},{"@type":"Question","name":"What is the space complexity of the Memoization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the memoization cache plus O(n) for the recursion stack."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,126 @@
+---
+title: "Arranging Coins"
+summary: "You have n coins and you want to build a staircase. Find the total number of full rows of the staircase you can build."
+date: "Jul 01, 2024"
+tags:
+  - Math
+  - Binary Search
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.20% | **Paid:** No
+> **Topics:** Math, Binary Search
+
+You have n coins and you want to build a staircase with these coins. The staircase consists of k rows where the ith row has exactly i coins. The last row of the staircase may be incomplete.
+
+Given the integer n, return the number of complete rows of the staircase you will build.
+
+- Examples
+- Constraints
+- [Approach 1: Linear Simulation](#approach-1-linear-simulation)
+- [Approach 2: Binary Search](#approach-2-binary-search)
+- [Approach 3: Math Formula](#approach-3-math-formula)
+
+## Examples
+
+### Example 1
+```text
+Input: n = 5
+Output: 2
+Explanation: Because the 3rd row is incomplete, we return 2.
+```
+
+### Example 2
+```text
+Input: n = 8
+Output: 3
+Explanation: Because the 4th row is incomplete, we return 3.
+```
+
+## Constraints
+```text
+1 <= n <= 2³¹ - 1
+```
+
+---
+## Approach 1: Linear Simulation
+
+**Intuition**
+We can simulate the process of building the staircase row by row. We keep subtracting the required number of coins for the current row from the total coins until we run out.
+
+**Steps**
+- Initialize a variable `i` to 1 representing the current row number.
+- Loop while `n` is greater than or equal to `i`.
+- Subtract `i` from `n` and increment `i`.
+- When the loop breaks, `i - 1` is the number of complete rows formed.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arrangeCoins(self, n: int) -&gt; int:\n        i = 1\n        while n &gt;= i:\n            n -= i\n            i += 1\n        return i - 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int arrangeCoins(int n) {\n        int i = 1;\n        while (n &gt;= i) {\n            n -= i;\n            i++;\n        }\n        return i - 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int arrangeCoins(int n) {\n        long i = 1;\n        while (n &gt;= i) {\n            n -= i;\n            i++;\n        }\n        return i - 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar arrangeCoins = function(n) {\n    let i = 1;\n    while (n &gt;= i) {\n        n -= i;\n        i++;\n    }\n    return i - 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function arrangeCoins(n: number): number {\n    let i = 1;\n    while (n &gt;= i) {\n        n -= i;\n        i++;\n    }\n    return i - 1;\n}" },]} />
+
+**Complexity**
+- Time: O(√n) — The loop runs approximately √(2n) times.
+- Space: O(1) — We only use a few variables.
+- Notes: Simple to implement but less efficient than mathematical approaches for very large n.
+
+---
+## Approach 2: Binary Search
+
+**Intuition**
+The total number of coins required to build `k` complete rows is given by the sum of the first `k` natural numbers: `S = k * (k + 1) / 2`. We need to find the maximum `k` such that `S &lt;= n`. Since `S` increases monotonically with `k`, we can use binary search to find this `k` efficiently.
+
+**Steps**
+- Initialize `left` to 1 and `right` to `n`.
+- Perform binary search while `left &lt;= right`.
+- Calculate `mid` and the total coins `coins = mid * (mid + 1) / 2`.
+- If `coins == n`, return `mid`.
+- If `coins &lt; n`, move `left` to `mid + 1` and store `mid` as a potential answer.
+- If `coins &gt; n`, move `right` to `mid - 1`.
+- Return the stored answer.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arrangeCoins(self, n: int) -&gt; int:\n        left, right = 1, n\n        ans = 0\n        while left &lt;= right:\n            mid = left + (right - left) // 2\n            coins = mid * (mid + 1) // 2\n            if coins == n:\n                return mid\n            elif coins &lt; n:\n                ans = mid\n                left = mid + 1\n            else:\n                right = mid - 1\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int arrangeCoins(int n) {\n        long left = 1, right = n;\n        int ans = 0;\n        while (left &lt;= right) {\n            long mid = left + (right - left) / 2;\n            long coins = mid * (mid + 1) / 2;\n            if (coins == n) {\n                return (int) mid;\n            } else if (coins &lt; n) {\n                ans = (int) mid;\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int arrangeCoins(int n) {\n        long left = 1, right = n;\n        int ans = 0;\n        while (left &lt;= right) {\n            long mid = left + (right - left) / 2;\n            long coins = mid * (mid + 1) / 2;\n            if (coins == n) {\n                return (int)mid;\n            } else if (coins &lt; n) {\n                ans = (int)mid;\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar arrangeCoins = function(n) {\n    let left = 1, right = n;\n    let ans = 0;\n    while (left &lt;= right) {\n        const mid = Math.floor(left + (right - left) / 2);\n        const coins = Math.floor(mid * (mid + 1) / 2);\n        if (coins === n) {\n            return mid;\n        } else if (coins &lt; n) {\n            ans = mid;\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function arrangeCoins(n: number): number {\n    let left = 1, right = n;\n    let ans = 0;\n    while (left &lt;= right) {\n        const mid = Math.floor(left + (right - left) / 2);\n        const coins = Math.floor(mid * (mid + 1) / 2);\n        if (coins === n) {\n            return mid;\n        } else if (coins &lt; n) {\n            ans = mid;\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) — Standard binary search complexity.
+- Space: O(1) — Constant extra space.
+- Notes: Care must be taken with integer overflow when calculating `mid * (mid + 1)` in languages like Java and C++, so use 64-bit integers (long).
+
+---
+## Approach 3: Math Formula
+
+**Intuition**
+We can solve the quadratic equation derived from the sum formula `k(k + 1) / 2 = n`. This leads to `k² + k - 2n = 0`. Using the quadratic formula `k = (-1 + √(1 + 8n)) / 2`, we can compute the result directly.
+
+**Steps**
+- Calculate the discriminant `delta = 1 + 8 * n`.
+- Compute the square root of `delta`.
+- Apply the formula `k = (-1 + sqrt(delta)) / 2`.
+- Return the floor of `k` as the integer result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\n\nclass Solution:\n    def arrangeCoins(self, n: int) -&gt; int:\n        return int((math.sqrt(8 * n + 1) - 1) // 2)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int arrangeCoins(int n) {\n        return (int) ((Math.sqrt(8.0 * n + 1) - 1) / 2);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int arrangeCoins(int n) {\n        return (int)((sqrt(8.0 * n + 1) - 1) / 2);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar arrangeCoins = function(n) {\n    return Math.floor((Math.sqrt(8 * n + 1) - 1) / 2);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function arrangeCoins(n: number): number {\n    return Math.floor((Math.sqrt(8 * n + 1) - 1) / 2);\n}" },]} />
+
+**Complexity**
+- Time: O(1) — Involves a fixed number of arithmetic operations.
+- Space: O(1) — No extra space used.
+- Notes: This is the most optimal solution, though floating-point precision issues could theoretically arise with extremely large integers, though not within the constraints of this problem (2³¹ - 1).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Arranging Coins Solutions","datePublished":"2024-07-01","description":"You have n coins and you want to build a staircase. Find the total number of full rows of the staircase you can build.","keywords":"LeetCode, Arranging Coins, Easy, Math, Binary Search"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(√n) because the loop runs approximately √(2n) times."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n) as we perform a standard binary search."}},{"@type":"Question","name":"What is the time complexity of the Math Formula approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) as it involves a constant number of arithmetic operations."}}]}).replace(/</g,'\u003c')}
+</script>

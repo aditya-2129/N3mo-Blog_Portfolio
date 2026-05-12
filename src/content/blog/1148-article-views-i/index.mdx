@@ -1,0 +1,148 @@
+---
+title: "Article Views I"
+summary: "Find all authors who viewed their own articles at least once, sorted by author_id."
+date: "Mar 24, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.60% | **Paid:** No
+> **Topics:** Database
+
+Table: Views
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| article_id    | int     |
+| author_id     | int     |
+| viewer_id     | int     |
+| view_date     | date    |
++---------------+---------+
+There is no primary key for this table, it may have duplicate rows.
+Each row of this table indicates that some viewer viewed an article (written by some author) at some date. Note that author_id and viewer_id refer to the same person.
+
+Write an SQL query to find all the authors that viewed their own articles.
+Return the result table sorted by id in ascending order.
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Simple WHERE Filter](#approach-1-simple-where-filter)
+- [Approach 2: Using GROUP BY](#approach-2-using-group-by)
+- [Approach 3: Using Self JOIN](#approach-3-using-self-join)
+
+## Examples
+
+### Example 1:
+Input:
+Views table:
++------------+-----------+-----------+------------+
+| article_id | author_id | viewer_id | view_date  |
++------------+-----------+-----------+------------+
+| 1          | 3         | 5         | 2019-08-01 |
+| 1          | 3         | 6         | 2019-08-02 |
+| 2          | 7         | 7         | 2019-08-01 |
+| 2          | 7         | 6         | 2019-08-02 |
+| 4          | 7         | 1         | 2019-07-22 |
+| 3          | 4         | 4         | 2019-07-21 |
+| 3          | 4         | 4         | 2019-07-21 |
++------------+-----------+-----------+------------+
+
+Output:
++------+
+| id   |
++------+
+| 4    |
+| 7    |
++------+
+
+Explanation:
+- The article with id 3 was viewed by author 4 (viewer_id = author_id).
+- The article with id 2 was viewed by author 7 (viewer_id = author_id).
+- No other author viewed their own article.
+
+## Constraints
+```text
+The Views table may contain duplicate rows.
+```
+
+---
+## Approach 1: Simple WHERE Filter
+
+**Intuition**
+Filter rows where author_id equals viewer_id, then use DISTINCT to remove duplicates and sort by id.
+
+**Steps**
+- Select distinct author_id from Views where author_id equals viewer_id
+- Rename the column to id
+- Order the results by id in ascending order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nquery = \"SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id\"" },
+{ name: "Java", lang: "java", code: "// Write your MySQL query statement below\nString query = \"SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id\";" },
+{ name: "C++", lang: "cpp", code: "// Write your MySQL query statement below\nstring query = \"SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id\";" },
+{ name: "JavaScript", lang: "javascript", code: "// Write your MySQL query statement below\nconst query = \"SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id\";" },
+{ name: "TypeScript", lang: "typescript", code: "// Write your MySQL query statement below\nconst query: string = \"SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id\";" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of rows in Views table (due to sorting)
+- Space: O(k) where k is the number of unique authors who viewed their own articles
+- Notes: Most straightforward and readable solution
+
+---
+## Approach 2: Using GROUP BY
+
+**Intuition**
+Use GROUP BY to eliminate duplicates instead of DISTINCT, filtering for self-views.
+
+**Steps**
+- Select author_id from Views where author_id equals viewer_id
+- Group by author_id to remove duplicates
+- Rename the column to id
+- Order the results by id in ascending order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nquery = \"SELECT author_id AS id FROM Views WHERE author_id = viewer_id GROUP BY author_id ORDER BY author_id\"" },
+{ name: "Java", lang: "java", code: "// Write your MySQL query statement below\nString query = \"SELECT author_id AS id FROM Views WHERE author_id = viewer_id GROUP BY author_id ORDER BY author_id\";" },
+{ name: "C++", lang: "cpp", code: "// Write your MySQL query statement below\nstring query = \"SELECT author_id AS id FROM Views WHERE author_id = viewer_id GROUP BY author_id ORDER BY author_id\";" },
+{ name: "JavaScript", lang: "javascript", code: "// Write your MySQL query statement below\nconst query = \"SELECT author_id AS id FROM Views WHERE author_id = viewer_id GROUP BY author_id ORDER BY author_id\";" },
+{ name: "TypeScript", lang: "typescript", code: "// Write your MySQL query statement below\nconst query: string = \"SELECT author_id AS id FROM Views WHERE author_id = viewer_id GROUP BY author_id ORDER BY author_id\";" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of rows in Views table
+- Space: O(k) where k is the number of unique authors who viewed their own articles
+- Notes: GROUP BY can be more flexible if you need aggregate functions
+
+---
+## Approach 3: Using Self JOIN
+
+**Intuition**
+Join the table with itself on the condition that author_id equals viewer_id, demonstrating another SQL pattern.
+
+**Steps**
+- Join Views with itself where author_id equals viewer_id
+- Select distinct author_id from the joined result
+- Rename the column to id
+- Order the results by id in ascending order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nquery = \"SELECT DISTINCT v1.author_id AS id FROM Views v1 INNER JOIN Views v2 ON v1.author_id = v2.viewer_id WHERE v1.author_id = v1.viewer_id ORDER BY v1.author_id\"" },
+{ name: "Java", lang: "java", code: "// Write your MySQL query statement below\nString query = \"SELECT DISTINCT v1.author_id AS id FROM Views v1 INNER JOIN Views v2 ON v1.author_id = v2.viewer_id WHERE v1.author_id = v1.viewer_id ORDER BY v1.author_id\";" },
+{ name: "C++", lang: "cpp", code: "// Write your MySQL query statement below\nstring query = \"SELECT DISTINCT v1.author_id AS id FROM Views v1 INNER JOIN Views v2 ON v1.author_id = v2.viewer_id WHERE v1.author_id = v1.viewer_id ORDER BY v1.author_id\";" },
+{ name: "JavaScript", lang: "javascript", code: "// Write your MySQL query statement below\nconst query = \"SELECT DISTINCT v1.author_id AS id FROM Views v1 INNER JOIN Views v2 ON v1.author_id = v2.viewer_id WHERE v1.author_id = v1.viewer_id ORDER BY v1.author_id\";" },
+{ name: "TypeScript", lang: "typescript", code: "// Write your MySQL query statement below\nconst query: string = \"SELECT DISTINCT v1.author_id AS id FROM Views v1 INNER JOIN Views v2 ON v1.author_id = v2.viewer_id WHERE v1.author_id = v1.viewer_id ORDER BY v1.author_id\";" },]} />
+
+**Complexity**
+- Time: O(n²) in worst case due to self JOIN
+- Space: O(k) where k is the number of unique authors who viewed their own articles
+- Notes: Less efficient than Approach 1, but demonstrates JOIN concept
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Article Views I Solutions","datePublished":"2025-03-24","description":"Find all authors who viewed their own articles at least once, sorted by author_id.","keywords":"LeetCode, Article Views I, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) where n is the number of rows in Views table, due to sorting."}},{"@type":"Question","name":"What is the time complexity of Approach 2?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) where n is the number of rows in Views table."}},{"@type":"Question","name":"What is the time complexity of Approach 3?","acceptedAnswer":{"@type":"Answer","text":"O(n²) in worst case due to self JOIN operation."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"Approach 1 (Simple WHERE Filter) is recommended as it is the most straightforward and efficient solution."}}]}).replace(/</g,'\u003c')}
+</script>

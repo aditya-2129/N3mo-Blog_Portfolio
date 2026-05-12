@@ -1,0 +1,140 @@
+---
+title: "Take Gifts From the Richest Pile"
+summary: "You are given an array of piles and an integer k. Pick the largest pile k times, take the floor of its square root, and return the sum of remaining gifts."
+date: "May 31, 2025"
+tags:
+  - Array
+  - Heap
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.50% | **Paid:** No
+> **Topics:** Array, Heap (Priority Queue), Simulation
+
+You are given an integer array gifts denoting the number of gifts in various piles. Every second, you do the following:
+
+Choose the pile with the maximum number of gifts.
+If there are multiple piles with the maximum number of gifts, choose any.
+Leave behind the floor of the square root of the number of gifts in the pile. Take the rest of the gifts.
+Return the number of gifts remaining after k seconds.
+
+- Examples
+- Constraints
+- [Max Heap (Priority Queue)](#max-heap-priority-queue)
+- [Simulation with Sorting](#simulation-with-sorting)
+- [Linear Search (Naive)](#linear-search-naive)
+
+## Examples
+
+```text
+Input: gifts = [25,64,9,4,100], k = 4
+Output: 29
+Explanation: 
+The seconds are as follows:
+- In the first second, the pile with the most gifts is 100. We take 100 leaving floor(sqrt(100)) = 10 gifts. The array becomes [25,64,9,4,10].
+- In the second second, the pile with the most gifts is 64. We take 64 leaving floor(sqrt(64)) = 8 gifts. The array becomes [25,8,9,4,10].
+- In the third second, the pile with the most gifts is 25. We take 25 leaving floor(sqrt(25)) = 5 gifts. The array becomes [5,8,9,4,10].
+- In the fourth second, the pile with the most gifts is 10. We take 10 leaving floor(sqrt(10)) = 3 gifts. The array becomes [5,8,9,4,3].
+The total number of gifts remaining is 5 + 8 + 9 + 4 + 3 = 29.
+```
+
+```text
+Input: gifts = [1,1,1,1], k = 4
+Output: 0
+Explanation: 
+In each second, we choose the pile with the most gifts which is 1. We take 1 leaving floor(sqrt(1)) = 0 gifts. The array becomes [0,0,0,0] after 4 seconds.
+```
+
+## Constraints
+
+```text
+- 1 <= gifts.length <= 10^3
+- 1 <= gifts[i] <= 10^9
+- 1 <= k <= 10^3
+```
+
+---
+
+## Max Heap (Priority Queue)
+
+**Intuition**
+We need to repeatedly access the maximum element in the array. A Max Heap (Priority Queue) is the ideal data structure for this, as it allows us to extract the maximum element and insert a new element in logarithmic time.
+
+**Steps**
+- Initialize a Max Heap with all elements from the gifts array.
+- Loop k times:
+  - Extract the maximum element from the heap.
+  - Calculate the number of gifts to leave behind: floor(sqrt(max)).
+  - Push the remaining gifts back into the heap.
+- Sum all elements remaining in the heap and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\nimport math\nfrom typing import List\n\nclass Solution:\n    def pickGifts(self, gifts: List[int], k: int) -&gt; int:\n        # Python's heapq is a min-heap, so we invert values to simulate a max-heap\n        max_heap = [-g for g in gifts]\n        heapq.heapify(max_heap)\n        \n        for _ in range(k):\n            if not max_heap:\n                break\n            # Get the largest value (remember to invert back)\n            current = -heapq.heappop(max_heap)\n            remaining = int(math.sqrt(current))\n            # Push the remaining back (invert again)\n            heapq.heappush(max_heap, -remaining)\n            \n        # Sum the remaining gifts (invert back)\n        return sum(-x for x in max_heap)\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long pickGifts(int[] gifts, int k) {\n        // PriorityQueue in Java is a Min-Heap, so we use a reverse comparator for Max-Heap\n        PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        for (int gift : gifts) {\n            pq.offer(gift);\n        }\n        \n        while (k-- &gt; 0 && !pq.isEmpty()) {\n            int current = pq.poll();\n            int remaining = (int) Math.sqrt(current);\n            pq.offer(remaining);\n        }\n        \n        long sum = 0;\n        while (!pq.isEmpty()) {\n            sum += pq.poll();\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n#include &lt;vector&gt;\n#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    long long pickGifts(std::vector&lt;int&gt;& gifts, int k) {\n        // priority_queue in C++ is a Max-Heap by default\n        std::priority_queue&lt;int&gt; pq(gifts.begin(), gifts.end());\n        \n        while (k-- &gt; 0 && !pq.empty()) {\n            int current = pq.top();\n            pq.pop();\n            int remaining = (int)std::sqrt(current);\n            pq.push(remaining);\n        }\n        \n        long long sum = 0;\n        while (!pq.empty()) {\n            sum += pq.top();\n            pq.pop();\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gifts\n * @param {number} k\n * @return {number}\n */\nvar pickGifts = function(gifts, k) {\n    // LeetCode environment supports @datastructures-js/priority-queue\n    const { MaxPriorityQueue } = require('@datastructures-js/priority-queue');\n    const pq = new MaxPriorityQueue();\n    \n    for (const gift of gifts) {\n        pq.enqueue(gift);\n    }\n    \n    while (k-- &gt; 0 && !pq.isEmpty()) {\n        const { element: current } = pq.dequeue();\n        const remaining = Math.floor(Math.sqrt(current));\n        pq.enqueue(remaining);\n    }\n    \n    let sum = 0;\n    while (!pq.isEmpty()) {\n        sum += pq.dequeue().element;\n    }\n    return sum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function pickGifts(gifts: number[], k: number): number {\n    // LeetCode environment supports @datastructures-js/priority-queue\n    const { MaxPriorityQueue } = require('@datastructures-js/priority-queue');\n    const pq = new MaxPriorityQueue();\n    \n    for (const gift of gifts) {\n        pq.enqueue(gift);\n    }\n    \n    while (k-- &gt; 0 && !pq.isEmpty()) {\n        const current = pq.dequeue().element;\n        const remaining = Math.floor(Math.sqrt(current));\n        pq.enqueue(remaining);\n    }\n    \n    let sum = 0;\n    while (!pq.isEmpty()) {\n        sum += pq.dequeue().element;\n    }\n    return sum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n + k log n), where n is the number of piles. Building the heap takes O(n), and we perform k operations of O(log n) each.
+- Space: O(n) to store the heap.
+- Notes: This is the most efficient approach for larger input sizes.
+
+---
+
+## Simulation with Sorting
+
+**Intuition**
+Since the constraints are small (n and k up to 10³), we can afford to sort the array in every iteration to find the maximum element. This avoids the overhead of a heap data structure.
+
+**Steps**
+- Loop k times:
+  - Sort the array in descending order.
+  - Update the first element (the largest) to be floor(sqrt(first_element)).
+- Return the sum of the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\nfrom typing import List\n\nclass Solution:\n    def pickGifts(self, gifts: List[int], k: int) -&gt; int:\n        for _ in range(k):\n            # Sort in descending order\n            gifts.sort(reverse=True)\n            # Update the largest pile\n            gifts[0] = int(math.sqrt(gifts[0]))\n        return sum(gifts)\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long pickGifts(int[] gifts, int k) {\n        // Convert to Integer array to use Collections.reverseOrder()\n        Integer[] boxedGifts = new Integer[gifts.length];\n        for (int i = 0; i &lt; gifts.length; i++) {\n            boxedGifts[i] = gifts[i];\n        }\n        \n        for (int i = 0; i &lt; k; i++) {\n            // Sort descending\n            Arrays.sort(boxedGifts, Collections.reverseOrder());\n            // Update largest\n            boxedGifts[0] = (int) Math.sqrt(boxedGifts[0]);\n        }\n        \n        long sum = 0;\n        for (int g : boxedGifts) {\n            sum += g;\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    long long pickGifts(std::vector&lt;int&gt;& gifts, int k) {\n        for (int i = 0; i &lt; k; ++i) {\n            // Sort in descending order\n            std::sort(gifts.begin(), gifts.end(), std::greater&lt;int&gt;());\n            // Update largest\n            gifts[0] = (int)std::sqrt(gifts[0]);\n        }\n        long long sum = 0;\n        for (int g : gifts) {\n            sum += g;\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gifts\n * @param {number} k\n * @return {number}\n */\nvar pickGifts = function(gifts, k) {\n    for (let i = 0; i &lt; k; i++) {\n        // Sort descending\n        gifts.sort((a, b) =&gt; b - a);\n        // Update largest\n        gifts[0] = Math.floor(Math.sqrt(gifts[0]));\n    }\n    return gifts.reduce((a, b) =&gt; a + b, 0);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function pickGifts(gifts: number[], k: number): number {\n    for (let i = 0; i &lt; k; i++) {\n        // Sort descending\n        gifts.sort((a, b) =&gt; b - a);\n        // Update largest\n        gifts[0] = Math.floor(Math.sqrt(gifts[0]));\n    }\n    return gifts.reduce((a, b) =&gt; a + b, 0);\n}\n" },]} />
+
+**Complexity**
+- Time: O(k * n log n), where n is the number of piles. We sort n elements k times.
+- Space: O(1) or O(n) depending on the sorting algorithm's space complexity.
+- Notes: Simpler to implement than a heap, but slower for large inputs.
+
+---
+
+## Linear Search (Naive)
+
+**Intuition**
+We can simply scan the array to find the maximum element in every iteration. This avoids sorting but requires O(n) time per iteration to find the max.
+
+**Steps**
+- Loop k times:
+  - Find the index of the maximum element in the array.
+  - Update the value at that index to floor(sqrt(value)).
+- Return the sum of the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\nfrom typing import List\n\nclass Solution:\n    def pickGifts(self, gifts: List[int], k: int) -&gt; int:\n        for _ in range(k):\n            max_idx = 0\n            # Find index of max element\n            for i in range(len(gifts)):\n                if gifts[i] &gt; gifts[max_idx]:\n                    max_idx = i\n            # Update max element\n            gifts[max_idx] = int(math.sqrt(gifts[max_idx]))\n        return sum(gifts)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long pickGifts(int[] gifts, int k) {\n        for (int i = 0; i &lt; k; i++) {\n            int maxIdx = 0;\n            // Find index of max element\n            for (int j = 1; j &lt; gifts.length; j++) {\n                if (gifts[j] &gt; gifts[maxIdx]) {\n                    maxIdx = j;\n                }\n            }\n            // Update max element\n            gifts[maxIdx] = (int) Math.sqrt(gifts[maxIdx]);\n        }\n        long sum = 0;\n        for (int g : gifts) {\n            sum += g;\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    long long pickGifts(std::vector&lt;int&gt;& gifts, int k) {\n        for (int i = 0; i &lt; k; ++i) {\n            int maxIdx = 0;\n            // Find index of max element\n            for (int j = 1; j &lt; gifts.size(); ++j) {\n                if (gifts[j] &gt; gifts[maxIdx]) {\n                    maxIdx = j;\n                }\n            }\n            // Update max element\n            gifts[maxIdx] = (int)std::sqrt(gifts[maxIdx]);\n        }\n        long long sum = 0;\n        for (int g : gifts) {\n            sum += g;\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gifts\n * @param {number} k\n * @return {number}\n */\nvar pickGifts = function(gifts, k) {\n    for (let i = 0; i &lt; k; i++) {\n        let maxIdx = 0;\n        // Find index of max element\n        for (let j = 1; j &lt; gifts.length; j++) {\n            if (gifts[j] &gt; gifts[maxIdx]) {\n                maxIdx = j;\n            }\n        }\n        // Update max element\n        gifts[maxIdx] = Math.floor(Math.sqrt(gifts[maxIdx]));\n    }\n    return gifts.reduce((a, b) =&gt; a + b, 0);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function pickGifts(gifts: number[], k: number): number {\n    for (let i = 0; i &lt; k; i++) {\n        let maxIdx = 0;\n        // Find index of max element\n        for (let j = 1; j &lt; gifts.length; j++) {\n            if (gifts[j] &gt; gifts[maxIdx]) {\n                maxIdx = j;\n            }\n        }\n        // Update max element\n        gifts[maxIdx] = Math.floor(Math.sqrt(gifts[maxIdx]));\n    }\n    return gifts.reduce((a, b) =&gt; a + b, 0);\n}\n" },]} />
+
+**Complexity**
+- Time: O(k * n), where n is the number of piles. We perform a linear scan k times.
+- Space: O(1), no extra space used.
+- Notes: This is often faster than sorting for small k, but slower than the heap approach for larger inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Take Gifts From the Richest Pile Solutions","datePublished":"2025-05-31","description":"You are given an array of piles and an integer k. Pick the largest pile k times, take the floor of its square root, and return the sum of remaining gifts.","keywords":"LeetCode, Take Gifts From the Richest Pile, Easy, Array, Heap (Priority Queue), Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Max Heap approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + k log n), where n is the number of piles."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(k * n log n), as we sort the array in each of the k iterations."}},{"@type":"Question","name":"What is the time complexity of the Linear Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(k * n), as we scan the array to find the maximum in each of the k iterations."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,370 @@
+---
+title: "Find Missing Elements"
+summary: "Given two arrays, find all elements in the first array that are not present in the second array."
+date: "Aug 07, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.10% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+You are given two integer arrays nums1 and nums2. Return a list of all the elements in nums1 that are not present in nums2.
+
+The result can be returned in any order.
+
+## Examples
+
+### Example 1:
+```text
+Input: nums1 = [1,2,3,4,5], nums2 = [2,3,4,5,6]
+Output: [1]
+Explanation: Only 1 is present in nums1 but not in nums2.
+```
+
+### Example 2:
+```text
+Input: nums1 = [1,2,3], nums2 = [4,5,6]
+Output: [1,2,3]
+Explanation: All elements of nums1 are missing from nums2.
+```
+
+### Example 3:
+```text
+Input: nums1 = [1,2,2,3], nums2 = [2,3,4]
+Output: [1,2]
+Explanation: 1 and one occurrence of 2 are missing from nums2.
+```
+
+## Constraints
+
+```text
+1 <= nums1.length, nums2.length <= 1000
+-1000 <= nums1[i], nums2[i] <= 1000
+```
+
+- [Hash Set Approach](#hash-set-approach)
+- [Sorting + Two Pointers](#sorting-two-pointers)
+- [Frequency Map Approach](#frequency-map-approach)
+
+## Hash Set Approach
+
+**Intuition**
+Store all elements of nums2 in a hash set for O(1) lookup, then iterate through nums1 to find elements not in the set.
+
+**Steps**
+- Create a hash set from nums2 elements
+- Iterate through nums1 and collect elements not in the set
+- Return the result list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findMissingElements(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        nums2_set = set(nums2)
+        result = []
+        for num in nums1:
+            if num not in nums2_set:
+                result.append(num)
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<Integer> findMissingElements(int[] nums1, int[] nums2) {
+        Set<Integer> set = new HashSet&lt;&gt;();
+        for (int num : nums2) {
+            set.add(num);
+        }
+        List<Integer> result = new ArrayList&lt;&gt;();
+        for (int num : nums1) {
+            if (!set.contains(num)) {
+                result.add(num);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findMissingElements(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> nums2Set(nums2.begin(), nums2.end());
+        vector<int> result;
+        for (int num : nums1) {
+            if (nums2Set.find(num) == nums2Set.end()) {
+                result.push_back(num);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findMissingElements = function(nums1, nums2) {
+    const nums2Set = new Set(nums2);
+    const result = [];
+    for (const num of nums1) {
+        if (!nums2Set.has(num)) {
+            result.push(num);
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findMissingElements(nums1: number[], nums2: number[]): number[] {
+    const nums2Set = new Set(nums2);
+    const result: number[] = [];
+    for (const num of nums1) {
+        if (!nums2Set.has(num)) {
+            result.push(num);
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n + m) where n = nums1.length, m = nums2.length
+- Space: O(m) for the hash set
+- Notes: Fast lookup with hash set, optimal for most cases
+
+## Sorting + Two Pointers
+
+**Intuition**
+Sort both arrays and use two pointers to find elements in nums1 that don't have matches in nums2.
+
+**Steps**
+- Sort both arrays
+- Use two pointers to traverse both arrays
+- When elements match, advance both pointers
+- When nums1 element is smaller, it's missing from nums2
+- When nums2 element is smaller, advance nums2 pointer
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findMissingElements(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        nums1.sort()
+        nums2.sort()
+        result = []
+        i, j = 0, 0
+        while i &lt; len(nums1) and j &lt; len(nums2):
+            if nums1[i] == nums2[j]:
+                i += 1
+                j += 1
+            elif nums1[i] &lt; nums2[j]:
+                result.append(nums1[i])
+                i += 1
+            else:
+                j += 1
+        while i &lt; len(nums1):
+            result.append(nums1[i])
+            i += 1
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<Integer> findMissingElements(int[] nums1, int[] nums2) {
+        Arrays.sort(nums1);
+        Arrays.sort(nums2);
+        List<Integer> result = new ArrayList&lt;&gt;();
+        int i = 0, j = 0;
+        while (i &lt; nums1.length && j &lt; nums2.length) {
+            if (nums1[i] == nums2[j]) {
+                i++;
+                j++;
+            } else if (nums1[i] &lt; nums2[j]) {
+                result.add(nums1[i]);
+                i++;
+            } else {
+                j++;
+            }
+        }
+        while (i &lt; nums1.length) {
+            result.add(nums1[i++]);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findMissingElements(vector<int>& nums1, vector<int>& nums2) {
+        sort(nums1.begin(), nums1.end());
+        sort(nums2.begin(), nums2.end());
+        vector<int> result;
+        int i = 0, j = 0;
+        while (i &lt; nums1.size() && j &lt; nums2.size()) {
+            if (nums1[i] == nums2[j]) {
+                i++;
+                j++;
+            } else if (nums1[i] &lt; nums2[j]) {
+                result.push_back(nums1[i]);
+                i++;
+            } else {
+                j++;
+            }
+        }
+        while (i &lt; nums1.size()) {
+            result.push_back(nums1[i++]);
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findMissingElements = function(nums1, nums2) {
+    nums1.sort((a, b) =&gt; a - b);
+    nums2.sort((a, b) =&gt; a - b);
+    const result = [];
+    let i = 0, j = 0;
+    while (i &lt; nums1.length && j &lt; nums2.length) {
+        if (nums1[i] === nums2[j]) {
+            i++;
+            j++;
+        } else if (nums1[i] &lt; nums2[j]) {
+            result.push(nums1[i]);
+            i++;
+        } else {
+            j++;
+        }
+    }
+    while (i &lt; nums1.length) {
+        result.push(nums1[i++]);
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findMissingElements(nums1: number[], nums2: number[]): number[] {
+    nums1.sort((a, b) =&gt; a - b);
+    nums2.sort((a, b) =&gt; a - b);
+    const result: number[] = [];
+    let i = 0, j = 0;
+    while (i &lt; nums1.length && j &lt; nums2.length) {
+        if (nums1[i] === nums2[j]) {
+            i++;
+            j++;
+        } else if (nums1[i] &lt; nums2[j]) {
+            result.push(nums1[i]);
+            i++;
+        } else {
+            j++;
+        }
+    }
+    while (i &lt; nums1.length) {
+        result.push(nums1[i++]);
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n + m log m) for sorting
+- Space: O(1) extra space (excluding output)
+- Notes: Useful when space is constrained, but slower due to sorting
+
+## Frequency Map Approach
+
+**Intuition**
+Count frequency of elements in nums2, then check each element in nums1 against the frequency map.
+
+**Steps**
+- Create a frequency map from nums2
+- Iterate through nums1 and collect elements with zero frequency
+- Return the result list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findMissingElements(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        from collections import Counter
+        freq = Counter(nums2)
+        result = []
+        for num in nums1:
+            if freq.get(num, 0) == 0:
+                result.append(num)
+            else:
+                freq[num] -= 1
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public List<Integer> findMissingElements(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums2) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        List<Integer> result = new ArrayList&lt;&gt;();
+        for (int num : nums1) {
+            int count = freq.getOrDefault(num, 0);
+            if (count == 0) {
+                result.add(num);
+            } else {
+                freq.put(num, count - 1);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> findMissingElements(vector<int>& nums1, vector<int>& nums2) {
+        unordered_map<int, int> freq;
+        for (int num : nums2) {
+            freq[num]++;
+        }
+        vector<int> result;
+        for (int num : nums1) {
+            if (freq.find(num) == freq.end() || freq[num] == 0) {
+                result.push_back(num);
+            } else {
+                freq[num]--;
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var findMissingElements = function(nums1, nums2) {
+    const freq = new Map();
+    for (const num of nums2) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    const result = [];
+    for (const num of nums1) {
+        const count = freq.get(num) || 0;
+        if (count === 0) {
+            result.push(num);
+        } else {
+            freq.set(num, count - 1);
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findMissingElements(nums1: number[], nums2: number[]): number[] {
+    const freq = new Map<number, number>();
+    for (const num of nums2) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    const result: number[] = [];
+    for (const num of nums1) {
+        const count = freq.get(num) || 0;
+        if (count === 0) {
+            result.push(num);
+        } else {
+            freq.set(num, count - 1);
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n + m) where n = nums1.length, m = nums2.length
+- Space: O(m) for the frequency map
+- Notes: Handles duplicates correctly, similar to hash set approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Missing Elements Solutions","datePublished":"2025-08-07","description":"Given two arrays, find all elements in the first array that are not present in the second array.","keywords":"LeetCode, Find Missing Elements, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach has a time complexity of O(n + m) where n is the length of nums1 and m is the length of nums2."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting + Two Pointers approach has O(1) extra space complexity (excluding the output array), but requires O(n log n + m log m) time for sorting."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach is recommended for most cases due to its O(n + m) time complexity and simple implementation."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,116 @@
+---
+title: "Minimum Hours of Training to Win a Competition"
+summary: "Calculate minimum training hours needed to win all competitions by tracking energy and experience deficits."
+date: "Mar 01, 2025"
+tags:
+  - Array
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 42.60% | **Paid:** No
+> **Topics:** Array, Greedy
+
+You are entering a competition, and you need to calculate the minimum hours of training required to win.
+
+You are given two integers initialEnergy and initialExperience representing your initial energy and initial experience, respectively.
+
+You are also given two 0-indexed integer arrays energy and experience of length n.
+
+For each opponent i:
+- You need strictly more energy than energy[i] to beat them.
+- You need strictly more experience than experience[i] to beat them.
+- If you beat them, you gain experience[i] experience.
+
+You can train for some number of hours to increase your initial energy or initial experience. You can train for at most one hour at a time, and you can decide to train either energy or experience.
+
+Return the minimum number of hours of training required to win all n competitions.
+
+- Examples
+- Constraints
+- [Greedy Simulation](#greedy-simulation)
+- [Mathematical Formula](#mathematical-formula)
+
+## Examples
+
+```text
+Input: initialEnergy = 5, initialExperience = 3, energy = [1,4,3,2], experience = [2,6,3,1]
+Output: 8
+Explanation: You can train for 6 hours on energy and 2 hours on experience.
+After training, your energy is 11 and experience is 5.
+You beat all opponents and win the competition.
+```
+
+```text
+Input: initialEnergy = 2, initialExperience = 4, energy = [1], experience = [3]
+Output: 0
+Explanation: You do not need any training. You beat the opponent with 2 energy and 4 experience.
+```
+
+## Constraints
+
+```text
+n == energy.length == experience.length
+1 <= n <= 100
+1 <= initialEnergy, initialExperience <= 100
+1 <= energy[i], experience[i] <= 100
+```
+
+---
+## Greedy Simulation
+
+**Intuition**
+Calculate energy training upfront since we need total energy greater than sum of all opponent energy. For experience, simulate the competition and add training whenever we encounter an opponent we cannot beat.
+
+**Steps**
+- Calculate total energy needed as sum of all energy values plus 1
+- Energy training is max(0, totalEnergyNeeded - initialEnergy)
+- For experience, iterate through opponents and track current experience
+- When current experience is not enough, add training hours
+- Return sum of energy and experience training hours
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minNumberOfHours(self, initialEnergy: int, initialExperience: int, energy: list[int], experience: list[int]) -&gt; int:\n        energy_training = max(0, sum(energy) + 1 - initialEnergy)\n        \n        exp_training = 0\n        current_exp = initialExperience\n        for exp in experience:\n            if current_exp &lt;= exp:\n                exp_training += exp + 1 - current_exp\n                current_exp = exp + 1\n            current_exp += exp\n        \n        return energy_training + exp_training\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minNumberOfHours(int initialEnergy, int initialExperience, int[] energy, int[] experience) {\n        int totalEnergyNeeded = 0;\n        for (int e : energy) {\n            totalEnergyNeeded += e;\n        }\n        int energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n        \n        int expTraining = 0;\n        int currentExp = initialExperience;\n        for (int exp : experience) {\n            if (currentExp &lt;= exp) {\n                expTraining += exp + 1 - currentExp;\n                currentExp = exp + 1;\n            }\n            currentExp += exp;\n        }\n        \n        return energyTraining + expTraining;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minNumberOfHours(int initialEnergy, int initialExperience, vector&lt;int&gt;& energy, vector&lt;int&gt;& experience) {\n        int totalEnergyNeeded = 0;\n        for (int e : energy) {\n            totalEnergyNeeded += e;\n        }\n        int energyTraining = max(0, totalEnergyNeeded + 1 - initialEnergy);\n        \n        int expTraining = 0;\n        int currentExp = initialExperience;\n        for (int exp : experience) {\n            if (currentExp &lt;= exp) {\n                expTraining += exp + 1 - currentExp;\n                currentExp = exp + 1;\n            }\n            currentExp += exp;\n        }\n        \n        return energyTraining + expTraining;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} initialEnergy\n * @param {number} initialExperience\n * @param {number[]} energy\n * @param {number[]} experience\n * @return {number}\n */\nvar minNumberOfHours = function(initialEnergy, initialExperience, energy, experience) {\n    let totalEnergyNeeded = energy.reduce((a, b) =&gt; a + b, 0);\n    let energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n    \n    let expTraining = 0;\n    let currentExp = initialExperience;\n    for (let exp of experience) {\n        if (currentExp &lt;= exp) {\n            expTraining += exp + 1 - currentExp;\n            currentExp = exp + 1;\n        }\n        currentExp += exp;\n    }\n    \n    return energyTraining + expTraining;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minNumberOfHours(initialEnergy: number, initialExperience: number, energy: number[], experience: number[]): number {\n    let totalEnergyNeeded = energy.reduce((a, b) =&gt; a + b, 0);\n    let energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n    \n    let expTraining = 0;\n    let currentExp = initialExperience;\n    for (let exp of experience) {\n        if (currentExp &lt;= exp) {\n            expTraining += exp + 1 - currentExp;\n            currentExp = exp + 1;\n        }\n        currentExp += exp;\n    }\n    \n    return energyTraining + expTraining;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of opponents
+- Space: O(1) constant extra space
+- Notes: Single pass through arrays with optimal calculation
+
+---
+## Mathematical Formula
+
+**Intuition**
+Derive the experience training formula using prefix sums. The minimum experience needed at each step is the maximum deficit encountered when comparing required experience against accumulated gains.
+
+**Steps**
+- Calculate energy training as before
+- For experience, use prefix sum to track accumulated experience gains
+- At each opponent, compute the deficit: experience[i] + 1 - initialExperience - prefixSum
+- Take the maximum of all deficits as the required experience training
+- Return sum of both training values
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minNumberOfHours(self, initialEnergy: int, initialExperience: int, energy: list[int], experience: list[int]) -&gt; int:\n        energy_training = max(0, sum(energy) + 1 - initialEnergy)\n        \n        exp_training = 0\n        prefix_sum = 0\n        for exp in experience:\n            exp_training = max(exp_training, exp + 1 - initialExperience - prefix_sum)\n            prefix_sum += exp\n        \n        return energy_training + exp_training\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minNumberOfHours(int initialEnergy, int initialExperience, int[] energy, int[] experience) {\n        int totalEnergyNeeded = 0;\n        for (int e : energy) {\n            totalEnergyNeeded += e;\n        }\n        int energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n        \n        int expTraining = 0;\n        int prefixSum = 0;\n        for (int exp : experience) {\n            expTraining = Math.max(expTraining, exp + 1 - initialExperience - prefixSum);\n            prefixSum += exp;\n        }\n        \n        return energyTraining + expTraining;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minNumberOfHours(int initialEnergy, int initialExperience, vector&lt;int&gt;& energy, vector&lt;int&gt;& experience) {\n        int totalEnergyNeeded = 0;\n        for (int e : energy) {\n            totalEnergyNeeded += e;\n        }\n        int energyTraining = max(0, totalEnergyNeeded + 1 - initialEnergy);\n        \n        int expTraining = 0;\n        int prefixSum = 0;\n        for (int exp : experience) {\n            expTraining = max(expTraining, exp + 1 - initialExperience - prefixSum);\n            prefixSum += exp;\n        }\n        \n        return energyTraining + expTraining;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} initialEnergy\n * @param {number} initialExperience\n * @param {number[]} energy\n * @param {number[]} experience\n * @return {number}\n */\nvar minNumberOfHours = function(initialEnergy, initialExperience, energy, experience) {\n    let totalEnergyNeeded = energy.reduce((a, b) =&gt; a + b, 0);\n    let energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n    \n    let expTraining = 0;\n    let prefixSum = 0;\n    for (let exp of experience) {\n        expTraining = Math.max(expTraining, exp + 1 - initialExperience - prefixSum);\n        prefixSum += exp;\n    }\n    \n    return energyTraining + expTraining;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minNumberOfHours(initialEnergy: number, initialExperience: number, energy: number[], experience: number[]): number {\n    let totalEnergyNeeded = energy.reduce((a, b) =&gt; a + b, 0);\n    let energyTraining = Math.max(0, totalEnergyNeeded + 1 - initialEnergy);\n    \n    let expTraining = 0;\n    let prefixSum = 0;\n    for (let exp of experience) {\n        expTraining = Math.max(expTraining, exp + 1 - initialExperience - prefixSum);\n        prefixSum += exp;\n    }\n    \n    return energyTraining + expTraining;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of opponents
+- Space: O(1) constant extra space
+- Notes: Same complexity as simulation but uses mathematical insight for cleaner code
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Hours of Training to Win a Competition Solutions","datePublished":"2025-03-01","description":"Calculate minimum training hours needed to win all competitions by tracking energy and experience deficits.","keywords":"LeetCode, Minimum Hours of Training to Win a Competition, Easy, Array, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Greedy Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of opponents, as we iterate through the energy and experience arrays once."}},{"@type":"Question","name":"What is the space complexity of Mathematical Formula approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space for variables."}},{"@type":"Question","name":"Why do we calculate energy training upfront?","acceptedAnswer":{"@type":"Answer","text":"Energy training is calculated upfront because we need total energy greater than the sum of all opponent energy requirements. Since we lose energy equal to each opponent's requirement after beating them, the total energy needed is fixed regardless of order."}}]}).replace(/</g,'\u003c')}
+</script>

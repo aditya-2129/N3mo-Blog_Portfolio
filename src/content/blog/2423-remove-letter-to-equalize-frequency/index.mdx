@@ -1,0 +1,110 @@
+---
+title: "Remove Letter To Equalize Frequency"
+summary: "Check if removing one character from a string can make the frequency of all remaining characters equal."
+date: "Jan 20, 2026"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 19.40% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+You are given a 0-indexed string word, consisting of lowercase English letters. You need to select one index and remove the letter at that index from word so that the frequency of every letter present in word is equal.
+
+Return true if it is possible to remove one letter so that the frequency of all letters in word are equal, otherwise, return false.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Frequency Count Analysis](#frequency-count-analysis)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: word = "abcc"
+Output: true
+Explanation: Select index 3 and delete the letter: 'abcc' -> "abc".
+The frequency of 'a', 'b', and 'c' are all 1.
+```
+
+**Example 2:**
+
+```text
+Input: word = "aazz"
+Output: false
+Explanation: We must delete one character, so either the string becomes "azz" with frequencies {a:1, z:2} or "aaz" with frequencies {a:2, z:1}. Neither have equal frequencies.
+```
+
+## Constraints
+
+```text
+2 <= word.length <= 100
+word consists only of lowercase English letters.
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Since the string length is small (max 100), we can simulate the removal of every character one by one. For each resulting string, we count the frequency of each character and check if all non-zero frequencies are identical.
+
+**Steps**
+- Iterate through the string from index `0` to `n-1`.
+- For each index `i`, construct a new string excluding the character at `i`.
+- Calculate the frequency of each character in this new string.
+- Check if all non-zero frequencies are the same.
+- If a valid configuration is found, return `true`. If the loop finishes without success, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def equalFrequency(self, word: str) -&gt; bool:\n        n = len(word)\n        for i in range(n):\n            # Construct new string without char at i\n            new_word = word[:i] + word[i+1:]\n            # Count frequencies\n            counts = {}\n            for c in new_word:\n                counts[c] = counts.get(c, 0) + 1\n            # Check if all frequencies are equal\n            vals = list(counts.values())\n            if all(v == vals[0] for v in vals):\n                return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean equalFrequency(String word) {\n        int n = word.length();\n        for (int i = 0; i &lt; n; i++) {\n            // Construct new string without char at i\n            String newWord = word.substring(0, i) + word.substring(i + 1);\n            int[] freq = new int[26];\n            for (char c : newWord.toCharArray()) {\n                freq[c - 'a']++;\n            }\n            // Check if all non-zero frequencies are equal\n            int target = -1;\n            boolean valid = true;\n            for (int f : freq) {\n                if (f &gt; 0) {\n                    if (target == -1) target = f;\n                    else if (f != target) {\n                        valid = false;\n                        break;\n                    }\n                }\n            }\n            if (valid) return true;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool equalFrequency(string word) {\n        int n = word.size();\n        for (int i = 0; i &lt; n; ++i) {\n            // Construct new string without char at i\n            string newWord = word.substr(0, i) + word.substr(i + 1);\n            vector&lt;int&gt; freq(26, 0);\n            for (char c : newWord) {\n                freq[c - 'a']++;\n            }\n            // Check if all non-zero frequencies are equal\n            int target = -1;\n            bool valid = true;\n            for (int f : freq) {\n                if (f &gt; 0) {\n                    if (target == -1) target = f;\n                    else if (f != target) {\n                        valid = false;\n                        break;\n                    }\n                }\n            }\n            if (valid) return true;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var equalFrequency = function(word) {\n    const n = word.length;\n    for (let i = 0; i &lt; n; i++) {\n        // Construct new string without char at i\n        const newWord = word.slice(0, i) + word.slice(i + 1);\n        const freq = {};\n        for (const c of newWord) {\n            freq[c] = (freq[c] || 0) + 1;\n        }\n        // Check if all frequencies are equal\n        const vals = Object.values(freq);\n        const first = vals[0];\n        let valid = true;\n        for (const v of vals) {\n            if (v !== first) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function equalFrequency(word: string): boolean {\n    const n = word.length;\n    for (let i = 0; i &lt; n; i++) {\n        // Construct new string without char at i\n        const newWord = word.slice(0, i) + word.slice(i + 1);\n        const freq: Record&lt;string, number&gt; = {};\n        for (const c of newWord) {\n            freq[c] = (freq[c] || 0) + 1;\n        }\n        // Check if all frequencies are equal\n        const vals = Object.values(freq);\n        const first = vals[0];\n        let valid = true;\n        for (const v of vals) {\n            if (v !== first) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the string. We iterate n times, and each iteration takes O(n) to build the string and count frequencies.
+- Space: O(1) auxiliary space (excluding the output string), as the frequency array size is fixed at 26.
+- Notes: Simple to implement and sufficiently fast given the constraint n &lt;= 100.
+
+---
+## Frequency Count Analysis
+
+**Intuition**
+Instead of physically removing characters and rebuilding strings, we can work directly with the frequency counts. We iterate through the unique characters present in the string, decrement their count by 1 (simulating removal), and check if the remaining frequencies are all equal.
+
+**Steps**
+- Count the frequency of every character in the original string.
+- Iterate through each character present in the frequency map.
+- Decrement the count of the current character by 1.
+- If the count reaches 0, remove the character from the map.
+- Check if the set of remaining frequency values contains only one unique value.
+- If yes, return `true`.
+- Restore the count of the current character and continue.
+- If the loop finishes, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def equalFrequency(self, word: str) -&gt; bool:\n        freq = Counter(word)\n        for c in freq:\n            # Simulate removal\n            freq[c] -= 1\n            if freq[c] == 0:\n                del freq[c]\n            # Check if remaining frequencies are equal\n            if len(set(freq.values())) == 1:\n                return True\n            # Backtrack\n            freq[c] = freq.get(c, 0) + 1\n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean equalFrequency(String word) {\n        int[] count = new int[26];\n        for (char c : word.toCharArray()) {\n            count[c - 'a']++;\n        }\n        \n        for (int i = 0; i &lt; 26; i++) {\n            if (count[i] == 0) continue;\n            \n            // Simulate removal\n            count[i]--;\n            \n            // Check if remaining frequencies are equal\n            Set&lt;Integer&gt; set = new HashSet&lt;&gt;();\n            for (int j = 0; j &lt; 26; j++) {\n                if (count[j] &gt; 0) {\n                    set.add(count[j]);\n                }\n            }\n            if (set.size() == 1) return true;\n            \n            // Backtrack\n            count[i]++;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    bool equalFrequency(string word) {\n        vector&lt;int&gt; count(26, 0);\n        for (char c : word) {\n            count[c - 'a']++;\n        }\n        \n        for (int i = 0; i &lt; 26; ++i) {\n            if (count[i] == 0) continue;\n            \n            // Simulate removal\n            count[i]--;\n            \n            // Check if remaining frequencies are equal\n            unordered_set&lt;int&gt; s;\n            for (int j = 0; j &lt; 26; ++j) {\n                if (count[j] &gt; 0) {\n                    s.insert(count[j]);\n                }\n            }\n            if (s.size() == 1) return true;\n            \n            // Backtrack\n            count[i]++;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var equalFrequency = function(word) {\n    const count = new Array(26).fill(0);\n    for (const c of word) {\n        count[c.charCodeAt(0) - 97]++;\n    }\n    \n    for (let i = 0; i &lt; 26; i++) {\n        if (count[i] === 0) continue;\n        \n        // Simulate removal\n        count[i]--;\n        \n        // Check if remaining frequencies are equal\n        const s = new Set();\n        for (let j = 0; j &lt; 26; j++) {\n            if (count[j] &gt; 0) {\n                s.add(count[j]);\n            }\n        }\n        if (s.size === 1) return true;\n        \n        // Backtrack\n        count[i]++;\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function equalFrequency(word: string): boolean {\n    const count: number[] = new Array(26).fill(0);\n    for (const c of word) {\n        count[c.charCodeAt(0) - 97]++;\n    }\n    \n    for (let i = 0; i &lt; 26; i++) {\n        if (count[i] === 0) continue;\n        \n        // Simulate removal\n        count[i]--;\n        \n        // Check if remaining frequencies are equal\n        const s = new Set&lt;number&gt;();\n        for (let j = 0; j &lt; 26; j++) {\n            if (count[j] &gt; 0) {\n                s.add(count[j]);\n            }\n        }\n        if (s.size === 1) return true;\n        \n        // Backtrack\n        count[i]++;\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string. We iterate through the string once to build counts, and then iterate through the constant 26-letter alphabet.
+- Space: O(1) auxiliary space, as the storage size is fixed (26 integers).
+- Notes: More efficient than the brute force approach, especially if the string length were larger.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Remove Letter To Equalize Frequency Solutions","datePublished":"2026-01-20","description":"Check if removing one character from a string can make the frequency of all remaining characters equal.","keywords":"LeetCode, Remove Letter To Equalize Frequency, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the string. This is because we iterate n times, and each iteration involves building a new string and counting frequencies, which takes O(n) time."}},{"@type":"Question","name":"What is the time complexity of the Frequency Count Analysis approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n). We iterate through the string once to count frequencies, and then iterate through the fixed-size alphabet (26 letters) to check conditions."}},{"@type":"Question","name":"What is the space complexity for these solutions?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for both approaches. We use a fixed-size array or map to store character frequencies, which does not grow with the input size beyond the 26 letters of the alphabet."}}]}).replace(/</g,'\u003c')}
+</script>

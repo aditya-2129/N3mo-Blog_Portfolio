@@ -1,0 +1,142 @@
+---
+title: "Drop Missing Data"
+summary: "Remove rows containing missing values from a DataFrame"
+date: "Mar 21, 2026"
+tags:
+  - Pandas
+  - Dataframe
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.50% | **Paid:** No
+> **Topics:** N/A
+
+## Problem Description
+
+Write a solution to drop rows from a DataFrame that contain any missing values.
+
+Given a DataFrame `students`, drop all rows where any column has a missing value (NaN). Return the resulting DataFrame.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Approach 1: Using dropna()](#approach-1-using-dropna)
+- [Approach 2: Using Boolean Indexing](#approach-2-using-boolean-indexing)
+- [Approach 3: Using notnull()](#approach-3-using-notnull)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
++------------+---------+-----+
+| student_id | name    | age |
++------------+---------+-----+
+| 32         | Piper   | 5   |
+| 217        | None    | 19  |
+| 779        | Georgia | 20  |
+| 849        | Willow  | 14  |
++------------+---------+-----+
+```
+
+**Output:**
+```text
++------------+---------+-----+
+| student_id | name    | age |
++------------+---------+-----+
+| 32         | Piper   | 5   |
+| 779        | Georgia | 20  |
+| 849        | Willow  | 14  |
++------------+---------+-----+
+```
+
+**Explanation:**
+Student with id 217 havs empty value in the name column, so it will be removed.
+
+## Constraints
+
+```text
+- The DataFrame will have at least 1 row
+- The DataFrame will have at least 1 column
+- Missing values are represented as NaN
+```
+
+---
+## Approach 1: Using dropna()
+
+**Intuition**
+Pandas provides the `dropna()` method which is specifically designed to remove missing values from a DataFrame. This is the most straightforward and idiomatic way to handle this problem.
+
+**Steps**
+- Call the `dropna()` method on the DataFrame
+- By default, `dropna()` removes rows containing any missing values
+- Return the resulting DataFrame
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef dropMissingData(students: pd.DataFrame) -&gt; pd.DataFrame:\n    return students.dropna()" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\npublic class Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; dropMissingData(List&lt;Map&lt;String, Object&gt;&gt; students) {\n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map&lt;String, Object&gt; row : students) {\n            boolean hasMissing = false;\n            for (Object value : row.values()) {\n                if (value == null) {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; dropMissingData(vector&lt;map&lt;string, string&gt;&gt;& students) {\n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (const auto& row : students) {\n            bool hasMissing = false;\n            for (const auto& pair : row) {\n                if (pair.second.empty() || pair.second == \"NaN\") {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Object&gt;} students\n * @return {Array&lt;Object&gt;}\n */\nfunction dropMissingData(students) {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * @param {Array&lt;Record&lt;string, any&gt;&gt;} students\n * @return {Array&lt;Record&lt;string, any&gt;&gt;}\n */\nfunction dropMissingData(students: Array&lt;Record&lt;string, any&gt;&gt;): Array&lt;Record&lt;string, any&gt;&gt; {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of rows and m is the number of columns
+- Space: O(n × m) for the resulting DataFrame
+- Notes: This is the most efficient and readable approach for pandas DataFrames
+
+---
+## Approach 2: Using Boolean Indexing
+
+**Intuition**
+We can create a boolean mask that indicates which rows have no missing values, then use this mask to filter the DataFrame.
+
+**Steps**
+- Use `isna()` to create a boolean DataFrame indicating missing values
+- Use `any()` along axis 1 to find rows with at least one missing value
+- Negate the result to get rows with no missing values
+- Use boolean indexing to filter the DataFrame
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef dropMissingData(students: pd.DataFrame) -&gt; pd.DataFrame:\n    mask = ~students.isna().any(axis=1)\n    return students[mask]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\npublic class Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; dropMissingData(List&lt;Map&lt;String, Object&gt;&gt; students) {\n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map&lt;String, Object&gt; row : students) {\n            boolean hasMissing = false;\n            for (Object value : row.values()) {\n                if (value == null) {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; dropMissingData(vector&lt;map&lt;string, string&gt;&gt;& students) {\n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (const auto& row : students) {\n            bool hasMissing = false;\n            for (const auto& pair : row) {\n                if (pair.second.empty() || pair.second == \"NaN\") {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Object&gt;} students\n * @return {Array&lt;Object&gt;}\n */\nfunction dropMissingData(students) {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * @param {Array&lt;Record&lt;string, any&gt;&gt;} students\n * @return {Array&lt;Record&lt;string, any&gt;&gt;}\n */\nfunction dropMissingData(students: Array&lt;Record&lt;string, any&gt;&gt;): Array&lt;Record&lt;string, any&gt;&gt; {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of rows and m is the number of columns
+- Space: O(n × m) for the boolean mask and resulting DataFrame
+- Notes: More verbose than dropna() but demonstrates understanding of boolean indexing
+
+---
+## Approach 3: Using notnull()
+
+**Intuition**
+We can use the `notnull()` method to check for non-missing values and combine the results across all columns.
+
+**Steps**
+- Use `notnull()` to create a boolean DataFrame indicating non-missing values
+- Use `all()` along axis 1 to find rows where all values are non-missing
+- Use boolean indexing to filter the DataFrame
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef dropMissingData(students: pd.DataFrame) -&gt; pd.DataFrame:\n    mask = students.notnull().all(axis=1)\n    return students[mask]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\npublic class Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; dropMissingData(List&lt;Map&lt;String, Object&gt;&gt; students) {\n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map&lt;String, Object&gt; row : students) {\n            boolean hasMissing = false;\n            for (Object value : row.values()) {\n                if (value == null) {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; dropMissingData(vector&lt;map&lt;string, string&gt;&gt;& students) {\n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (const auto& row : students) {\n            bool hasMissing = false;\n            for (const auto& pair : row) {\n                if (pair.second.empty() || pair.second == \"NaN\") {\n                    hasMissing = true;\n                    break;\n                }\n            }\n            if (!hasMissing) {\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Object&gt;} students\n * @return {Array&lt;Object&gt;}\n */\nfunction dropMissingData(students) {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * @param {Array&lt;Record&lt;string, any&gt;&gt;} students\n * @return {Array&lt;Record&lt;string, any&gt;&gt;}\n */\nfunction dropMissingData(students: Array&lt;Record&lt;string, any&gt;&gt;): Array&lt;Record&lt;string, any&gt;&gt; {\n    return students.filter(row =&gt; \n        Object.values(row).every(value =&gt; value !== null && value !== undefined)\n    );\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of rows and m is the number of columns
+- Space: O(n × m) for the boolean mask and resulting DataFrame
+- Notes: Similar to Approach 2 but uses the opposite logic (notnull vs isna)
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Drop Missing Data Solutions","datePublished":"2026-03-21","description":"Remove rows containing missing values from a DataFrame","keywords":"LeetCode, Drop Missing Data, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of using dropna()?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m) where n is the number of rows and m is the number of columns, as it needs to check each cell for missing values."}},{"@type":"Question","name":"What is the space complexity of the dropna() approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n × m) for the resulting DataFrame, as pandas creates a new DataFrame when dropping rows."}},{"@type":"Question","name":"What is the difference between dropna() and boolean indexing approaches?","acceptedAnswer":{"@type":"Answer","text":"dropna() is a built-in method that handles all the logic internally, while boolean indexing requires manually creating a mask. Both have the same time and space complexity, but dropna() is more concise and readable."}},{"@type":"Question","name":"Can dropna() drop columns instead of rows?","acceptedAnswer":{"@type":"Answer","text":"Yes, by using dropna(axis=1) you can drop columns containing missing values instead of rows."}}]}).replace(/</g,'\u003c')}
+</script>

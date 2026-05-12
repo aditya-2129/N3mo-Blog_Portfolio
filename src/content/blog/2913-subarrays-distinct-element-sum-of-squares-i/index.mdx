@@ -1,0 +1,112 @@
+---
+title: "Subarrays Distinct Element Sum of Squares I"
+summary: "Calculate the sum of squares of distinct element counts for all subarrays of the given array."
+date: "Oct 16, 2024"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.10% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+You are given a 0-indexed integer array nums.
+
+The distinct count of a subarray of nums is defined as the number of distinct integers in that subarray.
+
+Return the sum of squares of distinct counts of all subarrays of nums.
+
+A subarray is defined as a non-empty contiguous sequence of elements in the array.
+
+- Examples
+- Constraints
+- [Brute Force with Hash Set](#brute-force-with-hash-set)
+- [Boolean Array Optimization](#boolean-array-optimization)
+
+## Examples
+
+```text
+Input: nums = [1,2,1]
+Output: 15
+Explanation: Six subarrays:
+- [1]: distinct count is 1, square is 1
+- [1,2]: distinct count is 2, square is 4
+- [1,2,1]: distinct count is 2, square is 4
+- [2]: distinct count is 1, square is 1
+- [2,1]: distinct count is 2, square is 4
+- [1]: distinct count is 1, square is 1
+Sum of squares = 1 + 4 + 4 + 1 + 4 + 1 = 15
+```
+
+```text
+Input: nums = [2,2]
+Output: 3
+Explanation: Three subarrays:
+- [2]: distinct count is 1, square is 1
+- [2,2]: distinct count is 1, square is 1
+- [2]: distinct count is 1, square is 1
+Sum of squares = 1 + 1 + 1 = 3
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+---
+## Brute Force with Hash Set
+
+**Intuition**
+Generate all subarrays and use a hash set to track distinct elements, squaring the count for each subarray.
+
+**Steps**
+- Iterate through all starting positions of subarrays
+- For each start, expand the subarray and maintain a set of seen elements
+- Add the square of the set size to the result for each expansion
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def sumCounts(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        result = 0\n        for i in range(n):\n            seen = set()\n            for j in range(i, n):\n                seen.add(nums[j])\n                result += len(seen) ** 2\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int sumCounts(int[] nums) {\n        int n = nums.length;\n        int result = 0;\n        for (int i = 0; i &lt; n; i++) {\n            Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n            for (int j = i; j &lt; n; j++) {\n                seen.add(nums[j]);\n                int count = seen.size();\n                result += count * count;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int sumCounts(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int result = 0;\n        for (int i = 0; i &lt; n; i++) {\n            unordered_set&lt;int&gt; seen;\n            for (int j = i; j &lt; n; j++) {\n                seen.insert(nums[j]);\n                int count = seen.size();\n                result += count * count;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar sumCounts = function(nums) {\n    const n = nums.length;\n    let result = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const seen = new Set();\n        for (let j = i; j &lt; n; j++) {\n            seen.add(nums[j]);\n            const count = seen.size;\n            result += count * count;\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumCounts(nums: number[]): number {\n    const n = nums.length;\n    let result = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const seen = new Set&lt;number&gt;();\n        for (let j = i; j &lt; n; j++) {\n            seen.add(nums[j]);\n            const count = seen.size;\n            result += count * count;\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Each element is added to a set exactly once per starting position, making this efficient for the given constraints.
+
+---
+## Boolean Array Optimization
+
+**Intuition**
+Since values are bounded (1 to 100), use a boolean array instead of a hash set for faster lookups and better cache locality.
+
+**Steps**
+- Iterate through all starting positions
+- Use a fixed-size boolean array to track seen elements
+- Maintain a running count of distinct elements to avoid recalculating
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def sumCounts(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        result = 0\n        for i in range(n):\n            seen = [False] * 101\n            count = 0\n            for j in range(i, n):\n                if not seen[nums[j]]:\n                    seen[nums[j]] = True\n                    count += 1\n                result += count * count\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int sumCounts(int[] nums) {\n        int n = nums.length;\n        int result = 0;\n        for (int i = 0; i &lt; n; i++) {\n            boolean[] seen = new boolean[101];\n            int count = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (!seen[nums[j]]) {\n                    seen[nums[j]] = true;\n                    count++;\n                }\n                result += count * count;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int sumCounts(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int result = 0;\n        for (int i = 0; i &lt; n; i++) {\n            bool seen[101] = {false};\n            int count = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (!seen[nums[j]]) {\n                    seen[nums[j]] = true;\n                    count++;\n                }\n                result += count * count;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar sumCounts = function(nums) {\n    const n = nums.length;\n    let result = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const seen = new Array(101).fill(false);\n        let count = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (!seen[nums[j]]) {\n                seen[nums[j]] = true;\n                count++;\n            }\n            result += count * count;\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumCounts(nums: number[]): number {\n    const n = nums.length;\n    let result = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const seen = new Array(101).fill(false);\n        let count = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (!seen[nums[j]]) {\n                seen[nums[j]] = true;\n                count++;\n            }\n            result += count * count;\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1) - fixed size array regardless of input
+- Notes: Better constant factors than hash set approach due to direct array indexing and no hashing overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Subarrays Distinct Element Sum of Squares I Solutions","datePublished":"2024-10-16","description":"Calculate the sum of squares of distinct element counts for all subarrays of the given array.","keywords":"LeetCode, Subarrays Distinct Element Sum of Squares I, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force with Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the length of the array. Each element is added to a set exactly once per starting position."}},{"@type":"Question","name":"What is the space complexity of the Boolean Array Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we use a fixed-size boolean array of 101 elements regardless of the input size."}},{"@type":"Question","name":"Why can we use a boolean array instead of a hash set?","acceptedAnswer":{"@type":"Answer","text":"The problem constraints state that 1 &lt;= nums[i] &lt;= 100, so we can use direct array indexing instead of hashing for better performance."}}]}).replace(/</g,'\u003c')}
+</script>

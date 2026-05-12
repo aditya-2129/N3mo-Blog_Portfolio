@@ -1,0 +1,138 @@
+---
+title: "Implement Stack using Queues"
+summary: "Implement a last-in-first-out (LIFO) stack using only two queues."
+date: "Dec 17, 2025"
+tags:
+  - Stack
+  - Design
+  - Queue
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.90% | **Paid:** No
+> **Topics:** Stack, Design, Queue
+
+Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).
+
+Implement the MyStack class:
+
+void push(int x) Pushes element x to the top of the stack.
+int pop() Removes the element on the top of the stack and returns it.
+int top() Returns the element on the top of the stack.
+boolean empty() Returns true if the stack is empty, false otherwise.
+
+Notes:
+
+You must use only standard operations of a queue, which means only push to back, peek/pop from front, size, and is empty operations are valid.
+Depending on your language, the queue may not be supported natively. You may simulate a queue using a list or deque (double-ended queue), as long as you use only a queue's standard operations.
+
+- Examples
+- Constraints
+- [Two Queues - O(1) Push](#two-queues-o1-push)
+- [Two Queues - O(1) Pop](#two-queues-o1-pop)
+- [Single Queue](#single-queue)
+
+## Examples
+
+Input:
+["MyStack", "push", "push", "top", "pop", "empty"]
+[[], [1], [2], [], [], []]
+
+Output:
+[null, null, null, 2, 2, false]
+
+Explanation:
+MyStack myStack = new MyStack();
+myStack.push(1);
+myStack.push(2);
+myStack.top();    // return 2
+myStack.pop();    // return 2
+myStack.empty();  // return False
+
+## Constraints
+
+```text
+1 <= x <= 9
+At most 100 calls will be made to push, pop, top, and empty.
+All the calls to pop and top are valid.
+```
+
+---
+## Two Queues - O(1) Push
+
+**Intuition**
+Use two queues where push is simple (O(1)) and pop requires moving elements between queues to access the last element (O(n)).
+
+**Steps**
+- Push: Add element directly to the primary queue
+- Pop: Move all elements except the last from primary to secondary queue, pop the last element, then swap queues
+- Top: Similar to pop but return the last element without removing it
+- Empty: Check if primary queue is empty
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q1 = deque()\n        self.q2 = deque()\n\n    def push(self, x: int) -&gt; None:\n        self.q1.append(x)\n\n    def pop(self) -&gt; int:\n        while len(self.q1) &gt; 1:\n            self.q2.append(self.q1.popleft())\n        val = self.q1.popleft()\n        self.q1, self.q2 = self.q2, self.q1\n        return val\n\n    def top(self) -&gt; int:\n        while len(self.q1) &gt; 1:\n            self.q2.append(self.q1.popleft())\n        val = self.q1[0]\n        self.q2.append(self.q1.popleft())\n        self.q1, self.q2 = self.q2, self.q1\n        return val\n\n    def empty(self) -&gt; bool:\n        return len(self.q1) == 0" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass MyStack {\n    private Queue&lt;Integer&gt; q1;\n    private Queue&lt;Integer&gt; q2;\n\n    public MyStack() {\n        q1 = new LinkedList&lt;&gt;();\n        q2 = new LinkedList&lt;&gt;();\n    }\n    \n    public void push(int x) {\n        q1.offer(x);\n    }\n    \n    public int pop() {\n        while (q1.size() &gt; 1) {\n            q2.offer(q1.poll());\n        }\n        int val = q1.poll();\n        Queue&lt;Integer&gt; temp = q1;\n        q1 = q2;\n        q2 = temp;\n        return val;\n    }\n    \n    public int top() {\n        while (q1.size() &gt; 1) {\n            q2.offer(q1.poll());\n        }\n        int val = q1.peek();\n        q2.offer(q1.poll());\n        Queue&lt;Integer&gt; temp = q1;\n        q1 = q2;\n        q2 = temp;\n        return val;\n    }\n    \n    public boolean empty() {\n        return q1.isEmpty();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass MyStack {\nprivate:\n    queue&lt;int&gt; q1;\n    queue&lt;int&gt; q2;\n\npublic:\n    MyStack() {}\n    \n    void push(int x) {\n        q1.push(x);\n    }\n    \n    int pop() {\n        while (q1.size() &gt; 1) {\n            q2.push(q1.front());\n            q1.pop();\n        }\n        int val = q1.front();\n        q1.pop();\n        swap(q1, q2);\n        return val;\n    }\n    \n    int top() {\n        while (q1.size() &gt; 1) {\n            q2.push(q1.front());\n            q1.pop();\n        }\n        int val = q1.front();\n        q2.push(q1.front());\n        q1.pop();\n        swap(q1, q2);\n        return val;\n    }\n    \n    bool empty() {\n        return q1.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MyStack {\n    constructor() {\n        this.q1 = [];\n        this.q2 = [];\n    }\n\n    push(x) {\n        this.q1.push(x);\n    }\n\n    pop() {\n        while (this.q1.length &gt; 1) {\n            this.q2.push(this.q1.shift());\n        }\n        const val = this.q1.shift();\n        [this.q1, this.q2] = [this.q2, this.q1];\n        return val;\n    }\n\n    top() {\n        while (this.q1.length &gt; 1) {\n            this.q2.push(this.q1.shift());\n        }\n        const val = this.q1[0];\n        this.q2.push(this.q1.shift());\n        [this.q1, this.q2] = [this.q2, this.q1];\n        return val;\n    }\n\n    empty() {\n        return this.q1.length === 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MyStack {\n    private q1: number[];\n    private q2: number[];\n\n    constructor() {\n        this.q1 = [];\n        this.q2 = [];\n    }\n\n    push(x: number): void {\n        this.q1.push(x);\n    }\n\n    pop(): number {\n        while (this.q1.length &gt; 1) {\n            this.q2.push(this.q1.shift()!);\n        }\n        const val = this.q1.shift()!;\n        [this.q1, this.q2] = [this.q2, this.q1];\n        return val;\n    }\n\n    top(): number {\n        while (this.q1.length &gt; 1) {\n            this.q2.push(this.q1.shift()!);\n        }\n        const val = this.q1[0];\n        this.q2.push(this.q1.shift()!);\n        [this.q1, this.q2] = [this.q2, this.q1];\n        return val;\n    }\n\n    empty(): boolean {\n        return this.q1.length === 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) for push, O(n) for pop and top
+- Space: O(n) for storing elements
+- Notes: Fast push operation but slower pop/top operations
+
+---
+## Two Queues - O(1) Pop
+
+**Intuition**
+Use two queues where push does the heavy lifting by rotating elements (O(n)), making pop and top operations simple (O(1)).
+
+**Steps**
+- Push: Add to secondary queue, move all elements from primary to secondary, then swap queues
+- Pop: Simply remove and return from front of primary queue
+- Top: Return the front element of primary queue
+- Empty: Check if primary queue is empty
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q1 = deque()\n        self.q2 = deque()\n\n    def push(self, x: int) -&gt; None:\n        self.q2.append(x)\n        while self.q1:\n            self.q2.append(self.q1.popleft())\n        self.q1, self.q2 = self.q2, self.q1\n\n    def pop(self) -&gt; int:\n        return self.q1.popleft()\n\n    def top(self) -&gt; int:\n        return self.q1[0]\n\n    def empty(self) -&gt; bool:\n        return len(self.q1) == 0" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass MyStack {\n    private Queue&lt;Integer&gt; q1;\n    private Queue&lt;Integer&gt; q2;\n\n    public MyStack() {\n        q1 = new LinkedList&lt;&gt;();\n        q2 = new LinkedList&lt;&gt;();\n    }\n    \n    public void push(int x) {\n        q2.offer(x);\n        while (!q1.isEmpty()) {\n            q2.offer(q1.poll());\n        }\n        Queue&lt;Integer&gt; temp = q1;\n        q1 = q2;\n        q2 = temp;\n    }\n    \n    public int pop() {\n        return q1.poll();\n    }\n    \n    public int top() {\n        return q1.peek();\n    }\n    \n    public boolean empty() {\n        return q1.isEmpty();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass MyStack {\nprivate:\n    queue&lt;int&gt; q1;\n    queue&lt;int&gt; q2;\n\npublic:\n    MyStack() {}\n    \n    void push(int x) {\n        q2.push(x);\n        while (!q1.empty()) {\n            q2.push(q1.front());\n            q1.pop();\n        }\n        swap(q1, q2);\n    }\n    \n    int pop() {\n        int val = q1.front();\n        q1.pop();\n        return val;\n    }\n    \n    int top() {\n        return q1.front();\n    }\n    \n    bool empty() {\n        return q1.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MyStack {\n    constructor() {\n        this.q1 = [];\n        this.q2 = [];\n    }\n\n    push(x) {\n        this.q2.push(x);\n        while (this.q1.length &gt; 0) {\n            this.q2.push(this.q1.shift());\n        }\n        [this.q1, this.q2] = [this.q2, this.q1];\n    }\n\n    pop() {\n        return this.q1.shift();\n    }\n\n    top() {\n        return this.q1[0];\n    }\n\n    empty() {\n        return this.q1.length === 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MyStack {\n    private q1: number[];\n    private q2: number[];\n\n    constructor() {\n        this.q1 = [];\n        this.q2 = [];\n    }\n\n    push(x: number): void {\n        this.q2.push(x);\n        while (this.q1.length &gt; 0) {\n            this.q2.push(this.q1.shift()!);\n        }\n        [this.q1, this.q2] = [this.q2, this.q1];\n    }\n\n    pop(): number {\n        return this.q1.shift()!;\n    }\n\n    top(): number {\n        return this.q1[0];\n    }\n\n    empty(): boolean {\n        return this.q1.length === 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) for push, O(1) for pop and top
+- Space: O(n) for storing elements
+- Notes: Slower push but faster pop/top operations, often preferred for stack usage patterns
+
+---
+## Single Queue
+
+**Intuition**
+Use only one queue by rotating elements after each push, ensuring the most recently added element is always at the front.
+
+**Steps**
+- Push: Add element to back, then rotate by moving front elements to back (size-1 times)
+- Pop: Simply remove and return from front of queue
+- Top: Return the front element of queue
+- Empty: Check if queue is empty
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q = deque()\n\n    def push(self, x: int) -&gt; None:\n        self.q.append(x)\n        for _ in range(len(self.q) - 1):\n            self.q.append(self.q.popleft())\n\n    def pop(self) -&gt; int:\n        return self.q.popleft()\n\n    def top(self) -&gt; int:\n        return self.q[0]\n\n    def empty(self) -&gt; bool:\n        return len(self.q) == 0" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass MyStack {\n    private Queue&lt;Integer&gt; q;\n\n    public MyStack() {\n        q = new LinkedList&lt;&gt;();\n    }\n    \n    public void push(int x) {\n        q.offer(x);\n        int size = q.size();\n        for (int i = 0; i &lt; size - 1; i++) {\n            q.offer(q.poll());\n        }\n    }\n    \n    public int pop() {\n        return q.poll();\n    }\n    \n    public int top() {\n        return q.peek();\n    }\n    \n    public boolean empty() {\n        return q.isEmpty();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass MyStack {\nprivate:\n    queue&lt;int&gt; q;\n\npublic:\n    MyStack() {}\n    \n    void push(int x) {\n        q.push(x);\n        int size = q.size();\n        for (int i = 0; i &lt; size - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    \n    int pop() {\n        int val = q.front();\n        q.pop();\n        return val;\n    }\n    \n    int top() {\n        return q.front();\n    }\n    \n    bool empty() {\n        return q.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MyStack {\n    constructor() {\n        this.q = [];\n    }\n\n    push(x) {\n        this.q.push(x);\n        for (let i = 0; i &lt; this.q.length - 1; i++) {\n            this.q.push(this.q.shift());\n        }\n    }\n\n    pop() {\n        return this.q.shift();\n    }\n\n    top() {\n        return this.q[0];\n    }\n\n    empty() {\n        return this.q.length === 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MyStack {\n    private q: number[];\n\n    constructor() {\n        this.q = [];\n    }\n\n    push(x: number): void {\n        this.q.push(x);\n        for (let i = 0; i &lt; this.q.length - 1; i++) {\n            this.q.push(this.q.shift()!);\n        }\n    }\n\n    pop(): number {\n        return this.q.shift()!;\n    }\n\n    top(): number {\n        return this.q[0];\n    }\n\n    empty(): boolean {\n        return this.q.length === 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) for push, O(1) for pop and top
+- Space: O(n) for storing elements
+- Notes: Most space-efficient approach with same time complexity as two-queue O(1) pop method
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Implement Stack using Queues Solutions","datePublished":"2025-12-17","description":"Implement a last-in-first-out (LIFO) stack using only two queues.","keywords":"LeetCode, Implement Stack using Queues, Easy, Stack, Design, Queue"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Two Queues - O(1) Push approach?","acceptedAnswer":{"@type":"Answer","text":"Time: O(1) for push, O(n) for pop and top. Space: O(n) for storing elements."}},{"@type":"Question","name":"What is the time complexity of Two Queues - O(1) Pop approach?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n) for push, O(1) for pop and top. Space: O(n) for storing elements."}},{"@type":"Question","name":"What is the time complexity of Single Queue approach?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n) for push, O(1) for pop and top. Space: O(n) for storing elements."}}]}).replace(/</g,'\u003c')}
+</script>

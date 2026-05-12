@@ -1,0 +1,194 @@
+---
+title: "Count Number of Pairs With Absolute Difference K"
+summary: "Count pairs (i,j) where i<j and absolute difference equals k using array or hash map."
+date: "Jul 22, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.40% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+Given an integer array nums and an integer k, return the number of pairs (i, j) where i &lt; j such that |nums[i] - nums[j]| == k.
+
+The value of |x| is defined as:
+
+x if x &gt;= 0
+-x if x &lt; 0
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Sorting + Binary Search](#sorting--binary-search)
+- [One-pass Hash Map](#one-pass-hash-map)
+- [Counting Array](#counting-array)
+
+## Examples
+
+```text
+Input: nums = [1,2,2,1], k = 1
+Output: 4
+Explanation:
+The pairs with an absolute difference of 1 are:
+- (0, 1) with |1 - 2| = 1
+- (0, 2) with |1 - 2| = 1
+- (1, 3) with |2 - 1| = 1
+- (2, 3) with |2 - 1| = 1
+```
+
+```text
+Input: nums = [1,3], k = 3
+Output: 0
+Explanation: |1 - 3| = 2 ≠ 3
+```
+
+```text
+Input: nums = [3,2,1,5,4], k = 2
+Output: 3
+Explanation:
+The pairs with an absolute difference of 2 are:
+- (0, 2) with |3 - 1| = 2
+- (0, 3) with |3 - 5| = 2
+- (1, 4) with |2 - 4| = 2
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 200
+1 <= nums[i] <= 100
+1 <= k <= 99
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair (i, j) where i &lt; j and count those with absolute difference k.
+
+**Steps**
+- Iterate through all indices i from 0 to n-1
+- For each i, iterate through j from i+1 to n-1
+- If |nums[i] - nums[j]| == k, increment count
+- Return the total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countKDifference(self, nums: List[int], k: int) -&gt; int:\n        count = 0\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if abs(nums[i] - nums[j]) == k:\n                    count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countKDifference(int[] nums, int k) {\n        int count = 0;\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (Math.abs(nums[i] - nums[j]) == k) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countKDifference(vector&lt;int&gt;& nums, int k) {\n        int count = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (abs(nums[i] - nums[j]) == k) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar countKDifference = function(nums, k) {\n    let count = 0;\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if (Math.abs(nums[i] - nums[j]) === k) {\n                count++;\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKDifference(nums: number[], k: number): number {\n    let count = 0;\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if (Math.abs(nums[i] - nums[j]) === k) {\n                count++;\n            }\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but inefficient for large arrays
+
+---
+## Hash Map Frequency Count
+
+**Intuition**
+Count frequency of each number, then for each unique value x, check if x + k exists and multiply frequencies.
+
+**Steps**
+- Build a frequency map of all numbers in nums
+- For each unique number x in the map
+- If x + k exists in the map, add freq[x] * freq[x + k] to count
+- Return the total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import Counter\n\nclass Solution:\n    def countKDifference(self, nums: List[int], k: int) -&gt; int:\n        freq = Counter(nums)\n        count = 0\n        for num in freq:\n            if num + k in freq:\n                count += freq[num] * freq[num + k]\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int countKDifference(int[] nums, int k) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        int count = 0;\n        for (int num : freq.keySet()) {\n            if (freq.containsKey(num + k)) {\n                count += freq.get(num) * freq.get(num + k);\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countKDifference(vector&lt;int&gt;& nums, int k) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            freq[num]++;\n        }\n        int count = 0;\n        for (auto& [num, cnt] : freq) {\n            if (freq.count(num + k)) {\n                count += cnt * freq[num + k];\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar countKDifference = function(nums, k) {\n    const freq = new Map();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    let count = 0;\n    for (const [num, cnt] of freq) {\n        if (freq.has(num + k)) {\n            count += cnt * freq.get(num + k);\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKDifference(nums: number[], k: number): number {\n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    let count = 0;\n    for (const [num, cnt] of freq) {\n        if (freq.has(num + k)) {\n            count += cnt * freq.get(num + k)!;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Efficient single pass with hash map
+
+---
+## Sorting + Binary Search
+
+**Intuition**
+Sort the array and use binary search to find all elements equal to nums[i] + k for each i.
+
+**Steps**
+- Sort the array
+- For each index i, compute target = nums[i] + k
+- Use binary search to find the range of indices where nums[j] == target and j &gt; i
+- Add the count of such indices to the result
+- Return total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nimport bisect\n\nclass Solution:\n    def countKDifference(self, nums: List[int], k: int) -&gt; int:\n        nums.sort()\n        n = len(nums)\n        count = 0\n        for i in range(n):\n            target = nums[i] + k\n            left = bisect.bisect_left(nums, target, i + 1)\n            right = bisect.bisect_right(nums, target, i + 1)\n            count += right - left\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int countKDifference(int[] nums, int k) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int target = nums[i] + k;\n            int left = lowerBound(nums, target, i + 1);\n            int right = upperBound(nums, target, i + 1);\n            count += right - left;\n        }\n        return count;\n    }\n    \n    private int lowerBound(int[] nums, int target, int start) {\n        int lo = start, hi = nums.length;\n        while (lo &lt; hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (nums[mid] &lt; target) {\n                lo = mid + 1;\n            } else {\n                hi = mid;\n            }\n        }\n        return lo;\n    }\n    \n    private int upperBound(int[] nums, int target, int start) {\n        int lo = start, hi = nums.length;\n        while (lo &lt; hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (nums[mid] &lt;= target) {\n                lo = mid + 1;\n            } else {\n                hi = mid;\n            }\n        }\n        return lo;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countKDifference(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        int n = nums.size();\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int target = nums[i] + k;\n            auto left = lower_bound(nums.begin() + i + 1, nums.end(), target);\n            auto right = upper_bound(nums.begin() + i + 1, nums.end(), target);\n            count += right - left;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar countKDifference = function(nums, k) {\n    nums.sort((a, b) =&gt; a - b);\n    const n = nums.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const target = nums[i] + k;\n        const left = lowerBound(nums, target, i + 1);\n        const right = upperBound(nums, target, i + 1);\n        count += right - left;\n    }\n    return count;\n};\n\nfunction lowerBound(nums, target, start) {\n    let lo = start, hi = nums.length;\n    while (lo &lt; hi) {\n        const mid = Math.floor((lo + hi) / 2);\n        if (nums[mid] &lt; target) {\n            lo = mid + 1;\n        } else {\n            hi = mid;\n        }\n    }\n    return lo;\n}\n\nfunction upperBound(nums, target, start) {\n    let lo = start, hi = nums.length;\n    while (lo &lt; hi) {\n        const mid = Math.floor((lo + hi) / 2);\n        if (nums[mid] &lt;= target) {\n            lo = mid + 1;\n        } else {\n            hi = mid;\n        }\n    }\n    return lo;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function countKDifference(nums: number[], k: number): number {\n    nums.sort((a, b) =&gt; a - b);\n    const n = nums.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const target = nums[i] + k;\n        const left = lowerBound(nums, target, i + 1);\n        const right = upperBound(nums, target, i + 1);\n        count += right - left;\n    }\n    return count;\n}\n\nfunction lowerBound(nums: number[], target: number, start: number): number {\n    let lo = start, hi = nums.length;\n    while (lo &lt; hi) {\n        const mid = Math.floor((lo + hi) / 2);\n        if (nums[mid] &lt; target) {\n            lo = mid + 1;\n        } else {\n            hi = mid;\n        }\n    }\n    return lo;\n}\n\nfunction upperBound(nums: number[], target: number, start: number): number {\n    let lo = start, hi = nums.length;\n    while (lo &lt; hi) {\n        const mid = Math.floor((lo + hi) / 2);\n        if (nums[mid] &lt;= target) {\n            lo = mid + 1;\n        } else {\n            hi = mid;\n        }\n    }\n    return lo;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on sorting
+- Notes: Useful when array is already sorted
+
+---
+## One-pass Hash Map
+
+**Intuition**
+Build frequency map while iterating, checking for complements (num - k and num + k) that were seen before.
+
+**Steps**
+- Initialize an empty frequency map and count = 0
+- For each number num in nums
+- Add freq[num - k] and freq[num + k] to count
+- Increment freq[num] by 1
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def countKDifference(self, nums: List[int], k: int) -&gt; int:\n        freq = defaultdict(int)\n        count = 0\n        for num in nums:\n            count += freq[num - k] + freq[num + k]\n            freq[num] += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int countKDifference(int[] nums, int k) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        int count = 0;\n        for (int num : nums) {\n            count += freq.getOrDefault(num - k, 0);\n            count += freq.getOrDefault(num + k, 0);\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countKDifference(vector&lt;int&gt;& nums, int k) {\n        unordered_map&lt;int, int&gt; freq;\n        int count = 0;\n        for (int num : nums) {\n            if (freq.count(num - k)) count += freq[num - k];\n            if (freq.count(num + k)) count += freq[num + k];\n            freq[num]++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar countKDifference = function(nums, k) {\n    const freq = new Map();\n    let count = 0;\n    for (const num of nums) {\n        count += (freq.get(num - k) || 0);\n        count += (freq.get(num + k) || 0);\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKDifference(nums: number[], k: number): number {\n    const freq = new Map&lt;number, number&gt;();\n    let count = 0;\n    for (const num of nums) {\n        count += (freq.get(num - k) || 0);\n        count += (freq.get(num + k) || 0);\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Most elegant single-pass solution
+
+---
+## Counting Array
+
+**Intuition**
+Since nums[i] ≤ 100, use a fixed-size array instead of hash map for O(1) access.
+
+**Steps**
+- Create a frequency array of size 101 initialized to 0
+- Count frequency of each number in nums
+- For each value i from 1 to 100
+- If i + k ≤ 100, add freq[i] * freq[i + k] to count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countKDifference(self, nums: List[int], k: int) -&gt; int:\n        freq = [0] * 101\n        for num in nums:\n            freq[num] += 1\n        count = 0\n        for i in range(1, 101):\n            if i + k &lt;= 100:\n                count += freq[i] * freq[i + k]\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countKDifference(int[] nums, int k) {\n        int[] freq = new int[101];\n        for (int num : nums) {\n            freq[num]++;\n        }\n        int count = 0;\n        for (int i = 1; i &lt;= 100; i++) {\n            if (i + k &lt;= 100) {\n                count += freq[i] * freq[i + k];\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countKDifference(vector&lt;int&gt;& nums, int k) {\n        int freq[101] = {0};\n        for (int num : nums) {\n            freq[num]++;\n        }\n        int count = 0;\n        for (int i = 1; i &lt;= 100; i++) {\n            if (i + k &lt;= 100) {\n                count += freq[i] * freq[i + k];\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar countKDifference = function(nums, k) {\n    const freq = new Array(101).fill(0);\n    for (const num of nums) {\n        freq[num]++;\n    }\n    let count = 0;\n    for (let i = 1; i &lt;= 100; i++) {\n        if (i + k &lt;= 100) {\n            count += freq[i] * freq[i + k];\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKDifference(nums: number[], k: number): number {\n    const freq = new Array(101).fill(0);\n    for (const num of nums) {\n        freq[num]++;\n    }\n    let count = 0;\n    for (let i = 1; i &lt;= 100; i++) {\n        if (i + k &lt;= 100) {\n            count += freq[i] * freq[i + k];\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1) - fixed size array
+- Notes: Optimal for given constraints
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Number of Pairs With Absolute Difference K Solutions","datePublished":"2025-07-22","description":"Count pairs (i,j) where i<j and absolute difference equals k using array or hash map.","keywords":"LeetCode, Count Number of Pairs With Absolute Difference K, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(n²) time complexity as it checks all possible pairs."}},{"@type":"Question","name":"What is the time complexity of Hash Map Frequency Count approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map Frequency Count approach has O(n) time complexity for building the map and iterating through unique values."}},{"@type":"Question","name":"What is the time complexity of Sorting + Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting + Binary Search approach has O(n log n) time complexity due to sorting."}},{"@type":"Question","name":"What is the time complexity of One-pass Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The One-pass Hash Map approach has O(n) time complexity with a single iteration through the array."}},{"@type":"Question","name":"What is the time complexity of Counting Array approach?","acceptedAnswer":{"@type":"Answer","text":"The Counting Array approach has O(n) time complexity and O(1) space complexity due to fixed array size."}}]}).replace(/</g,'\u003c')}
+</script>

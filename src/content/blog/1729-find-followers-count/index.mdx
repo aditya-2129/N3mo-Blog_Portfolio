@@ -1,0 +1,126 @@
+---
+title: "Find Followers Count"
+summary: "Count the number of followers for each user from the Followers table."
+date: "Oct 31, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.60% | **Paid:** No
+> **Topics:** Database
+
+Table: Followers
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| user_id     | int  |
+| follower_id | int  |
++-------------+------+
+(user_id, follower_id) is the primary key of this table.
+Each row of this table indicates that the user with ID follower_id is following the user with ID user_id.
+
+Write an SQL query to find the number of followers for each user.
+
+Return the result table ordered by user_id in ascending order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: GROUP BY with COUNT](#group-by-with-count)
+- [Approach 2: Subquery with COUNT](#subquery-with-count)
+
+## Examples
+
+**Example 1:**
+
+Input:
+Followers table:
+```text
++---------+-------------+
+| user_id | follower_id |
++---------+-------------+
+| 0       | 1           |
+| 1       | 0           |
+| 2       | 1           |
++---------+-------------+
+```
+
+Output:
+```text
++---------+---------------+
+| user_id | followers_count |
++---------+---------------+
+| 0       | 1             |
+| 1       | 2             |
+| 2       | 1             |
++---------+---------------+
+```
+
+Explanation:
+The followers of 0 are {1}
+The followers of 1 are {0, 2}
+The followers of 2 are {1}
+
+## Constraints
+
+```text
+1 <= user_id, follower_id <= 1000
+```
+
+---
+## GROUP BY with COUNT
+
+**Intuition**
+Group the followers by user_id and count the number of followers in each group using the aggregate COUNT function.
+
+**Steps**
+- Select user_id and count of follower_id from the Followers table
+- Group the results by user_id
+- Order the results by user_id in ascending order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import sqlite3\n\ndef find_followers_count():\n    conn = sqlite3.connect(':memory:')\n    cursor = conn.cursor()\n    cursor.execute('''\n        SELECT user_id, COUNT(follower_id) AS followers_count\n        FROM Followers\n        GROUP BY user_id\n        ORDER BY user_id\n    ''')\n    return cursor.fetchall()\n\n# LeetCode SQL format\n# SELECT user_id, COUNT(follower_id) AS followers_count\n# FROM Followers\n# GROUP BY user_id\n# ORDER BY user_id" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\n\npublic class Solution {\n    public void findFollowersCount() throws SQLException {\n        Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");\n        Statement stmt = conn.createStatement();\n        String sql = \"SELECT user_id, COUNT(follower_id) AS followers_count \" +\n                     \"FROM Followers \" +\n                     \"GROUP BY user_id \" +\n                     \"ORDER BY user_id\";\n        ResultSet rs = stmt.executeQuery(sql);\n        while (rs.next()) {\n            System.out.println(rs.getInt(\"user_id\") + \", \" + rs.getInt(\"followers_count\"));\n        }\n    }\n}\n\n/* LeetCode SQL format:\nSELECT user_id, COUNT(follower_id) AS followers_count\nFROM Followers\nGROUP BY user_id\nORDER BY user_id\n*/" },
+{ name: "C++", lang: "cpp", code: "#include &lt;iostream&gt;\n#include &lt;sqlite3.h&gt;\n\nint main() {\n    sqlite3* db;\n    sqlite3_open(\":memory:\", &db);\n    \n    const char* sql = \"SELECT user_id, COUNT(follower_id) AS followers_count \"\n                      \"FROM Followers \"\n                      \"GROUP BY user_id \"\n                      \"ORDER BY user_id\";\n    \n    sqlite3_stmt* stmt;\n    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);\n    \n    while (sqlite3_step(stmt) == SQLITE_ROW) {\n        int user_id = sqlite3_column_int(stmt, 0);\n        int followers_count = sqlite3_column_int(stmt, 1);\n        std::cout &lt;&lt; user_id &lt;&lt; \", \" &lt;&lt; followers_count &lt;&lt; std::endl;\n    }\n    \n    sqlite3_finalize(stmt);\n    sqlite3_close(db);\n    return 0;\n}\n\n/* LeetCode SQL format:\nSELECT user_id, COUNT(follower_id) AS followers_count\nFROM Followers\nGROUP BY user_id\nORDER BY user_id\n*/" },
+{ name: "JavaScript", lang: "javascript", code: "const sqlite3 = require('sqlite3').verbose();\n\nfunction findFollowersCount() {\n    const db = new sqlite3.Database(':memory:');\n    \n    const sql = \"\n        SELECT user_id, COUNT(follower_id) AS followers_count\n        FROM Followers\n        GROUP BY user_id\n        ORDER BY user_id\n    \";\n    \n    db.all(sql, [], (err, rows) =&gt; {\n        if (err) throw err;\n        rows.forEach(row =&gt; {\n            console.log(row.user_id, row.followers_count);\n        });\n    });\n}\n\n/* LeetCode SQL format:\nSELECT user_id, COUNT(follower_id) AS followers_count\nFROM Followers\nGROUP BY user_id\nORDER BY user_id\n*/" },
+{ name: "TypeScript", lang: "typescript", code: "import Database from 'better-sqlite3';\n\ninterface FollowerCount {\n    user_id: number;\n    followers_count: number;\n}\n\nfunction findFollowersCount(): FollowerCount[] {\n    const db = new Database(':memory:');\n    \n    const sql = \"\n        SELECT user_id, COUNT(follower_id) AS followers_count\n        FROM Followers\n        GROUP BY user_id\n        ORDER BY user_id\n    \";\n    \n    const stmt = db.prepare(sql);\n    return stmt.all() as FollowerCount[];\n}\n\n/* LeetCode SQL format:\nSELECT user_id, COUNT(follower_id) AS followers_count\nFROM Followers\nGROUP BY user_id\nORDER BY user_id\n*/" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Followers table
+- Space: O(k) where k is the number of unique user_ids
+- Notes: This is the most efficient and standard approach for aggregation queries
+
+---
+## Subquery with COUNT
+
+**Intuition**
+Use a correlated subquery to count followers for each distinct user_id by filtering rows where user_id matches.
+
+**Steps**
+- Select distinct user_id from the Followers table
+- For each user_id, use a subquery to count matching follower_id
+- Order the results by user_id in ascending order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import sqlite3\n\ndef find_followers_count():\n    conn = sqlite3.connect(':memory:')\n    cursor = conn.cursor()\n    cursor.execute('''\n        SELECT DISTINCT user_id, \n            (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\n        FROM Followers f1\n        ORDER BY user_id\n    ''')\n    return cursor.fetchall()\n\n# LeetCode SQL format\n# SELECT DISTINCT user_id, \n#     (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\n# FROM Followers f1\n# ORDER BY user_id" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\n\npublic class Solution {\n    public void findFollowersCount() throws SQLException {\n        Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");\n        Statement stmt = conn.createStatement();\n        String sql = \"SELECT DISTINCT user_id, \" +\n                     \"(SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count \" +\n                     \"FROM Followers f1 \" +\n                     \"ORDER BY user_id\";\n        ResultSet rs = stmt.executeQuery(sql);\n        while (rs.next()) {\n            System.out.println(rs.getInt(\"user_id\") + \", \" + rs.getInt(\"followers_count\"));\n        }\n    }\n}\n\n/* LeetCode SQL format:\nSELECT DISTINCT user_id, \n    (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\nFROM Followers f1\nORDER BY user_id\n*/" },
+{ name: "C++", lang: "cpp", code: "#include &lt;iostream&gt;\n#include &lt;sqlite3.h&gt;\n\nint main() {\n    sqlite3* db;\n    sqlite3_open(\":memory:\", &db);\n    \n    const char* sql = \"SELECT DISTINCT user_id, \"\n                      \"(SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count \"\n                      \"FROM Followers f1 \"\n                      \"ORDER BY user_id\";\n    \n    sqlite3_stmt* stmt;\n    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);\n    \n    while (sqlite3_step(stmt) == SQLITE_ROW) {\n        int user_id = sqlite3_column_int(stmt, 0);\n        int followers_count = sqlite3_column_int(stmt, 1);\n        std::cout &lt;&lt; user_id &lt;&lt; \", \" &lt;&lt; followers_count &lt;&lt; std::endl;\n    }\n    \n    sqlite3_finalize(stmt);\n    sqlite3_close(db);\n    return 0;\n}\n\n/* LeetCode SQL format:\nSELECT DISTINCT user_id, \n    (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\nFROM Followers f1\nORDER BY user_id\n*/" },
+{ name: "JavaScript", lang: "javascript", code: "const sqlite3 = require('sqlite3').verbose();\n\nfunction findFollowersCount() {\n    const db = new sqlite3.Database(':memory:');\n    \n    const sql = \"\n        SELECT DISTINCT user_id, \n            (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\n        FROM Followers f1\n        ORDER BY user_id\n    \";\n    \n    db.all(sql, [], (err, rows) =&gt; {\n        if (err) throw err;\n        rows.forEach(row =&gt; {\n            console.log(row.user_id, row.followers_count);\n        });\n    });\n}\n\n/* LeetCode SQL format:\nSELECT DISTINCT user_id, \n    (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\nFROM Followers f1\nORDER BY user_id\n*/" },
+{ name: "TypeScript", lang: "typescript", code: "import Database from 'better-sqlite3';\n\ninterface FollowerCount {\n    user_id: number;\n    followers_count: number;\n}\n\nfunction findFollowersCount(): FollowerCount[] {\n    const db = new Database(':memory:');\n    \n    const sql = \"\n        SELECT DISTINCT user_id, \n            (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\n        FROM Followers f1\n        ORDER BY user_id\n    \";\n    \n    const stmt = db.prepare(sql);\n    return stmt.all() as FollowerCount[];\n}\n\n/* LeetCode SQL format:\nSELECT DISTINCT user_id, \n    (SELECT COUNT(*) FROM Followers f2 WHERE f2.user_id = f1.user_id) AS followers_count\nFROM Followers f1\nORDER BY user_id\n*/" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case due to correlated subquery execution
+- Space: O(k) where k is the number of unique user_ids
+- Notes: Less efficient than GROUP BY approach but demonstrates alternative SQL patterns
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Followers Count Solutions","datePublished":"2025-10-31","description":"Count the number of followers for each user from the Followers table.","keywords":"LeetCode, Find Followers Count, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of GROUP BY with COUNT approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Followers table."}},{"@type":"Question","name":"What is the time complexity of Subquery with COUNT approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) in the worst case due to correlated subquery execution."}},{"@type":"Question","name":"Which approach is more efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"The GROUP BY with COUNT approach is more efficient with O(n) time complexity compared to the subquery approach."}}]}).replace(/</g,'\u003c')}
+</script>

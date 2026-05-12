@@ -1,0 +1,118 @@
+---
+title: "Maximize Expression of Three Elements"
+summary: "Find the maximum value of (nums[i] - nums[j]) * nums[k] for i &lt; j &lt; k."
+date: "Jul 19, 2024"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.60% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting, Enumeration
+
+You are given a 0-indexed integer array nums. Find the maximum value of the expression (nums[i] - nums[j]) * nums[k] where 0 &lt;= i &lt; j &lt; k &lt; nums.length.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Prefix Max and Suffix Max/Min](#prefix-max-and-suffix-maxmin)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,4,2,5]
+```
+
+**Output:**
+```text
+8
+```
+
+**Explanation:**
+We can choose a = 4, b = 5, and c = 1. The expression value is 4 + 5 - 1 = 8, which is the maximum possible.
+
+### Example 2
+
+**Input:**
+```text
+nums = [-2,0,5,-2,4]
+```
+
+**Output:**
+```text
+11
+```
+
+**Explanation:**
+We can choose a = 5, b = 4, and c = -2. The expression value is 5 + 4 - (-2) = 11, which is the maximum possible.
+
+## Constraints
+
+```text
+- 3 <= nums.length <= 100
+- -100 <= nums[i] <= 100
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can check every possible triplet (i, j, k) such that i &lt; j &lt; k and calculate the expression value to find the maximum.
+
+**Steps**
+- Iterate through all possible values of i from 0 to n-3.
+- Iterate through all possible values of j from i+1 to n-2.
+- Iterate through all possible values of k from j+1 to n-1.
+- Calculate the expression (nums[i] - nums[j]) * nums[k] and update the maximum value found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maxExpression(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        max_val = float('-inf')\n        for i in range(n - 2):\n            for j in range(i + 1, n - 1):\n                for k in range(j + 1, n):\n                    current = (nums[i] - nums[j]) * nums[k]\n                    if current &gt; max_val:\n                        max_val = current\n        return max_val\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long maxExpression(int[] nums) {\n        int n = nums.length;\n        long maxVal = Long.MIN_VALUE;\n        for (int i = 0; i &lt; n - 2; i++) {\n            for (int j = i + 1; j &lt; n - 1; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    long current = ((long)nums[i] - nums[j]) * nums[k];\n                    if (current &gt; maxVal) {\n                        maxVal = current;\n                    }\n                }\n            }\n        }\n        return maxVal;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;climits&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    long long maxExpression(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        long long maxVal = LLONG_MIN;\n        for (int i = 0; i &lt; n - 2; i++) {\n            for (int j = i + 1; j &lt; n - 1; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    long long current = ((long long)nums[i] - nums[j]) * nums[k];\n                    maxVal = max(maxVal, current);\n                }\n            }\n        }\n        return maxVal;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxExpression = function(nums) {\n    const n = nums.length;\n    let maxVal = -Infinity;\n    for (let i = 0; i &lt; n - 2; i++) {\n        for (let j = i + 1; j &lt; n - 1; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                const current = (nums[i] - nums[j]) * nums[k];\n                if (current &gt; maxVal) {\n                    maxVal = current;\n                }\n            }\n        }\n    }\n    return maxVal;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function maxExpression(nums: number[]): number {\n    const n = nums.length;\n    let maxVal = -Infinity;\n    for (let i = 0; i &lt; n - 2; i++) {\n        for (let j = i + 1; j &lt; n - 1; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                const current = (nums[i] - nums[j]) * nums[k];\n                if (current &gt; maxVal) {\n                    maxVal = current;\n                }\n            }\n        }\n    }\n    return maxVal;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³)
+- Space: O(1)
+- Notes: This approach is too slow for the given constraints (n up to 10⁵).
+
+---
+## Prefix Max and Suffix Max/Min
+
+**Intuition**
+To maximize (nums[i] - nums[j]) * nums[k], we can iterate through the array considering each element as the middle element nums[j]. For a fixed j, we need the maximum nums[i] to its left (to maximize nums[i] - nums[j]) and the best nums[k] to its right. If (nums[i] - nums[j]) is positive, we want the maximum nums[k]. If it is negative, we want the minimum nums[k].
+
+**Steps**
+- Precompute two arrays, suffix_max and suffix_min, where suffix_max[k] stores the maximum value in nums[k..n-1] and suffix_min[k] stores the minimum value in nums[k..n-1].
+- Iterate through the array with index j from 1 to n-2.
+- Maintain a variable max_left to keep track of the maximum value encountered so far (nums[0..j-1]).
+- Calculate diff = max_left - nums[j].
+- The potential maximum values for this j are diff * suffix_max[j+1] and diff * suffix_min[j+1]. Update the global maximum result with these values.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maxExpression(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        suffix_max = [0] * n\n        suffix_min = [0] * n\n        suffix_max[-1] = nums[-1]\n        suffix_min[-1] = nums[-1]\n        for i in range(n - 2, -1, -1):\n            suffix_max[i] = max(suffix_max[i + 1], nums[i])\n            suffix_min[i] = min(suffix_min[i + 1], nums[i])\n        \n        max_left = nums[0]\n        res = float('-inf')\n        for j in range(1, n - 1):\n            max_left = max(max_left, nums[j - 1])\n            diff = max_left - nums[j]\n            if j + 1 &lt; n:\n                res = max(res, diff * suffix_max[j + 1])\n                res = max(res, diff * suffix_min[j + 1])\n        return res\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public long maxExpression(int[] nums) {\n        int n = nums.length;\n        long[] suffixMax = new long[n];\n        long[] suffixMin = new long[n];\n        suffixMax[n - 1] = nums[n - 1];\n        suffixMin[n - 1] = nums[n - 1];\n        for (int i = n - 2; i &gt;= 0; i--) {\n            suffixMax[i] = Math.max(suffixMax[i + 1], nums[i]);\n            suffixMin[i] = Math.min(suffixMin[i + 1], nums[i]);\n        }\n        \n        long maxLeft = nums[0];\n        long res = Long.MIN_VALUE;\n        for (int j = 1; j &lt; n - 1; j++) {\n            maxLeft = Math.max(maxLeft, nums[j - 1]);\n            long diff = maxLeft - nums[j];\n            if (j + 1 &lt; n) {\n                res = Math.max(res, diff * suffixMax[j + 1]);\n                res = Math.max(res, diff * suffixMin[j + 1]);\n            }\n        }\n        return res;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;climits&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    long long maxExpression(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        vector&lt;long long&gt; suffixMax(n);\n        vector&lt;long long&gt; suffixMin(n);\n        suffixMax[n-1] = nums[n-1];\n        suffixMin[n-1] = nums[n-1];\n        for(int i = n-2; i &gt;= 0; --i){\n            suffixMax[i] = max(suffixMax[i+1], (long long)nums[i]);\n            suffixMin[i] = min(suffixMin[i+1], (long long)nums[i]);\n        }\n        \n        long long maxLeft = nums[0];\n        long long res = LLONG_MIN;\n        for(int j = 1; j &lt; n - 1; ++j){\n            maxLeft = max(maxLeft, (long long)nums[j-1]);\n            long long diff = maxLeft - nums[j];\n            if(j + 1 &lt; n){\n                res = max(res, diff * suffixMax[j+1]);\n                res = max(res, diff * suffixMin[j+1]);\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxExpression = function(nums) {\n    const n = nums.length;\n    const suffixMax = new Array(n);\n    const suffixMin = new Array(n);\n    suffixMax[n-1] = nums[n-1];\n    suffixMin[n-1] = nums[n-1];\n    for(let i = n - 2; i &gt;= 0; i--){\n        suffixMax[i] = Math.max(suffixMax[i+1], nums[i]);\n        suffixMin[i] = Math.min(suffixMin[i+1], nums[i]);\n    }\n    \n    let maxLeft = nums[0];\n    let res = -Infinity;\n    for(let j = 1; j &lt; n - 1; j++){\n        maxLeft = Math.max(maxLeft, nums[j-1]);\n        const diff = maxLeft - nums[j];\n        if(j + 1 &lt; n){\n            res = Math.max(res, diff * suffixMax[j+1]);\n            res = Math.max(res, diff * suffixMin[j+1]);\n        }\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function maxExpression(nums: number[]): number {\n    const n = nums.length;\n    const suffixMax: number[] = new Array(n);\n    const suffixMin: number[] = new Array(n);\n    suffixMax[n-1] = nums[n-1];\n    suffixMin[n-1] = nums[n-1];\n    for(let i = n - 2; i &gt;= 0; i--){\n        suffixMax[i] = Math.max(suffixMax[i+1], nums[i]);\n        suffixMin[i] = Math.min(suffixMin[i+1], nums[i]);\n    }\n    \n    let maxLeft = nums[0];\n    let res = -Infinity;\n    for(let j = 1; j &lt; n - 1; j++){\n        maxLeft = Math.max(maxLeft, nums[j-1]);\n        const diff = maxLeft - nums[j];\n        if(j + 1 &lt; n){\n            res = Math.max(res, diff * suffixMax[j+1]);\n            res = Math.max(res, diff * suffixMin[j+1]);\n        }\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: We use O(n) space to store suffix maximums and minimums. This is optimal for the given constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximize Expression of Three Elements Solutions","datePublished":"2024-07-19","description":"Find the maximum value of (nums[i] - nums[j]) * nums[k] for i &lt; j &lt; k.","keywords":"LeetCode, Maximize Expression of Three Elements, Easy, Array, Greedy, Sorting, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the optimal solution is O(n), where n is the length of the array."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the suffix maximum and minimum arrays."}}]}).replace(/</g,'\u003c')}
+</script>

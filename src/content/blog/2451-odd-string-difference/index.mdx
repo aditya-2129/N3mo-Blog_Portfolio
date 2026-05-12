@@ -1,0 +1,112 @@
+---
+title: "Odd String Difference"
+summary: "Find the string with a unique difference pattern among an array of equal-length strings."
+date: "Sep 05, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.90% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+You are given an array of equal-length strings words. The difference string of a string word is the string formed by the difference between consecutive characters in word.
+
+For example, the difference string of "abc" is "1-1" because:
+- 'b' - 'a' = 1
+- 'c' - 'b' = 1
+
+All strings in words have the same difference string except one. Find the string that has a different difference string.
+
+- Examples
+- Constraints
+- [Hash Map Approach](#hash-map-approach)
+- [Comparison Approach](#comparison-approach)
+
+## Examples
+
+```text
+Input: words = ["adc","wzy","abc"]
+Output: "abc"
+Explanation:
+- The difference string of "adc" is "3-1".
+- The difference string of "wzy" is "3-1".
+- The difference string of "abc" is "1-1".
+"abc" has a different difference string from the other two strings, so we return "abc".
+```
+
+```text
+Input: words = ["aaa","bob","bbb","ddd"]
+Output: "bob"
+Explanation:
+- The difference string of "aaa" is "0-0".
+- The difference string of "bob" is "1-1".
+- The difference string of "bbb" is "0-0".
+- The difference string of "ddd" is "0-0".
+"bob" has a different difference string from the other three strings, so we return "bob".
+```
+
+## Constraints
+
+```text
+3 <= words.length <= 100
+2 <= words[i].length <= 100
+words[i] consists of lowercase English letters.
+```
+
+---
+## Hash Map Approach
+
+**Intuition**
+Calculate the difference string for each word and use a hash map to count occurrences. The odd string will be the one whose difference pattern appears exactly once.
+
+**Steps**
+- Create a helper function to compute the difference string (sequence of character differences)
+- Iterate through all words, compute their difference strings, and store in a hash map
+- Find and return the word whose difference string has a count of 1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def oddString(self, words: List[str]) -&gt; str:\n        def get_diff(s):\n            return tuple(ord(s[i+1]) - ord(s[i]) for i in range(len(s)-1))\n        \n        diff_count = {}\n        for word in words:\n            diff = get_diff(word)\n            if diff not in diff_count:\n                diff_count[diff] = []\n            diff_count[diff].append(word)\n        \n        for diff, word_list in diff_count.items():\n            if len(word_list) == 1:\n                return word_list[0]\n        \n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String oddString(String[] words) {\n        Map&lt;String, List&lt;String&gt;&gt; diffCount = new HashMap&lt;&gt;();\n        \n        for (String word : words) {\n            String diff = getDiff(word);\n            diffCount.computeIfAbsent(diff, k -&gt; new ArrayList&lt;&gt;()).add(word);\n        }\n        \n        for (List&lt;String&gt; list : diffCount.values()) {\n            if (list.size() == 1) {\n                return list.get(0);\n            }\n        }\n        \n        return \"\";\n    }\n    \n    private String getDiff(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; s.length() - 1; i++) {\n            sb.append(s.charAt(i + 1) - s.charAt(i));\n            sb.append(\",\");\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string oddString(vector&lt;string&gt;& words) {\n        unordered_map&lt;string, vector&lt;string&gt;&gt; diffCount;\n        \n        for (const string& word : words) {\n            string diff = getDiff(word);\n            diffCount[diff].push_back(word);\n        }\n        \n        for (const auto& [diff, list] : diffCount) {\n            if (list.size() == 1) {\n                return list[0];\n            }\n        }\n        \n        return \"\";\n    }\n    \nprivate:\n    string getDiff(const string& s) {\n        string diff;\n        for (int i = 0; i &lt; s.length() - 1; i++) {\n            diff += to_string(s[i + 1] - s[i]);\n            diff += \",\";\n        }\n        return diff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @return {string}\n */\nvar oddString = function(words) {\n    const diffCount = new Map();\n    \n    for (const word of words) {\n        const diff = getDiff(word);\n        if (!diffCount.has(diff)) {\n            diffCount.set(diff, []);\n        }\n        diffCount.get(diff).push(word);\n    }\n    \n    for (const [diff, list] of diffCount) {\n        if (list.length === 1) {\n            return list[0];\n        }\n    }\n    \n    return \"\";\n};\n\nfunction getDiff(s) {\n    let diff = \"\";\n    for (let i = 0; i &lt; s.length - 1; i++) {\n        diff += (s.charCodeAt(i + 1) - s.charCodeAt(i)) + \",\";\n    }\n    return diff;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function oddString(words: string[]): string {\n    const diffCount = new Map&lt;string, string[]&gt;();\n    \n    for (const word of words) {\n        const diff = getDiff(word);\n        if (!diffCount.has(diff)) {\n            diffCount.set(diff, []);\n        }\n        diffCount.get(diff)!.push(word);\n    }\n    \n    for (const [diff, list] of diffCount) {\n        if (list.length === 1) {\n            return list[0];\n        }\n    }\n    \n    return \"\";\n}\n\nfunction getDiff(s: string): string {\n    let diff = \"\";\n    for (let i = 0; i &lt; s.length - 1; i++) {\n        diff += (s.charCodeAt(i + 1) - s.charCodeAt(i)) + \",\";\n    }\n    return diff;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of words and m is the length of each word
+- Space: O(n × m) for storing difference strings in the hash map
+- Notes: Simple and intuitive, uses extra space for the hash map
+
+---
+## Comparison Approach
+
+**Intuition**
+Compare the first two words' difference strings. If they match, the odd string is elsewhere. If they differ, compare with the third to identify the outlier.
+
+**Steps**
+- Calculate difference strings for the first two words
+- If they're equal, iterate through remaining words to find the mismatch
+- If they differ, use the third word's difference to determine which of the first two is the odd one
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def oddString(self, words: List[str]) -&gt; str:\n        def get_diff(s):\n            return tuple(ord(s[i+1]) - ord(s[i]) for i in range(len(s)-1))\n        \n        diff0 = get_diff(words[0])\n        diff1 = get_diff(words[1])\n        \n        if diff0 == diff1:\n            for i in range(2, len(words)):\n                if get_diff(words[i]) != diff0:\n                    return words[i]\n        else:\n            diff2 = get_diff(words[2])\n            if diff2 == diff0:\n                return words[1]\n            else:\n                return words[0]\n        \n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String oddString(String[] words) {\n        int[] diff0 = getDiff(words[0]);\n        int[] diff1 = getDiff(words[1]);\n        \n        if (Arrays.equals(diff0, diff1)) {\n            for (int i = 2; i &lt; words.length; i++) {\n                if (!Arrays.equals(getDiff(words[i]), diff0)) {\n                    return words[i];\n                }\n            }\n        } else {\n            int[] diff2 = getDiff(words[2]);\n            if (Arrays.equals(diff2, diff0)) {\n                return words[1];\n            } else {\n                return words[0];\n            }\n        }\n        \n        return \"\";\n    }\n    \n    private int[] getDiff(String s) {\n        int[] diff = new int[s.length() - 1];\n        for (int i = 0; i &lt; s.length() - 1; i++) {\n            diff[i] = s.charAt(i + 1) - s.charAt(i);\n        }\n        return diff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string oddString(vector&lt;string&gt;& words) {\n        vector&lt;int&gt; diff0 = getDiff(words[0]);\n        vector&lt;int&gt; diff1 = getDiff(words[1]);\n        \n        if (diff0 == diff1) {\n            for (int i = 2; i &lt; words.size(); i++) {\n                if (getDiff(words[i]) != diff0) {\n                    return words[i];\n                }\n            }\n        } else {\n            vector&lt;int&gt; diff2 = getDiff(words[2]);\n            if (diff2 == diff0) {\n                return words[1];\n            } else {\n                return words[0];\n            }\n        }\n        \n        return \"\";\n    }\n    \nprivate:\n    vector&lt;int&gt; getDiff(const string& s) {\n        vector&lt;int&gt; diff(s.length() - 1);\n        for (int i = 0; i &lt; s.length() - 1; i++) {\n            diff[i] = s[i + 1] - s[i];\n        }\n        return diff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @return {string}\n */\nvar oddString = function(words) {\n    const diff0 = getDiff(words[0]);\n    const diff1 = getDiff(words[1]);\n    \n    if (arraysEqual(diff0, diff1)) {\n        for (let i = 2; i &lt; words.length; i++) {\n            if (!arraysEqual(getDiff(words[i]), diff0)) {\n                return words[i];\n            }\n        }\n    } else {\n        const diff2 = getDiff(words[2]);\n        if (arraysEqual(diff2, diff0)) {\n            return words[1];\n        } else {\n            return words[0];\n        }\n    }\n    \n    return \"\";\n};\n\nfunction getDiff(s) {\n    const diff = [];\n    for (let i = 0; i &lt; s.length - 1; i++) {\n        diff.push(s.charCodeAt(i + 1) - s.charCodeAt(i));\n    }\n    return diff;\n}\n\nfunction arraysEqual(a, b) {\n    if (a.length !== b.length) return false;\n    for (let i = 0; i &lt; a.length; i++) {\n        if (a[i] !== b[i]) return false;\n    }\n    return true;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function oddString(words: string[]): string {\n    const diff0 = getDiff(words[0]);\n    const diff1 = getDiff(words[1]);\n    \n    if (arraysEqual(diff0, diff1)) {\n        for (let i = 2; i &lt; words.length; i++) {\n            if (!arraysEqual(getDiff(words[i]), diff0)) {\n                return words[i];\n            }\n        }\n    } else {\n        const diff2 = getDiff(words[2]);\n        if (arraysEqual(diff2, diff0)) {\n            return words[1];\n        } else {\n            return words[0];\n        }\n    }\n    \n    return \"\";\n}\n\nfunction getDiff(s: string): number[] {\n    const diff: number[] = [];\n    for (let i = 0; i &lt; s.length - 1; i++) {\n        diff.push(s.charCodeAt(i + 1) - s.charCodeAt(i));\n    }\n    return diff;\n}\n\nfunction arraysEqual(a: number[], b: number[]): boolean {\n    if (a.length !== b.length) return false;\n    for (let i = 0; i &lt; a.length; i++) {\n        if (a[i] !== b[i]) return false;\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of words and m is the length of each word
+- Space: O(m) for storing difference arrays
+- Notes: More space-efficient as it doesn't require a hash map, but slightly more complex logic
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Odd String Difference Solutions","datePublished":"2024-09-05","description":"Find the string with a unique difference pattern among an array of equal-length strings.","keywords":"LeetCode, Odd String Difference, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of words and m is the length of each word."}},{"@type":"Question","name":"What is the space complexity of the Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"O(m) for storing difference arrays, which is more space-efficient than the hash map approach."}},{"@type":"Question","name":"How do we identify the odd string?","acceptedAnswer":{"@type":"Answer","text":"By computing the difference string (sequence of character differences) for each word and finding the one with a unique pattern."}}]}).replace(/</g,'\u003c')}
+</script>

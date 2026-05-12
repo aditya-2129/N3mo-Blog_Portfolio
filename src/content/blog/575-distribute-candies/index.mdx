@@ -1,0 +1,140 @@
+---
+title: "Distribute Candies"
+summary: "Alice has n candies of different types. She must eat n/2 of them. Return the maximum number of different types she can eat."
+date: "Nov 08, 2024"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.10% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+Alice has n candies, where the i-th candy is of type candyType[i]. Alice noticed that she started to gain weight, so she visited a doctor.
+
+The doctor advised Alice to only eat n / 2 of the candies she has (n is always even). Alice likes her candies very much, and she wants to eat the maximum number of different types of candies.
+
+Given the integer array candyType of length n, return the maximum number of different types of candies she can eat if she only eats n / 2 of them.
+
+- Examples
+- Constraints
+- [Hash Set](#hash-set)
+- [Sorting](#sorting)
+- [Boolean Array](#boolean-array)
+
+## Examples
+
+### Example 1:
+```text
+Input: candyType = [1,1,2,2,3,3]
+Output: 3
+Explanation: Alice can only eat 6 / 2 = 3 candies. Since there are only 3 types, she can eat one of each type.
+```
+
+### Example 2:
+```text
+Input: candyType = [1,1,2,3]
+Output: 2
+Explanation: Alice can only eat 4 / 2 = 2 candies. Whether she eats types [1,2], [1,3], or [2,3], she can only eat 2 different types.
+```
+
+### Example 3:
+```text
+Input: candyType = [6,6,6,6]
+Output: 1
+Explanation: Alice can only eat 4 / 2 = 2 candies. Since there is only 1 type, she can only eat 2 candies of that type.
+```
+
+## Constraints
+
+```text
+- n == candyType.length
+- 2 <= n <= 10^4
+- n is even.
+- -10^5 <= candyType[i] <= 10^5
+```
+
+---
+
+## Hash Set
+
+**Intuition**
+To find the maximum number of different types of candies Alice can eat, we first need to know how many unique types of candies exist in the array. A Hash Set is the ideal data structure for this because it stores unique elements and provides O(1) average time complexity for insertions and lookups.
+
+**Steps**
+- Initialize an empty Hash Set.
+- Iterate through the `candyType` array and add each candy type to the set. The set will automatically handle duplicates, storing only unique types.
+- The size of the set represents the total number of unique candy types available.
+- Alice can eat at most `n / 2` candies. Therefore, the answer is the minimum of the number of unique types (set size) and `n / 2`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def distributeCandies(self, candyType: list[int]) -> int:\n        # Calculate the number of unique candy types using a set\n        unique_types = len(set(candyType))\n        # Alice can only eat n / 2 candies\n        max_eat = len(candyType) // 2\n        # The answer is the smaller of the two\n        return min(unique_types, max_eat)\n' },
+{ name: "Java", lang: "java", code: 'import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int distributeCandies(int[] candyType) {\n        Set<Integer> uniqueCandies = new HashSet&lt;&gt;();\n        for (int candy : candyType) {\n            uniqueCandies.add(candy);\n        }\n        // Alice can eat at most n/2 candies\n        int maxEat = candyType.length / 2;\n        // Return the minimum of unique types and maxEat\n        return Math.min(uniqueCandies.size(), maxEat);\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <unordered_set>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int distributeCandies(vector<int>& candyType) {\n        unordered_set<int> uniqueCandies;\n        for (int candy : candyType) {\n            uniqueCandies.insert(candy);\n        }\n        // Alice can eat at most n/2 candies\n        int maxEat = candyType.size() / 2;\n        // Return the minimum of unique types and maxEat\n        return min(uniqueCandies.size(), (size_t)maxEat);\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} candyType\n * @return {number}\n */\nvar distributeCandies = function(candyType) {\n    const uniqueCandies = new Set(candyType);\n    // Alice can eat at most n/2 candies\n    const maxEat = candyType.length / 2;\n    // Return the minimum of unique types and maxEat\n    return Math.min(uniqueCandies.size, maxEat);\n};\n' },
+{ name: "TypeScript", lang: "typescript", code: 'function distributeCandies(candyType: number[]): number {\n    const uniqueCandies = new Set(candyType);\n    // Alice can eat at most n/2 candies\n    const maxEat: number = candyType.length / 2;\n    // Return the minimum of unique types and maxEat\n    return Math.min(uniqueCandies.size, maxEat);\n}\n' },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of candies. We iterate through the array once, and set insertions are O(1) on average.
+- Space: O(N), to store the unique candy types in the set. In the worst case (all candies are unique), the set size is N.
+- Notes: This is the most straightforward and generally preferred approach due to its linear time complexity.
+
+---
+
+## Sorting
+
+**Intuition**
+If we sort the array, identical candy types will be grouped together in adjacent positions. We can then iterate through the sorted array and count how many times the type changes from one element to the next. This count gives us the number of unique types.
+
+**Steps**
+- Sort the `candyType` array in ascending order.
+- Initialize a counter for unique types to 1 (since a sorted array with at least one element has at least one type, or handle empty array edge case if applicable, though constraints say n &gt;= 2).
+- Iterate through the array starting from the second element. If the current element is different from the previous element, increment the unique type counter.
+- The result is the minimum of the unique type counter and `n / 2`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def distributeCandies(self, candyType: list[int]) -> int:\n        # Sort the array to group identical types\n        candyType.sort()\n        \n        # Count unique types by checking adjacent elements\n        unique_count = 1\n        for i in range(1, len(candyType)):\n            if candyType[i] != candyType[i - 1]:\n                unique_count += 1\n                \n        # Return the minimum of unique types and n/2\n        return min(unique_count, len(candyType) // 2)\n' },
+{ name: "Java", lang: "java", code: 'import java.util.Arrays;\n\nclass Solution {\n    public int distributeCandies(int[] candyType) {\n        // Sort the array to group identical types\n        Arrays.sort(candyType);\n        \n        // Count unique types by checking adjacent elements\n        int uniqueCount = 1;\n        for (int i = 1; i &lt; candyType.length; i++) {\n            if (candyType[i] != candyType[i - 1]) {\n                uniqueCount++;\n            }\n        }\n        \n        // Return the minimum of unique types and n/2\n        return Math.min(uniqueCount, candyType.length / 2);\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int distributeCandies(vector<int>& candyType) {\n        // Sort the array to group identical types\n        sort(candyType.begin(), candyType.end());\n        \n        // Count unique types by checking adjacent elements\n        int uniqueCount = 1;\n        for (int i = 1; i &lt; candyType.size(); i++) {\n            if (candyType[i] != candyType[i - 1]) {\n                uniqueCount++;\n            }\n        }\n        \n        // Return the minimum of unique types and n/2\n        return min(uniqueCount, (int)candyType.size() / 2);\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} candyType\n * @return {number}\n */\nvar distributeCandies = function(candyType) {\n    // Sort the array to group identical types\n    candyType.sort((a, b) =&gt; a - b);\n    \n    // Count unique types by checking adjacent elements\n    let uniqueCount = 1;\n    for (let i = 1; i &lt; candyType.length; i++) {\n        if (candyType[i] !== candyType[i - 1]) {\n            uniqueCount++;\n        }\n    }\n    \n    // Return the minimum of unique types and n/2\n    return Math.min(uniqueCount, candyType.length / 2);\n};\n' },
+{ name: "TypeScript", lang: "typescript", code: 'function distributeCandies(candyType: number[]): number {\n    // Sort the array to group identical types\n    candyType.sort((a, b) =&gt; a - b);\n    \n    // Count unique types by checking adjacent elements\n    let uniqueCount: number = 1;\n    for (let i = 1; i &lt; candyType.length; i++) {\n        if (candyType[i] !== candyType[i - 1]) {\n            uniqueCount++;\n        }\n    }\n    \n    // Return the minimum of unique types and n/2\n    return Math.min(uniqueCount, candyType.length / 2);\n}\n' },]} />
+
+**Complexity**
+- Time: O(N log N), due to the sorting step. The iteration is O(N).
+- Space: O(1) or O(N), depending on the sorting algorithm's implementation (e.g., heapsort uses O(1), quicksort O(log N) stack space, Timsort O(N)).
+- Notes: This approach is useful if modifying the input array is allowed and memory space is extremely constrained (though the Hash Set approach is generally faster).
+
+---
+
+## Boolean Array
+
+**Intuition**
+The problem constraints state that `candyType[i]` is between -100,000 and 100,000. This is a relatively small fixed range. We can use a boolean array (or a bitset) of size 200,001 to map each possible candy type to a boolean flag indicating whether we have seen it.
+
+**Steps**
+- Create a boolean array `seen` of size 200,001 (to cover the range -100,000 to 100,000).
+- Initialize a counter for unique types to 0.
+- Iterate through `candyType`. For each candy, calculate its index in the `seen` array by adding an offset of 100,000 (to handle negative indices).
+- If `seen[index]` is false, set it to true and increment the unique counter.
+- The result is the minimum of the unique counter and `n / 2`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def distributeCandies(self, candyType: list[int]) -> int:\n        # Offset to handle negative indices (range -100,000 to 100,000)\n        OFFSET = 100000\n        # Boolean array to track seen types\n        seen = [False] * 200001\n        unique_count = 0\n        \n        for candy in candyType:\n            idx = candy + OFFSET\n            if not seen[idx]:\n                seen[idx] = True\n                unique_count += 1\n                \n        return min(unique_count, len(candyType) // 2)\n' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int distributeCandies(int[] candyType) {\n        // Offset to handle negative indices (range -100,000 to 100,000)\n        int OFFSET = 100000;\n        // Boolean array to track seen types\n        boolean[] seen = new boolean[200001];\n        int uniqueCount = 0;\n        \n        for (int candy : candyType) {\n            int idx = candy + OFFSET;\n            if (!seen[idx]) {\n                seen[idx] = true;\n                uniqueCount++;\n            }\n        }\n        \n        return Math.min(uniqueCount, candyType.length / 2);\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int distributeCandies(vector<int>& candyType) {\n        // Offset to handle negative indices (range -100,000 to 100,000)\n        int OFFSET = 100000;\n        // Boolean array to track seen types\n        vector<bool> seen(200001, false);\n        int uniqueCount = 0;\n        \n        for (int candy : candyType) {\n            int idx = candy + OFFSET;\n            if (!seen[idx]) {\n                seen[idx] = true;\n                uniqueCount++;\n            }\n        }\n        \n        return min(uniqueCount, (int)candyType.size() / 2);\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} candyType\n * @return {number}\n */\nvar distributeCandies = function(candyType) {\n    // Offset to handle negative indices (range -100,000 to 100,000)\n    const OFFSET = 100000;\n    // Boolean array to track seen types\n    const seen = new Array(200001).fill(false);\n    let uniqueCount = 0;\n    \n    for (let candy of candyType) {\n        const idx = candy + OFFSET;\n        if (!seen[idx]) {\n            seen[idx] = true;\n            uniqueCount++;\n        }\n    }\n    \n    return Math.min(uniqueCount, candyType.length / 2);\n};\n' },
+{ name: "TypeScript", lang: "typescript", code: 'function distributeCandies(candyType: number[]): number {\n    // Offset to handle negative indices (range -100,000 to 100,000)\n    const OFFSET: number = 100000;\n    // Boolean array to track seen types\n    const seen: boolean[] = new Array(200001).fill(false);\n    let uniqueCount: number = 0;\n    \n    for (let candy of candyType) {\n        const idx: number = candy + OFFSET;\n        if (!seen[idx]) {\n            seen[idx] = true;\n            uniqueCount++;\n        }\n    }\n    \n    return Math.min(uniqueCount, candyType.length / 2);\n}\n' },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of candies. We iterate through the array once, and array access is O(1).
+- Space: O(1), because the size of the boolean array is fixed (200,001) regardless of the input size N. It does not scale with N.
+- Notes: This is a very efficient approach in terms of both time and space when the range of values is known and small.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Distribute Candies Solutions","datePublished":"2024-11-08","description":"Alice has n candies of different types. She must eat n/2 of them. Return the maximum number of different types she can eat.","keywords":"LeetCode, Distribute Candies, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of candies, as we iterate through the array once and set insertions are O(1) on average."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the unique candy types in the set."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Boolean Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the auxiliary array size is fixed (200,001) and does not depend on the input size N."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,530 @@
+---
+title: "Check if Any Element Has Prime Frequency"
+summary: "Determine if any element in an array appears a prime number of times."
+date: "Jan 16, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Math
+  - Counting
+  - Number Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Math, Counting, Number Theory
+
+You are given an array of positive integers nums. Return true if any element appears a prime number of times, otherwise return false.
+
+- Examples
+- Constraints
+- [Brute Force with Hash Map](#brute-force-with-hash-map)
+- [Optimized Prime Check](#optimized-prime-check)
+- [Sieve of Eratosthenes](#sieve-of-eratosthenes)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [1,2,3,4,5]
+Output: false
+Explanation: Each element appears exactly once, and 1 is not a prime number.
+```
+
+Example 2:
+```text
+Input: nums = [1,2,3,2,3,3]
+Output: true
+Explanation: The element 2 appears 2 times (prime), and element 3 appears 3 times (prime).
+```
+
+Example 3:
+```text
+Input: nums = [1,1,1,1,1,1]
+Output: false
+Explanation: The element 1 appears 6 times, and 6 is not a prime number.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+1 <= nums[i] <= 10⁵
+```
+
+---
+## Brute Force with Hash Map
+
+**Intuition**
+Count the frequency of each element using a hash map, then check if any frequency is a prime number by testing divisibility.
+
+**Steps**
+- Create a hash map to count occurrences of each element.
+- For each frequency in the hash map, check if it's prime.
+- Return true if any frequency is prime, otherwise false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def hasPrimeFrequency(self, nums: list[int]) -> bool:
+        from collections import Counter
+        
+        def is_prime(n: int) -> bool:
+            if n &lt; 2:
+                return False
+            for i in range(2, int(n ** 0.5) + 1):
+                if n % i == 0:
+                    return False
+            return True
+        
+        freq = Counter(nums)
+        for count in freq.values():
+            if is_prime(count):
+                return True
+        return False
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public boolean hasPrimeFrequency(int[] nums) {
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        
+        for (int count : freq.values()) {
+            if (isPrime(count)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isPrime(int n) {
+        if (n &lt; 2) return false;
+        for (int i = 2; i * i &lt;= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    bool hasPrimeFrequency(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        
+        for (auto& [key, count] : freq) {
+            if (isPrime(count)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+private:
+    bool isPrime(int n) {
+        if (n &lt; 2) return false;
+        for (int i = 2; i * i &lt;= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var hasPrimeFrequency = function(nums) {
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    const isPrime = function(n) {
+        if (n &lt; 2) return false;
+        for (let i = 2; i * i &lt;= n; i++) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    for (const count of freq.values()) {
+        if (isPrime(count)) {
+            return true;
+        }
+    }
+    return false;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function hasPrimeFrequency(nums: number[]): boolean {
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    const isPrime = function(n: number): boolean {
+        if (n &lt; 2) return false;
+        for (let i = 2; i * i &lt;= n; i++) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    for (const count of freq.values()) {
+        if (isPrime(count)) {
+            return true;
+        }
+    }
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × √m) where n is array length and m is the maximum frequency
+- Space: O(n) for the hash map
+- Notes: Simple and straightforward approach.
+
+---
+## Optimized Prime Check
+
+**Intuition**
+Same as brute force but with optimized prime checking by handling edge cases and skipping even numbers.
+
+**Steps**
+- Count frequencies using a hash map.
+- Use an optimized isPrime function that handles 2, even numbers, and only checks odd divisors.
+- Return true if any frequency is prime.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def hasPrimeFrequency(self, nums: list[int]) -> bool:
+        from collections import Counter
+        
+        def is_prime(n: int) -> bool:
+            if n &lt; 2:
+                return False
+            if n == 2:
+                return True
+            if n % 2 == 0:
+                return False
+            for i in range(3, int(n ** 0.5) + 1, 2):
+                if n % i == 0:
+                    return False
+            return True
+        
+        freq = Counter(nums)
+        for count in freq.values():
+            if is_prime(count):
+                return True
+        return False
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public boolean hasPrimeFrequency(int[] nums) {
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        
+        for (int count : freq.values()) {
+            if (isPrime(count)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isPrime(int n) {
+        if (n &lt; 2) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+        for (int i = 3; i * i &lt;= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    bool hasPrimeFrequency(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        
+        for (auto& [key, count] : freq) {
+            if (isPrime(count)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+private:
+    bool isPrime(int n) {
+        if (n &lt; 2) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+        for (int i = 3; i * i &lt;= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var hasPrimeFrequency = function(nums) {
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    const isPrime = function(n) {
+        if (n &lt; 2) return false;
+        if (n === 2) return true;
+        if (n % 2 === 0) return false;
+        for (let i = 3; i * i &lt;= n; i += 2) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    for (const count of freq.values()) {
+        if (isPrime(count)) {
+            return true;
+        }
+    }
+    return false;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function hasPrimeFrequency(nums: number[]): boolean {
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    const isPrime = function(n: number): boolean {
+        if (n &lt; 2) return false;
+        if (n === 2) return true;
+        if (n % 2 === 0) return false;
+        for (let i = 3; i * i &lt;= n; i += 2) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    for (const count of freq.values()) {
+        if (isPrime(count)) {
+            return true;
+        }
+    }
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × √m) where n is array length and m is the maximum frequency
+- Space: O(n) for the hash map
+- Notes: About 2x faster than brute force for large numbers by skipping even divisors.
+
+---
+## Sieve of Eratosthenes
+
+**Intuition**
+Precompute all primes up to the maximum possible frequency (array length) using the Sieve of Eratosthenes, then check frequencies in O(1).
+
+**Steps**
+- Count frequencies using a hash map.
+- Build a sieve of primes up to the array length.
+- Check if any frequency is marked as prime in the sieve.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def hasPrimeFrequency(self, nums: list[int]) -> bool:
+        from collections import Counter
+        
+        n = len(nums)
+        if n &lt; 2:
+            return False
+        
+        # Sieve of Eratosthenes
+        is_prime = [True] * (n + 1)
+        is_prime[0] = is_prime[1] = False
+        for i in range(2, int(n ** 0.5) + 1):
+            if is_prime[i]:
+                for j in range(i * i, n + 1, i):
+                    is_prime[j] = False
+        
+        freq = Counter(nums)
+        for count in freq.values():
+            if is_prime[count]:
+                return True
+        return False
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public boolean hasPrimeFrequency(int[] nums) {
+        int n = nums.length;
+        if (n &lt; 2) return false;
+        
+        // Sieve of Eratosthenes
+        boolean[] isPrime = new boolean[n + 1];
+        Arrays.fill(isPrime, true);
+        isPrime[0] = isPrime[1] = false;
+        
+        for (int i = 2; i * i &lt;= n; i++) {
+            if (isPrime[i]) {
+                for (int j = i * i; j &lt;= n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+        
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        
+        for (int count : freq.values()) {
+            if (isPrime[count]) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    bool hasPrimeFrequency(vector<int>& nums) {
+        int n = nums.size();
+        if (n &lt; 2) return false;
+        
+        // Sieve of Eratosthenes
+        vector<bool> isPrime(n + 1, true);
+        isPrime[0] = isPrime[1] = false;
+        
+        for (int i = 2; i * i &lt;= n; i++) {
+            if (isPrime[i]) {
+                for (int j = i * i; j &lt;= n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+        
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        
+        for (auto& [key, count] : freq) {
+            if (isPrime[count]) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var hasPrimeFrequency = function(nums) {
+    const n = nums.length;
+    if (n &lt; 2) return false;
+    
+    // Sieve of Eratosthenes
+    const isPrime = new Array(n + 1).fill(true);
+    isPrime[0] = isPrime[1] = false;
+    
+    for (let i = 2; i * i &lt;= n; i++) {
+        if (isPrime[i]) {
+            for (let j = i * i; j &lt;= n; j += i) {
+                isPrime[j] = false;
+            }
+        }
+    }
+    
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    for (const count of freq.values()) {
+        if (isPrime[count]) {
+            return true;
+        }
+    }
+    return false;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function hasPrimeFrequency(nums: number[]): boolean {
+    const n = nums.length;
+    if (n &lt; 2) return false;
+    
+    // Sieve of Eratosthenes
+    const isPrime = new Array(n + 1).fill(true);
+    isPrime[0] = isPrime[1] = false;
+    
+    for (let i = 2; i * i &lt;= n; i++) {
+        if (isPrime[i]) {
+            for (let j = i * i; j &lt;= n; j += i) {
+                isPrime[j] = false;
+            }
+        }
+    }
+    
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    
+    for (const count of freq.values()) {
+        if (isPrime[count]) {
+            return true;
+        }
+    }
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log log n + n) = O(n log log n) for sieve + counting
+- Space: O(n) for the sieve array and hash map
+- Notes: Best for large inputs with many unique frequencies, but uses more memory.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Any Element Has Prime Frequency Solutions","datePublished":"2026-01-16","description":"Determine if any element in an array appears a prime number of times.","keywords":"LeetCode, Check if Any Element Has Prime Frequency, Easy, Array, Hash Table, Math, Counting, Number Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × √m) where n is the array length and m is the maximum frequency."}},{"@type":"Question","name":"What is the time complexity of the Sieve of Eratosthenes approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log log n) for building the sieve plus O(n) for counting frequencies."}},{"@type":"Question","name":"Which approach is best for large inputs?","acceptedAnswer":{"@type":"Answer","text":"The Sieve of Eratosthenes approach is best for large inputs with many unique frequencies, though it uses more memory."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,300 @@
+---
+title: "Reverse String II"
+summary: "Given a string s and an integer k, reverse the first k characters for every 2k characters."
+date: "Jan 02, 2025"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.70% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Given a string s and an integer k, reverse the first k characters for every 2k characters counting from the start of the string.
+
+If there are fewer than k characters left, reverse all of them. If there are less than 2k but greater than or equal to k characters, then reverse the first k characters and leave the others as original.
+
+- Examples
+- Constraints
+- [Iterative Approach](#iterative-approach)
+- [Two Pointers Approach](#two-pointers-approach)
+- [Built-in Reverse Approach](#built-in-reverse-approach)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+Explanation: 
+- Reverse first 2 chars: "ab" -> "ba"
+- Keep next 2 chars: "cd" -> "cd"
+- Reverse next 2 chars: "ef" -> "fe"
+- Keep remaining: "g" -> "g"
+Result: "bacdfeg"
+```
+
+### Example 2
+```text
+Input: s = "abcd", k = 2
+Output: "bacd"
+Explanation:
+- Reverse first 2 chars: "ab" -> "ba"
+- Keep remaining: "cd" -> "cd"
+Result: "bacd"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁴
+s consists of only lowercase English letters.
+1 <= k <= 10⁴
+```
+
+---
+## Iterative Approach
+
+**Intuition**
+Process the string in chunks of 2k, reversing the first k characters of each chunk using string slicing.
+
+**Steps**
+- Iterate through the string with step size 2k
+- For each chunk, reverse the first k characters using slicing
+- Append the reversed part and the remaining part to result
+- Join all parts and return
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        result = []
+        n = len(s)
+        for i in range(0, n, 2 * k):
+            chunk = s[i:i + k]
+            result.append(chunk[::-1])
+            result.append(s[i + k:i + 2 * k])
+        return ''.join(result)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseStr(String s, int k) {
+        StringBuilder result = new StringBuilder();
+        int n = s.length();
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            String reversed = new StringBuilder(s.substring(i, Math.min(i + k, n))).reverse().toString();
+            result.append(reversed);
+            result.append(s.substring(Math.min(i + k, n), Math.min(i + 2 * k, n)));
+        }
+        return result.toString();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string result = "";
+        int n = s.length();
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            string chunk = s.substr(i, k);
+            reverse(chunk.begin(), chunk.end());
+            result += chunk;
+            result += s.substr(i + k, k);
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseStr = function(s, k) {
+    let result = [];
+    let n = s.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let chunk = s.substring(i, i + k);
+        result.push(chunk.split('').reverse().join(''));
+        result.push(s.substring(i + k, i + 2 * k));
+    }
+    return result.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseStr(s: string, k: number): string {
+    let result: string[] = [];
+    let n: number = s.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let chunk: string = s.substring(i, i + k);
+        result.push(chunk.split('').reverse().join(''));
+        result.push(s.substring(i + k, i + 2 * k));
+    }
+    return result.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Simple and readable, uses extra space for result
+
+---
+## Two Pointers Approach
+
+**Intuition**
+Convert string to mutable array and use two pointers to reverse segments in-place for better space efficiency.
+
+**Steps**
+- Convert string to character array
+- Iterate with step 2k
+- For each segment, use two pointers to reverse the first k characters
+- Convert array back to string and return
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        chars = list(s)
+        n = len(chars)
+        for i in range(0, n, 2 * k):
+            left = i
+            right = min(i + k - 1, n - 1)
+            while left &lt; right:
+                chars[left], chars[right] = chars[right], chars[left]
+                left += 1
+                right -= 1
+        return ''.join(chars)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseStr(String s, int k) {
+        char[] chars = s.toCharArray();
+        int n = chars.length;
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            int left = i;
+            int right = Math.min(i + k - 1, n - 1);
+            while (left &lt; right) {
+                char temp = chars[left];
+                chars[left] = chars[right];
+                chars[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        return new String(chars);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int n = s.length();
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            int left = i;
+            int right = min(i + k - 1, n - 1);
+            while (left &lt; right) {
+                swap(s[left], s[right]);
+                left++;
+                right--;
+            }
+        }
+        return s;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseStr = function(s, k) {
+    let chars = s.split('');
+    let n = chars.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let left = i;
+        let right = Math.min(i + k - 1, n - 1);
+        while (left &lt; right) {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseStr(s: string, k: number): string {
+    let chars: string[] = s.split('');
+    let n: number = chars.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let left: number = i;
+        let right: number = Math.min(i + k - 1, n - 1);
+        while (left &lt; right) {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array (O(1) extra space for C++)
+- Notes: More efficient for languages with mutable strings
+
+---
+## Built-in Reverse Approach
+
+**Intuition**
+Leverage built-in reverse functions to simplify the code and improve readability.
+
+**Steps**
+- Iterate through the string with step 2k
+- Use built-in reverse to reverse the first k characters of each segment
+- Return the modified string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        s = list(s)
+        for i in range(0, len(s), 2 * k):
+            s[i:i + k] = reversed(s[i:i + k])
+        return ''.join(s)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseStr(String s, int k) {
+        StringBuilder sb = new StringBuilder(s);
+        int n = sb.length();
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            int left = i;
+            int right = Math.min(i + k, n);
+            sb.replace(left, right, sb.substring(left, right).reverse().toString());
+        }
+        return sb.toString();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int n = s.length();
+        for (int i = 0; i &lt; n; i += 2 * k) {
+            int end = min(i + k, n);
+            reverse(s.begin() + i, s.begin() + end);
+        }
+        return s;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseStr = function(s, k) {
+    let chars = s.split('');
+    let n = chars.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let end = Math.min(i + k, n);
+        let segment = chars.slice(i, end).reverse();
+        for (let j = 0; j &lt; segment.length; j++) {
+            chars[i + j] = segment[j];
+        }
+    }
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseStr(s: string, k: number): string {
+    let chars: string[] = s.split('');
+    let n: number = chars.length;
+    for (let i = 0; i &lt; n; i += 2 * k) {
+        let end: number = Math.min(i + k, n);
+        let segment: string[] = chars.slice(i, end).reverse();
+        for (let j = 0; j &lt; segment.length; j++) {
+            chars[i + j] = segment[j];
+        }
+    }
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array
+- Notes: Cleanest code using language built-ins
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse String II Solutions","datePublished":"2025-01-02","description":"Given a string s and an integer k, reverse the first k characters for every 2k characters.","keywords":"LeetCode, Reverse String II, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we process each character exactly once."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers Approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the character array in most languages, but O(1) extra space for C++ since strings are mutable."}},{"@type":"Question","name":"What is the time complexity of the Built-in Reverse Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as the built-in reverse function operates in linear time."}}]}).replace(/</g,'\u003c')}
+</script>

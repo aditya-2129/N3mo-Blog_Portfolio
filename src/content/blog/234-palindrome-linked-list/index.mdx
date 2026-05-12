@@ -1,0 +1,151 @@
+---
+title: "Palindrome Linked List"
+summary: "Given the head of a singly linked list, return true if it is a palindrome or false otherwise."
+date: "May 12, 2026"
+tags:
+  - Linked List
+  - Two Pointers
+  - Stack
+  - Recursion
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.90% | **Paid:** No
+> **Topics:** Linked List, Two Pointers, Stack, Recursion
+
+Given the head of a singly linked list, return true if it is a palindrome or false otherwise.
+
+Could you do it in O(n) time and O(1) space?
+
+- Examples
+- Constraints
+- [Approach 1: Copy to Array](#approach-1-copy-to-array)
+- [Approach 2: Stack](#approach-2-stack)
+- [Approach 3: Recursion](#approach-3-recursion)
+- [Approach 4: Reverse Second Half](#approach-4-reverse-second-half)
+
+## Examples
+
+Example 1:
+```text
+Input: head = [1,2,2,1]
+Output: true
+```
+
+Example 2:
+```text
+Input: head = [1,2]
+Output: false
+```
+
+## Constraints
+
+```text
+The number of nodes in the list is in the range [1, 10⁵].
+0 <= Node.val <= 9
+```
+
+---
+## Approach 1: Copy to Array
+
+**Intuition**
+Copy all the values from the linked list into an array. Checking if an array is a palindrome is straightforward using two pointers.
+
+**Steps**
+- Initialize an empty list/array.
+- Traverse the linked list, appending each node's value to the array.
+- Use two pointers (one at the start, one at the end) to compare values moving towards the center.
+- If any pair doesn't match, return false. Otherwise, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import Optional\n\n# Definition for singly-linked list.\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\nclass Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -&gt; bool:\n        vals = []\n        current_node = head\n        while current_node is not None:\n            vals.append(current_node.val)\n            current_node = current_node.next\n        return vals == vals[::-1]" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\n/**\n * Definition for singly-linked list.\n * public class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode() {}\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public boolean isPalindrome(ListNode head) {\n        List&lt;Integer&gt; vals = new ArrayList&lt;&gt;();\n        ListNode currentNode = head;\n        while (currentNode != null) {\n            vals.add(currentNode.val);\n            currentNode = currentNode.next;\n        }\n        int left = 0;\n        int right = vals.size() - 1;\n        while (left &lt; right) {\n            if (!vals.get(left).equals(vals.get(right))) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    bool isPalindrome(ListNode* head) {\n        vector&lt;int&gt; vals;\n        ListNode* currentNode = head;\n        while (currentNode != nullptr) {\n            vals.push_back(currentNode-&gt;val);\n            currentNode = currentNode-&gt;next;\n        }\n        int left = 0;\n        int right = vals.size() - 1;\n        while (left &lt; right) {\n            if (vals[left] != vals[right]) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar isPalindrome = function(head) {\n    const vals = [];\n    let currentNode = head;\n    while (currentNode !== null) {\n        vals.push(currentNode.val);\n        currentNode = currentNode.next;\n    }\n    let left = 0;\n    let right = vals.length - 1;\n    while (left &lt; right) {\n        if (vals[left] !== vals[right]) {\n            return false;\n        }\n        left++;\n        right--;\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction isPalindrome(head: ListNode | null): boolean {\n    const vals: number[] = [];\n    let currentNode: ListNode | null = head;\n    while (currentNode !== null) {\n        vals.push(currentNode.val);\n        currentNode = currentNode.next;\n    }\n    let left = 0;\n    let right = vals.length - 1;\n    while (left &lt; right) {\n        if (vals[left] !== vals[right]) {\n            return false;\n        }\n        left++;\n        right--;\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Requires extra space proportional to the list size.
+
+---
+## Approach 2: Stack
+
+**Intuition**
+Use a stack to reverse the order of elements. Traverse the list once to push values onto the stack, then traverse again to compare with popped values (which are in reverse order).
+
+**Steps**
+- Initialize an empty stack.
+- Traverse the linked list, pushing each node's value onto the stack.
+- Traverse the linked list again. For each node, pop a value from the stack and compare it with the node's value.
+- If any mismatch occurs, return false. If the loop finishes, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import Optional\n\n# Definition for singly-linked list.\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\nclass Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -&gt; bool:\n        stack = []\n        current_node = head\n        while current_node is not None:\n            stack.append(current_node.val)\n            current_node = current_node.next\n        \n        current_node = head\n        while current_node is not None:\n            if current_node.val != stack.pop():\n                return False\n            current_node = current_node.next\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\n/**\n * Definition for singly-linked list.\n * public class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode() {}\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public boolean isPalindrome(ListNode head) {\n        Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();\n        ListNode currentNode = head;\n        while (currentNode != null) {\n            stack.push(currentNode.val);\n            currentNode = currentNode.next;\n        }\n        \n        currentNode = head;\n        while (currentNode != null) {\n            if (currentNode.val != stack.pop()) {\n                return false;\n            }\n            currentNode = currentNode.next;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    bool isPalindrome(ListNode* head) {\n        stack&lt;int&gt; stk;\n        ListNode* currentNode = head;\n        while (currentNode != nullptr) {\n            stk.push(currentNode-&gt;val);\n            currentNode = currentNode-&gt;next;\n        }\n        \n        currentNode = head;\n        while (currentNode != nullptr) {\n            if (currentNode-&gt;val != stk.top()) {\n                return false;\n            }\n            stk.pop();\n            currentNode = currentNode-&gt;next;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar isPalindrome = function(head) {\n    const stack = [];\n    let currentNode = head;\n    while (currentNode !== null) {\n        stack.push(currentNode.val);\n        currentNode = currentNode.next;\n    }\n    \n    currentNode = head;\n    while (currentNode !== null) {\n        if (currentNode.val !== stack.pop()) {\n            return false;\n        }\n        currentNode = currentNode.next;\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction isPalindrome(head: ListNode | null): boolean {\n    const stack: number[] = [];\n    let currentNode: ListNode | null = head;\n    while (currentNode !== null) {\n        stack.push(currentNode.val);\n        currentNode = currentNode.next;\n    }\n    \n    currentNode = head;\n    while (currentNode !== null) {\n        if (currentNode.val !== stack.pop()) {\n            return false;\n        }\n        currentNode = currentNode.next;\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses stack memory proportional to the list size.
+
+---
+## Approach 3: Recursion
+
+**Intuition**
+Use the system's call stack to simulate the reversal process. Recurse to the end of the list, and as the recursion unwinds, compare the current node with the front node moving forward.
+
+**Steps**
+- Maintain a global or class-level pointer to the head of the list (front pointer).
+- Define a recursive function that takes a node.
+- Recursively call the function until the end of the list is reached.
+- On the way back (unwinding), compare the current node's value with the front pointer's value.
+- Advance the front pointer. Return true if all comparisons match.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import Optional\n\n# Definition for singly-linked list.\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\nclass Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -&gt; bool:\n        self.front_pointer = head\n        \n        def recursively_check(current_node):\n            if current_node is not None:\n                if not recursively_check(current_node.next):\n                    return False\n                if current_node.val != self.front_pointer.val:\n                    return False\n                self.front_pointer = self.front_pointer.next\n            return True\n        \n        return recursively_check(head)" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for singly-linked list.\n * public class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode() {}\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    private ListNode frontPointer;\n\n    private boolean recursivelyCheck(ListNode currentNode) {\n        if (currentNode != null) {\n            if (!recursivelyCheck(currentNode.next)) return false;\n            if (currentNode.val != frontPointer.val) return false;\n            frontPointer = frontPointer.next;\n        }\n        return true;\n    }\n\n    public boolean isPalindrome(ListNode head) {\n        frontPointer = head;\n        return recursivelyCheck(head);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\nprivate:\n    ListNode* frontPointer;\n\n    bool recursivelyCheck(ListNode* currentNode) {\n        if (currentNode != nullptr) {\n            if (!recursivelyCheck(currentNode-&gt;next)) return false;\n            if (currentNode-&gt;val != frontPointer-&gt;val) return false;\n            frontPointer = frontPointer-&gt;next;\n        }\n        return true;\n    }\npublic:\n    bool isPalindrome(ListNode* head) {\n        frontPointer = head;\n        return recursivelyCheck(head);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar isPalindrome = function(head) {\n    let frontPointer;\n    \n    function recursivelyCheck(currentNode) {\n        if (currentNode !== null) {\n            if (!recursivelyCheck(currentNode.next)) return false;\n            if (currentNode.val !== frontPointer.val) return false;\n            frontPointer = frontPointer.next;\n        }\n        return true;\n    }\n    \n    frontPointer = head;\n    return recursivelyCheck(head);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction isPalindrome(head: ListNode | null): boolean {\n    let frontPointer: ListNode | null;\n    \n    function recursivelyCheck(currentNode: ListNode | null): boolean {\n        if (currentNode !== null) {\n            if (!recursivelyCheck(currentNode.next)) return false;\n            if (currentNode.val !== frontPointer.val) return false;\n            frontPointer = frontPointer.next;\n        }\n        return true;\n    }\n    \n    frontPointer = head;\n    return recursivelyCheck(head);\n};" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses implicit stack space due to recursion depth.
+
+---
+## Approach 4: Reverse Second Half
+
+**Intuition**
+Optimize space to O(1) by reversing the second half of the linked list in place. Then compare the first half with the reversed second half.
+
+**Steps**
+- Find the end of the first half using the slow/fast pointer technique.
+- Reverse the second half of the list.
+- Compare the first half and the reversed second half node by node.
+- (Optional) Reverse the second half again to restore the original list structure.
+- Return the result of the comparison.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import Optional\n\n# Definition for singly-linked list.\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\nclass Solution:\n    def isPalindrome(self, head: Optional[ListNode]) -&gt; bool:\n        if head is None:\n            return True\n        \n        # Find the end of the first half\n        first_half_end = self.end_of_first_half(head)\n        # Reverse the second half\n        second_half_start = self.reverse_list(first_half_end.next)\n        \n        # Check whether or not it is a palindrome\n        p1 = head\n        p2 = second_half_start\n        result = True\n        while result and p2 is not None:\n            if p1.val != p2.val:\n                result = False\n            p1 = p1.next\n            p2 = p2.next\n        \n        # Restore the list (optional)\n        first_half_end.next = self.reverse_list(second_half_start)\n        return result\n    \n    def end_of_first_half(self, head):\n        fast = head\n        slow = head\n        while fast.next is not None and fast.next.next is not None:\n            fast = fast.next.next\n            slow = slow.next\n        return slow\n    \n    def reverse_list(self, head):\n        prev = None\n        curr = head\n        while curr is not None:\n            next_temp = curr.next\n            curr.next = prev\n            prev = curr\n            curr = next_temp\n        return prev" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for singly-linked list.\n * public class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode() {}\n *     ListNode(int val) { this.val = val; }\n *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public boolean isPalindrome(ListNode head) {\n        if (head == null) return true;\n        \n        // Find the end of the first half\n        ListNode firstHalfEnd = endOfFirstHalf(head);\n        // Reverse the second half\n        ListNode secondHalfStart = reverseList(firstHalfEnd.next);\n        \n        // Check whether or not it is a palindrome\n        ListNode p1 = head;\n        ListNode p2 = secondHalfStart;\n        boolean result = true;\n        while (result && p2 != null) {\n            if (p1.val != p2.val) result = false;\n            p1 = p1.next;\n            p2 = p2.next;\n        }\n        \n        // Restore the list (optional)\n        firstHalfEnd.next = reverseList(secondHalfStart);\n        return result;\n    }\n    \n    private ListNode endOfFirstHalf(ListNode head) {\n        ListNode fast = head;\n        ListNode slow = head;\n        while (fast.next != null && fast.next.next != null) {\n            fast = fast.next.next;\n            slow = slow.next;\n        }\n        return slow;\n    }\n    \n    private ListNode reverseList(ListNode head) {\n        ListNode prev = null;\n        ListNode curr = head;\n        while (curr != null) {\n            ListNode nextTemp = curr.next;\n            curr.next = prev;\n            prev = curr;\n            curr = nextTemp;\n        }\n        return prev;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    bool isPalindrome(ListNode* head) {\n        if (head == nullptr) return true;\n        \n        // Find the end of the first half\n        ListNode* firstHalfEnd = endOfFirstHalf(head);\n        // Reverse the second half\n        ListNode* secondHalfStart = reverseList(firstHalfEnd-&gt;next);\n        \n        // Check whether or not it is a palindrome\n        ListNode* p1 = head;\n        ListNode* p2 = secondHalfStart;\n        bool result = true;\n        while (result && p2 != nullptr) {\n            if (p1-&gt;val != p2-&gt;val) result = false;\n            p1 = p1-&gt;next;\n            p2 = p2-&gt;next;\n        }\n        \n        // Restore the list (optional)\n        firstHalfEnd-&gt;next = reverseList(secondHalfStart);\n        return result;\n    }\n    \nprivate:\n    ListNode* endOfFirstHalf(ListNode* head) {\n        ListNode* fast = head;\n        ListNode* slow = head;\n        while (fast-&gt;next != nullptr && fast-&gt;next-&gt;next != nullptr) {\n            fast = fast-&gt;next-&gt;next;\n            slow = slow-&gt;next;\n        }\n        return slow;\n    }\n    \n    ListNode* reverseList(ListNode* head) {\n        ListNode* prev = nullptr;\n        ListNode* curr = head;\n        while (curr != nullptr) {\n            ListNode* nextTemp = curr-&gt;next;\n            curr-&gt;next = prev;\n            prev = curr;\n            curr = nextTemp;\n        }\n        return prev;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.next = (next===undefined ? null : next)\n * }\n */\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar isPalindrome = function(head) {\n    if (head === null) return true;\n    \n    // Find the end of the first half\n    const firstHalfEnd = endOfFirstHalf(head);\n    // Reverse the second half\n    const secondHalfStart = reverseList(firstHalfEnd.next);\n    \n    // Check whether or not it is a palindrome\n    let p1 = head;\n    let p2 = secondHalfStart;\n    let result = true;\n    while (result && p2 !== null) {\n        if (p1.val !== p2.val) result = false;\n        p1 = p1.next;\n        p2 = p2.next;\n    }\n    \n    // Restore the list (optional)\n    firstHalfEnd.next = reverseList(secondHalfStart);\n    return result;\n};\n\nfunction endOfFirstHalf(head) {\n    let fast = head;\n    let slow = head;\n    while (fast.next !== null && fast.next.next !== null) {\n        fast = fast.next.next;\n        slow = slow.next;\n    }\n    return slow;\n}\n\nfunction reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr !== null) {\n        const nextTemp = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nextTemp;\n    }\n    return prev;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction isPalindrome(head: ListNode | null): boolean {\n    if (head === null) return true;\n    \n    // Find the end of the first half\n    const firstHalfEnd: ListNode = endOfFirstHalf(head);\n    // Reverse the second half\n    const secondHalfStart: ListNode | null = reverseList(firstHalfEnd.next);\n    \n    // Check whether or not it is a palindrome\n    let p1: ListNode | null = head;\n    let p2: ListNode | null = secondHalfStart;\n    let result: boolean = true;\n    while (result && p2 !== null) {\n        if (p1.val !== p2.val) result = false;\n        p1 = p1.next;\n        p2 = p2.next;\n    }\n    \n    // Restore the list (optional)\n    firstHalfEnd.next = reverseList(secondHalfStart);\n    return result;\n};\n\nfunction endOfFirstHalf(head: ListNode): ListNode {\n    let fast: ListNode | null = head;\n    let slow: ListNode = head;\n    while (fast.next !== null && fast.next.next !== null) {\n        fast = fast.next.next;\n        slow = slow.next;\n    }\n    return slow;\n}\n\nfunction reverseList(head: ListNode | null): ListNode | null {\n    let prev: ListNode | null = null;\n    let curr: ListNode | null = head;\n    while (curr !== null) {\n        const nextTemp: ListNode | null = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nextTemp;\n    }\n    return prev;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Modifies the list in place but uses constant extra space.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Palindrome Linked List Solutions","datePublished":"2026-05-12","description":"Given the head of a singly linked list, return true if it is a palindrome or false otherwise.","keywords":"LeetCode, Palindrome Linked List, Easy, Linked List, Two Pointers, Stack, Recursion"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Copy to Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we traverse the list twice."}},{"@type":"Question","name":"What is the space complexity of the Reverse Second Half approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we reverse the list in place without using extra data structures."}},{"@type":"Question","name":"Does the Recursion approach use extra space?","acceptedAnswer":{"@type":"Answer","text":"Yes, the Recursion approach uses O(n) space due to the recursion stack."}}]}).replace(/</g,'\u003c')}
+</script>

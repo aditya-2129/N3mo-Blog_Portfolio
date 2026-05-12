@@ -1,0 +1,135 @@
+---
+title: "Buy Two Chocolates"
+summary: "Given an array of chocolate prices and money, find the leftover money after buying the two cheapest chocolates, or return the original money if not possible."
+date: "Oct 23, 2025"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.30% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting
+
+You are given an integer array prices representing the prices of chocolates in a store. You are also given an integer money representing the amount of money you have.
+
+You would like to buy two chocolates to maximize the amount of money you have left. Return the amount of money you will have leftover after buying the two chocolates. If you cannot afford two chocolates, return money.
+
+Note that you must buy two chocolates.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sorting](#approach-2-sorting)
+- [Approach 3: Single Pass](#approach-3-single-pass)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: prices = [1,2,2], money = 3
+Output: 0
+Explanation: You can buy chocolates at indices 1 and 2 with a total cost of 2. 
+Your leftover money is 3 - 2 = 0.
+```
+
+**Example 2:**
+
+```text
+Input: prices = [3,2,3], money = 3
+Output: 3
+Explanation: You cannot buy two chocolates without going over your budget, so you return 3.
+```
+
+## Constraints
+
+```text
+2 <= prices.length <= 50
+1 <= prices[i] <= 100
+1 <= money <= 100
+```
+
+---
+
+## Approach 1: Brute Force
+
+**Intuition**
+Check every possible pair of chocolates to find the minimum cost that is less than or equal to the available money.
+
+**Steps**
+- Initialize `min_cost` to infinity.
+- Iterate through the array with two nested loops to consider every pair `(i, j)` where `i &lt; j`.
+- Calculate the sum of the pair.
+- If the sum is less than or equal to `money` and less than the current `min_cost`, update `min_cost`.
+- If `min_cost` was updated (meaning a valid pair was found), return `money - min_cost`. Otherwise, return `money`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def buyChoco(self, prices: List[int], money: int) -&gt; int:\r\n        min_cost = float('inf')\r\n        n = len(prices)\r\n        for i in range(n):\r\n            for j in range(i + 1, n):\r\n                current_cost = prices[i] + prices[j]\r\n                if current_cost &lt;= money and current_cost &lt; min_cost:\r\n                    min_cost = current_cost\r\n        \r\n        if min_cost != float('inf'):\r\n            return money - min_cost\r\n        return money" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int buyChoco(int[] prices, int money) {\r\n        int minCost = Integer.MAX_VALUE;\r\n        int n = prices.length;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            for (int j = i + 1; j &lt; n; j++) {\r\n                int currentCost = prices[i] + prices[j];\r\n                if (currentCost &lt;= money && currentCost &lt; minCost) {\r\n                    minCost = currentCost;\r\n                }\r\n            }\r\n        }\r\n        return minCost != Integer.MAX_VALUE ? money - minCost : money;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;climits&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int buyChoco(vector&lt;int&gt;& prices, int money) {\r\n        int minCost = INT_MAX;\r\n        int n = prices.size();\r\n        for (int i = 0; i &lt; n; i++) {\r\n            for (int j = i + 1; j &lt; n; j++) {\r\n                int currentCost = prices[i] + prices[j];\r\n                if (currentCost &lt;= money && currentCost &lt; minCost) {\r\n                    minCost = currentCost;\r\n                }\r\n            }\r\n        }\r\n        return minCost != INT_MAX ? money - minCost : money;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var buyChoco = function(prices, money) {\r\n    let minCost = Infinity;\r\n    const n = prices.length;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = i + 1; j &lt; n; j++) {\r\n            const currentCost = prices[i] + prices[j];\r\n            if (currentCost &lt;= money && currentCost &lt; minCost) {\r\n                minCost = currentCost;\r\n            }\r\n        }\r\n    }\r\n    return minCost !== Infinity ? money - minCost : money;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function buyChoco(prices: number[], money: number): number {\r\n    let minCost: number = Infinity;\r\n    const n: number = prices.length;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = i + 1; j &lt; n; j++) {\r\n            const currentCost: number = prices[i] + prices[j];\r\n            if (currentCost &lt;= money && currentCost &lt; minCost) {\r\n                minCost = currentCost;\r\n            }\r\n        }\r\n    }\r\n    return minCost !== Infinity ? money - minCost : money;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the number of chocolates.
+- Space: O(1)
+- Notes: Simple but inefficient for large inputs.
+
+## Approach 2: Sorting
+
+**Intuition**
+The two cheapest chocolates will be the first two elements if the array is sorted in ascending order.
+
+**Steps**
+- Sort the `prices` array in ascending order.
+- Calculate the sum of the first two elements (`prices[0] + prices[1]`).
+- If the sum is less than or equal to `money`, return `money - sum`.
+- Otherwise, return `money`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def buyChoco(self, prices: List[int], money: int) -&gt; int:\r\n        prices.sort()\r\n        total_cost = prices[0] + prices[1]\r\n        if total_cost &lt;= money:\r\n            return money - total_cost\r\n        return money" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\r\n\r\nclass Solution {\r\n    public int buyChoco(int[] prices, int money) {\r\n        Arrays.sort(prices);\r\n        int totalCost = prices[0] + prices[1];\r\n        if (totalCost &lt;= money) {\r\n            return money - totalCost;\r\n        }\r\n        return money;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int buyChoco(vector&lt;int&gt;& prices, int money) {\r\n        sort(prices.begin(), prices.end());\r\n        int totalCost = prices[0] + prices[1];\r\n        if (totalCost &lt;= money) {\r\n            return money - totalCost;\r\n        }\r\n        return money;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var buyChoco = function(prices, money) {\r\n    prices.sort((a, b) =&gt; a - b);\r\n    const totalCost = prices[0] + prices[1];\r\n    if (totalCost &lt;= money) {\r\n        return money - totalCost;\r\n    }\r\n    return money;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function buyChoco(prices: number[], money: number): number {\r\n    prices.sort((a, b) =&gt; a - b);\r\n    const totalCost: number = prices[0] + prices[1];\r\n    if (totalCost &lt;= money) {\r\n        return money - totalCost;\r\n    }\r\n    return money;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(1) or O(n) depending on the sorting algorithm's implementation.
+- Notes: More efficient than brute force, but sorting is not strictly necessary since we only need the two smallest values.
+
+## Approach 3: Single Pass
+
+**Intuition**
+We can find the two smallest values in a single iteration without sorting the entire array.
+
+**Steps**
+- Initialize two variables, `min1` and `min2`, to infinity (or a very large number).
+- Iterate through each price in the array:
+    - If the current price is less than `min1`, update `min2` to be `min1`, and then update `min1` to be the current price.
+    - Else if the current price is less than `min2`, update `min2` to be the current price.
+- After the loop, calculate the sum of `min1` and `min2`.
+- If the sum is less than or equal to `money`, return `money - sum`.
+- Otherwise, return `money`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def buyChoco(self, prices: List[int], money: int) -&gt; int:\r\n        min1 = float('inf')\r\n        min2 = float('inf')\r\n        for p in prices:\r\n            if p &lt; min1:\r\n                min2 = min1\r\n                min1 = p\r\n            elif p &lt; min2:\r\n                min2 = p\r\n        total_cost = min1 + min2\r\n        if total_cost &lt;= money:\r\n            return money - total_cost\r\n        return money" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int buyChoco(int[] prices, int money) {\r\n        int min1 = Integer.MAX_VALUE;\r\n        int min2 = Integer.MAX_VALUE;\r\n        for (int p : prices) {\r\n            if (p &lt; min1) {\r\n                min2 = min1;\r\n                min1 = p;\r\n            } else if (p &lt; min2) {\r\n                min2 = p;\r\n            }\r\n        }\r\n        int totalCost = min1 + min2;\r\n        if (totalCost &lt;= money) {\r\n            return money - totalCost;\r\n        }\r\n        return money;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;climits&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int buyChoco(vector&lt;int&gt;& prices, int money) {\r\n        int min1 = INT_MAX;\r\n        int min2 = INT_MAX;\r\n        for (int p : prices) {\r\n            if (p &lt; min1) {\r\n                min2 = min1;\r\n                min1 = p;\r\n            } else if (p &lt; min2) {\r\n                min2 = p;\r\n            }\r\n        }\r\n        int totalCost = min1 + min2;\r\n        if (totalCost &lt;= money) {\r\n            return money - totalCost;\r\n        }\r\n        return money;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var buyChoco = function(prices, money) {\r\n    let min1 = Infinity;\r\n    let min2 = Infinity;\r\n    for (let p of prices) {\r\n        if (p &lt; min1) {\r\n            min2 = min1;\r\n            min1 = p;\r\n        } else if (p &lt; min2) {\r\n            min2 = p;\r\n        }\r\n    }\r\n    const totalCost = min1 + min2;\r\n    if (totalCost &lt;= money) {\r\n        return money - totalCost;\r\n    }\r\n    return money;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function buyChoco(prices: number[], money: number): number {\r\n    let min1: number = Infinity;\r\n    let min2: number = Infinity;\r\n    for (let p of prices) {\r\n        if (p &lt; min1) {\r\n            min2 = min1;\r\n            min1 = p;\r\n        } else if (p &lt; min2) {\r\n            min2 = p;\r\n        }\r\n    }\r\n    const totalCost: number = min1 + min2;\r\n    if (totalCost &lt;= money) {\r\n        return money - totalCost;\r\n    }\r\n    return money;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of chocolates.
+- Space: O(1)
+- Notes: This is the optimal approach as it requires only one pass through the array and constant extra space.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Buy Two Chocolates Solutions","datePublished":"2025-10-23","description":"Given an array of chocolate prices and money, find the leftover money after buying the two cheapest chocolates, or return the original money if not possible.","keywords":"LeetCode, Buy Two Chocolates, Easy, Array, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the number of chocolates, as we check every pair."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we iterate through the array once to find the two smallest prices."}}]}).replace(/</g,'\u003c')}
+</script>

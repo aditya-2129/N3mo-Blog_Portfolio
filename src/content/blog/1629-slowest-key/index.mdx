@@ -1,0 +1,129 @@
+---
+title: "Slowest Key"
+summary: "Determine the key with the longest duration from release times and key pressed sequence, returning the lexicographically largest key on ties."
+date: "Sep 24, 2025"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.60% | **Paid:** No
+> **Topics:** Array, String
+
+A newly designed keypad was tested, where a tester pressed a sequence of n keys, one at a time.
+
+You are given a string keysPressed of length n, where keysPressed[i] was the ith key pressed, and a list releaseTimes, where releaseTimes[i] was the time the ith key was released. Both arrays are 0-indexed. The 0th key was pressed at the time 0, and every subsequent key was pressed at the exact time the previous key was released.
+
+The duration of the ith keypress is releaseTimes[i] - releaseTimes[i - 1], and the 0th keypress has a duration of releaseTimes[0].
+
+Note that the 0th key was pressed at time 0, so its duration is simply releaseTimes[0].
+
+Return the key of the keypress that had the longest duration. If there are multiple such keypresses, return the lexicographically largest key.
+
+- Examples
+- Constraints
+- [Single Pass Iteration](#single-pass-iteration)
+- [Pre-calculation & Comparison](#pre-calculation-comparison)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: releaseTimes = [9,29,49,50], keysPressed = "cbcd"
+Output: "c"
+Explanation: The keypresses were as follows:
+Keypress for 'c' had a duration of 9 (pressed at time 0 and released at time 9).
+Keypress for 'b' had a duration of 29 - 9 = 20 (pressed at time 9 right after the release of the previous character and released at time 29).
+Keypress for 'c' had a duration of 49 - 29 = 20 (pressed at time 29 right after the release of the previous character and released at time 49).
+Keypress for 'd' had a duration of 50 - 49 = 1 (pressed at time 49 right after the release of the previous character and released at time 50).
+The longest of these was 20, performed by keys 'b' and 'c'. The lexicographically largest key is 'c'.
+```
+
+**Example 2:**
+
+```text
+Input: releaseTimes = [12,23,36,46,62], keysPressed = "spuda"
+Output: "a"
+Explanation: The keypresses were as follows:
+Keypress for 's' had a duration of 12.
+Keypress for 'p' had a duration of 23 - 12 = 11.
+Keypress for 'u' had a duration of 36 - 23 = 13.
+Keypress for 'd' had a duration of 46 - 36 = 10.
+Keypress for 'a' had a duration of 62 - 46 = 16.
+The longest of these was 16, performed by key 'a'.
+```
+
+## Constraints
+
+```text
+2 <= releaseTimes.length <= 1000
+1 <= releaseTimes[i] <= 10⁹
+releaseTimes and keysPressed have the same length.
+releaseTimes is strictly increasing.
+keysPressed consists of lowercase English letters.
+```
+
+---
+## Single Pass Iteration
+
+**Intuition**
+We can iterate through the arrays once, calculating the duration of each keypress on the fly by comparing the current release time with the previous one. We keep track of the maximum duration found so far and the corresponding key, updating the result whenever we find a longer duration or a lexicographically larger key in case of a tie.
+
+**Steps**
+- Initialize `max_duration` with `releaseTimes[0]` and `result` with `keysPressed[0]`.
+- Iterate from index 1 to the end of the arrays.
+- Calculate `current_duration` as `releaseTimes[i] - releaseTimes[i-1]`.
+- If `current_duration` is greater than `max_duration`, update `max_duration` and set `result` to the current key.
+- If `current_duration` equals `max_duration`, check if the current key is lexicographically larger than `result`. If so, update `result`.
+- Return `result` after the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def slowestKey(self, releaseTimes: list[int], keysPressed: str) -&gt; str:\n        max_dur = releaseTimes[0]\n        res = keysPressed[0]\n        \n        for i in range(1, len(releaseTimes)):\n            dur = releaseTimes[i] - releaseTimes[i-1]\n            if dur &gt; max_dur or (dur == max_dur and keysPressed[i] &gt; res):\n                max_dur = dur\n                res = keysPressed[i]\n                \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public char slowestKey(int[] releaseTimes, String keysPressed) {\n        int maxDur = releaseTimes[0];\n        char res = keysPressed.charAt(0);\n        \n        for (int i = 1; i &lt; releaseTimes.length; i++) {\n            int dur = releaseTimes[i] - releaseTimes[i - 1];\n            if (dur &gt; maxDur || (dur == maxDur && keysPressed.charAt(i) &gt; res)) {\n                maxDur = dur;\n                res = keysPressed.charAt(i);\n            }\n        }\n        \n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    char slowestKey(vector&lt;int&gt;& releaseTimes, string keysPressed) {\n        int maxDur = releaseTimes[0];\n        char res = keysPressed[0];\n        \n        for (int i = 1; i &lt; releaseTimes.size(); i++) {\n            int dur = releaseTimes[i] - releaseTimes[i - 1];\n            if (dur &gt; maxDur || (dur == maxDur && keysPressed[i] &gt; res)) {\n                maxDur = dur;\n                res = keysPressed[i];\n            }\n        }\n        \n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var slowestKey = function(releaseTimes, keysPressed) {\n    let maxDur = releaseTimes[0];\n    let res = keysPressed[0];\n    \n    for (let i = 1; i &lt; releaseTimes.length; i++) {\n        let dur = releaseTimes[i] - releaseTimes[i - 1];\n        if (dur &gt; maxDur || (dur === maxDur && keysPressed[i] &gt; res)) {\n            maxDur = dur;\n            res = keysPressed[i];\n        }\n    }\n    \n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function slowestKey(releaseTimes: number[], keysPressed: string): string {\n    let maxDur = releaseTimes[0];\n    let res = keysPressed[0];\n    \n    for (let i = 1; i &lt; releaseTimes.length; i++) {\n        let dur = releaseTimes[i] - releaseTimes[i - 1];\n        if (dur &gt; maxDur || (dur === maxDur && keysPressed[i] &gt; res)) {\n            maxDur = dur;\n            res = keysPressed[i];\n        }\n    }\n    \n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the array. We traverse the array exactly once.
+- Space: O(1), we only use a few variables for storage.
+- Notes: This is the most optimal approach as it minimizes both time and space complexity.
+
+---
+## Pre-calculation & Comparison
+
+**Intuition**
+We can separate the logic into two distinct phases: first, calculate the duration for every single keypress and store them in a new array; second, iterate through this new array to find the maximum duration and the corresponding key. This approach is more verbose but clearly separates the calculation from the comparison logic.
+
+**Steps**
+- Create a new array `durations` of the same length as `releaseTimes`.
+- Set `durations[0]` to `releaseTimes[0]`.
+- Iterate from index 1 to n-1, calculating `durations[i]` as `releaseTimes[i] - releaseTimes[i-1]`.
+- Initialize `max_duration` to 0 and `result` to an empty character.
+- Iterate through the `durations` array.
+- If `durations[i]` is greater than `max_duration`, update `max_duration` and `result`.
+- If `durations[i]` equals `max_duration` and `keysPressed[i]` is lexicographically larger than `result`, update `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def slowestKey(self, releaseTimes: list[int], keysPressed: str) -&gt; str:\n        n = len(releaseTimes)\n        durations = [0] * n\n        durations[0] = releaseTimes[0]\n        \n        for i in range(1, n):\n            durations[i] = releaseTimes[i] - releaseTimes[i-1]\n            \n        max_dur = -1\n        res = ''\n        \n        for i in range(n):\n            if durations[i] &gt; max_dur or (durations[i] == max_dur and keysPressed[i] &gt; res):\n                max_dur = durations[i]\n                res = keysPressed[i]\n                \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public char slowestKey(int[] releaseTimes, String keysPressed) {\n        int n = releaseTimes.length;\n        int[] durations = new int[n];\n        durations[0] = releaseTimes[0];\n        \n        for (int i = 1; i &lt; n; i++) {\n            durations[i] = releaseTimes[i] - releaseTimes[i - 1];\n        }\n        \n        int maxDur = -1;\n        char res = ' ';\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (durations[i] &gt; maxDur || (durations[i] == maxDur && keysPressed.charAt(i) &gt; res)) {\n                maxDur = durations[i];\n                res = keysPressed.charAt(i);\n            }\n        }\n        \n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    char slowestKey(vector&lt;int&gt;& releaseTimes, string keysPressed) {\n        int n = releaseTimes.size();\n        vector&lt;int&gt; durations(n);\n        durations[0] = releaseTimes[0];\n        \n        for (int i = 1; i &lt; n; i++) {\n            durations[i] = releaseTimes[i] - releaseTimes[i - 1];\n        }\n        \n        int maxDur = -1;\n        char res = ' ';\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (durations[i] &gt; maxDur || (durations[i] == maxDur && keysPressed[i] &gt; res)) {\n                maxDur = durations[i];\n                res = keysPressed[i];\n            }\n        }\n        \n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var slowestKey = function(releaseTimes, keysPressed) {\n    let n = releaseTimes.length;\n    let durations = new Array(n).fill(0);\n    durations[0] = releaseTimes[0];\n    \n    for (let i = 1; i &lt; n; i++) {\n        durations[i] = releaseTimes[i] - releaseTimes[i - 1];\n    }\n    \n    let maxDur = -1;\n    let res = '';\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (durations[i] &gt; maxDur || (durations[i] === maxDur && keysPressed[i] &gt; res)) {\n            maxDur = durations[i];\n            res = keysPressed[i];\n        }\n    }\n    \n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function slowestKey(releaseTimes: number[], keysPressed: string): string {\n    let n = releaseTimes.length;\n    let durations = new Array(n).fill(0);\n    durations[0] = releaseTimes[0];\n    \n    for (let i = 1; i &lt; n; i++) {\n        durations[i] = releaseTimes[i] - releaseTimes[i - 1];\n    }\n    \n    let maxDur = -1;\n    let res = '';\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (durations[i] &gt; maxDur || (durations[i] === maxDur && keysPressed[i] &gt; res)) {\n            maxDur = durations[i];\n            res = keysPressed[i];\n        }\n    }\n    \n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the array. We iterate through the array twice, which simplifies to O(n).
+- Space: O(n), to store the auxiliary `durations` array.
+- Notes: This approach uses extra space compared to the single pass method, which is unnecessary for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Slowest Key Solutions","datePublished":"2025-09-24","description":"Determine the key with the longest duration from release times and key pressed sequence, returning the lexicographically largest key on ties.","keywords":"LeetCode, Slowest Key, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the releaseTimes array."}},{"@type":"Question","name":"What is the space complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}},{"@type":"Question","name":"How are ties handled when multiple keys have the same longest duration?","acceptedAnswer":{"@type":"Answer","text":"If multiple keys have the same longest duration, the lexicographically largest key is returned."}}]}).replace(/</g,'\u003c')}
+</script>

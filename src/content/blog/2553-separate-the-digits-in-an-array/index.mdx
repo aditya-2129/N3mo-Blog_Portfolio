@@ -1,0 +1,512 @@
+---
+title: "Separate the Digits in an Array"
+summary: "Given an array of positive integers, return an array with each integer's digits separated in order."
+date: "Jan 06, 2026"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.90% | **Paid:** No
+> **Topics:** Array, Simulation
+
+Given an array of positive integers nums, return an array answer that consists of the digits of each integer in nums after separating them in the same order they appear in nums.
+
+- Examples
+- Constraints
+- [String Conversion](#string-conversion)
+- [Mathematical Extraction (Reverse)](#mathematical-extraction-reverse)
+- [Mathematical Extraction (Pre-calculate)](#mathematical-extraction-pre-calculate)
+- [Stack Approach](#stack-approach)
+
+## Examples
+
+### Example 1
+**Input:** nums = [13,25,83,77]
+**Output:** [1,3,2,5,8,3,7,7]
+**Explanation:** 
+- 13 is separated into [1, 3].
+- 25 is separated into [2, 5].
+- 83 is separated into [8, 3].
+- 77 is separated into [7, 7].
+- answer is concatenated as [1,3,2,5,8,3,7,7].
+
+### Example 2
+**Input:** nums = [7,1,3,9]
+**Output:** [7,1,3,9]
+**Explanation:** Each number in nums is a single digit, so no separation is needed.
+
+## Constraints
+
+```
+1 <= nums.length <= 1000
+1 <= nums[i] <= 10⁵
+```
+
+---
+## String Conversion
+
+**Intuition**
+Convert each number to a string and iterate through each character, converting back to integer.
+
+**Steps**
+- Initialize an empty result array
+- For each number in the input array:
+  - Convert the number to a string
+  - For each character in the string:
+    - Convert the character to an integer
+    - Add to the result array
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def separateDigits(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            for digit in str(num):
+                result.append(int(digit))
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] separateDigits(int[] nums) {
+        List<Integer> resultList = new ArrayList&lt;&gt;();
+        for (int num : nums) {
+            String s = String.valueOf(num);
+            for (char c : s.toCharArray()) {
+                resultList.add(c - '0');
+            }
+        }
+        int[] result = new int[resultList.size()];
+        for (int i = 0; i &lt; resultList.size(); i++) {
+            result[i] = resultList.get(i);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> result;
+        for (int num : nums) {
+            string s = to_string(num);
+            for (char c : s) {
+                result.push_back(c - '0');
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var separateDigits = function(nums) {
+    const result = [];
+    for (const num of nums) {
+        const s = String(num);
+        for (const c of s) {
+            result.push(parseInt(c));
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function separateDigits(nums: number[]): number[] {
+    const result: number[] = [];
+    for (const num of nums) {
+        const s = String(num);
+        for (const c of s) {
+            result.push(parseInt(c));
+        }
+    }
+    return result;
+}` }]} />
+
+**Complexity**
+- Time: O(n × d) where n is the number of elements and d is the average number of digits per element
+- Space: O(n × d) for the output array, plus O(d) for the string conversion of each element
+- Notes: Simple and readable, but involves string conversion overhead
+
+---
+## Mathematical Extraction (Reverse)
+
+**Intuition**
+Extract digits from right to left using modulo and division, store in a temporary array, then reverse to get the correct order.
+
+**Steps**
+- Initialize an empty result array
+- For each number in the input array:
+  - Initialize an empty temporary array
+  - While the number is greater than 0:
+    - Extract the last digit using modulo 10
+    - Add to the temporary array
+    - Divide the number by 10
+  - Reverse the temporary array
+  - Add all elements to the result array
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def separateDigits(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            temp = []
+            while num &gt; 0:
+                temp.append(num % 10)
+                num //= 10
+            result.extend(reversed(temp))
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] separateDigits(int[] nums) {
+        List<Integer> resultList = new ArrayList&lt;&gt;();
+        for (int num : nums) {
+            List<Integer> temp = new ArrayList&lt;&gt;();
+            while (num &gt; 0) {
+                temp.add(num % 10);
+                num /= 10;
+            }
+            for (int i = temp.size() - 1; i &gt;= 0; i--) {
+                resultList.add(temp.get(i));
+            }
+        }
+        int[] result = new int[resultList.size()];
+        for (int i = 0; i &lt; resultList.size(); i++) {
+            result[i] = resultList.get(i);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> result;
+        for (int num : nums) {
+            vector<int> temp;
+            while (num &gt; 0) {
+                temp.push_back(num % 10);
+                num /= 10;
+            }
+            reverse(temp.begin(), temp.end());
+            for (int digit : temp) {
+                result.push_back(digit);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var separateDigits = function(nums) {
+    const result = [];
+    for (const num of nums) {
+        const temp = [];
+        let n = num;
+        while (n &gt; 0) {
+            temp.push(n % 10);
+            n = Math.floor(n / 10);
+        }
+        for (let i = temp.length - 1; i &gt;= 0; i--) {
+            result.push(temp[i]);
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function separateDigits(nums: number[]): number[] {
+    const result: number[] = [];
+    for (const num of nums) {
+        const temp: number[] = [];
+        let n = num;
+        while (n &gt; 0) {
+            temp.push(n % 10);
+            n = Math.floor(n / 10);
+        }
+        for (let i = temp.length - 1; i &gt;= 0; i--) {
+            result.push(temp[i]);
+        }
+    }
+    return result;
+}` }]} />
+
+**Complexity**
+- Time: O(n × d) where n is the number of elements and d is the average number of digits per element
+- Space: O(n × d) for the output array, plus O(d) for the temporary array used to reverse digits
+- Notes: Pure mathematical approach without string conversion, but requires extra space for reversal
+
+---
+## Mathematical Extraction (Pre-calculate)
+
+**Intuition**
+Count the number of digits first, then extract digits from left to right by dividing by appropriate powers of 10.
+
+**Steps**
+- Initialize an empty result array
+- For each number in the input array:
+  - Count the number of digits
+  - Calculate the divisor as 10^(digits-1)
+  - While the divisor is greater than 0:
+    - Extract the leftmost digit by dividing by the divisor
+    - Add to the result array
+    - Update the number by taking modulo divisor
+    - Divide the divisor by 10
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def separateDigits(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            temp = num
+            digits = 0
+            while temp &gt; 0:
+                digits += 1
+                temp //= 10
+            
+            divisor = 10 ** (digits - 1)
+            while divisor &gt; 0:
+                result.append(num // divisor)
+                num %= divisor
+                divisor //= 10
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] separateDigits(int[] nums) {
+        List<Integer> resultList = new ArrayList&lt;&gt;();
+        for (int num : nums) {
+            int temp = num;
+            int digits = 0;
+            while (temp &gt; 0) {
+                digits++;
+                temp /= 10;
+            }
+            
+            int divisor = (int) Math.pow(10, digits - 1);
+            while (divisor &gt; 0) {
+                resultList.add(num / divisor);
+                num %= divisor;
+                divisor /= 10;
+            }
+        }
+        int[] result = new int[resultList.size()];
+        for (int i = 0; i &lt; resultList.size(); i++) {
+            result[i] = resultList.get(i);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <cmath>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> result;
+        for (int num : nums) {
+            int temp = num;
+            int digits = 0;
+            while (temp &gt; 0) {
+                digits++;
+                temp /= 10;
+            }
+            
+            int divisor = (int)pow(10, digits - 1);
+            while (divisor &gt; 0) {
+                result.push_back(num / divisor);
+                num %= divisor;
+                divisor /= 10;
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var separateDigits = function(nums) {
+    const result = [];
+    for (const num of nums) {
+        let temp = num;
+        let digits = 0;
+        while (temp &gt; 0) {
+            digits++;
+            temp = Math.floor(temp / 10);
+        }
+        
+        let divisor = Math.pow(10, digits - 1);
+        while (divisor &gt; 0) {
+            result.push(Math.floor(num / divisor));
+            num %= divisor;
+            divisor /= 10;
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function separateDigits(nums: number[]): number[] {
+    const result: number[] = [];
+    for (const num of nums) {
+        let temp = num;
+        let digits = 0;
+        while (temp &gt; 0) {
+            digits++;
+            temp = Math.floor(temp / 10);
+        }
+        
+        let divisor = Math.pow(10, digits - 1);
+        while (divisor &gt; 0) {
+            result.push(Math.floor(num / divisor));
+            num %= divisor;
+            divisor /= 10;
+        }
+    }
+    return result;
+}` }]} />
+
+**Complexity**
+- Time: O(n × d) where n is the number of elements and d is the average number of digits per element
+- Space: O(n × d) for the output array, plus O(1) extra space
+- Notes: Extracts digits in correct order without extra reversal space, but requires two passes per number
+
+---
+## Stack Approach
+
+**Intuition**
+Extract digits from right to left and push to a stack, then pop from the stack to get the left-to-right order.
+
+**Steps**
+- Initialize an empty result array
+- For each number in the input array:
+  - Initialize an empty stack
+  - While the number is greater than 0:
+    - Extract the last digit using modulo 10
+    - Push to the stack
+    - Divide the number by 10
+  - While the stack is not empty:
+    - Pop from the stack
+    - Add to the result array
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def separateDigits(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            stack = []
+            while num &gt; 0:
+                stack.append(num % 10)
+                num //= 10
+            while stack:
+                result.append(stack.pop())
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] separateDigits(int[] nums) {
+        List<Integer> resultList = new ArrayList&lt;&gt;();
+        for (int num : nums) {
+            Stack<Integer> stack = new Stack&lt;&gt;();
+            while (num &gt; 0) {
+                stack.push(num % 10);
+                num /= 10;
+            }
+            while (!stack.isEmpty()) {
+                resultList.add(stack.pop());
+            }
+        }
+        int[] result = new int[resultList.size()];
+        for (int i = 0; i &lt; resultList.size(); i++) {
+            result[i] = resultList.get(i);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <stack>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> separateDigits(vector<int>& nums) {
+        vector<int> result;
+        for (int num : nums) {
+            stack<int> s;
+            while (num &gt; 0) {
+                s.push(num % 10);
+                num /= 10;
+            }
+            while (!s.empty()) {
+                result.push_back(s.top());
+                s.pop();
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var separateDigits = function(nums) {
+    const result = [];
+    for (const num of nums) {
+        const stack = [];
+        let n = num;
+        while (n &gt; 0) {
+            stack.push(n % 10);
+            n = Math.floor(n / 10);
+        }
+        while (stack.length &gt; 0) {
+            result.push(stack.pop());
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function separateDigits(nums: number[]): number[] {
+    const result: number[] = [];
+    for (const num of nums) {
+        const stack: number[] = [];
+        let n = num;
+        while (n &gt; 0) {
+            stack.push(n % 10);
+            n = Math.floor(n / 10);
+        }
+        while (stack.length &gt; 0) {
+            result.push(stack.pop()!);
+        }
+    }
+    return result;
+}` }]} />
+
+**Complexity**
+- Time: O(n × d) where n is the number of elements and d is the average number of digits per element
+- Space: O(n × d) for the output array, plus O(d) for the stack used to reverse digits
+- Notes: Uses stack data structure for natural LIFO reversal, conceptually clear but similar to array reversal approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Separate the Digits in an Array Solutions","datePublished":"2026-01-06","description":"Given an array of positive integers, return an array with each integer's digits separated in order.","keywords":"LeetCode, Separate the Digits in an Array, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the String Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) where n is the number of elements and d is the average number of digits per element."}},{"@type":"Question","name":"What is the space complexity of the String Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) for the output array, plus O(d) for the string conversion of each element."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Extraction (Reverse) approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) where n is the number of elements and d is the average number of digits per element."}},{"@type":"Question","name":"What is the space complexity of the Mathematical Extraction (Reverse) approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) for the output array, plus O(d) for the temporary array used to reverse digits."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Extraction (Pre-calculate) approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) where n is the number of elements and d is the average number of digits per element."}},{"@type":"Question","name":"What is the space complexity of the Mathematical Extraction (Pre-calculate) approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) for the output array, plus O(1) extra space."}},{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) where n is the number of elements and d is the average number of digits per element."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × d) for the output array, plus O(d) for the stack used to reverse digits."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,145 @@
+---
+title: "Swap Sex of Employees"
+summary: "Update all 'f' values to 'm' and all 'm' values to 'f' in the sex column of the Employee table."
+date: "Sep 13, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.60% | **Paid:** No
+> **Topics:** Database
+
+Table: Employee
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
+| sex         | ENUM    |
+| salary      | int     |
++-------------+---------+
+id is the primary key for this table.
+The sex column is ENUM (type) of value ('m', 'f').
+Each row of this table contains information about an employee.
+
+Write an SQL query to swap all 'f' and 'm' values (i.e., change all 'f' values to 'm' and all 'm' values to 'f') with a single update statement. Note that you must write a single update statement, do not write any select statement for this problem.
+
+- Examples
+- Constraints
+- [Approach 1: Using CASE WHEN](#approach-1-using-case-when)
+- [Approach 2: Using IF Function (MySQL)](#approach-2-using-if-function-mysql)
+- [Approach 3: Using REPLACE Function](#approach-3-using-replace-function)
+
+## Examples
+
+Example 1:
+
+Input:
+Employee table:
++----+------+-----+--------+
+| id | name | sex | salary |
++----+------+-----+--------+
+| 1  | A    | m   | 2500   |
+| 2  | B    | f   | 1500   |
+| 3  | C    | m   | 5500   |
+| 4  | D    | f   | 500    |
++----+------+-----+--------+
+
+Output:
++----+------+-----+--------+
+| id | name | sex | salary |
++----+------+-----+--------+
+| 1  | A    | f   | 2500   |
+| 2  | B    | m   | 1500   |
+| 3  | C    | f   | 5500   |
+| 4  | D    | m   | 500    |
++----+------+-----+--------+
+
+Explanation:
+(1, A) and (3, C) were changed from 'm' to 'f'.
+(2, B) and (4, D) were changed from 'f' to 'm'.
+
+## Constraints
+
+```text
+The number of rows in the Employee table is between 1 and 100.
+The salary values are between 1 and 1000000.
+```
+
+---
+## Approach 1: Using CASE WHEN
+
+**Intuition**
+Use a CASE WHEN statement to conditionally update the sex column based on its current value.
+
+**Steps**
+- Write an UPDATE statement for the Employee table
+- Use CASE WHEN to check if sex is 'm', then set it to 'f', otherwise set it to 'm'
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# SQL solution:\n# UPDATE Employee\n# SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;\n\nimport pandas as pd\n\ndef swap_sex(employee: pd.DataFrame) -&gt; pd.DataFrame:\n    employee['sex'] = employee['sex'].apply(lambda x: 'f' if x == 'm' else 'm')\n    return employee\n" },
+{ name: "Java", lang: "java", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;\n\nimport java.sql.*;\n\npublic class Solution {\n    public void swapSex(Connection conn) throws SQLException {\n        String sql = \"UPDATE Employee SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END\";\n        Statement stmt = conn.createStatement();\n        stmt.executeUpdate(sql);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;\n\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    void swapSex(SQLHDBC hdbc) {\n        SQLHSTMT hstmt;\n        SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);\n        SQLCHAR* sql = (SQLCHAR*)\"UPDATE Employee SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END\";\n        SQLExecDirect(hstmt, sql, SQL_NTS);\n        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;\n\n/**\n * @param {Array} employee\n * @return {Array}\n */\nvar swapSex = function(employee) {\n    return employee.map(row =&gt; {\n        return {\n            ...row,\n            sex: row.sex === 'm' ? 'f' : 'm'\n        };\n    });\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;\n\ninterface Employee {\n    id: number;\n    name: string;\n    sex: 'm' | 'f';\n    salary: number;\n}\n\nfunction swapSex(employee: Employee[]): Employee[] {\n    return employee.map(row =&gt; ({\n        ...row,\n        sex: row.sex === 'm' ? 'f' : 'm'\n    }));\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Employee table
+- Space: O(1) additional space
+- Notes: This is the most portable solution across different SQL databases
+
+---
+## Approach 2: Using IF Function (MySQL)
+
+**Intuition**
+Use MySQL's IF function to perform a conditional swap in a single expression.
+
+**Steps**
+- Write an UPDATE statement for the Employee table
+- Use IF function to check if sex is 'm', then return 'f', otherwise return 'm'
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# SQL solution:\n# UPDATE Employee\n# SET sex = IF(sex = 'm', 'f', 'm');\n\nimport pandas as pd\n\ndef swap_sex(employee: pd.DataFrame) -&gt; pd.DataFrame:\n    employee['sex'] = employee['sex'].apply(lambda x: 'f' if x == 'm' else 'm')\n    return employee\n" },
+{ name: "Java", lang: "java", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = IF(sex = 'm', 'f', 'm');\n\nimport java.sql.*;\n\npublic class Solution {\n    public void swapSex(Connection conn) throws SQLException {\n        String sql = \"UPDATE Employee SET sex = IF(sex = 'm', 'f', 'm')\";\n        Statement stmt = conn.createStatement();\n        stmt.executeUpdate(sql);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = IF(sex = 'm', 'f', 'm');\n\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    void swapSex(SQLHDBC hdbc) {\n        SQLHSTMT hstmt;\n        SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);\n        SQLCHAR* sql = (SQLCHAR*)\"UPDATE Employee SET sex = IF(sex = 'm', 'f', 'm')\";\n        SQLExecDirect(hstmt, sql, SQL_NTS);\n        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = IF(sex = 'm', 'f', 'm');\n\n/**\n * @param {Array} employee\n * @return {Array}\n */\nvar swapSex = function(employee) {\n    return employee.map(row =&gt; {\n        return {\n            ...row,\n            sex: row.sex === 'm' ? 'f' : 'm'\n        };\n    });\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = IF(sex = 'm', 'f', 'm');\n\ninterface Employee {\n    id: number;\n    name: string;\n    sex: 'm' | 'f';\n    salary: number;\n}\n\nfunction swapSex(employee: Employee[]): Employee[] {\n    return employee.map(row =&gt; ({\n        ...row,\n        sex: row.sex === 'm' ? 'f' : 'm'\n    }));\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Employee table
+- Space: O(1) additional space
+- Notes: MySQL-specific syntax, more concise than CASE WHEN
+
+---
+## Approach 3: Using REPLACE Function
+
+**Intuition**
+Use the REPLACE function to swap 'm' with 'f' and 'f' with 'm' by using a temporary character.
+
+**Steps**
+- First replace 'm' with a temporary character (e.g., 'x')
+- Then replace 'f' with 'm'
+- Finally replace the temporary character 'x' with 'f'
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# SQL solution:\n# UPDATE Employee\n# SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f');\n\nimport pandas as pd\n\ndef swap_sex(employee: pd.DataFrame) -&gt; pd.DataFrame:\n    employee['sex'] = employee['sex'].apply(lambda x: 'f' if x == 'm' else 'm')\n    return employee\n" },
+{ name: "Java", lang: "java", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f');\n\nimport java.sql.*;\n\npublic class Solution {\n    public void swapSex(Connection conn) throws SQLException {\n        String sql = \"UPDATE Employee SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f')\";\n        Statement stmt = conn.createStatement();\n        stmt.executeUpdate(sql);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f');\n\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    void swapSex(SQLHDBC hdbc) {\n        SQLHSTMT hstmt;\n        SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);\n        SQLCHAR* sql = (SQLCHAR*)\"UPDATE Employee SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f')\";\n        SQLExecDirect(hstmt, sql, SQL_NTS);\n        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f');\n\n/**\n * @param {Array} employee\n * @return {Array}\n */\nvar swapSex = function(employee) {\n    return employee.map(row =&gt; {\n        return {\n            ...row,\n            sex: row.sex === 'm' ? 'f' : 'm'\n        };\n    });\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "// SQL solution:\n// UPDATE Employee\n// SET sex = REPLACE(REPLACE(REPLACE(sex, 'm', 'x'), 'f', 'm'), 'x', 'f');\n\ninterface Employee {\n    id: number;\n    name: string;\n    sex: 'm' | 'f';\n    salary: number;\n}\n\nfunction swapSex(employee: Employee[]): Employee[] {\n    return employee.map(row =&gt; ({\n        ...row,\n        sex: row.sex === 'm' ? 'f' : 'm'\n    }));\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Employee table
+- Space: O(1) additional space
+- Notes: Works in most SQL databases but requires a temporary character that doesn't exist in the data
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Swap Sex of Employees Solutions","datePublished":"2024-09-13","description":"Update all 'f' values to 'm' and all 'm' values to 'f' in the sex column of the Employee table.","keywords":"LeetCode, Swap Sex of Employees, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the CASE WHEN approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Employee table, as we need to update each row once."}},{"@type":"Question","name":"What is the space complexity of the IF function approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) additional space, as we only modify the existing column values without creating new data structures."}},{"@type":"Question","name":"Which approach is most portable across different SQL databases?","acceptedAnswer":{"@type":"Answer","text":"The CASE WHEN approach is the most portable as it's standard SQL syntax supported by almost all database systems."}},{"@type":"Question","name":"What is the time complexity of the REPLACE function approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Employee table, as we perform string replacement operations on each row."}}]}).replace(/</g,'\u003c')}
+</script>

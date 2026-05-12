@@ -1,0 +1,138 @@
+---
+title: "Best Time to Buy and Sell Stock"
+summary: "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy and a different day in the future to sell."
+date: "Mar 30, 2024"
+tags:
+  - Array
+  - Dynamic Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.70% | **Paid:** No
+> **Topics:** Array, Dynamic Programming
+
+You are given an array prices where prices[i] is the price of a given stock on the ith day.
+
+You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+
+Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [One Pass](#one-pass)
+- [Kadane's Algorithm](#kanes-algorithm)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+```
+
+**Example 2:**
+
+```text
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+```
+
+## Constraints
+
+```text
+- 1 <= prices.length <= 10^5
+- 0 <= prices[i] <= 10^4
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+The most straightforward way to solve this problem is to consider every possible pair of days where the buy day comes before the sell day. We calculate the profit for each pair and keep track of the maximum profit found.
+
+**Steps**
+- Initialize a variable max_profit to 0.
+- Use a nested loop: the outer loop iterates from the first day to the second-to-last day (i), and the inner loop iterates from the current day i to the last day (j).
+- For each pair (i, j), calculate the profit as prices[j] - prices[i].
+- If this profit is greater than max_profit, update max_profit.
+- After checking all pairs, return max_profit.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxProfit(self, prices: list[int]) -&gt; int:\n        max_profit = 0\n        n = len(prices)\n        for i in range(n - 1):\n            for j in range(i + 1, n):\n                profit = prices[j] - prices[i]\n                if profit &gt; max_profit:\n                    max_profit = profit\n        return max_profit" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxProfit(int[] prices) {\n        int maxProfit = 0;\n        int n = prices.length;\n        for (int i = 0; i &lt; n - 1; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int profit = prices[j] - prices[i];\n                if (profit &gt; maxProfit) {\n                    maxProfit = profit;\n                }\n            }\n        }\n        return maxProfit;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxProfit(vector&lt;int&gt;& prices) {\n        int maxProfit = 0;\n        int n = prices.size();\n        for (int i = 0; i &lt; n - 1; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int profit = prices[j] - prices[i];\n                if (profit &gt; maxProfit) {\n                    maxProfit = profit;\n                }\n            }\n        }\n        return maxProfit;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} prices\n * @return {number}\n */\nvar maxProfit = function(prices) {\n    let maxProfit = 0;\n    const n = prices.length;\n    for (let i = 0; i &lt; n - 1; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const profit = prices[j] - prices[i];\n            if (profit &gt; maxProfit) {\n                maxProfit = profit;\n            }\n        }\n    }\n    return maxProfit;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxProfit(prices: number[]): number {\n    let maxProfit = 0;\n    const n = prices.length;\n    for (let i = 0; i &lt; n - 1; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const profit = prices[j] - prices[i];\n            if (profit &gt; maxProfit) {\n                maxProfit = profit;\n            }\n        }\n    }\n    return maxProfit;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - We use two nested loops to check every pair.
+- Space: O(1) - We only use a few variables for storage.
+- Notes: This approach is simple but inefficient for large inputs, leading to Time Limit Exceeded (TLE) errors.
+
+---
+
+## One Pass
+
+**Intuition**
+We can optimize the solution by iterating through the array only once. We keep track of the minimum price encountered so far. For each subsequent price, we calculate the potential profit if we sold at that price (current price - minimum price) and update the maximum profit if this potential profit is higher.
+
+**Steps**
+- Initialize min_price to a very large number (e.g., infinity) and max_profit to 0.
+- Iterate through the prices array.
+- If the current price is less than min_price, update min_price to the current price.
+- Otherwise, calculate the profit (current price - min_price). If this profit is greater than max_profit, update max_profit.
+- After the loop finishes, return max_profit.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxProfit(self, prices: list[int]) -&gt; int:\n        min_price = float('inf')\n        max_profit = 0\n        for price in prices:\n            if price &lt; min_price:\n                min_price = price\n            elif price - min_price &gt; max_profit:\n                max_profit = price - min_price\n        return max_profit" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxProfit(int[] prices) {\n        int minPrice = Integer.MAX_VALUE;\n        int maxProfit = 0;\n        for (int price : prices) {\n            if (price &lt; minPrice) {\n                minPrice = price;\n            } else if (price - minPrice &gt; maxProfit) {\n                maxProfit = price - minPrice;\n            }\n        }\n        return maxProfit;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxProfit(vector&lt;int&gt;& prices) {\n        int minPrice = INT_MAX;\n        int maxProfit = 0;\n        for (int price : prices) {\n            if (price &lt; minPrice) {\n                minPrice = price;\n            } else if (price - minPrice &gt; maxProfit) {\n                maxProfit = price - minPrice;\n            }\n        }\n        return maxProfit;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} prices\n * @return {number}\n */\nvar maxProfit = function(prices) {\n    let minPrice = Number.MAX_VALUE;\n    let maxProfit = 0;\n    for (let i = 0; i &lt; prices.length; i++) {\n        if (prices[i] &lt; minPrice) {\n            minPrice = prices[i];\n        } else if (prices[i] - minPrice &gt; maxProfit) {\n            maxProfit = prices[i] - minPrice;\n        }\n    }\n    return maxProfit;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxProfit(prices: number[]): number {\n    let minPrice = Number.MAX_VALUE;\n    let maxProfit = 0;\n    for (let i = 0; i &lt; prices.length; i++) {\n        if (prices[i] &lt; minPrice) {\n            minPrice = prices[i];\n        } else if (prices[i] - minPrice &gt; maxProfit) {\n            maxProfit = prices[i] - minPrice;\n        }\n    }\n    return maxProfit;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the list only once.
+- Space: O(1) - We only use two variables regardless of the input size.
+- Notes: This is the optimal solution for this problem.
+
+---
+
+## Kanee's Algorithm
+
+**Intuition**
+This problem can be reduced to finding the maximum subarray sum. If we calculate the difference between consecutive days (prices[i] - prices[i-1]), we get an array of daily price changes. The maximum profit is simply the maximum sum of a contiguous subarray within this difference array.
+
+**Steps**
+- Initialize two variables: current_sum to 0 and max_sum to 0.
+- Iterate through the prices array starting from the second element (index 1).
+- Calculate the difference between the current price and the previous price.
+- Add this difference to current_sum.
+- If current_sum becomes negative, reset it to 0 (as a negative sum would decrease any future profit).
+- If current_sum is greater than max_sum, update max_sum.
+- Return max_sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxProfit(self, prices: list[int]) -&gt; int:\n        max_sum = 0\n        current_sum = 0\n        for i in range(1, len(prices)):\n            current_sum += prices[i] - prices[i-1]\n            if current_sum &lt; 0:\n                current_sum = 0\n            if current_sum &gt; max_sum:\n                max_sum = current_sum\n        return max_sum" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxProfit(int[] prices) {\n        int maxSum = 0;\n        int currentSum = 0;\n        for (int i = 1; i &lt; prices.length; i++) {\n            currentSum += prices[i] - prices[i - 1];\n            if (currentSum &lt; 0) {\n                currentSum = 0;\n            }\n            if (currentSum &gt; maxSum) {\n                maxSum = currentSum;\n            }\n        }\n        return maxSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxProfit(vector&lt;int&gt;& prices) {\n        int maxSum = 0;\n        int currentSum = 0;\n        for (int i = 1; i &lt; prices.size(); i++) {\n            currentSum += prices[i] - prices[i - 1];\n            if (currentSum &lt; 0) {\n                currentSum = 0;\n            }\n            if (currentSum &gt; maxSum) {\n                maxSum = currentSum;\n            }\n        }\n        return maxSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} prices\n * @return {number}\n */\nvar maxProfit = function(prices) {\n    let maxSum = 0;\n    let currentSum = 0;\n    for (let i = 1; i &lt; prices.length; i++) {\n        currentSum += prices[i] - prices[i - 1];\n        if (currentSum &lt; 0) {\n            currentSum = 0;\n        }\n        if (currentSum &gt; maxSum) {\n            maxSum = currentSum;\n        }\n    }\n    return maxSum;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxProfit(prices: number[]): number {\n    let maxSum = 0;\n    let currentSum = 0;\n    for (let i = 1; i &lt; prices.length; i++) {\n        currentSum += prices[i] - prices[i - 1];\n        if (currentSum &lt; 0) {\n            currentSum = 0;\n        }\n        if (currentSum &gt; maxSum) {\n            maxSum = currentSum;\n        }\n    }\n    return maxSum;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We iterate through the array once.
+- Space: O(1) - We only use two variables.
+- Notes: This approach is mathematically equivalent to the One Pass approach but framed in terms of maximum subarray sum.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Best Time to Buy and Sell Stock Solutions","datePublished":"2024-03-30","description":"You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy and a different day in the future to sell.","keywords":"LeetCode, Best Time to Buy and Sell Stock, Easy, Array, Dynamic Programming"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²)."}},{"@type":"Question","name":"What is the time complexity of the One Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the One Pass approach is O(n)."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity of the optimal solution is O(1)."}}]}).replace(/</g,'\u003c')}
+</script>

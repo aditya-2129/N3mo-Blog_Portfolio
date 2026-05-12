@@ -1,0 +1,139 @@
+---
+title: "Kids With the Greatest Number of Candies"
+summary: "Determine if a kid can have the greatest number of candies after receiving extraCandies."
+date: "Jun 22, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 88.00% | **Paid:** No
+> **Topics:** Array
+
+There are n kids with candies. You are given an integer array candies, where each candies[i] represents the number of candies the ith kid has, and an integer extraCandies, denoting the number of extra candies that you have.
+
+Return a boolean array result of length n, where result[i] is true if, after giving the ith kid all the extraCandies, they will have the greatest number of candies among all the kids, or false otherwise.
+
+Note that multiple kids can have the greatest number of candies.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting](#sorting)
+- [Single Pass](#single-pass)
+
+## Examples
+
+```text
+Input: candies = [2,3,5,1,3], extraCandies = 3
+Output: [true,true,true,false,true]
+Explanation: 
+If you give all extraCandies to:
+- Kid 1, they will have 2 + 3 = 5 candies, which is the greatest among the kids.
+- Kid 2, they will have 3 + 3 = 6 candies, which is the greatest among the kids.
+- Kid 3, they will have 5 + 3 = 8 candies, which is the greatest among the kids.
+- Kid 4, they will have 1 + 3 = 4 candies, which is not the greatest among the kids.
+- Kid 5, they will have 3 + 3 = 6 candies, which is the greatest among the kids.
+```
+
+```text
+Input: candies = [4,2,1,1,2], extraCandies = 1
+Output: [true,false,false,false,false]
+Explanation: There is only 1 extra candy, so only kid 1 can have the greatest number of candies (4 + 1 = 5).
+```
+
+```text
+Input: candies = [12,1,12], extraCandies = 10
+Output: [true,false,true]
+```
+
+## Constraints
+
+```text
+n == candies.length
+2 <= n <= 100
+1 <= candies[i] <= 100
+1 <= extraCandies <= 50
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each kid, we can simulate giving them the extra candies and then check if their new total is greater than or equal to every other kid's current total.
+
+**Steps**
+- Iterate through the array with index `i`.
+- Calculate `potential = candies[i] + extraCandies`.
+- Iterate through the array again with index `j`.
+- If `potential` is less than `candies[j]`, the kid at `i` cannot be the greatest.
+- If the inner loop completes without finding a larger value, add `true` to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kidsWithCandies(self, candies: List[int], extraCandies: int) -&gt; List[bool]:\n        n = len(candies)\n        result = []\n        for i in range(n):\n            potential = candies[i] + extraCandies\n            is_greatest = True\n            for j in range(n):\n                if potential &lt; candies[j]:\n                    is_greatest = False\n                    break\n            result.append(is_greatest)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Boolean&gt; kidsWithCandies(int[] candies, int extraCandies) {\n        int n = candies.length;\n        List&lt;Boolean&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) {\n            int potential = candies[i] + extraCandies;\n            boolean isGreatest = true;\n            for (int j = 0; j &lt; n; j++) {\n                if (potential &lt; candies[j]) {\n                    isGreatest = false;\n                    break;\n                }\n            }\n            result.add(isGreatest);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;bool&gt; kidsWithCandies(vector&lt;int&gt;& candies, int extraCandies) {\n        int n = candies.size();\n        vector&lt;bool&gt; result;\n        for (int i = 0; i &lt; n; i++) {\n            int potential = candies[i] + extraCandies;\n            bool isGreatest = true;\n            for (int j = 0; j &lt; n; j++) {\n                if (potential &lt; candies[j]) {\n                    isGreatest = false;\n                    break;\n                }\n            }\n            result.push_back(isGreatest);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kidsWithCandies = function(candies, extraCandies) {\n    const n = candies.length;\n    const result = [];\n    for (let i = 0; i &lt; n; i++) {\n        const potential = candies[i] + extraCandies;\n        let isGreatest = true;\n        for (let j = 0; j &lt; n; j++) {\n            if (potential &lt; candies[j]) {\n                isGreatest = false;\n                break;\n            }\n        }\n        result.push(isGreatest);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kidsWithCandies(candies: number[], extraCandies: number): boolean[] {\n    const n = candies.length;\n    const result: boolean[] = [];\n    for (let i = 0; i &lt; n; i++) {\n        const potential = candies[i] + extraCandies;\n        let isGreatest = true;\n        for (let j = 0; j &lt; n; j++) {\n            if (potential &lt; candies[j]) {\n                isGreatest = false;\n                break;\n            }\n        }\n        result.push(isGreatest);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1) (excluding output array)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the array, the greatest number of candies will be at the last index. We can then compare each kid's potential against this maximum value.
+
+**Steps**
+- Create a copy of the `candies` array.
+- Sort the copy in ascending order.
+- The maximum value is the last element of the sorted array.
+- Iterate through the original array and check if `candies[i] + extraCandies &gt;= max`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kidsWithCandies(self, candies: List[int], extraCandies: int) -&gt; List[bool]:\n        sorted_candies = sorted(candies)\n        max_candies = sorted_candies[-1]\n        return [c + extraCandies &gt;= max_candies for c in candies]" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public List&lt;Boolean&gt; kidsWithCandies(int[] candies, int extraCandies) {\n        int[] copy = Arrays.copyOf(candies, candies.length);\n        Arrays.sort(copy);\n        int max = copy[copy.length - 1];\n        List&lt;Boolean&gt; result = new ArrayList&lt;&gt;();\n        for (int c : candies) {\n            result.add(c + extraCandies &gt;= max);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    vector&lt;bool&gt; kidsWithCandies(vector&lt;int&gt;& candies, int extraCandies) {\n        vector&lt;int&gt; copy = candies;\n        sort(copy.begin(), copy.end());\n        int maxCandies = copy.back();\n        vector&lt;bool&gt; result;\n        for (int c : candies) {\n            result.push_back(c + extraCandies &gt;= maxCandies);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kidsWithCandies = function(candies, extraCandies) {\n    const sorted = [...candies].sort((a, b) =&gt; a - b);\n    const max = sorted[sorted.length - 1];\n    return candies.map(c =&gt; c + extraCandies &gt;= max);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kidsWithCandies(candies: number[], extraCandies: number): boolean[] {\n    const sorted = [...candies].sort((a, b) =&gt; a - b);\n    const max = sorted[sorted.length - 1];\n    return candies.map(c =&gt; c + extraCandies &gt;= max);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n) (for the copy of the array)
+- Notes: Sorting is overkill as we only need the maximum value.
+
+---
+## Single Pass
+
+**Intuition**
+We can find the maximum value in the array in a single pass. Then, in a second pass, we can determine which kids can reach or exceed this maximum with the extra candies.
+
+**Steps**
+- Initialize `maxCandies` to 0.
+- Iterate through the array to find the maximum value.
+- Iterate through the array again.
+- For each element, check if `candies[i] + extraCandies &gt;= maxCandies`.
+- Store the boolean result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kidsWithCandies(self, candies: List[int], extraCandies: int) -&gt; List[bool]:\n        max_candies = max(candies)\n        return [c + extraCandies &gt;= max_candies for c in candies]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Boolean&gt; kidsWithCandies(int[] candies, int extraCandies) {\n        int max = 0;\n        for (int c : candies) {\n            max = Math.max(max, c);\n        }\n        List&lt;Boolean&gt; result = new ArrayList&lt;&gt;();\n        for (int c : candies) {\n            result.add(c + extraCandies &gt;= max);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    vector&lt;bool&gt; kidsWithCandies(vector&lt;int&gt;& candies, int extraCandies) {\n        int maxCandies = *max_element(candies.begin(), candies.end());\n        vector&lt;bool&gt; result;\n        for (int c : candies) {\n            result.push_back(c + extraCandies &gt;= maxCandies);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kidsWithCandies = function(candies, extraCandies) {\n    const max = Math.max(...candies);\n    return candies.map(c =&gt; c + extraCandies &gt;= max);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kidsWithCandies(candies: number[], extraCandies: number): boolean[] {\n    const max = Math.max(...candies);\n    return candies.map(c =&gt; c + extraCandies &gt;= max);\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1) (excluding output array)
+- Notes: This is the optimal solution, requiring only two linear scans.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Kids With the Greatest Number of Candies Solutions","datePublished":"2025-06-22","description":"Determine if a kid can have the greatest number of candies after receiving extraCandies.","keywords":"LeetCode, Kids With the Greatest Number of Candies, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because for each kid, we compare against every other kid."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the most optimal approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach is optimal with a time complexity of O(n) and space complexity of O(1)."}}]}).replace(/</g,'\u003c')}
+</script>

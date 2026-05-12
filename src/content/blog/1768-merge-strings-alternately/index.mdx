@@ -1,0 +1,122 @@
+---
+title: "Merge Strings Alternately"
+summary: "Merge two strings by adding letters in alternating order, starting with word1. Append extra letters from the longer string to the end."
+date: "Apr 25, 2026"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.10% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string.
+
+Return the merged string.
+
+- Examples
+- Constraints
+- [Two Pointers](#two-pointers)
+- [Single Loop with Min Length](#single-loop-with-min-length)
+
+## Examples
+
+```text
+Example 1:
+
+Input: word1 = "abc", word2 = "pqr"
+Output: "apbqcr"
+Explanation: The merged string will be merged as so:
+word1:  a   b   c
+word2:    p   q   r
+merged: a p b q c r
+```
+
+```text
+Example 2:
+
+Input: word1 = "ab", word2 = "pqrs"
+Output: "apbqrs"
+Explanation: Notice that as word2 is longer, "rs" is appended to the end.
+word1:  a   b 
+word2:    p   q   r   s
+merged: a p b q r   s
+```
+
+```text
+Example 3:
+
+Input: word1 = "abcd", word2 = "pq"
+Output: "apbqcd"
+Explanation: Notice that as word1 is longer, "cd" is appended to the end.
+word1:  a   b   c   d
+word2:    p   q 
+merged: a p b q c   d
+```
+
+## Constraints
+
+```text
+1 <= word1.length, word2.length <= 100
+word1 and word2 consist of only lowercase English letters.
+```
+
+---
+## Two Pointers
+
+**Intuition**
+We can use two pointers to traverse both strings simultaneously. We add characters from each string to the result one by one until one of the strings is fully traversed. Then, we append the remaining characters from the longer string.
+
+**Steps**
+- Initialize an empty result list/string and two pointers `i` and `j` to 0.
+- Loop while `i` is within the bounds of `word1` and `j` is within the bounds of `word2`.
+- In each iteration, append `word1[i]` and `word2[j]` to the result, then increment both pointers.
+- After the loop, one of the strings might still have characters left. Append the remaining substring of `word1` starting from `i` and the remaining substring of `word2` starting from `j`.
+- Return the final merged string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mergeAlternately(self, word1: str, word2: str) -&gt; str:\n        res = []\n        i = j = 0\n        while i &lt; len(word1) and j &lt; len(word2):\n            res.append(word1[i])\n            res.append(word2[j])\n            i += 1\n            j += 1\n        \n        # Append remaining characters\n        res.append(word1[i:])\n        res.append(word2[j:])\n        \n        return \"\".join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String mergeAlternately(String word1, String word2) {\n        StringBuilder sb = new StringBuilder();\n        int i = 0, j = 0;\n        while (i &lt; word1.length() && j &lt; word2.length()) {\n            sb.append(word1.charAt(i++));\n            sb.append(word2.charAt(j++));\n        }\n        // Append remaining characters\n        if (i &lt; word1.length()) {\n            sb.append(word1.substring(i));\n        }\n        if (j &lt; word2.length()) {\n            sb.append(word2.substring(j));\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string mergeAlternately(string word1, string word2) {\n        string res;\n        int i = 0, j = 0;\n        while (i &lt; word1.size() && j &lt; word2.size()) {\n            res += word1[i++];\n            res += word2[j++];\n        }\n        // Append remaining characters\n        if (i &lt; word1.size()) {\n            res += word1.substr(i);\n        }\n        if (j &lt; word2.size()) {\n            res += word2.substr(j);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word1\n * @param {string} word2\n * @return {string}\n */\nvar mergeAlternately = function(word1, word2) {\n    let res = [];\n    let i = 0, j = 0;\n    while (i &lt; word1.length && j &lt; word2.length) {\n        res.push(word1[i++]);\n        res.push(word2[j++]);\n    }\n    // Append remaining characters\n    if (i &lt; word1.length) res.push(word1.slice(i));\n    if (j &lt; word2.length) res.push(word2.slice(j));\n    \n    return res.join(\"\");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mergeAlternately(word1: string, word2: string): string {\n    let res: string[] = [];\n    let i = 0, j = 0;\n    while (i &lt; word1.length && j &lt; word2.length) {\n        res.push(word1[i++]);\n        res.push(word2[j++]);\n    }\n    // Append remaining characters\n    if (i &lt; word1.length) res.push(word1.slice(i));\n    if (j &lt; word2.length) res.push(word2.slice(j));\n    \n    return res.join(\"\");\n};" }]} />
+
+**Complexity**
+- Time: O(n + m), where n and m are the lengths of `word1` and `word2`. We iterate through both strings once.
+- Space: O(n + m) to store the result string.
+- Notes: This is the most efficient approach in terms of time complexity and is very readable.
+
+---
+## Single Loop with Min Length
+
+**Intuition**
+We can iterate up to the length of the shorter string to handle the alternating part safely. After the loop, we simply concatenate the remaining suffix of the longer string to the result.
+
+**Steps**
+- Determine the minimum length `minLen` between `word1` and `word2`.
+- Initialize an empty result list/string.
+- Loop from index 0 to `minLen - 1`. In each iteration, append `word1[i]` followed by `word2[i]`.
+- After the loop, append the substring of `word1` starting from `minLen` and the substring of `word2` starting from `minLen`. One of these will be empty.
+- Return the final merged string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mergeAlternately(self, word1: str, word2: str) -&gt; str:\n        res = []\n        min_len = min(len(word1), len(word2))\n        \n        for i in range(min_len):\n            res.append(word1[i])\n            res.append(word2[i])\n            \n        res.append(word1[min_len:])\n        res.append(word2[min_len:])\n        \n        return \"\".join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String mergeAlternately(String word1, String word2) {\n        StringBuilder sb = new StringBuilder();\n        int minLen = Math.min(word1.length(), word2.length());\n        \n        for (int i = 0; i &lt; minLen; i++) {\n            sb.append(word1.charAt(i));\n            sb.append(word2.charAt(i));\n        }\n        \n        sb.append(word1.substring(minLen));\n        sb.append(word2.substring(minLen));\n        \n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string mergeAlternately(string word1, string word2) {\n        string res;\n        int minLen = min(word1.size(), word2.size());\n        \n        for (int i = 0; i &lt; minLen; i++) {\n            res += word1[i];\n            res += word2[i];\n        }\n        \n        res += word1.substr(minLen);\n        res += word2.substr(minLen);\n        \n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word1\n * @param {string} word2\n * @return {string}\n */\nvar mergeAlternately = function(word1, word2) {\n    let res = [];\n    const minLen = Math.min(word1.length, word2.length);\n    \n    for (let i = 0; i &lt; minLen; i++) {\n        res.push(word1[i]);\n        res.push(word2[i]);\n    }\n    \n    res.push(word1.slice(minLen));\n    res.push(word2.slice(minLen));\n    \n    return res.join(\"\");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mergeAlternately(word1: string, word2: string): string {\n    let res: string[] = [];\n    const minLen = Math.min(word1.length, word2.length);\n    \n    for (let i = 0; i &lt; minLen; i++) {\n        res.push(word1[i]);\n        res.push(word2[i]);\n    }\n    \n    res.push(word1.slice(minLen));\n    res.push(word2.slice(minLen));\n    \n    return res.join(\"\");\n};" }]} />
+
+**Complexity**
+- Time: O(n + m), where n and m are the lengths of `word1` and `word2`.
+- Space: O(n + m) to store the result string.
+- Notes: This approach is functionally similar to the Two Pointers approach but might be slightly cleaner to read as it separates the alternating logic from the append logic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Merge Strings Alternately Solutions","datePublished":"2026-04-25","description":"Merge two strings by adding letters in alternating order, starting with word1. Append extra letters from the longer string to the end.","keywords":"LeetCode, Merge Strings Alternately, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the lengths of the two strings."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the result string."}},{"@type":"Question","name":"What is the time complexity of the Single Loop with Min Length approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the lengths of the two strings."}},{"@type":"Question","name":"What is the space complexity of the Single Loop with Min Length approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the result string."}}]}).replace(/</g,'\u003c')}
+</script>

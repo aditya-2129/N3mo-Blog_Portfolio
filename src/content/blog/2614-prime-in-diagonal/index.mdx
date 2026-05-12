@@ -1,0 +1,146 @@
+---
+title: "Prime In Diagonal"
+summary: "Find the largest prime number located on either the main diagonal or the anti-diagonal of a square matrix."
+date: "May 22, 2024"
+tags:
+  - Array
+  - Math
+  - Matrix
+  - Number Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 37.70% | **Paid:** No
+> **Topics:** Array, Math, Matrix, Number Theory
+
+You are given a 0-indexed 2D integer array nums of size n x n, where n is the length of nums.
+
+A number x is considered "prime" if it has exactly two positive divisors: 1 and x. Note that 1 is not a prime number.
+
+Return the largest prime number that lies on at least one of the diagonals of nums. If no such integer exists, return -1.
+
+- Examples
+- Constraints
+- [Approach 1: Iteration with Basic Primality Test](#approach-1-iteration-with-basic-primality-test)
+- [Approach 2: Sieve of Eratosthenes](#approach-2-sieve-of-eratosthenes)
+- [Approach 3: Optimized Primality Test (6k ± 1)](#approach-3-optimized-primality-test-6k-1)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [[1,2,3],[5,6,7],[9,10,11]]
+```
+
+**Output:**
+```text
+11
+```
+
+**Explanation:**
+The numbers 1, 3, 6, 9, and 11 are the only numbers present on at least one of the diagonals. Since 11 is the largest prime, we return 11.
+
+### Example 2
+
+**Input:**
+```text
+nums = [[1,2,3],[5,17,7],[9,11,10]]
+```
+
+**Output:**
+```text
+17
+```
+
+**Explanation:**
+The numbers 1, 3, 9, 10, and 17 are all present on at least one of the diagonals. 17 is the largest prime, so we return 17.
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 300
+- nums.length == numsi.length
+- 1 <= nums[i][j] <= 4*10^6
+```
+
+---
+## Approach 1: Iteration with Basic Primality Test
+
+**Intuition**
+Iterate through the matrix, identify elements on the main diagonal (where row index equals column index) and the anti-diagonal (where row index plus column index equals n-1), and check if they are prime using a standard trial division method.
+
+**Steps**
+- Iterate through each row index `i` from 0 to `n-1`.
+- Check the element at `nums[i][i]` (main diagonal). If it is prime, update the maximum prime found.
+- Check the element at `nums[i][n-1-i]` (anti-diagonal). If it is prime, update the maximum prime found.
+- Return the maximum prime found, or -1 if none exist.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def diagonalPrime(self, nums: List[List[int]]) -&gt; int:\n        def is_prime(n: int) -&gt; bool:\n            if n &lt; 2:\n                return False\n            for i in range(2, int(n**0.5) + 1):\n                if n % i == 0:\n                    return False\n            return True\n\n        n = len(nums)\n        max_prime = 0\n        for i in range(n):\n            if is_prime(nums[i][i]):\n                max_prime = max(max_prime, nums[i][i])\n            if is_prime(nums[i][n - 1 - i]):\n                max_prime = max(max_prime, nums[i][n - 1 - i])\n        return max_prime if max_prime &gt; 0 else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int diagonalPrime(int[][] nums) {\n        int n = nums.length;\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (isPrime(nums[i][i])) {\n                maxPrime = Math.max(maxPrime, nums[i][i]);\n            }\n            if (isPrime(nums[i][n - 1 - i])) {\n                maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n\n    private boolean isPrime(int n) {\n        if (n &lt; 2) return false;\n        for (int i = 2; i * i &lt;= n; i++) {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;cmath&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int diagonalPrime(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        int n = nums.size();\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            if (isPrime(nums[i][i])) {\n                maxPrime = max(maxPrime, nums[i][i]);\n            }\n            if (isPrime(nums[i][n - 1 - i])) {\n                maxPrime = max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n\n    bool isPrime(int n) {\n        if (n &lt; 2) return false;\n        for (int i = 2; i * i &lt;= n; ++i) {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var diagonalPrime = function(nums) {\n    const n = nums.length;\n    let maxPrime = 0;\n    const isPrime = (num) =&gt; {\n        if (num &lt; 2) return false;\n        for (let i = 2; i * i &lt;= num; i++) {\n            if (num % i === 0) return false;\n        }\n        return true;\n    };\n\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime(nums[i][i])) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime(nums[i][n - 1 - i])) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function diagonalPrime(nums: number[][]): number {\n    const n = nums.length;\n    let maxPrime = 0;\n    const isPrime = (num: number): boolean =&gt; {\n        if (num &lt; 2) return false;\n        for (let i = 2; i * i &lt;= num; i++) {\n            if (num % i === 0) return false;\n        }\n        return true;\n    };\n\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime(nums[i][i])) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime(nums[i][n - 1 - i])) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n}" },]} />
+
+**Complexity**
+- Time: O(n * √M), where n is the size of the matrix and M is the maximum value in the matrix. We iterate through 2n elements, and for each, we perform a primality test up to the square root of the value.
+- Space: O(1), as we only use a few variables for storage.
+- Notes: This is the most straightforward approach and is efficient enough given the constraints (M ≤ 10⁵).
+
+---
+## Approach 2: Sieve of Eratosthenes
+
+**Intuition**
+Precompute all prime numbers up to the maximum value present in the matrix using the Sieve of Eratosthenes. This allows for O(1) primality checks for each diagonal element.
+
+**Steps**
+- Find the maximum value `max_val` in the matrix.
+- Create a boolean array `is_prime` of size `max_val + 1` initialized to true.
+- Apply the Sieve of Eratosthenes algorithm to mark non-prime indices as false.
+- Iterate through the diagonals. For each element, check `is_prime[element]` and update the maximum prime if true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def diagonalPrime(self, nums: List[List[int]]) -&gt; int:\n        n = len(nums)\n        max_val = 0\n        for row in nums:\n            for val in row:\n                if val &gt; max_val:\n                    max_val = val\n        \n        is_prime = [True] * (max_val + 1)\n        is_prime[0] = is_prime[1] = False\n        for i in range(2, int(max_val**0.5) + 1):\n            if is_prime[i]:\n                for j in range(i * i, max_val + 1, i):\n                    is_prime[j] = False\n        \n        max_prime = 0\n        for i in range(n):\n            if is_prime[nums[i][i]]:\n                max_prime = max(max_prime, nums[i][i])\n            if is_prime[nums[i][n - 1 - i]]:\n                max_prime = max(max_prime, nums[i][n - 1 - i])\n        return max_prime if max_prime &gt; 0 else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int diagonalPrime(int[][] nums) {\n        int n = nums.length;\n        int maxVal = 0;\n        for (int[] row : nums) {\n            for (int val : row) {\n                maxVal = Math.max(maxVal, val);\n            }\n        }\n\n        boolean[] isPrime = new boolean[maxVal + 1];\n        for (int i = 2; i &lt;= maxVal; i++) {\n            isPrime[i] = true;\n        }\n        for (int i = 2; i * i &lt;= maxVal; i++) {\n            if (isPrime[i]) {\n                for (int j = i * i; j &lt;= maxVal; j += i) {\n                    isPrime[j] = false;\n                }\n            }\n        }\n\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (isPrime[nums[i][i]]) {\n                maxPrime = Math.max(maxPrime, nums[i][i]);\n            }\n            if (isPrime[nums[i][n - 1 - i]]) {\n                maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int diagonalPrime(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        int n = nums.size();\n        int maxVal = 0;\n        for (const auto& row : nums) {\n            for (int val : row) {\n                maxVal = max(maxVal, val);\n            }\n        }\n\n        vector&lt;bool&gt; isPrime(maxVal + 1, true);\n        if (maxVal &gt;= 0) isPrime[0] = false;\n        if (maxVal &gt;= 1) isPrime[1] = false;\n        for (int i = 2; i * i &lt;= maxVal; ++i) {\n            if (isPrime[i]) {\n                for (int j = i * i; j &lt;= maxVal; j += i) {\n                    isPrime[j] = false;\n                }\n            }\n        }\n\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            if (isPrime[nums[i][i]]) {\n                maxPrime = max(maxPrime, nums[i][i]);\n            }\n            if (isPrime[nums[i][n - 1 - i]]) {\n                maxPrime = max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var diagonalPrime = function(nums) {\n    const n = nums.length;\n    let maxVal = 0;\n    for (const row of nums) {\n        for (const val of row) {\n            maxVal = Math.max(maxVal, val);\n        }\n    }\n\n    const isPrime = new Array(maxVal + 1).fill(true);\n    if (maxVal &gt;= 0) isPrime[0] = false;\n    if (maxVal &gt;= 1) isPrime[1] = false;\n    for (let i = 2; i * i &lt;= maxVal; i++) {\n        if (isPrime[i]) {\n            for (let j = i * i; j &lt;= maxVal; j += i) {\n                isPrime[j] = false;\n            }\n        }\n    }\n\n    let maxPrime = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime[nums[i][i]]) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime[nums[i][n - 1 - i]]) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function diagonalPrime(nums: number[][]): number {\n    const n = nums.length;\n    let maxVal = 0;\n    for (const row of nums) {\n        for (const val of row) {\n            maxVal = Math.max(maxVal, val);\n        }\n    }\n\n    const isPrime = new Array(maxVal + 1).fill(true);\n    if (maxVal &gt;= 0) isPrime[0] = false;\n    if (maxVal &gt;= 1) isPrime[1] = false;\n    for (let i = 2; i * i &lt;= maxVal; i++) {\n        if (isPrime[i]) {\n            for (let j = i * i; j &lt;= maxVal; j += i) {\n                isPrime[j] = false;\n            }\n        }\n    }\n\n    let maxPrime = 0;\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime[nums[i][i]]) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime[nums[i][n - 1 - i]]) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n}" },]} />
+
+**Complexity**
+- Time: O(M log log M + n²), where M is the maximum value in the matrix. The Sieve takes O(M log log M), and finding the max value takes O(n²).
+- Space: O(M), to store the boolean array of prime flags.
+- Notes: This approach is beneficial if there are many primality checks to perform, but for a single pass through 2n elements, the overhead of the sieve might be higher than simple trial division.
+
+---
+## Approach 3: Optimized Primality Test (6k ± 1)
+
+**Intuition**
+Optimize the primality test by skipping multiples of 2 and 3. All primes greater than 3 are of the form 6k ± 1. This reduces the number of iterations in the loop.
+
+**Steps**
+- Iterate through the matrix diagonals.
+- For each number, check if it is less than 2 (not prime), equal to 2 or 3 (prime), or divisible by 2 or 3 (not prime).
+- If not, iterate from 5 up to the square root of the number, checking divisibility by `i` and `i + 2` (incrementing `i` by 6 each time).
+- Update the maximum prime found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def diagonalPrime(self, nums: List[List[int]]) -&gt; int:\n        def is_prime(n: int) -&gt; bool:\n            if n &lt;= 1:\n                return False\n            if n &lt;= 3:\n                return True\n            if n % 2 == 0 or n % 3 == 0:\n                return False\n            i = 5\n            while i * i &lt;= n:\n                if n % i == 0 or n % (i + 2) == 0:\n                    return False\n                i += 6\n            return True\n\n        n = len(nums)\n        max_prime = 0\n        for i in range(n):\n            if is_prime(nums[i][i]):\n                max_prime = max(max_prime, nums[i][i])\n            if is_prime(nums[i][n - 1 - i]):\n                max_prime = max(max_prime, nums[i][n - 1 - i])\n        return max_prime if max_prime &gt; 0 else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int diagonalPrime(int[][] nums) {\n        int n = nums.length;\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; i++) {\n            if (isPrime(nums[i][i])) {\n                maxPrime = Math.max(maxPrime, nums[i][i]);\n            }\n            if (isPrime(nums[i][n - 1 - i])) {\n                maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n\n    private boolean isPrime(int n) {\n        if (n &lt;= 1) return false;\n        if (n &lt;= 3) return true;\n        if (n % 2 == 0 || n % 3 == 0) return false;\n        for (int i = 5; i * i &lt;= n; i += 6) {\n            if (n % i == 0 || n % (i + 2) == 0) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;cmath&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int diagonalPrime(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        int n = nums.size();\n        int maxPrime = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            if (isPrime(nums[i][i])) {\n                maxPrime = max(maxPrime, nums[i][i]);\n            }\n            if (isPrime(nums[i][n - 1 - i])) {\n                maxPrime = max(maxPrime, nums[i][n - 1 - i]);\n            }\n        }\n        return maxPrime == 0 ? -1 : maxPrime;\n    }\n\n    bool isPrime(int n) {\n        if (n &lt;= 1) return false;\n        if (n &lt;= 3) return true;\n        if (n % 2 == 0 || n % 3 == 0) return false;\n        for (int i = 5; i * i &lt;= n; i += 6) {\n            if (n % i == 0 || n % (i + 2) == 0) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var diagonalPrime = function(nums) {\n    const n = nums.length;\n    let maxPrime = 0;\n    const isPrime = (num) =&gt; {\n        if (num &lt;= 1) return false;\n        if (num &lt;= 3) return true;\n        if (num % 2 === 0 || num % 3 === 0) return false;\n        for (let i = 5; i * i &lt;= num; i += 6) {\n            if (num % i === 0 || num % (i + 2) === 0) return false;\n        }\n        return true;\n    };\n\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime(nums[i][i])) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime(nums[i][n - 1 - i])) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function diagonalPrime(nums: number[][]): number {\n    const n = nums.length;\n    let maxPrime = 0;\n    const isPrime = (num: number): boolean =&gt; {\n        if (num &lt;= 1) return false;\n        if (num &lt;= 3) return true;\n        if (num % 2 === 0 || num % 3 === 0) return false;\n        for (let i = 5; i * i &lt;= num; i += 6) {\n            if (num % i === 0 || num % (i + 2) === 0) return false;\n        }\n        return true;\n    };\n\n    for (let i = 0; i &lt; n; i++) {\n        if (isPrime(nums[i][i])) {\n            maxPrime = Math.max(maxPrime, nums[i][i]);\n        }\n        if (isPrime(nums[i][n - 1 - i])) {\n            maxPrime = Math.max(maxPrime, nums[i][n - 1 - i]);\n        }\n    }\n    return maxPrime === 0 ? -1 : maxPrime;\n}" },]} />
+
+**Complexity**
+- Time: O(n * √M), where n is the size of the matrix and M is the maximum value. The constant factor is lower than the basic trial division because we check fewer divisors.
+- Space: O(1), using only a few variables.
+- Notes: This is a highly optimized single-number primality test that is very efficient for the given constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Prime In Diagonal Solutions","datePublished":"2024-05-22","description":"Find the largest prime number located on either the main diagonal or the anti-diagonal of a square matrix.","keywords":"LeetCode, Prime In Diagonal, Easy, Array, Math, Matrix, Number Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iteration with Basic Primality Test approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * √M), where n is the size of the matrix and M is the maximum value in the matrix."}},{"@type":"Question","name":"What is the time complexity of the Sieve of Eratosthenes approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(M log log M + n²), where M is the maximum value in the matrix."}},{"@type":"Question","name":"What is the time complexity of the Optimized Primality Test (6k ± 1) approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * √M), with a lower constant factor compared to the basic trial division method."}}]}).replace(/</g,'\u003c')}
+</script>

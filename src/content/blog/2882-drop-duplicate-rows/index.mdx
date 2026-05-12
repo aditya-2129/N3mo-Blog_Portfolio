@@ -1,0 +1,161 @@
+---
+title: "Drop Duplicate Rows"
+summary: "Remove duplicate rows from a dataset, keeping only the first occurrence of each unique row."
+date: "Jun 03, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.10% | **Paid:** No
+> **Topics:** N/A
+
+You are given a DataFrame customers containing columns customer_id, name, and email. Remove all rows that are duplicates of another row, keeping only the first occurrence.
+
+The result should contain only unique rows based on all columns.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Methods](#approach-1-built-in-methods)
+- [Approach 2: Hash Set Tracking](#approach-2-hash-set-tracking)
+- [Approach 3: Sorting and Grouping](#approach-3-sorting-and-grouping)
+
+## Examples
+
+### Example 1
+**Input:**
+```text
++-------------+--------+----------+
+| customer_id | name   | email    |
++-------------+--------+----------+
+| 1           | John   | john@example.com |
+| 2           | Alice  | alice@example.com |
+| 3           | John   | john@example.com |
+| 4           | Bob    | bob@example.com   |
+| 5           | Alice  | alice@example.com |
++-------------+--------+----------+
+```
+
+**Output:**
+```text
++-------------+--------+----------+
+| customer_id | name   | email    |
++-------------+--------+----------+
+| 1           | John   | john@example.com |
+| 2           | Alice  | alice@example.com |
+| 4           | Bob    | bob@example.com   |
++-------------+--------+----------+
+```
+
+**Explanation:**
+There are two duplicate rows: one where customer_id is 3 (same as 1) and one where customer_id is 5 (same as 2). We keep the first occurrence of each unique row.
+
+### Example 2
+**Input:**
+```text
++-------------+--------+----------+
+| customer_id | name   | email    |
++-------------+--------+----------+
+| 1           | John   | john@example.com |
+| 2           | Jane   | jane@example.com |
+| 3           | John   | john@example.com |
++-------------+--------+----------+
+```
+
+**Output:**
+```text
++-------------+--------+----------+
+| customer_id | name   | email    |
++-------------+--------+----------+
+| 1           | John   | john@example.com |
+| 2           | Jane   | jane@example.com |
++-------------+--------+----------+
+```
+
+## Constraints
+
+```text
+0 <= customers.length <= 1000
+```
+
+---
+## Approach 1: Built-in Methods
+
+**Intuition**
+Most data processing libraries provide optimized functions to handle duplicate removal natively. Utilizing these built-in methods is the most efficient and readable approach.
+
+**Steps**
+- Use the library's specific function to drop duplicates.
+- Ensure the operation considers all columns to identify duplicates.
+- Return the resulting data structure.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'import pandas as pd\n\ndef dropDuplicateRows(customers: pd.DataFrame) -> pd.DataFrame:\n    return customers.drop_duplicates()' },
+{ name: "Java", lang: "java", code: 'import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List<List<String>&gt; dropDuplicateRows(List<List<String>&gt; customers) {\n        LinkedHashSet<List<String>&gt; seen = new LinkedHashSet&lt;&gt;();\n        for (List<String> row : customers) {\n            seen.add(row);\n        }\n        return new ArrayList&lt;&gt;(seen);\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <unordered_set>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>&gt; dropDuplicateRows(vector<vector<string>&gt;& customers) {\n        unordered_set<string> seen;\n        vector<vector<string>&gt; result;\n        for (const auto& row : customers) {\n            string key;\n            for (const auto& val : row) {\n                key += val + "|"; \n            }\n            if (seen.find(key) == seen.end()) {\n                seen.insert(key);\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {any[][]} customers\n * @return {any[][]}\n */\nvar dropDuplicateRows = function(customers) {\n    const seen = new Set();\n    const result = [];\n    for (const row of customers) {\n        const key = JSON.stringify(row);\n        if (!seen.has(key)) {\n            seen.add(key);\n            result.push(row);\n        }\n    }\n    return result;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function dropDuplicateRows(customers: any[][]): any[][] {\n    const seen = new Set<string>();\n    const result: any[][] = [];\n    for (const row of customers) {\n        const key = JSON.stringify(row);\n        if (!seen.has(key)) {\n            seen.add(key);\n            result.push(row);\n        }\n    }\n    return result;\n}' },]} />
+
+**Complexity**
+- Time: O(n) on average for hash-based operations, though serialization in some languages adds overhead.
+- Space: O(n) to store the unique rows.
+- Notes: Python's Pandas is highly optimized. In other languages, serialization (like JSON.stringify) creates overhead.
+
+---
+## Approach 2: Hash Set Tracking
+
+**Intuition**
+We can iterate through the dataset once, maintaining a record of rows we have already encountered. If a row has been seen before, we skip it; otherwise, we add it to our result.
+
+**Steps**
+- Initialize an empty Set to store unique identifiers of rows.
+- Initialize an empty list/array for the result.
+- Iterate through each row in the input.
+- Convert the row into a hashable string key.
+- If the key is not in the Set, add the row to the result and add the key to the Set.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'import pandas as pd\n\ndef dropDuplicateRows(customers: pd.DataFrame) -> pd.DataFrame:\n    seen = set()\n    result = []\n    for index, row in customers.iterrows():\n        # Create a tuple of the row values to use as a hashable key\n        key = tuple(row)\n        if key not in seen:\n            seen.add(key)\n            result.append(row)\n    return pd.DataFrame(result)' },
+{ name: "Java", lang: "java", code: 'import java.util.*;\n\nclass Solution {\n    public List<List<String>&gt; dropDuplicateRows(List<List<String>&gt; customers) {\n        Set<String> seen = new HashSet&lt;&gt;();\n        List<List<String>&gt; result = new ArrayList&lt;&gt;();\n        for (List<String> row : customers) {\n            String key = String.join(",", row);\n            if (!seen.contains(key)) {\n                seen.add(key);\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <unordered_set>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>&gt; dropDuplicateRows(vector<vector<string>&gt;& customers) {\n        unordered_set<string> seen;\n        vector<vector<string>&gt; result;\n        for (const auto& row : customers) {\n            string key;\n            for (size_t i = 0; i &lt; row.size(); ++i) {\n                key += row[i] + (i &lt; row.size() - 1 ? "," : "");\n            }\n            if (seen.find(key) == seen.end()) {\n                seen.insert(key);\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {any[][]} customers\n * @return {any[][]}\n */\nvar dropDuplicateRows = function(customers) {\n    const seen = new Set();\n    const result = [];\n    for (const row of customers) {\n        const key = row.join("|");\n        if (!seen.has(key)) {\n            seen.add(key);\n            result.push(row);\n        }\n    }\n    return result;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function dropDuplicateRows(customers: any[][]): any[][] {\n    const seen = new Set<string>();\n    const result: any[][] = [];\n    for (const row of customers) {\n        const key = row.join("|");\n        if (!seen.has(key)) {\n            seen.add(key);\n            result.push(row);\n        }\n    }\n    return result;\n}' },]} />
+
+**Complexity**
+- Time: O(n * m) where n is the number of rows and m is the number of columns (due to string concatenation/joining).
+- Space: O(n) to store the keys and result.
+- Notes: This approach is generic and works in any language, though slightly slower than built-in optimized methods.
+
+---
+## Approach 3: Sorting and Grouping
+
+**Intuition**
+If we sort the rows, duplicate rows will be adjacent to each other. We can then iterate through the sorted list and keep a row only if it is different from the previous one.
+
+**Steps**
+- Sort the dataset based on all columns.
+- Initialize a result list.
+- Iterate through the sorted rows.
+- If the current row is different from the last row added to the result, add it.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'import pandas as pd\n\ndef dropDuplicateRows(customers: pd.DataFrame) -> pd.DataFrame:\n    # Sort by all columns to bring duplicates together\n    customers_sorted = customers.sort_values(by=customers.columns.tolist())\n    # Drop duplicates while keeping the first occurrence (which is now the first in sorted order)\n    # Note: This changes the original order of rows.\n    return customers_sorted.drop_duplicates()' },
+{ name: "Java", lang: "java", code: 'import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List<List<String>&gt; dropDuplicateRows(List<List<String>&gt; customers) {\n        // Sort the list based on the content of the rows\n        customers.sort((r1, r2) -> {\n            for (int i = 0; i &lt; Math.min(r1.size(), r2.size()); i++) {\n                int cmp = r1.get(i).compareTo(r2.get(i));\n                if (cmp != 0) return cmp;\n            }\n            return Integer.compare(r1.size(), r2.size());\n        });\n        \n        List<List<String>&gt; result = new ArrayList&lt;&gt;();\n        for (List<String> row : customers) {\n            if (result.isEmpty() || !result.get(result.size() - 1).equals(row)) {\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <algorithm>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>&gt; dropDuplicateRows(vector<vector<string>&gt;& customers) {\n        sort(customers.begin(), customers.end());\n        vector<vector<string>&gt; result;\n        for (const auto& row : customers) {\n            if (result.empty() || result.back() != row) {\n                result.push_back(row);\n            }\n        }\n        return result;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {any[][]} customers\n * @return {any[][]}\n */\nvar dropDuplicateRows = function(customers) {\n    // Sort rows lexicographically\n    customers.sort((a, b) =&gt; {\n        for (let i = 0; i &lt; Math.min(a.length, b.length); i++) {\n            if (a[i] &lt; b[i]) return -1;\n            if (a[i] &gt; b[i]) return 1;\n        }\n        return a.length - b.length;\n    });\n    \n    const result = [];\n    for (const row of customers) {\n        if (result.length === 0 || JSON.stringify(result[result.length - 1]) !== JSON.stringify(row)) {\n            result.push(row);\n        }\n    }\n    return result;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function dropDuplicateRows(customers: any[][]): any[][] {\n    customers.sort((a, b) =&gt; {\n        for (let i = 0; i &lt; Math.min(a.length, b.length); i++) {\n            if (a[i] &lt; b[i]) return -1;\n            if (a[i] &gt; b[i]) return 1;\n        }\n        return a.length - b.length;\n    });\n\n    const result: any[][] = [];\n    for (const row of customers) {\n        if (result.length === 0 || JSON.stringify(result[result.length - 1]) !== JSON.stringify(row)) {\n            result.push(row);\n        }\n    }\n    return result;\n}' },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting.
+- Space: O(1) or O(n) depending on the sorting implementation.
+- Notes: This approach is generally slower than hash-based methods (O(n)) due to the sorting step, and it does not preserve the original order of rows.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Drop Duplicate Rows Solutions","datePublished":"2024-06-03","description":"Remove duplicate rows from a dataset, keeping only the first occurrence of each unique row.","keywords":"LeetCode, Drop Duplicate Rows, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Methods approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) on average for hash-based operations."}},{"@type":"Question","name":"What is the time complexity of the Hash Set Tracking approach?","acceptedAnswer":{"@type":"Answer","text":"O(n * m) where n is the number of rows and m is the number of columns."}},{"@type":"Question","name":"What is the time complexity of the Sorting and Grouping approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) due to the sorting step."}}]}).replace(/</g,'\u003c')}
+</script>

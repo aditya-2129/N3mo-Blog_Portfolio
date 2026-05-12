@@ -1,0 +1,244 @@
+---
+title: "Count Residue Prefixes"
+summary: "Count the number of prefixes of a numeric string that are divisible by a given integer."
+date: "Dec 02, 2025"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.60% | **Paid:** No
+> **Topics:** Hash Table, String
+
+You are given a string s consisting of digits and an integer m. Consider all prefixes of s. For each prefix, convert it to a number and compute its remainder when divided by m. Return the number of prefixes whose remainder is 0 (i.e., prefixes divisible by m).
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Iterative Modulo](#iterative-modulo)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "123", m = 5
+Output: 0
+Explanation:
+- Prefix "1": 1 % 5 = 1
+- Prefix "12": 12 % 5 = 2
+- Prefix "123": 123 % 5 = 3
+No prefix is divisible by 5.
+```
+
+### Example 2
+```text
+Input: s = "50", m = 5
+Output: 2
+Explanation:
+- Prefix "5": 5 % 5 = 0
+- Prefix "50": 50 % 5 = 0
+Both prefixes are divisible by 5.
+```
+
+### Example 3
+```text
+Input: s = "0123", m = 5
+Output: 1
+Explanation:
+- Prefix "0": 0 % 5 = 0
+- Prefix "01": 1 % 5 = 1
+- Prefix "012": 12 % 5 = 2
+- Prefix "0123": 123 % 5 = 3
+Only the first prefix is divisible by 5.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+1 <= m <= 10⁹
+s consists only of digits
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each prefix of the string, convert it to a number and check if it's divisible by m.
+
+**Steps**
+- Iterate through each position in the string
+- For each position, extract the prefix substring
+- Convert the prefix to a number
+- Check if the number is divisible by m
+- Count the number of divisible prefixes
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countResiduePrefixes(self, s: str, m: int) -> int:
+        count = 0
+        for i in range(1, len(s) + 1):
+            prefix = int(s[:i])
+            if prefix % m == 0:
+                count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countResiduePrefixes(String s, int m) {
+        int count = 0;
+        for (int i = 1; i &lt;= s.length(); i++) {
+            String prefixStr = s.substring(0, i);
+            long prefix = Long.parseLong(prefixStr);
+            if (prefix % m == 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countResiduePrefixes(string s, int m) {
+        int count = 0;
+        for (int i = 1; i &lt;= s.length(); i++) {
+            string prefixStr = s.substr(0, i);
+            long long prefix = stoll(prefixStr);
+            if (prefix % m == 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {number} m
+ * @return {number}
+ */
+var countResiduePrefixes = function(s, m) {
+    let count = 0;
+    for (let i = 1; i &lt;= s.length; i++) {
+        const prefix = BigInt(s.substring(0, i));
+        if (prefix % BigInt(m) === 0n) {
+            count++;
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countResiduePrefixes(s: string, m: number): number {
+    let count = 0;
+    for (let i = 1; i &lt;= s.length; i++) {
+        const prefix = BigInt(s.substring(0, i));
+        if (prefix % BigInt(m) === 0n) {
+            count++;
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - converting each prefix to a number takes O(n) time, and we do this for n prefixes
+- Space: O(n) - for storing the prefix substring
+- Notes: This approach is inefficient for large strings and may overflow for very long prefixes
+
+---
+## Iterative Modulo
+
+**Intuition**
+Instead of converting each prefix to a number, we can compute the residue iteratively. For each new digit, the new residue is (old_residue * 10 + digit) % m. This avoids overflow and is much more efficient.
+
+**Steps**
+- Initialize residue to 0 and count to 0
+- Iterate through each character in the string
+- For each digit, update the residue: residue = (residue * 10 + digit) % m
+- If the residue is 0, increment the count
+- Return the count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countResiduePrefixes(self, s: str, m: int) -> int:
+        count = 0
+        residue = 0
+        for ch in s:
+            residue = (residue * 10 + int(ch)) % m
+            if residue == 0:
+                count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countResiduePrefixes(String s, int m) {
+        int count = 0;
+        long residue = 0;
+        for (int i = 0; i &lt; s.length(); i++) {
+            residue = (residue * 10 + (s.charAt(i) - '0')) % m;
+            if (residue == 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countResiduePrefixes(string s, int m) {
+        int count = 0;
+        long long residue = 0;
+        for (char ch : s) {
+            residue = (residue * 10 + (ch - '0')) % m;
+            if (residue == 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {number} m
+ * @return {number}
+ */
+var countResiduePrefixes = function(s, m) {
+    let count = 0;
+    let residue = 0;
+    for (let i = 0; i &lt; s.length; i++) {
+        residue = (residue * 10 + (s.charCodeAt(i) - 48)) % m;
+        if (residue === 0) {
+            count++;
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countResiduePrefixes(s: string, m: number): number {
+    let count = 0;
+    let residue = 0;
+    for (let i = 0; i &lt; s.length; i++) {
+        residue = (residue * 10 + (s.charCodeAt(i) - 48)) % m;
+        if (residue === 0) {
+            count++;
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - single pass through the string
+- Space: O(1) - only using a few variables
+- Notes: This is the optimal solution, avoiding overflow and being very efficient
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Residue Prefixes Solutions","datePublished":"2025-12-02","description":"Count the number of prefixes of a numeric string that are divisible by a given integer.","keywords":"LeetCode, Count Residue Prefixes, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Iterative Modulo approach?","acceptedAnswer":{"@type":"Answer","text":"The Iterative Modulo approach has a time complexity of O(n) where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The optimal Iterative Modulo approach has a space complexity of O(1) as it only uses a few variables."}}]}).replace(/</g,'\u003c')}
+</script>

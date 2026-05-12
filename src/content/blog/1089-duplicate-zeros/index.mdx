@@ -1,0 +1,124 @@
+---
+title: "Duplicate Zeros"
+summary: "Duplicate each occurrence of zero in a fixed-length array, shifting remaining elements to the right."
+date: "Nov 16, 2024"
+tags:
+  - Array
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.60% | **Paid:** No
+> **Topics:** Array, Two Pointers
+
+Given a fixed-length integer array arr, duplicate each occurrence of zero, shifting the remaining elements to the right.
+
+Note that elements beyond the length of the original array are not written. Do the above modifications to the input array in place and do not return anything.
+
+- Examples
+- Constraints
+- [Brute Force with Extra Array](#brute-force-with-extra-array)
+- [In-Place Shifting](#in-place-shifting)
+- [Two Pointers (Optimal)](#two-pointers-optimal)
+
+## Examples
+
+```text
+Input: arr = [1,0,2,3,0,4,5,0]
+Output: [1,0,0,2,3,0,0,4]
+Explanation: After calling your function, the input array is modified to: [1,0,0,2,3,0,0,4]
+```
+
+```text
+Input: arr = [1,2,3]
+Output: [1,2,3]
+Explanation: After calling your function, the input array is modified to: [1,2,3]
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 10⁴
+0 <= arr[i] <= 9
+```
+
+---
+## Brute Force with Extra Array
+
+**Intuition**
+Create a new array and copy elements from the original, duplicating zeros. Then copy back to the original array.
+
+**Steps**
+- Create a result array
+- Iterate through original array, adding each element to result
+- If element is zero, add another zero
+- Stop when result array reaches original length
+- Copy result back to original array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def duplicateZeros(self, arr: List[int]) -&gt; None:\n        n = len(arr)\n        result = []\n        i = 0\n        while len(result) &lt; n:\n            result.append(arr[i])\n            if arr[i] == 0:\n                result.append(0)\n            i += 1\n        for i in range(n):\n            arr[i] = result[i]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void duplicateZeros(int[] arr) {\n        int n = arr.length;\n        int[] result = new int[n];\n        int index = 0;\n        for (int i = 0; i &lt; n && index &lt; n; i++) {\n            result[index++] = arr[i];\n            if (arr[i] == 0 && index &lt; n) {\n                result[index++] = 0;\n            }\n        }\n        for (int i = 0; i &lt; n; i++) {\n            arr[i] = result[i];\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void duplicateZeros(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        vector&lt;int&gt; result(n);\n        int index = 0;\n        for (int i = 0; i &lt; n && index &lt; n; i++) {\n            result[index++] = arr[i];\n            if (arr[i] == 0 && index &lt; n) {\n                result[index++] = 0;\n            }\n        }\n        for (int i = 0; i &lt; n; i++) {\n            arr[i] = result[i];\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function duplicateZeros(arr) {\n    const n = arr.length;\n    const result = [];\n    let i = 0;\n    while (result.length &lt; n) {\n        result.push(arr[i]);\n        if (arr[i] === 0) {\n            result.push(0);\n        }\n        i++;\n    }\n    for (let i = 0; i &lt; n; i++) {\n        arr[i] = result[i];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function duplicateZeros(arr: number[]): void {\n    const n = arr.length;\n    const result: number[] = [];\n    let i = 0;\n    while (result.length &lt; n) {\n        result.push(arr[i]);\n        if (arr[i] === 0) {\n            result.push(0);\n        }\n        i++;\n    }\n    for (let i = 0; i &lt; n; i++) {\n        arr[i] = result[i];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Simple but uses extra space proportional to input size
+
+---
+## In-Place Shifting
+
+**Intuition**
+Iterate through the array and when a zero is found, shift all elements to the right by one position and insert a duplicate zero.
+
+**Steps**
+- Iterate through the array
+- When a zero is encountered, shift all elements after it one position to the right
+- Insert a zero at the next position
+- Skip the newly inserted zero in the next iteration
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def duplicateZeros(self, arr: List[int]) -&gt; None:\n        n = len(arr)\n        i = 0\n        while i &lt; n:\n            if arr[i] == 0:\n                for j in range(n - 1, i, -1):\n                    arr[j] = arr[j - 1]\n                if i + 1 &lt; n:\n                    arr[i + 1] = 0\n                i += 1\n            i += 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void duplicateZeros(int[] arr) {\n        int n = arr.length;\n        for (int i = 0; i &lt; n; i++) {\n            if (arr[i] == 0) {\n                for (int j = n - 1; j &gt; i; j--) {\n                    arr[j] = arr[j - 1];\n                }\n                if (i + 1 &lt; n) {\n                    arr[i + 1] = 0;\n                }\n                i++;\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void duplicateZeros(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        for (int i = 0; i &lt; n; i++) {\n            if (arr[i] == 0) {\n                for (int j = n - 1; j &gt; i; j--) {\n                    arr[j] = arr[j - 1];\n                }\n                if (i + 1 &lt; n) {\n                    arr[i + 1] = 0;\n                }\n                i++;\n            }\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function duplicateZeros(arr) {\n    const n = arr.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] === 0) {\n            for (let j = n - 1; j &gt; i; j--) {\n                arr[j] = arr[j - 1];\n            }\n            if (i + 1 &lt; n) {\n                arr[i + 1] = 0;\n            }\n            i++;\n        }\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function duplicateZeros(arr: number[]): void {\n    const n = arr.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] === 0) {\n            for (let j = n - 1; j &gt; i; j--) {\n                arr[j] = arr[j - 1];\n            }\n            if (i + 1 &lt; n) {\n                arr[i + 1] = 0;\n            }\n            i++;\n        }\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: In-place but inefficient due to nested shifting operations
+
+---
+## Two Pointers (Optimal)
+
+**Intuition**
+First pass counts zeros and finds the last valid position. Second pass fills the array from the end, duplicating zeros as needed.
+
+**Steps**
+- First pass: count zeros and find where the last element will land
+- Handle edge case where a zero is partially outside the array
+- Second pass: iterate backwards, placing elements at their final positions
+- Duplicate zeros by placing two zeros when encountered
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def duplicateZeros(self, arr: List[int]) -&gt; None:\n        n = len(arr)\n        zeros = 0\n        left = 0\n        \n        while left + zeros &lt; n:\n            if arr[left] == 0:\n                zeros += 1\n            left += 1\n        \n        left -= 1\n        right = n - 1\n        \n        if left + zeros &gt; n - 1:\n            arr[right] = 0\n            right -= 1\n            zeros -= 1\n        \n        while zeros &gt; 0:\n            if arr[left] == 0:\n                arr[right] = 0\n                right -= 1\n                arr[right] = 0\n                zeros -= 1\n            else:\n                arr[right] = arr[left]\n            left -= 1\n            right -= 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public void duplicateZeros(int[] arr) {\n        int n = arr.length;\n        int zeros = 0;\n        int left = 0;\n        \n        while (left + zeros &lt; n) {\n            if (arr[left] == 0) {\n                zeros++;\n            }\n            left++;\n        }\n        \n        left--;\n        int right = n - 1;\n        \n        if (left + zeros &gt; n - 1) {\n            arr[right] = 0;\n            right--;\n            zeros--;\n        }\n        \n        while (zeros &gt; 0) {\n            if (arr[left] == 0) {\n                arr[right] = 0;\n                right--;\n                arr[right] = 0;\n                zeros--;\n            } else {\n                arr[right] = arr[left];\n            }\n            left--;\n            right--;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void duplicateZeros(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        int zeros = 0;\n        int left = 0;\n        \n        while (left + zeros &lt; n) {\n            if (arr[left] == 0) {\n                zeros++;\n            }\n            left++;\n        }\n        \n        left--;\n        int right = n - 1;\n        \n        if (left + zeros &gt; n - 1) {\n            arr[right] = 0;\n            right--;\n            zeros--;\n        }\n        \n        while (zeros &gt; 0) {\n            if (arr[left] == 0) {\n                arr[right] = 0;\n                right--;\n                arr[right] = 0;\n                zeros--;\n            } else {\n                arr[right] = arr[left];\n            }\n            left--;\n            right--;\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function duplicateZeros(arr) {\n    const n = arr.length;\n    let zeros = 0;\n    let left = 0;\n    \n    while (left + zeros &lt; n) {\n        if (arr[left] === 0) {\n            zeros++;\n        }\n        left++;\n    }\n    \n    left--;\n    let right = n - 1;\n    \n    if (left + zeros &gt; n - 1) {\n        arr[right] = 0;\n        right--;\n        zeros--;\n    }\n    \n    while (zeros &gt; 0) {\n        if (arr[left] === 0) {\n            arr[right] = 0;\n            right--;\n            arr[right] = 0;\n            zeros--;\n        } else {\n            arr[right] = arr[left];\n        }\n        left--;\n        right--;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function duplicateZeros(arr: number[]): void {\n    const n = arr.length;\n    let zeros = 0;\n    let left = 0;\n    \n    while (left + zeros &lt; n) {\n        if (arr[left] === 0) {\n            zeros++;\n        }\n        left++;\n    }\n    \n    left--;\n    let right = n - 1;\n    \n    if (left + zeros &gt; n - 1) {\n        arr[right] = 0;\n        right--;\n        zeros--;\n    }\n    \n    while (zeros &gt; 0) {\n        if (arr[left] === 0) {\n            arr[right] = 0;\n            right--;\n            arr[right] = 0;\n            zeros--;\n        } else {\n            arr[right] = arr[left];\n        }\n        left--;\n        right--;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with linear time and constant space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Duplicate Zeros Solutions","datePublished":"2024-11-16","description":"Duplicate each occurrence of zero in a fixed-length array, shifting remaining elements to the right.","keywords":"LeetCode, Duplicate Zeros, Easy, Array, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force with Extra Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the array."}},{"@type":"Question","name":"What is the space complexity of Brute Force with Extra Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) as we use an additional array of the same size."}},{"@type":"Question","name":"What is the time complexity of In-Place Shifting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) due to nested shifting operations for each zero."}},{"@type":"Question","name":"What is the space complexity of In-Place Shifting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we modify the array in place without extra space."}},{"@type":"Question","name":"What is the time complexity of Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) with two linear passes through the array."}},{"@type":"Question","name":"What is the space complexity of Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few pointer variables."}}]}).replace(/</g,'\u003c')}
+</script>

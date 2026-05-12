@@ -1,0 +1,441 @@
+---
+title: "Find the Pivot Integer"
+summary: "Find the integer x where sum of 1 to x equals sum of x to n, or return -1."
+date: "Jan 01, 2024"
+tags:
+  - Math
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.80% | **Paid:** No
+> **Topics:** Math, Prefix Sum
+
+Given a positive integer n, find the pivot integer x such that:
+
+The sum of all numbers between 1 and x (inclusive) is equal to the sum of all numbers between x and n (inclusive).
+
+Return the pivot integer x. If no such integer exists, return -1.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Prefix Sum](#prefix-sum)
+- [Mathematical Formula](#mathematical-formula)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+```text
+Input: n = 8
+Output: 6
+Explanation: 6 is the pivot integer.
+Sum(1, 2, 3, 4, 5, 6) = 21
+Sum(6, 7, 8) = 21
+```
+
+```text
+Input: n = 1
+Output: 1
+Explanation: 1 is the pivot integer.
+Sum(1) = 1
+Sum(1) = 1
+```
+
+```text
+Input: n = 4
+Output: -1
+Explanation: No pivot integer exists.
+```
+
+## Constraints
+
+```text
+1 <= n <= 1000
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through each number from 1 to n and check if it's a pivot by calculating both sums directly.
+
+**Steps**
+- Iterate through each number x from 1 to n
+- For each x, calculate sum from 1 to x
+- Calculate sum from x to n
+- If sums are equal, return x
+- If no pivot found, return -1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def pivotInteger(self, n: int) -> int:
+        for x in range(1, n + 1):
+            left_sum = sum(range(1, x + 1))
+            right_sum = sum(range(x, n + 1))
+            if left_sum == right_sum:
+                return x
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int pivotInteger(int n) {
+        for (int x = 1; x &lt;= n; x++) {
+            int leftSum = 0;
+            for (int i = 1; i &lt;= x; i++) {
+                leftSum += i;
+            }
+            int rightSum = 0;
+            for (int i = x; i &lt;= n; i++) {
+                rightSum += i;
+            }
+            if (leftSum == rightSum) {
+                return x;
+            }
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int pivotInteger(int n) {
+        for (int x = 1; x &lt;= n; x++) {
+            int leftSum = 0;
+            for (int i = 1; i &lt;= x; i++) {
+                leftSum += i;
+            }
+            int rightSum = 0;
+            for (int i = x; i &lt;= n; i++) {
+                rightSum += i;
+            }
+            if (leftSum == rightSum) {
+                return x;
+            }
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {number}
+ */
+var pivotInteger = function(n) {
+    for (let x = 1; x &lt;= n; x++) {
+        let leftSum = 0;
+        for (let i = 1; i &lt;= x; i++) {
+            leftSum += i;
+        }
+        let rightSum = 0;
+        for (let i = x; i &lt;= n; i++) {
+            rightSum += i;
+        }
+        if (leftSum === rightSum) {
+            return x;
+        }
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function pivotInteger(n: number): number {
+    for (let x = 1; x &lt;= n; x++) {
+        let leftSum = 0;
+        for (let i = 1; i &lt;= x; i++) {
+            leftSum += i;
+        }
+        let rightSum = 0;
+        for (let i = x; i &lt;= n; i++) {
+            rightSum += i;
+        }
+        if (leftSum === rightSum) {
+            return x;
+        }
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but inefficient for large n
+
+---
+## Prefix Sum
+
+**Intuition**
+Precompute prefix sums to avoid recalculating sums repeatedly, then find the pivot in a single pass.
+
+**Steps**
+- Calculate total sum of all numbers from 1 to n
+- Iterate through each number x from 1 to n
+- Track running sum from 1 to x
+- Check if running sum equals total sum minus running sum plus x
+- If equal, return x
+- If no pivot found, return -1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def pivotInteger(self, n: int) -> int:
+        total_sum = n * (n + 1) // 2
+        left_sum = 0
+        for x in range(1, n + 1):
+            left_sum += x
+            right_sum = total_sum - left_sum + x
+            if left_sum == right_sum:
+                return x
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int pivotInteger(int n) {
+        int totalSum = n * (n + 1) / 2;
+        int leftSum = 0;
+        for (int x = 1; x &lt;= n; x++) {
+            leftSum += x;
+            int rightSum = totalSum - leftSum + x;
+            if (leftSum == rightSum) {
+                return x;
+            }
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int pivotInteger(int n) {
+        int totalSum = n * (n + 1) / 2;
+        int leftSum = 0;
+        for (int x = 1; x &lt;= n; x++) {
+            leftSum += x;
+            int rightSum = totalSum - leftSum + x;
+            if (leftSum == rightSum) {
+                return x;
+            }
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {number}
+ */
+var pivotInteger = function(n) {
+    const totalSum = n * (n + 1) / 2;
+    let leftSum = 0;
+    for (let x = 1; x &lt;= n; x++) {
+        leftSum += x;
+        const rightSum = totalSum - leftSum + x;
+        if (leftSum === rightSum) {
+            return x;
+        }
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function pivotInteger(n: number): number {
+    const totalSum = n * (n + 1) / 2;
+    let leftSum = 0;
+    for (let x = 1; x &lt;= n; x++) {
+        leftSum += x;
+        const rightSum = totalSum - leftSum + x;
+        if (leftSum === rightSum) {
+            return x;
+        }
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Efficient single pass solution
+
+---
+## Mathematical Formula
+
+**Intuition**
+Use the mathematical property that sum(1 to x) = x(x+1)/2 and derive a formula to directly compute the pivot.
+
+**Steps**
+- Use formula: sum(1 to x) = x(x+1)/2
+- Set sum(1 to x) = sum(x to n)
+- Derive: x² = n(n+1)/2
+- Calculate x = sqrt(n(n+1)/2)
+- Check if x is a valid integer pivot
+- Return x or -1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import math
+
+class Solution:
+    def pivotInteger(self, n: int) -> int:
+        total = n * (n + 1) // 2
+        x = int(math.isqrt(total))
+        if x * x == total:
+            return x
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int pivotInteger(int n) {
+        int total = n * (n + 1) / 2;
+        int x = (int) Math.sqrt(total);
+        if (x * x == total) {
+            return x;
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <cmath>
+
+class Solution {
+public:
+    int pivotInteger(int n) {
+        int total = n * (n + 1) / 2;
+        int x = (int) sqrt(total);
+        if (x * x == total) {
+            return x;
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {number}
+ */
+var pivotInteger = function(n) {
+    const total = n * (n + 1) / 2;
+    const x = Math.floor(Math.sqrt(total));
+    if (x * x === total) {
+        return x;
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function pivotInteger(n: number): number {
+    const total = n * (n + 1) / 2;
+    const x = Math.floor(Math.sqrt(total));
+    if (x * x === total) {
+        return x;
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Most optimal solution using mathematical derivation
+
+---
+## Two Pointers
+
+**Intuition**
+Use two pointers starting from both ends, moving towards each other while tracking cumulative sums to find the pivot.
+
+**Steps**
+- Initialize left pointer at 1, right pointer at n
+- Track left sum and right sum
+- Move the pointer with smaller sum towards center
+- When pointers meet, check if sums are equal
+- Return the pivot or -1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def pivotInteger(self, n: int) -> int:
+        left, right = 1, n
+        left_sum, right_sum = 1, n
+        while left &lt; right:
+            if left_sum &lt; right_sum:
+                left += 1
+                left_sum += left
+            else:
+                right -= 1
+                right_sum += right
+        return left if left_sum == right_sum else -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int pivotInteger(int n) {
+        int left = 1, right = n;
+        int leftSum = 1, rightSum = n;
+        while (left &lt; right) {
+            if (leftSum &lt; rightSum) {
+                left++;
+                leftSum += left;
+            } else {
+                right--;
+                rightSum += right;
+            }
+        }
+        return leftSum == rightSum ? left : -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int pivotInteger(int n) {
+        int left = 1, right = n;
+        int leftSum = 1, rightSum = n;
+        while (left &lt; right) {
+            if (leftSum &lt; rightSum) {
+                left++;
+                leftSum += left;
+            } else {
+                right--;
+                rightSum += right;
+            }
+        }
+        return leftSum == rightSum ? left : -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {number}
+ */
+var pivotInteger = function(n) {
+    let left = 1, right = n;
+    let leftSum = 1, rightSum = n;
+    while (left &lt; right) {
+        if (leftSum &lt; rightSum) {
+            left++;
+            leftSum += left;
+        } else {
+            right--;
+            rightSum += right;
+        }
+    }
+    return leftSum === rightSum ? left : -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function pivotInteger(n: number): number {
+    let left = 1, right = n;
+    let leftSum = 1, rightSum = n;
+    while (left &lt; right) {
+        if (leftSum &lt; rightSum) {
+            left++;
+            leftSum += left;
+        } else {
+            right--;
+            rightSum += right;
+        }
+    }
+    return leftSum === rightSum ? left : -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Elegant two-pointer approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Pivot Integer Solutions","datePublished":"2024-01-01","description":"Find the integer x where sum of 1 to x equals sum of x to n, or return -1.","keywords":"LeetCode, Find the Pivot Integer, Easy, Math, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) as we calculate sums for each potential pivot."}},{"@type":"Question","name":"What is the most optimal solution for Find the Pivot Integer?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical Formula approach is the most optimal with O(1) time and space complexity, using the derived formula x = sqrt(n(n+1)/2)."}},{"@type":"Question","name":"How does the Prefix Sum approach work?","acceptedAnswer":{"@type":"Answer","text":"The Prefix Sum approach calculates the total sum once, then iterates through each number while tracking the running sum to find where left sum equals right sum in O(n) time."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers approach has O(1) space complexity as it only uses a few variables to track pointers and sums."}}]}).replace(/</g,'\u003c')}
+</script>

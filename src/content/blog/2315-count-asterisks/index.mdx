@@ -1,0 +1,133 @@
+---
+title: "Count Asterisks"
+summary: "Count asterisks in a string, excluding those between pairs of vertical bars."
+date: "Nov 20, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.40% | **Paid:** No
+> **Topics:** String
+
+You are given a string s, where every two consecutive vertical bars '|' are grouped. In other words, the first and second '|' make a pair, the third and fourth '|' make a pair, and so forth.
+
+Return the number of '*' characters in s, excluding the '*' between each pair of '|'.
+
+Note that each '|' will belong to exactly one pair.
+
+- Examples
+- Constraints
+- [Single Pass with Flag](#single-pass-with-flag)
+- [Split and Count](#split-and-count)
+- [Two Pass with Index Tracking](#two-pass-with-index-tracking)
+
+## Examples
+
+```text
+Input: s = "l|*e*et|c**o|*de|"
+Output: 2
+Explanation: The '*' between the first and second '|' is excluded, and the '*' between the third and fourth '|' is excluded. The remaining '*' are counted.
+```
+
+```text
+Input: s = "iamprogrammer"
+Output: 0
+Explanation: There are no '*' in the string.
+```
+
+```text
+Input: s = "yo|uar|e**|b|e***au|tifu|l"
+Output: 5
+Explanation: The '*' between the second and third '|' is excluded, and the '*' between the fifth and sixth '|' is excluded. The remaining '*' are counted.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s consists of lowercase English letters, vertical bars '|', and asterisks '*'.
+s contains an even number of vertical bars '|'.
+```
+
+---
+## Single Pass with Flag
+
+**Intuition**
+Use a boolean flag to track whether we're inside a pair of bars. Toggle the flag when encountering '|' and only count asterisks when outside bars.
+
+**Steps**
+- Initialize count to 0 and inside flag to false
+- Iterate through each character in the string
+- If character is '|', toggle the inside flag
+- If character is '*' and not inside, increment count
+- Return the final count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countAsterisks(self, s: str) -&gt; int:\n        count = 0\n        inside = False\n        for c in s:\n            if c == '|':\n                inside = not inside\n            elif c == '*' and not inside:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countAsterisks(String s) {\n        int count = 0;\n        boolean inside = false;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == '|') {\n                inside = !inside;\n            } else if (c == '*' && !inside) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countAsterisks(string s) {\n        int count = 0;\n        bool inside = false;\n        for (char c : s) {\n            if (c == '|') {\n                inside = !inside;\n            } else if (c == '*' && !inside) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar countAsterisks = function(s) {\n    let count = 0;\n    let inside = false;\n    for (let i = 0; i &lt; s.length; i++) {\n        const c = s[i];\n        if (c === '|') {\n            inside = !inside;\n        } else if (c === '*' && !inside) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countAsterisks(s: string): number {\n    let count = 0;\n    let inside = false;\n    for (let i = 0; i &lt; s.length; i++) {\n        const c = s[i];\n        if (c === '|') {\n            inside = !inside;\n        } else if (c === '*' && !inside) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1)
+- Notes: Optimal solution with constant space overhead
+
+---
+## Split and Count
+
+**Intuition**
+Split the string by '|' to get segments. Asterisks in even-indexed segments (0, 2, 4, ...) are outside bars and should be counted.
+
+**Steps**
+- Split the string by '|' delimiter
+- Iterate through segments at even indices only
+- Count asterisks in each selected segment
+- Return the total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countAsterisks(self, s: str) -&gt; int:\n        segments = s.split('|')\n        count = 0\n        for i in range(0, len(segments), 2):\n            count += segments[i].count('*')\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countAsterisks(String s) {\n        String[] segments = s.split(\"\\\\|\", -1);\n        int count = 0;\n        for (int i = 0; i &lt; segments.length; i += 2) {\n            for (int j = 0; j &lt; segments[i].length(); j++) {\n                if (segments[i].charAt(j) == '*') {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countAsterisks(string s) {\n        vector&lt;string&gt; segments;\n        string current;\n        for (char c : s) {\n            if (c == '|') {\n                segments.push_back(current);\n                current.clear();\n            } else {\n                current += c;\n            }\n        }\n        segments.push_back(current);\n        \n        int count = 0;\n        for (size_t i = 0; i &lt; segments.size(); i += 2) {\n            for (char c : segments[i]) {\n                if (c == '*') {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar countAsterisks = function(s) {\n    const segments = s.split('|');\n    let count = 0;\n    for (let i = 0; i &lt; segments.length; i += 2) {\n        for (let j = 0; j &lt; segments[i].length; j++) {\n            if (segments[i][j] === '*') {\n                count++;\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countAsterisks(s: string): number {\n    const segments: string[] = s.split('|');\n    let count = 0;\n    for (let i = 0; i &lt; segments.length; i += 2) {\n        for (let j = 0; j &lt; segments[i].length; j++) {\n            if (segments[i][j] === '*') {\n                count++;\n            }\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing split segments
+- Notes: More readable but uses extra memory for the split array
+
+---
+## Two Pass with Index Tracking
+
+**Intuition**
+First find all positions of '|' in the string, then count asterisks that are not between any pair of bars by checking their position against bar indices.
+
+**Steps**
+- Find and store all positions of '|' in the string
+- Iterate through the string again
+- For each asterisk, check if it falls between any pair of bars
+- Count only asterisks outside all bar pairs
+- Return the final count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countAsterisks(self, s: str) -&gt; int:\n        bar_positions = [i for i, c in enumerate(s) if c == '|']\n        count = 0\n        for i, c in enumerate(s):\n            if c == '*':\n                inside = False\n                for j in range(0, len(bar_positions), 2):\n                    if j + 1 &lt; len(bar_positions) and bar_positions[j] &lt; i &lt; bar_positions[j + 1]:\n                        inside = True\n                        break\n                if not inside:\n                    count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public int countAsterisks(String s) {\n        List&lt;Integer&gt; barPositions = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s.charAt(i) == '|') {\n                barPositions.add(i);\n            }\n        }\n        \n        int count = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s.charAt(i) == '*') {\n                boolean inside = false;\n                for (int j = 0; j &lt; barPositions.size() - 1; j += 2) {\n                    if (barPositions.get(j) &lt; i && i &lt; barPositions.get(j + 1)) {\n                        inside = true;\n                        break;\n                    }\n                }\n                if (!inside) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    int countAsterisks(string s) {\n        vector&lt;int&gt; barPositions;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s[i] == '|') {\n                barPositions.push_back(i);\n            }\n        }\n        \n        int count = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s[i] == '*') {\n                bool inside = false;\n                for (size_t j = 0; j &lt; barPositions.size() - 1; j += 2) {\n                    if (barPositions[j] &lt; i && i &lt; barPositions[j + 1]) {\n                        inside = true;\n                        break;\n                    }\n                }\n                if (!inside) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar countAsterisks = function(s) {\n    const barPositions = [];\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '|') {\n            barPositions.push(i);\n        }\n    }\n    \n    let count = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '*') {\n            let inside = false;\n            for (let j = 0; j &lt; barPositions.length - 1; j += 2) {\n                if (barPositions[j] &lt; i && i &lt; barPositions[j + 1]) {\n                    inside = true;\n                    break;\n                }\n            }\n            if (!inside) {\n                count++;\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countAsterisks(s: string): number {\n    const barPositions: number[] = [];\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '|') {\n            barPositions.push(i);\n        }\n    }\n    \n    let count = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '*') {\n            let inside = false;\n            for (let j = 0; j &lt; barPositions.length - 1; j += 2) {\n                if (barPositions[j] &lt; i && i &lt; barPositions[j + 1]) {\n                    inside = true;\n                    break;\n                }\n            }\n            if (!inside) {\n                count++;\n            }\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) in worst case where n is the length of the string
+- Space: O(n) for storing bar positions
+- Notes: Less efficient due to nested loops, but demonstrates an alternative approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Asterisks Solutions","datePublished":"2025-11-20","description":"Count asterisks in a string, excluding those between pairs of vertical bars.","keywords":"LeetCode, Count Asterisks, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass with Flag approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we iterate through each character exactly once."}},{"@type":"Question","name":"What is the space complexity of the Split and Count approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the split segments array."}},{"@type":"Question","name":"Which approach is the most optimal for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass with Flag approach is optimal with O(n) time and O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

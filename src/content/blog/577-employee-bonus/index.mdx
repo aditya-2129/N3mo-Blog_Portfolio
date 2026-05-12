@@ -1,0 +1,580 @@
+---
+title: "Employee Bonus"
+summary: "Select all employees with a bonus less than 1000, returning their name and bonus amount."
+date: "Feb 05, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.40% | **Paid:** No
+> **Topics:** Database
+
+Table: Employee
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| empId       | int     |
+| name        | varchar |
+| supervisor  | int     |
+| salary      | int     |
++-------------+---------+
+empId is the primary key column for this table.
+Each row of this table indicates the name of an employee, their id, their salary, and the id of their manager.
+
+Table: Bonus
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| empId       | int  |
+| bonus       | int  |
++-------------+------+
+empId is the primary key column for this table.
+empId is a foreign key to empId from the Employee table.
+Each row of this table contains the id of an employee and the bonus they have been given.
+
+Write an SQL query to report the name and bonus amount of each employee with a bonus less than 1000.
+
+Return the result table in any order.
+
+- Examples
+- Constraints
+- [Left Join Approach](#left-join-approach)
+- [Left Join with COALESCE Approach](#left-join-with-coalesce-approach)
+- [Subquery Approach](#subquery-approach)
+
+## Examples
+
+### Example 1:
+Input:
+Employee table:
++-------+--------+------------+--------+
+| empId | name   | supervisor | salary |
++-------+--------+------------+--------+
+| 3     | Brad   | null       | 4000   |
+| 1     | John   | 3          | 1000   |
+| 2     | Dan    | 3          | 2000   |
+| 4     | Thomas | 3          | 4000   |
++-------+--------+------------+--------+
+Bonus table:
++-------+-------+
+| empId | bonus |
++-------+-------+
+| 2     | 500   |
+| 4     | 2000  |
++-------+-------+
+Output:
++-------+-------+
+| name  | bonus |
++-------+-------+
+| Brad  | null  |
+| John  | null  |
+| Dan   | 500   |
++-------+-------+
+Explanation:
+- Brad and John do not have a bonus record, so their bonus is null.
+- Dan has a bonus of 500, which is less than 1000.
+- Thomas has a bonus of 2000, which is not less than 1000, so he is not included in the result.
+
+## Constraints
+```text
+1 <= Employee.empId <= 100
+1 <= Employee.salary <= 100000
+0 <= Bonus.bonus <= 100000
+```
+
+---
+## Left Join Approach
+
+**Intuition**
+Use LEFT JOIN to include all employees, then filter for bonuses less than 1000 or null.
+
+**Steps**
+- Perform LEFT JOIN between Employee and Bonus tables on empId
+- Filter rows where bonus &lt; 1000 OR bonus IS NULL
+- Select name and bonus columns
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def get_employee_bonus():
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT name, bonus
+    FROM Employee
+    LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+    WHERE bonus &lt; 1000 OR bonus IS NULL
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+
+# LeetCode SQL solution:
+# SELECT name, bonus
+# FROM Employee
+# LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+# WHERE bonus &lt; 1000 OR bonus IS NULL
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void getEmployeeBonus() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/leetcode");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT name, bonus " +
+                      "FROM Employee " +
+                      "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                      "WHERE bonus &lt; 1000 OR bonus IS NULL";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            String name = rs.getString("name");
+            Integer bonus = rs.getObject("bonus", Integer.class);
+            System.out.println(name + ", " + bonus);
+        }
+    }
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE bonus &lt; 1000 OR bonus IS NULL
+*/
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <sqlite3.h>
+
+int getEmployeeBonus() {
+    sqlite3* db;
+    sqlite3_open(":memory:", &db);
+    
+    const char* query = "SELECT name, bonus "
+                        "FROM Employee "
+                        "LEFT JOIN Bonus ON Employee.empId = Bonus.empId "
+                        "WHERE bonus &lt; 1000 OR bonus IS NULL";
+    
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char* name = (const char*)sqlite3_column_text(stmt, 0);
+        int bonus = sqlite3_column_type(stmt, 1) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 1);
+        std::cout &lt;&lt; name &lt;&lt; ", " &lt;&lt; bonus &lt;&lt; std::endl;
+    }
+    
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return 0;
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE bonus &lt; 1000 OR bonus IS NULL
+*/
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus() {
+    const query = "SELECT name, bonus " +
+                  "FROM Employee " +
+                  "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                  "WHERE bonus &lt; 1000 OR bonus IS NULL";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        results.forEach(row =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE bonus &lt; 1000 OR bonus IS NULL
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+interface EmployeeBonus {
+    name: string;
+    bonus: number | null;
+}
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus(): void {
+    const query: string = "SELECT name, bonus " +
+                         "FROM Employee " +
+                         "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                         "WHERE bonus &lt; 1000 OR bonus IS NULL";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: EmployeeBonus[]) =&gt; {
+        if (error) throw error;
+        results.forEach((row: EmployeeBonus) =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE bonus &lt; 1000 OR bonus IS NULL
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of bonus records
+- Space: O(k) where k is the number of result rows
+- Notes: LEFT JOIN ensures employees without bonus records are included
+
+---
+## Left Join with COALESCE Approach
+
+**Intuition**
+Use LEFT JOIN with COALESCE to handle null values by converting them to 0, then filter.
+
+**Steps**
+- Perform LEFT JOIN between Employee and Bonus tables on empId
+- Use COALESCE to convert null bonus values to 0
+- Filter where COALESCE(bonus, 0) &lt; 1000
+- Select name and bonus columns
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def get_employee_bonus():
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT name, bonus
+    FROM Employee
+    LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+    WHERE COALESCE(bonus, 0) &lt; 1000
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+
+# LeetCode SQL solution:
+# SELECT name, bonus
+# FROM Employee
+# LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+# WHERE COALESCE(bonus, 0) &lt; 1000
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void getEmployeeBonus() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/leetcode");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT name, bonus " +
+                      "FROM Employee " +
+                      "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                      "WHERE COALESCE(bonus, 0) &lt; 1000";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            String name = rs.getString("name");
+            Integer bonus = rs.getObject("bonus", Integer.class);
+            System.out.println(name + ", " + bonus);
+        }
+    }
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE COALESCE(bonus, 0) &lt; 1000
+*/
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <sqlite3.h>
+
+int getEmployeeBonus() {
+    sqlite3* db;
+    sqlite3_open(":memory:", &db);
+    
+    const char* query = "SELECT name, bonus "
+                        "FROM Employee "
+                        "LEFT JOIN Bonus ON Employee.empId = Bonus.empId "
+                        "WHERE COALESCE(bonus, 0) &lt; 1000";
+    
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char* name = (const char*)sqlite3_column_text(stmt, 0);
+        int bonus = sqlite3_column_type(stmt, 1) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 1);
+        std::cout &lt;&lt; name &lt;&lt; ", " &lt;&lt; bonus &lt;&lt; std::endl;
+    }
+    
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return 0;
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE COALESCE(bonus, 0) &lt; 1000
+*/
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus() {
+    const query = "SELECT name, bonus " +
+                  "FROM Employee " +
+                  "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                  "WHERE COALESCE(bonus, 0) &lt; 1000";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        results.forEach(row =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE COALESCE(bonus, 0) &lt; 1000
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+interface EmployeeBonus {
+    name: string;
+    bonus: number | null;
+}
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus(): void {
+    const query: string = "SELECT name, bonus " +
+                         "FROM Employee " +
+                         "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                         "WHERE COALESCE(bonus, 0) &lt; 1000";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: EmployeeBonus[]) =&gt; {
+        if (error) throw error;
+        results.forEach((row: EmployeeBonus) =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE COALESCE(bonus, 0) &lt; 1000
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of bonus records
+- Space: O(k) where k is the number of result rows
+- Notes: COALESCE simplifies the WHERE clause by treating null as 0
+
+---
+## Subquery Approach
+
+**Intuition**
+Use a subquery to find employees with bonus &lt; 1000, then combine with employees without any bonus.
+
+**Steps**
+- Select employees with bonus &lt; 1000 using a subquery
+- Use UNION to combine with employees who have no bonus record
+- Select name and bonus columns
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def get_employee_bonus():
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT name, bonus
+    FROM Employee
+    LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+    WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+    """
+    
+    cursor.execute(query)
+    return cursor.fetchall()
+
+# LeetCode SQL solution:
+# SELECT name, bonus
+# FROM Employee
+# LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+# WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void getEmployeeBonus() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/leetcode");
+        Statement stmt = conn.createStatement();
+        
+        String query = "SELECT name, bonus " +
+                      "FROM Employee " +
+                      "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                      "WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)";
+        
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            String name = rs.getString("name");
+            Integer bonus = rs.getObject("bonus", Integer.class);
+            System.out.println(name + ", " + bonus);
+        }
+    }
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+*/
+` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <sqlite3.h>
+
+int getEmployeeBonus() {
+    sqlite3* db;
+    sqlite3_open(":memory:", &db);
+    
+    const char* query = "SELECT name, bonus "
+                        "FROM Employee "
+                        "LEFT JOIN Bonus ON Employee.empId = Bonus.empId "
+                        "WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)";
+    
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char* name = (const char*)sqlite3_column_text(stmt, 0);
+        int bonus = sqlite3_column_type(stmt, 1) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 1);
+        std::cout &lt;&lt; name &lt;&lt; ", " &lt;&lt; bonus &lt;&lt; std::endl;
+    }
+    
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return 0;
+}
+
+/* LeetCode SQL solution:
+SELECT name, bonus
+FROM Employee
+LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+*/
+` },
+{ name: "JavaScript", lang: "javascript", code: `const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus() {
+    const query = "SELECT name, bonus " +
+                  "FROM Employee " +
+                  "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                  "WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)";
+    
+    connection.query(query, (error, results) =&gt; {
+        if (error) throw error;
+        results.forEach(row =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+` },
+{ name: "TypeScript", lang: "typescript", code: `import mysql from 'mysql';
+
+interface EmployeeBonus {
+    name: string;
+    bonus: number | null;
+}
+
+const connection: mysql.Connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'leetcode'
+});
+
+function getEmployeeBonus(): void {
+    const query: string = "SELECT name, bonus " +
+                         "FROM Employee " +
+                         "LEFT JOIN Bonus ON Employee.empId = Bonus.empId " +
+                         "WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)";
+    
+    connection.query(query, (error: mysql.MysqlError | null, results: EmployeeBonus[]) =&gt; {
+        if (error) throw error;
+        results.forEach((row: EmployeeBonus) =&gt; {
+            console.log(row.name + ', ' + row.bonus);
+        });
+    });
+}
+
+// LeetCode SQL solution:
+// SELECT name, bonus
+// FROM Employee
+// LEFT JOIN Bonus ON Employee.empId = Bonus.empId
+// WHERE empId NOT IN (SELECT empId FROM Bonus WHERE bonus &gt;= 1000)
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of bonus records
+- Space: O(k) where k is the number of result rows
+- Notes: Subquery approach can be less efficient on large datasets due to NOT IN operation
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Employee Bonus Solutions","datePublished":"2025-02-05","description":"Select all employees with a bonus less than 1000, returning their name and bonus amount.","keywords":"LeetCode, Employee Bonus, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n is the number of employees and m is the number of bonus records."}},{"@type":"Question","name":"What is the space complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of result rows."}},{"@type":"Question","name":"What is the time complexity of the Left Join with COALESCE approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n is the number of employees and m is the number of bonus records."}},{"@type":"Question","name":"What is the space complexity of the Left Join with COALESCE approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of result rows."}},{"@type":"Question","name":"What is the time complexity of the Subquery approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n is the number of employees and m is the number of bonus records."}},{"@type":"Question","name":"What is the space complexity of the Subquery approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of result rows."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,128 @@
+---
+title: "Check if All the Integers in a Range Are Covered"
+summary: "Determine if every integer in a given range is covered by at least one interval from a list of ranges."
+date: "Jan 29, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Prefix Sum
+
+You are given a 2D integer array ranges and two integers left and right. Each ranges[i] = [starti, endi] represents an inclusive interval between starti and endi.
+
+Return true if every integer in the inclusive range [left, right] is covered by at least one interval in ranges. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Brute Force with Hash Set](#brute-force-with-hash-set)
+- [Prefix Sum / Difference Array](#prefix-sum--difference-array)
+- [Sorting + Interval Merging](#sorting--interval-merging)
+
+## Examples
+
+```text
+Input: ranges = [[1,2],[3,4],[5,6]], left = 2, right = 5
+Output: true
+Explanation: Every integer between 2 and 5 is covered:
+- 2 is covered by the range [1,2]
+- 3 and 4 are covered by the range [3,4]
+- 5 is covered by the range [5,6]
+```
+
+```text
+Input: ranges = [[1,10],[10,20]], left = 21, right = 21
+Output: false
+Explanation: 21 is not covered by any range.
+```
+
+## Constraints
+
+```text
+1 <= ranges.length <= 50
+1 <= starti <= endi <= 50
+1 <= left <= right <= 50
+```
+
+---
+## Brute Force with Hash Set
+
+**Intuition**
+Store all covered integers from all ranges in a hash set, then verify every integer in the query range exists in the set.
+
+**Steps**
+- Iterate through each range and add all integers to a hash set
+- Check if every integer from left to right exists in the set
+- Return false if any integer is missing, true otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isCovered(self, ranges: list[list[int]], left: int, right: int) -&gt; bool:\n        covered = set()\n        for start, end in ranges:\n            for num in range(start, end + 1):\n                covered.add(num)\n        for num in range(left, right + 1):\n            if num not in covered:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isCovered(int[][] ranges, int left, int right) {\n        java.util.Set&lt;Integer&gt; covered = new java.util.HashSet&lt;&gt;();\n        for (int[] range : ranges) {\n            for (int num = range[0]; num &lt;= range[1]; num++) {\n                covered.add(num);\n            }\n        }\n        for (int num = left; num &lt;= right; num++) {\n            if (!covered.contains(num)) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isCovered(vector&lt;vector&lt;int&gt;&gt;& ranges, int left, int right) {\n        unordered_set&lt;int&gt; covered;\n        for (auto& range : ranges) {\n            for (int num = range[0]; num &lt;= range[1]; num++) {\n                covered.insert(num);\n            }\n        }\n        for (int num = left; num &lt;= right; num++) {\n            if (covered.find(num) == covered.end()) {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isCovered = function(ranges, left, right) {\n    const covered = new Set();\n    for (const [start, end] of ranges) {\n        for (let num = start; num &lt;= end; num++) {\n            covered.add(num);\n        }\n    }\n    for (let num = left; num &lt;= right; num++) {\n        if (!covered.has(num)) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isCovered(ranges: number[][], left: number, right: number): boolean {\n    const covered = new Set&lt;number&gt;();\n    for (const [start, end] of ranges) {\n        for (let num = start; num &lt;= end; num++) {\n            covered.add(num);\n        }\n    }\n    for (let num = left; num &lt;= right; num++) {\n        if (!covered.has(num)) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is number of ranges and m is average range length
+- Space: O(n × m) for storing all covered integers
+- Notes: Simple and intuitive, but uses extra space proportional to total covered values
+
+---
+## Prefix Sum / Difference Array
+
+**Intuition**
+Use a difference array to mark range starts and ends, then compute prefix sum to find which positions are covered by at least one range.
+
+**Steps**
+- Initialize a difference array of size 52 (since values go up to 50)
+- For each range, increment at start index and decrement at end + 1
+- Compute prefix sum while iterating through the array
+- Check if all positions from left to right have prefix sum &gt; 0
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isCovered(self, ranges: list[list[int]], left: int, right: int) -&gt; bool:\n        diff = [0] * 52\n        for start, end in ranges:\n            diff[start] += 1\n            if end + 1 &lt; 52:\n                diff[end + 1] -= 1\n        \n        prefix = 0\n        for i in range(1, 52):\n            prefix += diff[i]\n            if left &lt;= i &lt;= right and prefix == 0:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isCovered(int[][] ranges, int left, int right) {\n        int[] diff = new int[52];\n        for (int[] range : ranges) {\n            diff[range[0]]++;\n            if (range[1] + 1 &lt; 52) {\n                diff[range[1] + 1]--;\n            }\n        }\n        \n        int prefix = 0;\n        for (int i = 1; i &lt; 52; i++) {\n            prefix += diff[i];\n            if (i &gt;= left && i &lt;= right && prefix == 0) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isCovered(vector&lt;vector&lt;int&gt;&gt;& ranges, int left, int right) {\n        vector&lt;int&gt; diff(52, 0);\n        for (auto& range : ranges) {\n            diff[range[0]]++;\n            if (range[1] + 1 &lt; 52) {\n                diff[range[1] + 1]--;\n            }\n        }\n        \n        int prefix = 0;\n        for (int i = 1; i &lt; 52; i++) {\n            prefix += diff[i];\n            if (i &gt;= left && i &lt;= right && prefix == 0) {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isCovered = function(ranges, left, right) {\n    const diff = new Array(52).fill(0);\n    for (const [start, end] of ranges) {\n        diff[start]++;\n        if (end + 1 &lt; 52) {\n            diff[end + 1]--;\n        }\n    }\n    \n    let prefix = 0;\n    for (let i = 1; i &lt; 52; i++) {\n        prefix += diff[i];\n        if (i &gt;= left && i &lt;= right && prefix === 0) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isCovered(ranges: number[][], left: number, right: number): boolean {\n    const diff = new Array(52).fill(0);\n    for (const [start, end] of ranges) {\n        diff[start]++;\n        if (end + 1 &lt; 52) {\n            diff[end + 1]--;\n        }\n    }\n    \n    let prefix = 0;\n    for (let i = 1; i &lt; 52; i++) {\n        prefix += diff[i];\n        if (i &gt;= left && i &lt;= right && prefix === 0) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k) where n is number of ranges and k is the maximum value (50)
+- Space: O(k) for the difference array
+- Notes: Efficient for small value ranges, handles overlapping ranges elegantly
+
+---
+## Sorting + Interval Merging
+
+**Intuition**
+Sort ranges by start position, then greedily check if the query range can be covered by consecutive or overlapping intervals.
+
+**Steps**
+- Sort all ranges by their start value
+- Initialize current pointer to left
+- Iterate through sorted ranges, advancing current when covered
+- If a gap is found between current and the next range, return false
+- Return true if current exceeds right
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isCovered(self, ranges: list[list[int]], left: int, right: int) -&gt; bool:\n        ranges.sort(key=lambda x: x[0])\n        \n        i = 0\n        n = len(ranges)\n        current = left\n        \n        while current &lt;= right and i &lt; n:\n            if ranges[i][0] &lt;= current &lt;= ranges[i][1]:\n                current = ranges[i][1] + 1\n                i += 1\n            elif ranges[i][1] &lt; current:\n                i += 1\n            else:\n                return False\n        \n        return current &gt; right" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isCovered(int[][] ranges, int left, int right) {\n        java.util.Arrays.sort(ranges, (a, b) -&gt; a[0] - b[0]);\n        \n        int i = 0;\n        int n = ranges.length;\n        int current = left;\n        \n        while (current &lt;= right && i &lt; n) {\n            if (ranges[i][0] &lt;= current && current &lt;= ranges[i][1]) {\n                current = ranges[i][1] + 1;\n                i++;\n            } else if (ranges[i][1] &lt; current) {\n                i++;\n            } else {\n                return false;\n            }\n        }\n        \n        return current &gt; right;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isCovered(vector&lt;vector&lt;int&gt;&gt;& ranges, int left, int right) {\n        sort(ranges.begin(), ranges.end(), [](const vector&lt;int&gt;& a, const vector&lt;int&gt;& b) {\n            return a[0] &lt; b[0];\n        });\n        \n        int i = 0;\n        int n = ranges.size();\n        int current = left;\n        \n        while (current &lt;= right && i &lt; n) {\n            if (ranges[i][0] &lt;= current && current &lt;= ranges[i][1]) {\n                current = ranges[i][1] + 1;\n                i++;\n            } else if (ranges[i][1] &lt; current) {\n                i++;\n            } else {\n                return false;\n            }\n        }\n        \n        return current &gt; right;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isCovered = function(ranges, left, right) {\n    ranges.sort((a, b) =&gt; a[0] - b[0]);\n    \n    let i = 0;\n    const n = ranges.length;\n    let current = left;\n    \n    while (current &lt;= right && i &lt; n) {\n        if (ranges[i][0] &lt;= current && current &lt;= ranges[i][1]) {\n            current = ranges[i][1] + 1;\n            i++;\n        } else if (ranges[i][1] &lt; current) {\n            i++;\n        } else {\n            return false;\n        }\n    }\n    \n    return current &gt; right;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isCovered(ranges: number[][], left: number, right: number): boolean {\n    ranges.sort((a, b) =&gt; a[0] - b[0]);\n    \n    let i = 0;\n    const n = ranges.length;\n    let current = left;\n    \n    while (current &lt;= right && i &lt; n) {\n        if (ranges[i][0] &lt;= current && current &lt;= ranges[i][1]) {\n            current = ranges[i][1] + 1;\n            i++;\n        } else if (ranges[i][1] &lt; current) {\n            i++;\n        } else {\n            return false;\n        }\n    }\n    \n    return current &gt; right;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) for sorting
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Most efficient for large value ranges, handles arbitrary integer values
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if All the Integers in a Range Are Covered Solutions","datePublished":"2026-01-29","description":"Determine if every integer in a given range is covered by at least one interval from a list of ranges.","keywords":"LeetCode, Check if All the Integers in a Range Are Covered, Easy, Array, Hash Table, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force with Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of ranges and m is the average range length."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum / Difference Array approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + k) where n is the number of ranges and k is the maximum value (50)."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Interval Merging approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) due to sorting the ranges."}},{"@type":"Question","name":"Which approach is most space efficient?","acceptedAnswer":{"@type":"Answer","text":"The Sorting + Interval Merging approach uses O(1) or O(n) space depending on the sorting implementation, making it the most space efficient for large value ranges."}}]}).replace(/</g,'\u003c')}
+</script>

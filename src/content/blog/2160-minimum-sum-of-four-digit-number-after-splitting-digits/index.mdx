@@ -1,0 +1,139 @@
+---
+title: "Minimum Sum of Four Digit Number After Splitting Digits"
+summary: "Split a four-digit number into two new numbers using all digits to minimize their sum."
+date: "Oct 16, 2024"
+tags:
+  - Math
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.30% | **Paid:** No
+> **Topics:** Math, Greedy, Sorting
+
+You are given a positive integer num consisting of exactly four digits. Split num into two new integers new1 and new2 by using the digits found in num. Leading zeros are allowed, and all digits must be used.
+
+Return the minimum sum of new1 and new2.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting](#sorting)
+- [Approach 2: Counting Sort (Greedy)](#counting-sort-greedy)
+- [Approach 3: Brute Force Permutations](#brute-force-permutations)
+
+## Examples
+
+Example 1:
+```text
+Input: num = 2932
+Output: 52
+Explanation: Some possible valid new pairs are [new1, new2]:
+- [22, 93] (sum 115)
+- [23, 92] (sum 115)
+- [22, 39] (sum 61)
+- [2, 932] (sum 934)
+- [29, 32] (sum 61)
+- [293, 2] (sum 295)
+- [32, 29] (sum 61)
+- [3, 922] (sum 925)
+- [39, 22] (sum 61)
+- [92, 23] (sum 115)
+- [9, 322] (sum 331)
+- [932, 2] (sum 934)
+The minimum sum obtainable is 52 (new1 = 29, new2 = 23).
+```
+
+Example 2:
+```text
+Input: num = 4009
+Output: 13
+Explanation: The minimum sum is obtained by new1 = 4, new2 = 9.
+```
+
+## Constraints
+
+```text
+1000 <= num <= 9999
+```
+
+---
+## Sorting
+
+**Intuition**
+To minimize the sum of two numbers formed by a fixed set of digits, the digits in the "tens" place (the most significant positions in this 2-digit context) must be as small as possible.
+
+**Steps**
+- Extract the four digits from the number.
+- Sort the digits in ascending order.
+- Assign the two smallest digits to the tens places of the two new numbers, and the two largest digits to the units places.
+- Calculate the sum as `(d[0] * 10 + d[2]) + (d[1] * 10 + d[3])`.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def minimumSum(self, num: int) -> int:\\n        digits = sorted(str(num))\\n        # Smallest two digits go to tens place\\n        return (int(digits[0]) + int(digits[1])) * 10 + int(digits[2]) + int(digits[3])" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\\n\\nclass Solution {\\n    public int minimumSum(int num) {\\n        int[] digits = new int[4];\\n        for (int i = 0; i < 4; i++) {\\n            digits[i] = num % 10;\\n            num /= 10;\\n        }\\n        Arrays.sort(digits);\\n        return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\\n#include <algorithm>\\n\\nclass Solution {\\npublic:\\n    int minimumSum(int num) {\\n        std::vector<int> digits;\\n        for (int i = 0; i < 4; ++i) {\\n            digits.push_back(num % 10);\\n            num /= 10;\\n        }\\n        std::sort(digits.begin(), digits.end());\\n        return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {number} num\\n * @return {number}\\n */\\nvar minimumSum = function(num) {\\n    let digits = String(num).split('').map(Number);\\n    digits.sort((a, b) => a - b);\\n    return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumSum(num: number): number {\\n    const digits = String(num).split('').map(Number);\\n    digits.sort((a, b) => a - b);\\n    return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n}" }
+]} />
+
+**Complexity**
+- Time: O(1) - Sorting 4 digits is constant time.
+- Space: O(1) - Storing 4 digits requires constant space.
+- Notes: This is the most idiomatic approach for this specific constraint.
+
+---
+## Counting Sort (Greedy)
+
+**Intuition**
+Since the digits are only from 0 to 9, we can use a counting array (bucket sort) to find the smallest digits without a general-purpose sort.
+
+**Steps**
+- Create an array `count` of size 10 initialized to 0.
+- Iterate through the digits of `num` and increment the corresponding index in `count`.
+- Iterate through `count` to pick the first two non-zero digits (smallest) for the tens place, and the next two for the units place.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def minimumSum(self, num: int) -> int:\\n        count = [0] * 10\\n        for _ in range(4):\\n            count[num % 10] += 1\\n            num //= 10\\n        \\n        digits = []\\n        for i in range(10):\\n            while count[i] > 0:\\n                digits.append(i)\\n                count[i] -= 1\\n        \\n        return (digits[0] + digits[1]) * 10 + digits[2] + digits[3]" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int minimumSum(int num) {\\n        int[] count = new int[10];\\n        for (int i = 0; i < 4; i++) {\\n            count[num % 10]++;\\n            num /= 10;\\n        }\\n        \\n        int[] digits = new int[4];\\n        int idx = 0;\\n        for (int i = 0; i < 10 && idx < 4; i++) {\\n            while (count[i] > 0 && idx < 4) {\\n                digits[idx++] = i;\\n                count[i]--;\\n            }\\n        }\\n        return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "#include <array>\\n\\nclass Solution {\\npublic:\\n    int minimumSum(int num) {\\n        std::array<int, 10> count = {0};\\n        for (int i = 0; i < 4; ++i) {\\n            count[num % 10]++;\\n            num /= 10;\\n        }\\n        \\n        int digits[4];\\n        int idx = 0;\\n        for (int i = 0; i < 10 && idx < 4; ++i) {\\n            while (count[i] > 0 && idx < 4) {\\n                digits[idx++] = i;\\n                count[i]--;\\n            }\\n        }\\n        return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {number} num\\n * @return {number}\\n */\\nvar minimumSum = function(num) {\\n    const count = new Array(10).fill(0);\\n    for (let i = 0; i < 4; i++) {\\n        count[num % 10]++;\\n        num = Math.floor(num / 10);\\n    }\\n    \\n    const digits = [];\\n    for (let i = 0; i < 10; i++) {\\n        while (count[i] > 0) {\\n            digits.push(i);\\n            count[i]--;\\n        }\\n    }\\n    return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumSum(num: number): number {\\n    const count: number[] = new Array(10).fill(0);\\n    for (let i = 0; i < 4; i++) {\\n        count[num % 10]++;\\n        num = Math.floor(num / 10);\\n    }\\n    \\n    const digits: number[] = [];\\n    for (let i = 0; i < 10; i++) {\\n        while (count[i] > 0) {\\n            digits.push(i);\\n            count[i]--;\\n        }\\n    }\\n    return (digits[0] + digits[1]) * 10 + digits[2] + digits[3];\\n}" }
+]} />
+
+**Complexity**
+- Time: O(1) - Iterating over a fixed size array (10).
+- Space: O(1) - Fixed size auxiliary array.
+- Notes: Useful if the range of digits is small but the number of digits is large.
+
+---
+## Brute Force Permutations
+
+**Intuition**
+Since there are only 4 digits, there are only 4! = 24 possible permutations. We can generate all permutations, split them into two numbers, and track the minimum sum.
+
+**Steps**
+- Generate all permutations of the 4 digits.
+- For each permutation, form two numbers using the first two and last two digits.
+- Update the global minimum sum.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "import itertools\\n\\nclass Solution:\\n    def minimumSum(self, num: int) -> int:\\n        digits = list(str(num))\\n        min_sum = float('inf')\\n        \\n        for p in itertools.permutations(digits):\\n            n1 = int(p[0] + p[1])\\n            n2 = int(p[2] + p[3])\\n            min_sum = min(min_sum, n1 + n2)\\n            \\n        return min_sum" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    private int minSum;\\n    \\n    public int minimumSum(int num) {\\n        int[] digits = new int[4];\\n        for (int i = 0; i < 4; i++) {\\n            digits[i] = num % 10;\\n            num /= 10;\\n        }\\n        minSum = Integer.MAX_VALUE;\\n        permute(digits, 0);\\n        return minSum;\\n    }\\n    \\n    private void permute(int[] nums, int l) {\\n        if (l == nums.length) {\\n            int n1 = nums[0] * 10 + nums[1];\\n            int n2 = nums[2] * 10 + nums[3];\\n            minSum = Math.min(minSum, n1 + n2);\\n            return;\\n        }\\n        for (int i = l; i < nums.length; i++) {\\n            swap(nums, l, i);\\n            permute(nums, l + 1);\\n            swap(nums, l, i);\\n        }\\n    }\\n    \\n    private void swap(int[] nums, int i, int j) {\\n        int temp = nums[i];\\n        nums[i] = nums[j];\\n        nums[j] = temp;\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "#include <algorithm>\\n#include <vector>\\n\\nclass Solution {\\npublic:\\n    int minimumSum(int num) {\\n        std::vector<int> digits;\\n        for (int i = 0; i < 4; ++i) {\\n            digits.push_back(num % 10);\\n            num /= 10;\\n        }\\n        \\n        int minSum = INT_MAX;\\n        do {\\n            int n1 = digits[0] * 10 + digits[1];\\n            int n2 = digits[2] * 10 + digits[3];\\n            minSum = std::min(minSum, n1 + n2);\\n        } while (std::next_permutation(digits.begin(), digits.end()));\\n        \\n        return minSum;\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {number} num\\n * @return {number}\\n */\\nvar minimumSum = function(num) {\\n    const digits = String(num).split('');\\n    let minSum = Infinity;\\n    \\n    function permute(arr, l) {\\n        if (l === arr.length) {\\n            const n1 = parseInt(arr[0] + arr[1], 10);\\n            const n2 = parseInt(arr[2] + arr[3], 10);\\n            minSum = Math.min(minSum, n1 + n2);\\n            return;\\n        }\\n        for (let i = l; i < arr.length; i++) {\\n            [arr[l], arr[i]] = [arr[i], arr[l]];\\n            permute(arr, l + 1);\\n            [arr[l], arr[i]] = [arr[i], arr[l]];\\n        }\\n    }\\n    \\n    permute(digits, 0);\\n    return minSum;\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumSum(num: number): number {\\n    const digits: string[] = String(num).split('');\\n    let minSum: number = Infinity;\\n    \\n    function permute(arr: string[], l: number): void {\\n        if (l === arr.length) {\\n            const n1 = parseInt(arr[0] + arr[1], 10);\\n            const n2 = parseInt(arr[2] + arr[3], 10);\\n            minSum = Math.min(minSum, n1 + n2);\\n            return;\\n        }\\n        for (let i = l; i < arr.length; i++) {\\n            [arr[l], arr[i]] = [arr[i], arr[l]];\\n            permute(arr, l + 1);\\n            [arr[l], arr[i]] = [arr[i], arr[l]];\\n        }\\n    }\\n    \\n    permute(digits, 0);\\n    return minSum;\\n}" }
+]} />
+
+**Complexity**
+- Time: O(1) - 4! is a constant (24).
+- Space: O(1) - Recursion depth is constant (4).
+- Notes: Conceptually simple but overkill for this problem; demonstrates the brute force pattern.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Sum of Four Digit Number After Splitting Digits Solutions","datePublished":"2024-10-16","description":"Split a four-digit number into two new numbers using all digits to minimize their sum.","keywords":"LeetCode, Minimum Sum of Four Digit Number After Splitting Digits, Easy, Math, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+

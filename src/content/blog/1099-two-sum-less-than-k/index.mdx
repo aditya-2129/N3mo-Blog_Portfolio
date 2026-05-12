@@ -1,0 +1,133 @@
+---
+title: "Two Sum Less Than K"
+summary: "Given an array nums and an integer k, find the maximum sum of two numbers less than k."
+date: "Feb 18, 2025"
+tags:
+  - Array
+  - Two Pointers
+  - Binary Search
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Array, Two Pointers, Binary Search, Sorting
+
+Given an array nums of integers and integer k, return the maximum sum such that there exists i &lt; j with nums[i] + nums[j] = sum and sum &lt; k. If no i, j exist satisfying this equation, return -1.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting + Two Pointers](#sorting--two-pointers)
+- [Sorting + Binary Search](#sorting--binary-search)
+
+## Examples
+
+```text
+Input: nums = [34,23,1,24,75,33,54,8], k = 60
+Output: 58
+Explanation: We can use 34 and 24 to get 58. Note that 34 + 24 = 58 < 60.
+```
+
+```text
+Input: nums = [10,20,30], k = 15
+Output: -1
+Explanation: In this case it is not possible to get a pair sum less than 15.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 1000
+1 <= k <= 2000
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair of numbers in the array to see if their sum is less than k, keeping track of the maximum valid sum found.
+
+**Steps**
+- Initialize a variable max_sum to -1.
+- Iterate through the array with index i from 0 to n-1.
+- Iterate through the array with index j from i+1 to n-1.
+- Calculate the sum of nums[i] and nums[j].
+- If the sum is less than k and greater than max_sum, update max_sum.
+- Return max_sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def twoSumLessThanK(self, nums: List[int], k: int) -&gt; int:\n        max_sum = -1\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                current_sum = nums[i] + nums[j]\n                if current_sum &lt; k and current_sum &gt; max_sum:\n                    max_sum = current_sum\n        return max_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int twoSumLessThanK(int[] nums, int k) {\n        int maxSum = -1;\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int sum = nums[i] + nums[j];\n                if (sum &lt; k && sum &gt; maxSum) {\n                    maxSum = sum;\n                }\n            }\n        }\n        return maxSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int twoSumLessThanK(vector&lt;int&gt;& nums, int k) {\n        int maxSum = -1;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int sum = nums[i] + nums[j];\n                if (sum &lt; k && sum &gt; maxSum) {\n                    maxSum = sum;\n                }\n            }\n        }\n        return maxSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var twoSumLessThanK = function(nums, k) {\n    let maxSum = -1;\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const sum = nums[i] + nums[j];\n            if (sum &lt; k && sum &gt; maxSum) {\n                maxSum = sum;\n            }\n        }\n    }\n    return maxSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function twoSumLessThanK(nums: number[], k: number): number {\n    let maxSum = -1;\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const sum = nums[i] + nums[j];\n            if (sum &lt; k && sum &gt; maxSum) {\n                maxSum = sum;\n            }\n        }\n    }\n    return maxSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Sorting + Two Pointers
+
+**Intuition**
+By sorting the array, we can use a two-pointer technique to efficiently find the maximum sum less than k. One pointer starts at the beginning (smallest values) and the other at the end (largest values).
+
+**Steps**
+- Sort the array in ascending order.
+- Initialize left pointer to 0 and right pointer to n-1.
+- Initialize max_sum to -1.
+- While left &lt; right:
+    - Calculate the sum of nums[left] and nums[right].
+    - If the sum is less than k, update max_sum if this sum is larger, and move the left pointer forward to try to increase the sum.
+    - If the sum is greater than or equal to k, move the right pointer backward to decrease the sum.
+- Return max_sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def twoSumLessThanK(self, nums: List[int], k: int) -&gt; int:\n        nums.sort()\n        left, right = 0, len(nums) - 1\n        max_sum = -1\n        while left &lt; right:\n            current_sum = nums[left] + nums[right]\n            if current_sum &lt; k:\n                max_sum = max(max_sum, current_sum)\n                left += 1\n            else:\n                right -= 1\n        return max_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int twoSumLessThanK(int[] nums, int k) {\n        Arrays.sort(nums);\n        int left = 0, right = nums.length - 1;\n        int maxSum = -1;\n        while (left &lt; right) {\n            int sum = nums[left] + nums[right];\n            if (sum &lt; k) {\n                maxSum = Math.max(maxSum, sum);\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return maxSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int twoSumLessThanK(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        int left = 0, right = nums.size() - 1;\n        int maxSum = -1;\n        while (left &lt; right) {\n            int sum = nums[left] + nums[right];\n            if (sum &lt; k) {\n                maxSum = max(maxSum, sum);\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return maxSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var twoSumLessThanK = function(nums, k) {\n    nums.sort((a, b) =&gt; a - b);\n    let left = 0, right = nums.length - 1;\n    let maxSum = -1;\n    while (left &lt; right) {\n        const sum = nums[left] + nums[right];\n        if (sum &lt; k) {\n            maxSum = Math.max(maxSum, sum);\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return maxSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function twoSumLessThanK(nums: number[], k: number): number {\n    nums.sort((a, b) =&gt; a - b);\n    let left = 0, right = nums.length - 1;\n    let maxSum = -1;\n    while (left &lt; right) {\n        const sum = nums[left] + nums[right];\n        if (sum &lt; k) {\n            maxSum = Math.max(maxSum, sum);\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return maxSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting algorithm.
+- Notes: More efficient than brute force. Sorting allows us to make greedy decisions.
+
+---
+## Sorting + Binary Search
+
+**Intuition**
+After sorting the array, for each element nums[i], we can use binary search to find the largest element nums[j] (where j &gt; i) such that nums[i] + nums[j] &lt; k.
+
+**Steps**
+- Sort the array in ascending order.
+- Initialize max_sum to -1.
+- Iterate through the array with index i from 0 to n-1:
+    - Calculate the target value as k - nums[i].
+    - Perform a binary search on the subarray nums[i+1:] to find the largest element strictly less than target.
+    - If such an element is found, update max_sum with the sum of nums[i] and that element.
+- Return max_sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def twoSumLessThanK(self, nums: List[int], k: int) -&gt; int:\n        nums.sort()\n        n = len(nums)\n        max_sum = -1\n        for i in range(n):\n            target = k - nums[i]\n            # Binary search for the largest number &lt; target in nums[i+1:]\n            left, right = i + 1, n\n            while left &lt; right:\n                mid = (left + right) // 2\n                if nums[mid] &lt; target:\n                    left = mid + 1\n                else:\n                    right = mid\n            if left &gt; i + 1:\n                max_sum = max(max_sum, nums[i] + nums[left - 1])\n        return max_sum\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int twoSumLessThanK(int[] nums, int k) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        int maxSum = -1;\n        for (int i = 0; i &lt; n; i++) {\n            int target = k - nums[i];\n            int left = i + 1, right = n;\n            while (left &lt; right) {\n                int mid = left + (right - left) / 2;\n                if (nums[mid] &lt; target) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            if (left &gt; i + 1) {\n                maxSum = Math.max(maxSum, nums[i] + nums[left - 1]);\n            }\n        }\n        return maxSum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int twoSumLessThanK(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        int n = nums.size();\n        int maxSum = -1;\n        for (int i = 0; i &lt; n; i++) {\n            int target = k - nums[i];\n            int left = i + 1, right = n;\n            while (left &lt; right) {\n                int mid = left + (right - left) / 2;\n                if (nums[mid] &lt; target) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            if (left &gt; i + 1) {\n                maxSum = max(maxSum, nums[i] + nums[left - 1]);\n            }\n        }\n        return maxSum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var twoSumLessThanK = function(nums, k) {\n    nums.sort((a, b) =&gt; a - b);\n    const n = nums.length;\n    let maxSum = -1;\n    for (let i = 0; i &lt; n; i++) {\n        const target = k - nums[i];\n        let left = i + 1, right = n;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (nums[mid] &lt; target) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        if (left &gt; i + 1) {\n            maxSum = Math.max(maxSum, nums[i] + nums[left - 1]);\n        }\n    }\n    return maxSum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function twoSumLessThanK(nums: number[], k: number): number {\n    nums.sort((a, b) =&gt; a - b);\n    const n = nums.length;\n    let maxSum = -1;\n    for (let i = 0; i &lt; n; i++) {\n        const target = k - nums[i];\n        let left = i + 1, right = n;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (nums[mid] &lt; target) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        if (left &gt; i + 1) {\n            maxSum = Math.max(maxSum, nums[i] + nums[left - 1]);\n        }\n    }\n    return maxSum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting algorithm.
+- Notes: Efficient, but the two-pointer approach is generally slightly faster in practice due to lower constant factors.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Two Sum Less Than K Solutions","datePublished":"2025-02-18","description":"Given an array nums and an integer k, find the maximum sum of two numbers less than k.","keywords":"LeetCode, Two Sum Less Than K, Easy, Array, Two Pointers, Binary Search, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sorting + Two Pointers approach is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sorting + Binary Search approach is O(n log n) because we iterate through the array and perform a binary search for each element."}}]}).replace(/</g,'\u003c')}
+</script>

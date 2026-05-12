@@ -1,0 +1,152 @@
+---
+title: "Defuse the Bomb"
+summary: "Decrypt the circular array code by summing the next k elements or previous k elements based on the value of k."
+date: "Dec 28, 2024"
+tags:
+  - Array
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.30% | **Paid:** No
+> **Topics:** Array, Sliding Window
+
+You have a bomb to defuse, and your time is running out! Your informer will provide you with a circular array code of length n and a key k.
+
+To decrypt the code, you must replace every number in the array with the sum of the next k numbers. Since the array is circular, the next element of code[n-1] is code[0], and the previous element of code[0] is code[n-1].
+
+If k is positive, replace the ith number with the sum of the next k numbers.
+If k is negative, replace the ith number with the sum of the previous k numbers.
+If k is 0, replace the ith number with 0.
+
+As the code is circular, the next element of code[n-1] is code[0], and the previous element of code[0] is code[n-1].
+
+Return the decrypted code.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sliding Window](#approach-2-sliding-window)
+- [Approach 3: Prefix Sum](#approach-3-prefix-sum)
+
+## Examples
+
+### Example 1
+```text
+Input: code = [5,7,1,4], k = 3
+Output: [12,10,16,13]
+Explanation: Each number is replaced by the sum of the next 3 numbers. The decrypted code is [7+1+4, 1+4+5, 4+5+7, 5+7+1]. Notice that the numbers wrap around.
+```
+
+### Example 2
+```text
+Input: code = [1,2,3,4], k = 0
+Output: [0,0,0,0]
+Explanation: When k is 0, the numbers are replaced by 0.
+```
+
+### Example 3
+```text
+Input: code = [2,4,9,3], k = -2
+Output: [12,5,6,13]
+Explanation: The decrypted code is [3+9, 4+3, 2+4, 9+2]. Notice that the previous element of code[0] is code[n-1].
+```
+
+## Constraints
+
+```text
+n == code.length
+1 <= n <= 100
+1 <= code[i] <= 100
+-(n - 1) <= k <= n - 1
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Iterate through each element of the array. For each element, loop `k` times to find the subsequent or preceding elements, using modulo arithmetic to handle the circular nature of the array.
+
+**Steps**
+- Initialize a result array of zeros with the same length as `code`.
+- If `k` is 0, return the result array immediately.
+- Iterate through each index `i` from 0 to `n-1`.
+- Initialize a sum variable to 0.
+- Loop `j` from 1 to `abs(k)`.
+- If `k &gt; 0`, add `code[(i + j) % n]` to the sum.
+- If `k &lt; 0`, add `code[(i - j + n) % n]` to the sum.
+- Store the calculated sum in `result[i]`.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def decrypt(self, code: list[int], k: int) -&gt; list[int]:\n        n = len(code)\n        res = [0] * n\n        if k == 0:\n            return res\n        \n        for i in range(n):\n            total = 0\n            for j in range(1, abs(k) + 1):\n                if k &gt; 0:\n                    total += code[(i + j) % n]\n                else:\n                    total += code[(i - j + n) % n]\n            res[i] = total\n        \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] decrypt(int[] code, int k) {\n        int n = code.length;\n        int[] res = new int[n];\n        if (k == 0) return res;\n        \n        for (int i = 0; i &lt; n; i++) {\n            int sum = 0;\n            for (int j = 1; j &lt;= Math.abs(k); j++) {\n                if (k &gt; 0) {\n                    sum += code[(i + j) % n];\n                } else {\n                    sum += code[(i - j + n) % n];\n                }\n            }\n            res[i] = sum;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; decrypt(vector&lt;int&gt;& code, int k) {\n        int n = code.size();\n        vector&lt;int&gt; res(n, 0);\n        if (k == 0) return res;\n        \n        for (int i = 0; i &lt; n; ++i) {\n            int sum = 0;\n            for (int j = 1; j &lt;= abs(k); ++j) {\n                if (k &gt; 0) {\n                    sum += code[(i + j) % n];\n                } else {\n                    sum += code[(i - j + n) % n];\n                }\n            }\n            res[i] = sum;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} code\n * @param {number} k\n * @return {number[]}\n */\nvar decrypt = function(code, k) {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    for (let i = 0; i &lt; n; i++) {\n        let sum = 0;\n        for (let j = 1; j &lt;= Math.abs(k); j++) {\n            if (k &gt; 0) {\n                sum += code[(i + j) % n];\n            } else {\n                sum += code[(i - j + n) % n];\n            }\n        }\n        res[i] = sum;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function decrypt(code: number[], k: number): number[] {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    for (let i = 0; i &lt; n; i++) {\n        let sum = 0;\n        for (let j = 1; j &lt;= Math.abs(k); j++) {\n            if (k &gt; 0) {\n                sum += code[(i + j) % n];\n            } else {\n                sum += code[(i - j + n) % n];\n            }\n        }\n        res[i] = sum;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n × |k|)
+- Space: O(n)
+- Notes: Simple to implement but inefficient for large inputs, though constraints are small here.
+
+---
+## Approach 2: Sliding Window
+
+**Intuition**
+Since we are summing a fixed window of size `|k|` in a circular array, we can slide the window across the array. By adding the new element entering the window and subtracting the element leaving it, we can update the sum in constant time.
+
+**Steps**
+- Handle `k = 0` by returning an array of zeros.
+- Create an extended array by concatenating `code` with itself to handle circularity easily.
+- Determine the initial window start and end indices based on the sign of `k`.
+- Calculate the sum of the initial window.
+- Iterate through the original array indices, storing the current window sum in the result.
+- Slide the window by subtracting the element at the start and adding the element at the end, then incrementing start and end.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def decrypt(self, code: list[int], k: int) -&gt; list[int]:\n        n = len(code)\n        res = [0] * n\n        if k == 0:\n            return res\n        \n        extended = code + code\n        start = 1 if k &gt; 0 else n + k\n        end = start + abs(k)\n        window_sum = sum(extended[start:end])\n        \n        for i in range(n):\n            res[i] = window_sum\n            window_sum -= extended[start]\n            window_sum += extended[end]\n            start += 1\n            end += 1\n            \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] decrypt(int[] code, int k) {\n        int n = code.length;\n        int[] res = new int[n];\n        if (k == 0) return res;\n        \n        int[] extended = new int[2 * n];\n        for (int i = 0; i &lt; 2 * n; i++) {\n            extended[i] = code[i % n];\n        }\n        \n        int start = k &gt; 0 ? 1 : n + k;\n        int end = start + Math.abs(k);\n        int windowSum = 0;\n        for (int i = start; i &lt; end; i++) {\n            windowSum += extended[i];\n        }\n        \n        for (int i = 0; i &lt; n; i++) {\n            res[i] = windowSum;\n            windowSum -= extended[start];\n            windowSum += extended[end];\n            start++;\n            end++;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; decrypt(vector&lt;int&gt;& code, int k) {\n        int n = code.size();\n        vector&lt;int&gt; res(n, 0);\n        if (k == 0) return res;\n        \n        vector&lt;int&gt; extended(code.begin(), code.end());\n        extended.insert(extended.end(), code.begin(), code.end());\n        \n        int start = k &gt; 0 ? 1 : n + k;\n        int end = start + abs(k);\n        int windowSum = 0;\n        for (int i = start; i &lt; end; ++i) {\n            windowSum += extended[i];\n        }\n        \n        for (int i = 0; i &lt; n; ++i) {\n            res[i] = windowSum;\n            windowSum -= extended[start];\n            windowSum += extended[end];\n            start++;\n            end++;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} code\n * @param {number} k\n * @return {number[]}\n */\nvar decrypt = function(code, k) {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    const extended = [...code, ...code];\n    let start = k &gt; 0 ? 1 : n + k;\n    let end = start + Math.abs(k);\n    let windowSum = 0;\n    \n    for (let i = start; i &lt; end; i++) {\n        windowSum += extended[i];\n    }\n    \n    for (let i = 0; i &lt; n; i++) {\n        res[i] = windowSum;\n        windowSum -= extended[start];\n        windowSum += extended[end];\n        start++;\n        end++;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function decrypt(code: number[], k: number): number[] {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    const extended = [...code, ...code];\n    let start = k &gt; 0 ? 1 : n + k;\n    let end = start + Math.abs(k);\n    let windowSum = 0;\n    \n    for (let i = start; i &lt; end; i++) {\n        windowSum += extended[i];\n    }\n    \n    for (let i = 0; i &lt; n; i++) {\n        res[i] = windowSum;\n        windowSum -= extended[start];\n        windowSum += extended[end];\n        start++;\n        end++;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Optimized approach that avoids redundant calculations.
+
+---
+## Approach 3: Prefix Sum
+
+**Intuition**
+We can precompute the cumulative sum (prefix sum) of the array duplicated twice. This allows us to calculate the sum of any subarray in O(1) time by subtracting two prefix sums.
+
+**Steps**
+- Handle `k = 0` by returning an array of zeros.
+- Construct a prefix sum array of size `2n + 1` from the duplicated array.
+- Iterate through each index `i` of the original array.
+- If `k &gt; 0`, the sum is `prefix[i + k + 1] - prefix[i + 1]`.
+- If `k &lt; 0`, the sum is `prefix[i + n] - prefix[i + n + k]`.
+- Store the result and return the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def decrypt(self, code: list[int], k: int) -&gt; list[int]:\n        n = len(code)\n        res = [0] * n\n        if k == 0:\n            return res\n        \n        prefix = [0] * (2 * n + 1)\n        for i in range(2 * n):\n            prefix[i + 1] = prefix[i] + code[i % n]\n        \n        for i in range(n):\n            if k &gt; 0:\n                res[i] = prefix[i + k + 1] - prefix[i + 1]\n            else:\n                res[i] = prefix[i + n] - prefix[i + n + k]\n        \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] decrypt(int[] code, int k) {\n        int n = code.length;\n        int[] res = new int[n];\n        if (k == 0) return res;\n        \n        int[] prefix = new int[2 * n + 1];\n        for (int i = 0; i &lt; 2 * n; i++) {\n            prefix[i + 1] = prefix[i] + code[i % n];\n        }\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (k &gt; 0) {\n                res[i] = prefix[i + k + 1] - prefix[i + 1];\n            } else {\n                res[i] = prefix[i + n] - prefix[i + n + k];\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; decrypt(vector&lt;int&gt;& code, int k) {\n        int n = code.size();\n        vector&lt;int&gt; res(n, 0);\n        if (k == 0) return res;\n        \n        vector&lt;int&gt; prefix(2 * n + 1, 0);\n        for (int i = 0; i &lt; 2 * n; ++i) {\n            prefix[i + 1] = prefix[i] + code[i % n];\n        }\n        \n        for (int i = 0; i &lt; n; ++i) {\n            if (k &gt; 0) {\n                res[i] = prefix[i + k + 1] - prefix[i + 1];\n            } else {\n                res[i] = prefix[i + n] - prefix[i + n + k];\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} code\n * @param {number} k\n * @return {number[]}\n */\nvar decrypt = function(code, k) {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    const prefix = new Array(2 * n + 1).fill(0);\n    for (let i = 0; i &lt; 2 * n; i++) {\n        prefix[i + 1] = prefix[i] + code[i % n];\n    }\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (k &gt; 0) {\n            res[i] = prefix[i + k + 1] - prefix[i + 1];\n        } else {\n            res[i] = prefix[i + n] - prefix[i + n + k];\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function decrypt(code: number[], k: number): number[] {\n    const n = code.length;\n    const res = new Array(n).fill(0);\n    if (k === 0) return res;\n    \n    const prefix = new Array(2 * n + 1).fill(0);\n    for (let i = 0; i &lt; 2 * n; i++) {\n        prefix[i + 1] = prefix[i] + code[i % n];\n    }\n    \n    for (let i = 0; i &lt; n; i++) {\n        if (k &gt; 0) {\n            res[i] = prefix[i + k + 1] - prefix[i + 1];\n        } else {\n            res[i] = prefix[i + n] - prefix[i + n + k];\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Useful when multiple range sum queries are required on the same array.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Defuse the Bomb Solutions","datePublished":"2024-12-28","description":"Decrypt the circular array code by summing the next k elements or previous k elements based on the value of k.","keywords":"LeetCode, Defuse the Bomb, Easy, Array, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * |k|), where n is the length of the code array."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) because we traverse the array a constant number of times."}},{"@type":"Question","name":"How does the Prefix Sum approach work?","acceptedAnswer":{"@type":"Answer","text":"It precomputes cumulative sums on a duplicated array to allow O(1) range sum queries for any window of size k."}}]}).replace(/</g,'\u003c')}
+</script>

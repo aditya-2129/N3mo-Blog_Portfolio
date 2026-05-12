@@ -1,0 +1,130 @@
+---
+title: "Existence of a Substring in a String and Its Reverse"
+summary: "Check if a string contains a substring of length at least 2 that also appears in its reverse."
+date: "Feb 10, 2026"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.50% | **Paid:** No
+> **Topics:** Hash Table, String
+
+Given a string s, return true if a substring of s of length at least 2 is also a substring of the reverse of s. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Brute Force (All Substrings)](#brute-force-all-substrings)
+- [Hash Set (Length 2 Optimization)](#hash-set-length-2-optimization)
+- [Boolean Array (Fixed Space)](#boolean-array-fixed-space)
+
+## Examples
+
+```text
+Input: s = "leetcode"
+Output: true
+Explanation: The substring "et" appears in s and also appears in the reverse of s ("edocteel").
+```
+
+```text
+Input: s = "abcba"
+Output: true
+Explanation: The substring "bc" appears in s and also appears in the reverse of s ("abcba").
+```
+
+```text
+Input: s = "abcd"
+Output: false
+Explanation: There is no substring of length at least 2 that appears in s and its reverse.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of lowercase English letters.
+```
+
+---
+
+## Brute Force (All Substrings)
+
+**Intuition**
+We can generate all possible substrings of length 2 or more from the original string and store them in a set. Then, we generate all substrings from the reversed string and check if any exist in the set.
+
+**Steps**
+- Reverse the input string `s` to get `rev`.
+- Initialize a hash set to store substrings.
+- Iterate through `s` with two loops to generate all substrings of length &gt;= 2 and add them to the set.
+- Iterate through `rev` with two loops to generate all substrings of length &gt;= 2.
+- If any substring from `rev` is found in the set, return `true`.
+- If the loop finishes without a match, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubstringPresent(self, s: str) -&gt; bool:\n        rev = s[::-1]\n        substrings = set()\n        n = len(s)\n        \n        for i in range(n):\n            for j in range(i + 2, n + 1):\n                substrings.add(s[i:j])\n                \n        for i in range(n):\n            for j in range(i + 2, n + 1):\n                if rev[i:j] in substrings:\n                    return True\n                    \n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean isSubstringPresent(String s) {\n        String rev = new StringBuilder(s).reverse().toString();\n        Set&lt;String&gt; substrings = new HashSet&lt;&gt;();\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 2; j &lt;= n; j++) {\n                substrings.add(s.substring(i, j));\n            }\n        }\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 2; j &lt;= n; j++) {\n                if (substrings.contains(rev.substring(i, j))) {\n                    return true;\n                }\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isSubstringPresent(string s) {\n        string rev = s;\n        reverse(rev.begin(), rev.end());\n        unordered_set&lt;string&gt; substrings;\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i + 2; j &lt;= n; ++j) {\n                substrings.insert(s.substr(i, j - i));\n            }\n        }\n        \n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i + 2; j &lt;= n; ++j) {\n                if (substrings.count(rev.substr(i, j - i))) {\n                    return true;\n                }\n            }\n        }\n        \n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSubstringPresent(s) {\n        const rev = s.split('').reverse().join('');\n        const substrings = new Set();\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 2; j &lt;= n; j++) {\n                substrings.add(s.substring(i, j));\n            }\n        }\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 2; j &lt;= n; j++) {\n                if (substrings.has(rev.substring(i, j))) {\n                    return true;\n                }\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSubstringPresent(s: string): boolean {\n        const rev = s.split('').reverse().join('');\n        const substrings = new Set&lt;string&gt;();\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 2; j &lt;= n; j++) {\n                substrings.add(s.substring(i, j));\n            }\n        }\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 2; j &lt;= n; j++) {\n                if (substrings.has(rev.substring(i, j))) {\n                    return true;\n                }\n            }\n        }\n        \n        return false;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n³) - Generating all substrings takes O(n²) and string slicing/copying takes O(n) in worst case.
+- Space: O(n³) - Storing all substrings requires O(n³) space in worst case.
+- Notes: Simple but inefficient for larger strings.
+
+## Hash Set (Length 2 Optimization)
+
+**Intuition**
+If a substring of length k exists in both s and reverse(s), then its prefix of length 2 must also exist in both. Therefore, we only need to check for common substrings of length exactly 2.
+
+**Steps**
+- Initialize a hash set to store all length-2 substrings of `s`.
+- Iterate through `s` and add every pair of adjacent characters `s[i]s[i+1]` to the set.
+- Iterate through `s` again and check if the reverse pair `s[i+1]s[i]` exists in the set.
+- If found, return `true`.
+- If the loop finishes, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubstringPresent(self, s: str) -&gt; bool:\n        seen = set()\n        n = len(s)\n        \n        for i in range(n - 1):\n            seen.add(s[i:i+2])\n            \n        for i in range(n - 1):\n            if s[i+1] + s[i] in seen:\n                return True\n                \n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean isSubstringPresent(String s) {\n        Set&lt;String&gt; seen = new HashSet&lt;&gt;();\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            seen.add(s.substring(i, i + 2));\n        }\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            String reversed = \"\" + s.charAt(i + 1) + s.charAt(i);\n            if (seen.contains(reversed)) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isSubstringPresent(string s) {\n        unordered_set&lt;string&gt; seen;\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n - 1; ++i) {\n            seen.insert(s.substr(i, 2));\n        }\n        \n        for (int i = 0; i &lt; n - 1; ++i) {\n            string rev = \"\";\n            rev += s[i+1];\n            rev += s[i];\n            if (seen.count(rev)) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSubstringPresent(s) {\n        const seen = new Set();\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            seen.add(s.substring(i, i + 2));\n        }\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const rev = s[i + 1] + s[i];\n            if (seen.has(rev)) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSubstringPresent(s: string): boolean {\n        const seen = new Set&lt;string&gt;();\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            seen.add(s.substring(i, i + 2));\n        }\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const rev = s[i + 1] + s[i];\n            if (seen.has(rev)) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We iterate through the string a constant number of times.
+- Space: O(n) - The set can store up to n-1 substrings.
+- Notes: Efficient time complexity with linear space usage.
+
+## Boolean Array (Fixed Space)
+
+**Intuition**
+Since the string consists only of lowercase English letters, there are only 26 * 26 = 676 possible pairs of characters. We can use a fixed-size boolean array to track seen pairs, achieving O(1) space.
+
+**Steps**
+- Initialize a boolean array of size 676 (26*26) to false.
+- Iterate through `s` to calculate a unique index for each pair `s[i]s[i+1]` using the formula `(c1 - 'a') * 26 + (c2 - 'a')`. Mark this index as true.
+- Iterate through `s` again and calculate the index for the reverse pair `s[i+1]s[i]`.
+- If the index for the reverse pair is already true, return `true`.
+- If the loop finishes, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubstringPresent(self, s: str) -&gt; bool:\n        seen = [False] * 26 * 26\n        n = len(s)\n        \n        for i in range(n - 1):\n            idx = (ord(s[i]) - 97) * 26 + (ord(s[i+1]) - 97)\n            seen[idx] = True\n            \n        for i in range(n - 1):\n            rev_idx = (ord(s[i+1]) - 97) * 26 + (ord(s[i]) - 97)\n            if seen[rev_idx]:\n                return True\n                \n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSubstringPresent(String s) {\n        boolean[] seen = new boolean[26 * 26];\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            int idx = (s.charAt(i) - 'a') * 26 + (s.charAt(i + 1) - 'a');\n            seen[idx] = true;\n        }\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            int revIdx = (s.charAt(i + 1) - 'a') * 26 + (s.charAt(i) - 'a');\n            if (seen[revIdx]) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isSubstringPresent(string s) {\n        vector&lt;bool&gt; seen(26 * 26, false);\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n - 1; ++i) {\n            int idx = (s[i] - 'a') * 26 + (s[i+1] - 'a');\n            seen[idx] = true;\n        }\n        \n        for (int i = 0; i &lt; n - 1; ++i) {\n            int revIdx = (s[i+1] - 'a') * 26 + (s[i] - 'a');\n            if (seen[revIdx]) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSubstringPresent(s) {\n        const seen = new Array(26 * 26).fill(false);\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const idx = (s.charCodeAt(i) - 97) * 26 + (s.charCodeAt(i + 1) - 97);\n            seen[idx] = true;\n        }\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const revIdx = (s.charCodeAt(i + 1) - 97) * 26 + (s.charCodeAt(i) - 97);\n            if (seen[revIdx]) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSubstringPresent(s: string): boolean {\n        const seen: boolean[] = new Array(26 * 26).fill(false);\n        const n = s.length;\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const idx = (s.charCodeAt(i) - 97) * 26 + (s.charCodeAt(i + 1) - 97);\n            seen[idx] = true;\n        }\n        \n        for (let i = 0; i &lt; n - 1; i++) {\n            const revIdx = (s.charCodeAt(i + 1) - 97) * 26 + (s.charCodeAt(i) - 97);\n            if (seen[revIdx]) {\n                return true;\n            }\n        }\n        \n        return false;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Linear scan of the string.
+- Space: O(1) - The boolean array size is fixed at 676, regardless of input size.
+- Notes: Most optimal solution for this specific problem constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Existence of a Substring in a String and Its Reverse Solutions","datePublished":"2026-02-10","description":"Check if a string contains a substring of length at least 2 that also appears in its reverse.","keywords":"LeetCode, Existence of a Substring in a String and Its Reverse, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n³) and space complexity of O(n³)."}},{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach has a time complexity of O(n) and space complexity of O(n)."}},{"@type":"Question","name":"What is the time complexity of the Boolean Array approach?","acceptedAnswer":{"@type":"Answer","text":"The Boolean Array approach has a time complexity of O(n) and space complexity of O(1)."}}]}).replace(/</g,'\u003c')}
+</script>

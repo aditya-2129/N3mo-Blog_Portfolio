@@ -1,0 +1,130 @@
+---
+title: "Minimum Difference Between Highest and Lowest of K Scores"
+summary: "Find the minimum possible difference between the highest and lowest of k scores from an array."
+date: "Jan 07, 2025"
+tags:
+  - Array
+  - Sliding Window
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.30% | **Paid:** No
+> **Topics:** Array, Sliding Window, Sorting
+
+You are given a 0-indexed integer array nums, where nums[i] represents the score of the ith student. You are also given an integer k.
+
+Pick the scores of any k students from the array so that the difference between the highest and the lowest of the k scores is minimized.
+
+Return the minimum possible difference.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting + Sliding Window](#sorting--sliding-window)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [90], k = 1
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+There is one way to pick score(s) of one student:
+- [90]. The difference between the highest and lowest score is 90 - 90 = 0.
+The minimum possible difference is 0.
+
+### Example 2
+
+**Input:**
+```text
+nums = [9,4,1,7], k = 2
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+There are six ways to pick score(s) of two students:
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 4 = 5.
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 1 = 8.
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 7 = 2.
+- [9,4,1,7]. The difference between the highest and lowest score is 4 - 1 = 3.
+- [9,4,1,7]. The difference between the highest and lowest score is 7 - 4 = 3.
+- [9,4,1,7]. The difference between the highest and lowest score is 7 - 1 = 6.
+The minimum possible difference is 2.
+
+## Constraints
+
+```text
+1 <= k <= nums.length <= 1000
+0 <= nums[i] <= 10⁵
+```
+
+---
+## Brute Force
+
+**Intuition**
+Generate all possible combinations of k elements from the array and compute the difference between the maximum and minimum in each combination to find the minimum.
+
+**Steps**
+- If k equals 1, return 0 since the difference is always 0
+- Generate all combinations of k elements using bitmask or recursion
+- For each combination, find the maximum and minimum values
+- Track the minimum difference across all combinations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumDifference(self, nums: List[int], k: int) -&gt; int:\n        if k == 1:\n            return 0\n        \n        min_diff = float('inf')\n        n = len(nums)\n        \n        from itertools import combinations\n        for combo in combinations(nums, k):\n            diff = max(combo) - min(combo)\n            min_diff = min(min_diff, diff)\n        \n        return min_diff" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumDifference(int[] nums, int k) {\n        if (k == 1) return 0;\n        \n        int minDiff = Integer.MAX_VALUE;\n        int n = nums.length;\n        \n        for (int mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {\n            if (Integer.bitCount(mask) == k) {\n                int maxVal = Integer.MIN_VALUE;\n                int minVal = Integer.MAX_VALUE;\n                for (int j = 0; j &lt; n; j++) {\n                    if ((mask & (1 &lt;&lt; j)) != 0) {\n                        maxVal = Math.max(maxVal, nums[j]);\n                        minVal = Math.min(minVal, nums[j]);\n                    }\n                }\n                minDiff = Math.min(minDiff, maxVal - minVal);\n            }\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumDifference(vector&lt;int&gt;& nums, int k) {\n        if (k == 1) return 0;\n        \n        int minDiff = INT_MAX;\n        int n = nums.size();\n        \n        for (int mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {\n            if (__builtin_popcount(mask) == k) {\n                int maxVal = INT_MIN;\n                int minVal = INT_MAX;\n                for (int j = 0; j &lt; n; j++) {\n                    if (mask & (1 &lt;&lt; j)) {\n                        maxVal = max(maxVal, nums[j]);\n                        minVal = min(minVal, nums[j]);\n                    }\n                }\n                minDiff = min(minDiff, maxVal - minVal);\n            }\n        }\n        \n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minimumDifference(nums, k) {\n        if (k === 1) return 0;\n        \n        let minDiff = Infinity;\n        const n = nums.length;\n        \n        for (let mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {\n            let count = 0;\n            for (let j = 0; j &lt; n; j++) {\n                if (mask & (1 &lt;&lt; j)) count++;\n            }\n            if (count === k) {\n                let maxVal = -Infinity;\n                let minVal = Infinity;\n                for (let j = 0; j &lt; n; j++) {\n                    if (mask & (1 &lt;&lt; j)) {\n                        maxVal = Math.max(maxVal, nums[j]);\n                        minVal = Math.min(minVal, nums[j]);\n                    }\n                }\n                minDiff = Math.min(minDiff, maxVal - minVal);\n            }\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minimumDifference(nums: number[], k: number): number {\n        if (k === 1) return 0;\n        \n        let minDiff = Infinity;\n        const n = nums.length;\n        \n        for (let mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {\n            let count = 0;\n            for (let j = 0; j &lt; n; j++) {\n                if (mask & (1 &lt;&lt; j)) count++;\n            }\n            if (count === k) {\n                let maxVal = -Infinity;\n                let minVal = Infinity;\n                for (let j = 0; j &lt; n; j++) {\n                    if (mask & (1 &lt;&lt; j)) {\n                        maxVal = Math.max(maxVal, nums[j]);\n                        minVal = Math.min(minVal, nums[j]);\n                    }\n                }\n                minDiff = Math.min(minDiff, maxVal - minVal);\n            }\n        }\n        \n        return minDiff;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n · 2ⁿ) - We iterate through all 2ⁿ subsets
+- Space: O(k) - For storing the current combination
+- Notes: Exponential time complexity, only works for small n
+
+---
+## Sorting + Sliding Window
+
+**Intuition**
+After sorting, the optimal k elements must be consecutive. Any non-consecutive selection can be improved by replacing elements to close gaps, so we only need to check all windows of size k.
+
+**Steps**
+- If k equals 1, return 0 since the difference is always 0
+- Sort the array in ascending order
+- Use a sliding window of size k across the sorted array
+- For each window, compute the difference between the last and first element
+- Track and return the minimum difference found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumDifference(self, nums: List[int], k: int) -&gt; int:\n        if k == 1:\n            return 0\n        \n        nums.sort()\n        min_diff = float('inf')\n        \n        for i in range(len(nums) - k + 1):\n            diff = nums[i + k - 1] - nums[i]\n            min_diff = min(min_diff, diff)\n        \n        return min_diff" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumDifference(int[] nums, int k) {\n        if (k == 1) return 0;\n        \n        Arrays.sort(nums);\n        int minDiff = Integer.MAX_VALUE;\n        \n        for (int i = 0; i &lt;= nums.length - k; i++) {\n            int diff = nums[i + k - 1] - nums[i];\n            minDiff = Math.min(minDiff, diff);\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumDifference(vector&lt;int&gt;& nums, int k) {\n        if (k == 1) return 0;\n        \n        sort(nums.begin(), nums.end());\n        int minDiff = INT_MAX;\n        \n        for (int i = 0; i &lt;= (int)nums.size() - k; i++) {\n            int diff = nums[i + k - 1] - nums[i];\n            minDiff = min(minDiff, diff);\n        }\n        \n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minimumDifference(nums, k) {\n        if (k === 1) return 0;\n        \n        nums.sort((a, b) =&gt; a - b);\n        let minDiff = Infinity;\n        \n        for (let i = 0; i &lt;= nums.length - k; i++) {\n            const diff = nums[i + k - 1] - nums[i];\n            minDiff = Math.min(minDiff, diff);\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minimumDifference(nums: number[], k: number): number {\n        if (k === 1) return 0;\n        \n        nums.sort((a, b) =&gt; a - b);\n        let minDiff = Infinity;\n        \n        for (let i = 0; i &lt;= nums.length - k; i++) {\n            const diff = nums[i + k - 1] - nums[i];\n            minDiff = Math.min(minDiff, diff);\n        }\n        \n        return minDiff;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) - Dominated by sorting
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Optimal solution, works efficiently for all constraints
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Difference Between Highest and Lowest of K Scores Solutions","datePublished":"2025-01-07","description":"Find the minimum possible difference between the highest and lowest of k scores from an array.","keywords":"LeetCode, Minimum Difference Between Highest and Lowest of K Scores, Easy, Array, Sliding Window, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n · 2ⁿ) as it iterates through all 2ⁿ subsets of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting + Sliding Window approach has a time complexity of O(n log n), dominated by the sorting step."}},{"@type":"Question","name":"Why does the optimal solution involve sorting?","acceptedAnswer":{"@type":"Answer","text":"After sorting, the optimal k elements must be consecutive. Any non-consecutive selection can be improved by replacing elements to close gaps, so we only need to check all windows of size k."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(n) depending on the sorting implementation, as we only need to store the minimum difference."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,130 @@
+---
+title: "Split With Minimum Sum"
+summary: "Given a positive integer num, split its digits into two new integers to minimize their sum."
+date: "Mar 29, 2025"
+tags:
+  - Math
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.50% | **Paid:** No
+> **Topics:** Math, Greedy, Sorting
+
+Given a positive integer num, split it into two non-negative integers new1 and new2 by using the digits of num.
+
+Leading zeros are allowed, and all digits must be used.
+
+Return the minimum possible sum of new1 and new2.
+
+- Examples
+- Constraints
+- [Sorting & Greedy](#sorting--greedy)
+- [Counting Sort](#counting-sort)
+- [Min-Heap](#min-heap)
+
+## Examples
+
+```text
+Input: num = 4325
+Output: 59
+Explanation: We can split 4325 into 24 and 35, and the sum is 59. 
+24 + 35 = 59 is the minimum possible sum.
+```
+
+```text
+Input: num = 687
+Output: 75
+Explanation: We can split 687 into 68 and 07, and the sum is 75. 
+68 + 07 = 75 is the minimum possible sum.
+```
+
+## Constraints
+
+```text
+10 <= num <= 10^9
+```
+
+---
+## Sorting & Greedy
+
+**Intuition**
+To minimize the sum of two numbers formed by a fixed set of digits, we should distribute the digits as evenly as possible. The most significant digits of both numbers should be the smallest available digits to keep the overall magnitude low.
+
+**Steps**
+- Convert the number to a string and sort the digits in ascending order.
+- Iterate through the sorted digits.
+- Alternately append digits to `new1` and `new2`. This ensures that the smallest digits occupy the highest place values in both numbers.
+- Return the sum of `new1` and `new2`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def splitNum(self, num: int) -> int:\n        s = sorted(str(num))\n        n1, n2 = 0, 0\n        for i, c in enumerate(s):\n            if i % 2 == 0:\n                n1 = n1 * 10 + int(c)\n            else:\n                n2 = n2 * 10 + int(c)\n        return n1 + n2\n' },
+{ name: "Java", lang: "java", code: 'import java.util.Arrays;\n\nclass Solution {\n    public int splitNum(int num) {\n        char[] digits = String.valueOf(num).toCharArray();\n        Arrays.sort(digits);\n        int num1 = 0;\n        int num2 = 0;\n        for (int i = 0; i &lt; digits.length; i++) {\n            if (i % 2 == 0) {\n                num1 = num1 * 10 + (digits[i] - \'0\');\n            } else {\n                num2 = num2 * 10 + (digits[i] - \'0\');\n            }\n        }\n        return num1 + num2;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <algorithm>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int splitNum(int num) {\n        string s = to_string(num);\n        sort(s.begin(), s.end());\n        int num1 = 0, num2 = 0;\n        for (int i = 0; i &lt; s.size(); ++i) {\n            if (i % 2 == 0) {\n                num1 = num1 * 10 + (s[i] - \'0\');\n            } else {\n                num2 = num2 * 10 + (s[i] - \'0\');\n            }\n        }\n        return num1 + num2;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class Solution {\n    splitNum(num) {\n        let s = num.toString().split(\'\').sort();\n        let n1 = 0, n2 = 0;\n        for (let i = 0; i &lt; s.length; i++) {\n            if (i % 2 === 0) {\n                n1 = n1 * 10 + parseInt(s[i]);\n            } else {\n                n2 = n2 * 10 + parseInt(s[i]);\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class Solution {\n    splitNum(num: number): number {\n        let s: string[] = num.toString().split(\'\').sort();\n        let n1: number = 0, n2: number = 0;\n        for (let i = 0; i &lt; s.length; i++) {\n            if (i % 2 === 0) {\n                n1 = n1 * 10 + parseInt(s[i]);\n            } else {\n                n2 = n2 * 10 + parseInt(s[i]);\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N log N), where N is the number of digits in `num`. This is due to the sorting step.
+- Space: O(N) to store the array/string of digits.
+- Notes: Sorting is the most straightforward approach and is very fast given the constraint `num &lt;= 10^9` (max 10 digits).
+
+---
+## Counting Sort
+
+**Intuition**
+Since the digits are limited to 0-9, we can count the frequency of each digit instead of using a general-purpose sorting algorithm. This allows us to construct the numbers in linear time relative to the number of digits.
+
+**Steps**
+- Initialize an array `count` of size 10 with zeros.
+- Iterate through the digits of `num` and increment the corresponding index in `count`.
+- Iterate through the `count` array from 0 to 9.
+- For each digit with a non-zero count, alternately add it to `new1` and `new2` until the count is exhausted.
+- Return the sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def splitNum(self, num: int) -> int:\n        cnt = [0] * 10\n        for d in str(num):\n            cnt[int(d)] += 1\n        \n        n1, n2 = 0, 0\n        turn = 0\n        for d in range(10):\n            while cnt[d] > 0:\n                if turn == 0:\n                    n1 = n1 * 10 + d\n                    turn = 1\n                else:\n                    n2 = n2 * 10 + d\n                    turn = 0\n                cnt[d] -= 1\n        return n1 + n2\n' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int splitNum(int num) {\n        int[] cnt = new int[10];\n        String s = String.valueOf(num);\n        for (char c : s.toCharArray()) {\n            cnt[c - \'0\']++;\n        }\n        \n        int num1 = 0, num2 = 0;\n        boolean turn = false;\n        for (int d = 0; d &lt;= 9; d++) {\n            while (cnt[d] &gt; 0) {\n                if (!turn) {\n                    num1 = num1 * 10 + d;\n                    turn = true;\n                } else {\n                    num2 = num2 * 10 + d;\n                    turn = false;\n                }\n                cnt[d]--;\n            }\n        }\n        return num1 + num2;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    int splitNum(int num) {\n        int cnt[10] = {0};\n        string s = to_string(num);\n        for (char c : s) {\n            cnt[c - \'0\']++;\n        }\n        \n        int num1 = 0, num2 = 0;\n        bool turn = false;\n        for (int d = 0; d &lt;= 9; ++d) {\n            while (cnt[d] &gt; 0) {\n                if (!turn) {\n                    num1 = num1 * 10 + d;\n                    turn = true;\n                } else {\n                    num2 = num2 * 10 + d;\n                    turn = false;\n                }\n                cnt[d]--;\n            }\n        }\n        return num1 + num2;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class Solution {\n    splitNum(num) {\n        let cnt = new Array(10).fill(0);\n        let s = num.toString();\n        for (let i = 0; i &lt; s.length; i++) {\n            cnt[parseInt(s[i])]++;\n        }\n        \n        let n1 = 0, n2 = 0;\n        let turn = false;\n        for (let d = 0; d &lt;= 9; d++) {\n            while (cnt[d] &gt; 0) {\n                if (!turn) {\n                    n1 = n1 * 10 + d;\n                    turn = true;\n                } else {\n                    n2 = n2 * 10 + d;\n                    turn = false;\n                }\n                cnt[d]--;\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class Solution {\n    splitNum(num: number): number {\n        let cnt: number[] = new Array(10).fill(0);\n        let s: string = num.toString();\n        for (let i = 0; i &lt; s.length; i++) {\n            cnt[parseInt(s[i])]++;\n        }\n        \n        let n1: number = 0, n2: number = 0;\n        let turn: boolean = false;\n        for (let d = 0; d &lt;= 9; d++) {\n            while (cnt[d] &gt; 0) {\n                if (!turn) {\n                    n1 = n1 * 10 + d;\n                    turn = true;\n                } else {\n                    n2 = n2 * 10 + d;\n                    turn = false;\n                }\n                cnt[d]--;\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of digits. We iterate through the digits once to count, and once through the fixed-size array (10) to build the numbers.
+- Space: O(1), as the `count` array size is fixed at 10 regardless of input size.
+- Notes: This is the most optimal approach theoretically, though for N=10, the difference from O(N log N) is negligible.
+
+---
+## Min-Heap
+
+**Intuition**
+A Min-Heap (Priority Queue) naturally provides the smallest available digit at any given time. We can repeatedly extract the two smallest digits and assign them to `new1` and `new2` respectively.
+
+**Steps**
+- Convert the number to a string and push all digits into a Min-Heap.
+- Initialize `new1` and `new2` to 0.
+- While the heap is not empty:
+    - Pop the smallest digit and append it to `new1`.
+    - If the heap is not empty, pop the next smallest digit and append it to `new2`.
+- Return the sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'import heapq\n\nclass Solution:\n    def splitNum(self, num: int) -> int:\n        digits = [int(d) for d in str(num)]\n        heapq.heapify(digits)\n        \n        n1, n2 = 0, 0\n        turn = 0\n        while digits:\n            d = heapq.heappop(digits)\n            if turn == 0:\n                n1 = n1 * 10 + d\n                turn = 1\n            else:\n                n2 = n2 * 10 + d\n                turn = 0\n        return n1 + n2\n' },
+{ name: "Java", lang: "java", code: 'import java.util.PriorityQueue;\n\nclass Solution {\n    public int splitNum(int num) {\n        PriorityQueue<Integer> pq = new PriorityQueue&lt;&gt;();\n        String s = String.valueOf(num);\n        for (char c : s.toCharArray()) {\n            pq.offer(c - \'0\');\n        }\n        \n        int num1 = 0, num2 = 0;\n        boolean turn = false;\n        while (!pq.isEmpty()) {\n            int d = pq.poll();\n            if (!turn) {\n                num1 = num1 * 10 + d;\n                turn = true;\n            } else {\n                num2 = num2 * 10 + d;\n                turn = false;\n            }\n        }\n        return num1 + num2;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <queue>\n#include <vector>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int splitNum(int num) {\n        priority_queue<int, vector<int>, greater<int>&gt; pq;\n        string s = to_string(num);\n        for (char c : s) {\n            pq.push(c - \'0\');\n        }\n        \n        int num1 = 0, num2 = 0;\n        bool turn = false;\n        while (!pq.empty()) {\n            int d = pq.top();\n            pq.pop();\n            if (!turn) {\n                num1 = num1 * 10 + d;\n                turn = true;\n            } else {\n                num2 = num2 * 10 + d;\n                turn = false;\n            }\n        }\n        return num1 + num2;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class MinHeap {\n    constructor() {\n        this.heap = [];\n    }\n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            let parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &gt; this.heap[idx]) {\n                [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n                idx = parent;\n            } else {\n                break;\n            }\n        }\n    }\n    pop() {\n        if (this.heap.length === 0) return null;\n        const min = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return min;\n    }\n    sinkDown(idx) {\n        while (true) {\n            let left = 2 * idx + 1;\n            let right = 2 * idx + 2;\n            let swap = null;\n            if (left &lt; this.heap.length && this.heap[left] &lt; this.heap[idx]) {\n                swap = left;\n            }\n            if (right &lt; this.heap.length) {\n                if ((swap === null && this.heap[right] &lt; this.heap[idx]) || \n                    (swap !== null && this.heap[right] &lt; this.heap[left])) {\n                    swap = right;\n                }\n            }\n            if (swap === null) break;\n            [this.heap[swap], this.heap[idx]] = [this.heap[idx], this.heap[swap]];\n            idx = swap;\n        }\n    }\n    size() {\n        return this.heap.length;\n    }\n}\n\nclass Solution {\n    splitNum(num) {\n        let pq = new MinHeap();\n        let s = num.toString();\n        for (let i = 0; i &lt; s.length; i++) {\n            pq.push(parseInt(s[i]));\n        }\n        \n        let n1 = 0, n2 = 0;\n        let turn = false;\n        while (pq.size() &gt; 0) {\n            let d = pq.pop();\n            if (!turn) {\n                n1 = n1 * 10 + d;\n                turn = true;\n            } else {\n                n2 = n2 * 10 + d;\n                turn = false;\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class MinHeap {\n    heap: number[] = [];\n    push(val: number) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(idx: number) {\n        while (idx &gt; 0) {\n            let parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &gt; this.heap[idx]) {\n                [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n                idx = parent;\n            } else {\n                break;\n            }\n        }\n    }\n    pop(): number | null {\n        if (this.heap.length === 0) return null;\n        const min = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end!;\n            this.sinkDown(0);\n        }\n        return min;\n    }\n    sinkDown(idx: number) {\n        while (true) {\n            let left = 2 * idx + 1;\n            let right = 2 * idx + 2;\n            let swap: number | null = null;\n            if (left &lt; this.heap.length && this.heap[left] &lt; this.heap[idx]) {\n                swap = left;\n            }\n            if (right &lt; this.heap.length) {\n                if ((swap === null && this.heap[right] &lt; this.heap[idx]) || \n                    (swap !== null && this.heap[right] &lt; this.heap[left])) {\n                    swap = right;\n                }\n            }\n            if (swap === null) break;\n            [this.heap[swap]!, this.heap[idx]] = [this.heap[idx], this.heap[swap]!];\n            idx = swap;\n        }\n    }\n    size(): number {\n        return this.heap.length;\n    }\n}\n\nclass Solution {\n    splitNum(num: number): number {\n        let pq = new MinHeap();\n        let s = num.toString();\n        for (let i = 0; i &lt; s.length; i++) {\n            pq.push(parseInt(s[i]));\n        }\n        \n        let n1: number = 0, n2: number = 0;\n        let turn: boolean = false;\n        while (pq.size() &gt; 0) {\n            let d = pq.pop();\n            if (!turn) {\n                n1 = n1 * 10 + d!;\n                turn = true;\n            } else {\n                n2 = n2 * 10 + d!;\n                turn = false;\n            }\n        }\n        return n1 + n2;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N log N), where N is the number of digits. Each insertion and extraction from the heap takes O(log N).
+- Space: O(N) to store the heap.
+- Notes: This approach is conceptually clean but has higher constant factors than simple sorting or counting sort for this specific problem size.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Split With Minimum Sum Solutions","datePublished":"2025-03-29","description":"Given a positive integer num, split its digits into two new integers to minimize their sum.","keywords":"LeetCode, Split With Minimum Sum, Easy, Math, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of digits, due to the sorting step."}},{"@type":"Question","name":"What is the most optimal approach for Split With Minimum Sum?","acceptedAnswer":{"@type":"Answer","text":"The Counting Sort approach is the most optimal with O(N) time complexity and O(1) space complexity, as digits are limited to 0-9."}},{"@type":"Question","name":"Why does alternating digits minimize the sum?","acceptedAnswer":{"@type":"Answer","text":"Alternating digits ensures that the smallest available digits occupy the highest place values in both numbers, keeping the overall magnitude of the sum as low as possible."}}]}).replace(/</g,'\u003c')}
+</script>

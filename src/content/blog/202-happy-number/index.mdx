@@ -1,0 +1,132 @@
+---
+title: "Happy Number"
+summary: "Write an algorithm to determine if a number n is happy. A happy number ends in 1 after repeatedly replacing it with the sum of squares of its digits."
+date: "May 12, 2026"
+tags:
+  - Hash Table
+  - Math
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.60% | **Paid:** No
+> **Topics:** Hash Table, Math, Two Pointers
+
+Write an algorithm to determine if a number n is happy.
+
+A happy number is a number defined by the following process:
+
+Starting with any positive integer, replace the number by the sum of the squares of its digits, and repeat the process until the number equals 1 (where it will stay), or it loops endlessly in a cycle which does not include 1. Those numbers for which this process ends in 1 are happy numbers.
+
+Return true if n is a happy number, and false if not.
+
+- Examples
+- Constraints
+- [Hash Set Approach](#hash-set-approach)
+- [Floyd's Cycle Detection (Two Pointers)](#floyds-cycle-detection-two-pointers)
+- [Mathematical Approach](#mathematical-approach)
+
+## Examples
+
+### Example 1
+```text
+Input: n = 19
+Output: true
+Explanation:
+1² + 9² = 82
+8² + 2² = 68
+6² + 8² = 100
+1² + 0² + 0² = 1
+```
+
+### Example 2
+```text
+Input: n = 2
+Output: false
+```
+
+## Constraints
+```text
+1 <= n <= 2³¹ - 1
+```
+
+---
+## Hash Set Approach
+
+**Intuition**
+Use a hash set to track visited numbers. If we encounter a number we've seen before, we're in a cycle and the number is not happy.
+
+**Steps**
+- Initialize an empty hash set to store seen numbers
+- While n is not 1 and n is not in the set:
+  - Add n to the set
+  - Replace n with the sum of squares of its digits
+- Return true if n equals 1, false otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isHappy(self, n: int) -&gt; bool:\n        def get_next(num):\n            total = 0\n            while num &gt; 0:\n                digit = num % 10\n                total += digit * digit\n                num //= 10\n            return total\n        \n        seen = set()\n        while n != 1 and n not in seen:\n            seen.add(n)\n            n = get_next(n)\n        return n == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isHappy(int n) {\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        while (n != 1 && !seen.contains(n)) {\n            seen.add(n);\n            n = getNext(n);\n        }\n        return n == 1;\n    }\n    \n    private int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isHappy(int n) {\n        unordered_set&lt;int&gt; seen;\n        while (n != 1 && seen.find(n) == seen.end()) {\n            seen.insert(n);\n            n = getNext(n);\n        }\n        return n == 1;\n    }\n    \nprivate:\n    int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isHappy = function(n) {\n    const seen = new Set();\n    while (n !== 1 && !seen.has(n)) {\n        seen.add(n);\n        n = getNext(n);\n    }\n    return n === 1;\n};\n\nfunction getNext(num) {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function isHappy(n: number): boolean {\n    const seen = new Set&lt;number&gt;();\n    while (n !== 1 && !seen.has(n)) {\n        seen.add(n);\n        n = getNext(n);\n    }\n    return n === 1;\n}\n\nfunction getNext(num: number): number {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - Each iteration reduces the number significantly, and we have at most O(log n) iterations
+- Space: O(log n) - In the worst case, we store O(log n) numbers in the set
+- Notes: Simple and intuitive approach, but uses extra space for the hash set
+
+---
+## Floyd's Cycle Detection (Two Pointers)
+
+**Intuition**
+Use Floyd's cycle detection algorithm (tortoise and hare) to detect cycles without extra space. The slow pointer moves one step at a time, while the fast pointer moves two steps.
+
+**Steps**
+- Initialize slow pointer to n and fast pointer to the next value of n
+- While fast is not 1 and slow is not equal to fast:
+  - Move slow one step (sum of squares of digits)
+  - Move fast two steps (sum of squares of digits twice)
+- Return true if fast equals 1, false otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isHappy(self, n: int) -&gt; bool:\n        def get_next(num):\n            total = 0\n            while num &gt; 0:\n                digit = num % 10\n                total += digit * digit\n                num //= 10\n            return total\n        \n        slow = n\n        fast = get_next(n)\n        while fast != 1 and slow != fast:\n            slow = get_next(slow)\n            fast = get_next(get_next(fast))\n        return fast == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isHappy(int n) {\n        int slow = n;\n        int fast = getNext(n);\n        while (fast != 1 && slow != fast) {\n            slow = getNext(slow);\n            fast = getNext(getNext(fast));\n        }\n        return fast == 1;\n    }\n    \n    private int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isHappy(int n) {\n        int slow = n;\n        int fast = getNext(n);\n        while (fast != 1 && slow != fast) {\n            slow = getNext(slow);\n            fast = getNext(getNext(fast));\n        }\n        return fast == 1;\n    }\n    \nprivate:\n    int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isHappy = function(n) {\n    let slow = n;\n    let fast = getNext(n);\n    while (fast !== 1 && slow !== fast) {\n        slow = getNext(slow);\n        fast = getNext(getNext(fast));\n    }\n    return fast === 1;\n};\n\nfunction getNext(num) {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function isHappy(n: number): boolean {\n    let slow = n;\n    let fast = getNext(n);\n    while (fast !== 1 && slow !== fast) {\n        slow = getNext(slow);\n        fast = getNext(getNext(fast));\n    }\n    return fast === 1;\n}\n\nfunction getNext(num: number): number {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - Each iteration reduces the number, and cycle detection happens in O(log n) steps
+- Space: O(1) - Only uses two pointers, no additional data structures
+- Notes: Optimal space complexity, elegant cycle detection without extra memory
+
+---
+## Mathematical Approach
+
+**Intuition**
+All unhappy numbers eventually reach 4 in their sequence. This is a proven mathematical property, so we only need to check if we reach 1 or 4.
+
+**Steps**
+- While n is not 1 and n is not 4:
+  - Replace n with the sum of squares of its digits
+- Return true if n equals 1, false otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isHappy(self, n: int) -&gt; bool:\n        def get_next(num):\n            total = 0\n            while num &gt; 0:\n                digit = num % 10\n                total += digit * digit\n                num //= 10\n            return total\n        \n        while n != 1 and n != 4:\n            n = get_next(n)\n        return n == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isHappy(int n) {\n        while (n != 1 && n != 4) {\n            n = getNext(n);\n        }\n        return n == 1;\n    }\n    \n    private int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isHappy(int n) {\n        while (n != 1 && n != 4) {\n            n = getNext(n);\n        }\n        return n == 1;\n    }\n    \nprivate:\n    int getNext(int num) {\n        int total = 0;\n        while (num &gt; 0) {\n            int digit = num % 10;\n            total += digit * digit;\n            num /= 10;\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isHappy = function(n) {\n    while (n !== 1 && n !== 4) {\n        n = getNext(n);\n    }\n    return n === 1;\n};\n\nfunction getNext(num) {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function isHappy(n: number): boolean {\n    while (n !== 1 && n !== 4) {\n        n = getNext(n);\n    }\n    return n === 1;\n}\n\nfunction getNext(num: number): number {\n    let total = 0;\n    while (num &gt; 0) {\n        const digit = num % 10;\n        total += digit * digit;\n        num = Math.floor(num / 10);\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - Each iteration reduces the number, and we terminate at either 1 or 4
+- Space: O(1) - Only uses constant extra space
+- Notes: Most space-efficient approach, relies on mathematical property that all unhappy numbers reach 4
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Happy Number Solutions","datePublished":"2026-05-12","description":"Write an algorithm to determine if a number n is happy. A happy number ends in 1 after repeatedly replacing it with the sum of squares of its digits.","keywords":"LeetCode, Happy Number, Easy, Hash Table, Math, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n) for each iteration, and we have at most O(log n) iterations before detecting a cycle, so the overall time complexity is O(log n)."}},{"@type":"Question","name":"What is the space complexity of Floyd's Cycle Detection approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we only use two pointers and don't store any additional data structures."}},{"@type":"Question","name":"Why does the mathematical approach work with checking for 4?","acceptedAnswer":{"@type":"Answer","text":"It's a proven mathematical property that all unhappy numbers eventually reach 4 in their sequence. Once we reach 4, we know we're in a cycle that doesn't include 1."}}]}).replace(/</g,'\u003c')}
+</script>

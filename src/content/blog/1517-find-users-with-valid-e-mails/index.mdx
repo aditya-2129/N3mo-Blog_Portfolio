@@ -1,0 +1,493 @@
+---
+title: "Find Users With Valid E-Mails"
+summary: "Find users with valid e-mails where prefix starts with a letter and domain is @leetcode.com"
+date: "Feb 10, 2025"
+tags:
+  - Database
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 36.10% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| user_id       | int     |
+| name          | varchar |
+| mail          | varchar |
++---------------+---------+
+user_id is the primary key (column with unique values) for this table.
+This table contains information of the users signed up in a website. Some e-mails are invalid.
+
+An e-mail is valid if it meets the following criteria:
+1. It must have the format: prefix_name@domain_name
+2. The prefix_name must start with an English letter (a-z or A-Z).
+3. The prefix_name can contain letters, digits, underscores, periods, and dashes.
+4. The domain_name must be '@leetcode.com'.
+
+Write a solution to find all users who have valid e-mails.
+
+Return the result table in any order.
+
+- Examples
+- Constraints
+- [Approach 1: Using Regular Expression](#approach-1-using-regular-expression)
+- [Approach 2: Using String Functions](#approach-2-using-string-functions)
+- [Approach 3: Using LIKE Pattern Matching](#approach-3-using-like-pattern-matching)
+
+## Examples
+
+### Example 1:
+Input:
+Users table:
++---------+-----------+-------------------------+
+| user_id | name      | mail                    |
++---------+-----------+-------------------------+
+| 1       | Winston   | winston@leetcode.com    |
+| 2       | Jonathan  | jonathanisgreat         |
+| 3       | Annabelle | bella-@leetcode.com     |
+| 4       | Sally     | sally.c@leetcode.com    |
+| 5       | Marwan    | quarz#2020@leetcode.com |
+| 6       | David     | david69@gmail.com       |
+| 7       | Shapiro   | .shapo@leetcode.com     |
++---------+-----------+-------------------------+
+Output:
++---------+-----------+-------------------------+
+| user_id | name      | mail                    |
++---------+-----------+-------------------------+
+| 1       | Winston   | winston@leetcode.com    |
+| 4       | Sally     | sally.c@leetcode.com    |
++---------+-----------+-------------------------+
+Explanation:
+- The mail of user 1 is valid because it starts with 'w' and ends with '@leetcode.com'.
+- The mail of user 2 is invalid because it does not contain '@leetcode.com'.
+- The mail of user 3 is invalid because it starts with a dash.
+- The mail of user 4 is valid because it starts with 's' and ends with '@leetcode.com'.
+- The mail of user 5 is invalid because it contains '#'.
+- The mail of user 6 is invalid because the domain is not '@leetcode.com'.
+- The mail of user 7 is invalid because it starts with a period.
+
+## Constraints
+```text
+1 <= Users.length <= 1000
+1 <= user_id <= 1000
+name.length <= 100
+mail.length <= 100
+```
+
+---
+## Approach 1: Using Regular Expression
+
+**Intuition**
+Use regex pattern matching to validate emails according to the given rules in a single expression.
+
+**Steps**
+- Use REGEXP or similar function to match the pattern
+- Pattern: ^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\.com$
+- Select all rows where mail matches this pattern
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_valid_emails(users: pd.DataFrame) -> pd.DataFrame:
+    pattern = r'^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$'
+    valid_users = users[users['mail'].str.match(pattern)]
+    return valid_users[['user_id', 'name', 'mail']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.regex.*;
+
+class Solution {
+    public List<List<String>&gt; findValidEmails(List<List<String>&gt; users) {
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        Pattern pattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$");
+        
+        for (List<String> user : users) {
+            String mail = user.get(2);
+            Matcher matcher = pattern.matcher(mail);
+            if (matcher.matches()) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <regex>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findValidEmails(vector<vector<string>&gt;& users) {
+        vector<vector<string>&gt; result;
+        regex pattern("^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$");
+        
+        for (auto& user : users) {
+            if (regex_match(user[2], pattern)) {
+                result.push_back(user);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} users
+ * @return {string[][]}
+ */
+var findValidEmails = function(users) {
+    const pattern = /^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$/;
+    return users.filter(user =&gt; pattern.test(user[2]));
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findValidEmails(users: string[][]): string[][] {
+    const pattern = /^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$/;
+    return users.filter(user =&gt; pattern.test(user[2]));
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is number of users and m is average email length
+- Space: O(n) for storing results
+- Notes: Regex provides clean pattern matching but may have overhead
+
+---
+## Approach 2: Using String Functions
+
+**Intuition**
+Manually check each validation rule using string operations without regex.
+
+**Steps**
+- Check if email ends with '@leetcode.com'
+- Extract prefix before '@'
+- Check if prefix starts with a letter
+- Check if all prefix characters are valid (letters, digits, underscore, period, dash)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_valid_emails(users: pd.DataFrame) -> pd.DataFrame:
+    def is_valid(mail):
+        if not mail.endswith('@leetcode.com'):
+            return False
+        prefix = mail.split('@')[0]
+        if not prefix or not prefix[0].isalpha():
+            return False
+        valid_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-')
+        return all(c in valid_chars for c in prefix)
+    
+    valid_users = users[users['mail'].apply(is_valid)]
+    return valid_users[['user_id', 'name', 'mail']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public List<List<String>&gt; findValidEmails(List<List<String>&gt; users) {
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        String validDomain = "@leetcode.com";
+        
+        for (List<String> user : users) {
+            String mail = user.get(2);
+            if (isValidEmail(mail, validDomain)) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+    
+    private boolean isValidEmail(String mail, String validDomain) {
+        if (!mail.endsWith(validDomain)) {
+            return false;
+        }
+        int atIndex = mail.indexOf('@');
+        String prefix = mail.substring(0, atIndex);
+        
+        if (prefix.isEmpty() || !Character.isLetter(prefix.charAt(0))) {
+            return false;
+        }
+        
+        for (char c : prefix.toCharArray()) {
+            if (!isValidChar(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean isValidChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '-';
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findValidEmails(vector<vector<string>&gt;& users) {
+        vector<vector<string>&gt; result;
+        string validDomain = "@leetcode.com";
+        
+        for (auto& user : users) {
+            string mail = user[2];
+            if (isValidEmail(mail, validDomain)) {
+                result.push_back(user);
+            }
+        }
+        return result;
+    }
+    
+private:
+    bool isValidEmail(const string& mail, const string& validDomain) {
+        if (mail.size() &lt; validDomain.size() || 
+            mail.substr(mail.size() - validDomain.size()) != validDomain) {
+            return false;
+        }
+        
+        size_t atIndex = mail.find('@');
+        string prefix = mail.substr(0, atIndex);
+        
+        if (prefix.empty() || !isalpha(prefix[0])) {
+            return false;
+        }
+        
+        for (char c : prefix) {
+            if (!isValidChar(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    bool isValidChar(char c) {
+        return isalnum(c) || c == '_' || c == '.' || c == '-';
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} users
+ * @return {string[][]}
+ */
+var findValidEmails = function(users) {
+    const validDomain = '@leetcode.com';
+    
+    return users.filter(user =&gt; {
+        const mail = user[2];
+        if (!mail.endsWith(validDomain)) {
+            return false;
+        }
+        
+        const atIndex = mail.indexOf('@');
+        const prefix = mail.substring(0, atIndex);
+        
+        if (prefix.length === 0 || !/^[a-zA-Z]$/.test(prefix[0])) {
+            return false;
+        }
+        
+        for (const c of prefix) {
+            if (!isValidChar(c)) {
+                return false;
+            }
+        }
+        return true;
+    });
+};
+
+function isValidChar(c) {
+    return /[a-zA-Z0-9_.-]/.test(c);
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function findValidEmails(users: string[][]): string[][] {
+    const validDomain = '@leetcode.com';
+    
+    return users.filter(user =&gt; {
+        const mail = user[2];
+        if (!mail.endsWith(validDomain)) {
+            return false;
+        }
+        
+        const atIndex = mail.indexOf('@');
+        const prefix = mail.substring(0, atIndex);
+        
+        if (prefix.length === 0 || !/^[a-zA-Z]$/.test(prefix[0])) {
+            return false;
+        }
+        
+        for (const c of prefix) {
+            if (!isValidChar(c)) {
+                return false;
+            }
+        }
+        return true;
+    });
+}
+
+function isValidChar(c: string): boolean {
+    return /[a-zA-Z0-9_.-]/.test(c);
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is number of users and m is average email length
+- Space: O(n) for storing results
+- Notes: More verbose but avoids regex overhead, easier to understand
+
+---
+## Approach 3: Using LIKE Pattern Matching
+
+**Intuition**
+Use SQL-style LIKE pattern matching with early filtering for better performance.
+
+**Steps**
+- First filter emails ending with '@leetcode.com'
+- Then check prefix starts with a letter
+- Finally verify all prefix characters are valid
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_valid_emails(users: pd.DataFrame) -> pd.DataFrame:
+    # Filter emails that end with @leetcode.com
+    candidates = users[users['mail'].str.endswith('@leetcode.com')]
+    
+    # Check prefix starts with letter
+    candidates = candidates[candidates['mail'].str[0].str.isalpha()]
+    
+    # Check prefix contains only valid characters
+    def has_valid_chars(mail):
+        prefix = mail.split('@')[0]
+        valid_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-')
+        return all(c in valid_chars for c in prefix)
+    
+    valid_users = candidates[candidates['mail'].apply(has_valid_chars)]
+    return valid_users[['user_id', 'name', 'mail']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public List<List<String>&gt; findValidEmails(List<List<String>&gt; users) {
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        String validDomain = "@leetcode.com";
+        
+        for (List<String> user : users) {
+            String mail = user.get(2);
+            if (mail.endsWith(validDomain) && 
+                Character.isLetter(mail.charAt(0)) &&
+                hasValidChars(mail)) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+    
+    private boolean hasValidChars(String mail) {
+        int atIndex = mail.indexOf('@');
+        for (int i = 0; i &lt; atIndex; i++) {
+            char c = mail.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '_' && c != '.' && c != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findValidEmails(vector<vector<string>&gt;& users) {
+        vector<vector<string>&gt; result;
+        string validDomain = "@leetcode.com";
+        
+        for (auto& user : users) {
+            string mail = user[2];
+            if (mail.size() &gt;= validDomain.size() &&
+                mail.substr(mail.size() - validDomain.size()) == validDomain &&
+                isalpha(mail[0]) &&
+                hasValidChars(mail)) {
+                result.push_back(user);
+            }
+        }
+        return result;
+    }
+    
+private:
+    bool hasValidChars(const string& mail) {
+        size_t atIndex = mail.find('@');
+        for (size_t i = 0; i &lt; atIndex; i++) {
+            char c = mail[i];
+            if (!isalnum(c) && c != '_' && c != '.' && c != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} users
+ * @return {string[][]}
+ */
+var findValidEmails = function(users) {
+    const validDomain = '@leetcode.com';
+    
+    return users.filter(user =&gt; {
+        const mail = user[2];
+        
+        if (!mail.endsWith(validDomain)) {
+            return false;
+        }
+        
+        if (!/^[a-zA-Z]$/.test(mail[0])) {
+            return false;
+        }
+        
+        const atIndex = mail.indexOf('@');
+        for (let i = 0; i &lt; atIndex; i++) {
+            const c = mail[i];
+            if (!/[a-zA-Z0-9_.-]/.test(c)) {
+                return false;
+            }
+        }
+        return true;
+    });
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findValidEmails(users: string[][]): string[][] {
+    const validDomain = '@leetcode.com';
+    
+    return users.filter(user =&gt; {
+        const mail = user[2];
+        
+        if (!mail.endsWith(validDomain)) {
+            return false;
+        }
+        
+        if (!/^[a-zA-Z]$/.test(mail[0])) {
+            return false;
+        }
+        
+        const atIndex = mail.indexOf('@');
+        for (let i = 0; i &lt; atIndex; i++) {
+            const c = mail[i];
+            if (!/[a-zA-Z0-9_.-]/.test(c)) {
+                return false;
+            }
+        }
+        return true;
+    });
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is number of users and m is average email length
+- Space: O(n) for storing results
+- Notes: Early filtering can reduce work for invalid emails
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Users With Valid E-Mails Solutions","datePublished":"2025-02-10","description":"Find users with valid e-mails where prefix starts with a letter and domain is @leetcode.com","keywords":"LeetCode, Find Users With Valid E-Mails, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the regex approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of users and m is the average email length."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the results, where n is the number of valid users."}},{"@type":"Question","name":"What are the validation rules for a valid email?","acceptedAnswer":{"@type":"Answer","text":"The prefix must start with a letter, contain only letters, digits, underscores, periods, and dashes, and the domain must be @leetcode.com."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,285 @@
+---
+title: "Count Commas in Range"
+summary: "Count the total number of commas used when writing all numbers in a range with standard thousand separators."
+date: "May 29, 2024"
+tags:
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.90% | **Paid:** No
+> **Topics:** Math
+
+Given two integers lower and upper, return the total number of commas used when writing all numbers from lower to upper (inclusive) with standard thousand separators (commas are placed after every three digits from the right).
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+n = 1002
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+The numbers "1,000", "1,001", and "1,002" each contain one comma, giving a total of 3.
+
+### Example 2
+
+**Input:**
+```text
+n = 998
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+All numbers from 1 to 998 have fewer than four digits. Therefore, no commas are used.
+
+## Constraints
+
+```text
+1 <= lower <= upper <= 10^9
+```
+
+## Approach 1: Brute Force
+
+**Intuition**
+Iterate through each number in the range and count the commas in each number individually.
+
+**Steps**
+- For each number from lower to upper:
+  - Count the number of digits
+  - Calculate commas as floor((digits - 1) / 3)
+  - Add to total
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countCommas(self, lower: int, upper: int) -> int:
+        def count_commas_in_number(n):
+            return max(0, (len(str(n)) - 1) // 3)
+        
+        total = 0
+        for i in range(lower, upper + 1):
+            total += count_commas_in_number(i)
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public long countCommas(int lower, int upper) {
+        long total = 0;
+        for (int i = lower; i &lt;= upper; i++) {
+            total += countCommasInNumber(i);
+        }
+        return total;
+    }
+    
+    private int countCommasInNumber(int n) {
+        int digits = 0;
+        while (n &gt; 0) {
+            digits++;
+            n /= 10;
+        }
+        return Math.max(0, (digits - 1) / 3);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    long long countCommas(int lower, int upper) {
+        long long total = 0;
+        for (int i = lower; i &lt;= upper; i++) {
+            total += countCommasInNumber(i);
+        }
+        return total;
+    }
+    
+private:
+    int countCommasInNumber(int n) {
+        int digits = 0;
+        while (n &gt; 0) {
+            digits++;
+            n /= 10;
+        }
+        return max(0, (digits - 1) / 3);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countCommas(lower, upper) {
+        let total = 0;
+        for (let i = lower; i &lt;= upper; i++) {
+            total += this.countCommasInNumber(i);
+        }
+        return total;
+    }
+    
+    countCommasInNumber(n) {
+        const digits = n.toString().length;
+        return Math.max(0, Math.floor((digits - 1) / 3));
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countCommas(lower: number, upper: number): number {
+        let total = 0;
+        for (let i = lower; i &lt;= upper; i++) {
+            total += this.countCommasInNumber(i);
+        }
+        return total;
+    }
+    
+    private countCommasInNumber(n: number): number {
+        const digits = n.toString().length;
+        return Math.max(0, Math.floor((digits - 1) / 3));
+    }
+}` },]} />
+
+**Complexity**
+- Time: O((upper - lower + 1) × log(upper))
+- Space: O(1)
+- Notes: Simple but slow for large ranges
+
+## Approach 2: Mathematical Formula
+
+**Intuition**
+Use prefix sums and mathematical grouping to count commas efficiently without iterating through each number.
+
+**Steps**
+- Define a function to count commas from 1 to n
+- For each comma level k (1 comma, 2 commas, etc.):
+  - Find the range of numbers with exactly k commas
+  - Count how many of those numbers are ≤ n
+  - Add k × count to total
+- Return count(upper) - count(lower - 1)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countCommas(self, lower: int, upper: int) -> int:
+        def count_commas_up_to(n):
+            if n &lt; 1000:
+                return 0
+            
+            total = 0
+            k = 1
+            while 10 ** (3 * k) &lt;= n:
+                min_num = 10 ** (3 * k)
+                max_num = min(n, 10 ** (3 * k + 3) - 1)
+                count = max_num - min_num + 1
+                total += k * count
+                k += 1
+            
+            return total
+        
+        return count_commas_up_to(upper) - count_commas_up_to(lower - 1)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public long countCommas(int lower, int upper) {
+        return countCommasUpTo(upper) - countCommasUpTo(lower - 1);
+    }
+    
+    private long countCommasUpTo(int n) {
+        if (n &lt; 1000) {
+            return 0;
+        }
+        
+        long total = 0;
+        int k = 1;
+        while (Math.pow(10, 3 * k) &lt;= n) {
+            long minNum = (long) Math.pow(10, 3 * k);
+            long maxNum = Math.min(n, (long) Math.pow(10, 3 * k + 3) - 1);
+            long count = maxNum - minNum + 1;
+            total += (long) k * count;
+            k++;
+        }
+        
+        return total;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    long long countCommas(int lower, int upper) {
+        return countCommasUpTo(upper) - countCommasUpTo(lower - 1);
+    }
+    
+private:
+    long long countCommasUpTo(int n) {
+        if (n &lt; 1000) {
+            return 0;
+        }
+        
+        long long total = 0;
+        int k = 1;
+        while (pow(10, 3 * k) &lt;= n) {
+            long long minNum = pow(10, 3 * k);
+            long long maxNum = min((long long)n, (long long)pow(10, 3 * k + 3) - 1);
+            long long count = maxNum - minNum + 1;
+            total += (long long)k * count;
+            k++;
+        }
+        
+        return total;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countCommas(lower, upper) {
+        return this.countCommasUpTo(upper) - this.countCommasUpTo(lower - 1);
+    }
+    
+    countCommasUpTo(n) {
+        if (n &lt; 1000) {
+            return 0;
+        }
+        
+        let total = 0;
+        let k = 1;
+        while (Math.pow(10, 3 * k) &lt;= n) {
+            const minNum = Math.pow(10, 3 * k);
+            const maxNum = Math.min(n, Math.pow(10, 3 * k + 3) - 1);
+            const count = maxNum - minNum + 1;
+            total += k * count;
+            k++;
+        }
+        
+        return total;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countCommas(lower: number, upper: number): number {
+        return this.countCommasUpTo(upper) - this.countCommasUpTo(lower - 1);
+    }
+    
+    private countCommasUpTo(n: number): number {
+        if (n &lt; 1000) {
+            return 0;
+        }
+        
+        let total = 0;
+        let k = 1;
+        while (Math.pow(10, 3 * k) &lt;= n) {
+            const minNum = Math.pow(10, 3 * k);
+            const maxNum = Math.min(n, Math.pow(10, 3 * k + 3) - 1);
+            const count = maxNum - minNum + 1;
+            total += k * count;
+            k++;
+        }
+        
+        return total;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(log(upper))
+- Space: O(1)
+- Notes: Optimal solution using mathematical grouping
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Commas in Range Solutions","datePublished":"2024-05-29","description":"Count the total number of commas used when writing all numbers in a range with standard thousand separators.","keywords":"LeetCode, Count Commas in Range, Easy, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the brute force approach?","acceptedAnswer":{"@type":"Answer","text":"O((upper - lower + 1) × log(upper)) - we iterate through each number and count its digits."}},{"@type":"Question","name":"What is the time complexity of the mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"O(log(upper)) - we only iterate through comma levels, not individual numbers."}},{"@type":"Question","name":"How do we calculate the number of commas in a number?","acceptedAnswer":{"@type":"Answer","text":"A number with d digits has floor((d - 1) / 3) commas, as commas are placed after every 3 digits from the right."}}]}).replace(/</g,'\u003c')}
+</script>

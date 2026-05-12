@@ -1,0 +1,126 @@
+---
+title: "Calculate Amount Paid in Taxes"
+summary: "Calculate the total tax paid based on progressive tax brackets and a given income."
+date: "May 04, 2024"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.30% | **Paid:** No
+> **Topics:** Array, Simulation
+
+You are given a 2D integer array brackets where brackets[i] = [upperi, percenti] means that the ith tax bracket has an upper bound of upperi and is taxed at a rate of percenti. The brackets are sorted by upper bound in strictly increasing order.
+
+Tax is calculated on the income that falls within each tax bracket. The income that falls within a bracket is taxed at the rate of that bracket, and any remaining income is passed to the next bracket.
+
+Given an integer income, return the amount of taxes you have to pay.
+
+- Examples
+- Constraints
+- [Iterative Simulation](#iterative-simulation)
+- [Recursive Simulation](#recursive-simulation)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: brackets = [[3,50],[7,10],[12,25]], income = 10
+Output: 2.65000
+Explanation:
+The first 3 dollars are taxed at 50%: $3 * 50% = $1.50
+The next 4 dollars are taxed at 10%: $4 * 10% = $0.40
+The last 3 dollars are taxed at 25%: $3 * 25% = $0.75
+Total tax is $1.50 + $0.40 + $0.75 = $2.65
+```
+
+**Example 2:**
+
+```text
+Input: brackets = [[1,0],[4,25],[5,50]], income = 2
+Output: 0.25000
+Explanation:
+The first dollar is not taxed: $1 * 0% = $0
+The next dollar is taxed at 25%: $1 * 25% = $0.25
+Total tax is $0 + $0.25 = $0.25
+```
+
+**Example 3:**
+
+```text
+Input: brackets = [[2,50]], income = 0
+Output: 0.00000
+Explanation:
+No income, no tax.
+```
+
+## Constraints
+
+```text
+1 <= brackets.length <= 100
+1 <= upperi <= 1000
+0 <= percenti <= 100
+0 <= income <= 1000
+upperi is strictly increasing.
+```
+
+---
+
+## Iterative Simulation
+
+**Intuition**
+We iterate through the tax brackets sequentially. For each bracket, we determine how much of the total income falls into that specific bracket's range, apply the tax rate, and accumulate the total tax.
+
+**Steps**
+- Initialize `total_tax` to 0 and `prev_upper` to 0.
+- Iterate through each bracket `[upper, percent]` in the `brackets` array.
+- Calculate the taxable amount for the current bracket as `min(income, upper) - prev_upper`.
+- If the taxable amount is positive, add `taxable_amount * percent / 100` to `total_tax`.
+- Update `prev_upper` to `upper`.
+- If `income` is less than or equal to `prev_upper`, we have taxed all income, so break the loop.
+- Return `total_tax`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def calculateTax(self, brackets: List[List[int]], income: int) -&gt; float:\n        total_tax = 0.0\n        prev_upper = 0\n        \n        for upper, percent in brackets:\n            if income &lt;= prev_upper:\n                break\n            \n            taxable = min(income, upper) - prev_upper\n            total_tax += taxable * percent / 100.0\n            prev_upper = upper\n            \n        return total_tax\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public double calculateTax(int[][] brackets, int income) {\n        double totalTax = 0.0;\n        int prevUpper = 0;\n        \n        for (int[] bracket : brackets) {\n            int upper = bracket[0];\n            int percent = bracket[1];\n            \n            if (income &lt;= prevUpper) {\n                break;\n            }\n            \n            int taxable = Math.min(income, upper) - prevUpper;\n            totalTax += taxable * percent / 100.0;\n            prevUpper = upper;\n        }\n        \n        return totalTax;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;cmath&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    double calculateTax(vector&lt;vector&lt;int&gt;&gt;& brackets, int income) {\n        double totalTax = 0.0;\n        int prevUpper = 0;\n        \n        for (const auto& bracket : brackets) {\n            int upper = bracket[0];\n            int percent = bracket[1];\n            \n            if (income &lt;= prevUpper) {\n                break;\n            }\n            \n            int taxable = min(income, upper) - prevUpper;\n            totalTax += taxable * percent / 100.0;\n            prevUpper = upper;\n        }\n        \n        return totalTax;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var calculateTax = function(brackets, income) {\n    let totalTax = 0.0;\n    let prevUpper = 0;\n    \n    for (let i = 0; i &lt; brackets.length; i++) {\n        const upper = brackets[i][0];\n        const percent = brackets[i][1];\n        \n        if (income &lt;= prevUpper) {\n            break;\n        }\n        \n        const taxable = Math.min(income, upper) - prevUpper;\n        totalTax += taxable * percent / 100;\n        prevUpper = upper;\n    }\n    \n    return totalTax;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function calculateTax(brackets: number[][], income: number): number {\n    let totalTax = 0.0;\n    let prevUpper = 0;\n    \n    for (let i = 0; i &lt; brackets.length; i++) {\n        const upper = brackets[i][0];\n        const percent = brackets[i][1];\n        \n        if (income &lt;= prevUpper) {\n            break;\n        }\n        \n        const taxable = Math.min(income, upper) - prevUpper;\n        totalTax += taxable * percent / 100;\n        prevUpper = upper;\n    }\n    \n    return totalTax;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of brackets.
+- Space: O(1) as we only use a few variables for tracking state.
+- Notes: This is the most efficient approach for this problem.
+
+## Recursive Simulation
+
+**Intuition**
+We can solve the problem recursively by processing one bracket at a time. The base case occurs when we run out of brackets or the income is fully taxed. The recursive step calculates the tax for the current bracket and passes the remaining state to the next call.
+
+**Steps**
+- Define a recursive helper function that takes the current index, previous upper bound, and accumulated tax.
+- Base case: If the index is out of bounds or income is less than or equal to the previous upper bound, return the accumulated tax.
+- Recursive step: Calculate the taxable amount for the current bracket, update the accumulated tax, and call the function for the next bracket with the updated upper bound.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def calculateTax(self, brackets: List[List[int]], income: int) -&gt; float:\n        def helper(idx: int, prev_upper: int, current_tax: float) -&gt; float:\n            if idx &gt;= len(brackets) or income &lt;= prev_upper:\n                return current_tax\n            \n            upper, percent = brackets[idx]\n            taxable = min(income, upper) - prev_upper\n            \n            if taxable &lt; 0:\n                return current_tax\n            \n            new_tax = current_tax + (taxable * percent / 100.0)\n            return helper(idx + 1, upper, new_tax)\n        \n        return helper(0, 0, 0.0)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public double calculateTax(int[][] brackets, int income) {\n        return helper(brackets, income, 0, 0, 0.0);\n    }\n    \n    private double helper(int[][] brackets, int income, int idx, int prevUpper, double currentTax) {\n        if (idx &gt;= brackets.length || income &lt;= prevUpper) {\n            return currentTax;\n        }\n        \n        int upper = brackets[idx][0];\n        int percent = brackets[idx][1];\n        int taxable = Math.min(income, upper) - prevUpper;\n        \n        if (taxable &lt; 0) {\n            return currentTax;\n        }\n        \n        double newTax = currentTax + (taxable * percent / 100.0);\n        return helper(brackets, income, idx + 1, upper, newTax);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    double calculateTax(vector&lt;vector&lt;int&gt;&gt;& brackets, int income) {\n        return helper(brackets, income, 0, 0, 0.0);\n    }\n    \nprivate:\n    double helper(const vector&lt;vector&lt;int&gt;&gt;& brackets, int income, int idx, int prevUpper, double currentTax) {\n        if (idx &gt;= brackets.size() || income &lt;= prevUpper) {\n            return currentTax;\n        }\n        \n        int upper = brackets[idx][0];\n        int percent = brackets[idx][1];\n        int taxable = min(income, upper) - prevUpper;\n        \n        if (taxable &lt; 0) {\n            return currentTax;\n        }\n        \n        double newTax = currentTax + (taxable * percent / 100.0);\n        return helper(brackets, income, idx + 1, upper, newTax);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var calculateTax = function(brackets, income) {\n    const helper = (idx, prevUpper, currentTax) =&gt; {\n        if (idx &gt;= brackets.length || income &lt;= prevUpper) {\n            return currentTax;\n        }\n        \n        const upper = brackets[idx][0];\n        const percent = brackets[idx][1];\n        const taxable = Math.min(income, upper) - prevUpper;\n        \n        if (taxable &lt; 0) {\n            return currentTax;\n        }\n        \n        const newTax = currentTax + (taxable * percent / 100);\n        return helper(idx + 1, upper, newTax);\n    };\n    \n    return helper(0, 0, 0);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function calculateTax(brackets: number[][], income: number): number {\n    const helper = (idx: number, prevUpper: number, currentTax: number): number =&gt; {\n        if (idx &gt;= brackets.length || income &lt;= prevUpper) {\n            return currentTax;\n        }\n        \n        const upper = brackets[idx][0];\n        const percent = brackets[idx][1];\n        const taxable = Math.min(income, upper) - prevUpper;\n        \n        if (taxable &lt; 0) {\n            return currentTax;\n        }\n        \n        const newTax = currentTax + (taxable * percent / 100);\n        return helper(idx + 1, upper, newTax);\n    };\n    \n    return helper(0, 0, 0);\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of brackets.
+- Space: O(N) due to the recursion stack depth.
+- Notes: While functionally correct, the iterative approach is preferred to avoid stack overflow risks with large input sizes, though constraints here are small.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Calculate Amount Paid in Taxes Solutions","datePublished":"2024-05-04","description":"Calculate the total tax paid based on progressive tax brackets and a given income.","keywords":"LeetCode, Calculate Amount Paid in Taxes, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of brackets."}},{"@type":"Question","name":"What is the space complexity of the Iterative Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) as we only use a few variables."}},{"@type":"Question","name":"What is the time complexity of the Recursive Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of brackets."}},{"@type":"Question","name":"What is the space complexity of the Recursive Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) due to the recursion stack depth."}}]}).replace(/</g,'\u003c')}
+</script>

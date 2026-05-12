@@ -1,0 +1,140 @@
+---
+title: "Minimum Depth of Binary Tree"
+summary: "Find the minimum depth of a binary tree, defined as the number of nodes along the shortest path from the root node down to the nearest leaf node."
+date: "Apr 27, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 52.90% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given a binary tree, find its minimum depth.
+
+The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
+
+**Note:** A leaf is a node with no children.
+
+- Examples
+- Constraints
+- [Approach 1: Recursive Depth-First Search](#approach-1-recursive-depth-first-search)
+- [Approach 2: Iterative Breadth-First Search](#approach-2-iterative-breadth-first-search)
+- [Approach 3: Iterative Depth-First Search](#approach-3-iterative-depth-first-search)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: 2
+Explanation:
+The minimum depth is 2, which is the path from root node (3) to leaf node (9).
+```
+
+**Example 2:**
+
+```text
+Input: root = [2,null,3,null,4,null,5,null,6]
+Output: 5
+Explanation:
+The minimum depth is 5, which is the path from root node (2) down to leaf node (6).
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 10⁵].
+-1000 <= Node.val <= 1000
+```
+
+---
+## Approach 1: Recursive Depth-First Search
+
+**Intuition**
+We recursively traverse the tree. The key insight is that if a node has only one child, we must continue down that child; we cannot stop at the current node because it is not a leaf.
+
+**Steps**
+- If the root is null, return 0.
+- If the node is a leaf (both left and right children are null), return 1.
+- If the left child is null, recursively find the depth of the right subtree and add 1.
+- If the right child is null, recursively find the depth of the left subtree and add 1.
+- If both children exist, return the minimum of the depths of the left and right subtrees plus 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        if not root.left and not root.right:\n            return 1\n        if not root.left:\n            return 1 + self.minDepth(root.right)\n        if not root.right:\n            return 1 + self.minDepth(root.left)\n        return 1 + min(self.minDepth(root.left), self.minDepth(root.right))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minDepth(TreeNode root) {\n        if (root == null) return 0;\n        if (root.left == null && root.right == null) return 1;\n        if (root.left == null) return 1 + minDepth(root.right);\n        if (root.right == null) return 1 + minDepth(root.left);\n        return 1 + Math.min(minDepth(root.left), minDepth(root.right));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minDepth(TreeNode* root) {\n        if (!root) return 0;\n        if (!root-&gt;left && !root-&gt;right) return 1;\n        if (!root-&gt;left) return 1 + minDepth(root-&gt;right);\n        if (!root-&gt;right) return 1 + minDepth(root-&gt;left);\n        return 1 + min(minDepth(root-&gt;left), minDepth(root-&gt;right));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minDepth = function(root) {\n    if (!root) return 0;\n    if (!root.left && !root.right) return 1;\n    if (!root.left) return 1 + minDepth(root.right);\n    if (!root.right) return 1 + minDepth(root.left);\n    return 1 + Math.min(minDepth(root.left), minDepth(root.right));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minDepth(root: TreeNode | null): number {\n    if (!root) return 0;\n    if (!root.left && !root.right) return 1;\n    if (!root.left) return 1 + minDepth(root.right);\n    if (!root.right) return 1 + minDepth(root.left);\n    return 1 + Math.min(minDepth(root.left), minDepth(root.right));\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes in the tree. We visit every node once.
+- Space: O(H), where H is the height of the tree. This is the space used by the recursion stack. In the worst case (skewed tree), it is O(N).
+- Notes: Simple and elegant, but may cause stack overflow for very deep trees.
+
+---
+## Approach 2: Iterative Breadth-First Search
+
+**Intuition**
+Breadth-First Search (BFS) explores the tree level by level. The first leaf node we encounter during the traversal must be at the minimum depth, so we can return immediately.
+
+**Steps**
+- Initialize a queue with the root node and a depth of 1.
+- While the queue is not empty:
+    - Dequeue a node and its current depth.
+    - If the node is a leaf, return the current depth.
+    - Enqueue the left child with depth + 1 if it exists.
+    - Enqueue the right child with depth + 1 if it exists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def minDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        q = deque([(root, 1)])\n        while q:\n            node, depth = q.popleft()\n            if not node.left and not node.right:\n                return depth\n            if node.left:\n                q.append((node.left, depth + 1))\n            if node.right:\n                q.append((node.right, depth + 1))\n        return 0" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass Solution {\n    public int minDepth(TreeNode root) {\n        if (root == null) return 0;\n        Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();\n        Queue&lt;Integer&gt; depths = new LinkedList&lt;&gt;();\n        q.offer(root);\n        depths.offer(1);\n        while (!q.isEmpty()) {\n            TreeNode node = q.poll();\n            int depth = depths.poll();\n            if (node.left == null && node.right == null) return depth;\n            if (node.left != null) {\n                q.offer(node.left);\n                depths.offer(depth + 1);\n            }\n            if (node.right != null) {\n                q.offer(node.right);\n                depths.offer(depth + 1);\n            }\n        }\n        return 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minDepth(TreeNode* root) {\n        if (!root) return 0;\n        queue&lt;pair&lt;TreeNode*, int&gt;&gt; q;\n        q.push({root, 1});\n        while (!q.empty()) {\n            auto [node, depth] = q.front();\n            q.pop();\n            if (!node-&gt;left && !node-&gt;right) return depth;\n            if (node-&gt;left) q.push({node-&gt;left, depth + 1});\n            if (node-&gt;right) q.push({node-&gt;right, depth + 1});\n        }\n        return 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minDepth = function(root) {\n    if (!root) return 0;\n    const q = [[root, 1]];\n    while (q.length) {\n        const [node, depth] = q.shift();\n        if (!node.left && !node.right) return depth;\n        if (node.left) q.push([node.left, depth + 1]);\n        if (node.right) q.push([node.right, depth + 1]);\n    }\n    return 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minDepth(root: TreeNode | null): number {\n    if (!root) return 0;\n    const q: [TreeNode, number][] = [[root, 1]];\n    while (q.length) {\n        const [node, depth] = q.shift()!;\n        if (!node.left && !node.right) return depth;\n        if (node.left) q.push([node.left, depth + 1]);\n        if (node.right) q.push([node.right, depth + 1]);\n    }\n    return 0;\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes. In the worst case, we might visit all nodes.
+- Space: O(W), where W is the maximum width of the tree. This is generally more efficient than DFS for wide trees but can be O(N) in a perfect binary tree.
+- Notes: This is often the most efficient approach for finding minimum depth because it stops as soon as it finds the first leaf.
+
+---
+## Approach 3: Iterative Depth-First Search
+
+**Intuition**
+We simulate the recursive DFS approach using an explicit stack. This avoids potential stack overflow issues associated with recursion on very deep trees.
+
+**Steps**
+- Initialize a stack with the root node and a depth of 1.
+- Initialize a variable `min_depth` to infinity.
+- While the stack is not empty:
+    - Pop a node and its current depth.
+    - If the node is a leaf, update `min_depth` with the minimum of `min_depth` and current depth.
+    - Push the left child with depth + 1 if it exists.
+    - Push the right child with depth + 1 if it exists.
+- Return `min_depth`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        stack = [(root, 1)]\n        min_depth = float('inf')\n        while stack:\n            node, depth = stack.pop()\n            if not node.left and not node.right:\n                min_depth = min(min_depth, depth)\n            if node.left:\n                stack.append((node.left, depth + 1))\n            if node.right:\n                stack.append((node.right, depth + 1))\n        return min_depth" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public int minDepth(TreeNode root) {\n        if (root == null) return 0;\n        Stack&lt;TreeNode&gt; nodes = new Stack&lt;&gt;();\n        Stack&lt;Integer&gt; depths = new Stack&lt;&gt;();\n        nodes.push(root);\n        depths.push(1);\n        int minDepth = Integer.MAX_VALUE;\n        while (!nodes.isEmpty()) {\n            TreeNode node = nodes.pop();\n            int depth = depths.pop();\n            if (node.left == null && node.right == null) {\n                minDepth = Math.min(minDepth, depth);\n            }\n            if (node.left != null) {\n                nodes.push(node.left);\n                depths.push(depth + 1);\n            }\n            if (node.right != null) {\n                nodes.push(node.right);\n                depths.push(depth + 1);\n            }\n        }\n        return minDepth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minDepth(TreeNode* root) {\n        if (!root) return 0;\n        stack&lt;pair&lt;TreeNode*, int&gt;&gt; stk;\n        stk.push({root, 1});\n        int min_depth = INT_MAX;\n        while (!stk.empty()) {\n            auto [node, depth] = stk.top();\n            stk.pop();\n            if (!node-&gt;left && !node-&gt;right) {\n                min_depth = min(min_depth, depth);\n            }\n            if (node-&gt;left) stk.push({node-&gt;left, depth + 1});\n            if (node-&gt;right) stk.push({node-&gt;right, depth + 1});\n        }\n        return min_depth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minDepth = function(root) {\n    if (!root) return 0;\n    const stack = [[root, 1]];\n    let minDepth = Infinity;\n    while (stack.length) {\n        const [node, depth] = stack.pop();\n        if (!node.left && !node.right) minDepth = Math.min(minDepth, depth);\n        if (node.left) stack.push([node.left, depth + 1]);\n        if (node.right) stack.push([node.right, depth + 1]);\n    }\n    return minDepth;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minDepth(root: TreeNode | null): number {\n    if (!root) return 0;\n    const stack: [TreeNode, number][] = [[root, 1]];\n    let minDepth = Infinity;\n    while (stack.length) {\n        const [node, depth] = stack.pop()!;\n        if (!node.left && !node.right) minDepth = Math.min(minDepth, depth);\n        if (node.left) stack.push([node.left, depth + 1]);\n        if (node.right) stack.push([node.right, depth + 1]);\n    }\n    return minDepth;\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes. We visit every node once.
+- Space: O(H), where H is the height of the tree. The stack stores the path to the current node.
+- Notes: Useful for avoiding recursion depth limits, though generally slower than BFS for this specific problem because it must traverse the entire tree in the worst case.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Depth of Binary Tree Solutions","datePublished":"2026-04-27","description":"Find the minimum depth of a binary tree, defined as the number of nodes along the shortest path from the root node down to the nearest leaf node.","keywords":"LeetCode, Minimum Depth of Binary Tree, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"O(N), where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of the Iterative BFS approach?","acceptedAnswer":{"@type":"Answer","text":"O(W), where W is the maximum width of the tree."}},{"@type":"Question","name":"Why is BFS often preferred for finding minimum depth?","acceptedAnswer":{"@type":"Answer","text":"BFS explores level by level, so the first leaf node found guarantees the shortest path, allowing for an early return."}}]}).replace(/</g,'\u003c')}
+</script>

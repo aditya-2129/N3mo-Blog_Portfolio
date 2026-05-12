@@ -1,0 +1,142 @@
+---
+title: "Island Perimeter"
+summary: "Calculate the perimeter of the island in a grid where 1 is land and 0 is water. The grid is surrounded by water and contains exactly one island."
+date: "Jul 27, 2024"
+tags:
+  - Array
+  - Depth-First Search
+  - Breadth-First Search
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.40% | **Paid:** No
+> **Topics:** Array, Depth-First Search, Breadth-First Search, Matrix
+
+You are given row x col grid representing a map where grid[i][j] = 1 represents land and grid[i][j] = 0 represents water.
+
+Grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, and there is exactly one island (i.e., one or more connected land cells).
+
+The island doesn't have "lakes", meaning the water inside isn't connected to the water around the island. One cell is a square with side length 1. The grid is rectangular, width and height don't exceed 100. Determine the perimeter of the island.
+
+- Examples
+- Constraints
+- [Iterative Counting](#iterative-counting)
+- [Depth-First Search (DFS)](#depth-first-search-dfs)
+- [Breadth-First Search (BFS)](#breadth-first-search-bfs)
+
+## Examples
+
+```text
+Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
+Output: 16
+Explanation: The perimeter is the 16 yellow stripes in the image above.
+```
+
+```text
+Input: grid = [[1]]
+Output: 4
+```
+
+```text
+Input: grid = [[1,0]]
+Output: 4
+```
+
+## Constraints
+
+```text
+row == grid.length
+col == grid[i].length
+1 <= row, col <= 100
+grid[i][j] is 0 or 1.
+There is exactly one island in grid.
+```
+
+---
+## Iterative Counting
+
+**Intuition**
+Every land cell contributes 4 sides to the perimeter. For every adjacent neighbor (up, down, left, right), we lose 2 sides (one from the current cell and one from the neighbor).
+
+**Steps**
+- Iterate through every cell in the grid.
+- If the cell is land (1), add 4 to the perimeter.
+- Check the top and left neighbors. If a neighbor is also land, subtract 2 from the perimeter (since the shared edge is not part of the perimeter).
+- Return the total perimeter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def islandPerimeter(self, grid: list[list[int]]) -&gt; int:\n        rows = len(grid)\n        cols = len(grid[0])\n        perimeter = 0\n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] == 1:\n                    perimeter += 4\n                    if r &gt; 0 and grid[r-1][c] == 1:\n                        perimeter -= 2\n                    if c &gt; 0 and grid[r][c-1] == 1:\n                        perimeter -= 2\n        return perimeter" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int islandPerimeter(int[][] grid) {\n        int rows = grid.length;\n        int cols = grid[0].length;\n        int perimeter = 0;\n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                if (grid[r][c] == 1) {\n                    perimeter += 4;\n                    if (r &gt; 0 && grid[r-1][c] == 1) perimeter -= 2;\n                    if (c &gt; 0 && grid[r][c-1] == 1) perimeter -= 2;\n                }\n            }\n        }\n        return perimeter;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int islandPerimeter(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int rows = grid.size();\n        int cols = grid[0].size();\n        int perimeter = 0;\n        for (int r = 0; r &lt; rows; ++r) {\n            for (int c = 0; c &lt; cols; ++c) {\n                if (grid[r][c] == 1) {\n                    perimeter += 4;\n                    if (r &gt; 0 && grid[r-1][c] == 1) perimeter -= 2;\n                    if (c &gt; 0 && grid[r][c-1] == 1) perimeter -= 2;\n                }\n            }\n        }\n        return perimeter;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var islandPerimeter = function(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    let perimeter = 0;\n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                perimeter += 4;\n                if (r &gt; 0 && grid[r-1][c] === 1) perimeter -= 2;\n                if (c &gt; 0 && grid[r][c-1] === 1) perimeter -= 2;\n            }\n        }\n    }\n    return perimeter;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function islandPerimeter(grid: number[][]): number {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    let perimeter = 0;\n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                perimeter += 4;\n                if (r &gt; 0 && grid[r-1][c] === 1) perimeter -= 2;\n                if (c &gt; 0 && grid[r][c-1] === 1) perimeter -= 2;\n            }\n        }\n    }\n    return perimeter;\n};" }]} />
+
+**Complexity**
+- Time: O(m * n) where m is the number of rows and n is the number of columns.
+- Space: O(1) as we only use a few variables for counting.
+- Notes: This is the most optimal approach for this specific problem.
+
+---
+## Depth-First Search (DFS)
+
+**Intuition**
+We can traverse the island using DFS. For every land cell, we check its 4 boundaries. If a boundary is water or out of bounds, it contributes to the perimeter.
+
+**Steps**
+- Iterate through the grid to find the first land cell.
+- Start a DFS from that cell.
+- In the DFS function:
+  - If the current cell is out of bounds or water, return 1 (this counts as a perimeter edge).
+  - If the current cell is already visited (marked as 2), return 0.
+  - Mark the current cell as visited (set to 2).
+  - Recursively call DFS for all 4 neighbors and sum the results.
+- Return the total sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def islandPerimeter(self, grid: list[list[int]]) -&gt; int:\n        rows, cols = len(grid), len(grid[0])\n        \n        def dfs(r, c):\n            if r &lt; 0 or r &gt;= rows or c &lt; 0 or c &gt;= cols or grid[r][c] == 0:\n                return 1\n            if grid[r][c] == 2:\n                return 0\n            grid[r][c] = 2\n            return dfs(r+1, c) + dfs(r-1, c) + dfs(r, c+1) + dfs(r, c-1)\n        \n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] == 1:\n                    return dfs(r, c)\n        return 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int islandPerimeter(int[][] grid) {\n        int rows = grid.length;\n        int cols = grid[0].length;\n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                if (grid[r][c] == 1) {\n                    return dfs(grid, r, c);\n                }\n            }\n        }\n        return 0;\n    }\n    \n    private int dfs(int[][] grid, int r, int c) {\n        int rows = grid.length;\n        int cols = grid[0].length;\n        if (r &lt; 0 || r &gt;= rows || c &lt; 0 || c &gt;= cols || grid[r][c] == 0) {\n            return 1;\n        }\n        if (grid[r][c] == 2) {\n            return 0;\n        }\n        grid[r][c] = 2;\n        return dfs(grid, r+1, c) + dfs(grid, r-1, c) + dfs(grid, r, c+1) + dfs(grid, r, c-1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int islandPerimeter(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int rows = grid.size();\n        int cols = grid[0].size();\n        for (int r = 0; r &lt; rows; ++r) {\n            for (int c = 0; c &lt; cols; ++c) {\n                if (grid[r][c] == 1) {\n                    return dfs(grid, r, c);\n                }\n            }\n        }\n        return 0;\n    }\n    \n    int dfs(vector&lt;vector&lt;int&gt;&gt;& grid, int r, int c) {\n        int rows = grid.size();\n        int cols = grid[0].size();\n        if (r &lt; 0 || r &gt;= rows || c &lt; 0 || c &gt;= cols || grid[r][c] == 0) {\n            return 1;\n        }\n        if (grid[r][c] == 2) {\n            return 0;\n        }\n        grid[r][c] = 2;\n        return dfs(grid, r+1, c) + dfs(grid, r-1, c) + dfs(grid, r, c+1) + dfs(grid, r, c-1);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var islandPerimeter = function(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    const dfs = (r, c) =&gt; {\n        if (r &lt; 0 || r &gt;= rows || c &lt; 0 || c &gt;= cols || grid[r][c] === 0) {\n            return 1;\n        }\n        if (grid[r][c] === 2) {\n            return 0;\n        }\n        grid[r][c] = 2;\n        return dfs(r+1, c) + dfs(r-1, c) + dfs(r, c+1) + dfs(r, c-1);\n    };\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                return dfs(r, c);\n            }\n        }\n    }\n    return 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function islandPerimeter(grid: number[][]): number {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    const dfs = (r: number, c: number): number =&gt; {\n        if (r &lt; 0 || r &gt;= rows || c &lt; 0 || c &gt;= cols || grid[r][c] === 0) {\n            return 1;\n        }\n        if (grid[r][c] === 2) {\n            return 0;\n        }\n        grid[r][c] = 2;\n        return dfs(r+1, c) + dfs(r-1, c) + dfs(r, c+1) + dfs(r, c-1);\n    };\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                return dfs(r, c);\n            }\n        }\n    }\n    return 0;\n};" }]} />
+
+**Complexity**
+- Time: O(m * n) where m is the number of rows and n is the number of columns.
+- Space: O(m * n) in the worst case for the recursion stack (if the grid is all land).
+- Notes: Modifies the input grid to mark visited cells.
+
+---
+## Breadth-First Search (BFS)
+
+**Intuition**
+Similar to DFS, we traverse the island level by level using a queue. We check boundaries for every cell we process.
+
+**Steps**
+- Iterate through the grid to find the first land cell.
+- Add this cell to a queue and mark it as visited (set to 2).
+- While the queue is not empty:
+  - Dequeue a cell.
+  - Check its 4 neighbors.
+  - If a neighbor is out of bounds or water, increment perimeter.
+  - If a neighbor is land and not visited, mark it as visited and enqueue it.
+- Return the total perimeter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def islandPerimeter(self, grid: list[list[int]]) -&gt; int:\n        rows, cols = len(grid), len(grid[0])\n        queue = deque()\n        perimeter = 0\n        \n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] == 1:\n                    queue.append((r, c))\n                    grid[r][c] = 2\n                    while queue:\n                        cr, cc = queue.popleft()\n                        for dr, dc in [(1,0), (-1,0), (0,1), (0,-1)]:\n                            nr, nc = cr + dr, cc + dc\n                            if nr &lt; 0 or nr &gt;= rows or nc &lt; 0 or nc &gt;= cols or grid[nr][nc] == 0:\n                                perimeter += 1\n                            elif grid[nr][nc] == 1:\n                                queue.append((nr, nc))\n                                grid[nr][nc] = 2\n                    return perimeter\n        return 0" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass Solution {\n    public int islandPerimeter(int[][] grid) {\n        int rows = grid.length;\n        int cols = grid[0].length;\n        Queue&lt;int[]&gt; queue = new LinkedList&lt;&gt;();\n        int perimeter = 0;\n        \n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                if (grid[r][c] == 1) {\n                    queue.offer(new int[]{r, c});\n                    grid[r][c] = 2;\n                    while (!queue.isEmpty()) {\n                        int[] cell = queue.poll();\n                        int cr = cell[0], cc = cell[1];\n                        int[][] dirs = {{1,0}, {-1,0}, {0,1}, {0,-1}};\n                        for (int[] d : dirs) {\n                            int nr = cr + d[0];\n                            int nc = cc + d[1];\n                            if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols || grid[nr][nc] == 0) {\n                                perimeter++;\n                            } else if (grid[nr][nc] == 1) {\n                                queue.offer(new int[]{nr, nc});\n                                grid[nr][nc] = 2;\n                            }\n                        }\n                    }\n                    return perimeter;\n                }\n            }\n        }\n        return 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int islandPerimeter(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int rows = grid.size();\n        int cols = grid[0].size();\n        queue&lt;pair&lt;int, int&gt;&gt; q;\n        int perimeter = 0;\n        \n        for (int r = 0; r &lt; rows; ++r) {\n            for (int c = 0; c &lt; cols; ++c) {\n                if (grid[r][c] == 1) {\n                    q.push({r, c});\n                    grid[r][c] = 2;\n                    while (!q.empty()) {\n                        auto cell = q.front(); q.pop();\n                        int cr = cell.first, cc = cell.second;\n                        int dr[] = {1, -1, 0, 0};\n                        int dc[] = {0, 0, 1, -1};\n                        for (int i = 0; i &lt; 4; ++i) {\n                            int nr = cr + dr[i];\n                            int nc = cc + dc[i];\n                            if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols || grid[nr][nc] == 0) {\n                                perimeter++;\n                            } else if (grid[nr][nc] == 1) {\n                                q.push({nr, nc});\n                                grid[nr][nc] = 2;\n                            }\n                        }\n                    }\n                    return perimeter;\n                }\n            }\n        }\n        return 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var islandPerimeter = function(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    const queue = [];\n    let perimeter = 0;\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                queue.push([r, c]);\n                grid[r][c] = 2;\n                while (queue.length &gt; 0) {\n                    const [cr, cc] = queue.shift();\n                    const dirs = [[1,0], [-1,0], [0,1], [0,-1]];\n                    for (const [dr, dc] of dirs) {\n                        const nr = cr + dr;\n                        const nc = cc + dc;\n                        if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols || grid[nr][nc] === 0) {\n                            perimeter++;\n                        } else if (grid[nr][nc] === 1) {\n                            queue.push([nr, nc]);\n                            grid[nr][nc] = 2;\n                        }\n                    }\n                }\n                return perimeter;\n            }\n        }\n    }\n    return 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function islandPerimeter(grid: number[][]): number {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    const queue: number[][] = [];\n    let perimeter = 0;\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            if (grid[r][c] === 1) {\n                queue.push([r, c]);\n                grid[r][c] = 2;\n                while (queue.length &gt; 0) {\n                    const [cr, cc] = queue.shift()!;\n                    const dirs = [[1,0], [-1,0], [0,1], [0,-1]];\n                    for (const [dr, dc] of dirs) {\n                        const nr = cr + dr;\n                        const nc = cc + dc;\n                        if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols || grid[nr][nc] === 0) {\n                            perimeter++;\n                        } else if (grid[nr][nc] === 1) {\n                            queue.push([nr, nc]);\n                            grid[nr][nc] = 2;\n                        }\n                    }\n                }\n                return perimeter;\n            }\n        }\n    }\n    return 0;\n};" }]} />
+
+**Complexity**
+- Time: O(m * n) where m is the number of rows and n is the number of columns.
+- Space: O(min(m, n)) for the queue in the worst case (for a diamond shape) or O(m * n) depending on the shape, though generally less than DFS stack depth for wide islands.
+- Notes: Modifies the input grid to mark visited cells.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Island Perimeter Solutions","datePublished":"2024-07-27","description":"Calculate the perimeter of the island in a grid where 1 is land and 0 is water. The grid is surrounded by water and contains exactly one island.","keywords":"LeetCode, Island Perimeter, Easy, Array, Depth-First Search, Breadth-First Search, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n), where m is the number of rows and n is the number of columns, as we iterate through the grid once."}},{"@type":"Question","name":"What is the space complexity of the DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m * n) in the worst case due to the recursion stack depth, which occurs if the grid is entirely filled with land."}},{"@type":"Question","name":"What is the time complexity of the BFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n), as each cell is visited at most once."}}]}).replace(/</g,'\u003c')}
+</script>

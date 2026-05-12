@@ -1,0 +1,113 @@
+---
+title: "Maximize Sum of At Most K Distinct Elements"
+summary: "Given an array nums and integer k, find the maximum sum of a subset containing at most k distinct elements."
+date: "Nov 30, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Greedy, Sorting
+
+You are given an integer array `nums` and an integer `k`. You need to choose a subset of elements from `nums` such that the number of distinct elements in the subset is at most `k`. Return the maximum possible sum of the elements in the chosen subset.
+
+- Examples
+- Constraints
+- [Greedy with Sorting](#greedy-with-sorting)
+- [Greedy with Max Heap](#greedy-with-max-heap)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [1,2,3,3,4,4,4], k = 2
+Output: 18
+Explanation: We can choose elements 4 and 3. There are three 4s and two 3s. Sum = 4*3 + 3*2 = 18.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [5,5,5], k = 1
+Output: 15
+Explanation: We choose all three 5s. The number of distinct elements is 1, which is <= k.
+```
+
+**Example 3:**
+
+```text
+Input: nums = [1,2,3], k = 0
+Output: 0
+Explanation: We cannot choose any distinct elements, so the sum is 0.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 1 <= nums[i] <= 10^9
+- 1 <= k <= nums.length
+```
+
+---
+
+## Greedy with Sorting
+
+**Intuition**
+To maximize the sum, we should prioritize the largest numbers available in the array. Since we are allowed to take *all* occurrences of a chosen distinct number, the optimal strategy is to select the `k` largest distinct values and sum all their occurrences.
+
+**Steps**
+- Count the frequency of each number using a hash map.
+- Extract the distinct numbers and sort them in descending order.
+- Iterate through the sorted list, summing the value multiplied by its frequency.
+- Stop after processing `k` distinct numbers.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\nfrom typing import List\n\nclass Solution:\n    def maxSum(self, nums: List[int], k: int) -&gt; int:\n        if k == 0:\n            return 0\n        \n        freq = Counter(nums)\n        # Sort distinct numbers in descending order\n        distinct_nums = sorted(freq.keys(), reverse=True)\n        \n        total = 0\n        # Take top k distinct numbers\n        for i in range(min(k, len(distinct_nums))):\n            num = distinct_nums[i]\n            total += num * freq[num]\n            \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long maxSum(int[] nums, int k) {\n        if (k == 0) return 0L;\n        \n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        \n        List&lt;Integer&gt; distinct = new ArrayList&lt;&gt;(freq.keySet());\n        distinct.sort(Collections.reverseOrder());\n        \n        long total = 0;\n        for (int i = 0; i &lt; Math.min(k, distinct.size()); i++) {\n            int num = distinct.get(i);\n            total += (long) num * freq.get(num);\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    long long maxSum(vector&lt;int&gt;& nums, int k) {\n        if (k == 0) return 0LL;\n        \n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        vector&lt;int&gt; distinct;\n        for (auto& p : freq) {\n            distinct.push_back(p.first);\n        }\n        \n        sort(distinct.begin(), distinct.end(), greater&lt;int&gt;());\n        \n        long long total = 0;\n        for (int i = 0; i &lt; min((int)k, (int)distinct.size()); i++) {\n            total += (long long)distinct[i] * freq[distinct[i]];\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function maxSum(nums, k) {\n    if (k === 0) return 0;\n    \n    const freq = new Map();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    const distinct = Array.from(freq.keys()).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; Math.min(k, distinct.length); i++) {\n        const num = distinct[i];\n        total += num * freq.get(num);\n    }\n    \n    return total;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function maxSum(nums: number[], k: number): number {\n    if (k === 0) return 0;\n    \n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    const distinct = Array.from(freq.keys()).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; Math.min(k, distinct.length); i++) {\n        const num = distinct[i];\n        total += num * freq.get(num)!;\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting the distinct elements.
+- Space: O(N) to store the frequency map.
+- Notes: Sorting is the most straightforward approach and is efficient enough given the constraints.
+
+---
+
+## Greedy with Max Heap
+
+**Intuition**
+Instead of sorting all distinct elements, we can use a Max Heap (Priority Queue) to repeatedly extract the largest remaining distinct number. This is useful if we want to avoid sorting the entire list when `k` is much smaller than the number of distinct elements.
+
+**Steps**
+- Count the frequency of each number.
+- Insert all distinct numbers into a Max Heap.
+- Repeat `k` times: extract the maximum value from the heap, add `value * frequency` to the sum, and decrement `k`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\nfrom collections import Counter\nfrom typing import List\n\nclass Solution:\n    def maxSum(self, nums: List[int], k: int) -&gt; int:\n        if k == 0:\n            return 0\n        \n        freq = Counter(nums)\n        # Python heapq is a min-heap, so we invert values for max-heap behavior\n        max_heap = [-num for num in freq.keys()]\n        heapq.heapify(max_heap)\n        \n        total = 0\n        while k &gt; 0 and max_heap:\n            num = -heapq.heappop(max_heap)\n            total += num * freq[num]\n            k -= 1\n            \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long maxSum(int[] nums, int k) {\n        if (k == 0) return 0L;\n        \n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        \n        PriorityQueue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        maxHeap.addAll(freq.keySet());\n        \n        long total = 0;\n        while (k &gt; 0 && !maxHeap.isEmpty()) {\n            int num = maxHeap.poll();\n            total += (long) num * freq.get(num);\n            k--;\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;queue&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    long long maxSum(vector&lt;int&gt;& nums, int k) {\n        if (k == 0) return 0LL;\n        \n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        priority_queue&lt;int&gt; maxHeap;\n        for (auto& p : freq) {\n            maxHeap.push(p.first);\n        }\n        \n        long long total = 0;\n        while (k &gt; 0 && !maxHeap.empty()) {\n            int num = maxHeap.top();\n            maxHeap.pop();\n            total += (long long)num * freq[num];\n            k--;\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MaxHeap {\n    constructor() {\n        this.heap = [];\n    }\n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            let parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &lt; this.heap[idx]) {\n                [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n                idx = parent;\n            } else {\n                break;\n            }\n        }\n    }\n    pop() {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n    sinkDown(idx) {\n        const length = this.heap.length;\n        while (true) {\n            let leftChild = 2 * idx + 1;\n            let rightChild = 2 * idx + 2;\n            let swapIdx = null;\n            if (leftChild &lt; length && this.heap[leftChild] &gt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            if (rightChild &lt; length) {\n                if ((swapIdx === null && this.heap[rightChild] &gt; this.heap[idx]) ||\n                    (swapIdx !== null && this.heap[rightChild] &gt; this.heap[leftChild])) {\n                    swapIdx = rightChild;\n                }\n            }\n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n    size() {\n        return this.heap.length;\n    }\n}\n\nfunction maxSum(nums, k) {\n    if (k === 0) return 0;\n    \n    const freq = new Map();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    const maxHeap = new MaxHeap();\n    for (const num of freq.keys()) {\n        maxHeap.push(num);\n    }\n    \n    let total = 0;\n    while (k &gt; 0 && maxHeap.size() &gt; 0) {\n        const num = maxHeap.pop();\n        total += num * freq.get(num);\n        k--;\n    }\n    \n    return total;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MaxHeap {\n    heap: number[] = [];\n    push(val: number): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(idx: number): void {\n        while (idx &gt; 0) {\n            let parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &lt; this.heap[idx]) {\n                [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n                idx = parent;\n            } else {\n                break;\n            }\n        }\n    }\n    pop(): number | undefined {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0 && end !== undefined) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n    sinkDown(idx: number): void {\n        const length = this.heap.length;\n        while (true) {\n            let leftChild = 2 * idx + 1;\n            let rightChild = 2 * idx + 2;\n            let swapIdx: number | null = null;\n            if (leftChild &lt; length && this.heap[leftChild] &gt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            if (rightChild &lt; length) {\n                if ((swapIdx === null && this.heap[rightChild] &gt; this.heap[idx]) ||\n                    (swapIdx !== null && this.heap[rightChild] &gt; this.heap[leftChild])) {\n                    swapIdx = rightChild;\n                }\n            }\n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n    size(): number {\n        return this.heap.length;\n    }\n}\n\nfunction maxSum(nums: number[], k: number): number {\n    if (k === 0) return 0;\n    \n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    const maxHeap = new MaxHeap();\n    for (const num of freq.keys()) {\n        maxHeap.push(num);\n    }\n    \n    let total = 0;\n    while (k &gt; 0 && maxHeap.size() &gt; 0) {\n        const num = maxHeap.pop()!;\n        total += num * freq.get(num)!;\n        k--;\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(N + D log D) to build the heap, where D is the number of distinct elements. Extracting k elements takes O(k log D).
+- Space: O(D) for the heap and frequency map.
+- Notes: This approach is more efficient than sorting if `k` is significantly smaller than `D`, though in the worst case (`k` close to `D`), it is comparable to sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximize Sum of At Most K Distinct Elements Solutions","datePublished":"2025-11-30","description":"Given an array nums and integer k, find the maximum sum of a subset containing at most k distinct elements.","keywords":"LeetCode, Maximize Sum of At Most K Distinct Elements, Easy, Array, Hash Table, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy with Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of elements in the array. This is due to sorting the distinct elements."}},{"@type":"Question","name":"What is the space complexity of the Greedy with Max Heap approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(D), where D is the number of distinct elements in the array, to store the frequency map and the heap."}},{"@type":"Question","name":"Why do we multiply the number by its frequency?","acceptedAnswer":{"@type":"Answer","text":"Since we can include all occurrences of a chosen distinct number in our subset to maximize the sum, we add the value of the number multiplied by how many times it appears."}}]}).replace(/</g,'\u003c')}
+</script>

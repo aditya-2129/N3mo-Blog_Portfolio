@@ -1,0 +1,376 @@
+---
+title: "Count Negative Numbers in a Sorted Matrix"
+summary: "Given a matrix sorted in non-increasing order row-wise and column-wise, return the count of negative numbers."
+date: "Jun 14, 2024"
+tags:
+  - Array
+  - Binary Search
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.60% | **Paid:** No
+> **Topics:** Array, Binary Search, Matrix
+
+Given a m x n matrix grid which is sorted in non-increasing order both row-wise and column-wise, return the number of negative numbers in grid.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Binary Search](#binary-search)
+- [Optimal Traversal](#optimal-traversal)
+
+## Examples
+
+Example 1:
+```text
+Input: grid = [[4,3,2,-1],[3,2,1,-1],[1,1,-1,-2],[-1,-1,-2,-3]]
+Output: 8
+Explanation: There are 8 negatives number in the matrix.
+```
+
+Example 2:
+```text
+Input: grid = [[3,2],[1,0]]
+Output: 0
+```
+
+## Constraints
+
+```text
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 100
+-100 <= grid[i][j] <= 100
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+Since the matrix size is relatively small (up to 100x100), we can simply iterate through every element in the matrix and count how many are negative.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through each row of the matrix.
+- Iterate through each element in the row.
+- If the element is less than 0, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countNegatives(self, grid: list[list[int]]) -> int:
+        count = 0
+        for row in grid:
+            for num in row:
+                if num &lt; 0:
+                    count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countNegatives(int[][] grid) {
+        int count = 0;
+        for (int[] row : grid) {
+            for (int num : row) {
+                if (num &lt; 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countNegatives(vector<vector<int>&gt;& grid) {
+        int count = 0;
+        for (const auto& row : grid) {
+            for (int num : row) {
+                if (num &lt; 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countNegatives(grid) {
+        let count = 0;
+        for (let row of grid) {
+            for (let num of row) {
+                if (num &lt; 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countNegatives(grid: number[][]): number {
+        let count = 0;
+        for (let row of grid) {
+            for (let num of row) {
+                if (num &lt; 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(1)
+- Notes: Simple to implement, but not the most efficient for larger matrices.
+
+---
+
+## Binary Search
+
+**Intuition**
+Each row is sorted in non-increasing order. This means all negative numbers in a row are grouped together at the end. We can use binary search to find the index of the first negative number in each row.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through each row of the matrix.
+- Perform a binary search on the row to find the first index where the element is less than 0.
+- If such an index is found, add the number of elements from that index to the end of the row to the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countNegatives(self, grid: list[list[int]]) -> int:
+        def binary_search(row):
+            left, right = 0, len(row)
+            while left &lt; right:
+                mid = (left + right) // 2
+                if row[mid] &lt; 0:
+                    right = mid
+                else:
+                    left = mid + 1
+            return len(row) - left
+        
+        count = 0
+        for row in grid:
+            count += binary_search(row)
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countNegatives(int[][] grid) {
+        int count = 0;
+        for (int[] row : grid) {
+            count += binarySearch(row);
+        }
+        return count;
+    }
+    
+    private int binarySearch(int[] row) {
+        int left = 0, right = row.length;
+        while (left &lt; right) {
+            int mid = left + (right - left) / 2;
+            if (row[mid] &lt; 0) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return row.length - left;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countNegatives(vector<vector<int>&gt;& grid) {
+        int count = 0;
+        for (const auto& row : grid) {
+            count += binarySearch(row);
+        }
+        return count;
+    }
+    
+private:
+    int binarySearch(const vector<int>& row) {
+        int left = 0, right = row.size();
+        while (left &lt; right) {
+            int mid = left + (right - left) / 2;
+            if (row[mid] &lt; 0) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return row.size() - left;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countNegatives(grid) {
+        let count = 0;
+        for (let row of grid) {
+            count += this.binarySearch(row);
+        }
+        return count;
+    }
+    
+    binarySearch(row) {
+        let left = 0, right = row.length;
+        while (left &lt; right) {
+            let mid = Math.floor((left + right) / 2);
+            if (row[mid] &lt; 0) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return row.length - left;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countNegatives(grid: number[][]): number {
+        let count = 0;
+        for (let row of grid) {
+            count += this.binarySearch(row);
+        }
+        return count;
+    }
+    
+    binarySearch(row: number[]): number {
+        let left = 0, right = row.length;
+        while (left &lt; right) {
+            let mid = Math.floor((left + right) / 2);
+            if (row[mid] &lt; 0) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return row.length - left;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(m log n)
+- Space: O(1)
+- Notes: More efficient than brute force for wide matrices.
+
+---
+
+## Optimal Traversal
+
+**Intuition**
+The matrix is sorted both row-wise and column-wise. We can start from the top-right corner. If the current element is negative, all elements below it in that column are also negative. If it is non-negative, we move to the left to find smaller numbers.
+
+**Steps**
+- Start at the top-right corner of the matrix (row 0, col n-1).
+- Initialize a counter to 0.
+- While the current position is within the matrix boundaries:
+    - If the current element is negative, add the number of remaining rows in the current column to the count and move left.
+    - If the current element is non-negative, move down to the next row.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countNegatives(self, grid: list[list[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        row, col = 0, n - 1
+        count = 0
+        while row &lt; m and col &gt;= 0:
+            if grid[row][col] &lt; 0:
+                count += m - row
+                col -= 1
+            else:
+                row += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countNegatives(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        int row = 0, col = n - 1;
+        int count = 0;
+        while (row &lt; m && col &gt;= 0) {
+            if (grid[row][col] &lt; 0) {
+                count += m - row;
+                col--;
+            } else {
+                row++;
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countNegatives(vector<vector<int>&gt;& grid) {
+        int m = grid.size(), n = grid[0].size();
+        int row = 0, col = n - 1;
+        int count = 0;
+        while (row &lt; m && col &gt;= 0) {
+            if (grid[row][col] &lt; 0) {
+                count += m - row;
+                col--;
+            } else {
+                row++;
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    countNegatives(grid) {
+        const m = grid.length, n = grid[0].length;
+        let row = 0, col = n - 1;
+        let count = 0;
+        while (row &lt; m && col &gt;= 0) {
+            if (grid[row][col] &lt; 0) {
+                count += m - row;
+                col--;
+            } else {
+                row++;
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    countNegatives(grid: number[][]): number {
+        const m = grid.length, n = grid[0].length;
+        let row = 0, col = n - 1;
+        let count = 0;
+        while (row &lt; m && col &gt;= 0) {
+            if (grid[row][col] &lt; 0) {
+                count += m - row;
+                col--;
+            } else {
+                row++;
+            }
+        }
+        return count;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(m + n)
+- Space: O(1)
+- Notes: The most efficient approach, leveraging the sorted properties of both rows and columns.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Negative Numbers in a Sorted Matrix Solutions","datePublished":"2024-06-14","description":"Given a matrix sorted in non-increasing order row-wise and column-wise, return the count of negative numbers.","keywords":"LeetCode, Count Negative Numbers in a Sorted Matrix, Easy, Array, Binary Search, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(m x n), where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(m log n), as we perform a binary search on each of the m rows."}},{"@type":"Question","name":"What is the time complexity of the Optimal Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"O(m + n), since we traverse at most m rows and n columns once."}}]}).replace(/</g,'\u003c')}
+</script>

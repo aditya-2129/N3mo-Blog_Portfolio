@@ -1,0 +1,169 @@
+---
+title: "Fruits Into Baskets II"
+summary: "Find the maximum number of fruits you can pick given you have two baskets and each basket can hold only one type of fruit."
+date: "Aug 06, 2025"
+tags:
+  - Array
+  - Binary Search
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.20% | **Paid:** No
+> **Topics:** Array, Binary Search, Segment Tree, Simulation, Ordered Set
+
+You are visiting a farm that has a single row of fruit trees arranged from left to right. The trees are represented by an integer array fruits where fruits[i] is the type of fruit the ith tree produces.
+
+You want to collect as much fruit as possible. However, the owner has some strict rules:
+
+You have two baskets, and each basket can only hold a single type of fruit. There is no limit on the amount of fruit each basket can hold.
+Starting from any tree of your choice, you must pick exactly one fruit from every tree (including the start tree) while moving to the right. The picked fruits must fit in your baskets.
+Once you reach a tree with fruit that cannot fit in your baskets, you must stop.
+
+Given the integer array fruits, return the maximum number of fruits you can pick.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Sliding Window](#sliding-window)
+- [Binary Search on Answer](#binary-search-on-answer)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+fruits = [4,2,5], baskets = [3,5,4]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+fruits[0] = 4 is placed in baskets[1] = 5.
+
+fruits[1] = 2 is placed in baskets[0] = 3.
+
+fruits[2] = 5 cannot be placed in baskets[2] = 4.
+
+Since one fruit type remains unplaced, we return 1.
+
+### Example 2
+
+**Input:**
+```text
+fruits = [3,6,1], baskets = [6,4,7]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+fruits[0] = 3 is placed in baskets[0] = 6.
+
+fruits[1] = 6 cannot be placed in baskets[1] = 4 (insufficient capacity) but can be placed in the next available basket, baskets[2] = 7.
+
+fruits[2] = 1 is placed in baskets[1] = 4.
+
+Since all fruits are successfully placed, we return 0.
+
+## Constraints
+
+```text
+- n == fruits.length == baskets.length
+- 1 <= n <= 100
+- 1 <= fruits[i], baskets[i] <= 1000
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+We can try every possible starting tree and expand to the right as far as possible while maintaining at most two types of fruits.
+
+**Steps**
+- Iterate through each index `i` as the starting point.
+- Initialize a set to track fruit types in the current window.
+- Expand the window to the right `j` from `i` to the end of the array.
+- Add `fruits[j]` to the set.
+- If the set size exceeds 2, break the loop.
+- Update the maximum length found.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def totalFruit(self, fruits: list[int]) -> int:\\n        max_fruits = 0\\n        n = len(fruits)\\n        for i in range(n):\\n            basket = set()\\n            for j in range(i, n):\\n                basket.add(fruits[j])\\n                if len(basket) > 2:\\n                    break\\n                max_fruits = max(max_fruits, j - i + 1)\\n        return max_fruits\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int totalFruit(int[] fruits) {\\n        int maxFruits = 0;\\n        int n = fruits.length;\\n        for (int i = 0; i < n; i++) {\\n            Set<Integer> basket = new HashSet<>();\\n            for (int j = i; j < n; j++) {\\n                basket.add(fruits[j]);\\n                if (basket.size() > 2) {\\n                    break;\\n                }\\n                maxFruits = Math.max(maxFruits, j - i + 1);\\n            }\\n        }\\n        return maxFruits;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int totalFruit(vector<int>& fruits) {\\n        int maxFruits = 0;\\n        int n = fruits.size();\\n        for (int i = 0; i < n; ++i) {\\n            unordered_set<int> basket;\\n            for (int j = i; j < n; ++j) {\\n                basket.insert(fruits[j]);\\n                if (basket.size() > 2) {\\n                    break;\\n                }\\n                maxFruits = max(maxFruits, j - i + 1);\\n            }\\n        }\\n        return maxFruits;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "var totalFruit = function(fruits) {\\n    let maxFruits = 0;\\n    const n = fruits.length;\\n    for (let i = 0; i < n; i++) {\\n        const basket = new Set();\\n        for (let j = i; j < n; j++) {\\n            basket.add(fruits[j]);\\n            if (basket.size > 2) {\\n                break;\\n            }\\n            maxFruits = Math.max(maxFruits, j - i + 1);\\n        }\\n    }\\n    return maxFruits;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "function totalFruit(fruits: number[]): number {\\n    let maxFruits = 0;\\n    const n = fruits.length;\\n    for (let i = 0; i < n; i++) {\\n        const basket = new Set<number>();\\n        for (let j = i; j < n; j++) {\\n            basket.add(fruits[j]);\\n            if (basket.size > 2) {\\n                break;\\n            }\\n            maxFruits = Math.max(maxFruits, j - i + 1);\\n        }\\n    }\\n    return maxFruits;\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but too slow for large inputs.
+
+---
+## Sliding Window
+
+**Intuition**
+We maintain a window [left, right] that contains at most 2 types of fruits. As we expand the right pointer, if we encounter a third type, we shrink the left pointer until the window becomes valid again.
+
+**Steps**
+- Use a hash map to count the frequency of fruits in the current window.
+- Iterate `right` from 0 to n-1.
+- Increment the count of `fruits[right]`.
+- While the map size is greater than 2:
+    - Decrement the count of `fruits[left]`.
+    - If count reaches 0, remove it from the map.
+    - Increment `left`.
+- Update the maximum window size.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def totalFruit(self, fruits: list[int]) -> int:\\n        count = {}\\n        l = 0\\n        max_fruits = 0\\n        for r, f in enumerate(fruits):\\n            count[f] = count.get(f, 0) + 1\\n            while len(count) > 2:\\n                count[fruits[l]] -= 1\\n                if count[fruits[l]] == 0:\\n                    del count[fruits[l]]\\n                l += 1\\n            max_fruits = max(max_fruits, r - l + 1)\\n        return max_fruits\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int totalFruit(int[] fruits) {\\n        Map<Integer, Integer> count = new HashMap<>();\\n        int l = 0, maxFruits = 0;\\n        for (int r = 0; r < fruits.length; r++) {\\n            count.put(fruits[r], count.getOrDefault(fruits[r], 0) + 1);\\n            while (count.size() > 2) {\\n                count.put(fruits[l], count.get(fruits[l]) - 1);\\n                if (count.get(fruits[l]) == 0) {\\n                    count.remove(fruits[l]);\\n                }\\n                l++;\\n            }\\n            maxFruits = Math.max(maxFruits, r - l + 1);\\n        }\\n        return maxFruits;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int totalFruit(vector<int>& fruits) {\\n        unordered_map<int, int> count;\\n        int l = 0, maxFruits = 0;\\n        for (int r = 0; r < fruits.size(); ++r) {\\n            count[fruits[r]]++;\\n            while (count.size() > 2) {\\n                count[fruits[l]]--;\\n                if (count[fruits[l]] == 0) {\\n                    count.erase(fruits[l]);\\n                }\\n                l++;\\n            }\\n            maxFruits = max(maxFruits, r - l + 1);\\n        }\\n        return maxFruits;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "var totalFruit = function(fruits) {\\n    const count = new Map();\\n    let l = 0, maxFruits = 0;\\n    for (let r = 0; r < fruits.length; r++) {\\n        count.set(fruits[r], (count.get(fruits[r]) || 0) + 1);\\n        while (count.size > 2) {\\n            count.set(fruits[l], count.get(fruits[l]) - 1);\\n            if (count.get(fruits[l]) === 0) {\\n                count.delete(fruits[l]);\\n            }\\n            l++;\\n        }\\n        maxFruits = Math.max(maxFruits, r - l + 1);\\n    }\\n    return maxFruits;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "function totalFruit(fruits: number[]): number {\\n    const count = new Map<number, number>();\\n    let l = 0, maxFruits = 0;\\n    for (let r = 0; r < fruits.length; r++) {\\n        count.set(fruits[r], (count.get(fruits[r]) || 0) + 1);\\n        while (count.size > 2) {\\n            count.set(fruits[l], count.get(fruits[l])! - 1);\\n            if (count.get(fruits[l]) === 0) {\\n                count.delete(fruits[l]);\\n            }\\n            l++;\\n        }\\n        maxFruits = Math.max(maxFruits, r - l + 1);\\n    }\\n    return maxFruits;\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution. Each element is added and removed from the map at most once.
+
+---
+## Binary Search on Answer
+
+**Intuition**
+The answer (maximum window length) is monotonic. If a window of size `k` is possible, then any size `&lt; k` is also possible. We can binary search for the maximum `k` and check if a valid window of that size exists.
+
+**Steps**
+- Binary search for the answer `low` to `high`.
+- For a mid value `k`, check if any subarray of length `k` has at most 2 distinct fruits.
+- The check function uses a sliding window of fixed size `k` with a frequency map.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def totalFruit(self, fruits: list[int]) -> int:\\n        def canPick(k):\\n            count = {}\\n            for i in range(len(fruits)):\\n                count[fruits[i]] = count.get(fruits[i], 0) + 1\\n                if i >= k:\\n                    count[fruits[i - k]] -= 1\\n                    if count[fruits[i - k]] == 0:\\n                        del count[fruits[i - k]]\\n                if i >= k - 1 and len(count) <= 2:\\n                    return True\\n            return False\\n\\n        l, r = 0, len(fruits)\\n        while l < r:\\n            mid = (l + r + 1) // 2\\n            if canPick(mid):\\n                l = mid\\n            else:\\n                r = mid - 1\\n        return l\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int totalFruit(int[] fruits) {\\n        int l = 0, r = fruits.length;\\n        while (l < r) {\\n            int mid = (l + r + 1) / 2;\\n            if (canPick(fruits, mid)) {\\n                l = mid;\\n            } else {\\n                r = mid - 1;\\n            }\\n        }\\n        return l;\\n    }\\n\\n    private boolean canPick(int[] fruits, int k) {\\n        Map<Integer, Integer> count = new HashMap<>();\\n        for (int i = 0; i < fruits.length; i++) {\\n            count.put(fruits[i], count.getOrDefault(fruits[i], 0) + 1);\\n            if (i >= k) {\\n                count.put(fruits[i - k], count.get(fruits[i - k]) - 1);\\n                if (count.get(fruits[i - k]) == 0) {\\n                    count.remove(fruits[i - k]);\\n                }\\n            }\\n            if (i >= k - 1 && count.size() <= 2) return true;\\n        }\\n        return false;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int totalFruit(vector<int>& fruits) {\\n        int l = 0, r = fruits.size();\\n        while (l < r) {\\n            int mid = (l + r + 1) / 2;\\n            if (canPick(fruits, mid)) {\\n                l = mid;\\n            } else {\\n                r = mid - 1;\\n            }\\n        }\\n        return l;\\n    }\\n\\nprivate:\\n    bool canPick(vector<int>& fruits, int k) {\\n        unordered_map<int, int> count;\\n        for (int i = 0; i < fruits.size(); ++i) {\\n            count[fruits[i]]++;\\n            if (i >= k) {\\n                count[fruits[i - k]]--;\\n                if (count[fruits[i - k]] == 0) count.erase(fruits[i - k]);\\n            }\\n            if (i >= k - 1 && count.size() <= 2) return true;\\n        }\\n        return false;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "var totalFruit = function(fruits) {\\n    const canPick = (k) => {\\n        const count = new Map();\\n        for (let i = 0; i < fruits.length; i++) {\\n            count.set(fruits[i], (count.get(fruits[i]) || 0) + 1);\\n            if (i >= k) {\\n                count.set(fruits[i - k], count.get(fruits[i - k]) - 1);\\n                if (count.get(fruits[i - k]) === 0) {\\n                    count.delete(fruits[i - k]);\\n                }\\n            }\\n            if (i >= k - 1 && count.size <= 2) return true;\\n        }\\n        return false;\\n    };\\n\\n    let l = 0, r = fruits.length;\\n    while (l < r) {\\n        const mid = Math.floor((l + r + 1) / 2);\\n        if (canPick(mid)) {\\n            l = mid;\\n        } else {\\n            r = mid - 1;\\n        }\\n    }\\n    return l;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "function totalFruit(fruits: number[]): number {\\n    const canPick = (k: number): boolean => {\\n        const count = new Map<number, number>();\\n        for (let i = 0; i < fruits.length; i++) {\\n            count.set(fruits[i], (count.get(fruits[i]) || 0) + 1);\\n            if (i >= k) {\\n                count.set(fruits[i - k], count.get(fruits[i - k])! - 1);\\n                if (count.get(fruits[i - k]) === 0) {\\n                    count.delete(fruits[i - k]);\\n                }\\n            }\\n            if (i >= k - 1 && count.size <= 2) return true;\\n        }\\n        return false;\\n    };\\n\\n    let l = 0, r = fruits.length;\\n    while (l < r) {\\n        const mid = Math.floor((l + r + 1) / 2);\\n        if (canPick(mid)) {\\n            l = mid;\\n        } else {\\n            r = mid - 1;\\n        }\\n    }\\n    return l;\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1)
+- Notes: Useful when the problem asks for the maximum length satisfying a monotonic condition.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Fruits Into Baskets II Solutions","datePublished":"2025-08-06","description":"Find the maximum number of fruits you can pick given you have two baskets and each basket can hold only one type of fruit.","keywords":"LeetCode, Fruits Into Baskets II, Easy, Array, Binary Search, Segment Tree, Simulation, Ordered Set"}).replace(/</g,'\u003c')}
+</script>
+

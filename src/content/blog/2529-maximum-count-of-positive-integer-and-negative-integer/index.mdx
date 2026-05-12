@@ -1,0 +1,133 @@
+---
+title: "Maximum Count of Positive Integer and Negative Integer"
+summary: "Given a sorted array, return the maximum count between positive integers and negative integers. Zero is neither."
+date: "Sep 30, 2024"
+tags:
+  - Array
+  - Binary Search
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.30% | **Paid:** No
+> **Topics:** Array, Binary Search, Counting
+
+Given an array nums sorted in non-decreasing order, return the maximum count between positive integers and negative integers.
+
+In nums, 0 is neither positive nor negative.
+
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Binary Search](#binary-search)
+- [Built-in Library Functions](#built-in-library-functions)
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [-2,-1,-1,1,2,3]
+Output: 3
+Explanation: There are 3 positive integers and 3 negative integers. The maximum count is 3.
+```
+
+### Example 2:
+```text
+Input: nums = [-3,-2,-1,0,0,1,2]
+Output: 3
+Explanation: There are 2 positive integers and 3 negative integers. The maximum count is 3.
+```
+
+### Example 3:
+```text
+Input: nums = [5,20,66,1314]
+Output: 4
+Explanation: There are 4 positive integers and 0 negative integers. The maximum count is 4.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 2000
+-2000 <= nums[i] <= 2000
+nums is sorted in non-decreasing order.
+```
+
+---
+## Linear Scan
+
+**Intuition**
+Iterate through the array once, counting the number of negative and positive integers separately, then return the larger count.
+
+**Steps**
+- Initialize two counters, `neg` and `pos`, to 0.
+- Loop through each number in the array.
+- If the number is less than 0, increment `neg`.
+- If the number is greater than 0, increment `pos`.
+- Return the maximum of `neg` and `pos`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumCount(self, nums: list[int]) -&gt; int:\n        neg = 0\n        pos = 0\n        for num in nums:\n            if num &lt; 0:\n                neg += 1\n            elif num &gt; 0:\n                pos += 1\n        return max(neg, pos)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumCount(int[] nums) {\n        int neg = 0;\n        int pos = 0;\n        for (int num : nums) {\n            if (num &lt; 0) {\n                neg++;\n            } else if (num &gt; 0) {\n                pos++;\n            }\n        }\n        return Math.max(neg, pos);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumCount(vector&lt;int&gt;& nums) {\n        int neg = 0;\n        int pos = 0;\n        for (int num : nums) {\n            if (num &lt; 0) {\n                neg++;\n            } else if (num &gt; 0) {\n                pos++;\n            }\n        }\n        return max(neg, pos);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximumCount(nums) {\n        let neg = 0;\n        let pos = 0;\n        for (const num of nums) {\n            if (num &lt; 0) {\n                neg++;\n            } else if (num &gt; 0) {\n                pos++;\n            }\n        }\n        return Math.max(neg, pos);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximumCount(nums: number[]): number {\n        let neg = 0;\n        let pos = 0;\n        for (const num of nums) {\n            if (num &lt; 0) {\n                neg++;\n            } else if (num &gt; 0) {\n                pos++;\n            }\n        }\n        return Math.max(neg, pos);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Simple and effective for small input sizes.
+
+---
+## Binary Search
+
+**Intuition**
+Since the array is sorted, all negative numbers appear before all non-negative numbers, and all positive numbers appear after all non-positive numbers. We can use binary search to find the boundaries.
+
+**Steps**
+- Find the index `i` of the first element that is greater than or equal to 0. The count of negative numbers is `i`.
+- Find the index `j` of the first element that is strictly greater than 0. The count of positive numbers is `nums.length - j`.
+- Return the maximum of the two counts.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumCount(self, nums: list[int]) -&gt; int:\n        def first_non_neg():\n            left, right = 0, len(nums)\n            while left &lt; right:\n                mid = (left + right) // 2\n                if nums[mid] &lt; 0:\n                    left = mid + 1\n                else:\n                    right = mid\n            return left\n\n        def first_pos():\n            left, right = 0, len(nums)\n            while left &lt; right:\n                mid = (left + right) // 2\n                if nums[mid] &lt;= 0:\n                    left = mid + 1\n                else:\n                    right = mid\n            return left\n\n        neg_count = first_non_neg()\n        pos_count = len(nums) - first_pos()\n        return max(neg_count, pos_count)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumCount(int[] nums) {\n        int negCount = firstNonNeg(nums);\n        int posCount = nums.length - firstPos(nums);\n        return Math.max(negCount, posCount);\n    }\n\n    private int firstNonNeg(int[] nums) {\n        int left = 0, right = nums.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (nums[mid] &lt; 0) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n\n    private int firstPos(int[] nums) {\n        int left = 0, right = nums.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (nums[mid] &lt;= 0) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumCount(vector&lt;int&gt;& nums) {\n        int negCount = lower_bound(nums.begin(), nums.end(), 0) - nums.begin();\n        int posCount = nums.end() - upper_bound(nums.begin(), nums.end(), 0);\n        return max(negCount, posCount);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximumCount(nums) {\n        const firstNonNeg = () =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; 0) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const firstPos = () =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt;= 0) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const negCount = firstNonNeg();\n        const posCount = nums.length - firstPos();\n        return Math.max(negCount, posCount);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximumCount(nums: number[]): number {\n        const firstNonNeg = (): number =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; 0) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const firstPos = (): number =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt;= 0) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const negCount = firstNonNeg();\n        const posCount = nums.length - firstPos();\n        return Math.max(negCount, posCount);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log n)
+- Space: O(1)
+- Notes: Optimal solution for large datasets.
+
+---
+## Built-in Library Functions
+
+**Intuition**
+Leverage standard library functions that perform binary search to find the insertion points for 0 and 1, which directly give us the counts.
+
+**Steps**
+- Use the language's built-in binary search or lower bound function to find the index where 0 would be inserted (count of negatives).
+- Use the same function to find the index where 1 would be inserted (count of positives).
+- Calculate the difference to get the positive count and return the maximum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import bisect\n\nclass Solution:\n    def maximumCount(self, nums: list[int]) -&gt; int:\n        neg_count = bisect.bisect_left(nums, 0)\n        pos_count = len(nums) - bisect.bisect_left(nums, 1)\n        return max(neg_count, pos_count)" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int maximumCount(int[] nums) {\n        int negCount = customBinarySearch(nums, 0);\n        int posCount = nums.length - customBinarySearch(nums, 1);\n        return Math.max(negCount, posCount);\n    }\n\n    // Helper to simulate lower_bound since Arrays.binarySearch returns arbitrary index for existing elements\n    private int customBinarySearch(int[] nums, int target) {\n        int left = 0, right = nums.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (nums[mid] &lt; target) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumCount(vector&lt;int&gt;& nums) {\n        int negCount = lower_bound(nums.begin(), nums.end(), 0) - nums.begin();\n        int posCount = nums.end() - lower_bound(nums.begin(), nums.end(), 1);\n        return max(negCount, posCount);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximumCount(nums) {\n        const lowerBound = (target) =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; target) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const negCount = lowerBound(0);\n        const posCount = nums.length - lowerBound(1);\n        return Math.max(negCount, posCount);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximumCount(nums: number[]): number {\n        const lowerBound = (target: number): number =&gt; {\n            let left = 0, right = nums.length;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; target) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            return left;\n        };\n\n        const negCount = lowerBound(0);\n        const posCount = nums.length - lowerBound(1);\n        return Math.max(negCount, posCount);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log n)
+- Space: O(1)
+- Notes: Utilizes optimized library routines for cleaner code.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Count of Positive Integer and Negative Integer Solutions","datePublished":"2024-09-30","description":"Given a sorted array, return the maximum count between positive integers and negative integers. Zero is neither.","keywords":"LeetCode, Maximum Count of Positive Integer and Negative Integer, Easy, Array, Binary Search, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of elements in the array."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n) because we perform binary search on the sorted array."}},{"@type":"Question","name":"Why is Binary Search preferred here?","acceptedAnswer":{"@type":"Answer","text":"Since the input array is sorted, Binary Search allows us to find the boundaries of negative and positive numbers much faster than iterating through the entire array."}}]}).replace(/</g,'\u003c')}
+</script>

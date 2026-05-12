@@ -1,0 +1,155 @@
+---
+title: "Ransom Note"
+summary: "Given two strings ransomNote and magazine, return true if ransomNote can be constructed using letters from magazine."
+date: "Jun 12, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.90% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+Given two strings ransomNote and magazine, return true if ransomNote can be constructed by using the letters from magazine and false otherwise. Each letter in magazine can only be used once in ransomNote.
+
+- Examples
+- Constraints
+- [Hash Map Counting](#hash-map-counting)
+- [Array Counting](#array-counting)
+- [Sorting Approach](#sorting-approach)
+- [String Manipulation](#string-manipulation)
+
+## Examples
+
+**Example 1:**
+```text
+Input: ransomNote = "a", magazine = "b"
+Output: false
+```
+
+**Example 2:**
+```text
+Input: ransomNote = "aa", magazine = "ab"
+Output: false
+```
+
+**Example 3:**
+```text
+Input: ransomNote = "aa", magazine = "aab"
+Output: true
+```
+
+## Constraints
+
+```text
+1 <= ransomNote.length, magazine.length <= 10⁵
+ransomNote and magazine consist of lowercase English letters.
+```
+
+---
+## Hash Map Counting
+
+**Intuition**
+Count the frequency of each character in magazine using a hash map, then verify ransomNote can be formed by checking and decrementing these counts.
+
+**Steps**
+- Create a hash map to count character frequencies in magazine
+- Iterate through ransomNote, checking if each character exists with sufficient count
+- Decrement count for each used character
+- Return false if any character is missing or count is zero
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canConstruct(self, ransomNote: str, magazine: str) -&gt; bool:\n        from collections import Counter\n        \n        magazine_count = Counter(magazine)\n        \n        for char in ransomNote:\n            if magazine_count[char] &lt;= 0:\n                return False\n            magazine_count[char] -= 1\n        \n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean canConstruct(String ransomNote, String magazine) {\n        Map&lt;Character, Integer&gt; count = new HashMap&lt;&gt;();\n        \n        for (char c : magazine.toCharArray()) {\n            count.put(c, count.getOrDefault(c, 0) + 1);\n        }\n        \n        for (char c : ransomNote.toCharArray()) {\n            if (count.getOrDefault(c, 0) &lt;= 0) {\n                return false;\n            }\n            count.put(c, count.get(c) - 1);\n        }\n        \n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n\nclass Solution {\npublic:\n    bool canConstruct(string ransomNote, string magazine) {\n        unordered_map&lt;char, int&gt; count;\n        \n        for (char c : magazine) {\n            count[c]++;\n        }\n        \n        for (char c : ransomNote) {\n            if (count[c] &lt;= 0) {\n                return false;\n            }\n            count[c]--;\n        }\n        \n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} ransomNote\n * @param {string} magazine\n * @return {boolean}\n */\nvar canConstruct = function(ransomNote, magazine) {\n    const count = new Map();\n    \n    for (const c of magazine) {\n        count.set(c, (count.get(c) || 0) + 1);\n    }\n    \n    for (const c of ransomNote) {\n        const cnt = count.get(c) || 0;\n        if (cnt &lt;= 0) {\n            return false;\n        }\n        count.set(c, cnt - 1);\n    }\n    \n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canConstruct(ransomNote: string, magazine: string): boolean {\n    const count: Map&lt;string, number&gt; = new Map();\n    \n    for (const c of magazine) {\n        count.set(c, (count.get(c) || 0) + 1);\n    }\n    \n    for (const c of ransomNote) {\n        const cnt = count.get(c) || 0;\n        if (cnt &lt;= 0) {\n            return false;\n        }\n        count.set(c, cnt - 1);\n    }\n    \n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(m + n) where m and n are lengths of ransomNote and magazine
+- Space: O(k) where k is the number of unique characters
+- Notes: Most efficient for general character sets
+
+---
+## Array Counting
+
+**Intuition**
+Since the input only contains lowercase English letters, we can use a fixed-size array of 26 integers instead of a hash map for better performance.
+
+**Steps**
+- Initialize an array of size 26 with zeros
+- Count each character in magazine by incrementing the corresponding index
+- Iterate through ransomNote, decrementing counts and checking for availability
+- Return false if any character count becomes negative
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canConstruct(self, ransomNote: str, magazine: str) -&gt; bool:\n        count = [0] * 26\n        \n        for c in magazine:\n            count[ord(c) - ord('a')] += 1\n        \n        for c in ransomNote:\n            idx = ord(c) - ord('a')\n            if count[idx] &lt;= 0:\n                return False\n            count[idx] -= 1\n        \n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canConstruct(String ransomNote, String magazine) {\n        int[] count = new int[26];\n        \n        for (char c : magazine.toCharArray()) {\n            count[c - 'a']++;\n        }\n        \n        for (char c : ransomNote.toCharArray()) {\n            if (count[c - 'a'] &lt;= 0) {\n                return false;\n            }\n            count[c - 'a']--;\n        }\n        \n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canConstruct(string ransomNote, string magazine) {\n        int count[26] = {0};\n        \n        for (char c : magazine) {\n            count[c - 'a']++;\n        }\n        \n        for (char c : ransomNote) {\n            if (count[c - 'a'] &lt;= 0) {\n                return false;\n            }\n            count[c - 'a']--;\n        }\n        \n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} ransomNote\n * @param {string} magazine\n * @return {boolean}\n */\nvar canConstruct = function(ransomNote, magazine) {\n    const count = new Array(26).fill(0);\n    \n    for (const c of magazine) {\n        count[c.charCodeAt(0) - 97]++;\n    }\n    \n    for (const c of ransomNote) {\n        const idx = c.charCodeAt(0) - 97;\n        if (count[idx] &lt;= 0) {\n            return false;\n        }\n        count[idx]--;\n    }\n    \n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canConstruct(ransomNote: string, magazine: string): boolean {\n    const count: number[] = new Array(26).fill(0);\n    \n    for (const c of magazine) {\n        count[c.charCodeAt(0) - 97]++;\n    }\n    \n    for (const c of ransomNote) {\n        const idx = c.charCodeAt(0) - 97;\n        if (count[idx] &lt;= 0) {\n            return false;\n        }\n        count[idx]--;\n    }\n    \n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(m + n) where m and n are lengths of ransomNote and magazine
+- Space: O(1) fixed array of 26 integers
+- Notes: Optimal for lowercase English letters only
+
+---
+## Sorting Approach
+
+**Intuition**
+Sort both strings and use two pointers to match characters, similar to the merge step in merge sort.
+
+**Steps**
+- Convert both strings to character arrays and sort them
+- Use two pointers to traverse both sorted arrays
+- If characters match, advance both pointers
+- If magazine character is smaller, advance magazine pointer
+- If ransomNote character is smaller, return false
+- Return true if all ransomNote characters are matched
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canConstruct(self, ransomNote: str, magazine: str) -&gt; bool:\n        ransom_sorted = sorted(ransomNote)\n        magazine_sorted = sorted(magazine)\n        \n        i = j = 0\n        \n        while i &lt; len(ransom_sorted) and j &lt; len(magazine_sorted):\n            if ransom_sorted[i] == magazine_sorted[j]:\n                i += 1\n                j += 1\n            elif ransom_sorted[i] &lt; magazine_sorted[j]:\n                return False\n            else:\n                j += 1\n        \n        return i == len(ransom_sorted)" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public boolean canConstruct(String ransomNote, String magazine) {\n        char[] ransom = ransomNote.toCharArray();\n        char[] mag = magazine.toCharArray();\n        \n        Arrays.sort(ransom);\n        Arrays.sort(mag);\n        \n        int i = 0, j = 0;\n        \n        while (i &lt; ransom.length && j &lt; mag.length) {\n            if (ransom[i] == mag[j]) {\n                i++;\n                j++;\n            } else if (ransom[i] &lt; mag[j]) {\n                return false;\n            } else {\n                j++;\n            }\n        }\n        \n        return i == ransom.length;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    bool canConstruct(string ransomNote, string magazine) {\n        sort(ransomNote.begin(), ransomNote.end());\n        sort(magazine.begin(), magazine.end());\n        \n        int i = 0, j = 0;\n        \n        while (i &lt; ransomNote.size() && j &lt; magazine.size()) {\n            if (ransomNote[i] == magazine[j]) {\n                i++;\n                j++;\n            } else if (ransomNote[i] &lt; magazine[j]) {\n                return false;\n            } else {\n                j++;\n            }\n        }\n        \n        return i == ransomNote.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} ransomNote\n * @param {string} magazine\n * @return {boolean}\n */\nvar canConstruct = function(ransomNote, magazine) {\n    const ransom = ransomNote.split('').sort();\n    const mag = magazine.split('').sort();\n    \n    let i = 0, j = 0;\n    \n    while (i &lt; ransom.length && j &lt; mag.length) {\n        if (ransom[i] === mag[j]) {\n            i++;\n            j++;\n        } else if (ransom[i] &lt; mag[j]) {\n            return false;\n        } else {\n            j++;\n        }\n    }\n    \n    return i === ransom.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canConstruct(ransomNote: string, magazine: string): boolean {\n    const ransom: string[] = ransomNote.split('').sort();\n    const mag: string[] = magazine.split('').sort();\n    \n    let i = 0, j = 0;\n    \n    while (i &lt; ransom.length && j &lt; mag.length) {\n        if (ransom[i] === mag[j]) {\n            i++;\n            j++;\n        } else if (ransom[i] &lt; mag[j]) {\n            return false;\n        } else {\n            j++;\n        }\n    }\n    \n    return i === ransom.length;\n}" },]} />
+
+**Complexity**
+- Time: O(m log m + n log n) due to sorting
+- Space: O(m + n) for storing sorted arrays
+- Notes: Less efficient than counting but demonstrates two-pointer technique
+
+---
+## String Manipulation
+
+**Intuition**
+For each character in ransomNote, try to find and remove it from magazine. If any character cannot be found, return false.
+
+**Steps**
+- Convert magazine to a mutable data structure (array or list)
+- For each character in ransomNote
+- Search for the character in magazine
+- If found, remove it; if not found, return false
+- Return true if all characters are found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canConstruct(self, ransomNote: str, magazine: str) -&gt; bool:\n        magazine_list = list(magazine)\n        \n        for c in ransomNote:\n            if c in magazine_list:\n                magazine_list.remove(c)\n            else:\n                return False\n        \n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public boolean canConstruct(String ransomNote, String magazine) {\n        List&lt;Character&gt; magList = new ArrayList&lt;&gt;();\n        \n        for (char c : magazine.toCharArray()) {\n            magList.add(c);\n        }\n        \n        for (char c : ransomNote.toCharArray()) {\n            int index = magList.indexOf(c);\n            if (index == -1) {\n                return false;\n            }\n            magList.remove(index);\n        }\n        \n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    bool canConstruct(string ransomNote, string magazine) {\n        for (char c : ransomNote) {\n            size_t pos = magazine.find(c);\n            if (pos == string::npos) {\n                return false;\n            }\n            magazine.erase(pos, 1);\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} ransomNote\n * @param {string} magazine\n * @return {boolean}\n */\nvar canConstruct = function(ransomNote, magazine) {\n    let mag = magazine.split('');\n    \n    for (const c of ransomNote) {\n        const idx = mag.indexOf(c);\n        if (idx === -1) {\n            return false;\n        }\n        mag.splice(idx, 1);\n    }\n    \n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canConstruct(ransomNote: string, magazine: string): boolean {\n    let mag: string[] = magazine.split('');\n    \n    for (const c of ransomNote) {\n        const idx = mag.indexOf(c);\n        if (idx === -1) {\n            return false;\n        }\n        mag.splice(idx, 1);\n    }\n    \n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n) in worst case due to linear search and removal
+- Space: O(m) for storing magazine as mutable structure
+- Notes: Simple but inefficient for large inputs
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Ransom Note Solutions","datePublished":"2025-06-12","description":"Given two strings ransomNote and magazine, return true if ransomNote can be constructed using letters from magazine.","keywords":"LeetCode, Ransom Note, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m + n) where m and n are the lengths of ransomNote and magazine respectively."}},{"@type":"Question","name":"What is the space complexity of the Array Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we use a fixed-size array of 26 integers for lowercase English letters."}},{"@type":"Question","name":"Why is the Sorting approach less efficient than Counting?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has O(m log m + n log n) time complexity due to sorting, while Counting has O(m + n) time complexity."}},{"@type":"Question","name":"What is the most optimal approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Array Counting approach is most optimal with O(m + n) time and O(1) space for lowercase English letters."}}]}).replace(/</g,'\u003c')}
+</script>

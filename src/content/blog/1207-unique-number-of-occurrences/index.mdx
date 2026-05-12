@@ -1,0 +1,135 @@
+---
+title: "Unique Number of Occurrences"
+summary: "Check if the frequency of every value in an array is unique."
+date: "Dec 31, 2025"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.70% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+Given an array of integers arr, return true if the number of occurrences of each value in the array is unique, or false otherwise.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Hash Map and Set](#hash-map-and-set)
+- [Sorting](#sorting)
+- [Fixed Array Counting](#fixed-array-counting)
+
+## Examples
+
+Example 1:
+```text
+Input: arr = [1,2,2,1,1,3]
+Output: true
+Explanation: The value 1 has 3 occurrences, 2 has 2 occurrences and 3 has 1 occurrence. No two values have the same number of occurrences.
+```
+
+Example 2:
+```text
+Input: arr = [1,2]
+Output: false
+```
+
+Example 3:
+```text
+Input: arr = [-3,0,1,-3,1,1,1,-3,10,0]
+Output: true
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 1000
+-1000 <= arr[i] <= 1000
+```
+
+---
+## Hash Map and Set
+
+**Intuition**
+We can use a hash map to count the frequency of each number. Then, we iterate through the frequency values and check for duplicates using a hash set.
+
+**Steps**
+- Initialize a hash map to store the count of each number in the array.
+- Iterate through the array and populate the hash map.
+- Initialize a hash set to track seen frequencies.
+- Iterate through the values (frequencies) of the hash map.
+- If a frequency is already in the set, return false (duplicate found).
+- Otherwise, add the frequency to the set.
+- If the loop finishes without returning false, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def uniqueOccurrences(self, arr: list[int]) -&gt; bool:\n        counts = Counter(arr)\n        seen = set()\n        for count in counts.values():\n            if count in seen:\n                return False\n            seen.add(count)\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.HashSet;\nimport java.util.Map;\nimport java.util.Set;\n\nclass Solution {\n    public boolean uniqueOccurrences(int[] arr) {\n        Map&lt;Integer, Integer&gt; countMap = new HashMap&lt;&gt;();\n        for (int num : arr) {\n            countMap.put(num, countMap.getOrDefault(num, 0) + 1);\n        }\n        \n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        for (int count : countMap.values()) {\n            if (!seen.add(count)) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool uniqueOccurrences(vector&lt;int&gt;& arr) {\n        unordered_map&lt;int, int&gt; counts;\n        for (int num : arr) {\n            counts[num]++;\n        }\n        \n        unordered_set&lt;int&gt; seen;\n        for (const auto& pair : counts) {\n            if (seen.find(pair.second) != seen.end()) {\n                return false;\n            }\n            seen.insert(pair.second);\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function uniqueOccurrences(arr) {\n    const countMap = new Map();\n    for (const num of arr) {\n        countMap.set(num, (countMap.get(num) || 0) + 1);\n    }\n    \n    const seen = new Set();\n    for (const count of countMap.values()) {\n        if (seen.has(count)) {\n            return false;\n        }\n        seen.add(count);\n    }\n    return true;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function uniqueOccurrences(arr: number[]): boolean {\n    const countMap = new Map&lt;number, number&gt;();\n    for (const num of arr) {\n        countMap.set(num, (countMap.get(num) || 0) + 1);\n    }\n    \n    const seen = new Set&lt;number&gt;();\n    for (const count of countMap.values()) {\n        if (seen.has(count)) {\n            return false;\n        }\n        seen.add(count);\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: We use O(n) space for the map and set. This is the most general solution.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the array, identical numbers will be adjacent. We can then iterate through the sorted array to count the frequency of each number and check for duplicates in those frequencies.
+
+**Steps**
+- Sort the input array in ascending order.
+- Initialize a set to store frequencies.
+- Iterate through the sorted array using a pointer.
+- For each unique number, count how many times it appears consecutively.
+- Check if this count exists in the set. If yes, return false.
+- Add the count to the set and move the pointer to the next new number.
+- Return true if the loop completes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def uniqueOccurrences(self, arr: list[int]) -&gt; bool:\n        arr.sort()\n        seen = set()\n        i = 0\n        n = len(arr)\n        while i &lt; n:\n            current = arr[i]\n            count = 0\n            while i &lt; n and arr[i] == current:\n                count += 1\n                i += 1\n            if count in seen:\n                return False\n            seen.add(count)\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\nimport java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean uniqueOccurrences(int[] arr) {\n        Arrays.sort(arr);\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        int i = 0;\n        int n = arr.length;\n        while (i &lt; n) {\n            int current = arr[i];\n            int count = 0;\n            while (i &lt; n && arr[i] == current) {\n                count++;\n                i++;\n            }\n            if (!seen.add(count)) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool uniqueOccurrences(vector&lt;int&gt;& arr) {\n        sort(arr.begin(), arr.end());\n        unordered_set&lt;int&gt; seen;\n        int i = 0;\n        int n = arr.size();\n        while (i &lt; n) {\n            int current = arr[i];\n            int count = 0;\n            while (i &lt; n && arr[i] == current) {\n                count++;\n                i++;\n            }\n            if (seen.find(count) != seen.end()) {\n                return false;\n            }\n            seen.insert(count);\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function uniqueOccurrences(arr) {\n    arr.sort((a, b) =&gt; a - b);\n    const seen = new Set();\n    let i = 0;\n    const n = arr.length;\n    while (i &lt; n) {\n        const current = arr[i];\n        let count = 0;\n        while (i &lt; n && arr[i] === current) {\n            count++;\n            i++;\n        }\n        if (seen.has(count)) {\n            return false;\n        }\n        seen.add(count);\n    }\n    return true;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function uniqueOccurrences(arr: number[]): boolean {\n    arr.sort((a, b) =&gt; a - b);\n    const seen = new Set&lt;number&gt;();\n    let i = 0;\n    const n = arr.length;\n    while (i &lt; n) {\n        const current = arr[i];\n        let count = 0;\n        while (i &lt; n && arr[i] === current) {\n            count++;\n            i++;\n        }\n        if (seen.has(count)) {\n            return false;\n        }\n        seen.add(count);\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Sorting takes O(n log n) time. We still need O(n) space in the worst case for the set of frequencies.
+
+---
+## Fixed Array Counting
+
+**Intuition**
+The problem constraints state that -1000 &lt;= arr[i] &lt;= 1000. This range is small (2001 possible values). We can use a fixed-size array instead of a hash map to count frequencies, which is often faster.
+
+**Steps**
+- Create an array `counts` of size 2001 initialized to 0.
+- Iterate through the input array. For each number `num`, increment `counts[num + 1000]` (shifting the index to be non-negative).
+- Iterate through the `counts` array to collect non-zero frequencies into a set.
+- If the size of the set equals the number of unique values found, return true. Otherwise, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def uniqueOccurrences(self, arr: list[int]) -&gt; bool:\n        offset = 1000\n        counts = [0] * 2001\n        for num in arr:\n            counts[num + offset] += 1\n        \n        seen = set()\n        for count in counts:\n            if count &gt; 0:\n                if count in seen:\n                    return False\n                seen.add(count)\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean uniqueOccurrences(int[] arr) {\n        int offset = 1000;\n        int[] counts = new int[2001];\n        for (int num : arr) {\n            counts[num + offset]++;\n        }\n        \n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        for (int count : counts) {\n            if (count &gt; 0) {\n                if (!seen.add(count)) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool uniqueOccurrences(vector&lt;int&gt;& arr) {\n        int offset = 1000;\n        int counts[2001] = {0};\n        for (int num : arr) {\n            counts[num + offset]++;\n        }\n        \n        unordered_set&lt;int&gt; seen;\n        for (int count : counts) {\n            if (count &gt; 0) {\n                if (seen.find(count) != seen.end()) {\n                    return false;\n                }\n                seen.insert(count);\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function uniqueOccurrences(arr) {\n    const offset = 1000;\n    const counts = new Array(2001).fill(0);\n    for (const num of arr) {\n        counts[num + offset]++;\n    }\n    \n    const seen = new Set();\n    for (const count of counts) {\n        if (count &gt; 0) {\n            if (seen.has(count)) {\n                return false;\n            }\n            seen.add(count);\n        }\n    }\n    return true;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function uniqueOccurrences(arr: number[]): boolean {\n    const offset = 1000;\n    const counts: number[] = new Array(2001).fill(0);\n    for (const num of arr) {\n        counts[num + offset]++;\n    }\n    \n    const seen = new Set&lt;number&gt;();\n    for (const count of counts) {\n        if (count &gt; 0) {\n            if (seen.has(count)) {\n                return false;\n            }\n            seen.add(count);\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: The space complexity is O(1) because the auxiliary array size is fixed (2001) regardless of the input size n.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Unique Number of Occurrences Solutions","datePublished":"2025-12-31","description":"Check if the frequency of every value in an array is unique.","keywords":"LeetCode, Unique Number of Occurrences, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map and Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array. We iterate through the array once to build the map and once through the map to check frequencies."}},{"@type":"Question","name":"What is the space complexity of the Fixed Array Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1). Although we use an array of size 2001, this size is constant and does not depend on the input size n."}},{"@type":"Question","name":"Why is the Sorting approach slower?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has a time complexity of O(n log n) due to the sorting step, which is slower than the O(n) linear time approaches using hash maps or fixed arrays."}}]}).replace(/</g,'\u003c')}
+</script>

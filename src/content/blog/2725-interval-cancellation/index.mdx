@@ -1,0 +1,125 @@
+---
+title: "Interval Cancellation"
+summary: "Implement a function to schedule a recurring function call with an initial delay and return a function to cancel it."
+date: "Apr 18, 2025"
+tags:
+  - JavaScript
+  - Async
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.90% | **Paid:** No
+> **Topics:** N/A
+
+Given a function fn, an array of arguments args, an interval in milliseconds t, and an initial delay delay, return a cancel function cancelfn.
+
+The function fn should be called every t milliseconds, starting after delay milliseconds.
+
+The returned function cancelfn should cancel the interval.
+
+- Examples
+- Constraints
+- [Approach 1: Using setTimeout and setInterval](#approach-1-using-settimeout-and-setinterval)
+- [Approach 2: Using Recursive setTimeout](#approach-2-using-recursive-settimeout)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: fn = (x) => console.log(x), args = [42], t = 100, delay = 1000
+Output: [{"time": 1000, "returned": 42}]
+Explanation:
+const cancelfn = cancellable((x) => console.log(x), [42], 100, 1000);
+setTimeout(() => cancelfn(), 1200);
+The cancellation was scheduled to run after 1200ms, but fn was already called at 1000ms.
+```
+
+**Example 2:**
+
+```text
+Input: fn = (x) => console.log(x), args = [42], t = 100, delay = 1000
+Output: []
+Explanation:
+const cancelfn = cancellable((x) => console.log(x), [42], 100, 1000);
+setTimeout(() => cancelfn(), 200);
+The cancellation was scheduled to run after 200ms, so fn was never called.
+```
+
+**Example 3:**
+
+```text
+Input: fn = (x) => console.log(x), args = [42], t = 100, delay = 1000
+Output: [{"time": 1000, "returned": 42}, {"time": 1100, "returned": 42}]
+Explanation:
+const cancelfn = cancellable((x) => console.log(x), [42], 100, 1000);
+setTimeout(() => cancelfn(), 1500);
+The cancellation was scheduled to run after 1500ms, so fn was called at 1000ms and 1100ms.
+```
+
+## Constraints
+
+```text
+- fn is a function
+- args is a valid JSON array
+- 1 <= args.length <= 10
+- 30 <= t <= 100
+- 10 <= cancelTimeMs <= 500
+```
+
+---
+## Approach 1: Using setTimeout and setInterval
+
+**Intuition**
+Use `setTimeout` to handle the initial delay and `setInterval` to handle the recurring execution. The cancel function must clear both timers to handle cancellation at any stage.
+
+**Steps**
+- Use `setTimeout` to wait for the `delay` period.
+- Inside the timeout callback, execute `fn` immediately and then start a `setInterval` to run `fn` every `t` milliseconds.
+- Store the IDs of both the timeout and the interval.
+- The returned `cancelfn` clears both the timeout (if it hasn't fired) and the interval (if it has started).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import threading\r\n\r\ndef cancellable(fn, args, t, delay):\r\n    timer = None\r\n    interval = None\r\n    \r\n    def start_interval():\r\n        nonlocal interval\r\n        fn(*args)\r\n        interval = threading.Timer(t / 1000.0, start_interval)\r\n        interval.start()\r\n\r\n    timer = threading.Timer(delay / 1000.0, start_interval)\r\n    timer.start()\r\n\r\n    def cancel():\r\n        if timer:\r\n            timer.cancel()\r\n        if interval:\r\n            interval.cancel()\r\n\r\n    return cancel\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.Timer;\r\nimport java.util.TimerTask;\r\nimport java.util.function.Function;\r\n\r\nclass Solution {\r\n    public Runnable cancellable(Function&lt;Object[], Object&gt; fn, Object[] args, int t, int delay) {\r\n        Timer timer = new Timer();\r\n        TimerTask task = new TimerTask() {\r\n            @Override\r\n            public void run() {\r\n                fn.apply(args);\r\n            }\r\n        };\r\n        \r\n        timer.schedule(task, delay, t);\r\n        \r\n        return () -&gt; {\r\n            timer.cancel();\r\n        };\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;thread&gt;\r\n#include &lt;chrono&gt;\r\n#include &lt;atomic&gt;\r\n#include &lt;functional&gt;\r\n#include &lt;vector&gt;\r\n#include &lt;memory&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    function&lt;void()&gt; cancellable(function&lt;void(vector&lt;int&gt;)&gt; fn, vector&lt;int&gt; args, int t, int delay) {\r\n        auto cancelFlag = make_shared&lt;atomic&lt;bool&gt;&gt;(false);\r\n        \r\n        thread th([fn, args, t, delay, cancelFlag]() {\r\n            this_thread::sleep_for(chrono::milliseconds(delay));\r\n            while (!(*cancelFlag)) {\r\n                fn(args);\r\n                this_thread::sleep_for(chrono::milliseconds(t));\r\n            }\r\n        });\r\n        th.detach();\r\n        \r\n        return [cancelFlag]() {\r\n            *cancelFlag = true;\r\n        };\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Function} fn\r\n * @param {Array} args\r\n * @param {number} t\r\n * @param {number} delay\r\n * @return {Function}\r\n */\r\nvar cancellable = function(fn, args, t, delay) {\r\n    let timeoutId;\r\n    let intervalId;\r\n\r\n    timeoutId = setTimeout(() =&gt; {\r\n        fn(...args);\r\n        intervalId = setInterval(() =&gt; {\r\n            fn(...args);\r\n        }, t);\r\n    }, delay);\r\n\r\n    return () =&gt; {\r\n        clearTimeout(timeoutId);\r\n        clearInterval(intervalId);\r\n    };\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (...args: any[]) =&gt; void;\r\n\r\nfunction cancellable(fn: Fn, args: any[], t: number, delay: number): () =&gt; void {\r\n    let timeoutId: ReturnType&lt;typeof setTimeout&gt;;\r\n    let intervalId: ReturnType&lt;typeof setInterval&gt;;\r\n\r\n    timeoutId = setTimeout(() =&gt; {\r\n        fn(...args);\r\n        intervalId = setInterval(() =&gt; {\r\n            fn(...args);\r\n        }, t);\r\n    }, delay);\r\n\r\n    return () =&gt; {\r\n        clearTimeout(timeoutId);\r\n        clearInterval(intervalId);\r\n    };\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(1) for setup, O(k) for execution where k is the number of times fn is called.
+- Space: O(1)
+- Notes: Requires managing two timer IDs. `setInterval` can drift if `fn` takes longer than `t` to execute.
+
+---
+## Approach 2: Using Recursive setTimeout
+
+**Intuition**
+Use a single `setTimeout` loop. After the initial delay, execute `fn` and then schedule the next execution using `setTimeout` again. This avoids managing two separate timer IDs and handles the initial delay naturally within the loop logic.
+
+**Steps**
+- Define a recursive function that executes `fn` and then schedules itself with `setTimeout`.
+- Use a variable to store the current timer ID.
+- Initialize the loop with the initial `delay`.
+- The returned `cancelfn` simply clears the current timer ID, stopping the recursion.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import threading\r\n\r\ndef cancellable(fn, args, t, delay):\r\n    timer = None\r\n    \r\n    def run():\r\n        nonlocal timer\r\n        fn(*args)\r\n        timer = threading.Timer(t / 1000.0, run)\r\n        timer.start()\r\n\r\n    timer = threading.Timer(delay / 1000.0, run)\r\n    timer.start()\r\n\r\n    def cancel():\r\n        if timer:\r\n            timer.cancel()\r\n\r\n    return cancel\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.Timer;\r\nimport java.util.TimerTask;\r\nimport java.util.function.Function;\r\n\r\nclass Solution {\r\n    public Runnable cancellable(Function&lt;Object[], Object&gt; fn, Object[] args, int t, int delay) {\r\n        Timer timer = new Timer();\r\n        \r\n        TimerTask task = new TimerTask() {\r\n            @Override\r\n            public void run() {\r\n                fn.apply(args);\r\n            }\r\n        };\r\n        \r\n        timer.schedule(task, delay, t);\r\n        \r\n        return () -&gt; {\r\n            timer.cancel();\r\n        };\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;thread&gt;\r\n#include &lt;chrono&gt;\r\n#include &lt;atomic&gt;\r\n#include &lt;functional&gt;\r\n#include &lt;vector&gt;\r\n#include &lt;memory&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    function&lt;void()&gt; cancellable(function&lt;void(vector&lt;int&gt;)&gt; fn, vector&lt;int&gt; args, int t, int delay) {\r\n        auto cancelFlag = make_shared&lt;atomic&lt;bool&gt;&gt;(false);\r\n        \r\n        thread th([fn, args, t, delay, cancelFlag]() {\r\n            this_thread::sleep_for(chrono::milliseconds(delay));\r\n            while (!(*cancelFlag)) {\r\n                fn(args);\r\n                this_thread::sleep_for(chrono::milliseconds(t));\r\n            }\r\n        });\r\n        th.detach();\r\n        \r\n        return [cancelFlag]() {\r\n            *cancelFlag = true;\r\n        };\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Function} fn\r\n * @param {Array} args\r\n * @param {number} t\r\n * @param {number} delay\r\n * @return {Function}\r\n */\r\nvar cancellable = function(fn, args, t, delay) {\r\n    let timerId;\r\n\r\n    const schedule = (currentDelay) =&gt; {\r\n        timerId = setTimeout(() =&gt; {\r\n            fn(...args);\r\n            schedule(t);\r\n        }, currentDelay);\r\n    };\r\n\r\n    schedule(delay);\r\n\r\n    return () =&gt; {\r\n        clearTimeout(timerId);\r\n    };\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (...args: any[]) =&gt; void;\r\n\r\nfunction cancellable(fn: Fn, args: any[], t: number, delay: number): () =&gt; void {\r\n    let timerId: ReturnType&lt;typeof setTimeout&gt;;\r\n\r\n    const schedule = (currentDelay: number) =&gt; {\r\n        timerId = setTimeout(() =&gt; {\r\n            fn(...args);\r\n            schedule(t);\r\n        }, currentDelay);\r\n    };\r\n\r\n    schedule(delay);\r\n\r\n    return () =&gt; {\r\n        clearTimeout(timerId);\r\n    };\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(1) for setup, O(k) for execution.
+- Space: O(1)
+- Notes: Only one timer ID needs to be managed. This approach ensures that `fn` is not called again until `t` milliseconds after the previous call completes, preventing overlap if `fn` is slow.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Interval Cancellation Solutions","datePublished":"2025-04-18","description":"Implement a function to schedule a recurring function call with an initial delay and return a function to cancel it.","keywords":"LeetCode, Interval Cancellation, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Interval Cancellation solution?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) for setting up the timer, and O(k) for execution where k is the number of times the function is called before cancellation."}},{"@type":"Question","name":"What is the space complexity of the Interval Cancellation solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only store references to timer IDs or flags."}}]}).replace(/</g,'\u003c')}
+</script>

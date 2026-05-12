@@ -1,0 +1,637 @@
+---
+title: "Shortest Completing Word"
+summary: "Find the shortest word from a list that contains all letters from a license plate."
+date: "Mar 14, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.10% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+Given a string licensePlate and an array of strings words, find the shortest completing word in words.
+
+A license plate consists of upper case letters, lower case letters, and digits.
+
+A completing word is a word that contains all the letters in the license plate (case insensitive). The letter frequency in the completing word must be greater than or equal to the frequency of the corresponding letter in the license plate. If there are multiple shortest completing words, return the first one.
+
+- Examples
+- Constraints
+- [Frequency Count with Arrays](#frequency-count-with-arrays)
+- [Frequency Count with HashMap](#frequency-count-with-hashmap)
+- [Sorting + Frequency Count](#sorting--frequency-count)
+
+## Examples
+
+```text
+Input: licensePlate = "1s3 PSt", words = ["step","steps","stripe","stepple"]
+Output: "steps"
+Explanation: The license plate has letters 's', 'p', 's', 't'.
+The word "steps" contains all these letters and is the shortest among the words that do.
+```
+
+```text
+Input: licensePlate = "1s3 456", words = ["looks","pest","stew","show"]
+Output: "pest"
+Explanation: The license plate has only 's'. The shortest word containing 's' is "pest".
+```
+
+## Constraints
+
+```text
+1 <= licensePlate.length <= 7
+licensePlate contains digits, letters (uppercase or lowercase), and space ' '.
+1 <= words.length <= 1000
+1 <= words[i].length <= 15
+words[i] consists of lowercase English letters.
+```
+
+## Frequency Count with Arrays
+
+**Intuition**
+Count the frequency of each letter in the license plate using a fixed-size array of 26 elements, then check each word to see if it has at least those frequencies.
+
+**Steps**
+- Create a frequency array of size 26 for the license plate letters
+- Iterate through each word and create its frequency array
+- Compare the word's frequency with the license plate's frequency
+- Track the shortest word that satisfies the condition
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def shortestCompletingWord(self, licensePlate: str, words: List[str]) -> str:
+        lp_count = [0] * 26
+        for c in licensePlate:
+            if c.isalpha():
+                lp_count[ord(c.lower()) - ord('a')] += 1
+        
+        shortest = None
+        for word in words:
+            word_count = [0] * 26
+            for c in word:
+                word_count[ord(c.lower()) - ord('a')] += 1
+            
+            completes = True
+            for i in range(26):
+                if word_count[i] &lt; lp_count[i]:
+                    completes = False
+                    break
+            
+            if completes and (shortest is None or len(word) &lt; len(shortest)):
+                shortest = word
+        
+        return shortest
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String shortestCompletingWord(String licensePlate, String[] words) {
+        int[] lpCount = new int[26];
+        for (char c : licensePlate.toCharArray()) {
+            if (Character.isLetter(c)) {
+                lpCount[Character.toLowerCase(c) - 'a']++;
+            }
+        }
+        
+        String shortest = null;
+        for (String word : words) {
+            int[] wordCount = new int[26];
+            for (char c : word.toCharArray()) {
+                wordCount[c - 'a']++;
+            }
+            
+            boolean completes = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest == null || word.length() &lt; shortest.length())) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string shortestCompletingWord(string licensePlate, vector<string>& words) {
+        vector<int> lpCount(26, 0);
+        for (char c : licensePlate) {
+            if (isalpha(c)) {
+                lpCount[tolower(c) - 'a']++;
+            }
+        }
+        
+        string shortest = "";
+        for (string& word : words) {
+            vector<int> wordCount(26, 0);
+            for (char c : word) {
+                wordCount[c - 'a']++;
+            }
+            
+            bool completes = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest.empty() || word.length() &lt; shortest.length())) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestCompletingWord(licensePlate, words) {
+        const lpCount = new Array(26).fill(0);
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                lpCount[c.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+        }
+        
+        let shortest = null;
+        for (const word of words) {
+            const wordCount = new Array(26).fill(0);
+            for (const c of word) {
+                wordCount[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+            
+            let completes = true;
+            for (let i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest === null || word.length &lt; shortest.length)) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestCompletingWord(licensePlate: string, words: string[]): string {
+        const lpCount: number[] = new Array(26).fill(0);
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                lpCount[c.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+        }
+        
+        let shortest: string | null = null;
+        for (const word of words) {
+            const wordCount: number[] = new Array(26).fill(0);
+            for (const c of word) {
+                wordCount[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+            
+            let completes = true;
+            for (let i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest === null || word.length &lt; shortest.length)) {
+                shortest = word;
+            }
+        }
+        
+        return shortest!;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of words and m is the average word length
+- Space: O(1) for the fixed-size frequency arrays
+- Notes: Most efficient approach with constant space overhead
+
+## Frequency Count with HashMap
+
+**Intuition**
+Use a hash map (or Counter in Python) to count letter frequencies, which provides cleaner code at the cost of slightly higher constant factors.
+
+**Steps**
+- Extract only letters from the license plate and count their frequencies
+- For each word, count its letter frequencies
+- Check if the word has sufficient count for each required letter
+- Return the shortest completing word
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import Counter
+
+class Solution:
+    def shortestCompletingWord(self, licensePlate: str, words: List[str]) -> str:
+        lp_letters = [c.lower() for c in licensePlate if c.isalpha()]
+        lp_count = Counter(lp_letters)
+        
+        shortest = None
+        for word in words:
+            word_count = Counter(word.lower())
+            
+            completes = True
+            for char, count in lp_count.items():
+                if word_count[char] &lt; count:
+                    completes = False
+                    break
+            
+            if completes and (shortest is None or len(word) &lt; len(shortest)):
+                shortest = word
+        
+        return shortest
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public String shortestCompletingWord(String licensePlate, String[] words) {
+        Map<Character, Integer> lpCount = new HashMap&lt;&gt;();
+        for (char c : licensePlate.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char lower = Character.toLowerCase(c);
+                lpCount.put(lower, lpCount.getOrDefault(lower, 0) + 1);
+            }
+        }
+        
+        String shortest = null;
+        for (String word : words) {
+            Map<Character, Integer> wordCount = new HashMap&lt;&gt;();
+            for (char c : word.toCharArray()) {
+                wordCount.put(c, wordCount.getOrDefault(c, 0) + 1);
+            }
+            
+            boolean completes = true;
+            for (Map.Entry<Character, Integer> entry : lpCount.entrySet()) {
+                if (wordCount.getOrDefault(entry.getKey(), 0) &lt; entry.getValue()) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest == null || word.length() &lt; shortest.length())) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <unordered_map>
+
+class Solution {
+public:
+    string shortestCompletingWord(string licensePlate, vector<string>& words) {
+        unordered_map<char, int> lpCount;
+        for (char c : licensePlate) {
+            if (isalpha(c)) {
+                lpCount[tolower(c)]++;
+            }
+        }
+        
+        string shortest = "";
+        for (string& word : words) {
+            unordered_map<char, int> wordCount;
+            for (char c : word) {
+                wordCount[c]++;
+            }
+            
+            bool completes = true;
+            for (auto& entry : lpCount) {
+                if (wordCount[entry.first] &lt; entry.second) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest.empty() || word.length() &lt; shortest.length())) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestCompletingWord(licensePlate, words) {
+        const lpCount = new Map();
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                const lower = c.toLowerCase();
+                lpCount.set(lower, (lpCount.get(lower) || 0) + 1);
+            }
+        }
+        
+        let shortest = null;
+        for (const word of words) {
+            const wordCount = new Map();
+            for (const c of word) {
+                wordCount.set(c, (wordCount.get(c) || 0) + 1);
+            }
+            
+            let completes = true;
+            for (const [char, count] of lpCount) {
+                if ((wordCount.get(char) || 0) &lt; count) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest === null || word.length &lt; shortest.length)) {
+                shortest = word;
+            }
+        }
+        
+        return shortest;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestCompletingWord(licensePlate: string, words: string[]): string {
+        const lpCount: Map<string, number> = new Map();
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                const lower = c.toLowerCase();
+                lpCount.set(lower, (lpCount.get(lower) || 0) + 1);
+            }
+        }
+        
+        let shortest: string | null = null;
+        for (const word of words) {
+            const wordCount: Map<string, number> = new Map();
+            for (const c of word) {
+                wordCount.set(c, (wordCount.get(c) || 0) + 1);
+            }
+            
+            let completes = true;
+            for (const [char, count] of lpCount) {
+                if ((wordCount.get(char) || 0) &lt; count) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes && (shortest === null || word.length &lt; shortest.length)) {
+                shortest = word;
+            }
+        }
+        
+        return shortest!;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of words and m is the average word length
+- Space: O(k) where k is the number of unique letters in the license plate (at most 26)
+- Notes: More readable code with slightly higher constant factors
+
+## Sorting + Frequency Count
+
+**Intuition**
+Sort words by length first, then find the first completing word. This can be more efficient if we expect to find a match early in the sorted list.
+
+**Steps**
+- Count letter frequencies in the license plate
+- Sort words by length (and original index for tie-breaking)
+- Iterate through sorted words and return the first completing word
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def shortestCompletingWord(self, licensePlate: str, words: List[str]) -> str:
+        lp_count = [0] * 26
+        for c in licensePlate:
+            if c.isalpha():
+                lp_count[ord(c.lower()) - ord('a')] += 1
+        
+        sorted_words = sorted(enumerate(words), key=lambda x: (len(x[1]), x[0]))
+        
+        for idx, word in sorted_words:
+            word_count = [0] * 26
+            for c in word:
+                word_count[ord(c.lower()) - ord('a')] += 1
+            
+            completes = True
+            for i in range(26):
+                if word_count[i] &lt; lp_count[i]:
+                    completes = False
+                    break
+            
+            if completes:
+                return word
+        
+        return ""
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public String shortestCompletingWord(String licensePlate, String[] words) {
+        int[] lpCount = new int[26];
+        for (char c : licensePlate.toCharArray()) {
+            if (Character.isLetter(c)) {
+                lpCount[Character.toLowerCase(c) - 'a']++;
+            }
+        }
+        
+        Integer[] indices = new Integer[words.length];
+        for (int i = 0; i &lt; words.length; i++) {
+            indices[i] = i;
+        }
+        
+        Arrays.sort(indices, (a, b) -> {
+            if (words[a].length() != words[b].length()) {
+                return words[a].length() - words[b].length();
+            }
+            return a - b;
+        });
+        
+        for (int idx : indices) {
+            String word = words[idx];
+            int[] wordCount = new int[26];
+            for (char c : word.toCharArray()) {
+                wordCount[c - 'a']++;
+            }
+            
+            boolean completes = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes) {
+                return word;
+            }
+        }
+        
+        return "";
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    string shortestCompletingWord(string licensePlate, vector<string>& words) {
+        vector<int> lpCount(26, 0);
+        for (char c : licensePlate) {
+            if (isalpha(c)) {
+                lpCount[tolower(c) - 'a']++;
+            }
+        }
+        
+        vector<int> indices(words.size());
+        for (int i = 0; i &lt; words.size(); i++) {
+            indices[i] = i;
+        }
+        
+        sort(indices.begin(), indices.end(), [&](int a, int b) {
+            if (words[a].length() != words[b].length()) {
+                return words[a].length() &lt; words[b].length();
+            }
+            return a &lt; b;
+        });
+        
+        for (int idx : indices) {
+            string& word = words[idx];
+            vector<int> wordCount(26, 0);
+            for (char c : word) {
+                wordCount[c - 'a']++;
+            }
+            
+            bool completes = true;
+            for (int i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes) {
+                return word;
+            }
+        }
+        
+        return "";
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestCompletingWord(licensePlate, words) {
+        const lpCount = new Array(26).fill(0);
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                lpCount[c.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+        }
+        
+        const indices = words.map((_, i) =&gt; i);
+        indices.sort((a, b) =&gt; {
+            if (words[a].length !== words[b].length) {
+                return words[a].length - words[b].length;
+            }
+            return a - b;
+        });
+        
+        for (const idx of indices) {
+            const word = words[idx];
+            const wordCount = new Array(26).fill(0);
+            for (const c of word) {
+                wordCount[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+            
+            let completes = true;
+            for (let i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes) {
+                return word;
+            }
+        }
+        
+        return "";
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestCompletingWord(licensePlate: string, words: string[]): string {
+        const lpCount: number[] = new Array(26).fill(0);
+        for (const c of licensePlate) {
+            if (/[a-zA-Z]/.test(c)) {
+                lpCount[c.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+        }
+        
+        const indices: number[] = words.map((_, i) =&gt; i);
+        indices.sort((a, b) =&gt; {
+            if (words[a].length !== words[b].length) {
+                return words[a].length - words[b].length;
+            }
+            return a - b;
+        });
+        
+        for (const idx of indices) {
+            const word = words[idx];
+            const wordCount: number[] = new Array(26).fill(0);
+            for (const c of word) {
+                wordCount[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;
+            }
+            
+            let completes = true;
+            for (let i = 0; i &lt; 26; i++) {
+                if (wordCount[i] &lt; lpCount[i]) {
+                    completes = false;
+                    break;
+                }
+            }
+            
+            if (completes) {
+                return word;
+            }
+        }
+        
+        return "";
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n + n × m) for sorting and checking
+- Space: O(n) for storing indices
+- Notes: Useful when we want to find the answer quickly after sorting, but adds O(n log n) overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Shortest Completing Word Solutions","datePublished":"2024-03-14","description":"Find the shortest word from a list that contains all letters from a license plate.","keywords":"LeetCode, Shortest Completing Word, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Frequency Count with Arrays approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of words and m is the average word length."}},{"@type":"Question","name":"What is the space complexity of the Frequency Count with Arrays approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for the fixed-size frequency arrays of 26 elements."}},{"@type":"Question","name":"What is the time complexity of the Frequency Count with HashMap approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) where n is the number of words and m is the average word length."}},{"@type":"Question","name":"What is the space complexity of the Frequency Count with HashMap approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique letters in the license plate (at most 26)."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Frequency Count approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n + n × m) for sorting and checking each word."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Frequency Count approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the indices array."}}]}).replace(/</g,'\u003c')}
+</script>

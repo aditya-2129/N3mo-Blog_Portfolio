@@ -1,0 +1,572 @@
+---
+title: "User Activity for the Past 30 Days I"
+summary: "Find the daily active user count for a period of 30 days ending on 2019-07-27 inclusive."
+date: "Feb 16, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 50.80% | **Paid:** No
+> **Topics:** Database
+
+Table: Activity
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| user_id      | int     |
+| session_id   | int     |
+| activity_date| date    |
+| activity_type| enum    |
++--------------+---------+
+There is no primary key for this table, it may contain duplicates.
+The activity_type column is an ENUM (type) of ('open_session', 'end_session', 'scroll_down', 'send_message').
+The table contains the user activity logs for a social media platform.
+
+Write a solution to find the daily active user count for a period of 30 days ending on 2019-07-27 inclusive. A user is considered active if they have performed at least one activity during that period.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: GROUP BY with COUNT(DISTINCT)](#group-by-with-count-distinct)
+- [Approach 2: Subquery with Date Range](#subquery-with-date-range)
+- [Approach 3: Using DATEDIFF Function](#using-datediff-function)
+
+## Examples
+
+### Example 1
+
+**Input:**
+Activity table:
+```text
++---------+------------+--------------+--------------+
+| user_id | session_id | activity_date| activity_type|
++---------+------------+--------------+--------------+
+| 1       | 1          | 2019-07-20   | open_session |
+| 1       | 1          | 2019-07-20   | scroll_down  |
+| 1       | 1          | 2019-07-20   | end_session  |
+| 2       | 4          | 2019-07-20   | open_session |
+| 2       | 4          | 2019-07-21   | end_session  |
+| 3       | 2          | 2019-07-21   | open_session |
+| 3       | 2          | 2019-07-21   | send_message |
+| 3       | 2          | 2019-07-21   | end_session  |
+| 4       | 3          | 2019-07-21   | open_session |
+| 4       | 3          | 2019-07-27   | end_session  |
++---------+------------+--------------+--------------+
+```
+
+**Output:**
+```text
++------------+--------------+
+| day        | active_users |
++------------+--------------+
+| 2019-07-20 | 2            |
+| 2019-07-21 | 3            |
+| 2019-07-27 | 1            |
++------------+--------------+
+```
+
+**Explanation:**
+Note that we do not care about activity days with no active users.
+
+## Constraints
+
+```text
+The activity_date will be between 2019-06-28 and 2019-07-27 inclusive.
+Each user_id will be an integer between 1 and 100.
+```
+
+---
+## GROUP BY with COUNT(DISTINCT)
+
+**Intuition**
+Group activities by date and count distinct users for each day within the 30-day window.
+
+**Steps**
+- Filter activities where activity_date is between 2019-06-28 and 2019-07-27 (30 days ending on 2019-07-27)
+- Group by activity_date
+- Count distinct user_ids for each group
+- Order by activity_date
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def user_activity(activity: pd.DataFrame) -> pd.DataFrame:
+    start_date = pd.to_datetime('2019-06-28')
+    end_date = pd.to_datetime('2019-07-27')
+    
+    activity['activity_date'] = pd.to_datetime(activity['activity_date'])
+    filtered = activity[(activity['activity_date'] &gt;= start_date) & 
+                        (activity['activity_date'] &lt;= end_date)]
+    
+    result = filtered.groupby('activity_date')['user_id'].nunique().reset_index()
+    result.columns = ['day', 'active_users']
+    result = result.sort_values('day')
+    
+    return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+public class Solution {
+    public List<List<String>&gt; userActivity(List<List<String>&gt; activity) {
+        Map<String, Set<Integer>&gt; dailyUsers = new TreeMap&lt;&gt;();
+        
+        for (List<String> row : activity) {
+            int userId = Integer.parseInt(row.get(0));
+            String date = row.get(2);
+            
+            if (date.compareTo("2019-06-28") &gt;= 0 && date.compareTo("2019-07-27") &lt;= 0) {
+                dailyUsers.computeIfAbsent(date, k -> new HashSet&lt;&gt;()).add(userId);
+            }
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (Map.Entry<String, Set<Integer>&gt; entry : dailyUsers.entrySet()) {
+            List<String> row = new ArrayList&lt;&gt;();
+            row.add(entry.getKey());
+            row.add(String.valueOf(entry.getValue().size()));
+            result.add(row);
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <map>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; userActivity(vector<vector<string>&gt;& activity) {
+        map<string, set<int>&gt; dailyUsers;
+        
+        for (const auto& row : activity) {
+            int userId = stoi(row[0]);
+            string date = row[2];
+            
+            if (date &gt;= "2019-06-28" && date &lt;= "2019-07-27") {
+                dailyUsers[date].insert(userId);
+            }
+        }
+        
+        vector<vector<string>&gt; result;
+        for (const auto& [date, users] : dailyUsers) {
+            result.push_back({date, to_string(users.size())});
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array>} activity
+ * @return {Array<Array>}
+ */
+function userActivity(activity) {
+    const dailyUsers = new Map();
+    
+    for (const row of activity) {
+        const userId = row[0];
+        const date = row[2];
+        
+        if (date &gt;= '2019-06-28' && date &lt;= '2019-07-27') {
+            if (!dailyUsers.has(date)) {
+                dailyUsers.set(date, new Set());
+            }
+            dailyUsers.get(date).add(userId);
+        }
+    }
+    
+    const result = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date).size)]);
+    }
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `type ActivityRow = [string, string, string, string];
+
+function userActivity(activity: ActivityRow[][]): string[][] {
+    const dailyUsers = new Map<string, Set<string>&gt;();
+    
+    for (const row of activity) {
+        const userId = row[0];
+        const date = row[2];
+        
+        if (date &gt;= '2019-06-28' && date &lt;= '2019-07-27') {
+            if (!dailyUsers.has(date)) {
+                dailyUsers.set(date, new Set<string>());
+            }
+            dailyUsers.get(date)!.add(userId);
+        }
+    }
+    
+    const result: string[][] = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date)!.size)]);
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of activity records (due to sorting)
+- Space: O(n) for storing the daily user sets
+- Notes: This is the most straightforward approach and works well for the given constraints.
+
+---
+## Subquery with Date Range
+
+**Intuition**
+First filter the activities for the 30-day period using a subquery, then aggregate by date.
+
+**Steps**
+- Create a subquery to filter activities within the date range
+- Group the filtered results by activity_date
+- Count distinct user_ids
+- Order by activity_date
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def user_activity(activity: pd.DataFrame) -> pd.DataFrame:
+    start_date = '2019-06-28'
+    end_date = '2019-07-27'
+    
+    filtered = activity[
+        (activity['activity_date'] &gt;= start_date) & 
+        (activity['activity_date'] &lt;= end_date)
+    ]
+    
+    result = filtered.groupby('activity_date').agg(
+        active_users=('user_id', 'nunique')
+    ).reset_index()
+    
+    result.columns = ['day', 'active_users']
+    result = result.sort_values('day')
+    
+    return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.stream.Collectors;
+
+public class Solution {
+    public List<List<String>&gt; userActivity(List<List<String>&gt; activity) {
+        List<List<String>&gt; filtered = activity.stream()
+            .filter(row -> {
+                String date = row.get(2);
+                return date.compareTo("2019-06-28") &gt;= 0 && date.compareTo("2019-07-27") &lt;= 0;
+            })
+            .collect(Collectors.toList());
+        
+        Map<String, Set<Integer>&gt; dailyUsers = new TreeMap&lt;&gt;();
+        
+        for (List<String> row : filtered) {
+            int userId = Integer.parseInt(row.get(0));
+            String date = row.get(2);
+            dailyUsers.computeIfAbsent(date, k -> new HashSet&lt;&gt;()).add(userId);
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (Map.Entry<String, Set<Integer>&gt; entry : dailyUsers.entrySet()) {
+            List<String> row = new ArrayList&lt;&gt;();
+            row.add(entry.getKey());
+            row.add(String.valueOf(entry.getValue().size()));
+            result.add(row);
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <map>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; userActivity(vector<vector<string>&gt;& activity) {
+        vector<vector<string>&gt; filtered;
+        for (const auto& row : activity) {
+            string date = row[2];
+            if (date &gt;= "2019-06-28" && date &lt;= "2019-07-27") {
+                filtered.push_back(row);
+            }
+        }
+        
+        map<string, set<int>&gt; dailyUsers;
+        
+        for (const auto& row : filtered) {
+            int userId = stoi(row[0]);
+            string date = row[2];
+            dailyUsers[date].insert(userId);
+        }
+        
+        vector<vector<string>&gt; result;
+        for (const auto& [date, users] : dailyUsers) {
+            result.push_back({date, to_string(users.size())});
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array>} activity
+ * @return {Array<Array>}
+ */
+function userActivity(activity) {
+    const filtered = activity.filter(row =&gt; {
+        const date = row[2];
+        return date &gt;= '2019-06-28' && date &lt;= '2019-07-27';
+    });
+    
+    const dailyUsers = new Map();
+    
+    for (const row of filtered) {
+        const userId = row[0];
+        const date = row[2];
+        
+        if (!dailyUsers.has(date)) {
+            dailyUsers.set(date, new Set());
+        }
+        dailyUsers.get(date).add(userId);
+    }
+    
+    const result = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date).size)]);
+    }
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `type ActivityRow = [string, string, string, string];
+
+function userActivity(activity: ActivityRow[][]): string[][] {
+    const filtered = activity.filter((row: ActivityRow) =&gt; {
+        const date = row[2];
+        return date &gt;= '2019-06-28' && date &lt;= '2019-07-27';
+    });
+    
+    const dailyUsers = new Map<string, Set<string>&gt;();
+    
+    for (const row of filtered) {
+        const userId = row[0];
+        const date = row[2];
+        
+        if (!dailyUsers.has(date)) {
+            dailyUsers.set(date, new Set<string>());
+        }
+        dailyUsers.get(date)!.add(userId);
+    }
+    
+    const result: string[][] = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date)!.size)]);
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of activity records
+- Space: O(n) for storing filtered data and daily user sets
+- Notes: This approach separates filtering from aggregation, which can be more readable.
+
+---
+## Using DATEDIFF Function
+
+**Intuition**
+Use date difference functions to filter activities within the 30-day window from the end date.
+
+**Steps**
+- Calculate the date difference between activity_date and the end date (2019-07-27)
+- Filter records where the difference is between 0 and 29 days
+- Group by activity_date and count distinct user_ids
+- Order by activity_date
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+from datetime import datetime, timedelta
+
+def user_activity(activity: pd.DataFrame) -> pd.DataFrame:
+    end_date = datetime(2019, 7, 27)
+    start_date = end_date - timedelta(days=29)
+    
+    activity['activity_date'] = pd.to_datetime(activity['activity_date'])
+    
+    filtered = activity[
+        (activity['activity_date'] &gt;= start_date) & 
+        (activity['activity_date'] &lt;= end_date)
+    ]
+    
+    result = filtered.groupby('activity_date')['user_id'].nunique().reset_index()
+    result.columns = ['day', 'active_users']
+    result = result.sort_values('day')
+    
+    return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+
+public class Solution {
+    public List<List<String>&gt; userActivity(List<List<String>&gt; activity) {
+        LocalDate endDate = LocalDate.of(2019, 7, 27);
+        
+        Map<String, Set<Integer>&gt; dailyUsers = new TreeMap&lt;&gt;();
+        
+        for (List<String> row : activity) {
+            int userId = Integer.parseInt(row.get(0));
+            LocalDate date = LocalDate.parse(row.get(2));
+            
+            long daysDiff = ChronoUnit.DAYS.between(date, endDate);
+            if (daysDiff &gt;= 0 && daysDiff &lt;= 29) {
+                dailyUsers.computeIfAbsent(row.get(2), k -> new HashSet&lt;&gt;()).add(userId);
+            }
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (Map.Entry<String, Set<Integer>&gt; entry : dailyUsers.entrySet()) {
+            List<String> row = new ArrayList&lt;&gt;();
+            row.add(entry.getKey());
+            row.add(String.valueOf(entry.getValue().size()));
+            result.add(row);
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <ctime>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+private:
+    int daysBetween(const string& date1, const string& date2) {
+        tm tm1 = {}, tm2 = {};
+        istringstream iss1(date1), iss2(date2);
+        char dash;
+        iss1 &gt;&gt; tm1.tm_year &gt;&gt; dash &gt;&gt; tm1.tm_mon &gt;&gt; dash &gt;&gt; tm1.tm_mday;
+        iss2 &gt;&gt; tm2.tm_year &gt;&gt; dash &gt;&gt; tm2.tm_mon &gt;&gt; dash &gt;&gt; tm2.tm_mday;
+        tm1.tm_year -= 1900;
+        tm1.tm_mon -= 1;
+        tm2.tm_year -= 1900;
+        tm2.tm_mon -= 1;
+        time_t time1 = mktime(&tm1);
+        time_t time2 = mktime(&tm2);
+        return difftime(time2, time1) / (60 * 60 * 24);
+    }
+    
+public:
+    vector<vector<string>&gt; userActivity(vector<vector<string>&gt;& activity) {
+        string endDate = "2019-07-27";
+        
+        map<string, set<int>&gt; dailyUsers;
+        
+        for (const auto& row : activity) {
+            int userId = stoi(row[0]);
+            string date = row[2];
+            
+            int daysDiff = daysBetween(date, endDate);
+            if (daysDiff &gt;= 0 && daysDiff &lt;= 29) {
+                dailyUsers[date].insert(userId);
+            }
+        }
+        
+        vector<vector<string>&gt; result;
+        for (const auto& [date, users] : dailyUsers) {
+            result.push_back({date, to_string(users.size())});
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array>} activity
+ * @return {Array<Array>}
+ */
+function userActivity(activity) {
+    const endDate = new Date('2019-07-27');
+    
+    const dailyUsers = new Map();
+    
+    for (const row of activity) {
+        const userId = row[0];
+        const date = new Date(row[2]);
+        
+        const daysDiff = Math.floor((endDate - date) / (1000 * 60 * 60 * 24));
+        if (daysDiff &gt;= 0 && daysDiff &lt;= 29) {
+            if (!dailyUsers.has(row[2])) {
+                dailyUsers.set(row[2], new Set());
+            }
+            dailyUsers.get(row[2]).add(userId);
+        }
+    }
+    
+    const result = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date).size)]);
+    }
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `type ActivityRow = [string, string, string, string];
+
+function userActivity(activity: ActivityRow[][]): string[][] {
+    const endDate: Date = new Date('2019-07-27');
+    
+    const dailyUsers = new Map<string, Set<string>&gt;();
+    
+    for (const row of activity) {
+        const userId = row[0];
+        const date = new Date(row[2]);
+        
+        const daysDiff: number = Math.floor((endDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysDiff &gt;= 0 && daysDiff &lt;= 29) {
+            if (!dailyUsers.has(row[2])) {
+                dailyUsers.set(row[2], new Set<string>());
+            }
+            dailyUsers.get(row[2])!.add(userId);
+        }
+    }
+    
+    const result: string[][] = [];
+    const sortedDates = Array.from(dailyUsers.keys()).sort();
+    
+    for (const date of sortedDates) {
+        result.push([date, String(dailyUsers.get(date)!.size)]);
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of activity records
+- Space: O(n) for storing daily user sets
+- Notes: This approach is useful when you need to calculate relative date ranges dynamically.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode User Activity for the Past 30 Days I Solutions","datePublished":"2025-02-16","description":"Find the daily active user count for a period of 30 days ending on 2019-07-27 inclusive.","keywords":"LeetCode, User Activity for the Past 30 Days I, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of GROUP BY with COUNT(DISTINCT) approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the number of activity records, due to sorting by date."}},{"@type":"Question","name":"What is the space complexity of the Subquery with Date Range approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing filtered data and daily user sets."}},{"@type":"Question","name":"What is the time complexity of the Using DATEDIFF Function approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the number of activity records."}}]}).replace(/</g,'\u003c')}
+</script>

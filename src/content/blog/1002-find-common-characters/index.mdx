@@ -1,0 +1,102 @@
+---
+title: "Find Common Characters"
+summary: "Given an array of strings, return a list of characters that appear in all strings, including duplicates."
+date: "Jun 17, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.70% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+Given a string array words, return an array of all characters that show up in all strings within the words (including duplicates). You may return the answer in any order.
+
+- Examples
+- Constraints
+- [Intersection of Counters](#intersection-of-counters)
+- [Alphabet Iteration](#alphabet-iteration)
+
+## Examples
+
+Example 1:
+
+```text
+Input: words = ["bella","label","roller"]
+Output: ["e","l","l"]
+```
+
+Example 2:
+
+```text
+Input: words = ["cool","lock","cook"]
+Output: ["c","o"]
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] consists of lowercase English letters.
+```
+
+---
+
+## Intersection of Counters
+
+**Intuition**
+We need to find the intersection of multisets (character counts) across all strings. We can maintain a global frequency array representing the minimum count of each character found so far and update it as we process each word.
+
+**Steps**
+- Initialize a frequency array `min_freq` of size 26 with a large value (e.g., infinity or counts of the first word).
+- Iterate through each word in the input array.
+- For each word, calculate its character frequency in a temporary array `curr_freq`.
+- Update `min_freq` by taking the element-wise minimum between `min_freq` and `curr_freq`.
+- After processing all words, convert the `min_freq` array back into a list of characters.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def commonChars(self, words: List[str]) -&gt; List[str]:\r\n        if not words:\r\n            return []\r\n        \r\n        # Initialize with the first word's frequency\r\n        min_freq = [float('inf')] * 26\r\n        \r\n        for word in words:\r\n            curr_freq = [0] * 26\r\n            for ch in word:\r\n                curr_freq[ord(ch) - ord('a')] += 1\r\n            \r\n            # Update global minimum frequency\r\n            for i in range(26):\r\n                min_freq[i] = min(min_freq[i], curr_freq[i])\r\n        \r\n        # Construct result\r\n        result = []\r\n        for i in range(26):\r\n            if min_freq[i] &gt; 0:\r\n                result.extend([chr(i + ord('a'))] * min_freq[i])\r\n        \r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public List&lt;String&gt; commonChars(String[] words) {\r\n        int[] minFreq = new int[26];\r\n        Arrays.fill(minFreq, Integer.MAX_VALUE);\r\n        \r\n        for (String word : words) {\r\n            int[] currFreq = new int[26];\r\n            for (char c : word.toCharArray()) {\r\n                currFreq[c - 'a']++;\r\n            }\r\n            \r\n            for (int i = 0; i &lt; 26; i++) {\r\n                minFreq[i] = Math.min(minFreq[i], currFreq[i]);\r\n            }\r\n        }\r\n        \r\n        List&lt;String&gt; result = new ArrayList&lt;&gt;();\r\n        for (int i = 0; i &lt; 26; i++) {\r\n            while (minFreq[i]-- &gt; 0) {\r\n                result.add(String.valueOf((char) (i + 'a')));\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;algorithm&gt;\r\n#include &lt;climits&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;string&gt; commonChars(vector&lt;string&gt;& words) {\r\n        vector&lt;int&gt; minFreq(26, INT_MAX);\r\n        \r\n        for (const string& word : words) {\r\n            vector&lt;int&gt; currFreq(26, 0);\r\n            for (char c : word) {\r\n                currFreq[c - 'a']++;\r\n            }\r\n            \r\n            for (int i = 0; i &lt; 26; i++) {\r\n                minFreq[i] = min(minFreq[i], currFreq[i]);\r\n            }\r\n        }\r\n        \r\n        vector&lt;string&gt; result;\r\n        for (int i = 0; i &lt; 26; i++) {\r\n            while (minFreq[i]--) {\r\n                result.push_back(string(1, i + 'a'));\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {string[]} words\r\n * @return {string[]}\r\n */\r\nvar commonChars = function(words) {\r\n    let minFreq = new Array(26).fill(Infinity);\r\n    \r\n    for (let word of words) {\r\n        let currFreq = new Array(26).fill(0);\r\n        for (let ch of word) {\r\n            currFreq[ch.charCodeAt(0) - 'a'.charCodeAt(0)]++;\r\n        }\r\n        \r\n        for (let i = 0; i &lt; 26; i++) {\r\n            minFreq[i] = Math.min(minFreq[i], currFreq[i]);\r\n        }\r\n    }\r\n    \r\n    let result = [];\r\n    for (let i = 0; i &lt; 26; i++) {\r\n        while (minFreq[i]-- &gt; 0) {\r\n            result.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\r\n        }\r\n    }\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function commonChars(words: string[]): string[] {\r\n    let minFreq: number[] = new Array(26).fill(Infinity);\r\n    \r\n    for (let word of words) {\r\n        let currFreq: number[] = new Array(26).fill(0);\r\n        for (let ch of word) {\r\n            currFreq[ch.charCodeAt(0) - 'a'.charCodeAt(0)]++;\r\n        }\r\n        \r\n        for (let i = 0; i &lt; 26; i++) {\r\n            minFreq[i] = Math.min(minFreq[i], currFreq[i]);\r\n        }\r\n    }\r\n    \r\n    let result: string[] = [];\r\n    for (let i = 0; i &lt; 26; i++) {\r\n        while (minFreq[i]-- &gt; 0) {\r\n            result.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\r\n        }\r\n    }\r\n    return result;\r\n}" },]} />
+
+**Complexity**
+- Time: O(N * M) where N is the number of words and M is the average length of a word.
+- Space: O(1) auxiliary space (size 26 arrays), excluding the output list.
+- Notes: This is the most efficient approach as it only requires constant extra space and a single pass through the characters of all words.
+
+## Alphabet Iteration
+
+**Intuition**
+Since the input is constrained to lowercase English letters, we can iterate through the alphabet from 'a' to 'z'. For each character, we count its occurrences in every word and take the minimum count.
+
+**Steps**
+- Initialize an empty result list.
+- Loop through characters from 'a' to 'z'.
+- For each character, find the minimum frequency of that character across all words in the array.
+- Append the character to the result list as many times as the minimum frequency.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def commonChars(self, words: List[str]) -&gt; List[str]:\r\n        result = []\r\n        \r\n        # Iterate through each character in the alphabet\r\n        for i in range(26):\r\n            char = chr(ord('a') + i)\r\n            min_count = float('inf')\r\n            \r\n            # Find the minimum count of this char in all words\r\n            for word in words:\r\n                count = word.count(char)\r\n                min_count = min(min_count, count)\r\n                if min_count == 0:\r\n                    break\r\n            \r\n            # Add the char to result min_count times\r\n            result.extend([char] * min_count)\r\n            \r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public List&lt;String&gt; commonChars(String[] words) {\r\n        List&lt;String&gt; result = new ArrayList&lt;&gt;();\r\n        \r\n        for (int i = 0; i &lt; 26; i++) {\r\n            char c = (char) ('a' + i);\r\n            int minCount = Integer.MAX_VALUE;\r\n            \r\n            for (String word : words) {\r\n                int count = 0;\r\n                for (char ch : word.toCharArray()) {\r\n                    if (ch == c) count++;\r\n                }\r\n                minCount = Math.min(minCount, count);\r\n                if (minCount == 0) break;\r\n            }\r\n            \r\n            for (int j = 0; j &lt; minCount; j++) {\r\n                result.add(String.valueOf(c));\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;climits&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;string&gt; commonChars(vector&lt;string&gt;& words) {\r\n        vector&lt;string&gt; result;\r\n        \r\n        for (int i = 0; i &lt; 26; i++) {\r\n            char c = 'a' + i;\r\n            int minCount = INT_MAX;\r\n            \r\n            for (const string& word : words) {\r\n                int count = 0;\r\n                for (char ch : word) {\r\n                    if (ch == c) count++;\r\n                }\r\n                minCount = min(minCount, count);\r\n                if (minCount == 0) break;\r\n            }\r\n            \r\n            for (int j = 0; j &lt; minCount; j++) {\r\n                result.push_back(string(1, c));\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {string[]} words\r\n * @return {string[]}\r\n */\r\nvar commonChars = function(words) {\r\n    let result = [];\r\n    \r\n    for (let i = 0; i &lt; 26; i++) {\r\n        let char = String.fromCharCode('a'.charCodeAt(0) + i);\r\n        let minCount = Infinity;\r\n        \r\n        for (let word of words) {\r\n            let count = 0;\r\n            for (let ch of word) {\r\n                if (ch === char) count++;\r\n            }\r\n            minCount = Math.min(minCount, count);\r\n            if (minCount === 0) break;\r\n        }\r\n        \r\n        for (let j = 0; j &lt; minCount; j++) {\r\n            result.push(char);\r\n        }\r\n    }\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function commonChars(words: string[]): string[] {\r\n    let result: string[] = [];\r\n    \r\n    for (let i = 0; i &lt; 26; i++) {\r\n        let char = String.fromCharCode('a'.charCodeAt(0) + i);\r\n        let minCount = Infinity;\r\n        \r\n        for (let word of words) {\r\n            let count = 0;\r\n            for (let ch of word) {\r\n                if (ch === char) count++;\r\n            }\r\n            minCount = Math.min(minCount, count);\r\n            if (minCount === 0) break;\r\n        }\r\n        \r\n        for (let j = 0; j &lt; minCount; j++) {\r\n            result.push(char);\r\n        }\r\n    }\r\n    return result;\r\n}" },]} />
+
+**Complexity**
+- Time: O(26 * N * M) where N is the number of words and M is the average length of a word. Since 26 is a constant, this simplifies to O(N * M).
+- Space: O(1) auxiliary space, excluding the output list.
+- Notes: This approach is conceptually simple and leverages the fixed alphabet size constraint, though it may involve slightly more character comparisons than the single-pass frequency array method.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Common Characters Solutions","datePublished":"2025-06-17","description":"Given an array of strings, return a list of characters that appear in all strings, including duplicates.","keywords":"LeetCode, Find Common Characters, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Intersection of Counters approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * M), where N is the number of words and M is the average length of a word."}},{"@type":"Question","name":"What is the space complexity of the Intersection of Counters approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, as we only use fixed-size arrays of length 26, excluding the space required for the output list."}},{"@type":"Question","name":"Why is the Alphabet Iteration approach considered O(N * M)?","acceptedAnswer":{"@type":"Answer","text":"Although we iterate 26 times for the alphabet, 26 is a constant factor. The nested loops iterate through all characters in all words, resulting in a linear time complexity relative to the input size."}}]}).replace(/</g,'\u003c')}
+</script>

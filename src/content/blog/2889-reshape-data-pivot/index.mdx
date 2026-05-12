@@ -1,0 +1,190 @@
+---
+title: "Reshape Data: Pivot"
+summary: "Transform a DataFrame from long to wide format by pivoting specified columns."
+date: "Jul 25, 2025"
+tags:
+  - Pandas
+  - DataFrame
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.00% | **Paid:** No
+> **Topics:** N/A
+
+## Problem Description
+
+Write a solution to reshape the data from long format to wide format.
+
+You are given a DataFrame `df` with columns:
+- `student`: string - the student name
+- `subject`: string - the subject name
+- `score`: integer - the score obtained
+
+Reshape the data so that:
+- Each unique student becomes a row
+- Each unique subject becomes a column
+- The values are the scores
+
+Return the reshaped DataFrame with `student` as the index and subjects as columns.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Approach 1: Using pandas pivot()](#approach-1-using-pandas-pivot)
+- [Approach 2: Using pandas pivot_table()](#approach-2-using-pandas-pivot_table)
+- [Approach 3: Using groupby and unstack](#approach-3-using-groupby-and-unstack)
+- [Approach 4: Using set_index and unstack](#approach-4-using-set_index-and-unstack)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
++--------------+----------+-------------+
+| city         | month    | temperature |
++--------------+----------+-------------+
+| Jacksonville | January  | 13          |
+| Jacksonville | February | 23          |
+| Jacksonville | March    | 38          |
+| Jacksonville | April    | 5           |
+| Jacksonville | May      | 34          |
+| ElPaso       | January  | 20          |
+| ElPaso       | February | 6           |
+| ElPaso       | March    | 26          |
+| ElPaso       | April    | 2           |
+| ElPaso       | May      | 43          |
++--------------+----------+-------------+
+```
+
+**Output:**
+```text
++----------+--------+--------------+
+| month    | ElPaso | Jacksonville |
++----------+--------+--------------+
+| April    | 2      | 5            |
+| February | 6      | 23           |
+| January  | 20     | 13           |
+| March    | 26     | 38           |
+| May      | 43     | 34           |
++----------+--------+--------------+
+```
+
+**Explanation:**
+The table is pivoted, each column represents a city, and each row represents a specific month.
+
+## Constraints
+
+```text
+- 1 <= df.length <= 1000
+- df.columns == ['student', 'subject', 'score']
+- 'student' values are non-empty strings
+- 'subject' values are non-empty strings
+- 'score' values are integers
+```
+
+---
+
+## Approach 1: Using pandas pivot()
+
+**Intuition**
+The `pivot()` function is designed specifically for this type of transformation, creating a new column for each unique value in the specified column.
+
+**Steps**
+- Use `pivot()` with `index='student'`, `columns='subject'`, and `values='score'`
+- Reset the index to make 'student' a regular column
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    return df.pivot(index='student', columns='subject', values='score').reset_index()\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; reshapeData(List&lt;Map&lt;String, Object&gt;&gt; data) {\n        Map&lt;String, Map&lt;String, Object&gt;&gt; result = new LinkedHashMap&lt;&gt;();\n        Set&lt;String&gt; subjects = new TreeSet&lt;&gt;();\n        \n        for (Map&lt;String, Object&gt; row : data) {\n            String student = (String) row.get(\"student\");\n            String subject = (String) row.get(\"subject\");\n            Object score = row.get(\"score\");\n            \n            subjects.add(subject);\n            \n            if (!result.containsKey(student)) {\n                result.put(student, new LinkedHashMap&lt;&gt;());\n                result.get(student).put(\"student\", student);\n            }\n            result.get(student).put(subject, score);\n        }\n        \n        List&lt;Map&lt;String, Object&gt;&gt; output = new ArrayList&lt;&gt;(result.values());\n        return output;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n#include &lt;set&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; reshapeData(vector&lt;map&lt;string, string&gt;&gt;& data) {\n        map&lt;string, map&lt;string, string&gt;&gt; result;\n        set&lt;string&gt; subjects;\n        \n        for (auto& row : data) {\n            string student = row[\"student\"];\n            string subject = row[\"subject\"];\n            string score = row[\"score\"];\n            \n            subjects.insert(subject);\n            \n            if (result.find(student) == result.end()) {\n                result[student] = map&lt;string, string&gt;();\n                result[student][\"student\"] = student;\n            }\n            result[student][subject] = score;\n        }\n        \n        vector&lt;map&lt;string, string&gt;&gt; output;\n        for (auto& [student, row] : result) {\n            output.push_back(row);\n        }\n        return output;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    reshapeData(data) {\n        const result = new Map();\n        const subjects = new Set();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!result.has(student)) {\n                result.set(student, { student });\n            }\n            result.get(student)[subject] = score;\n        }\n        \n        return Array.from(result.values());\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataRow {\n    student: string;\n    subject: string;\n    score: number;\n}\n\ninterface ResultRow {\n    student: string;\n    [key: string]: string | number;\n}\n\nclass Solution {\n    reshapeData(data: DataRow[]): ResultRow[] {\n        const result = new Map&lt;string, ResultRow&gt;();\n        const subjects = new Set&lt;string&gt;();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!result.has(student)) {\n                result.set(student, { student });\n            }\n            result.get(student)![subject] = score;\n        }\n        \n        return Array.from(result.values());\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing the result
+- Notes: Most efficient for simple pivot operations
+
+---
+
+## Approach 2: Using pandas pivot_table()
+
+**Intuition**
+The `pivot_table()` function is more flexible than `pivot()` and can handle duplicate index/column pairs by aggregating values.
+
+**Steps**
+- Use `pivot_table()` with `index='student'`, `columns='subject'`, and `values='score'`
+- Reset the index to make 'student' a regular column
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    return df.pivot_table(index='student', columns='subject', values='score').reset_index()\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; reshapeData(List&lt;Map&lt;String, Object&gt;&gt; data) {\n        Map&lt;String, Map&lt;String, List&lt;Object&gt;&gt;&gt; temp = new HashMap&lt;&gt;();\n        Set&lt;String&gt; subjects = new TreeSet&lt;&gt;();\n        \n        for (Map&lt;String, Object&gt; row : data) {\n            String student = (String) row.get(\"student\");\n            String subject = (String) row.get(\"subject\");\n            Object score = row.get(\"score\");\n            \n            subjects.add(subject);\n            \n            temp.computeIfAbsent(student, k -&gt; new HashMap&lt;&gt;())\n                .computeIfAbsent(subject, k -&gt; new ArrayList&lt;&gt;()).add(score);\n        }\n        \n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, Map&lt;String, List&lt;Object&gt;&gt;&gt; entry : temp.entrySet()) {\n            Map&lt;String, Object&gt; row = new LinkedHashMap&lt;&gt;();\n            row.put(\"student\", entry.getKey());\n            for (String s : subjects) {\n                List&lt;Object&gt; values = entry.getValue().get(s);\n                row.put(s, values != null && !values.isEmpty() ? values.get(0) : null);\n            }\n            result.add(row);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n#include &lt;set&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; reshapeData(vector&lt;map&lt;string, string&gt;&gt;& data) {\n        map&lt;string, map&lt;string, vector&lt;string&gt;&gt;&gt; temp;\n        set&lt;string&gt; subjects;\n        \n        for (auto& row : data) {\n            string student = row[\"student\"];\n            string subject = row[\"subject\"];\n            string score = row[\"score\"];\n            \n            subjects.insert(subject);\n            temp[student][subject].push_back(score);\n        }\n        \n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (auto& [student, cols] : temp) {\n            map&lt;string, string&gt; newRow;\n            newRow[\"student\"] = student;\n            for (auto& s : subjects) {\n                if (cols.find(s) != cols.end() && !cols[s].empty()) {\n                    newRow[s] = cols[s][0];\n                }\n            }\n            result.push_back(newRow);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    reshapeData(data) {\n        const temp = new Map();\n        const subjects = new Set();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!temp.has(student)) {\n                temp.set(student, new Map());\n            }\n            if (!temp.get(student).has(subject)) {\n                temp.get(student).set(subject, []);\n            }\n            temp.get(student).get(subject).push(score);\n        }\n        \n        const result = [];\n        for (const [student, cols] of temp) {\n            const newRow = { student };\n            for (const s of subjects) {\n                const values = cols.get(s);\n                newRow[s] = values && values.length &gt; 0 ? values[0] : null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataRow {\n    student: string;\n    subject: string;\n    score: number;\n}\n\ninterface ResultRow {\n    student: string;\n    [key: string]: string | number | null;\n}\n\nclass Solution {\n    reshapeData(data: DataRow[]): ResultRow[] {\n        const temp = new Map&lt;string, Map&lt;string, number[]&gt;&gt;();\n        const subjects = new Set&lt;string&gt;();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!temp.has(student)) {\n                temp.set(student, new Map());\n            }\n            if (!temp.get(student)!.has(subject)) {\n                temp.get(student)!.set(subject, []);\n            }\n            temp.get(student)!.get(subject)!.push(score);\n        }\n        \n        const result: ResultRow[] = [];\n        for (const [student, cols] of temp) {\n            const newRow: ResultRow = { student };\n            for (const s of subjects) {\n                const values = cols.get(s);\n                newRow[s] = values && values.length &gt; 0 ? values[0] : null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing the result
+- Notes: More flexible than pivot() but slightly slower due to aggregation overhead
+
+---
+
+## Approach 3: Using groupby and unstack
+
+**Intuition**
+Group by the index column and unstack the column to pivot, which is essentially what pivot() does internally.
+
+**Steps**
+- Group by 'student' and 'subject'
+- Select the 'score' column
+- Unstack the 'subject' level
+- Reset the index
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    return df.groupby(['student', 'subject'])['score'].first().unstack().reset_index()\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; reshapeData(List&lt;Map&lt;String, Object&gt;&gt; data) {\n        Map&lt;String, Map&lt;String, Object&gt;&gt; grouped = new LinkedHashMap&lt;&gt;();\n        Set&lt;String&gt; subjects = new TreeSet&lt;&gt;();\n        \n        for (Map&lt;String, Object&gt; row : data) {\n            String student = (String) row.get(\"student\");\n            String subject = (String) row.get(\"subject\");\n            Object score = row.get(\"score\");\n            \n            subjects.add(subject);\n            \n            grouped.computeIfAbsent(student, k -&gt; new LinkedHashMap&lt;&gt;()).put(subject, score);\n        }\n        \n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, Map&lt;String, Object&gt;&gt; entry : grouped.entrySet()) {\n            Map&lt;String, Object&gt; row = new LinkedHashMap&lt;&gt;();\n            row.put(\"student\", entry.getKey());\n            for (String s : subjects) {\n                row.put(s, entry.getValue().getOrDefault(s, null));\n            }\n            result.add(row);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n#include &lt;set&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; reshapeData(vector&lt;map&lt;string, string&gt;&gt;& data) {\n        map&lt;string, map&lt;string, string&gt;&gt; grouped;\n        set&lt;string&gt; subjects;\n        \n        for (auto& row : data) {\n            string student = row[\"student\"];\n            string subject = row[\"subject\"];\n            string score = row[\"score\"];\n            \n            subjects.insert(subject);\n            grouped[student][subject] = score;\n        }\n        \n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (auto& [student, cols] : grouped) {\n            map&lt;string, string&gt; newRow;\n            newRow[\"student\"] = student;\n            for (auto& s : subjects) {\n                if (cols.find(s) != cols.end()) {\n                    newRow[s] = cols[s];\n                }\n            }\n            result.push_back(newRow);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    reshapeData(data) {\n        const grouped = new Map();\n        const subjects = new Set();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!grouped.has(student)) {\n                grouped.set(student, new Map());\n            }\n            grouped.get(student).set(subject, score);\n        }\n        \n        const result = [];\n        for (const [student, cols] of grouped) {\n            const newRow = { student };\n            for (const s of subjects) {\n                newRow[s] = cols.get(s) || null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataRow {\n    student: string;\n    subject: string;\n    score: number;\n}\n\ninterface ResultRow {\n    student: string;\n    [key: string]: string | number | null;\n}\n\nclass Solution {\n    reshapeData(data: DataRow[]): ResultRow[] {\n        const grouped = new Map&lt;string, Map&lt;string, number&gt;&gt;();\n        const subjects = new Set&lt;string&gt;();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!grouped.has(student)) {\n                grouped.set(student, new Map());\n            }\n            grouped.get(student)!.set(subject, score);\n        }\n        \n        const result: ResultRow[] = [];\n        for (const [student, cols] of grouped) {\n            const newRow: ResultRow = { student };\n            for (const s of subjects) {\n                newRow[s] = cols.get(s) ?? null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing the result
+- Notes: More verbose than pivot() but demonstrates understanding of the underlying operation
+
+---
+
+## Approach 4: Using set_index and unstack
+
+**Intuition**
+Set the index columns and then unstack one of them to create the pivot structure.
+
+**Steps**
+- Set 'student' and 'subject' as the index
+- Select the 'score' column
+- Unstack the 'subject' level
+- Reset the index
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef reshapeData(df: pd.DataFrame) -&gt; pd.DataFrame:\n    return df.set_index(['student', 'subject'])['score'].unstack().reset_index()\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; reshapeData(List&lt;Map&lt;String, Object&gt;&gt; data) {\n        Map&lt;String, Map&lt;String, Object&gt;&gt; indexed = new LinkedHashMap&lt;&gt;();\n        Set&lt;String&gt; subjects = new TreeSet&lt;&gt;();\n        \n        for (Map&lt;String, Object&gt; row : data) {\n            String student = (String) row.get(\"student\");\n            String subject = (String) row.get(\"subject\");\n            Object score = row.get(\"score\");\n            \n            subjects.add(subject);\n            \n            if (!indexed.containsKey(student)) {\n                indexed.put(student, new LinkedHashMap&lt;&gt;());\n            }\n            indexed.get(student).put(subject, score);\n        }\n        \n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, Map&lt;String, Object&gt;&gt; entry : indexed.entrySet()) {\n            Map&lt;String, Object&gt; row = new LinkedHashMap&lt;&gt;();\n            row.put(\"student\", entry.getKey());\n            for (String s : subjects) {\n                row.put(s, entry.getValue().getOrDefault(s, null));\n            }\n            result.add(row);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n#include &lt;set&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;map&lt;string, string&gt;&gt; reshapeData(vector&lt;map&lt;string, string&gt;&gt;& data) {\n        map&lt;string, map&lt;string, string&gt;&gt; indexed;\n        set&lt;string&gt; subjects;\n        \n        for (auto& row : data) {\n            string student = row[\"student\"];\n            string subject = row[\"subject\"];\n            string score = row[\"score\"];\n            \n            subjects.insert(subject);\n            indexed[student][subject] = score;\n        }\n        \n        vector&lt;map&lt;string, string&gt;&gt; result;\n        for (auto& [student, cols] : indexed) {\n            map&lt;string, string&gt; newRow;\n            newRow[\"student\"] = student;\n            for (auto& s : subjects) {\n                if (cols.find(s) != cols.end()) {\n                    newRow[s] = cols[s];\n                }\n            }\n            result.push_back(newRow);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    reshapeData(data) {\n        const indexed = new Map();\n        const subjects = new Set();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!indexed.has(student)) {\n                indexed.set(student, new Map());\n            }\n            indexed.get(student).set(subject, score);\n        }\n        \n        const result = [];\n        for (const [student, cols] of indexed) {\n            const newRow = { student };\n            for (const s of subjects) {\n                newRow[s] = cols.get(s) || null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataRow {\n    student: string;\n    subject: string;\n    score: number;\n}\n\ninterface ResultRow {\n    student: string;\n    [key: string]: string | number | null;\n}\n\nclass Solution {\n    reshapeData(data: DataRow[]): ResultRow[] {\n        const indexed = new Map&lt;string, Map&lt;string, number&gt;&gt;();\n        const subjects = new Set&lt;string&gt;();\n        \n        for (const row of data) {\n            const { student, subject, score } = row;\n            \n            subjects.add(subject);\n            \n            if (!indexed.has(student)) {\n                indexed.set(student, new Map());\n            }\n            indexed.get(student)!.set(subject, score);\n        }\n        \n        const result: ResultRow[] = [];\n        for (const [student, cols] of indexed) {\n            const newRow: ResultRow = { student };\n            for (const s of subjects) {\n                newRow[s] = cols.get(s) ?? null;\n            }\n            result.push(newRow);\n        }\n        return result;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing the result
+- Notes: Similar to groupby approach but uses index manipulation instead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reshape Data: Pivot Solutions","datePublished":"2025-07-25","description":"Transform a DataFrame from long to wide format by pivoting specified columns.","keywords":"LeetCode, Reshape Data: Pivot, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of using pandas pivot()?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the DataFrame."}},{"@type":"Question","name":"What is the space complexity of the pivot operation?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the result DataFrame."}},{"@type":"Question","name":"What is the difference between pivot() and pivot_table()?","acceptedAnswer":{"@type":"Answer","text":"pivot_table() is more flexible and can handle duplicate index/column pairs by aggregating values, while pivot() requires unique combinations."}},{"@type":"Question","name":"How does set_index and unstack work for pivoting?","acceptedAnswer":{"@type":"Answer","text":"set_index creates a MultiIndex from specified columns, and unstack converts one level of the index into columns, effectively pivoting the data."}}]}).replace(/</g,'\u003c')}
+</script>

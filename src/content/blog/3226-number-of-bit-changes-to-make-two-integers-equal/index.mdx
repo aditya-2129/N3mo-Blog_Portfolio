@@ -1,0 +1,133 @@
+---
+title: "Number of Bit Changes to Make Two Integers Equal"
+summary: "Find minimum bit changes to make n equal to k by only changing 0s to 1s."
+date: "Dec 22, 2024"
+tags:
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.50% | **Paid:** No
+> **Topics:** Bit Manipulation
+
+You are given two positive integers n and k.
+
+You are allowed to change n in the following way: choose any bit position of n and change the bit at that position from 0 to 1. You cannot change a bit from 1 to 0.
+
+Return the minimum number of bit changes required to make n equal to k. If it is impossible, return -1.
+
+- Examples
+- Constraints
+- [Bit by Bit Comparison](#bit-by-bit-comparison)
+- [Bit Manipulation with XOR](#bit-manipulation-with-xor)
+- [String Comparison](#string-comparison)
+
+## Examples
+
+```text
+Input: n = 13, k = 10
+Output: -1
+Explanation: It is impossible to make n equal to k because we cannot change the 1 at position 1 to 0.
+```
+
+```text
+Input: n = 8, k = 13
+Output: 2
+Explanation: We can change the bits at positions 0 and 2 from 0 to 1 to make n equal to k.
+```
+
+```text
+Input: n = 1, k = 1
+Output: 0
+Explanation: n is already equal to k, no changes needed.
+```
+
+## Constraints
+
+```text
+1 <= n, k <= 10^9
+```
+
+---
+## Bit by Bit Comparison
+
+**Intuition**
+Iterate through each bit position and check if we can transform n to k by only changing 0s to 1s.
+
+**Steps**
+- If n &gt; k, return -1 (we can only increase value by changing 0s to 1s)
+- For each bit position from 0 to 31:
+  - If n has 1 and k has 0, return -1 (cannot change 1 to 0)
+  - If n has 0 and k has 1, increment change count
+- Return the total count of changes
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minChanges(self, n: int, k: int) -&gt; int:\n        if n &gt; k:\n            return -1\n        \n        changes = 0\n        for i in range(32):\n            n_bit = (n &gt;&gt; i) & 1\n            k_bit = (k &gt;&gt; i) & 1\n            if n_bit == 1 and k_bit == 0:\n                return -1\n            if n_bit == 0 and k_bit == 1:\n                changes += 1\n        \n        return changes" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        int changes = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            int nBit = (n &gt;&gt; i) & 1;\n            int kBit = (k &gt;&gt; i) & 1;\n            if (nBit == 1 && kBit == 0) {\n                return -1;\n            }\n            if (nBit == 0 && kBit == 1) {\n                changes++;\n            }\n        }\n        \n        return changes;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        int changes = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            int nBit = (n &gt;&gt; i) & 1;\n            int kBit = (k &gt;&gt; i) & 1;\n            if (nBit == 1 && kBit == 0) {\n                return -1;\n            }\n            if (nBit == 0 && kBit == 1) {\n                changes++;\n            }\n        }\n        \n        return changes;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number} k\n * @return {number}\n */\nvar minChanges = function(n, k) {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    let changes = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        let nBit = (n &gt;&gt; i) & 1;\n        let kBit = (k &gt;&gt; i) & 1;\n        if (nBit === 1 && kBit === 0) {\n            return -1;\n        }\n        if (nBit === 0 && kBit === 1) {\n            changes++;\n        }\n    }\n    \n    return changes;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minChanges(n: number, k: number): number {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    let changes = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        let nBit = (n &gt;&gt; i) & 1;\n        let kBit = (k &gt;&gt; i) & 1;\n        if (nBit === 1 && kBit === 0) {\n            return -1;\n        }\n        if (nBit === 0 && kBit === 1) {\n            changes++;\n        }\n    }\n    \n    return changes;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - fixed 32 iterations
+- Space: O(1) - only using constant extra space
+- Notes: Simple and straightforward approach
+
+---
+## Bit Manipulation with XOR
+
+**Intuition**
+Use bitwise operations to efficiently check validity and count required changes in one pass.
+
+**Steps**
+- If n &gt; k, return -1
+- Check if (n & k) == n - this ensures all 1s in n are also 1s in k
+- If not equal, return -1 (impossible to transform)
+- Count the number of 1s in (k ^ n) which represents bits that need changing
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minChanges(self, n: int, k: int) -&gt; int:\n        if n &gt; k:\n            return -1\n        \n        if (n & k) != n:\n            return -1\n        \n        return bin(k ^ n).count('1')" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        if ((n & k) != n) {\n            return -1;\n        }\n        \n        return Integer.bitCount(k ^ n);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        if ((n & k) != n) {\n            return -1;\n        }\n        \n        return __builtin_popcount(k ^ n);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number} k\n * @return {number}\n */\nvar minChanges = function(n, k) {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    if ((n & k) !== n) {\n        return -1;\n    }\n    \n    let xor = k ^ n;\n    let count = 0;\n    while (xor &gt; 0) {\n        count += xor & 1;\n        xor &gt;&gt;= 1;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minChanges(n: number, k: number): number {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    if ((n & k) !== n) {\n        return -1;\n    }\n    \n    let xor = k ^ n;\n    let count = 0;\n    while (xor &gt; 0) {\n        count += xor & 1;\n        xor &gt;&gt;= 1;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - constant number of bit operations
+- Space: O(1) - only using constant extra space
+- Notes: Most elegant solution using built-in bit counting functions
+
+---
+## String Comparison
+
+**Intuition**
+Convert numbers to binary strings and compare character by character for readability.
+
+**Steps**
+- If n &gt; k, return -1
+- Convert both numbers to binary strings
+- Pad shorter string with leading zeros
+- Compare each character pair:
+  - If n has '1' and k has '0', return -1
+  - If n has '0' and k has '1', increment count
+- Return the total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minChanges(self, n: int, k: int) -&gt; int:\n        if n &gt; k:\n            return -1\n        \n        n_bin = bin(n)[2:]\n        k_bin = bin(k)[2:]\n        \n        max_len = max(len(n_bin), len(k_bin))\n        n_bin = n_bin.zfill(max_len)\n        k_bin = k_bin.zfill(max_len)\n        \n        changes = 0\n        for nb, kb in zip(n_bin, k_bin):\n            if nb == '1' and kb == '0':\n                return -1\n            if nb == '0' and kb == '1':\n                changes += 1\n        \n        return changes" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        String nBin = Integer.toBinaryString(n);\n        String kBin = Integer.toBinaryString(k);\n        \n        int maxLen = Math.max(nBin.length(), kBin.length());\n        while (nBin.length() &lt; maxLen) {\n            nBin = \"0\" + nBin;\n        }\n        while (kBin.length() &lt; maxLen) {\n            kBin = \"0\" + kBin;\n        }\n        \n        int changes = 0;\n        for (int i = 0; i &lt; maxLen; i++) {\n            char nb = nBin.charAt(i);\n            char kb = kBin.charAt(i);\n            if (nb == '1' && kb == '0') {\n                return -1;\n            }\n            if (nb == '0' && kb == '1') {\n                changes++;\n            }\n        }\n        \n        return changes;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minChanges(int n, int k) {\n        if (n &gt; k) {\n            return -1;\n        }\n        \n        string nBin, kBin;\n        int temp = n;\n        if (temp == 0) nBin = \"0\";\n        while (temp &gt; 0) {\n            nBin = char('0' + (temp % 2)) + nBin;\n            temp /= 2;\n        }\n        \n        temp = k;\n        if (temp == 0) kBin = \"0\";\n        while (temp &gt; 0) {\n            kBin = char('0' + (temp % 2)) + kBin;\n            temp /= 2;\n        }\n        \n        int maxLen = max(nBin.length(), kBin.length());\n        while (nBin.length() &lt; maxLen) {\n            nBin = \"0\" + nBin;\n        }\n        while (kBin.length() &lt; maxLen) {\n            kBin = \"0\" + kBin;\n        }\n        \n        int changes = 0;\n        for (int i = 0; i &lt; maxLen; i++) {\n            char nb = nBin[i];\n            char kb = kBin[i];\n            if (nb == '1' && kb == '0') {\n                return -1;\n            }\n            if (nb == '0' && kb == '1') {\n                changes++;\n            }\n        }\n        \n        return changes;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number} k\n * @return {number}\n */\nvar minChanges = function(n, k) {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    let nBin = n.toString(2);\n    let kBin = k.toString(2);\n    \n    let maxLen = Math.max(nBin.length, kBin.length);\n    while (nBin.length &lt; maxLen) {\n        nBin = \"0\" + nBin;\n    }\n    while (kBin.length &lt; maxLen) {\n        kBin = \"0\" + kBin;\n    }\n    \n    let changes = 0;\n    for (let i = 0; i &lt; maxLen; i++) {\n        let nb = nBin[i];\n        let kb = kBin[i];\n        if (nb === '1' && kb === '0') {\n            return -1;\n        }\n        if (nb === '0' && kb === '1') {\n            changes++;\n        }\n    }\n    \n    return changes;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minChanges(n: number, k: number): number {\n    if (n &gt; k) {\n        return -1;\n    }\n    \n    let nBin = n.toString(2);\n    let kBin = k.toString(2);\n    \n    let maxLen = Math.max(nBin.length, kBin.length);\n    while (nBin.length &lt; maxLen) {\n        nBin = \"0\" + nBin;\n    }\n    while (kBin.length &lt; maxLen) {\n        kBin = \"0\" + kBin;\n    }\n    \n    let changes = 0;\n    for (let i = 0; i &lt; maxLen; i++) {\n        let nb = nBin[i];\n        let kb = kBin[i];\n        if (nb === '1' && kb === '0') {\n            return -1;\n        }\n        if (nb === '0' && kb === '1') {\n            changes++;\n        }\n    }\n    \n    return changes;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - proportional to number of bits
+- Space: O(log n) - for storing binary strings
+- Notes: More readable but less efficient than bit manipulation
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Bit Changes to Make Two Integers Equal Solutions","datePublished":"2024-12-22","description":"Find minimum bit changes to make n equal to k by only changing 0s to 1s.","keywords":"LeetCode, Number of Bit Changes to Make Two Integers Equal, Easy, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Bit by Bit Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - fixed 32 iterations regardless of input size."}},{"@type":"Question","name":"What is the time complexity of Bit Manipulation with XOR approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - constant number of bit operations."}},{"@type":"Question","name":"What is the time complexity of String Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"O(log n) - proportional to the number of bits in the binary representation."}},{"@type":"Question","name":"Which approach is the most efficient?","acceptedAnswer":{"@type":"Answer","text":"Bit Manipulation with XOR is the most efficient with O(1) time and space complexity, using built-in bit counting functions."}}]}).replace(/</g,'\u003c')}
+</script>

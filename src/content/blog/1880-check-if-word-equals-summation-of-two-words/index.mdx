@@ -1,0 +1,140 @@
+---
+title: "Check if Word Equals Summation of Two Words"
+summary: "Check if the sum of numerical values of two words equals the numerical value of a target word."
+date: "Mar 10, 2026"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.30% | **Paid:** No
+> **Topics:** String
+
+The letter-value of a letter is its position in the alphabet starting from 0 (i.e., 'a' -> 0, 'b' -> 1, ..., 'j' -> 9). A word is a string of lowercase letters.
+
+Given two words, firstWord and secondWord, and a target word, targetWord, return true if the summation of the numerical values of firstWord and secondWord equals the numerical value of targetWord, or false otherwise.
+
+- Examples
+- Constraints
+- [Direct Integer Conversion](#direct-integer-conversion)
+- [String-based Addition](#string-based-addition)
+- [Array-based Addition](#array-based-addition)
+
+## Examples
+
+```text
+Input: firstWord = "acb", secondWord = "cba", targetWord = "cdb"
+Output: true
+Explanation:
+The numerical value of firstWord is "acb" -> "021" -> 21.
+The numerical value of secondWord is "cba" -> "210" -> 210.
+The numerical value of targetWord is "cdb" -> "231" -> 231.
+We return true because 21 + 210 == 231.
+```
+
+```text
+Input: firstWord = "aaa", secondWord = "a", targetWord = "aab"
+Output: false
+Explanation:
+The numerical value of firstWord is "aaa" -> "000" -> 0.
+The numerical value of secondWord is "a" -> "0" -> 0.
+The numerical value of targetWord is "aab" -> "001" -> 1.
+We return false because 0 + 0 != 1.
+```
+
+```text
+Input: firstWord = "aaa", secondWord = "a", targetWord = "aaaa"
+Output: true
+Explanation:
+The numerical value of firstWord is "aaa" -> "000" -> 0.
+The numerical value of secondWord is "a" -> "0" -> 0.
+The numerical value of targetWord is "aaaa" -> "0000" -> 0.
+We return true because 0 + 0 == 0.
+```
+
+## Constraints
+
+```text
+1 <= firstWord.length, secondWord.length, targetWord.length <= 8
+firstWord, secondWord, and targetWord consist of lowercase English letters from 'a' to 'j' inclusive.
+```
+
+---
+## Direct Integer Conversion
+
+**Intuition**
+Convert each word to its numerical value by mapping each character to its digit value, then compare the sum of the first two with the target.
+
+**Steps**
+- Create a helper function to convert a word to a number
+- For each character, calculate its digit value (ord(ch) - ord('a'))
+- Build the number by multiplying by 10 and adding the digit
+- Sum firstWord and secondWord values and compare with targetWord
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSumEqual(self, firstWord: str, secondWord: str, targetWord: str) -&gt; bool:\n        def word_to_num(word: str) -&gt; int:\n            num = 0\n            for ch in word:\n                num = num * 10 + (ord(ch) - ord('a'))\n            return num\n        \n        return word_to_num(firstWord) + word_to_num(secondWord) == word_to_num(targetWord)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSumEqual(String firstWord, String secondWord, String targetWord) {\n        return wordToNum(firstWord) + wordToNum(secondWord) == wordToNum(targetWord);\n    }\n    \n    private long wordToNum(String word) {\n        long num = 0;\n        for (int i = 0; i &lt; word.length(); i++) {\n            num = num * 10 + (word.charAt(i) - 'a');\n        }\n        return num;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSumEqual(string firstWord, string secondWord, string targetWord) {\n        return wordToNum(firstWord) + wordToNum(secondWord) == wordToNum(targetWord);\n    }\n    \nprivate:\n    long long wordToNum(string word) {\n        long long num = 0;\n        for (char ch : word) {\n            num = num * 10 + (ch - 'a');\n        }\n        return num;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSumEqual(firstWord, secondWord, targetWord) {\n        const wordToNum = (word) =&gt; {\n            let num = 0;\n            for (const ch of word) {\n                num = num * 10 + (ch.charCodeAt(0) - 'a'.charCodeAt(0));\n            }\n            return num;\n        };\n        \n        return wordToNum(firstWord) + wordToNum(secondWord) === wordToNum(targetWord);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSumEqual(firstWord: string, secondWord: string, targetWord: string): boolean {\n        const wordToNum = (word: string): number =&gt; {\n            let num = 0;\n            for (const ch of word) {\n                num = num * 10 + (ch.charCodeAt(0) - 'a'.charCodeAt(0));\n            }\n            return num;\n        };\n        \n        return wordToNum(firstWord) + wordToNum(secondWord) === wordToNum(targetWord);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the maximum length of the words
+- Space: O(1) for the numeric conversion
+- Notes: Simple and efficient, uses long/long long to handle potential overflow
+
+---
+## String-based Addition
+
+**Intuition**
+Convert words to digit strings and perform addition digit by digit from right to left, handling carry, then compare with target string.
+
+**Steps**
+- Convert each word to its digit string representation
+- Add the two digit strings from right to left with carry
+- Build the result string and reverse it
+- Compare with the target digit string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSumEqual(self, firstWord: str, secondWord: str, targetWord: str) -&gt; bool:\n        def word_to_str(word: str) -&gt; str:\n            return ''.join(str(ord(ch) - ord('a')) for ch in word)\n        \n        first = word_to_str(firstWord)\n        second = word_to_str(secondWord)\n        target = word_to_str(targetWord)\n        \n        i, j = len(first) - 1, len(second) - 1\n        carry = 0\n        result = []\n        \n        while i &gt;= 0 or j &gt;= 0 or carry:\n            d1 = int(first[i]) if i &gt;= 0 else 0\n            d2 = int(second[j]) if j &gt;= 0 else 0\n            total = d1 + d2 + carry\n            result.append(str(total % 10))\n            carry = total // 10\n            i -= 1\n            j -= 1\n        \n        sum_str = ''.join(reversed(result))\n        \n        return sum_str == target" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSumEqual(String firstWord, String secondWord, String targetWord) {\n        String first = wordToStr(firstWord);\n        String second = wordToStr(secondWord);\n        String target = wordToStr(targetWord);\n        \n        String sum = addStrings(first, second);\n        \n        return sum.equals(target);\n    }\n    \n    private String wordToStr(String word) {\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; word.length(); i++) {\n            sb.append(word.charAt(i) - 'a');\n        }\n        return sb.toString();\n    }\n    \n    private String addStrings(String num1, String num2) {\n        int i = num1.length() - 1;\n        int j = num2.length() - 1;\n        int carry = 0;\n        StringBuilder result = new StringBuilder();\n        \n        while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n            int d1 = i &gt;= 0 ? num1.charAt(i) - '0' : 0;\n            int d2 = j &gt;= 0 ? num2.charAt(j) - '0' : 0;\n            int sum = d1 + d2 + carry;\n            result.append(sum % 10);\n            carry = sum / 10;\n            i--;\n            j--;\n        }\n        \n        return result.reverse().toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSumEqual(string firstWord, string secondWord, string targetWord) {\n        string first = wordToStr(firstWord);\n        string second = wordToStr(secondWord);\n        string target = wordToStr(targetWord);\n        \n        string sum = addStrings(first, second);\n        \n        return sum == target;\n    }\n    \nprivate:\n    string wordToStr(string word) {\n        string result = \"\";\n        for (char ch : word) {\n            result += to_string(ch - 'a');\n        }\n        return result;\n    }\n    \n    string addStrings(string num1, string num2) {\n        int i = num1.length() - 1;\n        int j = num2.length() - 1;\n        int carry = 0;\n        string result = \"\";\n        \n        while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n            int d1 = i &gt;= 0 ? num1[i] - '0' : 0;\n            int d2 = j &gt;= 0 ? num2[j] - '0' : 0;\n            int sum = d1 + d2 + carry;\n            result += to_string(sum % 10);\n            carry = sum / 10;\n            i--;\n            j--;\n        }\n        \n        reverse(result.begin(), result.end());\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSumEqual(firstWord, secondWord, targetWord) {\n        const wordToStr = (word) =&gt; {\n            let result = '';\n            for (const ch of word) {\n                result += ch.charCodeAt(0) - 'a'.charCodeAt(0);\n            }\n            return result;\n        };\n        \n        const addStrings = (num1, num2) =&gt; {\n            let i = num1.length - 1;\n            let j = num2.length - 1;\n            let carry = 0;\n            let result = '';\n            \n            while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n                const d1 = i &gt;= 0 ? parseInt(num1[i]) : 0;\n                const d2 = j &gt;= 0 ? parseInt(num2[j]) : 0;\n                const sum = d1 + d2 + carry;\n                result += (sum % 10).toString();\n                carry = Math.floor(sum / 10);\n                i--;\n                j--;\n            }\n            \n            return result.split('').reverse().join('');\n        };\n        \n        const first = wordToStr(firstWord);\n        const second = wordToStr(secondWord);\n        const target = wordToStr(targetWord);\n        \n        const sum = addStrings(first, second);\n        \n        return sum === target;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSumEqual(firstWord: string, secondWord: string, targetWord: string): boolean {\n        const wordToStr = (word: string): string =&gt; {\n            let result = '';\n            for (const ch of word) {\n                result += (ch.charCodeAt(0) - 'a'.charCodeAt(0)).toString();\n            }\n            return result;\n        };\n        \n        const addStrings = (num1: string, num2: string): string =&gt; {\n            let i = num1.length - 1;\n            let j = num2.length - 1;\n            let carry = 0;\n            let result = '';\n            \n            while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n                const d1 = i &gt;= 0 ? parseInt(num1[i]) : 0;\n                const d2 = j &gt;= 0 ? parseInt(num2[j]) : 0;\n                const sum = d1 + d2 + carry;\n                result += (sum % 10).toString();\n                carry = Math.floor(sum / 10);\n                i--;\n                j--;\n            }\n            \n            return result.split('').reverse().join('');\n        };\n        \n        const first = wordToStr(firstWord);\n        const second = wordToStr(secondWord);\n        const target = wordToStr(targetWord);\n        \n        const sum = addStrings(first, second);\n        \n        return sum === target;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the maximum length of the words
+- Space: O(n) for storing digit strings and result
+- Notes: Avoids integer overflow issues, more verbose but safer for very large numbers
+
+---
+## Array-based Addition
+
+**Intuition**
+Store digits in arrays instead of strings, perform addition on arrays, then compare the resulting array with target digits.
+
+**Steps**
+- Convert each word to an array of digit values
+- Add the two digit arrays from right to left with carry
+- Build the result array and reverse it
+- Compare with the target digit array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSumEqual(self, firstWord: str, secondWord: str, targetWord: str) -&gt; bool:\n        def word_to_digits(word: str) -&gt; list:\n            return [ord(ch) - ord('a') for ch in word]\n        \n        first_digits = word_to_digits(firstWord)\n        second_digits = word_to_digits(secondWord)\n        target_digits = word_to_digits(targetWord)\n        \n        i, j = len(first_digits) - 1, len(second_digits) - 1\n        carry = 0\n        result = []\n        \n        while i &gt;= 0 or j &gt;= 0 or carry:\n            d1 = first_digits[i] if i &gt;= 0 else 0\n            d2 = second_digits[j] if j &gt;= 0 else 0\n            total = d1 + d2 + carry\n            result.append(total % 10)\n            carry = total // 10\n            i -= 1\n            j -= 1\n        \n        result.reverse()\n        \n        return result == target_digits" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean isSumEqual(String firstWord, String secondWord, String targetWord) {\n        int[] first = wordToDigits(firstWord);\n        int[] second = wordToDigits(secondWord);\n        int[] target = wordToDigits(targetWord);\n        \n        int[] sum = addDigitArrays(first, second);\n        \n        return Arrays.equals(sum, target);\n    }\n    \n    private int[] wordToDigits(String word) {\n        int[] digits = new int[word.length()];\n        for (int i = 0; i &lt; word.length(); i++) {\n            digits[i] = word.charAt(i) - 'a';\n        }\n        return digits;\n    }\n    \n    private int[] addDigitArrays(int[] num1, int[] num2) {\n        int i = num1.length - 1;\n        int j = num2.length - 1;\n        int carry = 0;\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        \n        while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n            int d1 = i &gt;= 0 ? num1[i] : 0;\n            int d2 = j &gt;= 0 ? num2[j] : 0;\n            int sum = d1 + d2 + carry;\n            result.add(sum % 10);\n            carry = sum / 10;\n            i--;\n            j--;\n        }\n        \n        Collections.reverse(result);\n        \n        int[] arr = new int[result.size()];\n        for (int k = 0; k &lt; result.size(); k++) {\n            arr[k] = result.get(k);\n        }\n        return arr;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isSumEqual(string firstWord, string secondWord, string targetWord) {\n        vector&lt;int&gt; first = wordToDigits(firstWord);\n        vector&lt;int&gt; second = wordToDigits(secondWord);\n        vector&lt;int&gt; target = wordToDigits(targetWord);\n        \n        vector&lt;int&gt; sum = addDigitArrays(first, second);\n        \n        return sum == target;\n    }\n    \nprivate:\n    vector&lt;int&gt; wordToDigits(string word) {\n        vector&lt;int&gt; digits;\n        for (char ch : word) {\n            digits.push_back(ch - 'a');\n        }\n        return digits;\n    }\n    \n    vector&lt;int&gt; addDigitArrays(vector&lt;int&gt;& num1, vector&lt;int&gt;& num2) {\n        int i = num1.size() - 1;\n        int j = num2.size() - 1;\n        int carry = 0;\n        vector&lt;int&gt; result;\n        \n        while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n            int d1 = i &gt;= 0 ? num1[i] : 0;\n            int d2 = j &gt;= 0 ? num2[j] : 0;\n            int sum = d1 + d2 + carry;\n            result.push_back(sum % 10);\n            carry = sum / 10;\n            i--;\n            j--;\n        }\n        \n        reverse(result.begin(), result.end());\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isSumEqual(firstWord, secondWord, targetWord) {\n        const wordToDigits = (word) =&gt; {\n            return word.split('').map(ch =&gt; ch.charCodeAt(0) - 'a'.charCodeAt(0));\n        };\n        \n        const addDigitArrays = (num1, num2) =&gt; {\n            let i = num1.length - 1;\n            let j = num2.length - 1;\n            let carry = 0;\n            let result = [];\n            \n            while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n                const d1 = i &gt;= 0 ? num1[i] : 0;\n                const d2 = j &gt;= 0 ? num2[j] : 0;\n                const sum = d1 + d2 + carry;\n                result.push(sum % 10);\n                carry = Math.floor(sum / 10);\n                i--;\n                j--;\n            }\n            \n            return result.reverse();\n        };\n        \n        const first = wordToDigits(firstWord);\n        const second = wordToDigits(secondWord);\n        const target = wordToDigits(targetWord);\n        \n        const sum = addDigitArrays(first, second);\n        \n        return JSON.stringify(sum) === JSON.stringify(target);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isSumEqual(firstWord: string, secondWord: string, targetWord: string): boolean {\n        const wordToDigits = (word: string): number[] =&gt; {\n            return word.split('').map(ch =&gt; ch.charCodeAt(0) - 'a'.charCodeAt(0));\n        };\n        \n        const addDigitArrays = (num1: number[], num2: number[]): number[] =&gt; {\n            let i = num1.length - 1;\n            let j = num2.length - 1;\n            let carry = 0;\n            let result: number[] = [];\n            \n            while (i &gt;= 0 || j &gt;= 0 || carry &gt; 0) {\n                const d1 = i &gt;= 0 ? num1[i] : 0;\n                const d2 = j &gt;= 0 ? num2[j] : 0;\n                const sum = d1 + d2 + carry;\n                result.push(sum % 10);\n                carry = Math.floor(sum / 10);\n                i--;\n                j--;\n            }\n            \n            return result.reverse();\n        };\n        \n        const first = wordToDigits(firstWord);\n        const second = wordToDigits(secondWord);\n        const target = wordToDigits(targetWord);\n        \n        const sum = addDigitArrays(first, second);\n        \n        return JSON.stringify(sum) === JSON.stringify(target);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the maximum length of the words
+- Space: O(n) for storing digit arrays and result
+- Notes: Similar to string-based approach but works with numeric arrays directly
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Word Equals Summation of Two Words Solutions","datePublished":"2026-03-10","description":"Check if the sum of numerical values of two words equals the numerical value of a target word.","keywords":"LeetCode, Check if Word Equals Summation of Two Words, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direct Integer Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the maximum length of the words, as we iterate through each character once."}},{"@type":"Question","name":"What is the space complexity of String-based Addition approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing digit strings and the result string."}},{"@type":"Question","name":"Why use long/long long instead of int in the Direct Integer Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"Using long/long long prevents potential integer overflow since the maximum word length of 8 could produce numbers up to 99,999,999, and the sum of two such numbers could exceed the 32-bit integer limit."}},{"@type":"Question","name":"What is the advantage of String-based Addition over Direct Integer Conversion?","acceptedAnswer":{"@type":"Answer","text":"String-based Addition avoids integer overflow issues entirely, making it safer for very large numbers, though it is slightly more verbose."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,120 @@
+---
+title: "Goat Latin"
+summary: "Convert a sentence to Goat Latin by moving consonants, adding suffixes, and appending 'a's based on word index."
+date: "Oct 22, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.00% | **Paid:** No
+> **Topics:** String
+
+You are given a string sentence that consists of words separated by single spaces. Each word consists of lowercase and uppercase English letters.
+
+Convert sentence to Goat Latin according to the following rules:
+
+* If a word begins with a vowel (a, e, i, o, or u), append "ma" to the end of the word.
+    * For example, the word "apple" becomes "applema".
+* If a word begins with a consonant (i.e., not a vowel), remove the first letter and append it to the end, then add "ma".
+    * For example, the word "goat" becomes "oatgma".
+* Add one letter 'a' to the end of each word per its word index, starting with 1.
+    * For example, the first word gets "a" added to the end, the second word gets "aa" added to the end, and so on.
+
+Return the final sentence representing the conversion from sentence to Goat Latin.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Split and Join](#approach-1-iterative-split-and-join)
+- [Approach 2: Two Pointers Simulation](#approach-2-two-pointers-simulation)
+
+## Examples
+
+```text
+Input: sentence = "I speak Goat Latin"
+Output: "Imaa peaksmaaa oatGmaaaa atinLmaaaaa"
+Explanation:
+The word "I" starts with a vowel, so add "ma" and an "a" -> "Imaa".
+The word "speak" starts with a consonant, move the 's' to the end, add "ma" and "aa" -> "peaksmaaa".
+The word "Goat" starts with a consonant, move the 'G' to the end, add "ma" and "aaa" -> "oatGmaaaa".
+The word "Latin" starts with a consonant, move the 'L' to the end, add "ma" and "aaaa" -> "atinLmaaaaa".
+```
+
+```text
+Input: sentence = "The quick brown fox jumped over the lazy dog"
+Output: "heTmaa uickqmaaa rownbmaaaa oxfmaaaaa umpedjmaaaaaa overmaaaaaaa hetmaaaaaaaa azylmaaaaaaaaa ogdmaaaaaaaaaa"
+```
+
+## Constraints
+
+```text
+1 <= sentence.length <= 150
+sentence consists of English letters and spaces.
+sentence has no leading or trailing spaces.
+All the words in sentence are separated by a single space.
+```
+
+---
+## Approach 1: Iterative Split and Join
+
+**Intuition**
+The most straightforward way to process words individually is to split the input string into an array of words. This allows us to easily access each word by its index, which is required to determine the number of trailing 'a's.
+
+**Steps**
+- Split the input sentence by spaces to obtain a list of words.
+- Iterate through the list of words, keeping track of the 1-based index.
+- For each word, check if the first character is a vowel (case-insensitive).
+- If it is a vowel, append "ma" to the word.
+- If it is a consonant, move the first character to the end of the word, then append "ma".
+- Append a string of 'a' characters with length equal to the current index.
+- Join the transformed words back into a single string with spaces and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def toGoatLatin(self, sentence: str) -&gt; str:\n        vowels = set('aeiouAEIOU')\n        words = sentence.split()\n        result = []\n        \n        for i, word in enumerate(words):\n            if word[0] not in vowels:\n                word = word[1:] + word[0]\n            \n            word += 'ma'\n            word += 'a' * (i + 1)\n            result.append(word)\n            \n        return ' '.join(result)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String toGoatLatin(String sentence) {\n        String[] words = sentence.split(\" \");\n        StringBuilder sb = new StringBuilder();\n        \n        for (int i = 0; i &lt; words.length; i++) {\n            String word = words[i];\n            char firstChar = word.charAt(0);\n            \n            if (!isVowel(firstChar)) {\n                word = word.substring(1) + firstChar;\n            }\n            \n            sb.append(word).append(\"ma\");\n            \n            for (int j = 0; j &lt;= i; j++) {\n                sb.append(\"a\");\n            }\n            \n            if (i != words.length - 1) {\n                sb.append(\" \");\n            }\n        }\n        \n        return sb.toString();\n    }\n    \n    private boolean isVowel(char c) {\n        return \"aeiouAEIOU\".indexOf(c) != -1;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string toGoatLatin(string sentence) {\n        stringstream ss(sentence);\n        string word;\n        string result;\n        int index = 1;\n        \n        while (ss &gt;&gt; word) {\n            if (!isVowel(word[0])) {\n                word = word.substr(1) + word[0];\n            }\n            \n            word += \"ma\";\n            word.append(index, 'a');\n            \n            result += word + \" \";\n            index++;\n        }\n        \n        if (!result.empty()) {\n            result.pop_back();\n        }\n        \n        return result;\n    }\n    \nprivate:\n    bool isVowel(char c) {\n        c = tolower(c);\n        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} sentence\n * @return {string}\n */\nvar toGoatLatin = function(sentence) {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);\n    const words = sentence.split(' ');\n    const result = [];\n    \n    for (let i = 0; i &lt; words.length; i++) {\n        let word = words[i];\n        \n        if (!vowels.has(word[0])) {\n            word = word.slice(1) + word[0];\n        }\n        \n        word += 'ma';\n        word += 'a'.repeat(i + 1);\n        \n        result.push(word);\n    }\n    \n    return result.join(' ');\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function toGoatLatin(sentence: string): string {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);\n    const words = sentence.split(' ');\n    const result: string[] = [];\n    \n    for (let i = 0; i &lt; words.length; i++) {\n        let word = words[i];\n        \n        if (!vowels.has(word[0])) {\n            word = word.slice(1) + word[0];\n        }\n        \n        word += 'ma';\n        word += 'a'.repeat(i + 1);\n        \n        result.push(word);\n    }\n    \n    return result.join(' ');\n}\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the sentence. We iterate through the characters to split and then through each word to transform it.
+- Space: O(N), to store the list of words and the resulting string.
+- Notes: This approach is highly readable and leverages built-in string manipulation functions effectively.
+
+---
+## Approach 2: Two Pointers Simulation
+
+**Intuition**
+Instead of splitting the string into an array, which requires extra memory allocation, we can process the string in a single pass using two pointers. One pointer marks the start of a word, and the other finds the end. This simulates the split operation manually.
+
+**Steps**
+- Initialize an empty result string and a word counter starting at 1.
+- Iterate through the sentence with a pointer `i`.
+- When a non-space character is found, mark it as the start of the word.
+- Move the end pointer until a space or the end of the string is reached.
+- Extract the substring representing the word.
+- Apply the vowel/consonant transformation rules.
+- Append "ma" and the appropriate number of 'a's based on the word counter.
+- Append the transformed word to the result, followed by a space if it is not the last word.
+- Increment the word counter and repeat until the end of the sentence.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def toGoatLatin(self, sentence: str) -&gt; str:\n        vowels = set('aeiouAEIOU')\n        result = []\n        n = len(sentence)\n        i = 0\n        word_index = 1\n        \n        while i &lt; n:\n            # Skip spaces\n            while i &lt; n and sentence[i] == ' ':\n                i += 1\n            \n            if i &gt;= n:\n                break\n                \n            start = i\n            while i &lt; n and sentence[i] != ' ':\n                i += 1\n            \n            word = sentence[start:i]\n            \n            if word[0] not in vowels:\n                word = word[1:] + word[0]\n            \n            word += 'ma' + 'a' * word_index\n            result.append(word)\n            word_index += 1\n            \n        return ' '.join(result)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String toGoatLatin(String sentence) {\n        StringBuilder sb = new StringBuilder();\n        int n = sentence.length();\n        int i = 0;\n        int wordIndex = 1;\n        \n        while (i &lt; n) {\n            // Skip spaces\n            while (i &lt; n && sentence.charAt(i) == ' ') {\n                i++;\n            }\n            \n            if (i &gt;= n) break;\n            \n            int start = i;\n            while (i &lt; n && sentence.charAt(i) != ' ') {\n                i++;\n            }\n            \n            String word = sentence.substring(start, i);\n            \n            if (!isVowel(word.charAt(0))) {\n                word = word.substring(1) + word.charAt(0);\n            }\n            \n            sb.append(word).append(\"ma\");\n            for (int j = 0; j &lt; wordIndex; j++) {\n                sb.append(\"a\");\n            }\n            \n            if (i &lt; n) {\n                sb.append(\" \");\n            }\n            \n            wordIndex++;\n        }\n        \n        return sb.toString();\n    }\n    \n    private boolean isVowel(char c) {\n        return \"aeiouAEIOU\".indexOf(c) != -1;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string toGoatLatin(string sentence) {\n        string result;\n        int n = sentence.size();\n        int i = 0;\n        int wordIndex = 1;\n        \n        while (i &lt; n) {\n            while (i &lt; n && sentence[i] == ' ') i++;\n            if (i &gt;= n) break;\n            \n            int start = i;\n            while (i &lt; n && sentence[i] != ' ') i++;\n            \n            string word = sentence.substr(start, i - start);\n            \n            if (!isVowel(word[0])) {\n                word = word.substr(1) + word[0];\n            }\n            \n            word += \"ma\";\n            word.append(wordIndex, 'a');\n            \n            result += word;\n            if (i &lt; n) result += \" \";\n            \n            wordIndex++;\n        }\n        \n        return result;\n    }\n    \nprivate:\n    bool isVowel(char c) {\n        c = tolower(c);\n        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} sentence\n * @return {string}\n */\nvar toGoatLatin = function(sentence) {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);\n    let result = '';\n    let n = sentence.length;\n    let i = 0;\n    let wordIndex = 1;\n    \n    while (i &lt; n) {\n        while (i &lt; n && sentence[i] === ' ') i++;\n        if (i &gt;= n) break;\n        \n        let start = i;\n        while (i &lt; n && sentence[i] !== ' ') i++;\n        \n        let word = sentence.slice(start, i);\n        \n        if (!vowels.has(word[0])) {\n            word = word.slice(1) + word[0];\n        }\n        \n        word += 'ma';\n        word += 'a'.repeat(wordIndex);\n        \n        result += word;\n        if (i &lt; n) result += ' ';\n        \n        wordIndex++;\n    }\n    \n    return result;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function toGoatLatin(sentence: string): string {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);\n    let result = '';\n    let n = sentence.length;\n    let i = 0;\n    let wordIndex = 1;\n    \n    while (i &lt; n) {\n        while (i &lt; n && sentence[i] === ' ') i++;\n        if (i &gt;= n) break;\n        \n        let start = i;\n        while (i &lt; n && sentence[i] !== ' ') i++;\n        \n        let word = sentence.slice(start, i);\n        \n        if (!vowels.has(word[0])) {\n            word = word.slice(1) + word[0];\n        }\n        \n        word += 'ma';\n        word += 'a'.repeat(wordIndex);\n        \n        result += word;\n        if (i &lt; n) result += ' ';\n        \n        wordIndex++;\n    }\n    \n    return result;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the sentence. We traverse the string exactly once.
+- Space: O(N), to store the output string. This approach avoids the auxiliary array of words used in the split method, potentially reducing overhead slightly.
+- Notes: This is a memory-optimized version of the split approach, useful in environments where memory allocation is expensive.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Goat Latin Solutions","datePublished":"2025-10-22","description":"Convert a sentence to Goat Latin by moving consonants, adding suffixes, and appending 'a's based on word index.","keywords":"LeetCode, Goat Latin, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Split and Join approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the sentence, as we process each character a constant number of times."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the resulting string. It avoids the extra array used for splitting, making it slightly more memory efficient."}}]}).replace(/</g,'\u003c')}
+</script>

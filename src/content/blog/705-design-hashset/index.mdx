@@ -1,0 +1,892 @@
+---
+title: "Design HashSet"
+summary: "Design a HashSet without using built-in hash table libraries. Implement add, remove, and contains operations."
+date: "Mar 09, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Linked List
+  - Design
+  - Hash Function
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Linked List, Design, Hash Function
+
+Design a HashSet without using any built-in hash table libraries.
+
+Implement MyHashSet class:
+
+- void add(key) Inserts the value key into the HashSet.
+- bool contains(key) Returns whether the value key exists in the HashSet or not.
+- void remove(key) Removes the value key in the HashSet. If key does not exist in the HashSet, do nothing.
+
+- Examples
+- Constraints
+- [Direct Addressing with Boolean Array](#direct-addressing-with-boolean-array)
+- [Chaining with Linked List](#chaining-with-linked-list)
+- [Open Addressing with Linear Probing](#open-addressing-with-linear-probing)
+- [Bit Manipulation](#bit-manipulation)
+
+## Examples
+
+```text
+Input
+["MyHashSet", "add", "add", "contains", "contains", "add", "contains", "remove", "contains"]
+[[], [1], [2], [1], [3], [2], [2], [2], [2]]
+Output
+[null, null, null, true, false, null, true, null, false]
+
+Explanation
+MyHashSet myHashSet = new MyHashSet();
+myHashSet.add(1);      // set = [1]
+myHashSet.add(2);      // set = [1, 2]
+myHashSet.contains(1); // return True
+myHashSet.contains(3); // return False, (not found)
+myHashSet.add(2);      // set = [1, 2]
+myHashSet.contains(2); // return True
+myHashSet.remove(2);   // set = [1]
+myHashSet.contains(2); // return False, (already removed)
+```
+
+## Constraints
+
+```text
+0 <= key <= 10^6
+At most 10^4 calls will be made to add, remove, and contains.
+```
+
+---
+## Direct Addressing with Boolean Array
+
+**Intuition**
+Use a boolean array where index represents the key and value indicates presence. This is the simplest approach since keys are bounded integers.
+
+**Steps**
+- Create a boolean array of size 1,000,001 to cover all possible keys.
+- For add, set the index to true.
+- For remove, set the index to false.
+- For contains, return the boolean value at the index.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MyHashSet:
+    def __init__(self):
+        self.size = 1000001
+        self.buckets = [False] * self.size
+    
+    def add(self, key: int) -> None:
+        self.buckets[key] = True
+    
+    def remove(self, key: int) -> None:
+        self.buckets[key] = False
+    
+    def contains(self, key: int) -> bool:
+        return self.buckets[key]
+` },
+{ name: "Java", lang: "java", code: `class MyHashSet {
+    private boolean[] buckets;
+    
+    public MyHashSet() {
+        this.buckets = new boolean[1000001];
+    }
+    
+    public void add(int key) {
+        buckets[key] = true;
+    }
+    
+    public void remove(int key) {
+        buckets[key] = false;
+    }
+    
+    public boolean contains(int key) {
+        return buckets[key];
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MyHashSet {
+private:
+    vector<bool> buckets;
+    
+public:
+    MyHashSet() {
+        buckets.resize(1000001, false);
+    }
+    
+    void add(int key) {
+        buckets[key] = true;
+    }
+    
+    void remove(int key) {
+        buckets[key] = false;
+    }
+    
+    bool contains(int key) {
+        return buckets[key];
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MyHashSet {
+    constructor() {
+        this.buckets = new Array(1000001).fill(false);
+    }
+    
+    add(key) {
+        this.buckets[key] = true;
+    }
+    
+    remove(key) {
+        this.buckets[key] = false;
+    }
+    
+    contains(key) {
+        return this.buckets[key];
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MyHashSet {
+    private buckets: boolean[];
+    
+    constructor() {
+        this.buckets = new Array(1000001).fill(false);
+    }
+    
+    add(key: number): void {
+        this.buckets[key] = true;
+    }
+    
+    remove(key: number): void {
+        this.buckets[key] = false;
+    }
+    
+    contains(key: number): boolean {
+        return this.buckets[key];
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for all operations
+- Space: O(10⁶) for the array
+- Notes: Simple but uses fixed space regardless of actual elements stored.
+
+---
+## Chaining with Linked List
+
+**Intuition**
+Use an array of linked lists (buckets) where each bucket stores keys that hash to the same index. This handles collisions efficiently.
+
+**Steps**
+- Create an array of empty linked lists with a fixed number of buckets.
+- Hash the key to find the bucket index.
+- Traverse the linked list to check for existence, add, or remove.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class ListNode:
+    def __init__(self, key):
+        self.key = key
+        self.next = None
+
+class MyHashSet:
+    def __init__(self):
+        self.size = 1000
+        self.buckets = [None] * self.size
+    
+    def _hash(self, key):
+        return key % self.size
+    
+    def add(self, key: int) -> None:
+        index = self._hash(key)
+        curr = self.buckets[index]
+        if not curr:
+            self.buckets[index] = ListNode(key)
+            return
+        prev = None
+        while curr:
+            if curr.key == key:
+                return
+            prev = curr
+            curr = curr.next
+        prev.next = ListNode(key)
+    
+    def remove(self, key: int) -> None:
+        index = self._hash(key)
+        curr = self.buckets[index]
+        if not curr:
+            return
+        if curr.key == key:
+            self.buckets[index] = curr.next
+            return
+        prev = curr
+        curr = curr.next
+        while curr:
+            if curr.key == key:
+                prev.next = curr.next
+                return
+            prev = curr
+            curr = curr.next
+    
+    def contains(self, key: int) -> bool:
+        index = self._hash(key)
+        curr = self.buckets[index]
+        while curr:
+            if curr.key == key:
+                return True
+            curr = curr.next
+        return False
+` },
+{ name: "Java", lang: "java", code: `class ListNode {
+    int key;
+    ListNode next;
+    
+    ListNode(int key) {
+        this.key = key;
+        this.next = null;
+    }
+}
+
+class MyHashSet {
+    private int size;
+    private ListNode[] buckets;
+    
+    public MyHashSet() {
+        this.size = 1000;
+        this.buckets = new ListNode[size];
+    }
+    
+    private int hash(int key) {
+        return key % size;
+    }
+    
+    public void add(int key) {
+        int index = hash(key);
+        ListNode curr = buckets[index];
+        if (curr == null) {
+            buckets[index] = new ListNode(key);
+            return;
+        }
+        ListNode prev = null;
+        while (curr != null) {
+            if (curr.key == key) return;
+            prev = curr;
+            curr = curr.next;
+        }
+        prev.next = new ListNode(key);
+    }
+    
+    public void remove(int key) {
+        int index = hash(key);
+        ListNode curr = buckets[index];
+        if (curr == null) return;
+        if (curr.key == key) {
+            buckets[index] = curr.next;
+            return;
+        }
+        ListNode prev = curr;
+        curr = curr.next;
+        while (curr != null) {
+            if (curr.key == key) {
+                prev.next = curr.next;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+    }
+    
+    public boolean contains(int key) {
+        int index = hash(key);
+        ListNode curr = buckets[index];
+        while (curr != null) {
+            if (curr.key == key) return true;
+            curr = curr.next;
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `struct ListNode {
+    int key;
+    ListNode* next;
+    ListNode(int k) : key(k), next(nullptr) {}
+};
+
+class MyHashSet {
+private:
+    int size;
+    vector<ListNode*&gt; buckets;
+    
+    int hash(int key) {
+        return key % size;
+    }
+    
+public:
+    MyHashSet() {
+        size = 1000;
+        buckets.resize(size, nullptr);
+    }
+    
+    void add(int key) {
+        int index = hash(key);
+        ListNode* curr = buckets[index];
+        if (curr == nullptr) {
+            buckets[index] = new ListNode(key);
+            return;
+        }
+        ListNode* prev = nullptr;
+        while (curr != nullptr) {
+            if (curr->key == key) return;
+            prev = curr;
+            curr = curr->next;
+        }
+        prev->next = new ListNode(key);
+    }
+    
+    void remove(int key) {
+        int index = hash(key);
+        ListNode* curr = buckets[index];
+        if (curr == nullptr) return;
+        if (curr->key == key) {
+            buckets[index] = curr->next;
+            delete curr;
+            return;
+        }
+        ListNode* prev = curr;
+        curr = curr->next;
+        while (curr != nullptr) {
+            if (curr->key == key) {
+                prev->next = curr->next;
+                delete curr;
+                return;
+            }
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+    
+    bool contains(int key) {
+        int index = hash(key);
+        ListNode* curr = buckets[index];
+        while (curr != nullptr) {
+            if (curr->key == key) return true;
+            curr = curr->next;
+        }
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class ListNode {
+    constructor(key) {
+        this.key = key;
+        this.next = null;
+    }
+}
+
+class MyHashSet {
+    constructor() {
+        this.size = 1000;
+        this.buckets = new Array(this.size).fill(null);
+    }
+    
+    hash(key) {
+        return key % this.size;
+    }
+    
+    add(key) {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        if (curr === null) {
+            this.buckets[index] = new ListNode(key);
+            return;
+        }
+        let prev = null;
+        while (curr !== null) {
+            if (curr.key === key) return;
+            prev = curr;
+            curr = curr.next;
+        }
+        prev.next = new ListNode(key);
+    }
+    
+    remove(key) {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        if (curr === null) return;
+        if (curr.key === key) {
+            this.buckets[index] = curr.next;
+            return;
+        }
+        let prev = curr;
+        curr = curr.next;
+        while (curr !== null) {
+            if (curr.key === key) {
+                prev.next = curr.next;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+    }
+    
+    contains(key) {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        while (curr !== null) {
+            if (curr.key === key) return true;
+            curr = curr.next;
+        }
+        return false;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class ListNode {
+    key: number;
+    next: ListNode | null;
+    
+    constructor(key: number) {
+        this.key = key;
+        this.next = null;
+    }
+}
+
+class MyHashSet {
+    private size: number;
+    private buckets: (ListNode | null)[];
+    
+    constructor() {
+        this.size = 1000;
+        this.buckets = new Array(this.size).fill(null);
+    }
+    
+    private hash(key: number): number {
+        return key % this.size;
+    }
+    
+    add(key: number): void {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        if (curr === null) {
+            this.buckets[index] = new ListNode(key);
+            return;
+        }
+        let prev: ListNode | null = null;
+        while (curr !== null) {
+            if (curr.key === key) return;
+            prev = curr;
+            curr = curr.next;
+        }
+        prev!.next = new ListNode(key);
+    }
+    
+    remove(key: number): void {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        if (curr === null) return;
+        if (curr.key === key) {
+            this.buckets[index] = curr.next;
+            return;
+        }
+        let prev = curr;
+        curr = curr.next;
+        while (curr !== null) {
+            if (curr.key === key) {
+                prev.next = curr.next;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+    }
+    
+    contains(key: number): boolean {
+        const index = this.hash(key);
+        let curr = this.buckets[index];
+        while (curr !== null) {
+            if (curr.key === key) return true;
+            curr = curr.next;
+        }
+        return false;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) worst case, O(1) average case
+- Space: O(n) where n is number of elements
+- Notes: Handles collisions gracefully but requires pointer management.
+
+---
+## Open Addressing with Linear Probing
+
+**Intuition**
+Use a single array and handle collisions by finding the next available slot through linear probing. When a slot is occupied, check the next slot.
+
+**Steps**
+- Create an array with a fixed size larger than expected elements.
+- Hash the key to find the initial index.
+- If the slot is occupied by a different key, probe to the next slot.
+- Use special markers for empty and deleted slots.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MyHashSet:
+    def __init__(self):
+        self.size = 10009
+        self.buckets = [-1] * self.size
+        self.DELETED = -2
+    
+    def _hash(self, key):
+        return key % self.size
+    
+    def add(self, key: int) -> None:
+        index = self._hash(key)
+        while self.buckets[index] != -1 and self.buckets[index] != key:
+            index = (index + 1) % self.size
+        self.buckets[index] = key
+    
+    def remove(self, key: int) -> None:
+        index = self._hash(key)
+        while self.buckets[index] != -1:
+            if self.buckets[index] == key:
+                self.buckets[index] = self.DELETED
+                return
+            index = (index + 1) % self.size
+    
+    def contains(self, key: int) -> bool:
+        index = self._hash(key)
+        while self.buckets[index] != -1:
+            if self.buckets[index] == key:
+                return True
+            index = (index + 1) % self.size
+        return False
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class MyHashSet {
+    private int size;
+    private int[] buckets;
+    private final int DELETED = -2;
+    
+    public MyHashSet() {
+        this.size = 10009;
+        this.buckets = new int[size];
+        Arrays.fill(buckets, -1);
+    }
+    
+    private int hash(int key) {
+        return key % size;
+    }
+    
+    public void add(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1 && buckets[index] != key) {
+            index = (index + 1) % size;
+        }
+        buckets[index] = key;
+    }
+    
+    public void remove(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1) {
+            if (buckets[index] == key) {
+                buckets[index] = DELETED;
+                return;
+            }
+            index = (index + 1) % size;
+        }
+    }
+    
+    public boolean contains(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1) {
+            if (buckets[index] == key) return true;
+            index = (index + 1) % size;
+        }
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MyHashSet {
+private:
+    int size;
+    vector<int> buckets;
+    const int DELETED = -2;
+    
+    int hash(int key) {
+        return key % size;
+    }
+    
+public:
+    MyHashSet() {
+        size = 10009;
+        buckets.resize(size, -1);
+    }
+    
+    void add(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1 && buckets[index] != key) {
+            index = (index + 1) % size;
+        }
+        buckets[index] = key;
+    }
+    
+    void remove(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1) {
+            if (buckets[index] == key) {
+                buckets[index] = DELETED;
+                return;
+            }
+            index = (index + 1) % size;
+        }
+    }
+    
+    bool contains(int key) {
+        int index = hash(key);
+        while (buckets[index] != -1) {
+            if (buckets[index] == key) return true;
+            index = (index + 1) % size;
+        }
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MyHashSet {
+    constructor() {
+        this.size = 10009;
+        this.buckets = new Array(this.size).fill(-1);
+        this.DELETED = -2;
+    }
+    
+    hash(key) {
+        return key % this.size;
+    }
+    
+    add(key) {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1 && this.buckets[index] !== key) {
+            index = (index + 1) % this.size;
+        }
+        this.buckets[index] = key;
+    }
+    
+    remove(key) {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1) {
+            if (this.buckets[index] === key) {
+                this.buckets[index] = this.DELETED;
+                return;
+            }
+            index = (index + 1) % this.size;
+        }
+    }
+    
+    contains(key) {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1) {
+            if (this.buckets[index] === key) return true;
+            index = (index + 1) % this.size;
+        }
+        return false;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MyHashSet {
+    private size: number;
+    private buckets: number[];
+    private readonly DELETED: number = -2;
+    
+    constructor() {
+        this.size = 10009;
+        this.buckets = new Array(this.size).fill(-1);
+    }
+    
+    private hash(key: number): number {
+        return key % this.size;
+    }
+    
+    add(key: number): void {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1 && this.buckets[index] !== key) {
+            index = (index + 1) % this.size;
+        }
+        this.buckets[index] = key;
+    }
+    
+    remove(key: number): void {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1) {
+            if (this.buckets[index] === key) {
+                this.buckets[index] = this.DELETED;
+                return;
+            }
+            index = (index + 1) % this.size;
+        }
+    }
+    
+    contains(key: number): boolean {
+        let index = this.hash(key);
+        while (this.buckets[index] !== -1) {
+            if (this.buckets[index] === key) return true;
+            index = (index + 1) % this.size;
+        }
+        return false;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) worst case, O(1) average case
+- Space: O(capacity) where capacity is the array size
+- Notes: No pointer overhead but requires careful handling of deleted slots.
+
+---
+## Bit Manipulation
+
+**Intuition**
+Use bitset to optimize space by storing 64 boolean values in a single integer. Each bit represents whether a key exists.
+
+**Steps**
+- Calculate which bucket (integer) and which bit position the key belongs to.
+- For add, set the bit using OR operation.
+- For remove, clear the bit using AND with complement.
+- For contains, check if the bit is set using AND operation.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MyHashSet:
+    def __init__(self):
+        self.size = 1000001
+        self.bits = [0] * ((self.size + 63) // 64)
+    
+    def add(self, key: int) -> None:
+        bucket = key // 64
+        bit = key % 64
+        self.bits[bucket] |= (1 &lt;&lt; bit)
+    
+    def remove(self, key: int) -> None:
+        bucket = key // 64
+        bit = key % 64
+        self.bits[bucket] &= ~(1 &lt;&lt; bit)
+    
+    def contains(self, key: int) -> bool:
+        bucket = key // 64
+        bit = key % 64
+        return (self.bits[bucket] & (1 &lt;&lt; bit)) != 0
+` },
+{ name: "Java", lang: "java", code: `class MyHashSet {
+    private long[] bits;
+    
+    public MyHashSet() {
+        this.bits = new long[(1000001 + 63) / 64];
+    }
+    
+    public void add(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        bits[bucket] |= (1L &lt;&lt; bit);
+    }
+    
+    public void remove(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        bits[bucket] &= ~(1L &lt;&lt; bit);
+    }
+    
+    public boolean contains(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        return (bits[bucket] & (1L &lt;&lt; bit)) != 0;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MyHashSet {
+private:
+    vector<long long> bits;
+    
+public:
+    MyHashSet() {
+        bits.resize((1000001 + 63) / 64, 0);
+    }
+    
+    void add(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        bits[bucket] |= (1LL &lt;&lt; bit);
+    }
+    
+    void remove(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        bits[bucket] &= ~(1LL &lt;&lt; bit);
+    }
+    
+    bool contains(int key) {
+        int bucket = key / 64;
+        int bit = key % 64;
+        return (bits[bucket] & (1LL &lt;&lt; bit)) != 0;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MyHashSet {
+    constructor() {
+        this.size = 1000001;
+        this.bits = new Array(Math.ceil(this.size / 64)).fill(BigInt(0));
+    }
+    
+    add(key) {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        this.bits[bucket] |= (BigInt(1) &lt;&lt; BigInt(bit));
+    }
+    
+    remove(key) {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        this.bits[bucket] &= ~(BigInt(1) &lt;&lt; BigInt(bit));
+    }
+    
+    contains(key) {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        return (this.bits[bucket] & (BigInt(1) &lt;&lt; BigInt(bit))) !== BigInt(0);
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MyHashSet {
+    private bits: bigint[];
+    
+    constructor() {
+        const size = 1000001;
+        this.bits = new Array(Math.ceil(size / 64)).fill(BigInt(0));
+    }
+    
+    add(key: number): void {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        this.bits[bucket] |= (BigInt(1) &lt;&lt; BigInt(bit));
+    }
+    
+    remove(key: number): void {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        this.bits[bucket] &= ~(BigInt(1) &lt;&lt; BigInt(bit));
+    }
+    
+    contains(key: number): boolean {
+        const bucket = Math.floor(key / 64);
+        const bit = key % 64;
+        return (this.bits[bucket] & (BigInt(1) &lt;&lt; BigInt(bit))) !== BigInt(0);
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for all operations
+- Space: O(10⁶/64) = O(15625) integers
+- Notes: Most space-efficient approach but limited to integer keys.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Design HashSet Solutions","datePublished":"2026-03-09","description":"Design a HashSet without using built-in hash table libraries. Implement add, remove, and contains operations.","keywords":"LeetCode, Design HashSet, Easy, Array, Hash Table, Linked List, Design, Hash Function"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direct Addressing with Boolean Array?","acceptedAnswer":{"@type":"Answer","text":"O(1) for all operations. Direct array access provides constant time performance."}},{"@type":"Question","name":"What is the space complexity of Chaining with Linked List?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of elements stored. Space grows with the number of unique keys."}},{"@type":"Question","name":"What is the time complexity of Open Addressing with Linear Probing?","acceptedAnswer":{"@type":"Answer","text":"O(n) worst case due to clustering, but O(1) average case with good hash distribution."}},{"@type":"Question","name":"What is the space complexity of Bit Manipulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(10⁶/64) = O(15625) integers. This is the most space-efficient approach as it uses bit-level storage."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,157 @@
+---
+title: "Min Cost Climbing Stairs"
+summary: "Find the minimum cost to reach the top of the floor, where you can start from step 0 or 1 and climb 1 or 2 steps."
+date: "Mar 09, 2025"
+tags:
+  - Array
+  - Dynamic Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.20% | **Paid:** No
+> **Topics:** Array, Dynamic Programming
+
+You are given an integer array cost where cost[i] is the cost of ith step on a staircase. Once you pay the cost, you can either climb one or two steps.
+
+You can either start from the step with index 0, or the step with index 1.
+
+Return the minimum cost to reach the top of the floor.
+
+## Examples
+
+```text
+Input: cost = [10,15,20]
+Output: 15
+Explanation: You will start at index 1.
+- Pay 15 and climb two steps to reach the top.
+The total cost is 15.
+```
+
+```text
+Input: cost = [1,100,1,1,1,100,1,1,100,1]
+Output: 6
+Explanation: You will start at index 0.
+- Pay 1 and climb two steps to reach index 2.
+- Pay 1 and climb two steps to reach index 4.
+- Pay 1 and climb two steps to reach index 6.
+- Pay 1 and climb one step to reach index 7.
+- Pay 1 and climb two steps to reach index 9.
+- Pay 1 and climb one step to reach the top.
+The total cost is 6.
+```
+
+## Constraints
+
+```text
+2 <= cost.length <= 1000
+0 <= cost[i] <= 999
+```
+
+---
+
+## Approach 1: Top-Down Dynamic Programming (Memoization)
+
+**Intuition**
+We can view this problem as a recursive decision: at each step, we decide whether to jump 1 or 2 steps. Since we might reach the same step multiple times through different paths, we use memoization to store the minimum cost to reach the top from any given step.
+
+**Steps**
+- Create a helper function `dp(i)` that returns the minimum cost to reach the top from step `i`.
+- Base case: if `i` is beyond the last index, the cost is 0.
+- Recursive step: the cost to reach the top from `i` is `cost[i]` plus the minimum of the cost from `i+1` and `i+2`.
+- Use a memoization table (array or hash map) to store results of `dp(i)` to avoid redundant calculations.
+- The answer is the minimum of `dp(0)` and `dp(1)` since we can start at either step.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCostClimbingStairs(self, cost: list[int]) -&gt; int:\n        memo = {}\n        n = len(cost)\n        \n        def dp(i):\n            if i &gt;= n:\n                return 0\n            if i in memo:\n                return memo[i]\n            memo[i] = cost[i] + min(dp(i + 1), dp(i + 2))\n            return memo[i]\n        \n        return min(dp(0), dp(1))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private int[] memo;\n    private int[] cost;\n    \n    public int minCostClimbingStairs(int[] cost) {\n        this.cost = cost;\n        this.memo = new int[cost.length];\n        Arrays.fill(memo, -1);\n        return Math.min(dp(0), dp(1));\n    }\n    \n    private int dp(int i) {\n        if (i &gt;= cost.length) return 0;\n        if (memo[i] != -1) return memo[i];\n        memo[i] = cost[i] + Math.min(dp(i + 1), dp(i + 2));\n        return memo[i];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; memo;\n    int minCostClimbingStairs(vector&lt;int&gt;& cost) {\n        memo.resize(cost.size(), -1);\n        return min(dp(cost, 0), dp(cost, 1));\n    }\n    \n    int dp(vector&lt;int&gt;& cost, int i) {\n        if (i &gt;= cost.size()) return 0;\n        if (memo[i] != -1) return memo[i];\n        memo[i] = cost[i] + min(dp(cost, i + 1), dp(cost, i + 2));\n        return memo[i];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCostClimbingStairs = function(cost) {\n    const n = cost.length;\n    const memo = new Array(n).fill(-1);\n    \n    const dp = (i) =&gt; {\n        if (i &gt;= n) return 0;\n        if (memo[i] !== -1) return memo[i];\n        memo[i] = cost[i] + Math.min(dp(i + 1), dp(i + 2));\n        return memo[i];\n    };\n    \n    return Math.min(dp(0), dp(1));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCostClimbingStairs(cost: number[]): number {\n    const n = cost.length;\n    const memo: number[] = new Array(n).fill(-1);\n    \n    const dp = (i: number): number =&gt; {\n        if (i &gt;= n) return 0;\n        if (memo[i] !== -1) return memo[i];\n        memo[i] = cost[i] + Math.min(dp(i + 1), dp(i + 2));\n        return memo[i];\n    };\n    \n    return Math.min(dp(0), dp(1));\n}" },]} />
+
+**Complexity**
+- Time: O(n) — Each step is calculated only once.
+- Space: O(n) — For the recursion stack and memoization array.
+- Notes: Intuitive but uses stack space which might lead to stack overflow for very large n (though n &lt;= 1000 here).
+
+---
+
+## Approach 2: Bottom-Up Dynamic Programming (Array)
+
+**Intuition**
+Instead of recursion, we build the solution iteratively from the bottom up. We create a `dp` array where `dp[i]` represents the minimum cost to reach step `i`.
+
+**Steps**
+- Initialize a `dp` array of size `n`.
+- Base cases: `dp[0] = cost[0]` and `dp[1] = cost[1]`.
+- Iterate from `i = 2` to `n - 1`. For each step, `dp[i] = cost[i] + min(dp[i-1], dp[i-2])`. This means the cost to reach step `i` is the cost of step `i` plus the cheaper of the two previous steps.
+- To reach the top (index `n`), we can come from either `n-1` or `n-2`. Return `min(dp[n-1], dp[n-2])`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCostClimbingStairs(self, cost: list[int]) -&gt; int:\n        n = len(cost)\n        if n == 2:\n            return min(cost[0], cost[1])\n        \n        dp = [0] * n\n        dp[0] = cost[0]\n        dp[1] = cost[1]\n        \n        for i in range(2, n):\n            dp[i] = cost[i] + min(dp[i-1], dp[i-2])\n            \n        return min(dp[n-1], dp[n-2])" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minCostClimbingStairs(int[] cost) {\n        int n = cost.length;\n        if (n == 2) return Math.min(cost[0], cost[1]);\n        \n        int[] dp = new int[n];\n        dp[0] = cost[0];\n        dp[1] = cost[1];\n        \n        for (int i = 2; i &lt; n; i++) {\n            dp[i] = cost[i] + Math.min(dp[i-1], dp[i-2]);\n        }\n        \n        return Math.min(dp[n-1], dp[n-2]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minCostClimbingStairs(vector&lt;int&gt;& cost) {\n        int n = cost.size();\n        if (n == 2) return min(cost[0], cost[1]);\n        \n        vector&lt;int&gt; dp(n);\n        dp[0] = cost[0];\n        dp[1] = cost[1];\n        \n        for (int i = 2; i &lt; n; i++) {\n            dp[i] = cost[i] + min(dp[i-1], dp[i-2]);\n        }\n        \n        return min(dp[n-1], dp[n-2]);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCostClimbingStairs = function(cost) {\n    const n = cost.length;\n    if (n === 2) return Math.min(cost[0], cost[1]);\n    \n    const dp = new Array(n);\n    dp[0] = cost[0];\n    dp[1] = cost[1];\n    \n    for (let i = 2; i &lt; n; i++) {\n        dp[i] = cost[i] + Math.min(dp[i-1], dp[i-2]);\n    }\n    \n    return Math.min(dp[n-1], dp[n-2]);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCostClimbingStairs(cost: number[]): number {\n    const n = cost.length;\n    if (n === 2) return Math.min(cost[0], cost[1]);\n    \n    const dp: number[] = new Array(n);\n    dp[0] = cost[0];\n    dp[1] = cost[1];\n    \n    for (let i = 2; i &lt; n; i++) {\n        dp[i] = cost[i] + Math.min(dp[i-1], dp[i-2]);\n    }\n    \n    return Math.min(dp[n-1], dp[n-2]);\n}" },]} />
+
+**Complexity**
+- Time: O(n) — Single pass through the array.
+- Space: O(n) — To store the `dp` array.
+- Notes: Better than recursion as it avoids stack overflow.
+
+---
+
+## Approach 3: Space Optimized Dynamic Programming
+
+**Intuition**
+Notice that to calculate the cost for the current step, we only ever need the cost of the previous two steps. We don't need to store the entire array.
+
+**Steps**
+- Initialize two variables, `prev1` and `prev2`, to store the costs of the previous two steps (`cost[0]` and `cost[1]`).
+- Iterate from `i = 2` to `n - 1`.
+- Calculate `current = cost[i] + min(prev1, prev2)`.
+- Update `prev2` to `prev1` and `prev1` to `current` for the next iteration.
+- After the loop, the minimum cost to reach the top is `min(prev1, prev2)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCostClimbingStairs(self, cost: list[int]) -&gt; int:\n        a, b = cost[0], cost[1]\n        for i in range(2, len(cost)):\n            a, b = b, cost[i] + min(a, b)\n        return min(a, b)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minCostClimbingStairs(int[] cost) {\n        int a = cost[0];\n        int b = cost[1];\n        \n        for (int i = 2; i &lt; cost.length; i++) {\n            int temp = cost[i] + Math.min(a, b);\n            a = b;\n            b = temp;\n        }\n        \n        return Math.min(a, b);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minCostClimbingStairs(vector&lt;int&gt;& cost) {\n        int a = cost[0];\n        int b = cost[1];\n        \n        for (int i = 2; i &lt; cost.size(); i++) {\n            int temp = cost[i] + min(a, b);\n            a = b;\n            b = temp;\n        }\n        \n        return min(a, b);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCostClimbingStairs = function(cost) {\n    let a = cost[0];\n    let b = cost[1];\n    \n    for (let i = 2; i &lt; cost.length; i++) {\n        let temp = cost[i] + Math.min(a, b);\n        a = b;\n        b = temp;\n    }\n    \n    return Math.min(a, b);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCostClimbingStairs(cost: number[]): number {\n    let a = cost[0];\n    let b = cost[1];\n    \n    for (let i = 2; i &lt; cost.length; i++) {\n        let temp = cost[i] + Math.min(a, b);\n        a = b;\n        b = temp;\n    }\n    \n    return Math.min(a, b);\n}" },]} />
+
+**Complexity**
+- Time: O(n) — Single pass through the array.
+- Space: O(1) — Only two variables are used.
+- Notes: Optimal space complexity.
+
+---
+
+## Approach 4: In-Place Modification
+
+**Intuition**
+If we are allowed to modify the input array, we can use it as the `dp` array to save space without using extra variables.
+
+**Steps**
+- Iterate from `i = 2` to `n - 1`.
+- Update `cost[i]` to be `cost[i] + min(cost[i-1], cost[i-2])`.
+- After the loop, the array values represent the cumulative minimum cost to reach that specific step.
+- Return `min(cost[n-1], cost[n-2])`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCostClimbingStairs(self, cost: list[int]) -&gt; int:\n        for i in range(2, len(cost)):\n            cost[i] += min(cost[i-1], cost[i-2])\n        return min(cost[-1], cost[-2])" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minCostClimbingStairs(int[] cost) {\n        for (int i = 2; i &lt; cost.length; i++) {\n            cost[i] += Math.min(cost[i-1], cost[i-2]);\n        }\n        return Math.min(cost[cost.length-1], cost[cost.length-2]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minCostClimbingStairs(vector&lt;int&gt;& cost) {\n        for (int i = 2; i &lt; cost.size(); i++) {\n            cost[i] += min(cost[i-1], cost[i-2]);\n        }\n        return min(cost[cost.size()-1], cost[cost.size()-2]);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCostClimbingStairs = function(cost) {\n    for (let i = 2; i &lt; cost.length; i++) {\n        cost[i] += Math.min(cost[i-1], cost[i-2]);\n    }\n    return Math.min(cost[cost.length-1], cost[cost.length-2]);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCostClimbingStairs(cost: number[]): number {\n    for (let i = 2; i &lt; cost.length; i++) {\n        cost[i] += Math.min(cost[i-1], cost[i-2]);\n    }\n    return Math.min(cost[cost.length-1], cost[cost.length-2]);\n}" },]} />
+
+**Complexity**
+- Time: O(n) — Single pass through the array.
+- Space: O(1) — No extra space used (modifies input in-place).
+- Notes: Efficient but destroys the original input array.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Min Cost Climbing Stairs Solutions","datePublished":"2025-03-09","description":"Find the minimum cost to reach the top of the floor, where you can start from step 0 or 1 and climb 1 or 2 steps.","keywords":"LeetCode, Min Cost Climbing Stairs, Easy, Array, Dynamic Programming"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the cost array, as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Space Optimized approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use two variables to track the minimum cost of the previous two steps."}},{"@type":"Question","name":"Why can we start from index 0 or 1?","acceptedAnswer":{"@type":"Answer","text":"The problem statement allows starting from either step 0 or step 1 without paying any initial cost, so we take the minimum of the two possibilities."}}]}).replace(/</g,'\u003c')}
+</script>

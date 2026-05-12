@@ -1,0 +1,535 @@
+---
+title: "Assign Cookies"
+summary: "Maximize the number of content children by assigning cookies that satisfy their minimum size requirements."
+date: "Jan 13, 2026"
+tags:
+  - Array
+  - Two Pointers
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.90% | **Paid:** No
+> **Topics:** Array, Two Pointers, Greedy, Sorting
+
+Assume you are an awesome parent and want to give your children some cookies. But, you should give each child at most one cookie.
+
+Each child i has a greed factor g[i], which is the minimum size of a cookie that the child will be content with; and each cookie j has a size s[j]. If s[j] &gt;= g[i], we can assign the cookie j to the child i, and the child i will be content. Your goal is to maximize the number of content children and output the maximum number.
+
+- Examples
+- Constraints
+- [Greedy with Two Pointers](#greedy-with-two-pointers)
+- [Greedy with Binary Search](#greedy-with-binary-search)
+- [Brute Force](#brute-force)
+
+## Examples
+
+### Example 1
+```text
+Input: g = [1,2,3], s = [1,1]
+Output: 1
+Explanation: You have 3 children and 2 cookies. The greed factors of 3 children are 1, 2, 3. 
+And even though you have 2 cookies, their sizes are both 1, you could only make the child whose greed factor is 1 content.
+You need to output 1.
+```
+
+### Example 2
+```text
+Input: g = [1,2], s = [1,2,3]
+Output: 2
+Explanation: You have 2 children and 2 cookies. The greed factors of 2 children are 1, 2. 
+You have 3 cookies and their sizes are big enough to gratify all of the children, 
+You need to output 2.
+```
+
+## Constraints
+
+```text
+- 1 <= g.length <= 3 * 10^4
+- 0 <= s.length <= 3 * 10^4
+- 1 <= g[i], s[j] <= 2^31 - 1
+```
+
+---
+## Greedy with Two Pointers
+
+**Intuition**
+Sort both arrays and use two pointers to match the smallest satisfying cookie to each child, maximizing the number of satisfied children.
+
+**Steps**
+- Sort both greed factors and cookie sizes arrays
+- Use two pointers, one for children and one for cookies
+- If current cookie satisfies current child, increment both pointers and count
+- Otherwise, move to the next larger cookie
+- Return the count of satisfied children
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findContentChildren(self, g: list[int], s: list[int]) -> int:
+        g.sort()
+        s.sort()
+        child = cookie = count = 0
+        while child &lt; len(g) and cookie &lt; len(s):
+            if s[cookie] &gt;= g[child]:
+                count += 1
+                child += 1
+            cookie += 1
+        return count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+        int child = 0, cookie = 0, count = 0;
+        while (child &lt; g.length && cookie &lt; s.length) {
+            if (s[cookie] &gt;= g[child]) {
+                count++;
+                child++;
+            }
+            cookie++;
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int child = 0, cookie = 0, count = 0;
+        while (child &lt; g.size() && cookie &lt; s.size()) {
+            if (s[cookie] &gt;= g[child]) {
+                count++;
+                child++;
+            }
+            cookie++;
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    findContentChildren(g, s) {
+        g.sort((a, b) =&gt; a - b);
+        s.sort((a, b) =&gt; a - b);
+        let child = 0, cookie = 0, count = 0;
+        while (child &lt; g.length && cookie &lt; s.length) {
+            if (s[cookie] &gt;= g[child]) {
+                count++;
+                child++;
+            }
+            cookie++;
+        }
+        return count;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    findContentChildren(g: number[], s: number[]): number {
+        g.sort((a, b) =&gt; a - b);
+        s.sort((a, b) =&gt; a - b);
+        let child = 0, cookie = 0, count = 0;
+        while (child &lt; g.length && cookie &lt; s.length) {
+            if (s[cookie] &gt;= g[child]) {
+                count++;
+                child++;
+            }
+            cookie++;
+        }
+        return count;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n log n + m log m)
+- Space: O(1) or O(n + m) depending on sorting implementation
+- Notes: Optimal solution with simple two-pointer technique
+
+---
+## Greedy with Binary Search
+
+**Intuition**
+Sort both arrays and for each child, use binary search to find the smallest unused cookie that satisfies their greed factor.
+
+**Steps**
+- Sort both arrays
+- Use a boolean array to track used cookies
+- For each child, binary search for the smallest unused cookie that satisfies them
+- Mark the cookie as used and increment count if found
+- Return the count of satisfied children
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findContentChildren(self, g: list[int], s: list[int]) -> int:
+        g.sort()
+        s.sort()
+        used = [False] * len(s)
+        count = 0
+        
+        for greed in g:
+            left, right = 0, len(s) - 1
+            found = -1
+            while left &lt;= right:
+                mid = (left + right) // 2
+                if s[mid] &gt;= greed and not used[mid]:
+                    found = mid
+                    right = mid - 1
+                elif s[mid] &lt; greed:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            
+            if found != -1:
+                used[found] = True
+                count += 1
+        
+        return count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+        boolean[] used = new boolean[s.length];
+        int count = 0;
+        
+        for (int greed : g) {
+            int left = 0, right = s.length - 1;
+            int found = -1;
+            while (left &lt;= right) {
+                int mid = left + (right - left) / 2;
+                if (s[mid] &gt;= greed && !used[mid]) {
+                    found = mid;
+                    right = mid - 1;
+                } else if (s[mid] &lt; greed) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            
+            if (found != -1) {
+                used[found] = true;
+                count++;
+            }
+        }
+        
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        vector<bool> used(s.size(), false);
+        int count = 0;
+        
+        for (int greed : g) {
+            int left = 0, right = s.size() - 1;
+            int found = -1;
+            while (left &lt;= right) {
+                int mid = left + (right - left) / 2;
+                if (s[mid] &gt;= greed && !used[mid]) {
+                    found = mid;
+                    right = mid - 1;
+                } else if (s[mid] &lt; greed) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            
+            if (found != -1) {
+                used[found] = true;
+                count++;
+            }
+        }
+        
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    findContentChildren(g, s) {
+        g.sort((a, b) =&gt; a - b);
+        s.sort((a, b) =&gt; a - b);
+        const used = new Array(s.length).fill(false);
+        let count = 0;
+        
+        for (const greed of g) {
+            let left = 0, right = s.length - 1;
+            let found = -1;
+            while (left &lt;= right) {
+                const mid = Math.floor((left + right) / 2);
+                if (s[mid] &gt;= greed && !used[mid]) {
+                    found = mid;
+                    right = mid - 1;
+                } else if (s[mid] &lt; greed) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            
+            if (found !== -1) {
+                used[found] = true;
+                count++;
+            }
+        }
+        
+        return count;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    findContentChildren(g: number[], s: number[]): number {
+        g.sort((a, b) =&gt; a - b);
+        s.sort((a, b) =&gt; a - b);
+        const used: boolean[] = new Array(s.length).fill(false);
+        let count = 0;
+        
+        for (const greed of g) {
+            let left = 0, right = s.length - 1;
+            let found = -1;
+            while (left &lt;= right) {
+                const mid = Math.floor((left + right) / 2);
+                if (s[mid] &gt;= greed && !used[mid]) {
+                    found = mid;
+                    right = mid - 1;
+                } else if (s[mid] &lt; greed) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            
+            if (found !== -1) {
+                used[found] = true;
+                count++;
+            }
+        }
+        
+        return count;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n log n + m log m + n log m)
+- Space: O(m) for tracking used cookies
+- Notes: More complex than two-pointer approach with worse constant factors
+
+---
+## Brute Force
+
+**Intuition**
+Try all possible assignments of cookies to children and find the maximum number of satisfied children.
+
+**Steps**
+- Generate all possible assignments of cookies to children
+- For each assignment, count how many children are satisfied
+- Return the maximum count found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findContentChildren(self, g: list[int], s: list[int]) -> int:
+        from itertools import permutations
+        
+        max_count = 0
+        n = len(s)
+        
+        for i in range(n + 1):
+            for cookies in permutations(s, i):
+                count = 0
+                used = [False] * len(g)
+                for cookie in cookies:
+                    for j in range(len(g)):
+                        if not used[j] and cookie &gt;= g[j]:
+                            used[j] = True
+                            count += 1
+                            break
+                max_count = max(max_count, count)
+        
+        return max_count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        int maxCount = 0;
+        int n = s.length;
+        
+        for (int mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {
+            List<Integer> cookies = new ArrayList&lt;&gt;();
+            for (int i = 0; i &lt; n; i++) {
+                if ((mask & (1 &lt;&lt; i)) != 0) {
+                    cookies.add(s[i]);
+                }
+            }
+            
+            List<List<Integer>&gt; perms = new ArrayList&lt;&gt;();
+            permute(cookies, 0, perms);
+            
+            for (List<Integer> perm : perms) {
+                boolean[] used = new boolean[g.length];
+                int count = 0;
+                for (int cookie : perm) {
+                    for (int j = 0; j &lt; g.length; j++) {
+                        if (!used[j] && cookie &gt;= g[j]) {
+                            used[j] = true;
+                            count++;
+                            break;
+                        }
+                    }
+                }
+                maxCount = Math.max(maxCount, count);
+            }
+        }
+        
+        return maxCount;
+    }
+    
+    private void permute(List<Integer> arr, int k, List<List<Integer>&gt; result) {
+        if (k == arr.size()) {
+            result.add(new ArrayList&lt;&gt;(arr));
+            return;
+        }
+        for (int i = k; i &lt; arr.size(); i++) {
+            Collections.swap(arr, i, k);
+            permute(arr, k + 1, result);
+            Collections.swap(arr, i, k);
+        }
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        int maxCount = 0;
+        int n = s.size();
+        
+        sort(s.begin(), s.end());
+        
+        do {
+            vector<bool> used(g.size(), false);
+            int count = 0;
+            for (int cookie : s) {
+                for (int j = 0; j &lt; g.size(); j++) {
+                    if (!used[j] && cookie &gt;= g[j]) {
+                        used[j] = true;
+                        count++;
+                        break;
+                    }
+                }
+            }
+            maxCount = max(maxCount, count);
+        } while (next_permutation(s.begin(), s.end()));
+        
+        return maxCount;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    findContentChildren(g, s) {
+        let maxCount = 0;
+        const n = s.length;
+        
+        const permute = (arr) =&gt; {
+            const result = [];
+            const backtrack = (start) =&gt; {
+                if (start === arr.length) {
+                    result.push([...arr]);
+                    return;
+                }
+                for (let i = start; i &lt; arr.length; i++) {
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                    backtrack(start + 1);
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                }
+            };
+            backtrack(0);
+            return result;
+        };
+        
+        for (let mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {
+            const cookies = [];
+            for (let i = 0; i &lt; n; i++) {
+                if ((mask & (1 &lt;&lt; i)) !== 0) {
+                    cookies.push(s[i]);
+                }
+            }
+            
+            const perms = permute(cookies);
+            
+            for (const perm of perms) {
+                const used = new Array(g.length).fill(false);
+                let count = 0;
+                for (const cookie of perm) {
+                    for (let j = 0; j &lt; g.length; j++) {
+                        if (!used[j] && cookie &gt;= g[j]) {
+                            used[j] = true;
+                            count++;
+                            break;
+                        }
+                    }
+                }
+                maxCount = Math.max(maxCount, count);
+            }
+        }
+        
+        return maxCount;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    findContentChildren(g: number[], s: number[]): number {
+        let maxCount = 0;
+        const n = s.length;
+        
+        const permute = (arr: number[]): number[][] =&gt; {
+            const result: number[][] = [];
+            const backtrack = (start: number) =&gt; {
+                if (start === arr.length) {
+                    result.push([...arr]);
+                    return;
+                }
+                for (let i = start; i &lt; arr.length; i++) {
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                    backtrack(start + 1);
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                }
+            };
+            backtrack(0);
+            return result;
+        };
+        
+        for (let mask = 0; mask &lt; (1 &lt;&lt; n); mask++) {
+            const cookies: number[] = [];
+            for (let i = 0; i &lt; n; i++) {
+                if ((mask & (1 &lt;&lt; i)) !== 0) {
+                    cookies.push(s[i]);
+                }
+            }
+            
+            const perms = permute(cookies);
+            
+            for (const perm of perms) {
+                const used = new Array(g.length).fill(false);
+                let count = 0;
+                for (const cookie of perm) {
+                    for (let j = 0; j &lt; g.length; j++) {
+                        if (!used[j] && cookie &gt;= g[j]) {
+                            used[j] = true;
+                            count++;
+                            break;
+                        }
+                    }
+                }
+                maxCount = Math.max(maxCount, count);
+            }
+        }
+        
+        return maxCount;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(m! * n * m)
+- Space: O(m) for storing permutations
+- Notes: Only for educational purposes, will TLE on large inputs
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Assign Cookies Solutions","datePublished":"2026-01-13","description":"Maximize the number of content children by assigning cookies that satisfy their minimum size requirements.","keywords":"LeetCode, Assign Cookies, Easy, Array, Two Pointers, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy with Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n + m log m) for sorting both arrays, where n is the number of children and m is the number of cookies."}},{"@type":"Question","name":"What is the space complexity of the Greedy with Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(n + m) depending on the sorting implementation, as we only use a few variables for pointers and count."}},{"@type":"Question","name":"What is the time complexity of the Greedy with Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n + m log m + n log m) for sorting and performing binary searches for each child."}},{"@type":"Question","name":"What is the space complexity of the Greedy with Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m) for the boolean array used to track which cookies have been assigned."}},{"@type":"Question","name":"Why is the Brute Force approach not recommended?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has exponential time complexity O(m! * n * m) and will time out on any reasonably sized input, making it impractical for actual use."}}]}).replace(/</g,'\u003c')}
+</script>

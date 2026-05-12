@@ -1,0 +1,142 @@
+---
+title: "Reverse Prefix of Word"
+summary: "Given a word and a character, reverse the segment of the word starting from index 0 to the first occurrence of the character."
+date: "Apr 04, 2025"
+tags:
+  - Two Pointers
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.50% | **Paid:** No
+> **Topics:** Two Pointers, String, Stack
+
+Given a 0-indexed string word and a character ch, reverse the segment of word that starts at index 0 and ends at the index of the first occurrence of ch (inclusive). If the character ch does not exist in word, do nothing.
+
+Return the resulting string.
+
+- Examples
+- Constraints
+- [Two Pointers](#two-pointers)
+- [Stack](#stack)
+- [Built-in String Manipulation](#built-in-string-manipulation)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: word = "abcdefd", ch = "d"
+Output: "dcbaefd"
+Explanation: The first occurrence of "d" is at index 3. 
+Reverse the part of word from 0 to 3 (inclusive), the resulting string is "dcbaefd".
+```
+
+**Example 2:**
+
+```text
+Input: word = "xyxzxe", ch = "z"
+Output: "zxyxxe"
+Explanation: The first occurrence of "z" is at index 2. 
+Reverse the part of word from 0 to 2 (inclusive), the resulting string is "zxyxxe".
+```
+
+**Example 3:**
+
+```text
+Input: word = "abcd", ch = "z"
+Output: "abcd"
+Explanation: "z" does not exist in word.
+```
+
+## Constraints
+
+```text
+1 <= word.length <= 250
+word consists of lowercase English letters.
+ch is a lowercase English letter.
+```
+
+---
+## Two Pointers
+
+**Intuition**
+We can find the index of the target character and then use two pointers to swap characters from the start of the string up to that index, effectively reversing the prefix in place.
+
+**Steps**
+- Convert the string to a mutable character array (or list).
+- Iterate through the array to find the index of the first occurrence of `ch`.
+- If `ch` is not found, return the original string.
+- Initialize a left pointer at 0 and a right pointer at the found index.
+- Swap characters at left and right, then move left forward and right backward until they meet.
+- Convert the character array back to a string and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reversePrefix(self, word: str, ch: str) -&gt; str:\n        chars = list(word)\n        index = -1\n        for i, c in enumerate(chars):\n            if c == ch:\n                index = i\n                break\n        \n        if index == -1:\n            return word\n        \n        left, right = 0, index\n        while left &lt; right:\n            chars[left], chars[right] = chars[right], chars[left]\n            left += 1\n            right -= 1\n            \n        return ''.join(chars)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reversePrefix(String word, char ch) {\n        char[] chars = word.toCharArray();\n        int index = -1;\n        for (int i = 0; i &lt; chars.length; i++) {\n            if (chars[i] == ch) {\n                index = i;\n                break;\n            }\n        }\n        \n        if (index == -1) {\n            return word;\n        }\n        \n        int left = 0, right = index;\n        while (left &lt; right) {\n            char temp = chars[left];\n            chars[left] = chars[right];\n            chars[right] = temp;\n            left++;\n            right--;\n        }\n        \n        return new String(chars);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reversePrefix(string word, char ch) {\n        int index = -1;\n        for (int i = 0; i &lt; word.size(); ++i) {\n            if (word[i] == ch) {\n                index = i;\n                break;\n            }\n        }\n        \n        if (index == -1) return word;\n        \n        int left = 0, right = index;\n        while (left &lt; right) {\n            swap(word[left], word[right]);\n            left++;\n            right--;\n        }\n        \n        return word;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @param {character} ch\n * @return {string}\n */\nvar reversePrefix = function(word, ch) {\n    let chars = word.split('');\n    let index = -1;\n    for (let i = 0; i &lt; chars.length; i++) {\n        if (chars[i] === ch) {\n            index = i;\n            break;\n        }\n    }\n    \n    if (index === -1) return word;\n    \n    let left = 0, right = index;\n    while (left &lt; right) {\n        let temp = chars[left];\n        chars[left] = chars[right];\n        chars[right] = temp;\n        left++;\n        right--;\n    }\n    \n    return chars.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reversePrefix(word: string, ch: string): string {\n    let chars = word.split('');\n    let index = -1;\n    for (let i = 0; i &lt; chars.length; i++) {\n        if (chars[i] === ch) {\n            index = i;\n            break;\n        }\n    }\n    \n    if (index === -1) return word;\n    \n    let left = 0, right = index;\n    while (left &lt; right) {\n        let temp = chars[left];\n        chars[left] = chars[right];\n        chars[right] = temp;\n        left++;\n        right--;\n    }\n    \n    return chars.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string to find the character and then potentially traverse half of the prefix to reverse it.
+- Space: O(n) to store the character array (or O(1) if the language allows in-place string modification like C++).
+
+---
+## Stack
+
+**Intuition**
+A stack follows Last-In-First-Out (LIFO) order. By pushing characters onto a stack until we find the target character, we can pop them to retrieve the characters in reverse order.
+
+**Steps**
+- Initialize an empty stack and a result list.
+- Iterate through the string character by character.
+- Push each character onto the stack.
+- If the current character matches `ch`, stop iterating.
+- If `ch` was found, pop all elements from the stack and append them to the result. This reverses the prefix.
+- Append the remaining part of the original string (the part after the found index) to the result.
+- If `ch` was not found, simply return the original string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reversePrefix(self, word: str, ch: str) -&gt; str:\n        stack = []\n        index = -1\n        for i, c in enumerate(word):\n            stack.append(c)\n            if c == ch:\n                index = i\n                break\n        \n        if index == -1:\n            return word\n        \n        res = []\n        while stack:\n            res.append(stack.pop())\n        \n        res.extend(list(word[index+1:]))\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public String reversePrefix(String word, char ch) {\n        Stack&lt;Character&gt; stack = new Stack&lt;&gt;();\n        int index = -1;\n        \n        for (int i = 0; i &lt; word.length(); i++) {\n            char c = word.charAt(i);\n            stack.push(c);\n            if (c == ch) {\n                index = i;\n                break;\n            }\n        }\n        \n        if (index == -1) {\n            return word;\n        }\n        \n        StringBuilder sb = new StringBuilder();\n        while (!stack.isEmpty()) {\n            sb.append(stack.pop());\n        }\n        \n        sb.append(word.substring(index + 1));\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reversePrefix(string word, char ch) {\n        vector&lt;char&gt; stack;\n        int index = -1;\n        for (int i = 0; i &lt; word.size(); ++i) {\n            stack.push_back(word[i]);\n            if (word[i] == ch) {\n                index = i;\n                break;\n            }\n        }\n        \n        if (index == -1) return word;\n        \n        string res;\n        while (!stack.empty()) {\n            res.push_back(stack.back());\n            stack.pop_back();\n        }\n        \n        res += word.substr(index + 1);\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @param {character} ch\n * @return {string}\n */\nvar reversePrefix = function(word, ch) {\n    let stack = [];\n    let index = -1;\n    \n    for (let i = 0; i &lt; word.length; i++) {\n        stack.push(word[i]);\n        if (word[i] === ch) {\n            index = i;\n            break;\n        }\n    }\n    \n    if (index === -1) return word;\n    \n    let res = [];\n    while (stack.length &gt; 0) {\n        res.push(stack.pop());\n    }\n    \n    res.push(...word.slice(index + 1));\n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reversePrefix(word: string, ch: string): string {\n    let stack: string[] = [];\n    let index = -1;\n    \n    for (let i = 0; i &lt; word.length; i++) {\n        stack.push(word[i]);\n        if (word[i] === ch) {\n            index = i;\n            break;\n        }\n    }\n    \n    if (index === -1) return word;\n    \n    let res: string[] = [];\n    while (stack.length &gt; 0) {\n        res.push(stack.pop()!);\n    }\n    \n    res.push(...word.slice(index + 1));\n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the prefix once to push and once to pop.
+- Space: O(n) to store the stack and the result.
+
+---
+## Built-in String Manipulation
+
+**Intuition**
+Most programming languages provide built-in methods to find substrings and reverse strings. We can leverage these to solve the problem concisely.
+
+**Steps**
+- Find the index of the first occurrence of `ch` in `word`.
+- If the index is -1 (not found), return `word`.
+- Extract the substring from the start up to and including the index.
+- Reverse this substring.
+- Concatenate the reversed substring with the remainder of the original string (from index + 1 to the end).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reversePrefix(self, word: str, ch: str) -&gt; str:\n        try:\n            idx = word.index(ch)\n        except ValueError:\n            return word\n        return word[:idx+1][::-1] + word[idx+1:]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reversePrefix(String word, char ch) {\n        int idx = word.indexOf(ch);\n        if (idx == -1) {\n            return word;\n        }\n        \n        String prefix = new StringBuilder(word.substring(0, idx + 1)).reverse().toString();\n        return prefix + word.substring(idx + 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reversePrefix(string word, char ch) {\n        size_t idx = word.find(ch);\n        if (idx == string::npos) {\n            return word;\n        }\n        \n        reverse(word.begin(), word.begin() + idx + 1);\n        return word;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @param {character} ch\n * @return {string}\n */\nvar reversePrefix = function(word, ch) {\n    const idx = word.indexOf(ch);\n    if (idx === -1) {\n        return word;\n    }\n    \n    const prefix = word.slice(0, idx + 1).split('').reverse().join('');\n    return prefix + word.slice(idx + 1);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reversePrefix(word: string, ch: string): string {\n    const idx = word.indexOf(ch);\n    if (idx === -1) {\n        return word;\n    }\n    \n    const prefix = word.slice(0, idx + 1).split('').reverse().join('');\n    return prefix + word.slice(idx + 1);\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. Finding the index and reversing the substring both take linear time relative to the string length.
+- Space: O(n) to create the new string (strings are often immutable in languages like Java, Python, JS).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Prefix of Word Solutions","datePublished":"2025-04-04","description":"Given a word and a character, reverse the segment of the word starting from index 0 to the first occurrence of the character.","keywords":"LeetCode, Reverse Prefix of Word, Easy, Two Pointers, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string. We traverse the string to find the character and then potentially traverse half of the prefix to reverse it."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the stack and the result string."}},{"@type":"Question","name":"How does the Built-in String Manipulation approach work?","acceptedAnswer":{"@type":"Answer","text":"It finds the index of the character, slices the prefix, reverses it using built-in functions, and concatenates it with the remaining suffix."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,122 @@
+---
+title: "Sum of Digits of String After Convert"
+summary: "Convert string to integer string, then repeatedly sum digits k times."
+date: "Feb 27, 2025"
+tags:
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.80% | **Paid:** No
+> **Topics:** String, Simulation
+
+You are given a string s consisting of lowercase English letters, and an integer k.
+
+First, convert s into an integer by replacing each letter with its position in the alphabet (i.e., replace 'a' with 1, 'b' with 2, ..., 'z' with 26). Then, transform the integer by replacing it with the sum of its digits. Repeat the transform operation k times in total.
+
+For example, if s = "zbax" and k = 2, then:
+
+Convert: "zbax" ➝ "(26)(2)(1)(24)" ➝ "262124" ➝ 262124
+Transform #1: 262124 ➝ 2 + 6 + 2 + 1 + 2 + 4 ➝ 17
+Transform #2: 17 ➝ 1 + 7 ➝ 8
+
+Return the resulting integer after performing the operations described above.
+
+- Examples
+- Constraints
+- [Approach 1: String Simulation](#approach-1-string-simulation)
+- [Approach 2: Mathematical Optimization](#approach-2-mathematical-optimization)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "iiii", k = 1
+Output: 36
+Explanation: 
+Convert: "iiii" ➝ "(9)(9)(9)(9)" ➝ "9999" ➝ 9999
+Transform #1: 9999 ➝ 9 + 9 + 9 + 9 ➝ 36
+Thus the result is 36.
+```
+
+Example 2:
+```text
+Input: s = "leetcode", k = 2
+Output: 6
+Explanation:
+Convert: "leetcode" ➝ "(12)(5)(5)(20)(3)(15)(4)(5)" ➝ "12552031545" ➝ 12552031545
+Transform #1: 12552031545 ➝ 1 + 2 + 5 + 5 + 2 + 0 + 3 + 1 + 5 + 4 + 5 ➝ 33
+Transform #2: 33 ➝ 3 + 3 ➝ 6
+Thus the result is 6.
+```
+
+Example 3:
+```text
+Input: s = "zbax", k = 2
+Output: 8
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+1 <= k <= 10
+s consists of lowercase English letters.
+```
+
+---
+## Approach 1: String Simulation
+
+**Intuition**
+Follow the problem statement literally by first converting the string to a numeric string, then repeatedly summing its digits.
+
+**Steps**
+- Iterate through the input string `s` and append the string representation of each character's alphabet position to a new string `num_str`.
+- Loop `k` times. In each iteration, calculate the sum of all digits in `num_str`, update `num_str` to be this sum converted to a string.
+- Return the integer value of `num_str`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getLucky(self, s: str, k: int) -&gt; int:\n        # Convert string to integer string\n        num_str = \"\"\n        for ch in s:\n            val = ord(ch) - ord('a') + 1\n            num_str += str(val)\n        \n        # Perform k transformations\n        for _ in range(k):\n            total = 0\n            for digit in num_str:\n                total += int(digit)\n            num_str = str(total)\n            \n        return int(num_str)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int getLucky(String s, int k) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            int val = c - 'a' + 1;\n            sb.append(val);\n        }\n        \n        String numStr = sb.toString();\n        for (int i = 0; i &lt; k; i++) {\n            int sum = 0;\n            for (char c : numStr.toCharArray()) {\n                sum += c - '0';\n            }\n            numStr = String.valueOf(sum);\n        }\n        return Integer.parseInt(numStr);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int getLucky(string s, int k) {\n        string numStr = \"\";\n        for (char c : s) {\n            int val = c - 'a' + 1;\n            numStr += to_string(val);\n        }\n        \n        for (int i = 0; i &lt; k; ++i) {\n            int sum = 0;\n            for (char c : numStr) {\n                sum += c - '0';\n            }\n            numStr = to_string(sum);\n        }\n        return stoi(numStr);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var getLucky = function(s, k) {\n    let numStr = \"\";\n    for (let i = 0; i &lt; s.length; i++) {\n        let val = s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;\n        numStr += val.toString();\n    }\n    \n    for (let i = 0; i &lt; k; i++) {\n        let sum = 0;\n        for (let j = 0; j &lt; numStr.length; j++) {\n            sum += parseInt(numStr[j]);\n        }\n        numStr = sum.toString();\n    }\n    return parseInt(numStr);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getLucky(s: string, k: number): number {\n    let numStr: string = \"\";\n    for (let i = 0; i &lt; s.length; i++) {\n        let val = s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;\n        numStr += val.toString();\n    }\n    \n    for (let i = 0; i &lt; k; i++) {\n        let sum: number = 0;\n        for (let j = 0; j &lt; numStr.length; j++) {\n            sum += parseInt(numStr[j]);\n        }\n        numStr = sum.toString();\n    }\n    return parseInt(numStr);\n}" },]} />
+
+**Complexity**
+- Time: O(k * n), where n is the length of the intermediate string.
+- Space: O(n) to store the intermediate string.
+- Notes: Simple to implement but creates unnecessary string objects.
+
+---
+## Approach 2: Mathematical Optimization
+
+**Intuition**
+We can avoid building the large intermediate string by calculating the sum of digits directly from the character values during the first pass.
+
+**Steps**
+- Initialize `total` to 0.
+- Iterate through `s`. For each character, calculate its value (1-26). Add the digits of this value (e.g., for 26, add 2 and 6) to `total`. This completes the first transformation.
+- Loop `k - 1` more times. In each loop, calculate the sum of digits of `total` and update `total`.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getLucky(self, s: str, k: int) -&gt; int:\n        # First transformation: sum digits of letter values\n        total = 0\n        for ch in s:\n            val = ord(ch) - ord('a') + 1\n            total += val % 10 + val // 10\n        \n        # Remaining k-1 transformations\n        for _ in range(k - 1):\n            next_total = 0\n            while total &gt; 0:\n                next_total += total % 10\n                total //= 10\n            total = next_total\n            \n        return total" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int getLucky(String s, int k) {\n        int total = 0;\n        for (char c : s.toCharArray()) {\n            int val = c - 'a' + 1;\n            total += val % 10;\n            total += val / 10;\n        }\n        \n        for (int i = 1; i &lt; k; i++) {\n            int nextTotal = 0;\n            while (total &gt; 0) {\n                nextTotal += total % 10;\n                total /= 10;\n            }\n            total = nextTotal;\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int getLucky(string s, int k) {\n        int total = 0;\n        for (char c : s) {\n            int val = c - 'a' + 1;\n            total += val % 10;\n            total += val / 10;\n        }\n        \n        for (int i = 1; i &lt; k; ++i) {\n            int nextTotal = 0;\n            while (total &gt; 0) {\n                nextTotal += total % 10;\n                total /= 10;\n            }\n            total = nextTotal;\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var getLucky = function(s, k) {\n    let total = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let val = s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;\n        total += val % 10;\n        total += Math.floor(val / 10);\n    }\n    \n    for (let i = 1; i &lt; k; i++) {\n        let nextTotal = 0;\n        while (total &gt; 0) {\n            nextTotal += total % 10;\n            total = Math.floor(total / 10);\n        }\n        total = nextTotal;\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getLucky(s: string, k: number): number {\n    let total: number = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let val = s.charCodeAt(i) - 'a'.charCodeAt(0) + 1;\n        total += val % 10;\n        total += Math.floor(val / 10);\n    }\n    \n    for (let i = 1; i &lt; k; i++) {\n        let nextTotal: number = 0;\n        while (total &gt; 0) {\n            nextTotal += total % 10;\n            total = Math.floor(total / 10);\n        }\n        total = nextTotal;\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k * log(result)), where n is the length of s.
+- Space: O(1) extra space.
+- Notes: More efficient as it avoids string manipulation overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sum of Digits of String After Convert Solutions","datePublished":"2025-02-27","description":"Convert string to integer string, then repeatedly sum digits k times.","keywords":"LeetCode, Sum of Digits of String After Convert, Easy, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the String Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(k * n), where n is the length of the intermediate string representation."}},{"@type":"Question","name":"What is the space complexity of the Mathematical Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few integer variables for calculation."}}]}).replace(/</g,'\u003c')}
+</script>

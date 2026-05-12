@@ -1,0 +1,155 @@
+---
+title: "Customers Who Never Order"
+summary: "Find the names of customers who have never placed an order using SQL."
+date: "Apr 20, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.70% | **Paid:** No
+> **Topics:** Database
+
+Suppose that a website contains two tables, the `Customers` table and the `Orders` table. Write a SQL query to find all customers who have never ordered anything.
+
+Table: `Customers`
+
+| Column Name | Type |
+|-------------|------|
+| id          | int  |
+| name        | varchar |
+
+`id` is the primary key for this table.
+Each row of this table indicates the ID and name of a customer.
+
+Table: `Orders`
+
+| Column Name  | Type |
+|--------------|------|
+| id           | int  |
+| customerId   | int  |
+
+`id` is the primary key for this column.
+`customerId` is a foreign key to the `Customers` table.
+Each row of this table indicates the ID of an order and the ID of the customer who placed it.
+
+The result table should contain all customers who have never ordered anything. Return the result table in any order.
+
+- Examples
+- Constraints
+- [Approach 1: Left Join](#approach-1-left-join)
+- [Approach 2: Not In](#approach-2-not-in)
+- [Approach 3: Not Exists](#approach-3-not-exists)
+
+## Examples
+
+**Example 1:**
+
+Input:
+`Customers` table:
+
+| id | name  |
+|----|-------|
+| 1  | Joe   |
+| 2  | Henry |
+| 3  | Sam   |
+| 4  | Max   |
+
+`Orders` table:
+
+| id | customerId |
+|----|------------|
+| 1  | 3          |
+| 2  | 1          |
+
+Output:
+
+| Customers |
+|-----------|
+| Henry     |
+| Max       |
+
+Explanation:
+Henry and Max are the only customers who have not placed any orders.
+
+## Constraints
+
+```text
+The Customers table may contain any number of records.
+The Orders table may contain any number of records.
+```
+
+---
+## Approach 1: Left Join
+
+**Intuition**
+We can join the `Customers` table with the `Orders` table using a `LEFT JOIN`. This ensures all customers are selected. If a customer has no matching order, the columns from the `Orders` table will be `NULL`. We then filter for these `NULL` values.
+
+**Steps**
+- Perform a `LEFT JOIN` on `Customers` and `Orders` where `Customers.id = Orders.customerId`.
+- Select the name of the customers where the `Orders.id` is `NULL`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# LeetCode 183 is a SQL problem. This function returns the SQL query string.\ndef query() -&gt; str:\n    return \"SELECT Name as Customers FROM Customers LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE Orders.Id IS NULL\"" },
+{ name: "Java", lang: "java", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\nclass Solution {\n    public String query() {\n        return \"SELECT Name as Customers FROM Customers LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE Orders.Id IS NULL\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string query() {\n        return \"SELECT Name as Customers FROM Customers LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE Orders.Id IS NULL\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query() {\n    return \"SELECT Name as Customers FROM Customers LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE Orders.Id IS NULL\";\n}" },
+{ name: "TypeScript", lang: "typescript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query(): string {\n    return \"SELECT Name as Customers FROM Customers LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE Orders.Id IS NULL\";\n}" },]} />
+
+**Complexity**
+- Time: O(N + M) where N and M are the number of rows in Customers and Orders, respectively, assuming efficient indexing on join keys.
+- Space: O(N) for the result set in the worst case.
+- Notes: `LEFT JOIN` is very standard and readable for this type of exclusion.
+
+---
+## Approach 2: Not In
+
+**Intuition**
+We can simply select the names of customers whose `id` is not present in the list of `customerId` from the `Orders` table.
+
+**Steps**
+- Select `Name` from `Customers`.
+- Filter where `Id` is `NOT IN` the subquery selecting `CustomerId` from `Orders`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# LeetCode 183 is a SQL problem. This function returns the SQL query string.\ndef query() -&gt; str:\n    return \"SELECT Name as Customers FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders)\"" },
+{ name: "Java", lang: "java", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\nclass Solution {\n    public String query() {\n        return \"SELECT Name as Customers FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders)\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string query() {\n        return \"SELECT Name as Customers FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders)\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query() {\n    return \"SELECT Name as Customers FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders)\";\n}" },
+{ name: "TypeScript", lang: "typescript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query(): string {\n    return \"SELECT Name as Customers FROM Customers WHERE Id NOT IN (SELECT CustomerId FROM Orders)\";\n}" },]} />
+
+**Complexity**
+- Time: O(N * M) in the worst case without proper indexing, though modern optimizers often handle this efficiently.
+- Space: O(M) to store the list of `CustomerId`s.
+- Notes: Be careful if `CustomerId` can be `NULL` in the `Orders` table, as `NOT IN` behaves unexpectedly with NULLs (though the schema implies it is a foreign key, usually non-nullable).
+
+---
+## Approach 3: Not Exists
+
+**Intuition**
+We use a correlated subquery with `NOT EXISTS`. For each customer, we check if there is no corresponding row in the `Orders` table.
+
+**Steps**
+- Select `Name` from `Customers` (aliased as `c`).
+- Filter where `NOT EXISTS` (Select 1 from `Orders` `o` where `o.CustomerId = c.Id`).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# LeetCode 183 is a SQL problem. This function returns the SQL query string.\ndef query() -&gt; str:\n    return \"SELECT Name as Customers FROM Customers c WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id)\"" },
+{ name: "Java", lang: "java", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\nclass Solution {\n    public String query() {\n        return \"SELECT Name as Customers FROM Customers c WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id)\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "// LeetCode 183 is a SQL problem. This method returns the SQL query string.\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string query() {\n        return \"SELECT Name as Customers FROM Customers c WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id)\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query() {\n    return \"SELECT Name as Customers FROM Customers c WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id)\";\n}" },
+{ name: "TypeScript", lang: "typescript", code: "// LeetCode 183 is a SQL problem. This function returns the SQL query string.\nfunction query(): string {\n    return \"SELECT Name as Customers FROM Customers c WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id)\";\n}" },]} />
+
+**Complexity**
+- Time: O(N * M) in the worst case, but often optimized to semi-joins.
+- Space: O(1) auxiliary space (excluding output).
+- Notes: `NOT EXISTS` is generally robust against NULL values compared to `NOT IN`.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Customers Who Never Order Solutions","datePublished":"2024-04-20","description":"Find the names of customers who have never placed an order using SQL.","keywords":"LeetCode, Customers Who Never Order, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"O(N + M) where N and M are the number of rows in Customers and Orders, respectively, assuming efficient indexing on join keys."}},{"@type":"Question","name":"What is the time complexity of the Not In approach?","acceptedAnswer":{"@type":"Answer","text":"O(N * M) in the worst case without proper indexing, though modern optimizers often handle this efficiently."}},{"@type":"Question","name":"What is the time complexity of the Not Exists approach?","acceptedAnswer":{"@type":"Answer","text":"O(N * M) in the worst case, but often optimized to semi-joins."}}]}).replace(/</g,'\u003c')}
+</script>

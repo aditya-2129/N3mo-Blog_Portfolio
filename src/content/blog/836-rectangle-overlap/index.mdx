@@ -1,0 +1,109 @@
+---
+title: "Rectangle Overlap"
+summary: "Determine if two axis-aligned rectangles overlap by checking their projections on the x and y axes."
+date: "Feb 21, 2025"
+tags:
+  - Math
+  - Geometry
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 46.70% | **Paid:** No
+> **Topics:** Math, Geometry
+
+An axis-aligned rectangle is represented as a list `[x1, y1, x2, y2]`, where `(x1, y1)` is the coordinate of its bottom-left corner, and `(x2, y2)` is the coordinate of its top-right corner. Its top and bottom edges are parallel to the X-axis, and its left and right edges are parallel to the Y-axis.
+
+Two rectangles overlap if the area of their intersection is positive. Two rectangles that only touch at the corner or edges do not overlap.
+
+Given two axis-aligned rectangles `rec1` and `rec2`, return `true` if they overlap, otherwise return `false`.
+
+- Examples
+- Constraints
+- [Check Non-Overlap Conditions](#check-non-overlap-conditions)
+- [Check Overlap Intervals Directly](#check-overlap-intervals-directly)
+
+## Examples
+
+Example 1:
+```text
+Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
+Output: true
+```
+
+Example 2:
+```text
+Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
+Output: false
+```
+
+Example 3:
+```text
+Input: rec1 = [0,0,1,1], rec2 = [2,2,3,3]
+Output: false
+```
+
+## Constraints
+
+```text
+rec1.length == rec2.length == 4
+-10⁹ <= rec1[i], rec2[i] <= 10⁹
+rec1[0] <= rec1[2] and rec1[1] <= rec1[3]
+rec2[0] <= rec2[2] and rec2[1] <= rec2[3]
+```
+
+---
+## Check Non-Overlap Conditions
+
+**Intuition**
+Instead of checking if the rectangles overlap, it is simpler to check if they do not overlap. If one rectangle is to the left, right, above, or below the other, they cannot overlap.
+
+**Steps**
+- Check if `rec1` is to the left of `rec2` (rec1's right edge is left of rec2's left edge).
+- Check if `rec1` is to the right of `rec2` (rec1's left edge is right of rec2's right edge).
+- Check if `rec1` is below `rec2` (rec1's top edge is below rec2's bottom edge).
+- Check if `rec1` is above `rec2` (rec1's bottom edge is above rec2's top edge).
+- If any of these conditions are true, return `false`. Otherwise, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isRectangleOverlap(self, rec1: list[int], rec2: list[int]) -&gt; bool:\n        # Check if one rectangle is on left side of other\n        if rec1[2] &lt;= rec2[0] or rec2[2] &lt;= rec1[0]:\n            return False\n        # Check if one rectangle is above other\n        if rec1[3] &lt;= rec2[1] or rec2[3] &lt;= rec1[1]:\n            return False\n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isRectangleOverlap(int[] rec1, int[] rec2) {\n        // Check if one rectangle is on left side of other\n        if (rec1[2] &lt;= rec2[0] || rec2[2] &lt;= rec1[0]) {\n            return false;\n        }\n        // Check if one rectangle is above other\n        if (rec1[3] &lt;= rec2[1] || rec2[3] &lt;= rec1[1]) {\n            return false;\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isRectangleOverlap(vector&lt;int&gt;& rec1, vector&lt;int&gt;& rec2) {\n        // Check if one rectangle is on left side of other\n        if (rec1[2] &lt;= rec2[0] || rec2[2] &lt;= rec1[0]) {\n            return false;\n        }\n        // Check if one rectangle is above other\n        if (rec1[3] &lt;= rec2[1] || rec2[3] &lt;= rec1[1]) {\n            return false;\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} rec1\n * @param {number[]} rec2\n * @return {boolean}\n */\nvar isRectangleOverlap = function(rec1, rec2) {\n    // Check if one rectangle is on left side of other\n    if (rec1[2] &lt;= rec2[0] || rec2[2] &lt;= rec1[0]) {\n        return false;\n    }\n    // Check if one rectangle is above other\n    if (rec1[3] &lt;= rec2[1] || rec2[3] &lt;= rec1[1]) {\n        return false;\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isRectangleOverlap(rec1: number[], rec2: number[]): boolean {\n    // Check if one rectangle is on left side of other\n    if (rec1[2] &lt;= rec2[0] || rec2[2] &lt;= rec1[0]) {\n        return false;\n    }\n    // Check if one rectangle is above other\n    if (rec1[3] &lt;= rec2[1] || rec2[3] &lt;= rec1[1]) {\n        return false;\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: This approach is the most efficient and easiest to implement.
+
+---
+## Check Overlap Intervals Directly
+
+**Intuition**
+Two rectangles overlap if their projections on the x-axis overlap and their projections on the y-axis overlap. We can calculate the length of the overlap on each axis.
+
+**Steps**
+- Calculate the overlap width on the x-axis: `min(rec1.x2, rec2.x2) - max(rec1.x1, rec2.x1)`.
+- Calculate the overlap height on the y-axis: `min(rec1.y2, rec2.y2) - max(rec1.y1, rec2.y1)`.
+- Return `true` if both width and height are positive.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isRectangleOverlap(self, rec1: list[int], rec2: list[int]) -&gt; bool:\n        # Calculate overlap width\n        x_overlap = min(rec1[2], rec2[2]) - max(rec1[0], rec2[0])\n        # Calculate overlap height\n        y_overlap = min(rec1[3], rec2[3]) - max(rec1[1], rec2[1])\n        # Check if both are positive\n        return x_overlap &gt; 0 and y_overlap &gt; 0\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isRectangleOverlap(int[] rec1, int[] rec2) {\n        // Calculate overlap width\n        int x_overlap = Math.min(rec1[2], rec2[2]) - Math.max(rec1[0], rec2[0]);\n        // Calculate overlap height\n        int y_overlap = Math.min(rec1[3], rec2[3]) - Math.max(rec1[1], rec2[1]);\n        // Check if both are positive\n        return x_overlap &gt; 0 && y_overlap &gt; 0;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isRectangleOverlap(vector&lt;int&gt;& rec1, vector&lt;int&gt;& rec2) {\n        // Calculate overlap width\n        int x_overlap = min(rec1[2], rec2[2]) - max(rec1[0], rec2[0]);\n        // Calculate overlap height\n        int y_overlap = min(rec1[3], rec2[3]) - max(rec1[1], rec2[1]);\n        // Check if both are positive\n        return x_overlap &gt; 0 && y_overlap &gt; 0;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} rec1\n * @param {number[]} rec2\n * @return {boolean}\n */\nvar isRectangleOverlap = function(rec1, rec2) {\n    // Calculate overlap width\n    var x_overlap = Math.min(rec1[2], rec2[2]) - Math.max(rec1[0], rec2[0]);\n    // Calculate overlap height\n    var y_overlap = Math.min(rec1[3], rec2[3]) - Math.max(rec1[1], rec2[1]);\n    // Check if both are positive\n    return x_overlap &gt; 0 && y_overlap &gt; 0;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isRectangleOverlap(rec1: number[], rec2: number[]): boolean {\n    // Calculate overlap width\n    const x_overlap = Math.min(rec1[2], rec2[2]) - Math.max(rec1[0], rec2[0]);\n    // Calculate overlap height\n    const y_overlap = Math.min(rec1[3], rec2[3]) - Math.max(rec1[1], rec2[1]);\n    // Check if both are positive\n    return x_overlap &gt; 0 && y_overlap &gt; 0;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: This approach is mathematically equivalent to the first but explicitly computes the intersection dimensions.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rectangle Overlap Solutions","datePublished":"2025-02-21","description":"Determine if two axis-aligned rectangles overlap by checking their projections on the x and y axes.","keywords":"LeetCode, Rectangle Overlap, Easy, Math, Geometry"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Check Non-Overlap Conditions approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a constant number of comparisons."}},{"@type":"Question","name":"What is the space complexity of the Check Overlap Intervals Directly approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few variables to store overlap dimensions."}}]}).replace(/</g,'\u003c')}
+</script>

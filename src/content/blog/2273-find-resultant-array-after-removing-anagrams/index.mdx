@@ -1,0 +1,114 @@
+---
+title: "Find Resultant Array After Removing Anagrams"
+summary: "Remove words from the array that are anagrams of the previous word until no more removals are possible."
+date: "Apr 02, 2026"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.90% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Sorting
+
+You are given a 0-indexed string array words, where words[i] consists of lowercase English letters.
+
+In one operation, select any index i such that 0 &lt; i &lt; words.length and words[i - 1] and words[i] are anagrams, and delete words[i] from words. Keep performing this operation as long as you can select an index that satisfies the conditions.
+
+Return words after performing all operations. It can be shown that selecting the indices for each operation in any arbitrary order will not affect the final result.
+
+An anagram is a string that contains the same characters in a different order.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Comparison with Sorting](#approach-1-iterative-comparison-with-sorting)
+- [Approach 2: Iterative Comparison with Frequency Counting](#approach-2-iterative-comparison-with-frequency-counting)
+
+## Examples
+
+```text
+Input: words = ["abba","baba","bbaa","cd","cd"]
+Output: ["abba","cd"]
+Explanation: 
+One operation is performed on "baba" and "bbaa" because they are anagrams. The resulting array is ["abba","cd","cd"].
+Another operation is performed on "cd" and "cd" because they are anagrams. The resulting array is ["abba","cd"].
+```
+
+```text
+Input: words = ["a","b","c","d","e"]
+Output: ["a","b","c","d","e"]
+Explanation: No two consecutive strings are anagrams of each other, so no operations are performed.
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 10
+words[i] consists of lowercase English letters.
+```
+
+---
+## Approach 1: Iterative Comparison with Sorting
+
+**Intuition**
+Two strings are anagrams if they contain the exact same characters. The simplest way to verify this is to sort the characters of both strings and check if the sorted results are identical. We iterate through the input list, comparing each word with the last word in our result list.
+
+**Steps**
+- Initialize an empty list `result` to store the final words.
+- Iterate through each word in the input `words` array.
+- If `result` is empty, add the current word to `result`.
+- Otherwise, sort the characters of the current word and the last word in `result`.
+- If the sorted strings are equal, the current word is an anagram of the previous one, so we skip it.
+- If they are not equal, append the current word to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeAnagrams(self, words: list[str]) -&gt; list[str]:\n        res = []\n        for w in words:\n            if not res:\n                res.append(w)\n            else:\n                if sorted(w) == sorted(res[-1]):\n                    continue\n                res.append(w)\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;String&gt; removeAnagrams(String[] words) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        for (String w : words) {\n            if (res.isEmpty()) {\n                res.add(w);\n            } else {\n                String last = res.get(res.size() - 1);\n                if (isAnagram(w, last)) {\n                    continue;\n                }\n                res.add(w);\n            }\n        }\n        return res;\n    }\n\n    private boolean isAnagram(String s1, String s2) {\n        char[] c1 = s1.toCharArray();\n        char[] c2 = s2.toCharArray();\n        Arrays.sort(c1);\n        Arrays.sort(c2);\n        return Arrays.equals(c1, c2);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; removeAnagrams(vector&lt;string&gt;& words) {\n        vector&lt;string&gt; res;\n        for (const string& w : words) {\n            if (res.empty()) {\n                res.push_back(w);\n            } else {\n                string last = res.back();\n                string s1 = w;\n                string s2 = last;\n                sort(s1.begin(), s1.end());\n                sort(s2.begin(), s2.end());\n                if (s1 == s2) {\n                    continue;\n                }\n                res.push_back(w);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeAnagrams = function(words) {\n    let res = [];\n    for (let w of words) {\n        if (res.length === 0) {\n            res.push(w);\n        } else {\n            let s1 = w.split('').sort().join('');\n            let s2 = res[res.length - 1].split('').sort().join('');\n            if (s1 === s2) {\n                continue;\n            }\n            res.push(w);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeAnagrams(words: string[]): string[] {\n    let res: string[] = [];\n    for (let w of words) {\n        if (res.length === 0) {\n            res.push(w);\n        } else {\n            let s1 = w.split('').sort().join('');\n            let s2 = res[res.length - 1].split('').sort().join('');\n            if (s1 === s2) {\n                continue;\n            }\n            res.push(w);\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(N * K log K), where N is the number of words and K is the maximum length of a word. This is due to sorting each string.
+- Space: O(N) to store the result list. Sorting takes O(K) space in Python/Java, but O(1) or O(log K) in C++/JS depending on implementation.
+- Notes: Sorting is the most straightforward method but can be slightly slower than frequency counting for very long strings.
+
+---
+## Approach 2: Iterative Comparison with Frequency Counting
+
+**Intuition**
+Instead of sorting, we can count the frequency of each character in the strings. Two strings are anagrams if their character frequency counts are identical. This approach runs in linear time relative to the string length.
+
+**Steps**
+- Initialize an empty list `result`.
+- Iterate through each word in `words`.
+- If `result` is empty, add the current word.
+- Otherwise, compare the character counts of the current word and the last word in `result`.
+- If the counts match, skip the current word.
+- If they differ, add the current word to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def removeAnagrams(self, words: list[str]) -&gt; list[str]:\n        res = []\n        for w in words:\n            if not res:\n                res.append(w)\n            else:\n                if Counter(w) == Counter(res[-1]):\n                    continue\n                res.append(w)\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;String&gt; removeAnagrams(String[] words) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        for (String w : words) {\n            if (res.isEmpty()) {\n                res.add(w);\n            } else {\n                String last = res.get(res.size() - 1);\n                if (isAnagram(w, last)) {\n                    continue;\n                }\n                res.add(w);\n            }\n        }\n        return res;\n    }\n\n    private boolean isAnagram(String s1, String s2) {\n        if (s1.length() != s2.length()) return false;\n        int[] count = new int[26];\n        for (int i = 0; i &lt; s1.length(); i++) {\n            count[s1.charAt(i) - 'a']++;\n            count[s2.charAt(i) - 'a']--;\n        }\n        for (int c : count) {\n            if (c != 0) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; removeAnagrams(vector&lt;string&gt;& words) {\n        vector&lt;string&gt; res;\n        for (const string& w : words) {\n            if (res.empty()) {\n                res.push_back(w);\n            } else {\n                string last = res.back();\n                if (isAnagram(w, last)) {\n                    continue;\n                }\n                res.push_back(w);\n            }\n        }\n        return res;\n    }\n\nprivate:\n    bool isAnagram(const string& s1, const string& s2) {\n        if (s1.length() != s2.length()) return false;\n        int count[26] = {0};\n        for (size_t i = 0; i &lt; s1.length(); i++) {\n            count[s1[i] - 'a']++;\n            count[s2[i] - 'a']--;\n        }\n        for (int i = 0; i &lt; 26; i++) {\n            if (count[i] != 0) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeAnagrams = function(words) {\n    let res = [];\n    for (let w of words) {\n        if (res.length === 0) {\n            res.push(w);\n        } else {\n            let prev = res[res.length - 1];\n            if (w.length !== prev.length) {\n                res.push(w);\n                continue;\n            }\n            let count = new Array(26).fill(0);\n            let isAnagram = true;\n            for (let i = 0; i &lt; w.length; i++) {\n                count[w.charCodeAt(i) - 97]++;\n                count[prev.charCodeAt(i) - 97]--;\n            }\n            for (let c of count) {\n                if (c !== 0) {\n                    isAnagram = false;\n                    break;\n                }\n            }\n            if (!isAnagram) {\n                res.push(w);\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeAnagrams(words: string[]): string[] {\n    let res: string[] = [];\n    for (let w of words) {\n        if (res.length === 0) {\n            res.push(w);\n        } else {\n            let prev = res[res.length - 1];\n            if (w.length !== prev.length) {\n                res.push(w);\n                continue;\n            }\n            let count = new Array(26).fill(0);\n            let isAnagram = true;\n            for (let i = 0; i &lt; w.length; i++) {\n                count[w.charCodeAt(i) - 97]++;\n                count[prev.charCodeAt(i) - 97]--;\n            }\n            for (let c of count) {\n                if (c !== 0) {\n                    isAnagram = false;\n                    break;\n                }\n            }\n            if (!isAnagram) {\n                res.push(w);\n            }\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(N * K), where N is the number of words and K is the maximum length of a word. We iterate through each character once.
+- Space: O(1) auxiliary space (since the alphabet size is fixed at 26), plus O(N) for the result list.
+- Notes: This is theoretically more efficient than sorting for large strings, though for the given constraints (K &lt;= 10), the difference is negligible.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Resultant Array After Removing Anagrams Solutions","datePublished":"2026-04-02","description":"Remove words from the array that are anagrams of the previous word until no more removals are possible.","keywords":"LeetCode, Find Resultant Array After Removing Anagrams, Easy, Array, Hash Table, String, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * K log K), where N is the number of words and K is the maximum length of a word."}},{"@type":"Question","name":"What is the time complexity of the Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * K), where N is the number of words and K is the maximum length of a word."}},{"@type":"Question","name":"How do we check if two strings are anagrams?","acceptedAnswer":{"@type":"Answer","text":"Two strings are anagrams if they contain the same characters with the same frequencies. This can be checked by sorting both strings or by counting character frequencies."}}]}).replace(/</g,'\u003c')}
+</script>

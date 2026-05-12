@@ -1,0 +1,128 @@
+---
+title: "Sqrt(x)"
+summary: "Given a non-negative integer x, return the square root of x rounded down to the nearest integer."
+date: "Dec 01, 2025"
+tags:
+  - Math
+  - Binary Search
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 41.80% | **Paid:** No
+> **Topics:** Math, Binary Search
+
+Given a non-negative integer x, return the square root of x rounded down to the nearest integer. Return the integer part of the square root of x. Note that you are not allowed to use any built-in exponent function or operator, such as pow(x, 0.5) or x ** 0.5.
+
+- Examples
+- Constraints
+- [Approach 1: Linear Search](#approach-1-linear-search)
+- [Approach 2: Binary Search](#approach-2-binary-search)
+- [Approach 3: Newton's Method](#approach-3-newtons-method)
+
+## Examples
+
+```text
+Input: x = 4
+Output: 2
+Explanation: The square root of 4 is 2, so we return 2.
+```
+
+```text
+Input: x = 8
+Output: 2
+Explanation: The square root of 8 is 2.82842..., and since we round it down to the nearest integer, 2 is returned.
+```
+
+## Constraints
+
+```text
+0 <= x <= 2³¹ - 1
+```
+
+---
+
+## Approach 1: Linear Search
+
+**Intuition**
+We can iterate through all integers from 0 to x and check if the square of the integer is equal to x. The first integer whose square exceeds x indicates that the previous integer is the floor of the square root.
+
+**Steps**
+- Handle the edge case where x is 0 or 1.
+- Iterate from 1 to x.
+- If i * i equals x, return i.
+- If i * i exceeds x, return i - 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mySqrt(self, x: int) -&gt; int:\n        if x &lt; 2:\n            return x\n        i = 1\n        while i * i &lt;= x:\n            if i * i == x:\n                return i\n            i += 1\n        return i - 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        long i = 1;\n        while (i * i &lt;= x) {\n            if (i * i == x) return (int) i;\n            i++;\n        }\n        return (int) (i - 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        long long i = 1;\n        while (i * i &lt;= x) {\n            if (i * i == x) return (int)i;\n            i++;\n        }\n        return (int)(i - 1);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var mySqrt = function(x) {\n    if (x &lt; 2) return x;\n    let i = 1;\n    while (i * i &lt;= x) {\n        if (i * i === x) return i;\n        i++;\n    }\n    return i - 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mySqrt(x: number): number {\n    if (x &lt; 2) return x;\n    let i = 1;\n    while (i * i &lt;= x) {\n        if (i * i === x) return i;\n        i++;\n    }\n    return i - 1;\n}" },]} />
+
+**Complexity**
+- Time: O(√x) — In the worst case, we iterate up to the square root of x.
+- Space: O(1) — We only use a single variable for iteration.
+- Notes: This approach is simple but inefficient for very large values of x (e.g., close to 2³¹).
+
+---
+
+## Approach 2: Binary Search
+
+**Intuition**
+The square root of x lies between 0 and x. Since the sequence of squares is sorted, we can use binary search to efficiently find the largest integer mid such that mid² ≤ x.
+
+**Steps**
+- Initialize left = 0 and right = x.
+- While left ≤ right:
+    - Calculate mid = left + (right - left) / 2.
+    - Calculate square = mid * mid.
+    - If square == x, return mid.
+    - If square &lt; x, move left to mid + 1 (search for a potentially larger root).
+    - If square &gt; x, move right to mid - 1 (search for a smaller root).
+- When the loop ends, right is the largest integer satisfying right² ≤ x.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mySqrt(self, x: int) -&gt; int:\n        if x &lt; 2:\n            return x\n        left, right = 1, x // 2\n        while left &lt;= right:\n            mid = left + (right - left) // 2\n            sq = mid * mid\n            if sq == x:\n                return mid\n            elif sq &lt; x:\n                left = mid + 1\n            else:\n                right = mid - 1\n        return right" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        int left = 1, right = x / 2;\n        while (left &lt;= right) {\n            int mid = left + (right - left) / 2;\n            long sq = (long) mid * mid;\n            if (sq == x) return mid;\n            if (sq &lt; x) left = mid + 1;\n            else right = mid - 1;\n        }\n        return right;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        int left = 1, right = x / 2;\n        while (left &lt;= right) {\n            int mid = left + (right - left) / 2;\n            long long sq = (long long)mid * mid;\n            if (sq == x) return mid;\n            if (sq &lt; x) left = mid + 1;\n            else right = mid - 1;\n        }\n        return right;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var mySqrt = function(x) {\n    if (x &lt; 2) return x;\n    let left = 1, right = Math.floor(x / 2);\n    while (left &lt;= right) {\n        let mid = Math.floor(left + (right - left) / 2);\n        let sq = mid * mid;\n        if (sq === x) return mid;\n        if (sq &lt; x) left = mid + 1;\n        else right = mid - 1;\n    }\n    return right;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mySqrt(x: number): number {\n    if (x &lt; 2) return x;\n    let left = 1, right = Math.floor(x / 2);\n    while (left &lt;= right) {\n        let mid = Math.floor(left + (right - left) / 2);\n        let sq = mid * mid;\n        if (sq === x) return mid;\n        if (sq &lt; x) left = mid + 1;\n        else right = mid - 1;\n    }\n    return right;\n}" },]} />
+
+**Complexity**
+- Time: O(log x) — We halve the search space in each iteration.
+- Space: O(1) — Only a few integer variables are used.
+- Notes: Care must be taken with integer overflow when calculating mid * mid. Using long (Java/C++) or ensuring the logic handles large numbers is necessary.
+
+---
+
+## Approach 3: Newton's Method
+
+**Intuition**
+Newton's Method (also known as the Heron's method) is an efficient algorithm for finding successively better approximations to the roots (or zeroes) of a real-valued function. For finding √x, we solve r² - x = 0. The iterative formula is `r_(n+1) = (r_n + x / r_n) / 2`.
+
+**Steps**
+- If x is 0 or 1, return x.
+- Initialize r = x.
+- While r * r &gt; x:
+    - Update r to the average of r and x / r.
+- Return r (cast to integer).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mySqrt(self, x: int) -&gt; int:\n        if x &lt; 2:\n            return x\n        r = x\n        while r * r &gt; x:\n            r = (r + x // r) // 2\n        return r" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        long r = x;\n        while (r * r &gt; x) {\n            r = (r + x / r) / 2;\n        }\n        return (int) r;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mySqrt(int x) {\n        if (x &lt; 2) return x;\n        long long r = x;\n        while (r * r &gt; x) {\n            r = (r + x / r) / 2;\n        }\n        return (int)r;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var mySqrt = function(x) {\n    if (x &lt; 2) return x;\n    let r = x;\n    while (r * r &gt; x) {\n        r = Math.floor((r + Math.floor(x / r)) / 2);\n    }\n    return r;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mySqrt(x: number): number {\n    if (x &lt; 2) return x;\n    let r = x;\n    while (r * r &gt; x) {\n        r = Math.floor((r + Math.floor(x / r)) / 2);\n    }\n    return r;\n}" },]} />
+
+**Complexity**
+- Time: O(log x) — The number of correct digits roughly doubles with each step, leading to logarithmic convergence.
+- Space: O(1) — Constant space usage.
+- Notes: This is often faster than binary search in practice due to the quadratic convergence rate, though it involves division which can be computationally expensive on some hardware.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sqrt(x) Solutions","datePublished":"2025-12-01","description":"Given a non-negative integer x, return the square root of x rounded down to the nearest integer.","keywords":"LeetCode, Sqrt(x), Easy, Math, Binary Search"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Binary Search approach for Sqrt(x)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log x) because the search space is halved in each iteration."}},{"@type":"Question","name":"What is the time complexity of Newton's Method for Sqrt(x)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log x). Newton's method converges quadratically, which is very fast."}},{"@type":"Question","name":"Why is Linear Search inefficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Linear Search has a time complexity of O(√x), which is too slow for large inputs like 2³¹ - 1."}}]}).replace(/</g,'\u003c')}
+</script>

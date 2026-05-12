@@ -1,0 +1,144 @@
+---
+title: "Convert 1D Array Into 2D Array"
+summary: "You are given a 0-indexed 1-dimensional array of distinct integers. Convert it into a 2-dimensional array with m rows and n columns."
+date: "Jun 28, 2025"
+tags:
+  - Array
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.20% | **Paid:** No
+> **Topics:** Array, Matrix, Simulation
+
+You are given a 0-indexed 1-dimensional (1D) integer array original, and two integers, m and n. You are tasked with creating a 2-dimensional (2D) array with m rows and n columns using all the elements from original.
+
+The elements from indices 0 to n - 1 (inclusive) in original should form the first row of the constructed 2D array, the elements from indices n to 2 * n - 1 (inclusive) should form the second row of the constructed 2D array, and so on.
+
+Return an m x n 2D array constructed according to the above procedure, or an empty 2D array if it is impossible.
+
+- Examples
+- Constraints
+- [Chunking (Slicing)](#chunking-slicing)
+- [Index Mapping (Math)](#index-mapping-math)
+- [Nested Loops (Simulation)](#nested-loops-simulation)
+
+## Examples
+
+### Example 1
+```text
+Input: original = [1,2,3,4], m = 2, n = 2
+Output: [[1,2],[3,4]]
+Explanation: The input original has length 4, and m * n = 4, so the construction is possible.
+The constructed 2D array should have 2 rows and 2 columns.
+- The first row is formed by elements original[0..1] = [1, 2].
+- The second row is formed by elements original[2..3] = [3, 4].
+```
+
+### Example 2
+```text
+Input: original = [1,2,3], m = 1, n = 3
+Output: [[1,2,3]]
+Explanation: The input original has length 3, and m * n = 3, so the construction is possible.
+The constructed 2D array should have 1 row and 3 columns.
+- The first row is formed by elements original[0..2] = [1, 2, 3].
+```
+
+### Example 3
+```text
+Input: original = [1,2], m = 1, n = 1
+Output: []
+Explanation: The input original has length 2, and m * n = 1, so the construction is not possible.
+Return an empty 2D array.
+```
+
+## Constraints
+
+```text
+1 <= original.length <= 5 * 10⁴
+1 <= m, n <= 4 * 10⁴
+```
+
+---
+## Chunking (Slicing)
+
+**Intuition**
+We can directly slice the 1D array into chunks of size n to form the rows of the 2D array. This approach is clean and leverages built-in language features for array manipulation.
+
+**Steps**
+- Check if m * n equals the length of original. If not, return an empty array.
+- Iterate from 0 to m - 1.
+- In each iteration, slice the original array from index i * n to (i + 1) * n.
+- Append the sliced chunk to the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def construct2DArray(self, original: List[int], m: int, n: int) -&gt; List[List[int]]:\r\n        if m * n != len(original):\r\n            return []\r\n        \r\n        result = []\r\n        for i in range(m):\r\n            start = i * n\r\n            end = start + n\r\n            result.append(original[start:end])\r\n            \r\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int[][] construct2DArray(int[] original, int m, int n) {\r\n        if (m * n != original.length) {\r\n            return new int[0][0];\r\n        }\r\n        \r\n        int[][] result = new int[m][n];\r\n        for (int i = 0; i &lt; m; i++) {\r\n            System.arraycopy(original, i * n, result[i], 0, n);\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    vector&lt;vector&lt;int&gt;&gt; construct2DArray(vector&lt;int&gt;& original, int m, int n) {\r\n        if (m * n != original.size()) {\r\n            return {};\r\n        }\r\n        \r\n        vector&lt;vector&lt;int&gt;&gt; result(m, vector&lt;int&gt;(n));\r\n        for (int i = 0; i &lt; m; ++i) {\r\n            copy(original.begin() + i * n, original.begin() + (i + 1) * n, result[i].begin());\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    construct2DArray(original, m, n) {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result = [];\r\n        for (let i = 0; i &lt; m; i++) {\r\n            result.push(original.slice(i * n, (i + 1) * n));\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    construct2DArray(original: number[], m: number, n: number): number[][] {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result: number[][] = [];\r\n        for (let i = 0; i &lt; m; i++) {\r\n            result.push(original.slice(i * n, (i + 1) * n));\r\n        }\r\n        return result;\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(m * n) — We visit every element exactly once to copy it to the new structure.
+- Space: O(m * n) — To store the resulting 2D array.
+- Notes: In Python and JavaScript, slicing creates a new list/array, which adds to the space complexity, but this is required for the output anyway.
+
+---
+## Index Mapping (Math)
+
+**Intuition**
+We can map the 1D index of the original array to the 2D indices (row, column) of the result array using division and modulo operations. This avoids slicing overhead and is very cache-friendly.
+
+**Steps**
+- Check if m * n equals the length of original. If not, return an empty array.
+- Initialize an m x n result array.
+- Iterate through the original array with index k.
+- Calculate the row index as k / n (integer division) and column index as k % n.
+- Assign original[k] to result[row][col].
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def construct2DArray(self, original: List[int], m: int, n: int) -&gt; List[List[int]]:\r\n        if m * n != len(original):\r\n            return []\r\n        \r\n        result = [[0] * n for _ in range(m)]\r\n        for k in range(len(original)):\r\n            row = k // n\r\n            col = k % n\r\n            result[row][col] = original[k]\r\n            \r\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int[][] construct2DArray(int[] original, int m, int n) {\r\n        if (m * n != original.length) {\r\n            return new int[0][0];\r\n        }\r\n        \r\n        int[][] result = new int[m][n];\r\n        for (int k = 0; k &lt; original.length; k++) {\r\n            int row = k / n;\r\n            int col = k % n;\r\n            result[row][col] = original[k];\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    vector&lt;vector&lt;int&gt;&gt; construct2DArray(vector&lt;int&gt;& original, int m, int n) {\r\n        if (m * n != original.size()) {\r\n            return {};\r\n        }\r\n        \r\n        vector&lt;vector&lt;int&gt;&gt; result(m, vector&lt;int&gt;(n));\r\n        for (int k = 0; k &lt; original.size(); k++) {\r\n            int row = k / n;\r\n            int col = k % n;\r\n            result[row][col] = original[k];\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    construct2DArray(original, m, n) {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result = Array.from({ length: m }, () =&gt; new Array(n).fill(0));\r\n        for (let k = 0; k &lt; original.length; k++) {\r\n            const row = Math.floor(k / n);\r\n            const col = k % n;\r\n            result[row][col] = original[k];\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    construct2DArray(original: number[], m: number, n: number): number[][] {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result: number[][] = Array.from({ length: m }, () =&gt; new Array(n).fill(0));\r\n        for (let k = 0; k &lt; original.length; k++) {\r\n            const row = Math.floor(k / n);\r\n            const col = k % n;\r\n            result[row][col] = original[k];\r\n        }\r\n        return result;\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(m * n) — We iterate through the array once.
+- Space: O(m * n) — For the result array.
+- Notes: This is often the most performant approach in lower-level languages like C++ and Java as it minimizes overhead.
+
+---
+## Nested Loops (Simulation)
+
+**Intuition**
+We can simulate the process of filling a 2D matrix row by row using two nested loops. We maintain a pointer to the current position in the original array and increment it as we fill cells.
+
+**Steps**
+- Check if m * n equals the length of original. If not, return an empty array.
+- Initialize an m x n result array.
+- Initialize an index variable idx to 0.
+- Loop i from 0 to m - 1 (rows).
+- Loop j from 0 to n - 1 (columns).
+- Assign original[idx] to result[i][j] and increment idx.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def construct2DArray(self, original: List[int], m: int, n: int) -&gt; List[List[int]]:\r\n        if m * n != len(original):\r\n            return []\r\n        \r\n        result = [[0] * n for _ in range(m)]\r\n        idx = 0\r\n        for i in range(m):\r\n            for j in range(n):\r\n                result[i][j] = original[idx]\r\n                idx += 1\r\n                \r\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int[][] construct2DArray(int[] original, int m, int n) {\r\n        if (m * n != original.length) {\r\n            return new int[0][0];\r\n        }\r\n        \r\n        int[][] result = new int[m][n];\r\n        int idx = 0;\r\n        for (int i = 0; i &lt; m; i++) {\r\n            for (int j = 0; j &lt; n; j++) {\r\n                result[i][j] = original[idx++];\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    vector&lt;vector&lt;int&gt;&gt; construct2DArray(vector&lt;int&gt;& original, int m, int n) {\r\n        if (m * n != original.size()) {\r\n            return {};\r\n        }\r\n        \r\n        vector&lt;vector&lt;int&gt;&gt; result(m, vector&lt;int&gt;(n));\r\n        int idx = 0;\r\n        for (int i = 0; i &lt; m; ++i) {\r\n            for (int j = 0; j &lt; n; ++j) {\r\n                result[i][j] = original[idx++];\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    construct2DArray(original, m, n) {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result = Array.from({ length: m }, () =&gt; new Array(n).fill(0));\r\n        let idx = 0;\r\n        for (let i = 0; i &lt; m; i++) {\r\n            for (let j = 0; j &lt; n; j++) {\r\n                result[i][j] = original[idx++];\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    construct2DArray(original: number[], m: number, n: number): number[][] {\r\n        if (m * n !== original.length) {\r\n            return [];\r\n        }\r\n        \r\n        const result: number[][] = Array.from({ length: m }, () =&gt; new Array(n).fill(0));\r\n        let idx = 0;\r\n        for (let i = 0; i &lt; m; i++) {\r\n            for (let j = 0; j &lt; n; j++) {\r\n                result[i][j] = original[idx++];\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(m * n) — We iterate through the array once.
+- Space: O(m * n) — For the result array.
+- Notes: This is the most straightforward simulation approach, logically equivalent to the Index Mapping method but with explicit loop control.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Convert 1D Array Into 2D Array Solutions","datePublished":"2025-06-28","description":"You are given a 0-indexed 1-dimensional array of distinct integers. Convert it into a 2-dimensional array with m rows and n columns.","keywords":"LeetCode, Convert 1D Array Into 2D Array, Easy, Array, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity for Chunking (Slicing)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n) because we must visit every element in the original array exactly once to construct the 2D array."}},{"@type":"Question","name":"What is the space complexity for Index Mapping (Math)?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m * n) to store the resulting 2D array. This does not count the input space."}},{"@type":"Question","name":"Why might Nested Loops be preferred over Slicing?","acceptedAnswer":{"@type":"Answer","text":"Nested loops or index mapping can be more performant in lower-level languages like C++ or Java because they avoid the overhead of creating temporary array copies that slicing might entail."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,646 @@
+---
+title: "Method Chaining"
+summary: "Implement a class with methods that can be chained together to perform operations."
+date: "Jan 16, 2025"
+tags:
+  - Object-Oriented Programming
+  - Design Patterns
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.00% | **Paid:** No
+> **Topics:** N/A
+
+Implement a class that supports method chaining. The class should have methods that modify internal state and return the object itself, allowing multiple methods to be called in a single statement.
+
+Create a class with the following methods:
+- `add(value)` - adds the given value to the current result
+- `subtract(value)` - subtracts the given value from the current result
+- `multiply(value)` - multiplies the current result by the given value
+- `divide(value)` - divides the current result by the given value
+- `getResult()` - returns the current result
+
+Each method (except getResult) should return the object itself to enable chaining.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Approach 1: Standard Method Chaining](#approach-1-standard-method-chaining)
+- [Approach 2: Builder Pattern](#approach-2-builder-pattern)
+- [Approach 3: Functional Approach](#approach-3-functional-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+DataFrame animals:
++----------+---------+-----+--------+
+| name     | species | age | weight |
++----------+---------+-----+--------+
+| Tatiana  | Snake   | 98  | 464    |
+| Khaled   | Giraffe | 50  | 41     |
+| Alex     | Leopard | 6   | 328    |
+| Jonathan | Monkey  | 45  | 463    |
+| Stefan   | Bear    | 100 | 50     |
+| Tommy    | Panda   | 26  | 349    |
++----------+---------+-----+--------+
+```
+
+**Output:**
+```text
++----------+
+| name     |
++----------+
+| Tatiana  |
+| Jonathan |
+| Tommy    |
+| Alex     |
++----------+
+```
+
+**Explanation:**
+All animals weighing more than 100 should be included in the results table.
+Tatiana's weight is 464, Jonathan's weight is 463, Tommy's weight is 349, and Alex's weight is 328.
+The results should be sorted in descending order of weight.
+
+## Constraints
+
+```text
+- 0 <= value <= 100
+- The result will always fit in a 32-bit signed integer
+- At most 100 operations will be performed
+```
+
+---
+## Approach 1: Standard Method Chaining
+
+**Intuition**
+Store the current result in an instance variable and return `this` from each method to enable chaining.
+
+**Steps**
+- Initialize the result to 0 in the constructor
+- For each operation method, modify the result and return `this`
+- The getResult method simply returns the current result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Calculator:
+    def __init__(self):
+        self.result = 0
+    
+    def add(self, value: int) -> 'Calculator':
+        self.result += value
+        return self
+    
+    def subtract(self, value: int) -> 'Calculator':
+        self.result -= value
+        return self
+    
+    def multiply(self, value: int) -> 'Calculator':
+        self.result *= value
+        return self
+    
+    def divide(self, value: int) -> 'Calculator':
+        self.result //= value
+        return self
+    
+    def getResult(self) -> int:
+        return self.result
+` },
+{ name: "Java", lang: "java", code: `class Calculator {
+    private int result;
+    
+    public Calculator() {
+        this.result = 0;
+    }
+    
+    public Calculator add(int value) {
+        this.result += value;
+        return this;
+    }
+    
+    public Calculator subtract(int value) {
+        this.result -= value;
+        return this;
+    }
+    
+    public Calculator multiply(int value) {
+        this.result *= value;
+        return this;
+    }
+    
+    public Calculator divide(int value) {
+        this.result /= value;
+        return this;
+    }
+    
+    public int getResult() {
+        return this.result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Calculator {
+private:
+    int result;
+    
+public:
+    Calculator() {
+        result = 0;
+    }
+    
+    Calculator* add(int value) {
+        result += value;
+        return this;
+    }
+    
+    Calculator* subtract(int value) {
+        result -= value;
+        return this;
+    }
+    
+    Calculator* multiply(int value) {
+        result *= value;
+        return this;
+    }
+    
+    Calculator* divide(int value) {
+        result /= value;
+        return this;
+    }
+    
+    int getResult() {
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Calculator {
+    constructor() {
+        this.result = 0;
+    }
+    
+    add(value) {
+        this.result += value;
+        return this;
+    }
+    
+    subtract(value) {
+        this.result -= value;
+        return this;
+    }
+    
+    multiply(value) {
+        this.result *= value;
+        return this;
+    }
+    
+    divide(value) {
+        this.result = Math.floor(this.result / value);
+        return this;
+    }
+    
+    getResult() {
+        return this.result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Calculator {
+    private result: number;
+    
+    constructor() {
+        this.result = 0;
+    }
+    
+    add(value: number): Calculator {
+        this.result += value;
+        return this;
+    }
+    
+    subtract(value: number): Calculator {
+        this.result -= value;
+        return this;
+    }
+    
+    multiply(value: number): Calculator {
+        this.result *= value;
+        return this;
+    }
+    
+    divide(value: number): Calculator {
+        this.result = Math.floor(this.result / value);
+        return this;
+    }
+    
+    getResult(): number {
+        return this.result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(1)
+- Notes: Simple and efficient, standard approach for method chaining
+
+---
+## Approach 2: Builder Pattern
+
+**Intuition**
+Use a separate builder class to construct the calculation step by step, then execute to get the result.
+
+**Steps**
+- Create a Calculator class with a nested Builder
+- The Builder stores operations in a list
+- Execute runs all operations and returns the final result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List, Callable
+
+class Calculator:
+    def __init__(self):
+        self.result = 0
+        self.operations: List[Callable[[int], int]] = []
+    
+    def add(self, value: int) -> 'Calculator':
+        self.operations.append(lambda x: x + value)
+        self._apply_operations()
+        return self
+    
+    def subtract(self, value: int) -> 'Calculator':
+        self.operations.append(lambda x: x - value)
+        self._apply_operations()
+        return self
+    
+    def multiply(self, value: int) -> 'Calculator':
+        self.operations.append(lambda x: x * value)
+        self._apply_operations()
+        return self
+    
+    def divide(self, value: int) -> 'Calculator':
+        self.operations.append(lambda x: x // value)
+        self._apply_operations()
+        return self
+    
+    def _apply_operations(self):
+        for op in self.operations:
+            self.result = op(self.result)
+        self.operations.clear()
+    
+    def getResult(self) -> int:
+        return self.result
+` },
+{ name: "Java", lang: "java", code: `import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntUnaryOperator;
+
+class Calculator {
+    private int result;
+    private List<IntUnaryOperator> operations;
+    
+    public Calculator() {
+        this.result = 0;
+        this.operations = new ArrayList&lt;&gt;();
+    }
+    
+    public Calculator add(int value) {
+        operations.add(x -> x + value);
+        applyOperations();
+        return this;
+    }
+    
+    public Calculator subtract(int value) {
+        operations.add(x -> x - value);
+        applyOperations();
+        return this;
+    }
+    
+    public Calculator multiply(int value) {
+        operations.add(x -> x * value);
+        applyOperations();
+        return this;
+    }
+    
+    public Calculator divide(int value) {
+        operations.add(x -> x / value);
+        applyOperations();
+        return this;
+    }
+    
+    private void applyOperations() {
+        for (IntUnaryOperator op : operations) {
+            result = op.applyAsInt(result);
+        }
+        operations.clear();
+    }
+    
+    public int getResult() {
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <functional>
+#include <vector>
+
+class Calculator {
+private:
+    int result;
+    std::vector<std::function<int(int)&gt;&gt; operations;
+    
+    void applyOperations() {
+        for (auto& op : operations) {
+            result = op(result);
+        }
+        operations.clear();
+    }
+    
+public:
+    Calculator() : result(0) {}
+    
+    Calculator* add(int value) {
+        operations.push_back([value](int x) { return x + value; });
+        applyOperations();
+        return this;
+    }
+    
+    Calculator* subtract(int value) {
+        operations.push_back([value](int x) { return x - value; });
+        applyOperations();
+        return this;
+    }
+    
+    Calculator* multiply(int value) {
+        operations.push_back([value](int x) { return x * value; });
+        applyOperations();
+        return this;
+    }
+    
+    Calculator* divide(int value) {
+        operations.push_back([value](int x) { return x / value; });
+        applyOperations();
+        return this;
+    }
+    
+    int getResult() {
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Calculator {
+    constructor() {
+        this.result = 0;
+        this.operations = [];
+    }
+    
+    add(value) {
+        this.operations.push(x =&gt; x + value);
+        this.applyOperations();
+        return this;
+    }
+    
+    subtract(value) {
+        this.operations.push(x =&gt; x - value);
+        this.applyOperations();
+        return this;
+    }
+    
+    multiply(value) {
+        this.operations.push(x =&gt; x * value);
+        this.applyOperations();
+        return this;
+    }
+    
+    divide(value) {
+        this.operations.push(x =&gt; Math.floor(x / value));
+        this.applyOperations();
+        return this;
+    }
+    
+    applyOperations() {
+        for (const op of this.operations) {
+            this.result = op(this.result);
+        }
+        this.operations = [];
+    }
+    
+    getResult() {
+        return this.result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `type Operation = (x: number) =&gt; number;
+
+class Calculator {
+    private result: number;
+    private operations: Operation[];
+    
+    constructor() {
+        this.result = 0;
+        this.operations = [];
+    }
+    
+    add(value: number): Calculator {
+        this.operations.push(x =&gt; x + value);
+        this.applyOperations();
+        return this;
+    }
+    
+    subtract(value: number): Calculator {
+        this.operations.push(x =&gt; x - value);
+        this.applyOperations();
+        return this;
+    }
+    
+    multiply(value: number): Calculator {
+        this.operations.push(x =&gt; x * value);
+        this.applyOperations();
+        return this;
+    }
+    
+    divide(value: number): Calculator {
+        this.operations.push(x =&gt; Math.floor(x / value));
+        this.applyOperations();
+        return this;
+    }
+    
+    private applyOperations(): void {
+        for (const op of this.operations) {
+            this.result = op(this.result);
+        }
+        this.operations = [];
+    }
+    
+    getResult(): number {
+        return this.result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(1) - operations list is cleared after each call
+- Notes: More complex than standard approach, useful for deferred execution
+
+---
+## Approach 3: Functional Approach
+
+**Intuition**
+Create immutable objects where each operation returns a new Calculator instance with the updated result.
+
+**Steps**
+- Store result as an immutable property
+- Each operation creates a new Calculator with the updated result
+- This approach is more functional but less memory efficient
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from dataclasses import dataclass
+
+@dataclass
+class Calculator:
+    result: int = 0
+    
+    def add(self, value: int) -> 'Calculator':
+        return Calculator(self.result + value)
+    
+    def subtract(self, value: int) -> 'Calculator':
+        return Calculator(self.result - value)
+    
+    def multiply(self, value: int) -> 'Calculator':
+        return Calculator(self.result * value)
+    
+    def divide(self, value: int) -> 'Calculator':
+        return Calculator(self.result // value)
+    
+    def getResult(self) -> int:
+        return self.result
+` },
+{ name: "Java", lang: "java", code: `class Calculator {
+    private final int result;
+    
+    public Calculator() {
+        this.result = 0;
+    }
+    
+    private Calculator(int result) {
+        this.result = result;
+    }
+    
+    public Calculator add(int value) {
+        return new Calculator(this.result + value);
+    }
+    
+    public Calculator subtract(int value) {
+        return new Calculator(this.result - value);
+    }
+    
+    public Calculator multiply(int value) {
+        return new Calculator(this.result * value);
+    }
+    
+    public Calculator divide(int value) {
+        return new Calculator(this.result / value);
+    }
+    
+    public int getResult() {
+        return this.result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Calculator {
+private:
+    int result;
+    
+    Calculator(int res) : result(res) {}
+    
+public:
+    Calculator() : result(0) {}
+    
+    Calculator add(int value) {
+        return Calculator(result + value);
+    }
+    
+    Calculator subtract(int value) {
+        return Calculator(result - value);
+    }
+    
+    Calculator multiply(int value) {
+        return Calculator(result * value);
+    }
+    
+    Calculator divide(int value) {
+        return Calculator(result / value);
+    }
+    
+    int getResult() {
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Calculator {
+    constructor(result = 0) {
+        this.result = result;
+        Object.freeze(this);
+    }
+    
+    add(value) {
+        return new Calculator(this.result + value);
+    }
+    
+    subtract(value) {
+        return new Calculator(this.result - value);
+    }
+    
+    multiply(value) {
+        return new Calculator(this.result * value);
+    }
+    
+    divide(value) {
+        return new Calculator(Math.floor(this.result / value));
+    }
+    
+    getResult() {
+        return this.result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Calculator {
+    private readonly result: number;
+    
+    constructor(result: number = 0) {
+        this.result = result;
+        Object.freeze(this);
+    }
+    
+    add(value: number): Calculator {
+        return new Calculator(this.result + value);
+    }
+    
+    subtract(value: number): Calculator {
+        return new Calculator(this.result - value);
+    }
+    
+    multiply(value: number): Calculator {
+        return new Calculator(this.result * value);
+    }
+    
+    divide(value: number): Calculator {
+        return new Calculator(Math.floor(this.result / value));
+    }
+    
+    getResult(): number {
+        return this.result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(n) where n is the number of chained operations
+- Notes: More memory intensive due to creating new objects, but provides immutability
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Method Chaining Solutions","datePublished":"2025-01-16","description":"Implement a class with methods that can be chained together to perform operations.","keywords":"LeetCode, Method Chaining, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Standard Method Chaining approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each operation"}},{"@type":"Question","name":"What is the space complexity of Standard Method Chaining approach?","acceptedAnswer":{"@type":"Answer","text":"O(1)"}},{"@type":"Question","name":"What is the time complexity of Builder Pattern approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each operation"}},{"@type":"Question","name":"What is the space complexity of Builder Pattern approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - operations list is cleared after each call"}},{"@type":"Question","name":"What is the time complexity of Functional Approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each operation"}},{"@type":"Question","name":"What is the space complexity of Functional Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of chained operations"}}]}).replace(/</g,'\u003c')}
+</script>

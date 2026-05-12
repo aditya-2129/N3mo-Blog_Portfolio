@@ -1,0 +1,264 @@
+---
+title: "Minimum Operations to Equalize Array"
+summary: "Find minimum bit flips to make all array elements equal."
+date: "Feb 15, 2026"
+tags:
+  - Array
+  - Bit Manipulation
+  - Brainteaser
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.40% | **Paid:** No
+> **Topics:** Array, Bit Manipulation, Brainteaser
+
+You are given an array nums of n integers. In one operation, you can select any element and flip any single bit in its binary representation. Return the minimum number of operations required to make all elements equal.
+
+- Examples
+- Constraints
+- [Bit-by-Bit Counting](#bit-by-bit-counting)
+- [Brute Force](#brute-force)
+
+## Examples
+
+**Example 1:**
+```text
+Input: nums = [1,2,3]
+Output: 2
+Explanation: 
+- 1 = 01, 2 = 10, 3 = 11
+- For bit 0: 1s=2, 0s=1, min=1
+- For bit 1: 1s=2, 0s=1, min=1
+- Total = 2
+```
+
+**Example 2:**
+```text
+Input: nums = [2,4,8]
+Output: 3
+Explanation:
+- 2 = 0010, 4 = 0100, 8 = 1000
+- For bit 0: 1s=0, 0s=3, min=0
+- For bit 1: 1s=1, 0s=2, min=1
+- For bit 2: 1s=1, 0s=2, min=1
+- For bit 3: 1s=1, 0s=2, min=1
+- Total = 3
+```
+
+## Constraints
+
+```text
+- 1 <= n == nums.length <= 100
+- 1 <= nums[i] <= 10^5
+```
+
+---
+## Bit-by-Bit Counting
+
+**Intuition**
+For each bit position, we can independently decide whether to make all bits 0 or all bits 1. The cost for each bit position is the minimum of the count of 1s and the count of 0s.
+
+**Steps**
+- Initialize total operations to 0
+- For each bit position from 0 to 30:
+  - Count how many numbers have a 1 at that position
+  - Add min(count_1s, n - count_1s) to total operations
+- Return total operations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        total_ops = 0
+        for bit in range(31):
+            count_ones = 0
+            for num in nums:
+                if (num &gt;&gt; bit) & 1:
+                    count_ones += 1
+            total_ops += min(count_ones, n - count_ones)
+        return total_ops` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minOperations(int[] nums) {
+        int n = nums.length;
+        int totalOps = 0;
+        for (int bit = 0; bit &lt; 31; bit++) {
+            int countOnes = 0;
+            for (int num : nums) {
+                if (((num &gt;&gt; bit) & 1) == 1) {
+                    countOnes++;
+                }
+            }
+            totalOps += Math.min(countOnes, n - countOnes);
+        }
+        return totalOps;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        int n = nums.size();
+        int totalOps = 0;
+        for (int bit = 0; bit &lt; 31; bit++) {
+            int countOnes = 0;
+            for (int num : nums) {
+                if ((num &gt;&gt; bit) & 1) {
+                    countOnes++;
+                }
+            }
+            totalOps += min(countOnes, n - countOnes);
+        }
+        return totalOps;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minOperations = function(nums) {
+    const n = nums.length;
+    let totalOps = 0;
+    for (let bit = 0; bit &lt; 31; bit++) {
+        let countOnes = 0;
+        for (const num of nums) {
+            if ((num &gt;&gt; bit) & 1) {
+                countOnes++;
+            }
+        }
+        totalOps += Math.min(countOnes, n - countOnes);
+    }
+    return totalOps;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function minOperations(nums: number[]): number {
+    const n = nums.length;
+    let totalOps = 0;
+    for (let bit = 0; bit &lt; 31; bit++) {
+        let countOnes = 0;
+        for (const num of nums) {
+            if ((num &gt;&gt; bit) & 1) {
+                countOnes++;
+            }
+        }
+        totalOps += Math.min(countOnes, n - countOnes);
+    }
+    return totalOps;
+}` },]} />
+
+**Complexity**
+- Time: O(n × 31) = O(n)
+- Space: O(1)
+- Notes: Optimal solution with linear time complexity.
+
+---
+## Brute Force
+
+**Intuition**
+Try all possible target values and compute the Hamming distance for each. The minimum Hamming distance is the answer.
+
+**Steps**
+- For each unique value in the array (or all 2³¹ possible values):
+  - Compute the Hamming distance between each element and the target
+  - Track the minimum total distance
+- Return the minimum total distance
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        # Only try unique values from the array as potential targets
+        unique_targets = set(nums)
+        min_ops = float('inf')
+        
+        for target in unique_targets:
+            ops = 0
+            for num in nums:
+                # Count differing bits
+                diff = num ^ target
+                ops += bin(diff).count('1')
+            min_ops = min(min_ops, ops)
+        
+        return min_ops` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minOperations(int[] nums) {
+        Set<Integer> uniqueTargets = new HashSet&lt;&gt;();
+        for (int num : nums) {
+            uniqueTargets.add(num);
+        }
+        
+        int minOps = Integer.MAX_VALUE;
+        for (int target : uniqueTargets) {
+            int ops = 0;
+            for (int num : nums) {
+                int diff = num ^ target;
+                ops += Integer.bitCount(diff);
+            }
+            minOps = Math.min(minOps, ops);
+        }
+        
+        return minOps;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        unordered_set<int> uniqueTargets(nums.begin(), nums.end());
+        int minOps = INT_MAX;
+        
+        for (int target : uniqueTargets) {
+            int ops = 0;
+            for (int num : nums) {
+                int diff = num ^ target;
+                ops += __builtin_popcount(diff);
+            }
+            minOps = min(minOps, ops);
+        }
+        
+        return minOps;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minOperations = function(nums) {
+    const uniqueTargets = new Set(nums);
+    let minOps = Infinity;
+    
+    for (const target of uniqueTargets) {
+        let ops = 0;
+        for (const num of nums) {
+            const diff = num ^ target;
+            ops += diff.toString(2).split('1').length - 1;
+        }
+        minOps = Math.min(minOps, ops);
+    }
+    
+    return minOps;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function minOperations(nums: number[]): number {
+    const uniqueTargets = new Set(nums);
+    let minOps = Infinity;
+    
+    for (const target of uniqueTargets) {
+        let ops = 0;
+        for (const num of nums) {
+            const diff = num ^ target;
+            ops += diff.toString(2).split('1').length - 1;
+        }
+        minOps = Math.min(minOps, ops);
+    }
+    
+    return minOps;
+}` },]} />
+
+**Complexity**
+- Time: O(n × k) where k is the number of unique values
+- Space: O(k) for storing unique values
+- Notes: Not optimal for large arrays with many unique values.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Operations to Equalize Array Solutions","datePublished":"2026-02-15","description":"Find minimum bit flips to make all array elements equal.","keywords":"LeetCode, Minimum Operations to Equalize Array, Easy, Array, Bit Manipulation, Brainteaser"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Bit-by-Bit Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × 31) = O(n), where n is the length of the array."}},{"@type":"Question","name":"What is the space complexity of the Bit-by-Bit Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}},{"@type":"Question","name":"Why does the Bit-by-Bit Counting approach work?","acceptedAnswer":{"@type":"Answer","text":"Each bit position can be handled independently. For each position, we choose to make all bits 0 or all bits 1, whichever requires fewer flips."}}]}).replace(/</g,'\u003c')}
+</script>

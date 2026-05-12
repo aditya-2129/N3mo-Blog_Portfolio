@@ -1,0 +1,217 @@
+---
+title: "Game Play Analysis I"
+summary: "Find the first login date for each player from the Activity table."
+date: "Apr 21, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Activity
+
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| player_id    | int     |
+| device_id    | int     |
+| event_date   | date    |
+| games_played | int     |
++--------------+---------+
+(player_id, event_date) is the primary key of this table.
+This table shows the activity of players of some game.
+Each row is a record of a player who logged in and played a number of games (possibly 0) before logging out on some day using some device.
+
+Write an SQL query that reports the first login date for each player.
+
+The query result format is in the following example:
+
+Activity table:
++-----------+-----------+------------+--------------+
+| player_id | device_id | event_date | games_played |
++-----------+-----------+------------+--------------+
+| 1         | 2         | 2016-03-01 | 5            |
+| 1         | 2         | 2016-05-02 | 6            |
+| 2         | 3         | 2017-06-25 | 1            |
+| 3         | 1         | 2016-03-02 | 0            |
+| 3         | 4         | 2018-07-03 | 5            |
++-----------+-----------+------------+--------------+
+
+Result table:
++-----------+-------------+
+| player_id | first_login |
++-----------+-------------+
+| 1         | 2016-03-01  |
+| 2         | 2017-06-25  |
+| 3         | 2016-03-02  |
++-----------+-------------+
+
+- Examples
+- Constraints
+- [Approach 1: Using MIN with GROUP BY](#approach-1-using-min-with-group-by)
+- [Approach 2: Using Window Functions](#approach-2-using-window-functions)
+- [Approach 3: Using Subquery with NOT EXISTS](#approach-3-using-subquery-with-not-exists)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+Activity table:
++-----------+-----------+------------+--------------+
+| player_id | device_id | event_date | games_played |
++-----------+-----------+------------+--------------+
+| 1         | 2         | 2016-03-01 | 5            |
+| 1         | 2         | 2016-05-02 | 6            |
+| 2         | 3         | 2017-06-25 | 1            |
+| 3         | 1         | 2016-03-02 | 0            |
+| 3         | 4         | 2018-07-03 | 5            |
++-----------+-----------+------------+--------------+
+```
+
+**Output:**
+```text
++-----------+-------------+
+| player_id | first_login |
++-----------+-------------+
+| 1         | 2016-03-01  |
+| 2         | 2017-06-25  |
+| 3         | 2016-03-02  |
++-----------+-------------+
+```
+
+**Explanation:**
+The first login dates for players 1, 2, and 3 are 2016-03-01, 2017-06-25, and 2016-03-02 respectively.
+
+## Constraints
+
+```text
+- The Activity table has at least one row.
+- event_date is a valid date.
+- Each player has at least one login record.
+```
+
+---
+## Approach 1: Using MIN with GROUP BY
+
+**Intuition**
+Group the records by player_id and find the minimum event_date for each group to get the first login date.
+
+**Steps**
+- Group the Activity table by player_id
+- Select player_id and the minimum event_date as first_login
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def game_play_analysis() -> str:
+    return 'SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id'` },
+{ name: "Java", lang: "java", code: `public class Solution {
+    public String gamePlayAnalysis() {
+        return "SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id";
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+using namespace std;
+
+string gamePlayAnalysis() {
+    return "SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id";
+}` },
+{ name: "JavaScript", lang: "javascript", code: `function gamePlayAnalysis() {
+    return 'SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id';
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function gamePlayAnalysis(): string {
+    return 'SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id';
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Activity table
+- Space: O(k) where k is the number of unique players
+- Notes: Most efficient approach, uses aggregation
+
+---
+## Approach 2: Using Window Functions
+
+**Intuition**
+Use ROW_NUMBER() to rank each player's login dates and select the first one.
+
+**Steps**
+- Use ROW_NUMBER() to partition by player_id and order by event_date
+- Filter for rows where the rank is 1
+- Return player_id and event_date as first_login
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def game_play_analysis() -> str:
+    return 'SELECT player_id, event_date AS first_login FROM (SELECT player_id, event_date, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) as rn FROM Activity) ranked WHERE rn = 1'` },
+{ name: "Java", lang: "java", code: `public class Solution {
+    public String gamePlayAnalysis() {
+        return "SELECT player_id, event_date AS first_login FROM (SELECT player_id, event_date, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) as rn FROM Activity) ranked WHERE rn = 1";
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+using namespace std;
+
+string gamePlayAnalysis() {
+    return "SELECT player_id, event_date AS first_login FROM (SELECT player_id, event_date, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) as rn FROM Activity) ranked WHERE rn = 1";
+}` },
+{ name: "JavaScript", lang: "javascript", code: `function gamePlayAnalysis() {
+    return 'SELECT player_id, event_date AS first_login FROM (SELECT player_id, event_date, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) as rn FROM Activity) ranked WHERE rn = 1';
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function gamePlayAnalysis(): string {
+    return 'SELECT player_id, event_date AS first_login FROM (SELECT player_id, event_date, ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY event_date) as rn FROM Activity) ranked WHERE rn = 1';
+}` },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting within each partition
+- Space: O(n) for storing the window function results
+- Notes: More flexible but less efficient for this specific problem
+
+---
+## Approach 3: Using Subquery with NOT EXISTS
+
+**Intuition**
+For each player, find the login date such that no earlier login date exists for that player.
+
+**Steps**
+- Select player_id and event_date from Activity
+- Filter where there is no earlier event_date for the same player
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def game_play_analysis() -> str:
+    return 'SELECT a1.player_id, a1.event_date AS first_login FROM Activity a1 WHERE NOT EXISTS (SELECT 1 FROM Activity a2 WHERE a2.player_id = a1.player_id AND a2.event_date &lt; a1.event_date)'` },
+{ name: "Java", lang: "java", code: `public class Solution {
+    public String gamePlayAnalysis() {
+        return "SELECT a1.player_id, a1.event_date AS first_login FROM Activity a1 WHERE NOT EXISTS (SELECT 1 FROM Activity a2 WHERE a2.player_id = a1.player_id AND a2.event_date &lt; a1.event_date)";
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+using namespace std;
+
+string gamePlayAnalysis() {
+    return "SELECT a1.player_id, a1.event_date AS first_login FROM Activity a1 WHERE NOT EXISTS (SELECT 1 FROM Activity a2 WHERE a2.player_id = a1.player_id AND a2.event_date &lt; a1.event_date)";
+}` },
+{ name: "JavaScript", lang: "javascript", code: `function gamePlayAnalysis() {
+    return 'SELECT a1.player_id, a1.event_date AS first_login FROM Activity a1 WHERE NOT EXISTS (SELECT 1 FROM Activity a2 WHERE a2.player_id = a1.player_id AND a2.event_date &lt; a1.event_date)';
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function gamePlayAnalysis(): string {
+    return 'SELECT a1.player_id, a1.event_date AS first_login FROM Activity a1 WHERE NOT EXISTS (SELECT 1 FROM Activity a2 WHERE a2.player_id = a1.player_id AND a2.event_date &lt; a1.event_date)';
+}` },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case due to the correlated subquery
+- Space: O(k) for the result
+- Notes: Least efficient, not recommended for large datasets
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Game Play Analysis I Solutions","datePublished":"2024-04-21","description":"Find the first login date for each player from the Activity table.","keywords":"LeetCode, Game Play Analysis I, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of using MIN with GROUP BY?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Activity table."}},{"@type":"Question","name":"What is the time complexity of using Window Functions?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) due to sorting within each partition."}},{"@type":"Question","name":"What is the time complexity of using Subquery with NOT EXISTS?","acceptedAnswer":{"@type":"Answer","text":"O(n²) in the worst case due to the correlated subquery."}}]}).replace(/</g,'\u003c')}
+</script>

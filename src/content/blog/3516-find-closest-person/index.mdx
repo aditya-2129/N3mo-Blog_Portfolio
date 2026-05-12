@@ -1,0 +1,109 @@
+---
+title: "Find Closest Person"
+summary: "Given an array of positions and your position, find the minimum distance to any person."
+date: "Mar 26, 2025"
+tags:
+  - Math
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.00% | **Paid:** No
+> **Topics:** Math
+
+You are given a 0-indexed integer array `positions` where `positions[i]` represents the position of the i-th person on a number line. You are standing at position `yourPosition`.
+
+Return the minimum distance between you and any person.
+
+If the array `positions` is empty, return -1.
+
+- Examples
+- Constraints
+- [Approach 1: Linear Scan](#approach-1-linear-scan)
+- [Approach 2: Sorting and Binary Search](#approach-2-sorting-and-binary-search)
+
+## Examples
+
+```text
+Input: positions = [1, 2, 3], yourPosition = 2
+Output: 0
+Explanation: You are standing at position 2, which is exactly where a person is located.
+```
+
+```text
+Input: positions = [1, 5], yourPosition = 3
+Output: 2
+Explanation: The closest person is at position 1 (distance 2) or position 5 (distance 2).
+```
+
+```text
+Input: positions = [10], yourPosition = 0
+Output: 10
+Explanation: The only person is at position 10.
+```
+
+## Constraints
+
+```text
+1 <= positions.length <= 10⁵
+-10⁹ <= positions[i] <= 10⁹
+-10⁹ <= yourPosition <= 10⁹
+```
+
+---
+## Approach 1: Linear Scan
+
+**Intuition**
+Since we need to find the minimum distance, we can iterate through the array once, calculating the absolute difference between each person's position and our position, keeping track of the smallest value found.
+
+**Steps**
+- Initialize `min_dist` to infinity.
+- Iterate through each position in the array.
+- Calculate the absolute difference between the current position and `yourPosition`.
+- Update `min_dist` if the current difference is smaller.
+- Return `min_dist`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findClosestPerson(self, positions: list[int], yourPosition: int) -&gt; int:\n        if not positions:\n            return -1\n        min_dist = float('inf')\n        for p in positions:\n            dist = abs(p - yourPosition)\n            if dist &lt; min_dist:\n                min_dist = dist\n        return min_dist" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findClosestPerson(int[] positions, int yourPosition) {\n        if (positions == null || positions.length == 0) return -1;\n        int minDist = Integer.MAX_VALUE;\n        for (int p : positions) {\n            int dist = Math.abs(p - yourPosition);\n            if (dist &lt; minDist) {\n                minDist = dist;\n            }\n        }\n        return minDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int findClosestPerson(vector&lt;int&gt;& positions, int yourPosition) {\n        if (positions.empty()) return -1;\n        int minDist = INT_MAX;\n        for (int p : positions) {\n            int dist = abs(p - yourPosition);\n            if (dist &lt; minDist) {\n                minDist = dist;\n            }\n        }\n        return minDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findClosestPerson = function(positions, yourPosition) {\n    if (!positions || positions.length === 0) return -1;\n    let minDist = Infinity;\n    for (let i = 0; i &lt; positions.length; i++) {\n        let p = positions[i];\n        let dist = Math.abs(p - yourPosition);\n        if (dist &lt; minDist) {\n            minDist = dist;\n        }\n    }\n    return minDist;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findClosestPerson(positions: number[], yourPosition: number): number {\n    if (positions.length === 0) return -1;\n    let minDist = Infinity;\n    for (const p of positions) {\n        const dist = Math.abs(p - yourPosition);\n        if (dist &lt; minDist) {\n            minDist = dist;\n        }\n    }\n    return minDist;\n}" },]} />
+
+**Complexity**
+- Time: O(N)
+- Space: O(1)
+- Notes: Most efficient for a single query on an unsorted array.
+
+---
+## Approach 2: Sorting and Binary Search
+
+**Intuition**
+If the array were sorted, we could use binary search to find the insertion point of `yourPosition`. The closest person would either be at that insertion point or the one immediately before it.
+
+**Steps**
+- Sort the `positions` array.
+- Perform a binary search to find the index where `yourPosition` would be inserted.
+- Check the elements at the found index and the previous index (if they exist).
+- Return the minimum distance among the neighbors.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findClosestPerson(self, positions: list[int], yourPosition: int) -&gt; int:\n        if not positions:\n            return -1\n        positions.sort()\n        import bisect\n        idx = bisect.bisect_left(positions, yourPosition)\n        if idx == 0:\n            return abs(positions[0] - yourPosition)\n        if idx == len(positions):\n            return abs(positions[-1] - yourPosition)\n        return min(abs(positions[idx] - yourPosition), abs(positions[idx-1] - yourPosition))" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int findClosestPerson(int[] positions, int yourPosition) {\n        if (positions == null || positions.length == 0) return -1;\n        Arrays.sort(positions);\n        int idx = Arrays.binarySearch(positions, yourPosition);\n        if (idx &gt;= 0) return 0;\n        int insertionPoint = -(idx + 1);\n        if (insertionPoint == 0) return Math.abs(positions[0] - yourPosition);\n        if (insertionPoint == positions.length) return Math.abs(positions[positions.length - 1] - yourPosition);\n        return Math.min(Math.abs(positions[insertionPoint] - yourPosition), Math.abs(positions[insertionPoint - 1] - yourPosition));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;cmath&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int findClosestPerson(vector&lt;int&gt;& positions, int yourPosition) {\n        if (positions.empty()) return -1;\n        sort(positions.begin(), positions.end());\n        auto it = lower_bound(positions.begin(), positions.end(), yourPosition);\n        if (it == positions.begin()) return abs(*it - yourPosition);\n        if (it == positions.end()) return abs(positions.back() - yourPosition);\n        int dist1 = abs(*it - yourPosition);\n        int dist2 = abs(*(it - 1) - yourPosition);\n        return min(dist1, dist2);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findClosestPerson = function(positions, yourPosition) {\n    if (!positions || positions.length === 0) return -1;\n    positions.sort((a, b) =&gt; a - b);\n    let left = 0, right = positions.length - 1;\n    while (left &lt;= right) {\n        let mid = Math.floor((left + right) / 2);\n        if (positions[mid] === yourPosition) return 0;\n        if (positions[mid] &lt; yourPosition) left = mid + 1;\n        else right = mid - 1;\n    }\n    if (left === 0) return Math.abs(positions[0] - yourPosition);\n    if (left === positions.length) return Math.abs(positions[positions.length - 1] - yourPosition);\n    return Math.min(Math.abs(positions[left] - yourPosition), Math.abs(positions[left - 1] - yourPosition));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findClosestPerson(positions: number[], yourPosition: number): number {\n    if (positions.length === 0) return -1;\n    positions.sort((a, b) =&gt; a - b);\n    let left = 0, right = positions.length - 1;\n    while (left &lt;= right) {\n        let mid = Math.floor((left + right) / 2);\n        if (positions[mid] === yourPosition) return 0;\n        if (positions[mid] &lt; yourPosition) left = mid + 1;\n        else right = mid - 1;\n    }\n    if (left === 0) return Math.abs(positions[0] - yourPosition);\n    if (left === positions.length) return Math.abs(positions[positions.length - 1] - yourPosition);\n    return Math.min(Math.abs(positions[left] - yourPosition), Math.abs(positions[left - 1] - yourPosition));\n}" },]} />
+
+**Complexity**
+- Time: O(N log N)
+- Space: O(1) or O(N) depending on the sorting implementation.
+- Notes: Useful if multiple queries are made on the same static array, but slower for a single query due to sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Closest Person Solutions","datePublished":"2025-03-26","description":"Given an array of positions and your position, find the minimum distance to any person.","keywords":"LeetCode, Find Closest Person, Easy, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of people."}},{"@type":"Question","name":"What is the time complexity of the Sorting and Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"Which approach is better for a single query?","acceptedAnswer":{"@type":"Answer","text":"The Linear Scan approach is better for a single query as it runs in O(N) time compared to O(N log N)."}}]}).replace(/</g,'\u003c')}
+</script>

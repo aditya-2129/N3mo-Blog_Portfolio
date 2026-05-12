@@ -1,0 +1,567 @@
+---
+title: "Available Captures for Rook"
+summary: "Count how many pawns a rook can capture in one move on an 8x8 chessboard."
+date: "Mar 11, 2026"
+tags:
+  - Array
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.70% | **Paid:** No
+> **Topics:** Array, Matrix, Simulation
+
+On an 8 x 8 chessboard, there is exactly one white rook 'R' and some number of white bishops 'B', black pawns 'p', and empty squares '.'.
+
+When the rook moves, it can choose to move to any square in the same row or column, or it can choose to capture a pawn. The rook cannot move through any piece (bishop or pawn).
+
+Return the number of pawns the rook can capture in one move.
+
+- Examples
+- Constraints
+- [Direction Array Search](#direction-array-search)
+- [Explicit Direction Checks](#explicit-direction-checks)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+board = [[".",".",".",".",".",".",".","."],[".",".",".","p",".",".",".","."],[".",".",".","R",".",".",".","p"],[".",".",".",".",".",".",".","."],[".",".",".",".",".",".",".","."],[".",".",".","p",".",".",".","."],[".",".",".",".",".",".",".","."],[".",".",".",".",".",".",".","."]]
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+In this example, the rook is attacking all the pawns.
+
+### Example 2
+
+**Input:**
+```text
+board = [[".",".",".",".",".",".","."],[".","p","p","p","p","p",".","."],[".","p","p","B","p","p",".","."],[".","p","B","R","B","p",".","."],[".","p","p","B","p","p",".","."],[".","p","p","p","p","p",".","."],[".",".",".",".",".",".",".","."],[".",".",".",".",".",".",".","."]]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+The bishops are blocking the rook from attacking any of the pawns.
+
+### Example 3
+
+**Input:**
+```text
+board = [[".",".",".",".",".",".",".","."],[".",".",".","p",".",".",".","."],[".",".",".","p",".",".",".","."],["p","p",".","R",".","p","B","."],[".",".",".",".",".",".",".","."],[".",".",".","B",".",".",".","."],[".",".",".","p",".",".",".","."],[".",".",".",".",".",".",".","."]]
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+The rook is attacking the pawns at positions b5, d6, and f5.
+
+## Constraints
+
+```text
+board.length == 8
+board[i].length == 8
+board[i][j] is either 'R', '.', 'B', or 'p'
+There is exactly one cell with board[i][j] == 'R'
+```
+
+---
+## Direction Array Search
+
+**Intuition**
+Find the rook's position, then use direction vectors to explore all four cardinal directions until hitting a piece or board edge.
+
+**Steps**
+- Locate the rook by scanning the 8x8 board
+- Define four direction vectors: up, down, left, right
+- For each direction, move step by step until finding a pawn (count it), bishop (stop), or edge (stop)
+- Return total captures
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numRookCaptures(self, board: List[List[str]]) -> int:
+        rook_row, rook_col = 0, 0
+        for i in range(8):
+            for j in range(8):
+                if board[i][j] == 'R':
+                    rook_row, rook_col = i, j
+                    break
+        
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        captures = 0
+        
+        for dr, dc in directions:
+            r, c = rook_row + dr, rook_col + dc
+            while 0 &lt;= r &lt; 8 and 0 &lt;= c &lt; 8:
+                if board[r][c] == 'p':
+                    captures += 1
+                    break
+                if board[r][c] == 'B':
+                    break
+                r += dr
+                c += dc
+        
+        return captures
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numRookCaptures(char[][] board) {
+        int rookRow = 0, rookCol = 0;
+        for (int i = 0; i &lt; 8; i++) {
+            for (int j = 0; j &lt; 8; j++) {
+                if (board[i][j] == 'R') {
+                    rookRow = i;
+                    rookCol = j;
+                    break;
+                }
+            }
+        }
+        
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int captures = 0;
+        
+        for (int[] dir : directions) {
+            int dr = dir[0], dc = dir[1];
+            int r = rookRow + dr, c = rookCol + dc;
+            while (r &gt;= 0 && r &lt; 8 && c &gt;= 0 && c &lt; 8) {
+                if (board[r][c] == 'p') {
+                    captures++;
+                    break;
+                }
+                if (board[r][c] == 'B') {
+                    break;
+                }
+                r += dr;
+                c += dc;
+            }
+        }
+        
+        return captures;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int numRookCaptures(vector<vector<char>&gt;& board) {
+        int rookRow = 0, rookCol = 0;
+        for (int i = 0; i &lt; 8; i++) {
+            for (int j = 0; j &lt; 8; j++) {
+                if (board[i][j] == 'R') {
+                    rookRow = i;
+                    rookCol = j;
+                    break;
+                }
+            }
+        }
+        
+        vector<pair<int, int>&gt; directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int captures = 0;
+        
+        for (auto& dir : directions) {
+            int dr = dir.first, dc = dir.second;
+            int r = rookRow + dr, c = rookCol + dc;
+            while (r &gt;= 0 && r &lt; 8 && c &gt;= 0 && c &lt; 8) {
+                if (board[r][c] == 'p') {
+                    captures++;
+                    break;
+                }
+                if (board[r][c] == 'B') {
+                    break;
+                }
+                r += dr;
+                c += dc;
+            }
+        }
+        
+        return captures;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var numRookCaptures = function(board) {
+    let rookRow = 0, rookCol = 0;
+    for (let i = 0; i &lt; 8; i++) {
+        for (let j = 0; j &lt; 8; j++) {
+            if (board[i][j] === 'R') {
+                rookRow = i;
+                rookCol = j;
+                break;
+            }
+        }
+    }
+    
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    let captures = 0;
+    
+    for (const [dr, dc] of directions) {
+        let r = rookRow + dr, c = rookCol + dc;
+        while (r &gt;= 0 && r &lt; 8 && c &gt;= 0 && c &lt; 8) {
+            if (board[r][c] === 'p') {
+                captures++;
+                break;
+            }
+            if (board[r][c] === 'B') {
+                break;
+            }
+            r += dr;
+            c += dc;
+        }
+    }
+    
+    return captures;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numRookCaptures(board: string[][]): number {
+    let rookRow = 0, rookCol = 0;
+    for (let i = 0; i &lt; 8; i++) {
+        for (let j = 0; j &lt; 8; j++) {
+            if (board[i][j] === 'R') {
+                rookRow = i;
+                rookCol = j;
+                break;
+            }
+        }
+    }
+    
+    const directions: [number, number][] = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    let captures = 0;
+    
+    for (const [dr, dc] of directions) {
+        let r = rookRow + dr, c = rookCol + dc;
+        while (r &gt;= 0 && r &lt; 8 && c &gt;= 0 && c &lt; 8) {
+            if (board[r][c] === 'p') {
+                captures++;
+                break;
+            }
+            if (board[r][c] === 'B') {
+                break;
+            }
+            r += dr;
+            c += dc;
+        }
+    }
+    
+    return captures;
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) - Fixed 8x8 board, at most 64 cells to scan plus 4 directions with max 7 steps each
+- Space: O(1) - Only using a few variables regardless of input size
+- Notes: Direction array approach is clean and easily extensible for similar grid problems
+
+---
+## Explicit Direction Checks
+
+**Intuition**
+Same logic as direction array, but explicitly write out each direction check for clarity and to avoid loop overhead.
+
+**Steps**
+- Find the rook's position by scanning the board
+- Check upward direction: iterate from rook-1 to 0, count pawn if found, stop at bishop
+- Check downward direction: iterate from rook+1 to 7, count pawn if found, stop at bishop
+- Check left direction: iterate from rook-1 to 0, count pawn if found, stop at bishop
+- Check right direction: iterate from rook+1 to 7, count pawn if found, stop at bishop
+- Return total count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numRookCaptures(self, board: List[List[str]]) -> int:
+        rook_row, rook_col = 0, 0
+        for i in range(8):
+            for j in range(8):
+                if board[i][j] == 'R':
+                    rook_row, rook_col = i, j
+                    break
+        
+        captures = 0
+        
+        for i in range(rook_row - 1, -1, -1):
+            if board[i][rook_col] == 'p':
+                captures += 1
+                break
+            if board[i][rook_col] == 'B':
+                break
+        
+        for i in range(rook_row + 1, 8):
+            if board[i][rook_col] == 'p':
+                captures += 1
+                break
+            if board[i][rook_col] == 'B':
+                break
+        
+        for j in range(rook_col - 1, -1, -1):
+            if board[rook_row][j] == 'p':
+                captures += 1
+                break
+            if board[rook_row][j] == 'B':
+                break
+        
+        for j in range(rook_col + 1, 8):
+            if board[rook_row][j] == 'p':
+                captures += 1
+                break
+            if board[rook_row][j] == 'B':
+                break
+        
+        return captures
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numRookCaptures(char[][] board) {
+        int rookRow = 0, rookCol = 0;
+        for (int i = 0; i &lt; 8; i++) {
+            for (int j = 0; j &lt; 8; j++) {
+                if (board[i][j] == 'R') {
+                    rookRow = i;
+                    rookCol = j;
+                    break;
+                }
+            }
+        }
+        
+        int captures = 0;
+        
+        for (int i = rookRow - 1; i &gt;= 0; i--) {
+            if (board[i][rookCol] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[i][rookCol] == 'B') {
+                break;
+            }
+        }
+        
+        for (int i = rookRow + 1; i &lt; 8; i++) {
+            if (board[i][rookCol] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[i][rookCol] == 'B') {
+                break;
+            }
+        }
+        
+        for (int j = rookCol - 1; j &gt;= 0; j--) {
+            if (board[rookRow][j] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[rookRow][j] == 'B') {
+                break;
+            }
+        }
+        
+        for (int j = rookCol + 1; j &lt; 8; j++) {
+            if (board[rookRow][j] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[rookRow][j] == 'B') {
+                break;
+            }
+        }
+        
+        return captures;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int numRookCaptures(vector<vector<char>&gt;& board) {
+        int rookRow = 0, rookCol = 0;
+        for (int i = 0; i &lt; 8; i++) {
+            for (int j = 0; j &lt; 8; j++) {
+                if (board[i][j] == 'R') {
+                    rookRow = i;
+                    rookCol = j;
+                    break;
+                }
+            }
+        }
+        
+        int captures = 0;
+        
+        for (int i = rookRow - 1; i &gt;= 0; i--) {
+            if (board[i][rookCol] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[i][rookCol] == 'B') {
+                break;
+            }
+        }
+        
+        for (int i = rookRow + 1; i &lt; 8; i++) {
+            if (board[i][rookCol] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[i][rookCol] == 'B') {
+                break;
+            }
+        }
+        
+        for (int j = rookCol - 1; j &gt;= 0; j--) {
+            if (board[rookRow][j] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[rookRow][j] == 'B') {
+                break;
+            }
+        }
+        
+        for (int j = rookCol + 1; j &lt; 8; j++) {
+            if (board[rookRow][j] == 'p') {
+                captures++;
+                break;
+            }
+            if (board[rookRow][j] == 'B') {
+                break;
+            }
+        }
+        
+        return captures;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var numRookCaptures = function(board) {
+    let rookRow = 0, rookCol = 0;
+    for (let i = 0; i &lt; 8; i++) {
+        for (let j = 0; j &lt; 8; j++) {
+            if (board[i][j] === 'R') {
+                rookRow = i;
+                rookCol = j;
+                break;
+            }
+        }
+    }
+    
+    let captures = 0;
+    
+    for (let i = rookRow - 1; i &gt;= 0; i--) {
+        if (board[i][rookCol] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[i][rookCol] === 'B') {
+            break;
+        }
+    }
+    
+    for (let i = rookRow + 1; i &lt; 8; i++) {
+        if (board[i][rookCol] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[i][rookCol] === 'B') {
+            break;
+        }
+    }
+    
+    for (let j = rookCol - 1; j &gt;= 0; j--) {
+        if (board[rookRow][j] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[rookRow][j] === 'B') {
+            break;
+        }
+    }
+    
+    for (let j = rookCol + 1; j &lt; 8; j++) {
+        if (board[rookRow][j] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[rookRow][j] === 'B') {
+            break;
+        }
+    }
+    
+    return captures;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numRookCaptures(board: string[][]): number {
+    let rookRow = 0, rookCol = 0;
+    for (let i = 0; i &lt; 8; i++) {
+        for (let j = 0; j &lt; 8; j++) {
+            if (board[i][j] === 'R') {
+                rookRow = i;
+                rookCol = j;
+                break;
+            }
+        }
+    }
+    
+    let captures = 0;
+    
+    for (let i = rookRow - 1; i &gt;= 0; i--) {
+        if (board[i][rookCol] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[i][rookCol] === 'B') {
+            break;
+        }
+    }
+    
+    for (let i = rookRow + 1; i &lt; 8; i++) {
+        if (board[i][rookCol] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[i][rookCol] === 'B') {
+            break;
+        }
+    }
+    
+    for (let j = rookCol - 1; j &gt;= 0; j--) {
+        if (board[rookRow][j] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[rookRow][j] === 'B') {
+            break;
+        }
+    }
+    
+    for (let j = rookCol + 1; j &lt; 8; j++) {
+        if (board[rookRow][j] === 'p') {
+            captures++;
+            break;
+        }
+        if (board[rookRow][j] === 'B') {
+            break;
+        }
+    }
+    
+    return captures;
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) - Fixed board size means constant operations
+- Space: O(1) - Only uses a fixed number of variables
+- Notes: More verbose but eliminates direction array overhead; both approaches are equally efficient for this problem size
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Available Captures for Rook Solutions","datePublished":"2026-03-11","description":"Count how many pawns a rook can capture in one move on an 8x8 chessboard.","keywords":"LeetCode, Available Captures for Rook, Easy, Array, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direction Array Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - The board is always 8x8, so we scan at most 64 cells and check at most 28 positions in all directions."}},{"@type":"Question","name":"What is the space complexity of both approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Both approaches only use a fixed number of variables regardless of input."}},{"@type":"Question","name":"Which approach is better for this problem?","acceptedAnswer":{"@type":"Answer","text":"Both approaches have identical complexity. Direction Array Search is more concise and extensible, while Explicit Direction Checks may be slightly more readable for beginners."}}]}).replace(/</g,'\u003c')}
+</script>

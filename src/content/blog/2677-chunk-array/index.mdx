@@ -1,0 +1,175 @@
+---
+title: "Chunk Array"
+summary: "Split an array into chunks of a given size, with the last chunk potentially containing fewer elements."
+date: "Sep 10, 2024"
+tags:
+  - Array
+  - Implementation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.60% | **Paid:** No
+> **Topics:** N/A
+
+Given an array arr and a chunk size size, return a chunked array. A chunked array contains the original elements in arr, but consists of subarrays each of length size. The length of the last subarray may be less than size if arr cannot be divided evenly.
+
+- Examples
+- Constraints
+- [Iterative Slicing](#iterative-slicing)
+- [Recursive Approach](#recursive-approach)
+- [Built-in Methods](#built-in-methods)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+arr = [1,2,3,4,5], size = 1
+```
+
+**Output:**
+```text
+[[1],[2],[3],[4],[5]]
+```
+
+**Explanation:**
+The arr has been split into subarrays each with 1 element.
+
+### Example 2
+
+**Input:**
+```text
+arr = [1,9,6,3,2], size = 3
+```
+
+**Output:**
+```text
+[[1,9,6],[3,2]]
+```
+
+**Explanation:**
+The arr has been split into subarrays with 3 elements. However, only two elements are left for the 2nd subarray.
+
+### Example 3
+
+**Input:**
+```text
+arr = [8,5,3,2,6], size = 6
+```
+
+**Output:**
+```text
+[[8,5,3,2,6]]
+```
+
+**Explanation:**
+Size is greater than arr.length thus all elements are in the first subarray.
+
+### Example 4
+
+**Input:**
+```text
+arr = [], size = 1
+```
+
+**Output:**
+```text
+[]
+```
+
+**Explanation:**
+There are no elements to be chunked so an empty array is returned.
+
+## Constraints
+
+```text
+- arr is a string representing the array.
+- 2 <= arr.length <= 10^5
+- 1 <= size <= arr.length + 1
+```
+
+---
+
+## Iterative Slicing
+
+**Intuition**
+Traverse the array with a step equal to the chunk size, extracting slices from the current index to the current index plus the chunk size.
+
+**Steps**
+- Initialize an empty result array
+- Loop through the array with step size
+- Slice the array from current index to current index + size
+- Append each slice to the result array
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def chunk(self, arr: List[int], size: int) -> List[List[int]]:\\n        result = []\\n        for i in range(0, len(arr), size):\\n            result.append(arr[i:i+size])\\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public List<List<Integer>> chunk(int[] arr, int size) {\\n        List<List<Integer>> result = new ArrayList<>();\\n        for (int i = 0; i < arr.length; i += size) {\\n            List<Integer> chunk = new ArrayList<>();\\n            for (int j = i; j < Math.min(i + size, arr.length); j++) {\\n                chunk.add(arr[j]);\\n            }\\n            result.add(chunk);\\n        }\\n        return result;\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    vector<vector<int>> chunk(vector<int>& arr, int size) {\\n        vector<vector<int>> result;\\n        for (int i = 0; i < arr.size(); i += size) {\\n            vector<int> chunk;\\n            for (int j = i; j < min((int)arr.size(), i + size); j++) {\\n                chunk.push_back(arr[j]);\\n            }\\n            result.push_back(chunk);\\n        }\\n        return result;\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {Array} arr\\n * @param {number} size\\n * @return {Array[]}\\n */\\nvar chunk = function(arr, size) {\\n    const result = [];\\n    for (let i = 0; i < arr.length; i += size) {\\n        result.push(arr.slice(i, i + size));\\n    }\\n    return result\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function chunk(arr: any[], size: number): any[][] {\\n    const result: any[][] = [];\\n    for (let i = 0; i < arr.length; i += size) {\\n        result.push(arr.slice(i, i + size));\\n    }\\n    return result;\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array
+- Space: O(n) for storing the result
+- Notes: Simple and efficient approach with minimal overhead
+
+---
+
+## Recursive Approach
+
+**Intuition**
+Recursively process the array by taking the first size elements as a chunk and then recursively chunking the remaining elements.
+
+**Steps**
+- Base case: if array is empty, return empty array
+- Take first size elements as a chunk
+- Recursively chunk the remaining elements
+- Combine current chunk with recursive result
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def chunk(self, arr: List[int], size: int) -> List[List[int]]:\\n        if not arr:\\n            return []\\n        return [arr[:size]] + self.chunk(arr[size:], size)" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public List<List<Integer>> chunk(int[] arr, int size) {\\n        return chunkHelper(arr, size, 0);\\n    }\\n    \\n    private List<List<Integer>> chunkHelper(int[] arr, int size, int start) {\\n        if (start >= arr.length) {\\n            return new ArrayList<>();\\n        }\\n        List<Integer> currentChunk = new ArrayList<>();\\n        for (int i = start; i < Math.min(start + size, arr.length); i++) {\\n            currentChunk.add(arr[i]);\\n        }\\n        List<List<Integer>> result = chunkHelper(arr, size, start + size);\\n        result.add(0, currentChunk);\\n        return result;\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    vector<vector<int>> chunk(vector<int>& arr, int size) {\\n        return chunkHelper(arr, size, 0);\\n    }\\n    \\nprivate:\\n    vector<vector<int>> chunkHelper(vector<int>& arr, int size, int start) {\\n        if (start >= arr.size()) {\\n            return {};\\n        }\\n        vector<int> currentChunk;\\n        for (int i = start; i < min((int)arr.size(), start + size); i++) {\\n            currentChunk.push_back(arr[i]);\\n        }\\n        vector<vector<int>> result = chunkHelper(arr, size, start + size);\\n        result.insert(result.begin(), currentChunk);\\n        return result;\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {Array} arr\\n * @param {number} size\\n * @return {Array[]}\\n */\\nvar chunk = function(arr, size) {\\n    if (arr.length === 0) {\\n        return [];\\n    }\\n    return [arr.slice(0, size)].concat(chunk(arr.slice(size), size));\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function chunk(arr: any[], size: number): any[][] {\\n    if (arr.length === 0) {\\n        return [];\\n    }\\n    return [arr.slice(0, size)].concat(chunk(arr.slice(size), size));\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array
+- Space: O(n) for result plus O(n/size) for recursion stack
+- Notes: Elegant but may cause stack overflow for very large arrays
+
+---
+
+## Built-in Methods
+
+**Intuition**
+Leverage language-specific built-in methods or functional programming constructs to create chunks in a more declarative style.
+
+**Steps**
+- Calculate the number of chunks needed
+- Use built-in methods to create each chunk
+- Return the resulting array of chunks
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def chunk(self, arr: List[int], size: int) -> List[List[int]]:\\n        return [arr[i:i+size] for i in range(0, len(arr), size)]" },
+{ name: "Java", lang: "java", code: "import java.util.stream.IntStream;\\n\\nclass Solution {\\n    public List<List<Integer>> chunk(int[] arr, int size) {\\n        List<List<Integer>> result = new ArrayList<>();\\n        IntStream.range(0, (arr.length + size - 1) / size)\\n            .forEach(i -> {\\n                int start = i * size;\\n                List<Integer> chunk = new ArrayList<>();\\n                for (int j = start; j < Math.min(start + size, arr.length); j++) {\\n                    chunk.add(arr[j]);\\n                }\\n                result.add(chunk);\\n            });\\n        return result;\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    vector<vector<int>> chunk(vector<int>& arr, int size) {\\n        vector<vector<int>> result;\\n        for (size_t i = 0; i < arr.size(); i += size) {\\n            auto start = arr.begin() + i;\\n            auto end = (i + size < arr.size()) ? arr.begin() + i + size : arr.end();\\n            result.emplace_back(start, end);\\n        }\\n        return result;\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {Array} arr\\n * @param {number} size\\n * @return {Array[]}\\n */\\nvar chunk = function(arr, size) {\\n    return Array.from({length: Math.ceil(arr.length / size)}, (_, i) => \\n        arr.slice(i * size, i * size + size)\\n    );\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function chunk(arr: any[], size: number): any[][] {\\n    return Array.from({length: Math.ceil(arr.length / size)}, (_, i) => \\n        arr.slice(i * size, i * size + size)\\n    );\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array
+- Space: O(n) for storing the result
+- Notes: Most concise and idiomatic approach for each language
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Chunk Array Solutions","datePublished":"2024-09-10","description":"Split an array into chunks of a given size, with the last chunk potentially containing fewer elements.","keywords":"LeetCode, Chunk Array, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+

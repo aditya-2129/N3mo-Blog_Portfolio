@@ -1,0 +1,116 @@
+---
+title: "Construct the Minimum Bitwise Array I"
+summary: "Given an array of positive integers, find the smallest x for each element such that x & (x + 1) equals the element."
+date: "Jan 01, 2026"
+tags:
+  - Array
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.20% | **Paid:** No
+> **Topics:** Array, Bit Manipulation
+
+You are given an array `nums` of positive integers.
+
+For each `nums[i]`, find the smallest integer `x` such that `x & (x + 1) == nums[i]`. If no such `x` exists, return `-1`.
+
+Return the resulting array.
+
+- Examples
+- Constraints
+- [Mathematical Optimization](#mathematical-optimization)
+- [Brute Force Simulation](#brute-force-simulation)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [2, 3]
+Output: [2, -1]
+Explanation: 
+For nums[0] = 2, the smallest x is 2 because 2 & 3 = 2.
+For nums[1] = 3, there is no x such that x & (x + 1) = 3.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [4, 5]
+Output: [4, -1]
+Explanation: 
+For nums[0] = 4, the smallest x is 4 because 4 & 5 = 4.
+For nums[1] = 5, there is no x such that x & (x + 1) = 5.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 2 <= nums[i] <= 1000
+- nums[i] is a prime number.
+```
+
+---
+
+## Mathematical Optimization
+
+**Intuition**
+The bitwise AND operation `x & (x + 1)` has a specific property based on the parity of `x`. If `x` is even, its least significant bit is 0. Adding 1 only flips this bit to 1, leaving all higher bits unchanged. Thus, `x & (x + 1)` equals `x` itself. If `x` is odd, the least significant bit is 1, and `x + 1` is even, resulting in a least significant bit of 0 in the AND result. Therefore, `x & (x + 1)` is always even. This means if `nums[i]` is odd, no solution exists. If `nums[i]` is even, `x = nums[i]` is the smallest valid solution because `x & (x + 1) &lt;= x`.
+
+**Steps**
+- Initialize an empty list `result` to store the answers.
+- Iterate through each number `num` in the input array `nums`.
+- Check if `num` is even using the modulo operator (`num % 2 == 0`).
+- If it is even, append `num` to `result` (since `num & (num + 1) == num`).
+- If it is odd, append `-1` to `result` (since `x & (x + 1)` is always even).
+- Return the `result` list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitwiseArray(self, nums: list[int]) -&gt; list[int]:\n        result = []\n        for num in nums:\n            if num % 2 == 0:\n                result.append(num)\n            else:\n                result.append(-1)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] minBitwiseArray(int[] nums) {\n        int[] result = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] % 2 == 0) {\n                result[i] = nums[i];\n            } else {\n                result[i] = -1;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; minBitwiseArray(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; result;\n        for (int num : nums) {\n            if (num % 2 == 0) {\n                result.push_back(num);\n            } else {\n                result.push_back(-1);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minBitwiseArray(nums) {\n        return nums.map(num =&gt; (num % 2 === 0 ? num : -1));\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minBitwiseArray(nums: number[]): number[] {\n        return nums.map(num =&gt; (num % 2 === 0 ? num : -1));\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the array. We iterate through the array once.
+- Space: O(N) to store the result array. (O(1) extra space if not counting output).
+- Notes: This is the optimal solution with linear time complexity.
+
+## Brute Force Simulation
+
+**Intuition**
+We can iterate through possible values of `x` for each `nums[i]` to find the smallest valid `x`. Since `x & (x + 1) &lt;= x`, we know that `x` must be at least `nums[i]`. We can start checking from `x = 1` up to `nums[i]` (or slightly higher) to see if the condition `x & (x + 1) == nums[i]` holds. This approach verifies the mathematical property by exhaustive search within a limited range.
+
+**Steps**
+- Initialize an empty list `result`.
+- Iterate through each number `num` in `nums`.
+- Initialize a variable `ans = -1`.
+- Loop `x` from 1 to `num` (inclusive).
+- Check if `x & (x + 1) == num`.
+- If true, update `ans = x` and break the loop (since we are iterating upwards, the first found is the smallest).
+- Append `ans` to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitwiseArray(self, nums: list[int]) -&gt; list[int]:\n        result = []\n        for num in nums:\n            ans = -1\n            # x & (x + 1) &lt;= x, so we only need to check up to num\n            for x in range(1, num + 1):\n                if x & (x + 1) == num:\n                    ans = x\n                    break\n            result.append(ans)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] minBitwiseArray(int[] nums) {\n        int[] result = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            int num = nums[i];\n            int ans = -1;\n            for (int x = 1; x &lt;= num; x++) {\n                if ((x & (x + 1)) == num) {\n                    ans = x;\n                    break;\n                }\n            }\n            result[i] = ans;\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; minBitwiseArray(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; result;\n        for (int num : nums) {\n            int ans = -1;\n            for (int x = 1; x &lt;= num; ++x) {\n                if ((x & (x + 1)) == num) {\n                    ans = x;\n                    break;\n                }\n            }\n            result.push_back(ans);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minBitwiseArray(nums) {\n        return nums.map(num =&gt; {\n            let ans = -1;\n            for (let x = 1; x &lt;= num; x++) {\n                if ((x & (x + 1)) === num) {\n                    ans = x;\n                    break;\n                }\n            }\n            return ans;\n        });\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minBitwiseArray(nums: number[]): number[] {\n        return nums.map(num =&gt; {\n            let ans = -1;\n            for (let x = 1; x &lt;= num; x++) {\n                if ((x & (x + 1)) === num) {\n                    ans = x;\n                    break;\n                }\n            }\n            return ans;\n        });\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the length of the array and M is the maximum value in `nums`. In the worst case, we iterate up to `nums[i]` for each element.
+- Space: O(N) to store the result array.
+- Notes: This approach is inefficient for large values of `nums[i]` (up to 10⁹) and will result in Time Limit Exceeded on LeetCode, but serves as a good baseline for understanding the problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Construct the Minimum Bitwise Array I Solutions","datePublished":"2026-01-01","description":"Given an array of positive integers, find the smallest x for each element such that x & (x + 1) equals the element.","keywords":"LeetCode, Construct the Minimum Bitwise Array I, Easy, Array, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Mathematical Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the array, as we process each element exactly once."}},{"@type":"Question","name":"Why does the Brute Force approach fail for large inputs?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(N * M), where M can be as large as 10⁹. This results in too many operations and exceeds the time limit."}},{"@type":"Question","name":"Why is the answer -1 for odd numbers?","acceptedAnswer":{"@type":"Answer","text":"The operation x & (x + 1) always results in an even number. Therefore, if nums[i] is odd, no integer x can satisfy the condition."}}]}).replace(/</g,'\u003c')}
+</script>

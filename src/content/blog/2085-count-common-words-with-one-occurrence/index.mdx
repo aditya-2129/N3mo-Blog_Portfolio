@@ -1,0 +1,148 @@
+---
+title: "Count Common Words With One Occurrence"
+summary: "Given two string arrays, return the count of strings that appear exactly once in each array."
+date: "Apr 03, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.40% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Counting
+
+Given two 0-indexed string arrays `words1` and `words2`, return the number of strings that appear exactly once in each of the two arrays.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Set Intersection](#set-intersection)
+
+## Examples
+
+Example 1:
+```text
+Input: words1 = ["leetcode","is","amazing","as","is"], words2 = ["amazing","leetcode","is"]
+Output: 2
+Explanation:
+- "leetcode" appears exactly once in each of the two arrays.
+- "amazing" appears exactly once in each of the two arrays.
+- "is" appears in both arrays, but there are 2 occurrences of "is" in words1 and 1 occurrence in words2.
+```
+
+Example 2:
+```text
+Input: words1 = ["b","bb","bbb"], words2 = ["a","aa","aaa"]
+Output: 0
+Explanation: There are no strings that appear exactly once in each of the two arrays.
+```
+
+Example 3:
+```text
+Input: words1 = ["a","ab"], words2 = ["a","a","a","ab"]
+Output: 1
+Explanation:
+- "ab" appears exactly once in each of the two arrays.
+- "a" appears 3 times in words2, so it does not meet the condition.
+```
+
+## Constraints
+
+```text
+1 <= words1.length, words2.length <= 10³
+1 <= words1[i].length, words2[j].length <= 30
+words1[i] and words2[j] consist only of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through every word in the first array and manually count its occurrences in both arrays to check if it appears exactly once in each.
+
+**Steps**
+- Initialize a result counter to 0.
+- Iterate through each word in `words1`.
+- For each word, count how many times it appears in `words1`.
+- If the count is not exactly 1, skip to the next word.
+- If the count is 1, count how many times it appears in `words2`.
+- If the count in `words2` is also exactly 1, increment the result counter.
+- Return the result counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countWords(self, words1: List[str], words2: List[str]) -&gt; int:\n        count = 0\n        for w in words1:\n            if words1.count(w) == 1 and words2.count(w) == 1:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countWords(String[] words1, String[] words2) {\n        int count = 0;\n        for (String w : words1) {\n            if (countFreq(words1, w) == 1 && countFreq(words2, w) == 1) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \n    private int countFreq(String[] arr, String target) {\n        int c = 0;\n        for (String s : arr) {\n            if (s.equals(target)) c++;\n        }\n        return c;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countWords(vector&lt;string&gt;& words1, vector&lt;string&gt;& words2) {\n        int count = 0;\n        for (const string& w : words1) {\n            if (countFreq(words1, w) == 1 && countFreq(words2, w) == 1) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \nprivate:\n    int countFreq(const vector&lt;string&gt;& arr, const string& target) {\n        int c = 0;\n        for (const string& s : arr) {\n            if (s == target) c++;\n        }\n        return c;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words1\n * @param {string[]} words2\n * @return {number}\n */\nvar countWords = function(words1, words2) {\n    let count = 0;\n    for (const w of words1) {\n        if (countFreq(words1, w) === 1 && countFreq(words2, w) === 1) {\n            count++;\n        }\n    }\n    return count;\n};\n\nfunction countFreq(arr, target) {\n    let c = 0;\n    for (const s of arr) {\n        if (s === target) c++;\n    }\n    return c;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function countWords(words1: string[], words2: string[]): number {\n    let count = 0;\n    for (const w of words1) {\n        if (countFreq(words1, w) === 1 && countFreq(words2, w) === 1) {\n            count++;\n        }\n    }\n    return count;\n}\n\nfunction countFreq(arr: string[], target: string): number {\n    let c = 0;\n    for (const s of arr) {\n        if (s === target) c++;\n    }\n    return c;\n}" },]} />
+
+**Complexity**
+- Time: O(n * (n + m)) where n is the length of `words1` and m is the length of `words2`. For each word, we scan the arrays.
+- Space: O(1)
+- Notes: This approach is inefficient for large inputs but works for the given constraints (10³).
+
+---
+## Hash Map Frequency Count
+
+**Intuition**
+Use hash maps to store the frequency of every word in both arrays. Then iterate through the keys of one map to check if the frequency is 1 in both maps.
+
+**Steps**
+- Create a hash map `freq1` to store word counts for `words1`.
+- Create a hash map `freq2` to store word counts for `words2`.
+- Iterate through `words1` and populate `freq1`.
+- Iterate through `words2` and populate `freq2`.
+- Initialize a result counter to 0.
+- Iterate through the keys of `freq1`.
+- For each key, if its value in `freq1` is 1 and its value in `freq2` is 1, increment the result counter.
+- Return the result counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def countWords(self, words1: List[str], words2: List[str]) -&gt; int:\n        freq1 = Counter(words1)\n        freq2 = Counter(words2)\n        \n        count = 0\n        for w in freq1:\n            if freq1[w] == 1 and freq2.get(w, 0) == 1:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int countWords(String[] words1, String[] words2) {\n        Map&lt;String, Integer&gt; freq1 = new HashMap&lt;&gt;();\n        Map&lt;String, Integer&gt; freq2 = new HashMap&lt;&gt;();\n        \n        for (String w : words1) {\n            freq1.put(w, freq1.getOrDefault(w, 0) + 1);\n        }\n        for (String w : words2) {\n            freq2.put(w, freq2.getOrDefault(w, 0) + 1);\n        }\n        \n        int count = 0;\n        for (String w : freq1.keySet()) {\n            if (freq1.get(w) == 1 && freq2.getOrDefault(w, 0) == 1) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n#include &lt;string&gt;\n#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int countWords(vector&lt;string&gt;& words1, vector&lt;string&gt;& words2) {\n        unordered_map&lt;string, int&gt; freq1;\n        unordered_map&lt;string, int&gt; freq2;\n        \n        for (const string& w : words1) {\n            freq1[w]++;\n        }\n        for (const string& w : words2) {\n            freq2[w]++;\n        }\n        \n        int count = 0;\n        for (const auto& pair : freq1) {\n            if (pair.second == 1 && freq2[pair.first] == 1) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words1\n * @param {string[]} words2\n * @return {number}\n */\nvar countWords = function(words1, words2) {\n    const freq1 = new Map();\n    const freq2 = new Map();\n    \n    for (const w of words1) {\n        freq1.set(w, (freq1.get(w) || 0) + 1);\n    }\n    for (const w of words2) {\n        freq2.set(w, (freq2.get(w) || 0) + 1);\n    }\n    \n    let count = 0;\n    for (const [w, c] of freq1) {\n        if (c === 1 && freq2.get(w) === 1) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countWords(words1: string[], words2: string[]): number {\n    const freq1 = new Map&lt;string, number&gt;();\n    const freq2 = new Map&lt;string, number&gt;();\n    \n    for (const w of words1) {\n        freq1.set(w, (freq1.get(w) || 0) + 1);\n    }\n    for (const w of words2) {\n        freq2.set(w, (freq2.get(w) || 0) + 1);\n    }\n    \n    let count = 0;\n    for (const [w, c] of freq1) {\n        if (c === 1 && freq2.get(w) === 1) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the length of `words1` and m is the length of `words2`. We iterate through both arrays once to build maps and then iterate through the keys of one map.
+- Space: O(n + m) to store the frequency maps.
+- Notes: This is the standard optimal approach for counting problems.
+
+---
+## Set Intersection
+
+**Intuition**
+We only care about words that appear exactly once. We can create sets containing only the words that appear exactly once in each array, then find the intersection of these two sets.
+
+**Steps**
+- Create a helper function `getOnceOccurring(words)` that returns a set of words appearing exactly once.
+- Inside the helper, use a hash map to count frequencies.
+- Iterate through the map and add keys with value 1 to a set.
+- Call this helper for `words1` to get `set1`.
+- Call this helper for `words2` to get `set2`.
+- Iterate through `set1` and check if each element exists in `set2`. Count the matches.
+- Return the count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def countWords(self, words1: List[str], words2: List[str]) -&gt; int:\n        def getOnce(words):\n            freq = Counter(words)\n            return {w for w, c in freq.items() if c == 1}\n        \n        set1 = getOnce(words1)\n        set2 = getOnce(words2)\n        \n        return len(set1 & set2)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int countWords(String[] words1, String[] words2) {\n        Set&lt;String&gt; set1 = getOnceOccurring(words1);\n        Set&lt;String&gt; set2 = getOnceOccurring(words2);\n        \n        int count = 0;\n        for (String w : set1) {\n            if (set2.contains(w)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \n    private Set&lt;String&gt; getOnceOccurring(String[] words) {\n        Map&lt;String, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (String w : words) {\n            freq.put(w, freq.getOrDefault(w, 0) + 1);\n        }\n        Set&lt;String&gt; once = new HashSet&lt;&gt;();\n        for (Map.Entry&lt;String, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getValue() == 1) {\n                once.add(entry.getKey());\n            }\n        }\n        return once;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n#include &lt;unordered_set&gt;\n#include &lt;string&gt;\n#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int countWords(vector&lt;string&gt;& words1, vector&lt;string&gt;& words2) {\n        unordered_set&lt;string&gt; set1 = getOnceOccurring(words1);\n        unordered_set&lt;string&gt; set2 = getOnceOccurring(words2);\n        \n        int count = 0;\n        for (const string& w : set1) {\n            if (set2.count(w)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \nprivate:\n    unordered_set&lt;string&gt; getOnceOccurring(const vector&lt;string&gt;& words) {\n        unordered_map&lt;string, int&gt; freq;\n        for (const string& w : words) {\n            freq[w]++;\n        }\n        unordered_set&lt;string&gt; once;\n        for (const auto& pair : freq) {\n            if (pair.second == 1) {\n                once.insert(pair.first);\n            }\n        }\n        return once;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words1\n * @param {string[]} words2\n * @return {number}\n */\nvar countWords = function(words1, words2) {\n    const set1 = getOnceOccurring(words1);\n    const set2 = getOnceOccurring(words2);\n    \n    let count = 0;\n    for (const w of set1) {\n        if (set2.has(w)) {\n            count++;\n        }\n    }\n    return count;\n};\n\nfunction getOnceOccurring(words) {\n    const freq = new Map();\n    for (const w of words) {\n        freq.set(w, (freq.get(w) || 0) + 1);\n    }\n    const once = new Set();\n    for (const [w, c] of freq) {\n        if (c === 1) {\n            once.add(w);\n        }\n    }\n    return once;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function countWords(words1: string[], words2: string[]): number {\n    const set1 = getOnceOccurring(words1);\n    const set2 = getOnceOccurring(words2);\n    \n    let count = 0;\n    for (const w of set1) {\n        if (set2.has(w)) {\n            count++;\n        }\n    }\n    return count;\n}\n\nfunction getOnceOccurring(words: string[]): Set&lt;string&gt; {\n    const freq = new Map&lt;string, number&gt;();\n    for (const w of words) {\n        freq.set(w, (freq.get(w) || 0) + 1);\n    }\n    const once = new Set&lt;string&gt;();\n    for (const [w, c] of freq) {\n        if (c === 1) {\n            once.add(w);\n        }\n    }\n    return once;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) to build the frequency maps and sets.
+- Space: O(n + m) to store the sets.
+- Notes: This approach is conceptually clean, separating the filtering logic from the intersection logic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Common Words With One Occurrence Solutions","datePublished":"2024-04-03","description":"Given two string arrays, return the count of strings that appear exactly once in each array.","keywords":"LeetCode, Count Common Words With One Occurrence, Easy, Array, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the lengths of the two arrays."}},{"@type":"Question","name":"What is the space complexity of the Set Intersection approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the sets of unique words."}},{"@type":"Question","name":"Is the Brute Force approach efficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n * (n + m)), which is inefficient for large inputs but acceptable for the given constraints of 10³."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,130 @@
+---
+title: "Reformat Department Table"
+summary: "Pivot the Department table to display monthly revenue in columns."
+date: "Aug 06, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Department
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| revenue     | int     |
+| month       | varchar |
++-------------+---------
+(id, month) is the primary key of this table.
+The table has information about the revenue of each department in each month.
+The month has values in ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].
+
+Write an SQL query to reformat the table so that there is a department id column and a revenue column for each month.
+
+The result table should have the following format:
+
++------+---------------+---------------+---------------+-----+---------------+
+| id   | Jan_Revenue   | Feb_Revenue   | Mar_Revenue   | ... | Dec_Revenue   |
++------+---------------+---------------+---------------+-----+---------------+
+where Jan_Revenue is the revenue of the department in January, Feb_Revenue is the revenue of the department in February, etc.
+
+- Examples
+- Constraints
+- [Approach 1: Conditional Aggregation (CASE WHEN)](#approach-1-conditional-aggregation-case-when)
+- [Approach 2: MySQL IF Function](#approach-2-mysql-if-function)
+
+## Examples
+
+### Example 1
+
+**Input:**
+
+Department table:
++------+---------+-------+
+| id   | revenue | month |
++------+---------+-------+
+| 1    | 8000    | Jan   |
+| 2    | 9000    | Jan   |
+| 3    | 10000   | Feb   |
+| 1    | 7000    | Feb   |
+| 1    | 6000    | Mar   |
++------+---------+-------+
+
+**Output:**
+
++------+-------------+-------------+-------------+-----+-------------+
+| id   | Jan_Revenue | Feb_Revenue | Mar_Revenue | ... | Dec_Revenue |
++------+-------------+-------------+-------------+-----+-------------+
+| 1    | 8000        | 7000        | 6000        | ... | null        |
+| 2    | 9000        | null        | null        | ... | null        |
+| 3    | null        | 10000       | null        | ... | null        |
++------+-------------+-------------+-------------+-----+-------------+
+
+**Explanation:**
+The revenue for the department with id 1 in January is 8000, in February is 7000, and in March is 6000. The revenue for the department with id 2 in January is 9000. The revenue for the department with id 3 in February is 10000. All other months have null values.
+
+## Constraints
+
+```text
+The month values are limited to the first three letters of the English month names (e.g., 'Jan', 'Feb', etc.).
+```
+
+---
+## Approach 1: Conditional Aggregation (CASE WHEN)
+
+**Intuition**
+We need to pivot the table by converting row values (months) into column names. This can be achieved by grouping the data by `id` and using conditional aggregation to sum the revenue for each specific month.
+
+**Steps**
+- Select the `id` column.
+- For each month (Jan through Dec), use a `CASE WHEN` statement inside a `SUM` function. If the current row's month matches the target month, include the revenue; otherwise, include `NULL` (which is ignored by `SUM`).
+- Group the results by `id`.
+- Order the results by `id` in ascending order.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,\n    SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,\n    SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,\n    SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,\n    SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,\n    SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,\n    SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,\n    SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,\n    SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,\n    SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,\n    SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,\n    SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "Java", lang: "java", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,\n    SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,\n    SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,\n    SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,\n    SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,\n    SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,\n    SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,\n    SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,\n    SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,\n    SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,\n    SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,\n    SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "C++", lang: "cpp", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,\n    SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,\n    SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,\n    SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,\n    SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,\n    SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,\n    SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,\n    SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,\n    SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,\n    SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,\n    SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,\n    SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "JavaScript", lang: "javascript", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,\n    SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,\n    SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,\n    SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,\n    SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,\n    SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,\n    SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,\n    SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,\n    SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,\n    SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,\n    SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,\n    SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "TypeScript", lang: "typescript", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,\n    SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,\n    SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,\n    SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,\n    SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,\n    SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,\n    SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,\n    SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,\n    SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,\n    SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,\n    SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,\n    SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of rows in the Department table. We scan the table once.
+- Space: O(1), assuming the output size is not considered in space complexity (or O(M) for the result set where M is the number of unique IDs).
+- Notes: This approach is standard SQL and works across almost all database systems (MySQL, PostgreSQL, SQL Server, Oracle).
+
+---
+## Approach 2: MySQL IF Function
+
+**Intuition**
+MySQL provides a shorthand `IF(condition, true_value, false_value)` function which can make the query slightly more concise than the standard `CASE WHEN` syntax, though the logic remains identical.
+
+**Steps**
+- Select the `id` column.
+- For each month, use the `IF` function inside a `SUM` function. Check if the `month` column equals the target month string. If true, return `revenue`; otherwise, return `NULL`.
+- Group by `id` and order by `id`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,\n    SUM(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,\n    SUM(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,\n    SUM(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,\n    SUM(IF(month = 'May', revenue, NULL)) AS May_Revenue,\n    SUM(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,\n    SUM(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,\n    SUM(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,\n    SUM(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,\n    SUM(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,\n    SUM(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,\n    SUM(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "Java", lang: "java", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,\n    SUM(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,\n    SUM(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,\n    SUM(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,\n    SUM(IF(month = 'May', revenue, NULL)) AS May_Revenue,\n    SUM(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,\n    SUM(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,\n    SUM(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,\n    SUM(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,\n    SUM(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,\n    SUM(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,\n    SUM(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "C++", lang: "cpp", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,\n    SUM(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,\n    SUM(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,\n    SUM(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,\n    SUM(IF(month = 'May', revenue, NULL)) AS May_Revenue,\n    SUM(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,\n    SUM(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,\n    SUM(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,\n    SUM(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,\n    SUM(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,\n    SUM(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,\n    SUM(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "JavaScript", lang: "javascript", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,\n    SUM(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,\n    SUM(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,\n    SUM(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,\n    SUM(IF(month = 'May', revenue, NULL)) AS May_Revenue,\n    SUM(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,\n    SUM(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,\n    SUM(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,\n    SUM(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,\n    SUM(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,\n    SUM(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,\n    SUM(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },
+{ name: "TypeScript", lang: "typescript", code: "# Write your MySQL query statement below\nSELECT id,\n    SUM(IF(month = 'Jan', revenue, NULL)) AS Jan_Revenue,\n    SUM(IF(month = 'Feb', revenue, NULL)) AS Feb_Revenue,\n    SUM(IF(month = 'Mar', revenue, NULL)) AS Mar_Revenue,\n    SUM(IF(month = 'Apr', revenue, NULL)) AS Apr_Revenue,\n    SUM(IF(month = 'May', revenue, NULL)) AS May_Revenue,\n    SUM(IF(month = 'Jun', revenue, NULL)) AS Jun_Revenue,\n    SUM(IF(month = 'Jul', revenue, NULL)) AS Jul_Revenue,\n    SUM(IF(month = 'Aug', revenue, NULL)) AS Aug_Revenue,\n    SUM(IF(month = 'Sep', revenue, NULL)) AS Sep_Revenue,\n    SUM(IF(month = 'Oct', revenue, NULL)) AS Oct_Revenue,\n    SUM(IF(month = 'Nov', revenue, NULL)) AS Nov_Revenue,\n    SUM(IF(month = 'Dec', revenue, NULL)) AS Dec_Revenue\nFROM Department\nGROUP BY id\nORDER BY id\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of rows in the Department table.
+- Space: O(1), excluding the result set storage.
+- Notes: This syntax is specific to MySQL. For other databases like PostgreSQL or SQL Server, `CASE WHEN` is preferred for portability.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reformat Department Table Solutions","datePublished":"2025-08-06","description":"Pivot the Department table to display monthly revenue in columns.","keywords":"LeetCode, Reformat Department Table, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Conditional Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of rows in the Department table, as we scan the table once."}},{"@type":"Question","name":"What is the space complexity of the Conditional Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, or O(M) to store the result where M is the number of unique departments."}},{"@type":"Question","name":"Does the MySQL IF function approach work in all SQL databases?","acceptedAnswer":{"@type":"Answer","text":"No, the IF function is specific to MySQL. For other databases like PostgreSQL or SQL Server, you should use the standard CASE WHEN syntax."}}]}).replace(/</g,'\u003c')}
+</script>

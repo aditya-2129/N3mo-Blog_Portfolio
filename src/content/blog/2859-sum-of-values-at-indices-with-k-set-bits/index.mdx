@@ -1,0 +1,376 @@
+---
+title: "Sum of Values at Indices With K Set Bits"
+summary: "Return the sum of all nums[i] where the index i has exactly k set bits in its binary representation."
+date: "May 11, 2025"
+tags:
+  - Array
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.10% | **Paid:** No
+> **Topics:** Array, Bit Manipulation
+
+You are given a 0-indexed integer array nums and an integer k.
+
+Return the sum of all nums[i] where the index i has exactly k set bits in its binary representation.
+
+A set bit is a bit that is 1.
+
+- Examples
+- Constraints
+- [Iterative Bit Counting](#iterative-bit-counting)
+- [Built-in Bit Count Functions](#built-in-bit-count-functions)
+- [Brian Kernighan's Algorithm](#brian-kernighans-algorithm)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [5,2,3,4], k = 1
+Output: 5
+Explanation:
+Index 0: binary 00, has 0 set bits
+Index 1: binary 01, has 1 set bit
+Index 2: binary 10, has 1 set bit
+Index 3: binary 11, has 2 set bits
+So we sum nums[1] + nums[2] = 2 + 3 = 5
+```
+
+### Example 2
+```text
+Input: nums = [1,2,3,4,5], k = 2
+Output: 4
+Explanation:
+Index 0: binary 000, has 0 set bits
+Index 1: binary 001, has 1 set bit
+Index 2: binary 010, has 1 set bit
+Index 3: binary 011, has 2 set bits
+Index 4: binary 100, has 1 set bit
+So we sum nums[3] = 4
+```
+
+## Constraints
+```text
+1 <= nums.length <= 1000
+0 <= nums[i] <= 10⁵
+0 <= k <= 10
+```
+
+---
+## Iterative Bit Counting
+
+**Intuition**
+For each index, count the number of set bits by checking each bit position and summing the values at indices with exactly k set bits.
+
+**Steps**
+- Iterate through each index of the array
+- For each index, count set bits by repeatedly checking the least significant bit and right-shifting
+- If the count equals k, add the value at that index to the total sum
+- Return the total sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def sumIndicesWithKSetBits(self, nums: List[int], k: int) -> int:
+        def count_set_bits(n):
+            count = 0
+            while n:
+                count += n & 1
+                n &gt;&gt;= 1
+            return count
+        
+        total = 0
+        for i in range(len(nums)):
+            if count_set_bits(i) == k:
+                total += nums[i]
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int sumIndicesWithKSetBits(List<Integer> nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (countSetBits(i) == k) {
+                total += nums.get(i);
+            }
+        }
+        return total;
+    }
+    
+    private int countSetBits(int n) {
+        int count = 0;
+        while (n &gt; 0) {
+            count += n & 1;
+            n &gt;&gt;= 1;
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int sumIndicesWithKSetBits(vector<int>& nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (countSetBits(i) == k) {
+                total += nums[i];
+            }
+        }
+        return total;
+    }
+    
+private:
+    int countSetBits(int n) {
+        int count = 0;
+        while (n &gt; 0) {
+            count += n & 1;
+            n &gt;&gt;= 1;
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var sumIndicesWithKSetBits = function(nums, k) {
+    function countSetBits(n) {
+        let count = 0;
+        while (n &gt; 0) {
+            count += n & 1;
+            n &gt;&gt;= 1;
+        }
+        return count;
+    }
+    
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (countSetBits(i) === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function sumIndicesWithKSetBits(nums: number[], k: number): number {
+    function countSetBits(n: number): number {
+        let count = 0;
+        while (n &gt; 0) {
+            count += n & 1;
+            n &gt;&gt;= 1;
+        }
+        return count;
+    }
+    
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (countSetBits(i) === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n × log(max_index)) where n is the length of nums
+- Space: O(1)
+- Notes: Simple and straightforward approach, but may not be the most efficient for bit counting
+
+---
+## Built-in Bit Count Functions
+
+**Intuition**
+Leverage language-specific built-in functions to count set bits efficiently, then sum values at matching indices.
+
+**Steps**
+- Iterate through each index of the array
+- Use the built-in bit count function to count set bits in the index
+- If the count equals k, add the value at that index to the total sum
+- Return the total sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def sumIndicesWithKSetBits(self, nums: List[int], k: int) -> int:
+        total = 0
+        for i in range(len(nums)):
+            if bin(i).count('1') == k:
+                total += nums[i]
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int sumIndicesWithKSetBits(List<Integer> nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (Integer.bitCount(i) == k) {
+                total += nums.get(i);
+            }
+        }
+        return total;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int sumIndicesWithKSetBits(vector<int>& nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (__builtin_popcount(i) == k) {
+                total += nums[i];
+            }
+        }
+        return total;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var sumIndicesWithKSetBits = function(nums, k) {
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i.toString(2).split('1').length - 1 === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function sumIndicesWithKSetBits(nums: number[], k: number): number {
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i.toString(2).split('1').length - 1 === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n × log(max_index)) where n is the length of nums
+- Space: O(1)
+- Notes: Most concise and idiomatic approach, uses optimized built-in functions
+
+---
+## Brian Kernighan's Algorithm
+
+**Intuition**
+Use Brian Kernighan's algorithm to efficiently count set bits by repeatedly clearing the least significant set bit.
+
+**Steps**
+- Iterate through each index of the array
+- For each index, count set bits using Brian Kernighan's algorithm (n & (n-1) clears the least significant set bit)
+- If the count equals k, add the value at that index to the total sum
+- Return the total sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def sumIndicesWithKSetBits(self, nums: List[int], k: int) -> int:
+        def count_set_bits(n):
+            count = 0
+            while n:
+                n &= n - 1
+                count += 1
+            return count
+        
+        total = 0
+        for i in range(len(nums)):
+            if count_set_bits(i) == k:
+                total += nums[i]
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int sumIndicesWithKSetBits(List<Integer> nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (countSetBits(i) == k) {
+                total += nums.get(i);
+            }
+        }
+        return total;
+    }
+    
+    private int countSetBits(int n) {
+        int count = 0;
+        while (n != 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int sumIndicesWithKSetBits(vector<int>& nums, int k) {
+        int total = 0;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (countSetBits(i) == k) {
+                total += nums[i];
+            }
+        }
+        return total;
+    }
+    
+private:
+    int countSetBits(int n) {
+        int count = 0;
+        while (n != 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var sumIndicesWithKSetBits = function(nums, k) {
+    function countSetBits(n) {
+        let count = 0;
+        while (n !== 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+    
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (countSetBits(i) === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function sumIndicesWithKSetBits(nums: number[], k: number): number {
+    function countSetBits(n: number): number {
+        let count = 0;
+        while (n !== 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+    
+    let total = 0;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (countSetBits(i) === k) {
+            total += nums[i];
+        }
+    }
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n × s) where n is the length of nums and s is the number of set bits in each index
+- Space: O(1)
+- Notes: More efficient when numbers have few set bits, as it only iterates through set bits
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sum of Values at Indices With K Set Bits Solutions","datePublished":"2025-05-11","description":"Return the sum of all nums[i] where the index i has exactly k set bits in its binary representation.","keywords":"LeetCode, Sum of Values at Indices With K Set Bits, Easy, Array, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Bit Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × log(max_index)) where n is the length of nums, as we check each bit position for every index."}},{"@type":"Question","name":"What is the time complexity of the Built-in Bit Count Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × log(max_index)) where n is the length of nums, using optimized built-in functions."}},{"@type":"Question","name":"What is the time complexity of Brian Kernighan's Algorithm?","acceptedAnswer":{"@type":"Answer","text":"O(n × s) where n is the length of nums and s is the number of set bits in each index, as it only iterates through set bits."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) for all approaches, as we only use a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

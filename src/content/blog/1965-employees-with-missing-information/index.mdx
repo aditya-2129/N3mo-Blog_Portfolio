@@ -1,0 +1,173 @@
+---
+title: "Employees With Missing Information"
+summary: "Find employees who are missing information in either the Employees table or the Salaries table."
+date: "Oct 13, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.20% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| name        | varchar |
++-------------+---------+
+employee_id is the primary key for this table.
+Each row of this table indicates the name of the employee whose ID is employee_id.
+
+Table: Salaries
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| salary      | int     |
++-------------+---------+
+employee_id is the primary key for this table.
+Each row of this table indicates the salary of the employee whose ID is employee_id.
+
+Write an SQL query to report the employees having missing information. An employee is considered to have missing information if:
+
+- The employee's name is missing from the Employees table, or
+- The employee's salary is missing from the Salaries table.
+
+Return the result table ordered by employee_id in ascending order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: FULL OUTER JOIN](#approach-1-full-outer-join)
+- [Approach 2: UNION with LEFT JOIN](#approach-2-union-with-left-join)
+- [Approach 3: NOT EXISTS](#approach-3-not-exists)
+
+## Examples
+
+### Example 1
+
+**Input:**
+Employees table:
+```text
++-------------+----------+
+| employee_id | name     |
++-------------+----------+
+| 2           | Crew     |
+| 4           | Haven    |
+| 5           | Kristian |
++-------------+----------+
+```
+
+Salaries table:
+```text
++-------------+--------+
+| employee_id | salary |
++-------------+--------+
+| 5           | 76071  |
+| 1           | 22517  |
+| 4           | 63539  |
++-------------+--------+
+```
+
+**Output:**
+```text
++-------------+
+| employee_id |
++-------------+
+| 1           |
+| 2           |
++-------------+
+```
+
+**Explanation:**
+- Employees 2 is in the Employees table but not in the Salaries table (salary is missing).
+- Employees 1 is in the Salaries table but not in the Employees table (name is missing).
+- Employees 4 and 5 are present in both tables.
+
+## Constraints
+
+```text
+- The Employees table will have at most 100 rows.
+- The Salaries table will have at most 100 rows.
+- employee_id values are unique within each table.
+```
+
+---
+## Approach 1: FULL OUTER JOIN
+
+**Intuition**
+Use FULL OUTER JOIN to combine both tables and filter for rows where either side has NULL values, indicating missing information.
+
+**Steps**
+- Perform FULL OUTER JOIN between Employees and Salaries on employee_id
+- Filter where either employee_id from Employees is NULL or employee_id from Salaries is NULL
+- Select the non-NULL employee_id and order by employee_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def findMissingInformation():\n    query = \"\"\"\n    SELECT COALESCE(e.employee_id, s.employee_id) AS employee_id\n    FROM Employees e\n    FULL OUTER JOIN Salaries s ON e.employee_id = s.employee_id\n    WHERE e.employee_id IS NULL OR s.employee_id IS NULL\n    ORDER BY employee_id\n    \"\"\"\n    return query\n\n# LeetCode execution\n# The query above is the SQL solution\n# This wrapper shows how to execute from Python\nimport sqlite3\n\ndef execute_query():\n    conn = sqlite3.connect(':memory:')\n    cursor = conn.cursor()\n    cursor.execute(findMissingInformation())\n    return cursor.fetchall()\n" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public String findMissingInformation() {\n        return \"SELECT COALESCE(e.employee_id, s.employee_id) AS employee_id \" +\n               \"FROM Employees e \" +\n               \"FULL OUTER JOIN Salaries s ON e.employee_id = s.employee_id \" +\n               \"WHERE e.employee_id IS NULL OR s.employee_id IS NULL \" +\n               \"ORDER BY employee_id\";\n    }\n    \n    public List&lt;Integer&gt; executeQuery(Connection conn) throws SQLException {\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(findMissingInformation());\n        while (rs.next()) {\n            result.add(rs.getInt(\"employee_id\"));\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    std::string findMissingInformation() {\n        return \"SELECT COALESCE(e.employee_id, s.employee_id) AS employee_id \"\n               \"FROM Employees e \"\n               \"FULL OUTER JOIN Salaries s ON e.employee_id = s.employee_id \"\n               \"WHERE e.employee_id IS NULL OR s.employee_id IS NULL \"\n               \"ORDER BY employee_id\";\n    }\n    \n    std::vector&lt;int&gt; executeQuery(SQLHSTMT stmt) {\n        std::vector&lt;int&gt; result;\n        SQLCHAR query[1024];\n        strcpy((char*)query, findMissingInformation().c_str());\n        SQLExecDirect(stmt, query, SQL_NTS);\n        \n        SQLINTEGER employeeId;\n        SQLBindCol(stmt, 1, SQL_C_LONG, &employeeId, 0, NULL);\n        \n        while (SQLFetch(stmt) == SQL_SUCCESS) {\n            result.push_back(employeeId);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function findMissingInformation() {\n    return \"SELECT COALESCE(e.employee_id, s.employee_id) AS employee_id\n           FROM Employees e\n           FULL OUTER JOIN Salaries s ON e.employee_id = s.employee_id\n           WHERE e.employee_id IS NULL OR s.employee_id IS NULL\n           ORDER BY employee_id\";\n}\n\n// For Node.js with mysql2 or pg\nasync function executeQuery(pool) {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map(row =&gt; row.employee_id);\n}\n\nmodule.exports = { findMissingInformation, executeQuery };\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\n    employee_id: number;\n    name?: string;\n}\n\ninterface Salary {\n    employee_id: number;\n    salary?: number;\n}\n\nfunction findMissingInformation(): string {\n    return \"SELECT COALESCE(e.employee_id, s.employee_id) AS employee_id\n           FROM Employees e\n           FULL OUTER JOIN Salaries s ON e.employee_id = s.employee_id\n           WHERE e.employee_id IS NULL OR s.employee_id IS NULL\n           ORDER BY employee_id\";\n}\n\n// For Node.js with mysql2 or pg\nasync function executeQuery(pool: any): Promise&lt;number[]&gt; {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map((row: any) =&gt; row.employee_id);\n}\n\nexport { findMissingInformation, executeQuery };\n" },]} />
+
+**Complexity**
+- Time: O(n + m) where n and m are the sizes of Employees and Salaries tables
+- Space: O(n + m) for storing the joined result
+- Notes: FULL OUTER JOIN is not supported in MySQL, use alternative approaches for MySQL
+
+---
+## Approach 2: UNION with LEFT JOIN
+
+**Intuition**
+Use two LEFT JOIN queries combined with UNION to find employees missing from either table.
+
+**Steps**
+- Find employees in Employees but not in Salaries using LEFT JOIN
+- Find employees in Salaries but not in Employees using LEFT JOIN
+- Combine results with UNION and order by employee_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def findMissingInformation():\n    query = \"\"\"\n    SELECT e.employee_id\n    FROM Employees e\n    LEFT JOIN Salaries s ON e.employee_id = s.employee_id\n    WHERE s.employee_id IS NULL\n    UNION\n    SELECT s.employee_id\n    FROM Salaries s\n    LEFT JOIN Employees e ON s.employee_id = e.employee_id\n    WHERE e.employee_id IS NULL\n    ORDER BY employee_id\n    \"\"\"\n    return query\n\n# LeetCode execution\nimport sqlite3\n\ndef execute_query():\n    conn = sqlite3.connect(':memory:')\n    cursor = conn.cursor()\n    cursor.execute(findMissingInformation())\n    return cursor.fetchall()\n" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public String findMissingInformation() {\n        return \"SELECT e.employee_id \" +\n               \"FROM Employees e \" +\n               \"LEFT JOIN Salaries s ON e.employee_id = s.employee_id \" +\n               \"WHERE s.employee_id IS NULL \" +\n               \"UNION \" +\n               \"SELECT s.employee_id \" +\n               \"FROM Salaries s \" +\n               \"LEFT JOIN Employees e ON s.employee_id = e.employee_id \" +\n               \"WHERE e.employee_id IS NULL \" +\n               \"ORDER BY employee_id\";\n    }\n    \n    public List&lt;Integer&gt; executeQuery(Connection conn) throws SQLException {\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(findMissingInformation());\n        while (rs.next()) {\n            result.add(rs.getInt(\"employee_id\"));\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    std::string findMissingInformation() {\n        return \"SELECT e.employee_id \"\n               \"FROM Employees e \"\n               \"LEFT JOIN Salaries s ON e.employee_id = s.employee_id \"\n               \"WHERE s.employee_id IS NULL \"\n               \"UNION \"\n               \"SELECT s.employee_id \"\n               \"FROM Salaries s \"\n               \"LEFT JOIN Employees e ON s.employee_id = e.employee_id \"\n               \"WHERE e.employee_id IS NULL \"\n               \"ORDER BY employee_id\";\n    }\n    \n    std::vector&lt;int&gt; executeQuery(SQLHSTMT stmt) {\n        std::vector&lt;int&gt; result;\n        SQLCHAR query[1024];\n        strcpy((char*)query, findMissingInformation().c_str());\n        SQLExecDirect(stmt, query, SQL_NTS);\n        \n        SQLINTEGER employeeId;\n        SQLBindCol(stmt, 1, SQL_C_LONG, &employeeId, 0, NULL);\n        \n        while (SQLFetch(stmt) == SQL_SUCCESS) {\n            result.push_back(employeeId);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function findMissingInformation() {\n    return \"SELECT e.employee_id\n           FROM Employees e\n           LEFT JOIN Salaries s ON e.employee_id = s.employee_id\n           WHERE s.employee_id IS NULL\n           UNION\n           SELECT s.employee_id\n           FROM Salaries s\n           LEFT JOIN Employees e ON s.employee_id = e.employee_id\n           WHERE e.employee_id IS NULL\n           ORDER BY employee_id\";\n}\n\nasync function executeQuery(pool) {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map(row =&gt; row.employee_id);\n}\n\nmodule.exports = { findMissingInformation, executeQuery };\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findMissingInformation(): string {\n    return \"SELECT e.employee_id\n           FROM Employees e\n           LEFT JOIN Salaries s ON e.employee_id = s.employee_id\n           WHERE s.employee_id IS NULL\n           UNION\n           SELECT s.employee_id\n           FROM Salaries s\n           LEFT JOIN Employees e ON s.employee_id = e.employee_id\n           WHERE e.employee_id IS NULL\n           ORDER BY employee_id\";\n}\n\nasync function executeQuery(pool: any): Promise&lt;number[]&gt; {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map((row: any) =&gt; row.employee_id);\n}\n\nexport { findMissingInformation, executeQuery };\n" },]} />
+
+**Complexity**
+- Time: O(n + m) where n and m are the sizes of Employees and Salaries tables
+- Space: O(n + m) for storing intermediate results
+- Notes: Works on all SQL databases including MySQL
+
+---
+## Approach 3: NOT EXISTS
+
+**Intuition**
+Use NOT EXISTS subqueries to find employees that don't exist in the other table.
+
+**Steps**
+- Find employees in Employees where employee_id doesn't exist in Salaries
+- Find employees in Salaries where employee_id doesn't exist in Employees
+- Combine results with UNION and order by employee_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def findMissingInformation():\n    query = \"\"\"\n    SELECT employee_id\n    FROM Employees\n    WHERE employee_id NOT IN (SELECT employee_id FROM Salaries)\n    UNION\n    SELECT employee_id\n    FROM Salaries\n    WHERE employee_id NOT IN (SELECT employee_id FROM Employees)\n    ORDER BY employee_id\n    \"\"\"\n    return query\n\n# LeetCode execution\nimport sqlite3\n\ndef execute_query():\n    conn = sqlite3.connect(':memory:')\n    cursor = conn.cursor()\n    cursor.execute(findMissingInformation())\n    return cursor.fetchall()\n" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public String findMissingInformation() {\n        return \"SELECT employee_id \" +\n               \"FROM Employees \" +\n               \"WHERE employee_id NOT IN (SELECT employee_id FROM Salaries) \" +\n               \"UNION \" +\n               \"SELECT employee_id \" +\n               \"FROM Salaries \" +\n               \"WHERE employee_id NOT IN (SELECT employee_id FROM Employees) \" +\n               \"ORDER BY employee_id\";\n    }\n    \n    public List&lt;Integer&gt; executeQuery(Connection conn) throws SQLException {\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(findMissingInformation());\n        while (rs.next()) {\n            result.add(rs.getInt(\"employee_id\"));\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n#include &lt;sql.h&gt;\n#include &lt;sqlext.h&gt;\n\nclass Solution {\npublic:\n    std::string findMissingInformation() {\n        return \"SELECT employee_id \"\n               \"FROM Employees \"\n               \"WHERE employee_id NOT IN (SELECT employee_id FROM Salaries) \"\n               \"UNION \"\n               \"SELECT employee_id \"\n               \"FROM Salaries \"\n               \"WHERE employee_id NOT IN (SELECT employee_id FROM Employees) \"\n               \"ORDER BY employee_id\";\n    }\n    \n    std::vector&lt;int&gt; executeQuery(SQLHSTMT stmt) {\n        std::vector&lt;int&gt; result;\n        SQLCHAR query[1024];\n        strcpy((char*)query, findMissingInformation().c_str());\n        SQLExecDirect(stmt, query, SQL_NTS);\n        \n        SQLINTEGER employeeId;\n        SQLBindCol(stmt, 1, SQL_C_LONG, &employeeId, 0, NULL);\n        \n        while (SQLFetch(stmt) == SQL_SUCCESS) {\n            result.push_back(employeeId);\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function findMissingInformation() {\n    return \"SELECT employee_id\n           FROM Employees\n           WHERE employee_id NOT IN (SELECT employee_id FROM Salaries)\n           UNION\n           SELECT employee_id\n           FROM Salaries\n           WHERE employee_id NOT IN (SELECT employee_id FROM Employees)\n           ORDER BY employee_id\";\n}\n\nasync function executeQuery(pool) {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map(row =&gt; row.employee_id);\n}\n\nmodule.exports = { findMissingInformation, executeQuery };\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findMissingInformation(): string {\n    return \"SELECT employee_id\n           FROM Employees\n           WHERE employee_id NOT IN (SELECT employee_id FROM Salaries)\n           UNION\n           SELECT employee_id\n           FROM Salaries\n           WHERE employee_id NOT IN (SELECT employee_id FROM Employees)\n           ORDER BY employee_id\";\n}\n\nasync function executeQuery(pool: any): Promise&lt;number[]&gt; {\n    const [rows] = await pool.query(findMissingInformation());\n    return rows.map((row: any) =&gt; row.employee_id);\n}\n\nexport { findMissingInformation, executeQuery };\n" },]} />
+
+**Complexity**
+- Time: O(n × m) in worst case due to subquery execution
+- Space: O(n + m) for storing results
+- Notes: Simpler to understand but may be slower on large datasets
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Employees With Missing Information Solutions","datePublished":"2025-10-13","description":"Find employees who are missing information in either the Employees table or the Salaries table.","keywords":"LeetCode, Employees With Missing Information, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of FULL OUTER JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n and m are the sizes of Employees and Salaries tables."}},{"@type":"Question","name":"What is the time complexity of UNION with LEFT JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n and m are the sizes of Employees and Salaries tables."}},{"@type":"Question","name":"What is the time complexity of NOT EXISTS approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) in worst case due to subquery execution."}},{"@type":"Question","name":"Which approach works on MySQL?","acceptedAnswer":{"@type":"Answer","text":"UNION with LEFT JOIN and NOT EXISTS approaches work on MySQL, while FULL OUTER JOIN is not supported."}}]}).replace(/</g,'\u003c')}
+</script>

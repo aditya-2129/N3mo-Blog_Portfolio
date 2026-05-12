@@ -1,0 +1,113 @@
+---
+title: "Maximize Sum Of Array After K Negations"
+summary: "Given an integer array nums and an integer k, modify the array by choosing an index i and replacing nums[i] with -nums[i] exactly k times to maximize the sum of the array."
+date: "May 09, 2025"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.80% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting
+
+Given an integer array nums and an integer k, modify the array as follows:
+
+Choose an index i and replace nums[i] with -nums[i].
+You should perform this operation exactly k times. You may choose the same index multiple times.
+
+Return the largest possible sum of the array after modifying it in this way.
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [4,2,3], k = 1
+Output: 5
+Explanation: Choose indices (1,) and nums becomes [4,-2,3].
+```
+
+### Example 2
+```text
+Input: nums = [3,-1,0,2], k = 3
+Output: 6
+Explanation: Choose indices (1, 2, 2) and nums becomes [3,1,0,2].
+```
+
+### Example 3
+```text
+Input: nums = [2,-3,-1,5,-4], k = 2
+Output: 13
+Explanation: Choose indices (2, 4) and nums becomes [2,-3,1,5,4].
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁴
+-100 <= nums[i] <= 100
+1 <= k <= 10⁴
+```
+
+---
+
+## Sorting Approach
+
+**Intuition**
+To maximize the sum, we should prioritize converting negative numbers to positive numbers, as this yields the highest gain ($2 \times |num|$). Sorting allows us to easily access the smallest numbers (most negative) first. If we have remaining operations ($k$) after converting all negatives, we check if $k$ is odd. If it is, we flip the number with the smallest absolute value (which minimizes the loss).
+
+**Steps**
+- Sort the array in ascending order.
+- Iterate through the array. If the current number is negative and we still have operations ($k &gt; 0$), flip the number to positive and decrement $k$.
+- If $k$ reaches 0, break the loop.
+- If $k$ is still greater than 0 after the loop, it means all numbers are non-negative.
+- If $k$ is odd, we must flip one number. To minimize the impact, we flip the smallest number in the array (which is now at index 0 if we re-sort, or we can find the minimum absolute value).
+- Calculate the sum of the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestSumAfterKNegations(self, nums: list[int], k: int) -&gt; int:\n        nums.sort()\n        for i in range(len(nums)):\n            if nums[i] &lt; 0 and k &gt; 0:\n                nums[i] = -nums[i]\n                k -= 1\n            else:\n                break\n        \n        if k % 2 != 0:\n            nums.sort()\n            nums[0] = -nums[0]\n            \n        return sum(nums)\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int largestSumAfterKNegations(int[] nums, int k) {\n        Arrays.sort(nums);\n        for (int i = 0; i &lt; nums.length && k &gt; 0; i++) {\n            if (nums[i] &lt; 0) {\n                nums[i] = -nums[i];\n                k--;\n            } else {\n                break;\n            }\n        }\n        \n        if (k % 2 != 0) {\n            int minIndex = 0;\n            for (int i = 1; i &lt; nums.length; i++) {\n                if (nums[i] &lt; nums[minIndex]) {\n                    minIndex = i;\n                }\n            }\n            nums[minIndex] = -nums[minIndex];\n        }\n        \n        int sum = 0;\n        for (int num : nums) {\n            sum += num;\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;numeric&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestSumAfterKNegations(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        \n        for (int i = 0; i &lt; nums.size() && k &gt; 0; ++i) {\n            if (nums[i] &lt; 0) {\n                nums[i] = -nums[i];\n                k--;\n            } else {\n                break;\n            }\n        }\n        \n        if (k % 2 != 0) {\n            sort(nums.begin(), nums.end());\n            nums[0] = -nums[0];\n        }\n        \n        return accumulate(nums.begin(), nums.end(), 0);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar largestSumAfterKNegations = function(nums, k) {\n    nums.sort((a, b) =&gt; a - b);\n    \n    for (let i = 0; i &lt; nums.length && k &gt; 0; i++) {\n        if (nums[i] &lt; 0) {\n            nums[i] = -nums[i];\n            k--;\n        } else {\n            break;\n        }\n    }\n    \n    if (k % 2 !== 0) {\n        nums.sort((a, b) =&gt; a - b);\n        nums[0] = -nums[0];\n    }\n    \n    return nums.reduce((acc, val) =&gt; acc + val, 0);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestSumAfterKNegations(nums: number[], k: number): number {\n    nums.sort((a, b) =&gt; a - b);\n    \n    for (let i = 0; i &lt; nums.length && k &gt; 0; i++) {\n        if (nums[i] &lt; 0) {\n            nums[i] = -nums[i];\n            k--;\n        } else {\n            break;\n        }\n    }\n    \n    if (k % 2 !== 0) {\n        nums.sort((a, b) =&gt; a - b);\n        nums[0] = -nums[0];\n    }\n    \n    return nums.reduce((acc, val) =&gt; acc + val, 0);\n}\n" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting.
+- Space: O(1) or O(N) depending on the sorting implementation.
+- Notes: Sorting is efficient and handles the "smallest absolute value" logic cleanly.
+
+---
+
+## Priority Queue Approach
+
+**Intuition**
+We can use a Min-Heap (Priority Queue) to always access the smallest number in the array in O(1) time (with O(log N) extraction/insertion). In each of the $k$ operations, we extract the smallest number, negate it (which makes it positive or larger), and push it back into the heap. This greedy strategy ensures that we are always maximizing the sum at every step.
+
+**Steps**
+- Transform the array into a min-heap.
+- Loop $k$ times:
+    - Pop the smallest element from the heap.
+    - Push the negated value of that element back into the heap.
+- After $k$ operations, sum up all elements remaining in the heap.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def largestSumAfterKNegations(self, nums: list[int], k: int) -&gt; int:\n        heapq.heapify(nums)\n        for _ in range(k):\n            val = heapq.heappop(nums)\n            heapq.heappush(nums, -val)\n        return sum(nums)\n" },
+{ name: "Java", lang: "java", code: "import java.util.PriorityQueue;\n\nclass Solution {\n    public int largestSumAfterKNegations(int[] nums, int k) {\n        PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;();\n        for (int num : nums) {\n            pq.offer(num);\n        }\n        \n        while (k-- &gt; 0) {\n            int val = pq.poll();\n            pq.offer(-val);\n        }\n        \n        int sum = 0;\n        while (!pq.isEmpty()) {\n            sum += pq.poll();\n        }\n        return sum;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;queue&gt;\n#include &lt;numeric&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestSumAfterKNegations(vector&lt;int&gt;& nums, int k) {\n        priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq(nums.begin(), nums.end());\n        \n        while (k--) {\n            int val = pq.top();\n            pq.pop();\n            pq.push(-val);\n        }\n        \n        int sum = 0;\n        while (!pq.empty()) {\n            sum += pq.top();\n            pq.pop();\n        }\n        return sum;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class MinHeap {\n    constructor() {\n        this.heap = [];\n    }\n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(i) {\n        while (i &gt; 0) {\n            let p = Math.floor((i - 1) / 2);\n            if (this.heap[p] &lt;= this.heap[i]) break;\n            [this.heap[p], this.heap[i]] = [this.heap[i], this.heap[p]];\n            i = p;\n        }\n    }\n    pop() {\n        if (this.heap.length === 0) return null;\n        const out = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return out;\n    }\n    sinkDown(i) {\n        const len = this.heap.length;\n        while (true) {\n            let l = 2 * i + 1, r = 2 * i + 2, swap = null;\n            if (l &lt; len && this.heap[l] &lt; this.heap[i]) swap = l;\n            if (r &lt; len && this.heap[r] &lt; (swap === null ? this.heap[i] : this.heap[l])) swap = r;\n            if (swap === null) break;\n            [this.heap[i], this.heap[swap]] = [this.heap[swap], this.heap[i]];\n            i = swap;\n        }\n    }\n    size() {\n        return this.heap.length;\n    }\n}\n\n/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar largestSumAfterKNegations = function(nums, k) {\n    const pq = new MinHeap();\n    for (const n of nums) pq.push(n);\n    \n    for (let i = 0; i &lt; k; i++) {\n        const val = pq.pop();\n        pq.push(-val);\n    }\n    \n    let sum = 0;\n    while (pq.size() &gt; 0) {\n        sum += pq.pop();\n    }\n    return sum;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class MinHeap {\n    heap: number[] = [];\n    push(val: number): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    bubbleUp(i: number): void {\n        while (i &gt; 0) {\n            let p = Math.floor((i - 1) / 2);\n            if (this.heap[p] &lt;= this.heap[i]) break;\n            [this.heap[p], this.heap[i]] = [this.heap[i], this.heap[p]];\n            i = p;\n        }\n    }\n    pop(): number | null {\n        if (this.heap.length === 0) return null;\n        const out = this.heap[0];\n        const end = this.heap.pop()!;\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return out;\n    }\n    sinkDown(i: number): void {\n        const len = this.heap.length;\n        while (true) {\n            let l = 2 * i + 1, r = 2 * i + 2, swap: number | null = null;\n            if (l &lt; len && this.heap[l] &lt; this.heap[i]) swap = l;\n            if (r &lt; len && this.heap[r] &lt; (swap === null ? this.heap[i] : this.heap[l])) swap = r;\n            if (swap === null) break;\n            [this.heap[i], this.heap[swap]] = [this.heap[swap], this.heap[i]];\n            i = swap;\n        }\n    }\n    size(): number {\n        return this.heap.length;\n    }\n}\n\nfunction largestSumAfterKNegations(nums: number[], k: number): number {\n    const pq = new MinHeap();\n    for (const n of nums) pq.push(n);\n    \n    for (let i = 0; i &lt; k; i++) {\n        const val = pq.pop()!;\n        pq.push(-val);\n    }\n    \n    let sum = 0;\n    while (pq.size() &gt; 0) {\n        sum += pq.pop()!;\n    }\n    return sum;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N + K log N) to build the heap and perform K operations.
+- Space: O(N) to store the heap.
+- Notes: This approach is conceptually simple and handles the logic of "always flip the smallest" naturally without explicit sorting steps for the remaining K.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximize Sum Of Array After K Negations Solutions","datePublished":"2025-05-09","description":"Given an integer array nums and an integer k, modify the array by choosing an index i and replacing nums[i] with -nums[i] exactly k times to maximize the sum of the array.","keywords":"LeetCode, Maximize Sum Of Array After K Negations, Easy, Array, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Priority Queue approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + K log N), where N is the number of elements and K is the number of operations."}},{"@type":"Question","name":"Why do we check if K is odd in the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"If K is odd, we must flip one number. Flipping the smallest absolute value number minimizes the reduction in the total sum. If K is even, flipping any number twice results in no net change."}}]}).replace(/</g,'\u003c')}
+</script>

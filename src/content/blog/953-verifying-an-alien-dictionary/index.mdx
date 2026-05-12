@@ -1,0 +1,344 @@
+---
+title: "Verifying an Alien Dictionary"
+summary: "Determine if words are sorted according to a custom alien alphabet order."
+date: "Jan 05, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 55.90% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+In an alien language, surprisingly, they also use English lowercase letters, but possibly in a different order. The order of the alphabet is some permutation of lowercase letters.
+
+Given a sequence of words written in the alien language, and the order of the alphabet, return true if and only if the given words are sorted lexicographically in this alien language.
+
+- Examples
+- Constraints
+- [Direct Comparison](#direct-comparison)
+- [Translation to English](#translation-to-english)
+
+## Examples
+
+### Example 1
+Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
+Output: true
+Explanation: As 'h' comes before 'l' in this language, then the sequence is sorted.
+
+### Example 2
+Input: words = ["word","world","row"], order = "worldabcefghijkmnpqstuvxyz"
+Output: false
+Explanation: As 'd' comes after 'l' in this language, then word[0] &gt; word[1], hence the sequence is unsorted.
+
+### Example 3
+Input: words = ["apple","app"], order = "abcdefghijklmnopqrstuvwxyz"
+Output: false
+Explanation: "app" should come before "apple" because "app" is a prefix of "apple", but in normal dictionary order, shorter words come first.
+
+## Constraints
+
+```
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] consists of lowercase English letters.
+order.length == 26
+All characters in order are unique.
+```
+
+---
+## Direct Comparison
+
+**Intuition**
+Create a mapping from each character to its position in the alien alphabet, then compare adjacent words character by character using this mapping.
+
+**Steps**
+- Create a hash map to store the index of each character in the order string
+- Iterate through adjacent pairs of words
+- For each pair, compare characters at the same position
+- If characters differ, check if the first comes before the second in alien order
+- If all characters match, ensure the first word is not longer than the second
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def isAlienSorted(self, words: List[str], order: str) -> bool:
+        order_map = {char: idx for idx, char in enumerate(order)}
+        
+        for i in range(len(words) - 1):
+            word1, word2 = words[i], words[i + 1]
+            
+            for j in range(min(len(word1), len(word2))):
+                if word1[j] != word2[j]:
+                    if order_map[word1[j]] &gt; order_map[word2[j]]:
+                        return False
+                    break
+            else:
+                if len(word1) &gt; len(word2):
+                    return False
+        
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean isAlienSorted(String[] words, String order) {
+        int[] orderMap = new int[26];
+        for (int i = 0; i &lt; 26; i++) {
+            orderMap[order.charAt(i) - 'a'] = i;
+        }
+        
+        for (int i = 0; i &lt; words.length - 1; i++) {
+            String word1 = words[i];
+            String word2 = words[i + 1];
+            
+            for (int j = 0; j &lt; Math.min(word1.length(), word2.length()); j++) {
+                char c1 = word1.charAt(j);
+                char c2 = word2.charAt(j);
+                
+                if (c1 != c2) {
+                    if (orderMap[c1 - 'a'] &gt; orderMap[c2 - 'a']) {
+                        return false;
+                    }
+                    break;
+                }
+            }
+            
+            if (word1.length() &gt; word2.length()) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+#include <string>
+#include <vector>
+
+class Solution {
+public:
+    bool isAlienSorted(vector<string>& words, string order) {
+        int orderMap[26] = {0};
+        for (int i = 0; i &lt; 26; i++) {
+            orderMap[order[i] - 'a'] = i;
+        }
+        
+        for (int i = 0; i &lt; words.size() - 1; i++) {
+            string& word1 = words[i];
+            string& word2 = words[i + 1];
+            
+            for (int j = 0; j &lt; min(word1.length(), word2.length()); j++) {
+                if (word1[j] != word2[j]) {
+                    if (orderMap[word1[j] - 'a'] &gt; orderMap[word2[j] - 'a']) {
+                        return false;
+                    }
+                    break;
+                }
+            }
+            
+            if (word1.length() &gt; word2.length()) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} words
+ * @param {string} order
+ * @return {boolean}
+ */
+var isAlienSorted = function(words, order) {
+    const orderMap = {};
+    for (let i = 0; i &lt; 26; i++) {
+        orderMap[order[i]] = i;
+    }
+    
+    for (let i = 0; i &lt; words.length - 1; i++) {
+        const word1 = words[i];
+        const word2 = words[i + 1];
+        
+        for (let j = 0; j &lt; Math.min(word1.length, word2.length); j++) {
+            if (word1[j] !== word2[j]) {
+                if (orderMap[word1[j]] &gt; orderMap[word2[j]]) {
+                    return false;
+                }
+                break;
+            }
+        }
+        
+        if (word1.length &gt; word2.length) {
+            return false;
+        }
+    }
+    
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function isAlienSorted(words: string[], order: string): boolean {
+    const orderMap: Record<string, number> = {};
+    for (let i = 0; i &lt; 26; i++) {
+        orderMap[order[i]] = i;
+    }
+    
+    for (let i = 0; i &lt; words.length - 1; i++) {
+        const word1 = words[i];
+        const word2 = words[i + 1];
+        
+        for (let j = 0; j &lt; Math.min(word1.length, word2.length); j++) {
+            if (word1[j] !== word2[j]) {
+                if (orderMap[word1[j]] &gt; orderMap[word2[j]]) {
+                    return false;
+                }
+                break;
+            }
+        }
+        
+        if (word1.length &gt; word2.length) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(C) where C is the total number of characters across all words
+- Space: O(1) for the order map (fixed size of 26)
+- Notes: This is the most efficient approach with constant space for the mapping.
+
+---
+## Translation to English
+
+**Intuition**
+Translate each alien word to its English equivalent using the alien-to-English mapping, then use standard string comparison.
+
+**Steps**
+- Create a mapping from alien character to English character
+- Translate each word by replacing each character with its English equivalent
+- Compare adjacent translated words using standard lexicographic order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def isAlienSorted(self, words: List[str], order: str) -> bool:
+        alien_to_english = {order[i]: chr(ord('a') + i) for i in range(26)}
+        
+        def translate(word: str) -> str:
+            return ''.join(alien_to_english[c] for c in word)
+        
+        translated = [translate(word) for word in words]
+        
+        return translated == sorted(translated)
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public boolean isAlienSorted(String[] words, String order) {
+        char[] alienToEnglish = new char[26];
+        for (int i = 0; i &lt; 26; i++) {
+            alienToEnglish[order.charAt(i) - 'a'] = (char) ('a' + i);
+        }
+        
+        String[] translated = new String[words.length];
+        for (int i = 0; i &lt; words.length; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (char c : words[i].toCharArray()) {
+                sb.append(alienToEnglish[c - 'a']);
+            }
+            translated[i] = sb.toString();
+        }
+        
+        String[] sorted = translated.clone();
+        Arrays.sort(sorted);
+        
+        return Arrays.equals(translated, sorted);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+#include <string>
+#include <vector>
+
+class Solution {
+public:
+    bool isAlienSorted(vector<string>& words, string order) {
+        char alienToEnglish[26];
+        for (int i = 0; i &lt; 26; i++) {
+            alienToEnglish[order[i] - 'a'] = 'a' + i;
+        }
+        
+        vector<string> translated;
+        for (const string& word : words) {
+            string t;
+            for (char c : word) {
+                t += alienToEnglish[c - 'a'];
+            }
+            translated.push_back(t);
+        }
+        
+        vector<string> sorted = translated;
+        sort(sorted.begin(), sorted.end());
+        
+        return translated == sorted;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} words
+ * @param {string} order
+ * @return {boolean}
+ */
+var isAlienSorted = function(words, order) {
+    const alienToEnglish = {};
+    for (let i = 0; i &lt; 26; i++) {
+        alienToEnglish[order[i]] = String.fromCharCode(97 + i);
+    }
+    
+    const translate = (word) =&gt; {
+        return word.split('').map(c =&gt; alienToEnglish[c]).join('');
+    };
+    
+    const translated = words.map(translate);
+    const sorted = [...translated].sort();
+    
+    return JSON.stringify(translated) === JSON.stringify(sorted);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function isAlienSorted(words: string[], order: string): boolean {
+    const alienToEnglish: Record<string, string> = {};
+    for (let i = 0; i &lt; 26; i++) {
+        alienToEnglish[order[i]] = String.fromCharCode(97 + i);
+    }
+    
+    const translate = (word: string): string =&gt; {
+        return word.split('').map(c =&gt; alienToEnglish[c]).join('');
+    };
+    
+    const translated = words.map(translate);
+    const sorted = [...translated].sort();
+    
+    return JSON.stringify(translated) === JSON.stringify(sorted);
+}
+` },]} />
+
+**Complexity**
+- Time: O(C log C) where C is the total number of characters, due to sorting
+- Space: O(C) for storing translated words
+- Notes: Less efficient than direct comparison due to sorting overhead, but conceptually simpler.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Verifying an Alien Dictionary Solutions","datePublished":"2024-01-05","description":"Determine if words are sorted according to a custom alien alphabet order.","keywords":"LeetCode, Verifying an Alien Dictionary, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(C) where C is the total number of characters across all words."}},{"@type":"Question","name":"What is the space complexity of the Direct Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for the order map since it has a fixed size of 26 characters."}},{"@type":"Question","name":"What is the time complexity of the Translation to English approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(C log C) where C is the total number of characters, due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Translation to English approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(C) for storing the translated words."}}]}).replace(/</g,'\u003c')}
+</script>

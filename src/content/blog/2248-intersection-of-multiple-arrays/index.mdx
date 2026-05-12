@@ -1,0 +1,143 @@
+---
+title: "Intersection of Multiple Arrays"
+summary: "Find the intersection of multiple arrays containing distinct integers."
+date: "Oct 26, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.70% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting, Counting
+
+Given a 2D integer array nums where nums[i] is a non-empty array of distinct positive integers, return the list of integers that are present in each array of nums. You may return the answer in any order.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Counting](#hash-map-frequency-counting)
+- [Set Intersection](#set-intersection)
+- [Sorting and Binary Search](#sorting-and-binary-search)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [[3,1,2,4,5],[1,2,3,4],[3,4,5,6]]
+```
+
+**Output:**
+```text
+[3,4]
+```
+
+**Explanation:**
+The only integers present in each of nums[0] = [3,1,2,4,5], nums[1] = [1,2,3,4], and nums[2] = [3,4,5,6] are 3 and 4, so we return [3,4].
+
+### Example 2
+
+**Input:**
+```text
+nums = [[1,2,3],[4,5,6]]
+```
+
+**Output:**
+```text
+[]
+```
+
+**Explanation:**
+There does not exist any integer present both in nums[0] and nums[1], so we return an empty list [].
+
+## Constraints
+
+```text
+1 <= nums.length <= 1000
+1 <= sum(nums[i].length) <= 1000
+1 <= nums[i][j] <= 1000
+All the values of nums[i] are unique.
+```
+
+---
+## Hash Map Frequency Counting
+
+**Intuition**
+We can count the frequency of every number across all subarrays. Since each subarray contains distinct integers, a number that appears in the intersection must appear exactly once in every subarray. Therefore, its total frequency across the entire 2D array must equal the number of subarrays.
+
+**Steps**
+- Initialize a hash map to store the frequency of each number.
+- Iterate through each number in every subarray of `nums`.
+- Increment the count for each number in the hash map.
+- Iterate through the hash map and collect all keys where the value is equal to `nums.length`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def intersection(self, nums: List[List[int]]) -&gt; List[int]:\n        from collections import Counter\n        freq = Counter()\n        \n        for arr in nums:\n            freq.update(arr)\n            \n        n = len(nums)\n        return [num for num, count in freq.items() if count == n]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Integer&gt; intersection(List&lt;List&lt;Integer&gt;&gt; nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        \n        for (List&lt;Integer&gt; arr : nums) {\n            for (int num : arr) {\n                freq.put(num, freq.getOrDefault(num, 0) + 1);\n            }\n        }\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        int n = nums.size();\n        for (Map.Entry&lt;Integer, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getValue() == n) {\n                result.add(entry.getKey());\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; intersection(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        \n        for (const auto& arr : nums) {\n            for (int num : arr) {\n                freq[num]++;\n            }\n        }\n        \n        vector&lt;int&gt; result;\n        int n = nums.size();\n        for (const auto& p : freq) {\n            if (p.second == n) {\n                result.push_back(p.first);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    intersection(nums) {\n        const freq = new Map();\n        \n        for (const arr of nums) {\n            for (const num of arr) {\n                freq.set(num, (freq.get(num) || 0) + 1);\n            }\n        }\n        \n        const result = [];\n        const n = nums.length;\n        for (const [num, count] of freq) {\n            if (count === n) {\n                result.push(num);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    intersection(nums: number[][]): number[] {\n        const freq = new Map&lt;number, number&gt;();\n        \n        for (const arr of nums) {\n            for (const num of arr) {\n                freq.set(num, (freq.get(num) || 0) + 1);\n            }\n        }\n        \n        const result: number[] = [];\n        const n = nums.length;\n        for (const [num, count] of freq) {\n            if (count === n) {\n                result.push(num);\n            }\n        }\n        return result;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the total number of elements across all arrays.
+- Space: O(N), to store the frequency map.
+- Notes: This is the most straightforward approach and handles unsorted data efficiently.
+
+---
+## Set Intersection
+
+**Intuition**
+We can iteratively compute the intersection of sets. Start by converting the first array into a set. Then, for every subsequent array, convert it to a set and update our result set to keep only the elements common to both.
+
+**Steps**
+- Initialize a result set with the elements of the first array.
+- Iterate through the remaining arrays.
+- For each array, convert it to a set and update the result set to retain only elements found in the current array's set.
+- Convert the final result set back to a list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def intersection(self, nums: List[List[int]]) -&gt; List[int]:\n        if not nums:\n            return []\n        \n        common_set = set(nums[0])\n        \n        for arr in nums[1:]:\n            common_set.intersection_update(arr)\n            \n        return sorted(list(common_set))" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; intersection(List&lt;List&lt;Integer&gt;&gt; nums) {\n        if (nums == null || nums.isEmpty()) {\n            return new ArrayList&lt;&gt;();\n        }\n        \n        Set&lt;Integer&gt; commonSet = new HashSet&lt;&gt;(nums.get(0));\n        \n        for (int i = 1; i &lt; nums.size(); i++) {\n            Set&lt;Integer&gt; currentSet = new HashSet&lt;&gt;(nums.get(i));\n            commonSet.retainAll(currentSet);\n        }\n        \n        return new ArrayList&lt;&gt;(commonSet);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; intersection(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        if (nums.empty()) return {};\n        \n        unordered_set&lt;int&gt; commonSet(nums[0].begin(), nums[0].end());\n        \n        for (size_t i = 1; i &lt; nums.size(); ++i) {\n            unordered_set&lt;int&gt; currentSet(nums[i].begin(), nums[i].end());\n            unordered_set&lt;int&gt; temp;\n            for (int num : commonSet) {\n                if (currentSet.count(num)) {\n                    temp.insert(num);\n                }\n            }\n            commonSet = move(temp);\n        }\n        \n        return vector&lt;int&gt;(commonSet.begin(), commonSet.end());\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    intersection(nums) {\n        if (!nums || nums.length === 0) {\n            return [];\n        }\n        \n        let commonSet = new Set(nums[0]);\n        \n        for (let i = 1; i &lt; nums.length; i++) {\n            const currentSet = new Set(nums[i]);\n            commonSet = new Set([...commonSet].filter(x =&gt; currentSet.has(x)));\n        }\n        \n        return Array.from(commonSet);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    intersection(nums: number[][]): number[] {\n        if (!nums || nums.length === 0) {\n            return [];\n        }\n        \n        let commonSet = new Set(nums[0]);\n        \n        for (let i = 1; i &lt; nums.length; i++) {\n            const currentSet = new Set(nums[i]);\n            commonSet = new Set([...commonSet].filter(x =&gt; currentSet.has(x)));\n        }\n        \n        return Array.from(commonSet);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the total number of elements. Set operations (add, contains) are O(1) on average.
+- Space: O(N), to store the sets.
+- Notes: This approach is very readable and leverages built-in set operations effectively.
+
+---
+## Sorting and Binary Search
+
+**Intuition**
+If we sort all the arrays, we can pick the smallest array (or the first one) and check if each of its elements exists in all other arrays using binary search. This reduces the lookup time compared to linear search, though we pay the cost of sorting first.
+
+**Steps**
+- Sort every array in `nums`.
+- Iterate through each element of the first array.
+- For each element, perform a binary search in all other arrays.
+- If the element is found in every array, add it to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import bisect\n\nclass Solution:\n    def intersection(self, nums: List[List[int]]) -&gt; List[int]:\n        for arr in nums:\n            arr.sort()\n            \n        result = []\n        for num in nums[0]:\n            found_in_all = True\n            for i in range(1, len(nums)):\n                idx = bisect.bisect_left(nums[i], num)\n                if idx == len(nums[i]) or nums[i][idx] != num:\n                    found_in_all = False\n                    break\n            if found_in_all:\n                result.append(num)\n                \n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; intersection(List&lt;List&lt;Integer&gt;&gt; nums) {\n        for (List&lt;Integer&gt; arr : nums) {\n            Collections.sort(arr);\n        }\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        \n        for (int target : nums.get(0)) {\n            if (result.contains(target)) continue; // Avoid duplicates in result if input had them (though problem says distinct)\n            \n            boolean foundInAll = true;\n            for (int i = 1; i &lt; nums.size(); i++) {\n                if (Collections.binarySearch(nums.get(i), target) &lt; 0) {\n                    foundInAll = false;\n                    break;\n                }\n            }\n            if (foundInAll) {\n                result.add(target);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; intersection(vector&lt;vector&lt;int&gt;&gt;& nums) {\n        for (auto& arr : nums) {\n            sort(arr.begin(), arr.end());\n        }\n        \n        vector&lt;int&gt; result;\n        \n        for (int target : nums[0]) {\n            bool foundInAll = true;\n            for (size_t i = 1; i &lt; nums.size(); ++i) {\n                if (!binary_search(nums[i].begin(), nums[i].end(), target)) {\n                    foundInAll = false;\n                    break;\n                }\n            }\n            if (foundInAll) {\n                result.push_back(target);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    intersection(nums) {\n        for (const arr of nums) {\n            arr.sort((a, b) =&gt; a - b);\n        }\n        \n        const result = [];\n        \n        for (const target of nums[0]) {\n            let foundInAll = true;\n            for (let i = 1; i &lt; nums.length; i++) {\n                if (!this.binarySearch(nums[i], target)) {\n                    foundInAll = false;\n                    break;\n                }\n            }\n            if (foundInAll) {\n                result.push(target);\n            }\n        }\n        return result;\n    }\n    \n    binarySearch(arr, target) {\n        let left = 0;\n        let right = arr.length - 1;\n        while (left &lt;= right) {\n            const mid = Math.floor((left + right) / 2);\n            if (arr[mid] === target) return true;\n            if (arr[mid] &lt; target) left = mid + 1;\n            else right = mid - 1;\n        }\n        return false;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    intersection(nums: number[][]): number[] {\n        for (const arr of nums) {\n            arr.sort((a, b) =&gt; a - b);\n        }\n        \n        const result: number[] = [];\n        \n        for (const target of nums[0]) {\n            let foundInAll = true;\n            for (let i = 1; i &lt; nums.length; i++) {\n                if (!this.binarySearch(nums[i], target)) {\n                    foundInAll = false;\n                    break;\n                }\n            }\n            if (foundInAll) {\n                result.push(target);\n            }\n        }\n        return result;\n    }\n    \n    binarySearch(arr: number[], target: number): boolean {\n        let left = 0;\n        let right = arr.length - 1;\n        while (left &lt;= right) {\n            const mid = Math.floor((left + right) / 2);\n            if (arr[mid] === target) return true;\n            if (arr[mid] &lt; target) left = mid + 1;\n            else right = mid - 1;\n        }\n        return false;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting the arrays.
+- Space: O(1) auxiliary space (excluding the space for the output and the sorting stack, which is usually O(log N) for Timsort).
+- Notes: This approach is useful if the arrays are already sorted or if memory is extremely constrained (avoiding hash maps), though it is generally slower than the hash map approach for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Intersection of Multiple Arrays Solutions","datePublished":"2024-10-26","description":"Find the intersection of multiple arrays containing distinct integers.","keywords":"LeetCode, Intersection of Multiple Arrays, Easy, Array, Hash Table, Sorting, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the total number of elements across all arrays."}},{"@type":"Question","name":"What is the space complexity of the Set Intersection approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the sets of numbers."}},{"@type":"Question","name":"Why is the Sorting approach slower?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has a time complexity of O(N log N) because it requires sorting the arrays before searching."}}]}).replace(/</g,'\u003c')}
+</script>

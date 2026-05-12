@@ -1,0 +1,393 @@
+---
+title: "Day of the Year"
+summary: "Calculate the day number of the year given a date string in YYYY-MM-DD format."
+date: "Jul 05, 2025"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 50.00% | **Paid:** No
+> **Topics:** Math, String
+
+Given a string date representing a Gregorian calendar date formatted as YYYY-MM-DD, return the day number of the year.
+
+- Examples
+- Constraints
+- [Iterative Summation](#iterative-summation)
+- [Pre-computed Cumulative Days](#pre-computed-cumulative-days)
+- [Built-in Date Functions](#built-in-date-functions)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+date = "2019-01-09"
+```
+
+**Output:**
+```text
+9
+```
+
+**Explanation:**
+Given date is the 9th day of the year in 2019.
+
+### Example 2
+
+**Input:**
+```text
+date = "2019-02-10"
+```
+
+**Output:**
+```text
+41
+```
+
+## Constraints
+
+```text
+date.length == 10
+date[4] == date[7] == '-'
+All other characters are digits
+date represents a valid calendar date between Jan 1st, 1900 and Dec 31st, 2019.
+```
+
+---
+## Iterative Summation
+
+**Intuition**
+Parse the date into year, month, and day components. Sum the days of all preceding months and add the current day, accounting for leap years.
+
+**Steps**
+- Parse the year, month, and day from the input string
+- Check if the year is a leap year (divisible by 4, not by 100 unless also by 400)
+- Create an array of days in each month, adjusting February for leap years
+- Sum the days for all months before the current month
+- Add the day of the current month to get the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def dayOfYear(self, date: str) -> int:
+        year, month, day = map(int, date.split('-'))
+        
+        def is_leap(y):
+            return y % 400 == 0 or (y % 4 == 0 and y % 100 != 0)
+        
+        days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        if is_leap(year):
+            days_in_month[1] = 29
+        
+        result = 0
+        for i in range(month - 1):
+            result += days_in_month[i]
+        
+        result += day
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int dayOfYear(String date) {
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(5, 7));
+        int day = Integer.parseInt(date.substring(8, 10));
+        
+        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (isLeap(year)) {
+            daysInMonth[1] = 29;
+        }
+        
+        int result = 0;
+        for (int i = 0; i &lt; month - 1; i++) {
+            result += daysInMonth[i];
+        }
+        
+        result += day;
+        return result;
+    }
+    
+    private boolean isLeap(int year) {
+        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int dayOfYear(string date) {
+        int year = stoi(date.substr(0, 4));
+        int month = stoi(date.substr(5, 2));
+        int day = stoi(date.substr(8, 2));
+        
+        int daysInMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (isLeap(year)) {
+            daysInMonth[1] = 29;
+        }
+        
+        int result = 0;
+        for (int i = 0; i &lt; month - 1; i++) {
+            result += daysInMonth[i];
+        }
+        
+        result += day;
+        return result;
+    }
+    
+private:
+    bool isLeap(int year) {
+        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+var dayOfYear = function(date) {
+    const year = parseInt(date.substring(0, 4));
+    const month = parseInt(date.substring(5, 7));
+    const day = parseInt(date.substring(8, 10));
+    
+    const isLeap = (y) =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);
+    
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (isLeap(year)) {
+        daysInMonth[1] = 29;
+    }
+    
+    let result = 0;
+    for (let i = 0; i &lt; month - 1; i++) {
+        result += daysInMonth[i];
+    }
+    
+    result += day;
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+function dayOfYear(date: string): number {
+    const year = parseInt(date.substring(0, 4));
+    const month = parseInt(date.substring(5, 7));
+    const day = parseInt(date.substring(8, 10));
+    
+    const isLeap = (y: number): boolean =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);
+    
+    const daysInMonth: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (isLeap(year)) {
+        daysInMonth[1] = 29;
+    }
+    
+    let result = 0;
+    for (let i = 0; i &lt; month - 1; i++) {
+        result += daysInMonth[i];
+    }
+    
+    result += day;
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(1) - We iterate through at most 12 months, which is a constant
+- Space: O(1) - We use a fixed-size array of 12 elements
+- Notes: Simple and intuitive approach with minimal overhead
+
+---
+## Pre-computed Cumulative Days
+
+**Intuition**
+Pre-compute the cumulative days before each month for a non-leap year. Add the current day and adjust for leap years if the month is after February.
+
+**Steps**
+- Parse the year, month, and day from the input string
+- Use a pre-computed array of cumulative days before each month
+- Add the cumulative days for the current month to the day
+- If the month is after February and it's a leap year, add 1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def dayOfYear(self, date: str) -> int:
+        year, month, day = map(int, date.split('-'))
+        
+        def is_leap(y):
+            return y % 400 == 0 or (y % 4 == 0 and y % 100 != 0)
+        
+        cumulative_days = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+        
+        result = cumulative_days[month] + day
+        if month &gt; 2 and is_leap(year):
+            result += 1
+        
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int dayOfYear(String date) {
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(5, 7));
+        int day = Integer.parseInt(date.substring(8, 10));
+        
+        int[] cumulativeDays = {0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+        
+        int result = cumulativeDays[month] + day;
+        if (month &gt; 2 && isLeap(year)) {
+            result += 1;
+        }
+        
+        return result;
+    }
+    
+    private boolean isLeap(int year) {
+        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int dayOfYear(string date) {
+        int year = stoi(date.substr(0, 4));
+        int month = stoi(date.substr(5, 2));
+        int day = stoi(date.substr(8, 2));
+        
+        int cumulativeDays[13] = {0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+        
+        int result = cumulativeDays[month] + day;
+        if (month &gt; 2 && isLeap(year)) {
+            result += 1;
+        }
+        
+        return result;
+    }
+    
+private:
+    bool isLeap(int year) {
+        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+var dayOfYear = function(date) {
+    const year = parseInt(date.substring(0, 4));
+    const month = parseInt(date.substring(5, 7));
+    const day = parseInt(date.substring(8, 10));
+    
+    const isLeap = (y) =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);
+    
+    const cumulativeDays = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    
+    let result = cumulativeDays[month] + day;
+    if (month &gt; 2 && isLeap(year)) {
+        result += 1;
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+function dayOfYear(date: string): number {
+    const year = parseInt(date.substring(0, 4));
+    const month = parseInt(date.substring(5, 7));
+    const day = parseInt(date.substring(8, 10));
+    
+    const isLeap = (y: number): boolean =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);
+    
+    const cumulativeDays: number[] = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    
+    let result = cumulativeDays[month] + day;
+    if (month &gt; 2 && isLeap(year)) {
+        result += 1;
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(1) - Direct array lookup and arithmetic operations
+- Space: O(1) - We use a fixed-size array of 13 elements
+- Notes: More efficient than iterative approach with no loop overhead
+
+---
+## Built-in Date Functions
+
+**Intuition**
+Leverage the language's built-in date/time libraries to parse the date and directly get the day of the year.
+
+**Steps**
+- Parse the input string into a date object using the language's date library
+- Use the library's built-in method to get the day of the year
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from datetime import datetime
+
+class Solution:
+    def dayOfYear(self, date: str) -> int:
+        dt = datetime.strptime(date, '%Y-%m-%d')
+        return dt.timetuple().tm_yday` },
+{ name: "Java", lang: "java", code: `import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+class Solution {
+    public int dayOfYear(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dt = LocalDate.parse(date, formatter);
+        return dt.getDayOfYear();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <ctime>
+
+class Solution {
+public:
+    int dayOfYear(string date) {
+        int year = stoi(date.substr(0, 4));
+        int month = stoi(date.substr(5, 2));
+        int day = stoi(date.substr(8, 2));
+        
+        struct tm tm = {0};
+        tm.tm_year = year - 1900;
+        tm.tm_mon = month - 1;
+        tm.tm_mday = day;
+        tm.tm_hour = 12;
+        
+        time_t t = mktime(&tm);
+        struct tm* result = localtime(&t);
+        
+        return result->tm_yday + 1;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+var dayOfYear = function(date) {
+    const d = new Date(date);
+    const start = new Date(d.getFullYear(), 0, 0);
+    const diff = d - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * @param {string} date
+ * @return {number}
+ */
+function dayOfYear(date: string): number {
+    const d = new Date(date);
+    const start = new Date(d.getFullYear(), 0, 0);
+    const diff = d.getTime() - start.getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
+}` },]} />
+
+**Complexity**
+- Time: O(1) - Depends on the language's date library implementation
+- Space: O(1) - Depends on the language's date library implementation
+- Notes: Most concise solution but relies on library availability and behavior
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Day of the Year Solutions","datePublished":"2025-07-05","description":"Calculate the day number of the year given a date string in YYYY-MM-DD format.","keywords":"LeetCode, Day of the Year, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Summation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - We iterate through at most 12 months, which is a constant."}},{"@type":"Question","name":"What is the space complexity of the Iterative Summation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - We use a fixed-size array of 12 elements."}},{"@type":"Question","name":"What is the time complexity of the Pre-computed Cumulative Days approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Direct array lookup and arithmetic operations."}},{"@type":"Question","name":"What is the space complexity of the Pre-computed Cumulative Days approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - We use a fixed-size array of 13 elements."}},{"@type":"Question","name":"What is the time complexity of the Built-in Date Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Depends on the language's date library implementation."}},{"@type":"Question","name":"What is the space complexity of the Built-in Date Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Depends on the language's date library implementation."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,135 @@
+---
+title: "Minimum Distance to the Target Element"
+summary: "Given an array, a start index, and a target value, find the minimum absolute distance between the start index and any index containing the target."
+date: "Apr 27, 2026"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.60% | **Paid:** No
+> **Topics:** Array
+
+Given an integer array nums (0-indexed) and two integers target and start, find an index i such that nums[i] == target and abs(i - start) is minimized. Note that abs(x) is the absolute value of x.
+
+Return abs(i - start).
+
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Bidirectional Scan](#bidirectional-scan)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,3,4,5], target = 5, start = 3
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+nums[4] = 5 is the only value equal to target, so the answer is abs(4 - 3) = 1.
+
+### Example 2
+
+**Input:**
+```text
+nums = [1], target = 1, start = 0
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+nums[0] = 1 is the only value equal to target, so the answer is abs(0 - 0) = 0.
+
+### Example 3
+
+**Input:**
+```text
+nums = [1,1,1,1,1,1,1,1,1,1], target = 1, start = 0
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+Every value of nums is 1, but nums[0] minimizes abs(i - start), which is abs(0 - 0) = 0.
+
+## Constraints
+
+```text
+1 <= nums.length <= 10^5
+-1000 <= nums[i] <= 1000
+0 <= start < nums.length
+-1000 <= target <= 1000
+```
+
+---
+## Linear Scan
+
+**Intuition**
+The simplest way to find the minimum distance is to iterate through the entire array. For every element that matches the target, we calculate its distance from the start index and keep track of the minimum value found so far.
+
+**Steps**
+- Initialize a variable `min_dist` to a large value (e.g., the length of the array).
+- Iterate through the array using a loop index `i`.
+- If `nums[i]` equals `target`, calculate the absolute difference `abs(i - start)`.
+- Update `min_dist` if the current difference is smaller.
+- Return `min_dist` after the loop completes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getMinDistance(self, nums: list[int], target: int, start: int) -&gt; int:\n        min_dist = len(nums)\n        for i, num in enumerate(nums):\n            if num == target:\n                min_dist = min(min_dist, abs(i - start))\n        return min_dist" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int getMinDistance(int[] nums, int target, int start) {\n        int minDist = nums.length;\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] == target) {\n                minDist = Math.min(minDist, Math.abs(i - start));\n            }\n        }\n        return minDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int getMinDistance(vector&lt;int&gt;& nums, int target, int start) {\n        int minDist = nums.size();\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (nums[i] == target) {\n                minDist = min(minDist, abs(i - start));\n            }\n        }\n        return minDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var getMinDistance = function(nums, target, start) {\n    let minDist = nums.length;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === target) {\n            minDist = Math.min(minDist, Math.abs(i - start));\n        }\n    }\n    return minDist;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getMinDistance(nums: number[], target: number, start: number): number {\n    let minDist = nums.length;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === target) {\n            minDist = Math.min(minDist, Math.abs(i - start));\n        }\n    }\n    return minDist;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the array once.
+- Space: O(1) - We only use a few variables for storage.
+- Notes: This approach is straightforward and efficient enough given the constraints (n ≤ 10⁵).
+
+---
+## Bidirectional Scan
+
+**Intuition**
+Since we are looking for the index closest to `start`, we can expand outwards from `start` instead of scanning from the beginning. We check `start`, then `start-1` and `start+1`, then `start-2` and `start+2`, and so on. The first match we find is guaranteed to be the closest.
+
+**Steps**
+- Initialize two pointers, `left = start` and `right = start`.
+- Loop while `left` is within bounds or `right` is within bounds.
+- Check if `left` is valid and `nums[left] == target`. If so, return `start - left`.
+- Check if `right` is valid and `nums[right] == target`. If so, return `right - start`.
+- Decrement `left` and increment `right` to expand the search radius.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getMinDistance(self, nums: list[int], target: int, start: int) -&gt; int:\n        n = len(nums)\n        left, right = start, start\n        while left &gt;= 0 or right &lt; n:\n            if left &gt;= 0 and nums[left] == target:\n                return start - left\n            if right &lt; n and nums[right] == target:\n                return right - start\n            left -= 1\n            right += 1\n        return -1 # Should not be reached per problem constraints" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int getMinDistance(int[] nums, int target, int start) {\n        int n = nums.length;\n        int left = start, right = start;\n        while (left &gt;= 0 || right &lt; n) {\n            if (left &gt;= 0 && nums[left] == target) {\n                return start - left;\n            }\n            if (right &lt; n && nums[right] == target) {\n                return right - start;\n            }\n            left--;\n            right++;\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int getMinDistance(vector&lt;int&gt;& nums, int target, int start) {\n        int n = nums.size();\n        int left = start, right = start;\n        while (left &gt;= 0 || right &lt; n) {\n            if (left &gt;= 0 && nums[left] == target) {\n                return start - left;\n            }\n            if (right &lt; n && nums[right] == target) {\n                return right - start;\n            }\n            left--;\n            right++;\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var getMinDistance = function(nums, target, start) {\n    const n = nums.length;\n    let left = start, right = start;\n    while (left &gt;= 0 || right &lt; n) {\n        if (left &gt;= 0 && nums[left] === target) {\n            return start - left;\n        }\n        if (right &lt; n && nums[right] === target) {\n            return right - start;\n        }\n        left--;\n        right++;\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getMinDistance(nums: number[], target: number, start: number): number {\n    const n = nums.length;\n    let left = start, right = start;\n    while (left &gt;= 0 || right &lt; n) {\n        if (left &gt;= 0 && nums[left] === target) {\n            return start - left;\n        }\n        if (right &lt; n && nums[right] === target) {\n            return right - start;\n        }\n        left--;\n        right++;\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - In the worst case (target at one end, start at the other), we visit all elements.
+- Space: O(1) - Constant extra space used.
+- Notes: This approach can be faster on average if the target is near the start index, as it terminates early without scanning the whole array.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Distance to the Target Element Solutions","datePublished":"2026-04-27","description":"Given an array, a start index, and a target value, find the minimum absolute distance between the start index and any index containing the target.","keywords":"LeetCode, Minimum Distance to the Target Element, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of elements in the array, as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Bidirectional Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few integer variables for pointers and indices."}},{"@type":"Question","name":"Why use Bidirectional Scan over Linear Scan?","acceptedAnswer":{"@type":"Answer","text":"Bidirectional Scan can be more efficient if the target element is located close to the start index, as it allows for early termination without checking the entire array."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,132 @@
+---
+title: "Symmetric Tree"
+summary: "Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center)."
+date: "May 12, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.10% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+
+- Examples
+- Constraints
+- [Approach 1: Recursive Depth-First Search](#approach-1-recursive-depth-first-search)
+- [Approach 2: Iterative Depth-First Search](#approach-2-iterative-depth-first-search)
+- [Approach 3: Iterative Breadth-First Search](#approach-3-iterative-breadth-first-search)
+
+## Examples
+
+```text
+Input: root = [1,2,2,3,4,4,3]
+Output: true
+```
+
+```text
+Input: root = [1,2,2,null,3,null,3]
+Output: false
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 1000].
+-100 <= Node.val <= 100
+```
+
+---
+
+## Approach 1: Recursive Depth-First Search
+
+**Intuition**
+A tree is symmetric if the left subtree is a mirror reflection of the right subtree. This means two trees are mirrors if their root values are equal, the left subtree of the first is a mirror of the right subtree of the second, and the right subtree of the first is a mirror of the left subtree of the second.
+
+**Steps**
+- Define a recursive helper function `isMirror(t1, t2)`.
+- If both `t1` and `t2` are null, return true.
+- If only one of them is null, return false.
+- If their values are different, return false.
+- Recursively check if `t1.left` is a mirror of `t2.right` AND `t1.right` is a mirror of `t2.left`.
+- Call the helper with `root` and `root`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSymmetric(self, root: Optional[TreeNode]) -&gt; bool:\n        def is_mirror(t1, t2):\n            if not t1 and not t2:\n                return True\n            if not t1 or not t2:\n                return False\n            return (t1.val == t2.val) and is_mirror(t1.left, t2.right) and is_mirror(t1.right, t2.left)\n        return is_mirror(root, root)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSymmetric(TreeNode root) {\n        return isMirror(root, root);\n    }\n    \n    private boolean isMirror(TreeNode t1, TreeNode t2) {\n        if (t1 == null && t2 == null) return true;\n        if (t1 == null || t2 == null) return false;\n        return (t1.val == t2.val) && isMirror(t1.left, t2.right) && isMirror(t1.right, t2.left);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSymmetric(TreeNode* root) {\n        return isMirror(root, root);\n    }\n    \n    bool isMirror(TreeNode* t1, TreeNode* t2) {\n        if (!t1 && !t2) return true;\n        if (!t1 || !t2) return false;\n        return (t1-&gt;val == t2-&gt;val) && isMirror(t1-&gt;left, t2-&gt;right) && isMirror(t1-&gt;right, t2-&gt;left);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSymmetric = function(root) {\n    const isMirror = (t1, t2) =&gt; {\n        if (!t1 && !t2) return true;\n        if (!t1 || !t2) return false;\n        return t1.val === t2.val && isMirror(t1.left, t2.right) && isMirror(t1.right, t2.left);\n    };\n    return isMirror(root, root);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSymmetric(root: TreeNode | null): boolean {\n    const isMirror = (t1: TreeNode | null, t2: TreeNode | null): boolean =&gt; {\n        if (!t1 && !t2) return true;\n        if (!t1 || !t2) return false;\n        return t1.val === t2.val && isMirror(t1.left, t2.right) && isMirror(t1.right, t2.left);\n    };\n    return isMirror(root, root);\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of nodes in the tree. We visit each node exactly once.
+- Space: O(h), where h is the height of the tree. This space is used by the recursion stack. In the worst case (skewed tree), this is O(n); in the best case (balanced tree), this is O(log n).
+- Notes: This is the most intuitive and concise solution.
+
+---
+
+## Approach 2: Iterative Depth-First Search
+
+**Intuition**
+We can simulate the recursion using a stack. Instead of relying on the call stack to process nodes, we explicitly push pairs of nodes that need to be compared onto a stack.
+
+**Steps**
+- Initialize a stack and push the pair `(root.left, root.right)` onto it.
+- While the stack is not empty:
+    - Pop a pair of nodes `(left, right)`.
+    - If both are null, continue to the next iteration.
+    - If only one is null or their values differ, return false.
+    - Push the pairs that need to be compared next: `(left.left, right.right)` and `(left.right, right.left)`.
+- If the loop finishes without returning false, the tree is symmetric.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSymmetric(self, root: Optional[TreeNode]) -&gt; bool:\n        if not root:\n            return True\n        stack = [(root.left, root.right)]\n        while stack:\n            left, right = stack.pop()\n            if not left and not right:\n                continue\n            if not left or not right:\n                return False\n            if left.val != right.val:\n                return False\n            stack.append((left.left, right.right))\n            stack.append((left.right, right.left))\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public boolean isSymmetric(TreeNode root) {\n        if (root == null) return true;\n        Stack&lt;TreeNode[]&gt; stack = new Stack&lt;&gt;();\n        stack.push(new TreeNode[]{root.left, root.right});\n        while (!stack.isEmpty()) {\n            TreeNode[] nodes = stack.pop();\n            TreeNode left = nodes[0];\n            TreeNode right = nodes[1];\n            if (left == null && right == null) continue;\n            if (left == null || right == null) return false;\n            if (left.val != right.val) return false;\n            stack.push(new TreeNode[]{left.left, right.right});\n            stack.push(new TreeNode[]{left.right, right.left});\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSymmetric(TreeNode* root) {\n        if (!root) return true;\n        stack&lt;pair&lt;TreeNode*, TreeNode*&gt;&gt; st;\n        st.push({root-&gt;left, root-&gt;right});\n        while (!st.empty()) {\n            auto [left, right] = st.top(); st.pop();\n            if (!left && !right) continue;\n            if (!left || !right) return false;\n            if (left-&gt;val != right-&gt;val) return false;\n            st.push({left-&gt;left, right-&gt;right});\n            st.push({left-&gt;right, right-&gt;left});\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSymmetric = function(root) {\n    if (!root) return true;\n    let stack = [[root.left, root.right]];\n    while (stack.length &gt; 0) {\n        let [left, right] = stack.pop();\n        if (!left && !right) continue;\n        if (!left || !right) return false;\n        if (left.val !== right.val) return false;\n        stack.push([left.left, right.right]);\n        stack.push([left.right, right.left]);\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSymmetric(root: TreeNode | null): boolean {\n    if (!root) return true;\n    let stack: Array&lt;[TreeNode | null, TreeNode | null]&gt; = [[root.left, root.right]];\n    while (stack.length &gt; 0) {\n        const [left, right] = stack.pop()!;\n        if (!left && !right) continue;\n        if (!left || !right) return false;\n        if (left.val !== right.val) return false;\n        stack.push([left.left, right.right]);\n        stack.push([left.right, right.left]);\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n), as we traverse each node once.
+- Space: O(h), where h is the height of the tree. The stack can grow up to the height of the tree in the worst case.
+- Notes: This approach avoids recursion overhead, which can be beneficial for very deep trees to prevent stack overflow.
+
+---
+
+## Approach 3: Iterative Breadth-First Search
+
+**Intuition**
+We can use a queue to perform a level-order traversal. We compare nodes in pairs that should be mirror images of each other. This is similar to the iterative DFS approach but processes nodes level by level.
+
+**Steps**
+- Initialize a queue and enqueue the pair `(root.left, root.right)`.
+- While the queue is not empty:
+    - Dequeue a pair of nodes `(left, right)`.
+    - If both are null, continue.
+    - If only one is null or their values differ, return false.
+    - Enqueue the children in the order that preserves the mirror relationship: `(left.left, right.right)` and `(left.right, right.left)`.
+- If the loop finishes, the tree is symmetric.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def isSymmetric(self, root: Optional[TreeNode]) -&gt; bool:\n        if not root:\n            return True\n        q = deque([(root.left, root.right)])\n        while q:\n            left, right = q.popleft()\n            if not left and not right:\n                continue\n            if not left or not right:\n                return False\n            if left.val != right.val:\n                return False\n            q.append((left.left, right.right))\n            q.append((left.right, right.left))\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass Solution {\n    public boolean isSymmetric(TreeNode root) {\n        if (root == null) return true;\n        Queue&lt;TreeNode[]&gt; q = new LinkedList&lt;&gt;();\n        q.offer(new TreeNode[]{root.left, root.right});\n        while (!q.isEmpty()) {\n            TreeNode[] nodes = q.poll();\n            TreeNode left = nodes[0];\n            TreeNode right = nodes[1];\n            if (left == null && right == null) continue;\n            if (left == null || right == null) return false;\n            if (left.val != right.val) return false;\n            q.offer(new TreeNode[]{left.left, right.right});\n            q.offer(new TreeNode[]{left.right, right.left});\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSymmetric(TreeNode* root) {\n        if (!root) return true;\n        queue&lt;pair&lt;TreeNode*, TreeNode*&gt;&gt; q;\n        q.push({root-&gt;left, root-&gt;right});\n        while (!q.empty()) {\n            auto [left, right] = q.front(); q.pop();\n            if (!left && !right) continue;\n            if (!left || !right) return false;\n            if (left-&gt;val != right-&gt;val) return false;\n            q.push({left-&gt;left, right-&gt;right});\n            q.push({left-&gt;right, right-&gt;left});\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isSymmetric = function(root) {\n    if (!root) return true;\n    let queue = [[root.left, root.right]];\n    while (queue.length &gt; 0) {\n        let [left, right] = queue.shift();\n        if (!left && !right) continue;\n        if (!left || !right) return false;\n        if (left.val !== right.val) return false;\n        queue.push([left.left, right.right]);\n        queue.push([left.right, right.left]);\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSymmetric(root: TreeNode | null): boolean {\n    if (!root) return true;\n    let queue: Array&lt;[TreeNode | null, TreeNode | null]&gt; = [[root.left, root.right]];\n    while (queue.length &gt; 0) {\n        const [left, right] = queue.shift()!;\n        if (!left && !right) continue;\n        if (!left || !right) return false;\n        if (left.val !== right.val) return false;\n        queue.push([left.left, right.right]);\n        queue.push([left.right, right.left]);\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n), as we process every node once.
+- Space: O(w), where w is the maximum width of the tree. In the worst case, this can be O(n) for a full binary tree.
+- Notes: This approach is useful if you want to process the tree level by level, though it generally uses more memory than DFS for wide trees.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Symmetric Tree Solutions","datePublished":"2026-05-12","description":"Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).","keywords":"LeetCode, Symmetric Tree, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of nodes, as we visit each node exactly once."}},{"@type":"Question","name":"What is the space complexity of the Iterative BFS approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(w), where w is the maximum width of the tree. In the worst case, this is O(n)."}},{"@type":"Question","name":"Why do we compare left.left with right.right?","acceptedAnswer":{"@type":"Answer","text":"For a tree to be symmetric, the outer children (left of left, right of right) must be mirrors, and the inner children (right of left, left of right) must be mirrors."}}]}).replace(/</g,'\u003c')}
+</script>

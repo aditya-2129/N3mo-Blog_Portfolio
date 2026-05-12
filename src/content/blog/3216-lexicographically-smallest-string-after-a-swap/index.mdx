@@ -1,0 +1,121 @@
+---
+title: "Lexicographically Smallest String After a Swap"
+summary: "Find the lexicographically smallest string by swapping characters with adjacent ASCII values."
+date: "Sep 11, 2025"
+tags:
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.60% | **Paid:** No
+> **Topics:** String, Greedy
+
+You are given a string `s` and an integer `k`. You can swap any two characters in the string if the absolute difference between their ASCII values is less than or equal to `k`. You can perform this operation any number of times. Return the lexicographically smallest string you can obtain.
+
+- Examples
+- Constraints
+- [Connected Components (Optimal)](#connected-components-optimal)
+- [Greedy Simulation (Alternative)](#greedy-simulation-alternative)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "45320"
+```
+
+**Output:**
+```text
+"43520"
+```
+
+### Example 2
+
+**Input:**
+```text
+s = "001"
+```
+
+**Output:**
+```text
+"001"
+```
+
+**Explanation:**
+There is no need to perform a swap because s is already the lexicographically smallest.
+
+## Constraints
+
+```text
+- 2 <= s.length <= 100
+- s consists only of digits.
+```
+
+---
+
+## Connected Components (Optimal)
+
+**Intuition**
+The key observation is that characters can only be rearranged freely among themselves if they belong to the same "connected component" based on their ASCII values. Two characters `c1` and `c2` are in the same component if there exists a sequence of characters between them such that the absolute difference between adjacent characters in the sequence is `&lt;= k`. Since the alphabet is small (26 letters), we can pre-calculate these components. Characters in different components can never swap places, so their relative order remains fixed. We simply sort the characters within each component to get the lexicographically smallest arrangement.
+
+**Steps**
+- Initialize an array `comp_id` of size 26 to map each character (0-25) to a component ID.
+- Iterate through the alphabet (0 to 25). If the difference between the current character and the previous character is greater than `k`, increment the current component ID. Assign this ID to the current character.
+- Create a list of lists `groups` to store characters belonging to each component found in the string `s`.
+- Iterate through `s`, placing each character into its corresponding group based on `comp_id`.
+- Sort each individual group in `groups`.
+- Reconstruct the result string by iterating through `s` again. For each character, pick the smallest (first) available character from its corresponding group and remove it from the group.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def getSmallestString(self, s: str, k: int) -> str:\\n        # 1. Assign component IDs to all 26 letters\\n        comp_id = [0] * 26\\n        curr_comp = 0\\n        for i in range(1, 26):\\n            # If the gap between current letter and previous is > k,\\n            # they belong to different components.\\n            if i - (i - 1) > k:\\n                curr_comp += 1\\n            comp_id[i] = curr_comp\\n        \\n        # 2. Group characters from s based on their component ID\\n        groups = [[] for _ in range(curr_comp + 1)]\\n        for char in s:\\n            idx = ord(char) - ord('a')\\n            groups[comp_id[idx]].append(char)\\n        \\n        # 3. Sort each group\\n        for g in groups:\\n            g.sort()\\n        \\n        # 4. Reconstruct the string\\n        # We use pointers to track the next available character in each group\\n        pointers = [0] * len(groups)\\n        res = []\\n        for char in s:\\n            idx = ord(char) - ord('a')\\n            gid = comp_id[idx]\\n            res.append(groups[gid][pointers[gid]])\\n            pointers[gid] += 1\\n            \\n        return " },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\\nimport java.util.List;\\n\\nclass Solution {\\n    public String getSmallestString(String s, int k) {\\n        // 1. Assign component IDs to all 26 letters\\n        int[] compId = new int[26];\\n        int currComp = 0;\\n        for (int i = 1; i < 26; i++) {\\n            if (i - (i - 1) > k) {\\n                currComp++;\\n            }\\n            compId[i] = currComp;\\n        }\\n        \\n        // 2. Group characters\\n        List<List<Character>> groups = new ArrayList<>();\\n        for (int i = 0; i <= currComp; i++) {\\n            groups.add(new ArrayList<>());\\n        }\\n        \\n        for (char c : s.toCharArray()) {\\n            int idx = c - 'a';\\n            groups.get(compId[idx]).add(c);\\n        }\\n        \\n        // 3. Sort each group\\n        for (List<Character> group : groups) {\\n            group.sort(Character::compareTo);\\n        }\\n        \\n        // 4. Reconstruct string\\n        int[] pointers = new int[groups.size()];\\n        StringBuilder res = new StringBuilder();\\n        for (char c : s.toCharArray()) {\\n            int idx = c - 'a';\\n            int gid = compId[idx];\\n            res.append(groups.get(gid).get(pointers[gid]));\\n            pointers[gid]++;\\n        }\\n        \\n        return res.toString();\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\\n#include <string>\\n#include <algorithm>\\n\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    string getSmallestString(string s, int k) {\\n        // 1. Assign component IDs to all 26 letters\\n        vector<int> compId(26);\\n        int currComp = 0;\\n        for (int i = 1; i < 26; ++i) {\\n            if (i - (i - 1) > k) {\\n                currComp++;\\n            }\\n            compId[i] = currComp;\\n        }\\n        \\n        // 2. Group characters\\n        vector<vector<char>> groups(currComp + 1);\\n        for (char c : s) {\\n            int idx = c - 'a';\\n            groups[compId[idx]].push_back(c);\\n        }\\n        \\n        // 3. Sort each group\\n        for (auto& group : groups) {\\n            sort(group.begin(), group.end());\\n        }\\n        \\n        // 4. Reconstruct string\\n        vector<int> pointers(groups.size(), 0);\\n        string res = \\\"\\\";\\n        for (char c : s) {\\n            int idx = c - 'a';\\n            int gid = compId[idx];\\n            res += groups[gid][pointers[gid]];\\n            pointers[gid]++;\\n        }\\n        \\n        return res;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @param {number} k\\n * @return {string}\\n */\\nvar getSmallestString = function(s, k) {\\n    // 1. Assign component IDs to all 26 letters\\n    const compId = new Array(26).fill(0);\\n    let currComp = 0;\\n    for (let i = 1; i < 26; i++) {\\n        if (i - (i - 1) > k) {\\n            currComp++;\\n        }\\n        compId[i] = currComp;\\n    }\\n    \\n    // 2. Group characters\\n    const groups = Array.from({ length: currComp + 1 }, () => []);\\n    for (const char of s) {\\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\\n        groups[compId[idx]].push(char);\\n    }\\n    \\n    // 3. Sort each group\\n    for (const g of groups) {\\n        g.sort();\\n    }\\n    \\n    // 4. Reconstruct string\\n    const pointers = new Array(groups.length).fill(0);\\n    let res = [];\\n    for (const char of s) {\\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\\n        const gid = compId[idx];\\n        res.push(groups[gid][pointers[gid]]);\\n        pointers[gid]++;\\n    }\\n    \\n    return res.join('');\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getSmallestString(s: string, k: number): string {\\n    // 1. Assign component IDs to all 26 letters\\n    const compId: number[] = new Array(26).fill(0);\\n    let currComp: number = 0;\\n    for (let i = 1; i < 26; i++) {\\n        if (i - (i - 1) > k) {\\n            currComp++;\\n        }\\n        compId[i] = currComp;\\n    }\\n    \\n    // 2. Group characters\\n    const groups: string[][] = Array.from({ length: currComp + 1 }, () => []);\\n    for (const char of s) {\\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\\n        groups[compId[idx]].push(char);\\n    }\\n    \\n    // 3. Sort each group\\n    for (const g of groups) {\\n        g.sort();\\n    }\\n    \\n    // 4. Reconstruct string\\n    const pointers: number[] = new Array(groups.length).fill(0);\\n    const res: string[] = [];\\n    for (const char of s) {\\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\\n        const gid = compId[idx];\\n        res.push(groups[gid][pointers[gid]]);\\n        pointers[gid]++;\\n    }\\n    \\n    return res.join('');\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n) or O(n log n). Since the alphabet size is constant (26), sorting the groups takes constant time relative to `n`. The dominant factor is iterating through the string.
+- Space: O(n) to store the groups and the result.
+- Notes: This approach is highly efficient due to the constraint on the character set.
+
+## Greedy Simulation (Alternative)
+
+**Intuition**
+We can simulate the process of building the smallest string character by character. For each position `i`, we look for the smallest character in the remaining string that can be moved to position `i`. A character at index `j` can move to `i` if it can "bubble" past all characters between `i` and `j`. This is possible only if the character's value is within the allowed range of every character it passes. We maintain a valid range `[low, high]` that represents the intersection of allowed values for a character to pass through the current block of characters.
+
+**Steps**
+- Convert the string to a list of characters for mutability.
+- Iterate through each index `i` from 0 to `n-1`.
+- For each `i`, scan `j` from `i` to `n-1` to find the smallest character that can reach `i`.
+- Maintain `low` and `high` bounds. Initially, these are based on `s[i]`. As we move `j`, we update the bounds to include `s[j-1]` (the character that `s[j]` must pass).
+- If `s[j]` falls within `[low, high]`, it is a candidate. If it is smaller than the current best candidate, update the best.
+- After finding the best candidate for position `i`, swap it to `i` (shifting intermediate characters to the right).
+- Repeat for the next position.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def getSmallestString(self, s: str, k: int) -> str:\\n        chars = list(s)\\n        n = len(chars)\\n        \\n        for i in range(n):\\n            min_char = chars[i]\\n            min_idx = i\\n            \\n            # Range of values that can pass through chars[i...j-1]\\n            # Initially, for j=i+1, the block is just chars[i]\\n            low = chars[i] - k\\n            high = chars[i] + k\\n            \\n            for j in range(i + 1, n):\\n                # Check if chars[j] can pass through chars[i...j-1]\\n                if low <= chars[j] <= high:\\n                    if chars[j] < min_char:\\n                        min_char = chars[j]\\n                        min_idx = j\\n                \\n                # Update range for the next iteration (block includes chars[j])\\n                low = max(low, chars[j] - k)\\n                high = min(high, chars[j] + k)\\n            \\n            # If we found a smaller character that can reach i, swap it\\n            if min_idx != i:\\n                # Shift chars[i...min_idx-1] to the right\\n                val = chars[min_idx]\\n                chars[i+1:min_idx+1] = chars[i:min_idx]\\n                chars[i] = val\\n                \\n        return \\\"\\\".join(chars)\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public String getSmallestString(String s, int k) {\\n        char[] chars = s.toCharArray();\\n        int n = chars.length;\\n        \\n        for (int i = 0; i < n; i++) {\\n            char minChar = chars[i];\\n            int minIdx = i;\\n            \\n            int low = chars[i] - k;\\n            int high = chars[i] + k;\\n            \\n            for (int j = i + 1; j < n; j++) {\\n                if (chars[j] >= low && chars[j] <= high) {\\n                    if (chars[j] < minChar) {\\n                        minChar = chars[j];\\n                        minIdx = j;\\n                    }\\n                }\\n                low = Math.max(low, chars[j] - k);\\n                high = Math.min(high, chars[j] + k);\\n            }\\n            \\n            if (minIdx != i) {\\n                char temp = chars[minIdx];\\n                for (int m = minIdx; m > i; m--) {\\n                    chars[m] = chars[m - 1];\\n                }\\n                chars[i] = temp;\\n            }\\n        }\\n        return new String(chars);\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\\n#include <string>\\n#include <algorithm>\\n\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    string getSmallestString(string s, int k) {\\n        vector<char> chars(s.begin(), s.end());\\n        int n = chars.size();\\n        \\n        for (int i = 0; i < n; ++i) {\\n            char minChar = chars[i];\\n            int minIdx = i;\\n            \\n            int low = chars[i] - k;\\n            int high = chars[i] + k;\\n            \\n            for (int j = i + 1; j < n; ++j) {\\n                if (chars[j] >= low && chars[j] <= high) {\\n                    if (chars[j] < minChar) {\\n                        minChar = chars[j];\\n                        minIdx = j;\\n                    }\\n                }\\n                low = max(low, (int)chars[j] - k);\\n                high = min(high, (int)chars[j] + k);\\n            }\\n            \\n            if (minIdx != i) {\\n                char temp = chars[minIdx];\\n                for (int m = minIdx; m > i; --m) {\\n                    chars[m] = chars[m - 1];\\n                }\\n                chars[i] = temp;\\n            }\\n        }\\n        return string(chars.begin(), chars.end());\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @param {number} k\\n * @return {string}\\n */\\nvar getSmallestString = function(s, k) {\\n    let chars = s.split('');\\n    let n = chars.length;\\n    \\n    for (let i = 0; i < n; i++) {\\n        let minChar = chars[i];\\n        let minIdx = i;\\n        \\n        let low = chars[i].charCodeAt(0) - k;\\n        let high = chars[i].charCodeAt(0) + k;\\n        \\n        for (let j = i + 1; j < n; j++) {\\n            let code = chars[j].charCodeAt(0);\\n            if (code >= low && code <= high) {\\n                if (chars[j] < minChar) {\\n                    minChar = chars[j];\\n                    minIdx = j;\\n                }\\n            }\\n            low = Math.max(low, chars[j].charCodeAt(0) - k);\\n            high = Math.min(high, chars[j].charCodeAt(0) + k);\\n        }\\n        \\n        if (minIdx !== i) {\\n            let temp = chars[minIdx];\\n            for (let m = minIdx; m > i; m--) {\\n                chars[m] = chars[m - 1];\\n            }\\n            chars[i] = temp;\\n        }\\n    }\\n    return chars.join('');\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function getSmallestString(s: string, k: number): string {\\n    let chars: string[] = s.split('');\\n    let n: number = chars.length;\\n    \\n    for (let i = 0; i < n; i++) {\\n        let minChar: string = chars[i];\\n        let minIdx: number = i;\\n        \\n        let low: number = chars[i].charCodeAt(0) - k;\\n        let high: number = chars[i].charCodeAt(0) + k;\\n        \\n        for (let j = i + 1; j < n; j++) {\\n            let code: number = chars[j].charCodeAt(0);\\n            if (code >= low && code <= high) {\\n                if (chars[j] < minChar) {\\n                    minChar = chars[j];\\n                    minIdx = j;\\n                }\\n            }\\n            low = Math.max(low, chars[j].charCodeAt(0) - k);\\n            high = Math.min(high, chars[j].charCodeAt(0) + k);\\n        }\\n        \\n        if (minIdx !== i) {\\n            let temp: string = chars[minIdx];\\n            for (let m = minIdx; m > i; m--) {\\n                chars[m] = chars[m - 1];\\n            }\\n            chars[i] = temp;\\n        }\\n    }\\n    return chars.join('');\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n²). For each position `i`, we scan the remaining string.
+- Space: O(n) to store the character array.
+- Notes: This approach is intuitive and simulates the physical swapping process but is less efficient than the component-based approach for large inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Lexicographically Smallest String After a Swap Solutions","datePublished":"2025-09-11","description":"Find the lexicographically smallest string by swapping characters with adjacent ASCII values.","keywords":"LeetCode, Lexicographically Smallest String After a Swap, Easy, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Connected Components approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) or O(n log n). Since the alphabet size is constant (26), sorting operations are effectively constant time, making the overall complexity linear with respect to the string length."}},{"@type":"Question","name":"Why does the Greedy Simulation approach work?","acceptedAnswer":{"@type":"Answer","text":"It works because it simulates the bubble sort process. By checking if a character can pass through the intervening characters (using the range intersection logic), we ensure we only pick valid candidates for the current position, guaranteeing the lexicographically smallest result."}},{"@type":"Question","name":"What is the space complexity of these solutions?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for both approaches, primarily to store the character array and the groups or intermediate results."}}]}).replace(/</g,'\u003c')}
+</script>

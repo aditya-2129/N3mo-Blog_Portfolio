@@ -1,0 +1,153 @@
+---
+title: "Points That Intersect With Cars"
+summary: "Given a list of integer intervals representing cars, calculate the total number of unique integer points covered by any car."
+date: "Jul 09, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.30% | **Paid:** No
+> **Topics:** Array, Hash Table, Prefix Sum
+
+You are given a 0-indexed 2D integer array `nums` representing the coordinates of cars parked on a number line. For `nums[i] = [start_i, end_i]`, the car `i` is at the coordinate `start_i` and moves towards `end_i` (inclusive).
+
+Return the number of integer points on the number line that are covered by any car.
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [[3,6],[1,5],[4,7]]
+Output: 7
+Explanation: The integer points covered by cars are 1, 2, 3, 4, 5, 6, 7.
+```
+
+### Example 2
+```text
+Input: nums = [[1,3],[5,8]]
+Output: 7
+Explanation: The integer points covered by cars are 1, 2, 3, 5, 6, 7, 8.
+```
+
+## Constraints
+```text
+1 <= nums.length <= 100
+1 <= nums[i].length == 2
+1 <= start_i <= end_i <= 100
+```
+
+- Examples
+- Constraints
+- [Approach 1: Boolean Array / Simulation](#boolean-array-simulation)
+- [Approach 2: Sorting and Merging Intervals](#sorting-and-merging-intervals)
+- [Approach 3: Prefix Sum / Line Sweep](#prefix-sum-line-sweep)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [[3,6],[1,5],[4,7]]
+Output: 7
+Explanation: The integer points covered by cars are 1, 2, 3, 4, 5, 6, 7.
+```
+
+### Example 2
+```text
+Input: nums = [[1,3],[5,8]]
+Output: 7
+Explanation: The integer points covered by cars are 1, 2, 3, 5, 6, 7, 8.
+```
+
+## Constraints
+```text
+1 <= nums.length <= 100
+1 <= nums[i].length == 2
+1 <= start_i <= end_i <= 100
+```
+
+---
+## Boolean Array / Simulation
+
+**Intuition**
+Since the coordinate range is strictly limited to 1 through 100, we can simulate the coverage directly using a boolean array (or a hash set) to mark which points are occupied.
+
+**Steps**
+- Initialize a boolean array `seen` of size 101 (indices 0 to 100) with `false`.
+- Iterate through each car interval `[start, end]` in `nums`.
+- For each interval, loop from `start` to `end` (inclusive) and set `seen[i]` to `true`.
+- Finally, count the number of `true` values in the `seen` array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def numberOfPoints(self, nums: list[list[int]]) -> int:\n        seen = [False] * 101\n        for start, end in nums:\n            for i in range(start, end + 1):\n                seen[i] = True\n        return sum(seen)\n' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int numberOfPoints(int[][] nums) {\n        boolean[] seen = new boolean[101];\n        for (int[] interval : nums) {\n            int start = interval[0];\n            int end = interval[1];\n            for (int i = start; i &lt;= end; i++) {\n                seen[i] = true;\n            }\n        }\n        int count = 0;\n        for (boolean b : seen) {\n            if (b) count++;\n        }\n        return count;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    int numberOfPoints(vector<vector<int>&gt;& nums) {\n        vector<bool> seen(101, false);\n        for (const auto& interval : nums) {\n            int start = interval[0];\n            int end = interval[1];\n            for (int i = start; i &lt;= end; ++i) {\n                seen[i] = true;\n            }\n        }\n        int count = 0;\n        for (bool b : seen) {\n            if (b) count++;\n        }\n        return count;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class Solution {\n    numberOfPoints(nums) {\n        const seen = new Array(101).fill(false);\n        for (const [start, end] of nums) {\n            for (let i = start; i &lt;= end; i++) {\n                seen[i] = true;\n            }\n        }\n        return seen.filter(x =&gt; x).length;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class Solution {\n    numberOfPoints(nums: number[][]): number {\n        const seen: boolean[] = new Array(101).fill(false);\n        for (const [start, end] of nums) {\n            for (let i = start; i &lt;= end; i++) {\n                seen[i] = true;\n            }\n        }\n        return seen.filter(x =&gt; x).length;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of cars and L is the average length of the interval. Since L &lt;= 100, this is effectively O(N).
+- Space: O(1), as the array size is fixed at 101 regardless of input.
+- Notes: This is the most straightforward approach given the small constraint on coordinate values.
+
+---
+## Sorting and Merging Intervals
+
+**Intuition**
+We can treat the cars as intervals on a number line. By sorting these intervals by their start time, we can merge overlapping or adjacent intervals and simply sum the lengths of the merged intervals.
+
+**Steps**
+- Sort the `nums` array based on the start coordinate of each interval.
+- Initialize `result` to 0, and variables `currStart` and `currEnd` to track the current merged interval.
+- Iterate through the sorted intervals:
+  - If the current interval starts after `currEnd`, it means the previous interval has ended. Add its length (`currEnd - currStart + 1`) to `result` and start a new interval with the current coordinates.
+  - Otherwise, the intervals overlap or touch. Update `currEnd` to be the maximum of `currEnd` and the current interval's end.
+- After the loop, add the length of the last tracked interval to `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def numberOfPoints(self, nums: list[list[int]]) -> int:\n        nums.sort(key=lambda x: x[0])\n        res = 0\n        curr_start, curr_end = -1, -1\n        for s, e in nums:\n            if s > curr_end:\n                if curr_start != -1:\n                    res += curr_end - curr_start + 1\n                curr_start, curr_end = s, e\n            else:\n                curr_end = max(curr_end, e)\n        res += curr_end - curr_start + 1\n        return res\n' },
+{ name: "Java", lang: "java", code: 'import java.util.Arrays;\n\nclass Solution {\n    public int numberOfPoints(int[][] nums) {\n        Arrays.sort(nums, (a, b) -> a[0] - b[0]);\n        int res = 0;\n        int currStart = -1, currEnd = -1;\n        for (int[] interval : nums) {\n            int s = interval[0], e = interval[1];\n            if (s &gt; currEnd) {\n                if (currStart != -1) {\n                    res += currEnd - currStart + 1;\n                }\n                currStart = s;\n                currEnd = e;\n            } else {\n                currEnd = Math.max(currEnd, e);\n            }\n        }\n        res += currEnd - currStart + 1;\n        return res;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <algorithm>\n#include <vector>\n\nclass Solution {\npublic:\n    int numberOfPoints(vector<vector<int>&gt;& nums) {\n        sort(nums.begin(), nums.end(), [](const vector<int>& a, const vector<int>& b) {\n            return a[0] &lt; b[0];\n        });\n        int res = 0;\n        int currStart = -1, currEnd = -1;\n        for (const auto& interval : nums) {\n            int s = interval[0], e = interval[1];\n            if (s &gt; currEnd) {\n                if (currStart != -1) {\n                    res += currEnd - currStart + 1;\n                }\n                currStart = s;\n                currEnd = e;\n            } else {\n                currEnd = max(currEnd, e);\n            }\n        }\n        res += currEnd - currStart + 1;\n        return res;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class Solution {\n    numberOfPoints(nums) {\n        nums.sort((a, b) =&gt; a[0] - b[0]);\n        let res = 0;\n        let currStart = -1, currEnd = -1;\n        for (const [s, e] of nums) {\n            if (s &gt; currEnd) {\n                if (currStart !== -1) {\n                    res += currEnd - currStart + 1;\n                }\n                currStart = s;\n                currEnd = e;\n            } else {\n                currEnd = Math.max(currEnd, e);\n            }\n        }\n        res += currEnd - currStart + 1;\n        return res;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class Solution {\n    numberOfPoints(nums: number[][]): number {\n        nums.sort((a, b) =&gt; a[0] - b[0]);\n        let res = 0;\n        let currStart = -1, currEnd = -1;\n        for (const [s, e] of nums) {\n            if (s &gt; currEnd) {\n                if (currStart !== -1) {\n                    res += currEnd - currStart + 1;\n                }\n                currStart = s;\n                currEnd = e;\n            } else {\n                currEnd = Math.max(currEnd, e);\n            }\n        }\n        res += currEnd - currStart + 1;\n        return res;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step, where N is the number of cars.
+- Space: O(1) or O(log N) depending on the sorting algorithm's space complexity.
+- Notes: This approach is efficient and generalizes well to larger coordinate ranges where a boolean array would be too large.
+
+---
+## Prefix Sum / Line Sweep
+
+**Intuition**
+We can use a difference array (or line sweep) technique. We increment a counter at the start of an interval and decrement it just after the end. Calculating the prefix sum of this array tells us how many cars cover each point.
+
+**Steps**
+- Initialize an array `diff` of size 102 (to safely handle index `end + 1` up to 100) with zeros.
+- For each interval `[start, end]` in `nums`:
+  - Increment `diff[start]` by 1.
+  - Decrement `diff[end + 1]` by 1.
+- Compute the prefix sum by iterating from 1 to 100. Maintain a running `currentCoverage`.
+- If `currentCoverage` is greater than 0, it means the point is covered by at least one car, so increment the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def numberOfPoints(self, nums: list[list[int]]) -> int:\n        diff = [0] * 102\n        for start, end in nums:\n            diff[start] += 1\n            diff[end + 1] -= 1\n        \n        res = 0\n        curr = 0\n        for i in range(1, 101):\n            curr += diff[i]\n            if curr > 0:\n                res += 1\n        return res\n' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public int numberOfPoints(int[][] nums) {\n        int[] diff = new int[102];\n        for (int[] interval : nums) {\n            int start = interval[0];\n            int end = interval[1];\n            diff[start]++;\n            diff[end + 1]--;\n        }\n        int res = 0;\n        int curr = 0;\n        for (int i = 1; i &lt;= 100; i++) {\n            curr += diff[i];\n            if (curr &gt; 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    int numberOfPoints(vector<vector<int>&gt;& nums) {\n        vector<int> diff(102, 0);\n        for (const auto& interval : nums) {\n            int start = interval[0];\n            int end = interval[1];\n            diff[start]++;\n            diff[end + 1]--;\n        }\n        int res = 0;\n        int curr = 0;\n        for (int i = 1; i &lt;= 100; ++i) {\n            curr += diff[i];\n            if (curr &gt; 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: 'class Solution {\n    numberOfPoints(nums) {\n        const diff = new Array(102).fill(0);\n        for (const [start, end] of nums) {\n            diff[start]++;\n            diff[end + 1]--;\n        }\n        let res = 0;\n        let curr = 0;\n        for (let i = 1; i &lt;= 100; i++) {\n            curr += diff[i];\n            if (curr &gt; 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n}\n' },
+{ name: "TypeScript", lang: "typescript", code: 'class Solution {\n    numberOfPoints(nums: number[][]): number {\n        const diff: number[] = new Array(102).fill(0);\n        for (const [start, end] of nums) {\n            diff[start]++;\n            diff[end + 1]--;\n        }\n        let res = 0;\n        let curr = 0;\n        for (let i = 1; i &lt;= 100; i++) {\n            curr += diff[i];\n            if (curr &gt; 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n}\n' },]} />
+
+**Complexity**
+- Time: O(N + C), where N is the number of cars and C is the maximum coordinate value (100).
+- Space: O(C) to store the difference array.
+- Notes: This is highly efficient for multiple range queries on a fixed range.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Points That Intersect With Cars Solutions","datePublished":"2025-07-09","description":"Given a list of integer intervals representing cars, calculate the total number of unique integer points covered by any car.","keywords":"LeetCode, Points That Intersect With Cars, Easy, Array, Hash Table, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Boolean Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of cars and L is the average length of the interval. Since L is at most 100, this is effectively O(N)."}},{"@type":"Question","name":"What is the time complexity of the Sorting and Merging Intervals approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + C), where N is the number of cars and C is the maximum coordinate value (100)."}}]}).replace(/</g,'\u003c')}
+</script>

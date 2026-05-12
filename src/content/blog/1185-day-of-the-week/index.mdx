@@ -1,0 +1,127 @@
+---
+title: "Day of the Week"
+summary: "Given a date, return the corresponding day of the week."
+date: "Sep 20, 2024"
+tags:
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.10% | **Paid:** No
+> **Topics:** Math
+
+Given a date, return the corresponding day of the week for that date.
+
+The input is given as three integers representing the day, month and year respectively.
+
+Return the answer as one of the following values {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}.
+
+- Examples
+- Constraints
+- [Built-in Library Functions](#built-in-library-functions)
+- [Zeller's Congruence](#zellers-congruence)
+- [Reference Date Calculation](#reference-date-calculation)
+
+## Examples
+
+```text
+Input: day = 31, month = 8, year = 2019
+Output: "Saturday"
+```
+
+```text
+Input: day = 18, month = 7, year = 1999
+Output: "Sunday"
+```
+
+```text
+Input: day = 15, month = 8, year = 1993
+Output: "Sunday"
+```
+
+## Constraints
+
+```text
+1971 <= year <= 2100
+1 <= month <= 12
+1 <= day <= number of days in the specific month
+```
+
+---
+## Built-in Library Functions
+
+**Intuition**
+Most modern programming languages provide built-in libraries for date and time manipulation. These libraries internally handle the complexities of the Gregorian calendar, including leap years, allowing us to determine the day of the week with a single function call.
+
+**Steps**
+- Create a date object using the provided year, month, and day.
+- Use the library's formatting or getter function to extract the day of the week.
+- Return the result as a string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import datetime\r\n\r\nclass Solution:\r\n    def dayOfTheWeek(self, day: int, month: int, year: int) -&gt; str:\r\n        days = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", \"Sunday\"]\r\n        d = datetime.date(year, month, day)\r\n        return days[d.weekday()]" },
+{ name: "Java", lang: "java", code: "import java.time.LocalDate;\r\nimport java.time.format.TextStyle;\r\nimport java.util.Locale;\r\n\r\nclass Solution {\r\n    public String dayOfTheWeek(int day, int month, int year) {\r\n        LocalDate date = LocalDate.of(year, month, day);\r\n        return date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;ctime&gt;\r\n#include &lt;string&gt;\r\n#include &lt;vector&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    string dayOfTheWeek(int day, int month, int year) {\r\n        std::tm t = {};\r\n        t.tm_year = year - 1900;\r\n        t.tm_mon = month - 1;\r\n        t.tm_mday = day;\r\n        t.tm_hour = 0;\r\n        t.tm_min = 0;\r\n        t.tm_sec = 0;\r\n        t.tm_isdst = -1;\r\n        \r\n        std::mktime(&t);\r\n        \r\n        const std::vector&lt;std::string&gt; days = {\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"};\r\n        return days[t.tm_wday];\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number} day\r\n * @param {number} month\r\n * @param {number} year\r\n * @return {string}\r\n */\r\nvar dayOfTheWeek = function(day, month, year) {\r\n    const date = new Date(year, month - 1, day);\r\n    const days = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\r\n    return days[date.getDay()];\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function dayOfTheWeek(day: number, month: number, year: number): string {\r\n    const date = new Date(year, month - 1, day);\r\n    const days: string[] = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\r\n    return days[date.getDay()];\r\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Relies on standard library optimizations.
+
+---
+## Zeller's Congruence
+
+**Intuition**
+Zeller's Congruence is an algorithm devised by Christian Zeller to calculate the day of the week for any Julian or Gregorian calendar date. It uses a mathematical formula to map the date to a number corresponding to the day of the week.
+
+**Steps**
+- Adjust the month and year: if the month is January or February, treat it as month 13 or 14 of the previous year.
+- Apply Zeller's formula: `h = (q + floor(13(m+1)/5) + K + floor(K/4) + floor(J/4) + 5J) mod 7`.
+- Map the result $h$ to the corresponding day name (0=Saturday, 1=Sunday, etc.).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\r\n    def dayOfTheWeek(self, day: int, month: int, year: int) -&gt; str:\r\n        if month &lt; 3:\r\n            month += 12\r\n            year -= 1\r\n        \r\n        c = year // 100\r\n        y = year % 100\r\n        \r\n        # Zeller's Congruence\r\n        w = (day + (13 * (month + 1)) // 5 + y + y // 4 + c // 4 + 5 * c) % 7\r\n        \r\n        days = [\"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"]\r\n        return days[w]" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public String dayOfTheWeek(int day, int month, int year) {\r\n        String[] days = {\"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"};\r\n        \r\n        if (month &lt; 3) {\r\n            month += 12;\r\n            year -= 1;\r\n        }\r\n        \r\n        int c = year / 100;\r\n        int y = year % 100;\r\n        \r\n        // Zeller's Congruence\r\n        int w = (day + (13 * (month + 1)) / 5 + y + y / 4 + c / 4 + 5 * c) % 7;\r\n        \r\n        return days[w];\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\r\n#include &lt;vector&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    string dayOfTheWeek(int day, int month, int year) {\r\n        vector&lt;string&gt; days = {\"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"};\r\n        \r\n        if (month &lt; 3) {\r\n            month += 12;\r\n            year -= 1;\r\n        }\r\n        \r\n        int c = year / 100;\r\n        int y = year % 100;\r\n        \r\n        // Zeller's Congruence\r\n        int w = (day + (13 * (month + 1)) / 5 + y + y / 4 + c / 4 + 5 * c) % 7;\r\n        \r\n        return days[w];\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number} day\r\n * @param {number} month\r\n * @param {number} year\r\n * @return {string}\r\n */\r\nvar dayOfTheWeek = function(day, month, year) {\r\n    const days = [\"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\r\n    \r\n    if (month &lt; 3) {\r\n        month += 12;\r\n        year -= 1;\r\n    }\r\n    \r\n    const c = Math.floor(year / 100);\r\n    const y = year % 100;\r\n    \r\n    // Zeller's Congruence\r\n    const w = (day + Math.floor((13 * (month + 1)) / 5) + y + Math.floor(y / 4) + Math.floor(c / 4) + 5 * c) % 7;\r\n    \r\n    return days[w];\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function dayOfTheWeek(day: number, month: number, year: number): string {\r\n    const days: string[] = [\"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"];\r\n    \r\n    if (month &lt; 3) {\r\n        month += 12;\r\n        year -= 1;\r\n    }\r\n    \r\n    const c = Math.floor(year / 100);\r\n    const y = year % 100;\r\n    \r\n    // Zeller's Congruence\r\n    const w = (day + Math.floor((13 * (month + 1)) / 5) + y + Math.floor(y / 4) + Math.floor(c / 4) + 5 * c) % 7;\r\n    \r\n    return days[w];\r\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Constant time mathematical calculation.
+
+---
+## Reference Date Calculation
+
+**Intuition**
+We can calculate the total number of days elapsed from a known reference date (e.g., January 1, 1971, which was a Friday) to the target date. The day of the week is then determined by the remainder when this total is divided by 7.
+
+**Steps**
+- Define the number of days in each month, accounting for leap years.
+- Iterate through the years from the reference year to the target year, adding 365 or 366 days depending on whether it is a leap year.
+- Iterate through the months of the target year, adding the days for each month.
+- Add the remaining days of the current month.
+- Calculate the offset from the reference day and return the corresponding day name.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\r\n    def dayOfTheWeek(self, day: int, month: int, year: int) -&gt; str:\r\n        days = [\"Friday\", \"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"]\r\n        month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]\r\n        \r\n        def is_leap(y):\r\n            return y % 400 == 0 or (y % 4 == 0 and y % 100 != 0)\r\n        \r\n        total_days = 0\r\n        # Count days from 1971 to year - 1\r\n        for y in range(1971, year):\r\n            total_days += 366 if is_leap(y) else 365\r\n        \r\n        # Count days from Jan to month - 1\r\n        for m in range(1, month):\r\n            if m == 2 and is_leap(year):\r\n                total_days += 29\r\n            else:\r\n                total_days += month_days[m - 1]\r\n        \r\n        total_days += day\r\n        \r\n        return days[total_days % 7]" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public String dayOfTheWeek(int day, int month, int year) {\r\n        String[] days = {\"Friday\", \"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"};\r\n        int[] monthDays = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\r\n        \r\n        int totalDays = 0;\r\n        \r\n        // Count days from 1971 to year - 1\r\n        for (int y = 1971; y &lt; year; y++) {\r\n            totalDays += isLeap(y) ? 366 : 365;\r\n        }\r\n        \r\n        // Count days from Jan to month - 1\r\n        for (int m = 1; m &lt; month; m++) {\r\n            if (m == 2 && isLeap(year)) {\r\n                totalDays += 29;\r\n            } else {\r\n                totalDays += monthDays[m - 1];\r\n            }\r\n        }\r\n        \r\n        totalDays += day;\r\n        \r\n        return days[totalDays % 7];\r\n    }\r\n    \r\n    private boolean isLeap(int year) {\r\n        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\r\n#include &lt;vector&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    string dayOfTheWeek(int day, int month, int year) {\r\n        vector&lt;string&gt; days = {\"Friday\", \"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"};\r\n        vector&lt;int&gt; monthDays = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\r\n        \r\n        int totalDays = 0;\r\n        \r\n        // Count days from 1971 to year - 1\r\n        for (int y = 1971; y &lt; year; ++y) {\r\n            totalDays += isLeap(y) ? 366 : 365;\r\n        }\r\n        \r\n        // Count days from Jan to month - 1\r\n        for (int m = 1; m &lt; month; ++m) {\r\n            if (m == 2 && isLeap(year)) {\r\n                totalDays += 29;\r\n            } else {\r\n                totalDays += monthDays[m - 1];\r\n            }\r\n        }\r\n        \r\n        totalDays += day;\r\n        \r\n        return days[totalDays % 7];\r\n    }\r\n    \r\nprivate:\r\n    bool isLeap(int year) {\r\n        return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number} day\r\n * @param {number} month\r\n * @param {number} year\r\n * @return {string}\r\n */\r\nvar dayOfTheWeek = function(day, month, year) {\r\n    const days = [\"Friday\", \"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"];\r\n    const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];\r\n    \r\n    const isLeap = (y) =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);\r\n    \r\n    let totalDays = 0;\r\n    \r\n    // Count days from 1971 to year - 1\r\n    for (let y = 1971; y &lt; year; y++) {\r\n        totalDays += isLeap(y) ? 366 : 365;\r\n    }\r\n    \r\n    // Count days from Jan to month - 1\r\n    for (let m = 1; m &lt; month; m++) {\r\n        if (m === 2 && isLeap(year)) {\r\n            totalDays += 29;\r\n        } else {\r\n            totalDays += monthDays[m - 1];\r\n        }\r\n    }\r\n    \r\n    totalDays += day;\r\n    \r\n    return days[totalDays % 7];\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function dayOfTheWeek(day: number, month: number, year: number): string {\r\n    const days: string[] = [\"Friday\", \"Saturday\", \"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"];\r\n    const monthDays: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];\r\n    \r\n    const isLeap = (y: number): boolean =&gt; y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);\r\n    \r\n    let totalDays: number = 0;\r\n    \r\n    // Count days from 1971 to year - 1\r\n    for (let y = 1971; y &lt; year; y++) {\r\n        totalDays += isLeap(y) ? 366 : 365;\r\n    }\r\n    \r\n    // Count days from Jan to month - 1\r\n    for (let m = 1; m &lt; month; m++) {\r\n        if (m === 2 && isLeap(year)) {\r\n            totalDays += 29;\r\n        } else {\r\n            totalDays += monthDays[m - 1];\r\n        }\r\n    }\r\n    \r\n    totalDays += day;\r\n    \r\n    return days[totalDays % 7];\r\n}" },]} />
+
+**Complexity**
+- Time: O(1) (Since the year range is bounded by 1971-2100, the loop runs a maximum of ~130 times).
+- Space: O(1)
+- Notes: More logic than Zeller's but easy to understand.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Day of the Week Solutions","datePublished":"2024-09-20","description":"Given a date, return the corresponding day of the week.","keywords":"LeetCode, Day of the Week, Easy, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Library Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(1)"}},{"@type":"Question","name":"What is the time complexity of Zeller's Congruence?","acceptedAnswer":{"@type":"Answer","text":"O(1)"}},{"@type":"Question","name":"What is the time complexity of the Reference Date Calculation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) because the year range is fixed between 1971 and 2100."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,372 @@
+---
+title: "Actors and Directors Who Cooperated At Least Three Times"
+summary: "Find pairs of actors and directors who have worked together at least three times using SQL aggregation."
+date: "Nov 25, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.10% | **Paid:** No
+> **Topics:** Database
+
+Table: ActorDirector
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| actor_id    | int     |
+| director_id | int     |
+| timestamp   | int     |
++-------------+---------+
+timestamp is the primary key column for this table.
+
+Write a SQL query for a report that provides the pairs (actor_id, director_id) where the actor has cooperated with the director at least three times.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Group By and Having](#group-by-and-having)
+- [Approach 2: Subquery with Count](#subquery-with-count)
+
+## Examples
+
+### Example 1
+
+Input:
+ActorDirector table:
++-------------+-------------+-------------+
+| actor_id    | director_id | timestamp   |
++-------------+-------------+-------------+
+| 1           | 1           | 0           |
+| 1           | 1           | 1           |
+| 1           | 1           | 2           |
+| 1           | 2           | 3           |
+| 1           | 2           | 4           |
+| 2           | 1           | 5           |
+| 2           | 1           | 6           |
++-------------+-------------+-------------+
+
+Output:
++-------------+-------------+
+| actor_id    | director_id |
++-------------+-------------+
+| 1           | 1           |
++-------------+-------------+
+
+Explanation:
+The only pair (1, 1) appears at least 3 times.
+
+## Constraints
+
+```text
+- 1 <= actor_id, director_id <= 10⁴
+- 0 <= timestamp <= 10⁵
+- Each row in the table represents a unique collaboration
+```
+
+---
+## Group By and Having
+
+**Intuition**
+Group the data by actor and director pairs, then filter for groups with at least 3 records using the HAVING clause.
+
+**Steps**
+- Select actor_id and director_id from the table
+- Group by both columns to create unique pairs
+- Use HAVING COUNT(*) &gt;= 3 to filter pairs with 3 or more collaborations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def find_cooperating_pairs():
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE ActorDirector (
+            actor_id INT,
+            director_id INT,
+            timestamp INT PRIMARY KEY
+        )
+    """)
+    
+    query = """
+        SELECT actor_id, director_id
+        FROM ActorDirector
+        GROUP BY actor_id, director_id
+        HAVING COUNT(*) &gt;= 3
+    """
+    
+    cursor.execute(query)
+    results = cursor.fetchall()
+    return results
+
+print(find_cooperating_pairs())` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void findCooperatingPairs(Connection conn) throws SQLException {
+        String query = "SELECT actor_id, director_id " +
+                      "FROM ActorDirector " +
+                      "GROUP BY actor_id, director_id " +
+                      "HAVING COUNT(*) &gt;= 3";
+        
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        
+        while (rs.next()) {
+            int actorId = rs.getInt("actor_id");
+            int directorId = rs.getInt("director_id");
+            System.out.println(actorId + ", " + directorId);
+        }
+        
+        rs.close();
+        stmt.close();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <sqlite3.h>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+vector<pair<int, int>&gt; findCooperatingPairs(sqlite3* db) {
+    vector<pair<int, int>&gt; results;
+    
+    const char* query = "SELECT actor_id, director_id "
+                        "FROM ActorDirector "
+                        "GROUP BY actor_id, director_id "
+                        "HAVING COUNT(*) &gt;= 3";
+    
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+    
+    if (rc == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            int actorId = sqlite3_column_int(stmt, 0);
+            int directorId = sqlite3_column_int(stmt, 1);
+            results.push_back({actorId, directorId});
+        }
+    }
+    
+    sqlite3_finalize(stmt);
+    return results;
+}` },
+{ name: "JavaScript", lang: "javascript", code: `const sqlite3 = require('sqlite3').verbose();
+
+function findCooperatingPairs(db) {
+    return new Promise((resolve, reject) =&gt; {
+        const query = "SELECT actor_id, director_id " +
+                      "FROM ActorDirector " +
+                      "GROUP BY actor_id, director_id " +
+                      "HAVING COUNT(*) &gt;= 3";
+        
+        db.all(query, [], (err, rows) =&gt; {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+const db = new sqlite3.Database(':memory:');
+findCooperatingPairs(db).then(results =&gt; {
+    console.log(results);
+});` },
+{ name: "TypeScript", lang: "typescript", code: `import Database from 'better-sqlite3';
+
+interface CooperatingPair {
+    actor_id: number;
+    director_id: number;
+}
+
+function findCooperatingPairs(db: Database.Database): CooperatingPair[] {
+    const query = "SELECT actor_id, director_id " +
+                  "FROM ActorDirector " +
+                  "GROUP BY actor_id, director_id " +
+                  "HAVING COUNT(*) &gt;= 3";
+    
+    const stmt = db.prepare(query);
+    const results = stmt.all() as CooperatingPair[];
+    
+    return results;
+}
+
+const db = new Database(':memory:');
+const pairs = findCooperatingPairs(db);
+console.log(pairs);` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in ActorDirector table
+- Space: O(k) where k is the number of unique actor-director pairs
+- Notes: This is the most efficient and idiomatic SQL approach for this problem
+
+---
+## Subquery with Count
+
+**Intuition**
+First count collaborations for each pair in a subquery, then filter pairs with count &gt;= 3 in the outer query.
+
+**Steps**
+- Create a subquery that counts collaborations for each actor-director pair
+- Filter the results where count is at least 3
+- Return the actor_id and director_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import sqlite3
+
+def find_cooperating_pairs():
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE ActorDirector (
+            actor_id INT,
+            director_id INT,
+            timestamp INT PRIMARY KEY
+        )
+    """)
+    
+    query = """
+        SELECT actor_id, director_id
+        FROM (
+            SELECT actor_id, director_id, COUNT(*) as cnt
+            FROM ActorDirector
+            GROUP BY actor_id, director_id
+        ) AS pairs
+        WHERE cnt &gt;= 3
+    """
+    
+    cursor.execute(query)
+    results = cursor.fetchall()
+    return results
+
+print(find_cooperating_pairs())` },
+{ name: "Java", lang: "java", code: `import java.sql.*;
+
+public class Solution {
+    public void findCooperatingPairs(Connection conn) throws SQLException {
+        String query = "SELECT actor_id, director_id " +
+                      "FROM (" +
+                      "  SELECT actor_id, director_id, COUNT(*) as cnt " +
+                      "  FROM ActorDirector " +
+                      "  GROUP BY actor_id, director_id" +
+                      ") AS pairs " +
+                      "WHERE cnt &gt;= 3";
+        
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        
+        while (rs.next()) {
+            int actorId = rs.getInt("actor_id");
+            int directorId = rs.getInt("director_id");
+            System.out.println(actorId + ", " + directorId);
+        }
+        
+        rs.close();
+        stmt.close();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <iostream>
+#include <sqlite3.h>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+vector<pair<int, int>&gt; findCooperatingPairs(sqlite3* db) {
+    vector<pair<int, int>&gt; results;
+    
+    const char* query = "SELECT actor_id, director_id "
+                        "FROM ("
+                        "  SELECT actor_id, director_id, COUNT(*) as cnt "
+                        "  FROM ActorDirector "
+                        "  GROUP BY actor_id, director_id"
+                        ") AS pairs "
+                        "WHERE cnt &gt;= 3";
+    
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+    
+    if (rc == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            int actorId = sqlite3_column_int(stmt, 0);
+            int directorId = sqlite3_column_int(stmt, 1);
+            results.push_back({actorId, directorId});
+        }
+    }
+    
+    sqlite3_finalize(stmt);
+    return results;
+}` },
+{ name: "JavaScript", lang: "javascript", code: `const sqlite3 = require('sqlite3').verbose();
+
+function findCooperatingPairs(db) {
+    return new Promise((resolve, reject) =&gt; {
+        const query = "SELECT actor_id, director_id " +
+                      "FROM (" +
+                      "  SELECT actor_id, director_id, COUNT(*) as cnt " +
+                      "  FROM ActorDirector " +
+                      "  GROUP BY actor_id, director_id" +
+                      ") AS pairs " +
+                      "WHERE cnt &gt;= 3";
+        
+        db.all(query, [], (err, rows) =&gt; {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+const db = new sqlite3.Database(':memory:');
+findCooperatingPairs(db).then(results =&gt; {
+    console.log(results);
+});` },
+{ name: "TypeScript", lang: "typescript", code: `import Database from 'better-sqlite3';
+
+interface CooperatingPair {
+    actor_id: number;
+    director_id: number;
+}
+
+function findCooperatingPairs(db: Database.Database): CooperatingPair[] {
+    const query = "SELECT actor_id, director_id " +
+                  "FROM (" +
+                  "  SELECT actor_id, director_id, COUNT(*) as cnt " +
+                  "  FROM ActorDirector " +
+                  "  GROUP BY actor_id, director_id" +
+                  ") AS pairs " +
+                  "WHERE cnt &gt;= 3";
+    
+    const stmt = db.prepare(query);
+    const results = stmt.all() as CooperatingPair[];
+    
+    return results;
+}
+
+const db = new Database(':memory:');
+const pairs = findCooperatingPairs(db);
+console.log(pairs);` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in ActorDirector table
+- Space: O(k) where k is the number of unique actor-director pairs
+- Notes: Slightly more verbose than GROUP BY with HAVING but achieves the same result
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Actors and Directors Who Cooperated At Least Three Times Solutions","datePublished":"2024-11-25","description":"Find pairs of actors and directors who have worked together at least three times using SQL aggregation.","keywords":"LeetCode, Actors and Directors Who Cooperated At Least Three Times, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Group By and Having approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the ActorDirector table."}},{"@type":"Question","name":"What is the space complexity of the Group By and Having approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique actor-director pairs."}},{"@type":"Question","name":"What is the time complexity of the Subquery with Count approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the ActorDirector table."}},{"@type":"Question","name":"What is the space complexity of the Subquery with Count approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique actor-director pairs."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,444 @@
+---
+title: "Equal Score Substrings"
+summary: "The score of a character is its position in the alphabet (1-indexed). That is, 'a' has a score of 1, 'b' has a score of 2, ..., 'z' has a score of 26."
+date: "May 12, 2026"
+tags:
+  - String
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.80% | **Paid:** No
+
+> **Topics:** String, Prefix Sum
+
+The score of a character is its position in the alphabet (1-indexed). That is, 'a' has a score of 1, 'b' has a score of 2, ..., 'z' has a score of 26. The score of a string is the sum of the scores of its characters. Return the number of non-empty substrings of `s` that have an even score.
+
+- Examples
+- Constraints
+- [Prefix Sums for Substring Scores](#prefix-sums-for-substring-scores)
+- [Optimized Prefix Sum (Parity-based)](#optimized-prefix-sum-parity-based)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "adcb"
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Split at index i = 1:
+
+Left substring = s[0..1] = "ad" with score = 1 + 4 = 5
+
+Right substring = s[2..3] = "cb" with score = 3 + 2 = 5
+
+Both substrings have equal scores, so the output is true.
+
+### Example 2
+
+**Input:**
+```text
+s = "bace"
+```
+
+**Output:**
+```text
+false
+```
+
+## Constraints
+
+```text
+- 2 <= s.length <= 100
+- s consists of lowercase English letters.
+```
+---
+
+---
+
+## Prefix Sums for Substring Scores
+
+**Intuition**
+
+To efficiently calculate the score of every substring, we can precompute prefix sums of character scores. Then, the score of any substring `s[i..j]` can be found in O(1) time.
+
+**Steps**
+
+- First, convert the input string `s` into an array of character scores. For each character `c`, its score is `ord(c) - ord('a') + 1`.
+- Compute a prefix sum array, let's call it `prefix_scores`. `prefix_scores[k]` will store the sum of scores of characters `s[0]` through `s[k-1]`. To handle substrings starting at index 0, we initialize `prefix_scores[0] = 0`. So, `prefix_scores` will have a length of `N+1`, where `N` is the length of `s`.
+- Initialize a counter `even_score_substrings` to 0.
+- Iterate through all possible starting indices `i` from `0` to `N-1`.
+- For each `i`, iterate through all possible ending indices `j` from `i` to `N-1`.
+- The score of the substring `s[i..j]` can be calculated as `prefix_scores[j+1] - prefix_scores[i]`.
+- If this calculated score is even (i.e., `(prefix_scores[j+1] - prefix_scores[i]) % 2 == 0`), increment `even_score_substrings`.
+- After checking all substrings, return `even_score_substrings`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def equalScoreSubstrings(self, s: str) -> int:
+        n = len(s)
+        
+        # Step 1: Convert characters to scores
+        char_scores = [(ord(c) - ord('a') + 1) for c in s]
+        
+        # Step 2: Compute prefix sums of scores
+        # prefix_scores[k] = sum of scores of s[0...k-1]
+        # prefix_scores[0] = 0
+        prefix_scores = [0] * (n + 1)
+        for k in range(n):
+            prefix_scores[k+1] = prefix_scores[k] + char_scores[k]
+            
+        even_score_substrings = 0
+        
+        # Step 3-7: Iterate through all substrings and check their scores
+        for i in range(n): # Start index of substring
+            for j in range(i, n): # End index of substring
+                # Score of s[i...j] = prefix_scores[j+1] - prefix_scores[i]
+                current_substring_score = prefix_scores[j+1] - prefix_scores[i]
+                if current_substring_score % 2 == 0:
+                    even_score_substrings += 1
+                    
+        return even_score_substrings` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int equalScoreSubstrings(String s) {
+        int n = s.length();
+        
+        // Step 1: Convert characters to scores (implicitly done in prefix sum calculation)
+        
+        // Step 2: Compute prefix sums of scores
+        // prefixScores[k] = sum of scores of s[0...k-1]
+        // prefixScores[0] = 0
+        int[] prefixScores = new int[n + 1];
+        for (int k = 0; k < n; k++) {
+            prefixScores[k+1] = prefixScores[k] + (s.charAt(k) - 'a' + 1);
+        }
+            
+        int evenScoreSubstrings = 0;
+        
+        // Step 3-7: Iterate through all substrings and check their scores
+        for (int i = 0; i < n; i++) { // Start index of substring
+            for (int j = i; j < n; j++) { // End index of substring
+                // Score of s[i...j] = prefixScores[j+1] - prefixScores[i]
+                int currentSubstringScore = prefixScores[j+1] - prefixScores[i];
+                if (currentSubstringScore % 2 == 0) {
+                    evenScoreSubstrings++;
+                }
+            }
+        }
+        return evenScoreSubstrings;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+#include <vector>
+#include <numeric> // For std::iota if needed, but not here
+
+class Solution {
+public:
+    int equalScoreSubstrings(std::string s) {
+        int n = s.length();
+        
+        // Step 1: Convert characters to scores (implicitly done in prefix sum calculation)
+        
+        // Step 2: Compute prefix sums of scores
+        // prefixScores[k] = sum of scores of s[0...k-1]
+        // prefixScores[0] = 0
+        std::vector<int> prefixScores(n + 1, 0);
+        for (int k = 0; k < n; ++k) {
+            prefixScores[k+1] = prefixScores[k] + (s[k] - 'a' + 1);
+        }
+            
+        int evenScoreSubstrings = 0;
+        
+        // Step 3-7: Iterate through all substrings and check their scores
+        for (int i = 0; i < n; ++i) { // Start index of substring
+            for (int j = i; j < n; ++j) { // End index of substring
+                // Score of s[i...j] = prefixScores[j+1] - prefixScores[i]
+                int currentSubstringScore = prefixScores[j+1] - prefixScores[i];
+                if (currentSubstringScore % 2 == 0) {
+                    evenScoreSubstrings++;
+                }
+            }
+        }
+        return evenScoreSubstrings;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {number}
+ */
+class Solution {
+    equalScoreSubstrings(s) {
+        const n = s.length;
+        
+        // Step 1: Convert characters to scores (implicitly done in prefix sum calculation)
+        
+        // Step 2: Compute prefix sums of scores
+        // prefixScores[k] = sum of scores of s[0...k-1]
+        // prefixScores[0] = 0
+        const prefixScores = new Array(n + 1).fill(0);
+        for (let k = 0; k < n; k++) {
+            prefixScores[k+1] = prefixScores[k] + (s.charCodeAt(k) - 'a'.charCodeAt(0) + 1);
+        }
+            
+        let evenScoreSubstrings = 0;
+        
+        // Step 3-7: Iterate through all substrings and check their scores
+        for (let i = 0; i < n; i++) { // Start index of substring
+            for (let j = i; j < n; j++) { // End index of substring
+                // Score of s[i...j] = prefixScores[j+1] - prefixScores[i]
+                const currentSubstringScore = prefixScores[j+1] - prefixScores[i];
+                if (currentSubstringScore % 2 === 0) {
+                    evenScoreSubstrings++;
+                }
+            }
+        }
+        return evenScoreSubstrings;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    equalScoreSubstrings(s: string): number {
+        const n: number = s.length;
+        
+        // Step 1: Convert characters to scores (implicitly done in prefix sum calculation)
+        
+        // Step 2: Compute prefix sums of scores
+        // prefixScores[k] = sum of scores of s[0...k-1]
+        // prefixScores[0] = 0
+        const prefixScores: number[] = new Array(n + 1).fill(0);
+        for (let k = 0; k < n; k++) {
+            prefixScores[k+1] = prefixScores[k] + (s.charCodeAt(k) - 'a'.charCodeAt(0) + 1);
+        }
+            
+        let evenScoreSubstrings: number = 0;
+        
+        // Step 3-7: Iterate through all substrings and check their scores
+        for (let i = 0; i < n; i++) { // Start index of substring
+            for (let j = i; j < n; j++) { // End index of substring
+                // Score of s[i...j] = prefixScores[j+1] - prefixScores[i]
+                const currentSubstringScore: number = prefixScores[j+1] - prefixScores[i];
+                if (currentSubstringScore % 2 === 0) {
+                    evenScoreSubstrings++;
+                }
+            }
+        }
+        return evenScoreSubstrings;
+    }
+}` }]} />
+
+**Complexity**
+
+- Time: O(N²) because we iterate through all N*(N+1)/2 possible substrings. Each substring score calculation using prefix sums is O(1).
+- Space: O(N) to store the prefix sum array.
+- Notes: This approach is straightforward and efficient enough for the given constraints (N &lt;= 1000, N² = 10⁶ operations).
+
+---
+
+## Optimized Prefix Sum (Parity-based)
+
+**Intuition**
+
+We only care about the *parity* (even or odd) of the substring scores. A substring `s[i..j]` has an even score if and only if `(prefix_scores[j+1] - prefix_scores[i])` is even. This condition simplifies to `prefix_scores[j+1]` and `prefix_scores[i]` having the same parity. We can count such pairs in a single pass.
+
+**Steps**
+
+- Initialize `even_count = 1` and `odd_count = 0`. `even_count` is initialized to 1 because `prefix_scores[0]` (representing an empty prefix sum, which is 0) has even parity.
+- Initialize `current_prefix_sum = 0` and `even_substring_count = 0`.
+- Iterate through each character `c` in the string `s` (from index `k = 0` to `N-1`):
+-   a. Calculate the score of the current character: `char_score = ord(c) - ord('a') + 1`.
+-   b. Update `current_prefix_sum += char_score`. This `current_prefix_sum` now represents `prefix_scores[k+1]`.
+-   c. Check the parity of `current_prefix_sum`:
+-     i. If `current_prefix_sum % 2 == 0` (even parity): This means `prefix_scores[k+1]` is even. Any previous `prefix_scores[i]` that was also even will form an even-score substring `s[i..k]`. The number of such `prefix_scores[i]` encountered so far is `even_count`. So, add `even_count` to `even_substring_count`. Then, increment `even_count` because `prefix_scores[k+1]` itself is an even prefix sum.
+-     ii. If `current_prefix_sum % 2 == 1` (odd parity): This means `prefix_scores[k+1]` is odd. Any previous `prefix_scores[i]` that was also odd will form an even-score substring `s[i..k]`. The number of such `prefix_scores[i]` encountered so far is `odd_count`. So, add `odd_count` to `even_substring_count`. Then, increment `odd_count` because `prefix_scores[k+1]` itself is an odd prefix sum.
+- After iterating through all characters, `even_substring_count` will hold the total number of non-empty substrings with an even score. Return this value.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def equalScoreSubstrings(self, s: str) -> int:
+        n = len(s)
+        
+        # even_count: number of prefix sums encountered so far with even parity
+        # odd_count: number of prefix sums encountered so far with odd parity
+        # Initialize even_count to 1 for prefix_sum[0] = 0 (empty prefix), which has even parity.
+        even_count = 1
+        odd_count = 0
+        
+        current_prefix_sum = 0
+        even_substring_count = 0
+        
+        for char_code in s:
+            char_score = (ord(char_code) - ord('a') + 1)
+            current_prefix_sum += char_score
+            
+            if current_prefix_sum % 2 == 0:
+                # If current prefix sum is even, it forms an even-score substring
+                # with all previous prefix sums that were also even.
+                even_substring_count += even_count
+                even_count += 1
+            else:
+                # If current prefix sum is odd, it forms an even-score substring
+                # with all previous prefix sums that were also odd.
+                even_substring_count += odd_count
+                odd_count += 1
+                
+        return even_substring_count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int equalScoreSubstrings(String s) {
+        int n = s.length();
+        
+        // evenCount: number of prefix sums encountered so far with even parity
+        // oddCount: number of prefix sums encountered so far with odd parity
+        // Initialize evenCount to 1 for prefix_sum[0] = 0 (empty prefix), which has even parity.
+        int evenCount = 1;
+        int oddCount = 0;
+        
+        int currentPrefixSum = 0;
+        int evenSubstringCount = 0;
+        
+        for (int k = 0; k < n; k++) {
+            int charScore = (s.charAt(k) - 'a' + 1);
+            currentPrefixSum += charScore;
+            
+            if (currentPrefixSum % 2 == 0) {
+                // If current prefix sum is even, it forms an even-score substring
+                // with all previous prefix sums that were also even.
+                evenSubstringCount += evenCount;
+                evenCount++;
+            } else {
+                // If current prefix sum is odd, it forms an even-score substring
+                // with all previous prefix sums that were also odd.
+                evenSubstringCount += oddCount;
+                oddCount++;
+            }
+        }
+        return evenSubstringCount;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+#include <vector>
+
+class Solution {
+public:
+    int equalScoreSubstrings(std::string s) {
+        int n = s.length();
+        
+        // evenCount: number of prefix sums encountered so far with even parity
+        // oddCount: number of prefix sums encountered so far with odd parity
+        // Initialize evenCount to 1 for prefix_sum[0] = 0 (empty prefix), which has even parity.
+        int evenCount = 1;
+        int oddCount = 0;
+        
+        int currentPrefixSum = 0;
+        int evenSubstringCount = 0;
+        
+        for (char c : s) {
+            int charScore = (c - 'a' + 1);
+            currentPrefixSum += charScore;
+            
+            if (currentPrefixSum % 2 == 0) {
+                // If current prefix sum is even, it forms an even-score substring
+                // with all previous prefix sums that were also even.
+                evenSubstringCount += evenCount;
+                evenCount++;
+            }
+            else {
+                // If current prefix sum is odd, it forms an even-score substring
+                // with all previous prefix sums that were also odd.
+                evenSubstringCount += oddCount;
+                oddCount++;
+            }
+        }
+        return evenSubstringCount;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {number}
+ */
+class Solution {
+    equalScoreSubstrings(s) {
+        const n = s.length;
+        
+        // evenCount: number of prefix sums encountered so far with even parity
+        // oddCount: number of prefix sums encountered so far with odd parity
+        // Initialize evenCount to 1 for prefix_sum[0] = 0 (empty prefix), which has even parity.
+        let evenCount = 1;
+        let oddCount = 0;
+        
+        let currentPrefixSum = 0;
+        let evenSubstringCount = 0;
+        
+        for (let k = 0; k < n; k++) {
+            const charScore = (s.charCodeAt(k) - 'a'.charCodeAt(0) + 1);
+            currentPrefixSum += charScore;
+            
+            if (currentPrefixSum % 2 === 0) {
+                // If current prefix sum is even, it forms an even-score substring
+                // with all previous prefix sums that were also even.
+                evenSubstringCount += evenCount;
+                evenCount++;
+            } else {
+                // If current prefix sum is odd, it forms an even-score substring
+                // with all previous prefix sums that were also odd.
+                evenSubstringCount += oddCount;
+                oddCount++;
+            }
+        }
+        return evenSubstringCount;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    equalScoreSubstrings(s: string): number {
+        const n: number = s.length;
+        
+        // evenCount: number of prefix sums encountered so far with even parity
+        // oddCount: number of prefix sums encountered so far with odd parity
+        // Initialize evenCount to 1 for prefix_sum[0] = 0 (empty prefix), which has even parity.
+        let evenCount: number = 1;
+        let oddCount: number = 0;
+        
+        let currentPrefixSum: number = 0;
+        let evenSubstringCount: number = 0;
+        
+        for (let k = 0; k < n; k++) {
+            const charScore: number = (s.charCodeAt(k) - 'a'.charCodeAt(0) + 1);
+            currentPrefixSum += charScore;
+            
+            if (currentPrefixSum % 2 === 0) {
+                // If current prefix sum is even, it forms an even-score substring
+                // with all previous prefix sums that were also even.
+                evenSubstringCount += evenCount;
+                evenCount++;
+            } else {
+                // If current prefix sum is odd, it forms an even-score substring
+                // with all previous prefix sums that were also odd.
+                evenSubstringCount += oddCount;
+                oddCount++;
+            }
+        }
+        return evenSubstringCount;
+    }
+}` }]} />
+
+**Complexity**
+
+- Time: O(N) because we iterate through the string once. Each character processing takes constant time.
+- Space: O(1) as we only use a few variables to store counts and the current prefix sum.
+- Notes: This is the most optimal approach in terms of time and space complexity. It leverages the property that only parity matters, reducing the problem to counting pairs with matching parities in the prefix sum array.
+
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Equal Score Substrings Solutions","datePublished":"2026-05-12T23:13:38.019793","description":"The score of a character is its position in the alphabet (1-indexed). That is, 'a' has a score of 1, 'b' has a score of 2, ..., 'z' has a score of 26.","keywords":"LeetCode, Equal Score Substrings, Easy, String, Prefix Sum, Hash Map, Brute Force, Array"}).replace(/</g,'\\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Prefix Sums for Substring Scores complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(N\u00b2) because we iterate through all N*(N+1)/2 possible substrings. Each substring score calculation using prefix sums is O(1).; Space: O(N) to store the prefix sum array.. This approach is straightforward and efficient enough for the given constraints (N <= 1000, N\u00b2 = 10\u2076 operations)."}},{"@type":"Question","name":"Optimized Prefix Sum (Parity-based) complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(N) because we iterate through the string once. Each character processing takes constant time.; Space: O(1) as we only use a few variables to store counts and the current prefix sum.. This is the most optimal approach in terms of time and space complexity. It leverages the property that only parity matters, reducing the problem to counting pairs with matching parities in the prefix sum array."}}]}).replace(/</g,'\\u003c')}
+</script>

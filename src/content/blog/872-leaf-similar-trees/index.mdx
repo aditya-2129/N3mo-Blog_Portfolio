@@ -1,0 +1,133 @@
+---
+title: "Leaf-Similar Trees"
+summary: "Check if two binary trees have the same leaf value sequence when traversed from left to right."
+date: "Jul 14, 2025"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.20% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Tree
+
+Consider all the leaves of a binary tree, from left to right order, the values of those leaves form a leaf value sequence.
+
+For example, in the given tree above, the leaf value sequence is (6, 7, 4, 9, 8).
+
+Two binary trees are considered leaf-similar if their leaf value sequence is the same.
+
+Return true if and only if the two given trees with head nodes root1 and root2 are leaf-similar.
+
+- Examples
+- Constraints
+- [Recursive DFS](#recursive-dfs)
+- [Iterative DFS](#iterative-dfs)
+- [Generator / Iterator](#generator-iterator)
+
+## Examples
+
+### Example 1:
+```text
+Input: root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
+Output: true
+```
+
+### Example 2:
+```text
+Input: root1 = [1,2,3], root2 = [1,3,2]
+Output: false
+```
+
+## Constraints
+
+```text
+The number of nodes in each tree will be in the range [1, 200].
+Both of the given trees will have values in the range [0, 200].
+```
+
+---
+## Recursive DFS
+
+**Intuition**
+We can perform a Depth-First Search (DFS) traversal on both trees. As we traverse, whenever we encounter a leaf node (a node with no left or right children), we record its value. After collecting the leaf values for both trees, we simply compare the two lists to see if they are identical.
+
+**Steps**
+- Define a helper function that takes a tree node and a list to store leaf values.
+- If the node is null, return immediately.
+- If the node is a leaf (both left and right children are null), add its value to the list.
+- Recursively call the helper function for the left child, then the right child.
+- Call the helper function for both root1 and root2 to generate their respective leaf sequences.
+- Compare the two lists and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def leafSimilar(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -&gt; bool:\n        def dfs(node, leaves):\n            if not node:\n                return\n            if not node.left and not node.right:\n                leaves.append(node.val)\n                return\n            dfs(node.left, leaves)\n            dfs(node.right, leaves)\n        \n        leaves1 = []\n        leaves2 = []\n        dfs(root1, leaves1)\n        dfs(root2, leaves2)\n        return leaves1 == leaves2" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean leafSimilar(TreeNode root1, TreeNode root2) {\n        List&lt;Integer&gt; leaves1 = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; leaves2 = new ArrayList&lt;&gt;();\n        dfs(root1, leaves1);\n        dfs(root2, leaves2);\n        return leaves1.equals(leaves2);\n    }\n    \n    private void dfs(TreeNode node, List&lt;Integer&gt; leaves) {\n        if (node == null) return;\n        if (node.left == null && node.right == null) {\n            leaves.add(node.val);\n        }\n        dfs(node.left, leaves);\n        dfs(node.right, leaves);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    void dfs(TreeNode* node, vector&lt;int&gt;& leaves) {\n        if (!node) return;\n        if (!node-&gt;left && !node-&gt;right) {\n            leaves.push_back(node-&gt;val);\n        }\n        dfs(node-&gt;left, leaves);\n        dfs(node-&gt;right, leaves);\n    }\n    \n    bool leafSimilar(TreeNode* root1, TreeNode* root2) {\n        vector&lt;int&gt; leaves1, leaves2;\n        dfs(root1, leaves1);\n        dfs(root2, leaves2);\n        return leaves1 == leaves2;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var leafSimilar = function(root1, root2) {\n    const dfs = (node, leaves) =&gt; {\n        if (!node) return;\n        if (!node.left && !node.right) {\n            leaves.push(node.val);\n        }\n        dfs(node.left, leaves);\n        dfs(node.right, leaves);\n    };\n    \n    const leaves1 = [];\n    const leaves2 = [];\n    dfs(root1, leaves1);\n    dfs(root2, leaves2);\n    \n    if (leaves1.length !== leaves2.length) return false;\n    for (let i = 0; i &lt; leaves1.length; i++) {\n        if (leaves1[i] !== leaves2[i]) return false;\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function leafSimilar(root1: TreeNode | null, root2: TreeNode | null): boolean {\n    const dfs = (node: TreeNode | null, leaves: number[]): void =&gt; {\n        if (!node) return;\n        if (!node.left && !node.right) {\n            leaves.push(node.val);\n        }\n        dfs(node.left, leaves);\n        dfs(node.right, leaves);\n    };\n    \n    const leaves1: number[] = [];\n    const leaves2: number[] = [];\n    dfs(root1, leaves1);\n    dfs(root2, leaves2);\n    \n    if (leaves1.length !== leaves2.length) return false;\n    for (let i = 0; i &lt; leaves1.length; i++) {\n        if (leaves1[i] !== leaves2[i]) return false;\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the number of nodes in the two trees. We visit every node once.
+- Space: O(N + M) to store the leaf sequences. In the worst case (skewed trees), the recursion stack depth can also be O(N) and O(M).
+
+---
+## Iterative DFS
+
+**Intuition**
+We can simulate the recursive DFS using an explicit stack. This avoids potential stack overflow issues (though unlikely given the constraints) and is a standard iterative approach for tree traversal. We maintain a stack for each tree and process nodes until we find the next leaf.
+
+**Steps**
+- Initialize two stacks, one for each tree root.
+- Loop while both stacks are not empty.
+- Inside the loop, process each stack to find the next leaf value.
+    - Pop a node from the stack.
+    - If it is a leaf, return its value.
+    - Otherwise, push its right child, then its left child (to maintain left-to-right order).
+- Compare the leaf values obtained from both trees. If they differ, return false.
+- If the loop finishes, check if both stacks are empty (to handle cases where one tree has more leaves than the other).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def leafSimilar(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -&gt; bool:\n        def dfs(stack):\n            while stack:\n                node = stack.pop()\n                if not node.left and not node.right:\n                    return node.val\n                if node.right:\n                    stack.append(node.right)\n                if node.left:\n                    stack.append(node.left)\n            return None\n        \n        stack1 = [root1]\n        stack2 = [root2]\n        \n        while stack1 and stack2:\n            if dfs(stack1) != dfs(stack2):\n                return False\n        \n        return not stack1 and not stack2" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean leafSimilar(TreeNode root1, TreeNode root2) {\n        Stack&lt;TreeNode&gt; s1 = new Stack&lt;&gt;(), s2 = new Stack&lt;&gt;();\n        s1.push(root1); s2.push(root2);\n        while (!s1.isEmpty() && !s2.isEmpty()) {\n            if (dfs(s1) != dfs(s2)) return false;\n        }\n        return s1.isEmpty() && s2.isEmpty();\n    }\n    \n    private int dfs(Stack&lt;TreeNode&gt; s) {\n        while (true) {\n            TreeNode node = s.pop();\n            if (node.left != null) s.push(node.left);\n            if (node.right != null) s.push(node.right);\n            if (node.left == null && node.right == null) return node.val;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int dfs(stack&lt;TreeNode*&gt;& s) {\n        while (true) {\n            TreeNode* node = s.top(); s.pop();\n            if (node-&gt;left) s.push(node-&gt;left);\n            if (node-&gt;right) s.push(node-&gt;right);\n            if (!node-&gt;left && !node-&gt;right) return node-&gt;val;\n        }\n    }\n    \n    bool leafSimilar(TreeNode* root1, TreeNode* root2) {\n        stack&lt;TreeNode*&gt; s1, s2;\n        s1.push(root1); s2.push(root2);\n        while (!s1.empty() && !s2.empty()) {\n            if (dfs(s1) != dfs(s2)) return false;\n        }\n        return s1.empty() && s2.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var leafSimilar = function(root1, root2) {\n    const dfs = (stack) =&gt; {\n        while (stack.length) {\n            const node = stack.pop();\n            if (!node.left && !node.right) {\n                return node.val;\n            }\n            if (node.right) stack.push(node.right);\n            if (node.left) stack.push(node.left);\n        }\n        return null;\n    };\n    \n    const s1 = [root1];\n    const s2 = [root2];\n    \n    while (s1.length && s2.length) {\n        if (dfs(s1) !== dfs(s2)) return false;\n    }\n    \n    return s1.length === 0 && s2.length === 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function leafSimilar(root1: TreeNode | null, root2: TreeNode | null): boolean {\n    const dfs = (stack: TreeNode[]): number | null =&gt; {\n        while (stack.length) {\n            const node = stack.pop()!;\n            if (!node.left && !node.right) {\n                return node.val;\n            }\n            if (node.right) stack.push(node.right);\n            if (node.left) stack.push(node.left);\n        }\n        return null;\n    };\n    \n    const s1: TreeNode[] = [root1];\n    const s2: TreeNode[] = [root2];\n    \n    while (s1.length && s2.length) {\n        if (dfs(s1) !== dfs(s2)) return false;\n    }\n    \n    return s1.length === 0 && s2.length === 0;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), as we traverse all nodes in both trees.
+- Space: O(N + M) in the worst case for the stacks.
+
+---
+## Generator / Iterator
+
+**Intuition**
+Instead of storing all leaf values in lists, we can generate them on the fly using a generator (or an iterator). This allows us to compare leaves one by one. If we find a mismatch early, we can stop immediately without traversing the rest of the trees. This approach is memory efficient.
+
+**Steps**
+- Create a generator function that traverses the tree and yields leaf values one by one.
+- Initialize two generators, one for each tree.
+- Loop indefinitely, getting the next leaf value from both generators.
+- If one generator finishes before the other, the trees are not leaf-similar.
+- If the values differ at any point, return false.
+- If both generators finish at the same time, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def leafSimilar(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -&gt; bool:\n        def dfs(node):\n            if not node:\n                return\n            if not node.left and not node.right:\n                yield node.val\n            yield from dfs(node.left)\n            yield from dfs(node.right)\n        \n        gen1 = dfs(root1)\n        gen2 = dfs(root2)\n        \n        for v1, v2 in zip(gen1, gen2):\n            if v1 != v2:\n                return False\n        \n        # Check if both generators are exhausted\n        # We consume the rest of one to see if it has more elements\n        try:\n            next(gen1)\n            return False # gen1 has more elements\n        except StopIteration:\n            pass\n        \n        try:\n            next(gen2)\n            return False # gen2 has more elements\n        except StopIteration:\n            pass\n            \n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    Stack&lt;TreeNode&gt; stack;\n    \n    public boolean leafSimilar(TreeNode root1, TreeNode root2) {\n        stack = new Stack&lt;&gt;();\n        stack.push(root1);\n        \n        Stack&lt;TreeNode&gt; stack2 = new Stack&lt;&gt;();\n        stack2.push(root2);\n        \n        while (!stack.isEmpty() || !stack2.isEmpty()) {\n            int val1 = nextLeaf(stack);\n            int val2 = nextLeaf(stack2);\n            \n            if (val1 != val2) return false;\n        }\n        return true;\n    }\n    \n    private int nextLeaf(Stack&lt;TreeNode&gt; s) {\n        while (true) {\n            if (s.isEmpty()) return -1; // Sentinel for empty\n            TreeNode node = s.pop();\n            if (node.left != null) s.push(node.left);\n            if (node.right != null) s.push(node.right);\n            if (node.left == null && node.right == null) return node.val;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    stack&lt;TreeNode*&gt; s1, s2;\n    \n    int nextLeaf(stack&lt;TreeNode*&gt;& s) {\n        while (!s.empty()) {\n            TreeNode* node = s.top(); s.pop();\n            if (node-&gt;left) s.push(node-&gt;left);\n            if (node-&gt;right) s.push(node-&gt;right);\n            if (!node-&gt;left && !node-&gt;right) return node-&gt;val;\n        }\n        return -1; // Sentinel\n    }\n    \n    bool leafSimilar(TreeNode* root1, TreeNode* root2) {\n        s1.push(root1);\n        s2.push(root2);\n        \n        while (!s1.empty() || !s2.empty()) {\n            int v1 = nextLeaf(s1);\n            int v2 = nextLeaf(s2);\n            if (v1 != v2) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var leafSimilar = function(root1, root2) {\n    const dfs = function* (node) {\n        if (!node) return;\n        if (!node.left && !node.right) yield node.val;\n        yield* dfs(node.left);\n        yield* dfs(node.right);\n    };\n    \n    const gen1 = dfs(root1);\n    const gen2 = dfs(root2);\n    \n    while (true) {\n        const v1 = gen1.next();\n        const v2 = gen2.next();\n        \n        if (v1.done !== v2.done) return false;\n        if (v1.done) return true;\n        if (v1.value !== v2.value) return false;\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function leafSimilar(root1: TreeNode | null, root2: TreeNode | null): boolean {\n    const dfs = function* (node: TreeNode | null): Generator&lt;number&gt; {\n        if (!node) return;\n        if (!node.left && !node.right) yield node.val;\n        yield* dfs(node.left);\n        yield* dfs(node.right);\n    };\n    \n    const gen1 = dfs(root1);\n    const gen2 = dfs(root2);\n    \n    while (true) {\n        const v1 = gen1.next();\n        const v2 = gen2.next();\n        \n        if (v1.done !== v2.done) return false;\n        if (v1.done) return true;\n        if (v1.value !== v2.value) return false;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the number of nodes in the two trees.
+- Space: O(H1 + H2), where H1 and H2 are the heights of the trees. This is because we only store the recursion stack (or iterator stack) up to the current depth, rather than storing all leaves.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Leaf-Similar Trees Solutions","datePublished":"2025-07-14","description":"Check if two binary trees have the same leaf value sequence when traversed from left to right.","keywords":"LeetCode, Leaf-Similar Trees, Easy, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N and M are the number of nodes in the two trees, as we visit every node once."}},{"@type":"Question","name":"What is the space complexity of the Generator approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(H1 + H2), where H1 and H2 are the heights of the trees, because we only store the current path stack instead of all leaf values."}},{"@type":"Question","name":"Why use a Generator or Iterator for this problem?","acceptedAnswer":{"@type":"Answer","text":"Using a Generator or Iterator allows for on-the-fly comparison, which can save memory by not storing all leaf values and allows for early termination if a mismatch is found."}}]}).replace(/</g,'\u003c')}
+</script>

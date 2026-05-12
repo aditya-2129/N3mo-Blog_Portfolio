@@ -1,0 +1,322 @@
+---
+title: "Counter"
+summary: "Create a counter function that returns incrementing values starting from a given integer."
+date: "Dec 16, 2025"
+tags:
+  - JavaScript
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.40% | **Paid:** No
+> **Topics:** N/A
+
+Given an integer n, return a counter function. This counter function initially returns n and then each time it is called, it returns the next integer value.
+
+- Examples
+- Constraints
+- [Approach 1: Closure](#closure)
+- [Approach 2: Class-based](#class-based)
+- [Approach 3: Generator](#generator)
+
+## Examples
+
+### Example 1
+```text
+Input: 
+n = 10 
+Output: [10,11,12]
+Explanation:
+const counter = createCounter(10)
+counter() // 10
+counter() // 11
+counter() // 12
+```
+
+### Example 2
+```text
+Input: 
+n = -2
+Output: [-2,-1,0,1,2]
+Explanation:
+const counter = createCounter(-2)
+counter() // -2
+counter() // -1
+counter() // 0
+counter() // 1
+counter() // 2
+```
+
+## Constraints
+
+```text
+-1000 <= n <= 1000
+0 <= calls <= 1000
+At most 1000 calls will be made to counter()
+```
+
+---
+## Closure
+
+**Intuition**
+Use a closure to maintain the counter state in a private variable that persists between function calls.
+
+**Steps**
+- Create an outer function that takes the initial value n
+- Declare a local variable to store the current count
+- Return an inner function that increments and returns the count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def createCounter(n):
+    count = n
+    def counter():
+        nonlocal count
+        result = count
+        count += 1
+        return result
+    return counter` },
+{ name: "Java", lang: "java", code: `import java.util.function.IntSupplier;
+
+class Solution {
+    public IntSupplier createCounter(int n) {
+        int[] count = {n};
+        return () -> count[0]++;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <functional>
+
+class Solution {
+public:
+    std::function<int()&gt; createCounter(int n) {
+        int count = n;
+        return [count]() mutable {
+            return count++;
+        };
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {Function} counter
+ */
+var createCounter = function(n) {
+    let count = n;
+    return function() {
+        return count++;
+    };
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = () =&gt; number;
+
+function createCounter(n: number): Counter {
+    let count = n;
+    return function() {
+        return count++;
+    };
+}` },]} />
+
+**Complexity**
+- Time: O(1) per call
+- Space: O(1)
+- Notes: Simple and efficient, uses closure for state management
+
+---
+## Class-based
+
+**Intuition**
+Use a class to encapsulate the counter state with a method that increments and returns the value.
+
+**Steps**
+- Create a class with a constructor that initializes the counter
+- Implement a method that returns the current value and increments it
+- Return an instance of the class
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Counter:
+    def __init__(self, n):
+        self.count = n
+    
+    def __call__(self):
+        result = self.count
+        self.count += 1
+        return result
+
+def createCounter(n):
+    return Counter(n)` },
+{ name: "Java", lang: "java", code: `import java.util.function.IntSupplier;
+
+class Counter implements IntSupplier {
+    private int count;
+    
+    public Counter(int n) {
+        this.count = n;
+    }
+    
+    @Override
+    public int getAsInt() {
+        return count++;
+    }
+}
+
+class Solution {
+    public IntSupplier createCounter(int n) {
+        return new Counter(n);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <functional>
+
+class Counter {
+private:
+    int count;
+public:
+    Counter(int n) : count(n) {}
+    
+    int operator()() {
+        return count++;
+    }
+};
+
+class Solution {
+public:
+    std::function<int()&gt; createCounter(int n) {
+        return Counter(n);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {Function} counter
+ */
+var createCounter = function(n) {
+    class Counter {
+        constructor(start) {
+            this.count = start;
+        }
+        
+        counter() {
+            return this.count++;
+        }
+    }
+    
+    const c = new Counter(n);
+    return c.counter.bind(c);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = () =&gt; number;
+
+class CounterClass {
+    private count: number;
+    
+    constructor(n: number) {
+        this.count = n;
+    }
+    
+    counter(): number {
+        return this.count++;
+    }
+}
+
+function createCounter(n: number): Counter {
+    const counter = new CounterClass(n);
+    return counter.counter.bind(counter);
+}` },]} />
+
+**Complexity**
+- Time: O(1) per call
+- Space: O(1)
+- Notes: More verbose but provides better encapsulation for complex scenarios
+
+---
+## Generator
+
+**Intuition**
+Use a generator function to yield incrementing values, maintaining state through the generator's internal execution context.
+
+**Steps**
+- Create a generator function that yields values starting from n
+- Each yield returns the current value and pauses execution
+- Resume execution on next call to get the next value
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def createCounter(n):
+    def counter_generator():
+        count = n
+        while True:
+            yield count
+            count += 1
+    
+    gen = counter_generator()
+    return lambda: next(gen)` },
+{ name: "Java", lang: "java", code: `import java.util.function.IntSupplier;
+import java.util.Iterator;
+
+class Solution {
+    public IntSupplier createCounter(int n) {
+        Iterator<Integer> iterator = new Iterator<Integer>() {
+            private int count = n;
+            
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+            
+            @Override
+            public Integer next() {
+                return count++;
+            }
+        };
+        
+        return iterator::next;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <functional>
+
+class Solution {
+public:
+    std::function<int()&gt; createCounter(int n) {
+        int* count = new int(n);
+        return [count]() {
+            int result = *count;
+            (*count)++;
+            return result;
+        };
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @return {Function} counter
+ */
+var createCounter = function(n) {
+    function* counterGenerator() {
+        let count = n;
+        while (true) {
+            yield count;
+            count++;
+        }
+    }
+    
+    const gen = counterGenerator();
+    return () =&gt; gen.next().value;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = () =&gt; number;
+
+function createCounter(n: number): Counter {
+    function* counterGenerator(): Generator<number> {
+        let count = n;
+        while (true) {
+            yield count;
+            count++;
+        }
+    }
+    
+    const gen = counterGenerator();
+    return () =&gt; gen.next().value as number;
+}` },]} />
+
+**Complexity**
+- Time: O(1) per call
+- Space: O(1)
+- Notes: Elegant solution using generator pattern, though slightly more overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Counter Solutions","datePublished":"2025-12-16","description":"Create a counter function that returns incrementing values starting from a given integer.","keywords":"LeetCode, Counter, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Closure approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) per call, as each invocation only performs a constant number of operations."}},{"@type":"Question","name":"What is the space complexity of the Class-based approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as we only store a single integer counter value."}},{"@type":"Question","name":"How does the Generator approach work?","acceptedAnswer":{"@type":"Answer","text":"The generator approach uses a generator function that yields values one at a time, maintaining its internal state between calls through the generator's execution context."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The closure approach is recommended for its simplicity and efficiency, as it directly addresses the problem with minimal overhead."}}]}).replace(/</g,'\u003c')}
+</script>

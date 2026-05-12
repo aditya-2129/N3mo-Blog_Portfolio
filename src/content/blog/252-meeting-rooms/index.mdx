@@ -1,0 +1,102 @@
+---
+title: "Meeting Rooms"
+summary: "Determine if a person could attend all meetings given an array of time intervals."
+date: "Mar 06, 2026"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Array, Sorting
+
+Given an array of meeting time intervals where intervals[i] = [start_i, end_i], determine if a person could attend all meetings.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting](#sorting)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: false
+```
+
+**Example 2:**
+
+```text
+Input: intervals = [[7,10],[2,4]]
+Output: true
+```
+
+## Constraints
+
+```text
+0 <= intervals.length <= 10⁴
+intervals[i].length == 2
+0 <= start_i < end_i <= 10⁶
+```
+
+---
+## Brute Force
+
+**Intuition**
+Compare every meeting with every other meeting to check if any two intervals overlap.
+
+**Steps**
+- Iterate through each interval with index `i`.
+- For each `i`, iterate through all subsequent intervals with index `j`.
+- Check if intervals `i` and `j` overlap. The condition for overlap is `start_i &lt; end_j` and `start_j &lt; end_i`.
+- If any overlap is found, return `false`.
+- If the loops finish without finding an overlap, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canAttendMeetings(self, intervals: list[list[int]]) -&gt; bool:\n        n = len(intervals)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if intervals[i][0] &lt; intervals[j][1] and intervals[j][0] &lt; intervals[i][1]:\n                    return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canAttendMeetings(int[][] intervals) {\n        for (int i = 0; i &lt; intervals.length; i++) {\n            for (int j = i + 1; j &lt; intervals.length; j++) {\n                if (intervals[i][0] &lt; intervals[j][1] && intervals[j][0] &lt; intervals[i][1]) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canAttendMeetings(vector&lt;vector&lt;int&gt;&gt;& intervals) {\n        int n = intervals.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (intervals[i][0] &lt; intervals[j][1] && intervals[j][0] &lt; intervals[i][1]) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canAttendMeetings = function(intervals) {\n    for (let i = 0; i &lt; intervals.length; i++) {\n        for (let j = i + 1; j &lt; intervals.length; j++) {\n            if (intervals[i][0] &lt; intervals[j][1] && intervals[j][0] &lt; intervals[i][1]) {\n                return false;\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canAttendMeetings(intervals: number[][]): boolean {\n    for (let i = 0; i &lt; intervals.length; i++) {\n        for (let j = i + 1; j &lt; intervals.length; j++) {\n            if (intervals[i][0] &lt; intervals[j][1] && intervals[j][0] &lt; intervals[i][1]) {\n                return false;\n            }\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(N²) where N is the number of intervals.
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large input sizes.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the intervals by their start time, we only need to check if the current meeting starts before the previous meeting ends.
+
+**Steps**
+- Sort the `intervals` array based on the start time of each meeting.
+- Iterate through the sorted array starting from the second interval.
+- Compare the start time of the current interval with the end time of the previous interval.
+- If `intervals[i][0] &lt; intervals[i-1][1]`, it means there is an overlap, so return `false`.
+- If the loop completes, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canAttendMeetings(self, intervals: list[list[int]]) -&gt; bool:\n        intervals.sort(key=lambda x: x[0])\n        for i in range(1, len(intervals)):\n            if intervals[i][0] &lt; intervals[i-1][1]:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public boolean canAttendMeetings(int[][] intervals) {\n        Arrays.sort(intervals, (a, b) -&gt; Integer.compare(a[0], b[0]));\n        for (int i = 1; i &lt; intervals.length; i++) {\n            if (intervals[i][0] &lt; intervals[i - 1][1]) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    bool canAttendMeetings(vector&lt;vector&lt;int&gt;&gt;& intervals) {\n        sort(intervals.begin(), intervals.end());\n        for (int i = 1; i &lt; intervals.size(); i++) {\n            if (intervals[i][0] &lt; intervals[i - 1][1]) {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canAttendMeetings = function(intervals) {\n    intervals.sort((a, b) =&gt; a[0] - b[0]);\n    for (let i = 1; i &lt; intervals.length; i++) {\n        if (intervals[i][0] &lt; intervals[i - 1][1]) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canAttendMeetings(intervals: number[][]): boolean {\n    intervals.sort((a, b) =&gt; a[0] - b[0]);\n    for (let i = 1; i &lt; intervals.length; i++) {\n        if (intervals[i][0] &lt; intervals[i - 1][1]) {\n            return false;\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step.
+- Space: O(1) or O(N) depending on the sorting algorithm's implementation.
+- Notes: This is the most efficient approach for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Meeting Rooms Solutions","datePublished":"2026-03-06","description":"Determine if a person could attend all meetings given an array of time intervals.","keywords":"LeetCode, Meeting Rooms, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(N²), where N is the number of intervals."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sorting approach is O(N log N) due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(N) depending on the sorting algorithm's implementation."}}]}).replace(/</g,'\u003c')}
+</script>

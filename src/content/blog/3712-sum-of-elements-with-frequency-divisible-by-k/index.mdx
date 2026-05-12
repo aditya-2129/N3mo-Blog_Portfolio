@@ -1,0 +1,143 @@
+---
+title: "Sum of Elements With Frequency Divisible by K"
+summary: "Given an array nums and integer k, return sum of elements whose frequency is divisible by k."
+date: "May 11, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.90% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+You are given an integer array nums and an integer k. You need to find the sum of all elements in the array whose frequency (number of occurrences) is divisible by k.
+
+Return the sum of all such elements.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Hash Map Frequency Counting](#hash-map-frequency-counting)
+- [Sorting and Counting](#sorting-and-counting)
+- [Brute Force](#brute-force)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [1,2,3,1,2], k = 2
+Output: 3
+Explanation: 
+- The frequency of 1 is 2 (divisible by 2)
+- The frequency of 2 is 2 (divisible by 2)
+- The frequency of 3 is 1 (not divisible by 2)
+- Sum = 1 + 2 = 3
+```
+
+### Example 2
+```text
+Input: nums = [1,2,3,4,5], k = 1
+Output: 15
+Explanation: All elements have frequency 1, which is divisible by 1. Sum = 1 + 2 + 3 + 4 + 5 = 15
+```
+
+### Example 3
+```text
+Input: nums = [2,2,2,2,3,3,3,3], k = 4
+Output: 5
+Explanation: 
+- The frequency of 2 is 4 (divisible by 4)
+- The frequency of 3 is 4 (divisible by 4)
+- Sum = 2 + 3 = 5
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+1 <= nums[i] <= 10⁹
+1 <= k <= 10⁵
+```
+
+---
+## Hash Map Frequency Counting
+
+**Intuition**
+Use a hash map to count the frequency of each element, then sum elements whose frequency is divisible by k.
+
+**Steps**
+- Create a hash map to store element frequencies
+- Iterate through nums and count each element's frequency
+- Iterate through the hash map and sum elements where frequency % k == 0
+- Return the sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOfElements(self, nums: List[int], k: int) -&gt; int:\n        from collections import Counter\n        \n        freq = Counter(nums)\n        total = 0\n        \n        for num, count in freq.items():\n            if count % k == 0:\n                total += num\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long sumOfElements(int[] nums, int k) {\n        Map&lt;Long, Integer&gt; freq = new HashMap&lt;&gt;();\n        \n        for (int num : nums) {\n            long key = (long) num;\n            freq.put(key, freq.getOrDefault(key, 0) + 1);\n        }\n        \n        long total = 0;\n        for (Map.Entry&lt;Long, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getValue() % k == 0) {\n                total += entry.getKey();\n            }\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    long long sumOfElements(vector&lt;int&gt;& nums, int k) {\n        unordered_map&lt;long long, int&gt; freq;\n        \n        for (int num : nums) {\n            freq[(long long)num]++;\n        }\n        \n        long long total = 0;\n        for (auto& [num, count] : freq) {\n            if (count % k == 0) {\n                total += num;\n            }\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar sumOfElements = function(nums, k) {\n    const freq = new Map();\n    \n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let total = 0;\n    for (const [num, count] of freq) {\n        if (count % k === 0) {\n            total += num;\n        }\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfElements(nums: number[], k: number): number {\n    const freq = new Map&lt;number, number&gt;();\n    \n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let total = 0;\n    for (const [num, count] of freq) {\n        if (count % k === 0) {\n            total += num;\n        }\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Most efficient approach for this problem
+
+---
+## Sorting and Counting
+
+**Intuition**
+Sort the array first, then count consecutive elements to determine frequencies without extra space.
+
+**Steps**
+- Sort the array in ascending order
+- Iterate through the sorted array, counting consecutive identical elements
+- When a different element is encountered, check if the count is divisible by k
+- If yes, add the element to the sum
+- Handle the last element separately
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOfElements(self, nums: List[int], k: int) -&gt; int:\n        if not nums:\n            return 0\n        \n        nums.sort()\n        total = 0\n        count = 1\n        \n        for i in range(1, len(nums)):\n            if nums[i] == nums[i-1]:\n                count += 1\n            else:\n                if count % k == 0:\n                    total += nums[i-1]\n                count = 1\n        \n        # Handle last element\n        if count % k == 0:\n            total += nums[-1]\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long sumOfElements(int[] nums, int k) {\n        if (nums.length == 0) {\n            return 0;\n        }\n        \n        Arrays.sort(nums);\n        long total = 0;\n        int count = 1;\n        \n        for (int i = 1; i &lt; nums.length; i++) {\n            if (nums[i] == nums[i-1]) {\n                count++;\n            } else {\n                if (count % k == 0) {\n                    total += nums[i-1];\n                }\n                count = 1;\n            }\n        }\n        \n        // Handle last element\n        if (count % k == 0) {\n            total += nums[nums.length - 1];\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    long long sumOfElements(vector&lt;int&gt;& nums, int k) {\n        if (nums.empty()) {\n            return 0;\n        }\n        \n        sort(nums.begin(), nums.end());\n        long long total = 0;\n        int count = 1;\n        \n        for (size_t i = 1; i &lt; nums.size(); i++) {\n            if (nums[i] == nums[i-1]) {\n                count++;\n            } else {\n                if (count % k == 0) {\n                    total += nums[i-1];\n                }\n                count = 1;\n            }\n        }\n        \n        // Handle last element\n        if (count % k == 0) {\n            total += nums.back();\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar sumOfElements = function(nums, k) {\n    if (nums.length === 0) {\n        return 0;\n    }\n    \n    nums.sort((a, b) =&gt; a - b);\n    let total = 0;\n    let count = 1;\n    \n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] === nums[i-1]) {\n            count++;\n        } else {\n            if (count % k === 0) {\n                total += nums[i-1];\n            }\n            count = 1;\n        }\n    }\n    \n    // Handle last element\n    if (count % k === 0) {\n        total += nums[nums.length - 1];\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfElements(nums: number[], k: number): number {\n    if (nums.length === 0) {\n        return 0;\n    }\n    \n    nums.sort((a, b) =&gt; a - b);\n    let total = 0;\n    let count = 1;\n    \n    for (let i = 1; i &lt; nums.length; i++) {\n        if (nums[i] === nums[i-1]) {\n            count++;\n        } else {\n            if (count % k === 0) {\n                total += nums[i-1];\n            }\n            count = 1;\n        }\n    }\n    \n    // Handle last element\n    if (count % k === 0) {\n        total += nums[nums.length - 1];\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Slower than hash map but uses less space
+
+---
+## Brute Force
+
+**Intuition**
+For each unique element, count its occurrences by scanning the entire array, then check divisibility.
+
+**Steps**
+- Iterate through each element in the array
+- For each element, count its total occurrences in the array
+- If the count is divisible by k and we haven't processed this element yet, add it to the sum
+- Use a set to track processed elements
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOfElements(self, nums: List[int], k: int) -&gt; int:\n        processed = set()\n        total = 0\n        \n        for num in nums:\n            if num in processed:\n                continue\n            \n            count = nums.count(num)\n            if count % k == 0:\n                total += num\n            \n            processed.add(num)\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public long sumOfElements(int[] nums, int k) {\n        Set&lt;Integer&gt; processed = new HashSet&lt;&gt;();\n        long total = 0;\n        \n        for (int num : nums) {\n            if (processed.contains(num)) {\n                continue;\n            }\n            \n            int count = 0;\n            for (int n : nums) {\n                if (n == num) {\n                    count++;\n                }\n            }\n            \n            if (count % k == 0) {\n                total += num;\n            }\n            \n            processed.add(num);\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    long long sumOfElements(vector&lt;int&gt;& nums, int k) {\n        unordered_set&lt;int&gt; processed;\n        long long total = 0;\n        \n        for (int num : nums) {\n            if (processed.count(num)) {\n                continue;\n            }\n            \n            int count = 0;\n            for (int n : nums) {\n                if (n == num) {\n                    count++;\n                }\n            }\n            \n            if (count % k == 0) {\n                total += num;\n            }\n            \n            processed.insert(num);\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar sumOfElements = function(nums, k) {\n    const processed = new Set();\n    let total = 0;\n    \n    for (const num of nums) {\n        if (processed.has(num)) {\n            continue;\n        }\n        \n        let count = 0;\n        for (const n of nums) {\n            if (n === num) {\n                count++;\n            }\n        }\n        \n        if (count % k === 0) {\n            total += num;\n        }\n        \n        processed.add(num);\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfElements(nums: number[], k: number): number {\n    const processed = new Set&lt;number&gt;();\n    let total = 0;\n    \n    for (const num of nums) {\n        if (processed.has(num)) {\n            continue;\n        }\n        \n        let count = 0;\n        for (const n of nums) {\n            if (n === num) {\n                count++;\n            }\n        }\n        \n        if (count % k === 0) {\n            total += num;\n        }\n        \n        processed.add(num);\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Inefficient for large inputs, included for educational purposes
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sum of Elements With Frequency Divisible by K Solutions","datePublished":"2025-05-11","description":"Given an array nums and integer k, return sum of elements whose frequency is divisible by k.","keywords":"LeetCode, Sum of Elements With Frequency Divisible by K, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the array. We iterate through the array once to count frequencies and once through the hash map to calculate the sum."}},{"@type":"Question","name":"What is the space complexity of Hash Map Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case when all elements are unique, as we need to store each element in the hash map."}},{"@type":"Question","name":"What is the time complexity of Sorting and Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step. The counting phase is O(n)."}},{"@type":"Question","name":"What is the space complexity of Sorting and Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) if sorting is done in-place, or O(n) depending on the sorting algorithm implementation."}},{"@type":"Question","name":"What is the time complexity of Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) as for each unique element, we scan the entire array to count its occurrences."}},{"@type":"Question","name":"What is the space complexity of Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the set of processed elements."}}]}).replace(/</g,'\u003c')}
+</script>

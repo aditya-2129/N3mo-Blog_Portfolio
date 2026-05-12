@@ -1,0 +1,134 @@
+---
+title: "Remove All Adjacent Duplicates In String"
+summary: "Remove adjacent duplicates from a string repeatedly until no duplicates remain. Return the final string."
+date: "Mar 21, 2024"
+tags:
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.20% | **Paid:** No
+> **Topics:** String, Stack
+
+You are given a string s consisting of lowercase English letters. A duplicate removal consists of choosing two adjacent and equal letters and removing them.
+
+We repeatedly make duplicate removals on s until we no longer can.
+
+Return the final string after all such duplicate removals have been made. It is guaranteed the answer is unique.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation](#approach-1-simulation)
+- [Approach 2: Stack](#approach-2-stack)
+- [Approach 3: Two Pointers](#approach-3-two-pointers)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "abbaca"
+Output: "ca"
+Explanation: 
+For example, in "abbaca" we could remove "bb" so the string becomes "aaca", 
+then remove "aa" to get "ca". 
+```
+
+**Example 2:**
+
+```text
+Input: s = "azxxzy"
+Output: "ay"
+Explanation: 
+Remove "xx" to get "azzy", then remove "zz" to get "ay".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s consists of lowercase English letters.
+```
+
+---
+## Approach 1: Simulation
+
+**Intuition**
+Repeatedly scan the string from left to right. Whenever two adjacent characters are the same, remove them and restart the scan or continue checking the new adjacent characters formed by the removal.
+
+**Steps**
+- Iterate through the string while changes are being made.
+- In each pass, look for the first pair of adjacent duplicates.
+- If found, remove them and restart the process or adjust the index to check the previous character.
+- If no duplicates are found in a full pass, return the string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeDuplicates(self, s: str) -&gt; str:\n        changed = True\n        while changed:\n            changed = False\n            i = 0\n            while i &lt; len(s) - 1:\n                if s[i] == s[i+1]:\n                    s = s[:i] + s[i+2:]\n                    changed = True\n                    # Do not increment i, check new pair at i\n                else:\n                    i += 1\n        return s" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeDuplicates(String s) {\n        boolean changed = true;\n        while (changed) {\n            changed = false;\n            for (int i = 0; i &lt; s.length() - 1; i++) {\n                if (s.charAt(i) == s.charAt(i + 1)) {\n                    s = s.substring(0, i) + s.substring(i + 2);\n                    changed = true;\n                    break;\n                }\n            }\n        }\n        return s;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeDuplicates(string s) {\n        bool changed = true;\n        while (changed) {\n            changed = false;\n            for (int i = 0; i &lt; s.length() - 1; i++) {\n                if (s[i] == s[i + 1]) {\n                    s.erase(i, 2);\n                    changed = true;\n                    break;\n                }\n            }\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeDuplicates = function(s) {\n    let changed = true;\n    while (changed) {\n        changed = false;\n        for (let i = 0; i &lt; s.length - 1; i++) {\n            if (s[i] === s[i + 1]) {\n                s = s.substring(0, i) + s.substring(i + 2);\n                changed = true;\n                break;\n            }\n        }\n    }\n    return s;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeDuplicates(s: string): string {\n    let changed = true;\n    while (changed) {\n        changed = false;\n        for (let i = 0; i &lt; s.length - 1; i++) {\n            if (s[i] === s[i + 1]) {\n                s = s.substring(0, i) + s.substring(i + 2);\n                changed = true;\n                break;\n            }\n        }\n    }\n    return s;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case (e.g., "abbbba"), we might scan the string multiple times.
+- Space: O(n) - To store the modified string.
+- Notes: This approach is intuitive but inefficient for large inputs due to repeated string reconstruction.
+
+---
+## Approach 2: Stack
+
+**Intuition**
+Use a stack to keep track of characters. Iterate through the string, and if the current character matches the top of the stack, pop the stack (removing the pair). Otherwise, push the current character onto the stack.
+
+**Steps**
+- Initialize an empty stack.
+- Iterate through each character in the string.
+- If the stack is not empty and the top element equals the current character, pop the stack.
+- Otherwise, push the current character onto the stack.
+- After processing all characters, construct the result string from the stack.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeDuplicates(self, s: str) -&gt; str:\n        stack = []\n        for char in s:\n            if stack and stack[-1] == char:\n                stack.pop()\n            else:\n                stack.append(char)\n        return ''.join(stack)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeDuplicates(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            int len = sb.length();\n            if (len &gt; 0 && sb.charAt(len - 1) == c) {\n                sb.deleteCharAt(len - 1);\n            } else {\n                sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeDuplicates(string s) {\n        string stack = \"\";\n        for (char c : s) {\n            if (!stack.empty() && stack.back() == c) {\n                stack.pop_back();\n            } else {\n                stack.push_back(c);\n            }\n        }\n        return stack;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeDuplicates = function(s) {\n    let stack = [];\n    for (let char of s) {\n        if (stack.length &gt; 0 && stack[stack.length - 1] === char) {\n            stack.pop();\n        } else {\n            stack.push(char);\n        }\n    }\n    return stack.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeDuplicates(s: string): string {\n    let stack: string[] = [];\n    for (let char of s) {\n        if (stack.length &gt; 0 && stack[stack.length - 1] === char) {\n            stack.pop();\n        } else {\n            stack.push(char);\n        }\n    }\n    return stack.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Each character is pushed and popped at most once.
+- Space: O(n) - In the worst case, the stack stores all characters (e.g., "abc").
+- Notes: This is the standard optimal approach for this problem.
+
+---
+## Approach 3: Two Pointers
+
+**Intuition**
+Treat the string itself as a stack. Use a pointer `i` to represent the top of the stack. Iterate through the string with pointer `j`. If the character at `i-1` matches `s[j]`, decrement `i` (simulating a pop). Otherwise, copy `s[j]` to `s[i]` and increment `i`.
+
+**Steps**
+- Initialize `i = 0`.
+- Iterate `j` from 0 to `n-1`.
+- If `i &gt; 0` and `s[i-1] == s[j]`, decrement `i`.
+- Otherwise, set `s[i] = s[j]` and increment `i`.
+- Return the substring of `s` from index 0 to `i`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeDuplicates(self, s: str) -&gt; str:\n        res = list(s)\n        i = 0\n        for char in s:\n            if i &gt; 0 and res[i-1] == char:\n                i -= 1\n            else:\n                res[i] = char\n                i += 1\n        return ''.join(res[:i])" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeDuplicates(String s) {\n        char[] res = s.toCharArray();\n        int i = 0;\n        for (int j = 0; j &lt; s.length(); j++) {\n            if (i &gt; 0 && res[i - 1] == res[j]) {\n                i--;\n            } else {\n                res[i] = res[j];\n                i++;\n            }\n        }\n        return new String(res, 0, i);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeDuplicates(string s) {\n        int i = 0;\n        for (int j = 0; j &lt; s.length(); j++) {\n            if (i &gt; 0 && s[i - 1] == s[j]) {\n                i--;\n            } else {\n                s[i] = s[j];\n                i++;\n            }\n        }\n        return s.substr(0, i);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeDuplicates = function(s) {\n    s = s.split('');\n    let i = 0;\n    for (let j = 0; j &lt; s.length; j++) {\n        if (i &gt; 0 && s[i - 1] === s[j]) {\n            i--;\n        } else {\n            s[i] = s[j];\n            i++;\n        }\n    }\n    return s.slice(0, i).join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeDuplicates(s: string): string {\n    let arr = s.split('');\n    let i = 0;\n    for (let j = 0; j &lt; arr.length; j++) {\n        if (i &gt; 0 && arr[i - 1] === arr[j]) {\n            i--;\n        } else {\n            arr[i] = arr[j];\n            i++;\n        }\n    }\n    return arr.slice(0, i).join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the string.
+- Space: O(n) - To store the character array (strings are immutable in many languages). In C++, this modifies in-place with O(1) auxiliary space.
+- Notes: This is an optimized version of the stack approach that avoids using extra data structures where possible.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Remove All Adjacent Duplicates In String Solutions","datePublished":"2024-03-21","description":"Remove adjacent duplicates from a string repeatedly until no duplicates remain. Return the final string.","keywords":"LeetCode, Remove All Adjacent Duplicates In String, Easy, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Stack approach is O(n), where n is the length of the string. Each character is processed exactly once."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the character array in languages like Java and Python, but O(1) auxiliary space in C++ where the string can be modified in-place."}},{"@type":"Question","name":"Why is the Simulation approach inefficient?","acceptedAnswer":{"@type":"Answer","text":"The Simulation approach has a worst-case time complexity of O(n²) because repeatedly scanning and modifying the string can lead to quadratic operations, especially with inputs like 'abbbba'."}}]}).replace(/</g,'\u003c')}
+</script>

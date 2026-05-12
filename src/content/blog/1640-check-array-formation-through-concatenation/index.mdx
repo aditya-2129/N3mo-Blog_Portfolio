@@ -1,0 +1,114 @@
+---
+title: "Check Array Formation Through Concatenation"
+summary: "Determine if an array can be formed by concatenating arrays from a list, preserving internal order."
+date: "Mar 23, 2026"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.30% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+You are given an array of distinct integers arr and an array of integer arrays pieces, where the integers in pieces are distinct. Your goal is to form arr by concatenating the arrays in pieces in any order. However, you are not allowed to reorder the integers inside each piece pieces[i]. Return true if it is possible to form the array arr from pieces, otherwise return false.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map](#approach-1-hash-map)
+- [Approach 2: Brute Force](#approach-2-brute-force)
+
+## Examples
+
+```text
+Input: arr = [15,88], pieces = [[88],[15]]
+Output: true
+Explanation: Concatenate [15] and [88] to get [15,88].
+```
+
+```text
+Input: arr = [49,18,16], pieces = [[16,18,49]]
+Output: false
+Explanation: Even though the numbers match, we cannot reorder pieces[0].
+```
+
+```text
+Input: arr = [91,4,64,78], pieces = [[78],[4,64],[91]]
+Output: true
+Explanation: Concatenate [91], [4,64], and [78] to get [91,4,64,78].
+```
+
+## Constraints
+
+```text
+1 <= pieces.length <= arr.length <= 100
+sum(pieces[i].length) == arr.length
+The integers in arr are distinct.
+The integers in pieces are distinct (i.e., If we flatten pieces in a 1D array, all the integers in this array are distinct).
+```
+
+---
+## Approach 1: Hash Map
+
+**Intuition**
+Since all integers in `arr` and `pieces` are distinct, the first element of any piece uniquely identifies that piece. We can use a hash map to store the mapping from the first element of a piece to the piece itself. Then, we iterate through `arr` and try to match elements sequentially using this map.
+
+**Steps**
+- Create a hash map where the key is the first element of a sub-array in `pieces` and the value is the sub-array itself.
+- Initialize an index `i` to 0 to traverse `arr`.
+- While `i` is less than the length of `arr`:
+  - Check if `arr[i]` exists in the map. If not, return `false`.
+  - Retrieve the corresponding piece from the map.
+  - Iterate through the retrieved piece and compare each element with the corresponding elements in `arr` starting at `i`.
+  - If any element does not match, return `false`.
+  - Increment `i` by the length of the piece.
+- If the loop completes successfully, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canFormArray(self, arr: list[int], pieces: list[list[int]]) -&gt; bool:\n        mapping = {p[0]: p for p in pieces}\n        i = 0\n        while i &lt; len(arr):\n            if arr[i] not in mapping:\n                return False\n            piece = mapping[arr[i]]\n            # Check if the slice of arr matches the piece\n            if arr[i:i+len(piece)] != piece:\n                return False\n            i += len(piece)\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canFormArray(int[] arr, int[][] pieces) {\n        Map&lt;Integer, int[]&gt; map = new HashMap&lt;&gt;();\n        for (int[] p : pieces) {\n            map.put(p[0], p);\n        }\n        int i = 0;\n        while (i &lt; arr.length) {\n            if (!map.containsKey(arr[i])) return false;\n            int[] piece = map.get(arr[i]);\n            for (int num : piece) {\n                if (i &gt;= arr.length || arr[i] != num) return false;\n                i++;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canFormArray(vector&lt;int&gt;& arr, vector&lt;vector&lt;int&gt;&gt;& pieces) {\n        unordered_map&lt;int, vector&lt;int&gt;&gt; mp;\n        for (auto& p : pieces) {\n            mp[p[0]] = p;\n        }\n        int i = 0;\n        while (i &lt; arr.size()) {\n            if (mp.find(arr[i]) == mp.end()) return false;\n            vector&lt;int&gt;& piece = mp[arr[i]];\n            for (int num : piece) {\n                if (i &gt;= arr.size() || arr[i] != num) return false;\n                i++;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canFormArray = function(arr, pieces) {\n    const map = new Map();\n    for (const p of pieces) {\n        map.set(p[0], p);\n    }\n    let i = 0;\n    while (i &lt; arr.length) {\n        if (!map.has(arr[i])) return false;\n        const piece = map.get(arr[i]);\n        for (let j = 0; j &lt; piece.length; j++) {\n            if (i &gt;= arr.length || arr[i] !== piece[j]) return false;\n            i++;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canFormArray(arr: number[], pieces: number[][]): boolean {\n    const map = new Map&lt;number, number[]&gt;();\n    for (const p of pieces) {\n        map.set(p[0], p);\n    }\n    let i = 0;\n    while (i &lt; arr.length) {\n        if (!map.has(arr[i])) return false;\n        const piece = map.get(arr[i])!;\n        for (let j = 0; j &lt; piece.length; j++) {\n            if (i &gt;= arr.length || arr[i] !== piece[j]) return false;\n            i++;\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of `arr`. We visit each element in `arr` exactly once.
+- Space: O(N), to store the hash map of pieces.
+- Notes: This is the optimal approach for this problem.
+
+---
+## Approach 2: Brute Force
+
+**Intuition**
+We can iterate through the `arr` and for every element, we search through the list of `pieces` to find a piece that starts with that element. Once found, we verify the rest of the elements in that piece.
+
+**Steps**
+- Initialize an index `i` to 0.
+- While `i` is less than the length of `arr`:
+  - Iterate through `pieces` to find a piece `p` such that `p[0] == arr[i]`.
+  - If no such piece is found, return `false`.
+  - Iterate through the found piece `p` and compare elements with `arr` starting at `i`.
+  - If any mismatch occurs, return `false`.
+  - Increment `i` by the length of `p`.
+- Return `true` if the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canFormArray(self, arr: list[int], pieces: list[list[int]]) -&gt; bool:\n        i = 0\n        n = len(arr)\n        while i &lt; n:\n            found = False\n            for p in pieces:\n                if p and p[0] == arr[i]:\n                    # Check if the rest matches\n                    if arr[i:i+len(p)] != p:\n                        return False\n                    i += len(p)\n                    found = True\n                    break\n            if not found:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canFormArray(int[] arr, int[][] pieces) {\n        int i = 0;\n        while (i &lt; arr.length) {\n            boolean found = false;\n            for (int[] p : pieces) {\n                if (p.length &gt; 0 && p[0] == arr[i]) {\n                    for (int num : p) {\n                        if (i &gt;= arr.length || arr[i] != num) return false;\n                        i++;\n                    }\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) return false;\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canFormArray(vector&lt;int&gt;& arr, vector&lt;vector&lt;int&gt;&gt;& pieces) {\n        int i = 0;\n        while (i &lt; arr.size()) {\n            bool found = false;\n            for (auto& p : pieces) {\n                if (!p.empty() && p[0] == arr[i]) {\n                    for (int num : p) {\n                        if (i &gt;= arr.size() || arr[i] != num) return false;\n                        i++;\n                    }\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) return false;\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canFormArray = function(arr, pieces) {\n    let i = 0;\n    while (i &lt; arr.length) {\n        let found = false;\n        for (const p of pieces) {\n            if (p.length &gt; 0 && p[0] === arr[i]) {\n                for (let j = 0; j &lt; p.length; j++) {\n                    if (i &gt;= arr.length || arr[i] !== p[j]) return false;\n                    i++;\n                }\n                found = true;\n                break;\n            }\n        }\n        if (!found) return false;\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canFormArray(arr: number[], pieces: number[][]): boolean {\n    let i = 0;\n    while (i &lt; arr.length) {\n        let found = false;\n        for (const p of pieces) {\n            if (p.length &gt; 0 && p[0] === arr[i]) {\n                for (let j = 0; j &lt; p.length; j++) {\n                    if (i &gt;= arr.length || arr[i] !== p[j]) return false;\n                    i++;\n                }\n                found = true;\n                break;\n            }\n        }\n        if (!found) return false;\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the length of `arr` and M is the number of pieces. In the worst case, we scan all pieces for every element in `arr`.
+- Space: O(1), excluding the input storage, as we do not use extra data structures proportional to the input size.
+- Notes: This approach is less efficient than the Hash Map approach but uses constant extra space.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check Array Formation Through Concatenation Solutions","datePublished":"2026-03-23","description":"Determine if an array can be formed by concatenating arrays from a list, preserving internal order.","keywords":"LeetCode, Check Array Formation Through Concatenation, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the array arr."}},{"@type":"Question","name":"What is the space complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as it does not use any extra space proportional to the input size."}},{"@type":"Question","name":"Why can we use a Hash Map for this problem?","acceptedAnswer":{"@type":"Answer","text":"Because the integers in arr and pieces are distinct, the first element of any piece uniquely identifies that piece."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,222 @@
+---
+title: "Set Mismatch"
+summary: "Find the duplicate and missing number in an array containing 1 to n"
+date: "Jul 20, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Bit Manipulation
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 43.70% | **Paid:** No
+> **Topics:** Array, Hash Table, Bit Manipulation, Sorting
+
+You have a set of integers s, which originally contains all the numbers from 1 to n. Unfortunately, due to some error, one of the numbers in s got duplicated to another number in the set, which results in repetition of one number and loss of another number.
+
+Find the number that occurs twice and the number that is missing and return them in the form of an array.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Set](#hash-set)
+- [Approach 2: Sorting](#sorting)
+- [Approach 3: Mathematical](#mathematical)
+- [Approach 4: Bit Manipulation](#bit-manipulation)
+- [Approach 5: Negation Marking](#negation-marking)
+- [Approach 6: Cyclic Sort](#cyclic-sort)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,2,4]
+```
+
+**Output:**
+```text
+[2,3]
+```
+
+### Example 2
+
+**Input:**
+```text
+nums = [1,1]
+```
+
+**Output:**
+```text
+[1,2]
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 10⁴
+1 <= nums[i] <= 10⁴
+```
+
+---
+
+## Hash Set
+
+**Intuition**
+Use a hash set to track seen numbers. The number already in the set is the duplicate, and the number from 1 to n not in the set is the missing number.
+
+**Steps**
+- Create a hash set to store seen numbers
+- Iterate through the array, checking if each number is already in the set
+- If found, it's the duplicate; otherwise, add it to the set
+- After iteration, check numbers 1 to n to find which one is missing from the set
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        n = len(nums)\n        seen = set()\n        duplicate = -1\n        \n        for num in nums:\n            if num in seen:\n                duplicate = num\n            seen.add(num)\n        \n        for i in range(1, n + 1):\n            if i not in seen:\n                return [duplicate, i]\n        \n        return [duplicate, -1]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findErrorNums(int[] nums) {\n        int n = nums.length;\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        int duplicate = -1;\n        \n        for (int num : nums) {\n            if (seen.contains(num)) {\n                duplicate = num;\n            }\n            seen.add(num);\n        }\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if (!seen.contains(i)) {\n                return new int[]{duplicate, i};\n            }\n        }\n        \n        return new int[]{duplicate, -1};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        unordered_set&lt;int&gt; seen;\n        int duplicate = -1;\n        \n        for (int num : nums) {\n            if (seen.count(num)) {\n                duplicate = num;\n            }\n            seen.insert(num);\n        }\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if (!seen.count(i)) {\n                return {duplicate, i};\n            }\n        }\n        \n        return {duplicate, -1};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        const n = nums.length;\n        const seen = new Set();\n        let duplicate = -1;\n        \n        for (const num of nums) {\n            if (seen.has(num)) {\n                duplicate = num;\n            }\n            seen.add(num);\n        }\n        \n        for (let i = 1; i &lt;= n; i++) {\n            if (!seen.has(i)) {\n                return [duplicate, i];\n            }\n        }\n        \n        return [duplicate, -1];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        const n = nums.length;\n        const seen = new Set&lt;number&gt;();\n        let duplicate = -1;\n        \n        for (const num of nums) {\n            if (seen.has(num)) {\n                duplicate = num;\n            }\n            seen.add(num);\n        }\n        \n        for (let i = 1; i &lt;= n; i++) {\n            if (!seen.has(i)) {\n                return [duplicate, i];\n            }\n        }\n        \n        return [duplicate, -1];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Simple and intuitive but uses extra space for the hash set
+
+---
+
+## Sorting
+
+**Intuition**
+Sort the array first, then iterate to find adjacent equal elements (duplicate) and the gap where expected number doesn't match actual (missing).
+
+**Steps**
+- Sort the array in ascending order
+- Iterate through the sorted array
+- If current element equals previous element, it's the duplicate
+- If current element is not equal to its expected value (index + 1), it's the missing number
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        nums.sort()\n        n = len(nums)\n        duplicate = -1\n        missing = -1\n        \n        for i in range(1, n):\n            if nums[i] == nums[i - 1]:\n                duplicate = nums[i]\n            elif nums[i] &gt; nums[i - 1] + 1:\n                missing = nums[i - 1] + 1\n        \n        if missing == -1:\n            if nums[0] != 1:\n                missing = 1\n            else:\n                missing = n\n        \n        return [duplicate, missing]" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int[] findErrorNums(int[] nums) {\n        Arrays.sort(nums);\n        int n = nums.length;\n        int duplicate = -1;\n        int missing = -1;\n        \n        for (int i = 1; i &lt; n; i++) {\n            if (nums[i] == nums[i - 1]) {\n                duplicate = nums[i];\n            } else if (nums[i] &gt; nums[i - 1] + 1) {\n                missing = nums[i - 1] + 1;\n            }\n        }\n        \n        if (missing == -1) {\n            missing = (nums[0] != 1) ? 1 : n;\n        }\n        \n        return new int[]{duplicate, missing};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        sort(nums.begin(), nums.end());\n        int n = nums.size();\n        int duplicate = -1;\n        int missing = -1;\n        \n        for (int i = 1; i &lt; n; i++) {\n            if (nums[i] == nums[i - 1]) {\n                duplicate = nums[i];\n            } else if (nums[i] &gt; nums[i - 1] + 1) {\n                missing = nums[i - 1] + 1;\n            }\n        }\n        \n        if (missing == -1) {\n            missing = (nums[0] != 1) ? 1 : n;\n        }\n        \n        return {duplicate, missing};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        nums.sort((a, b) =&gt; a - b);\n        const n = nums.length;\n        let duplicate = -1;\n        let missing = -1;\n        \n        for (let i = 1; i &lt; n; i++) {\n            if (nums[i] === nums[i - 1]) {\n                duplicate = nums[i];\n            } else if (nums[i] &gt; nums[i - 1] + 1) {\n                missing = nums[i - 1] + 1;\n            }\n        }\n        \n        if (missing === -1) {\n            missing = (nums[0] !== 1) ? 1 : n;\n        }\n        \n        return [duplicate, missing];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        nums.sort((a, b) =&gt; a - b);\n        const n = nums.length;\n        let duplicate = -1;\n        let missing = -1;\n        \n        for (let i = 1; i &lt; n; i++) {\n            if (nums[i] === nums[i - 1]) {\n                duplicate = nums[i];\n            } else if (nums[i] &gt; nums[i - 1] + 1) {\n                missing = nums[i - 1] + 1;\n            }\n        }\n        \n        if (missing === -1) {\n            missing = (nums[0] !== 1) ? 1 : n;\n        }\n        \n        return [duplicate, missing];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Sorting adds time complexity but can be done in-place
+
+---
+
+## Mathematical
+
+**Intuition**
+Use the sum and sum of squares formulas to create two equations with two unknowns (missing and duplicate), then solve them simultaneously.
+
+**Steps**
+- Calculate expected sum of 1 to n: n*(n+1)/2
+- Calculate actual sum of array
+- The difference gives us (missing - duplicate)
+- Calculate expected sum of squares: n*(n+1)*(2n+1)/6
+- Calculate actual sum of squares
+- The difference gives us (missing² - duplicate²) = (missing - duplicate)(missing + duplicate)
+- Divide sum of squares difference by sum difference to get (missing + duplicate)
+- Solve the two equations to find missing and duplicate
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        n = len(nums)\n        expected_sum = n * (n + 1) // 2\n        actual_sum = sum(nums)\n        \n        expected_sum_sq = n * (n + 1) * (2 * n + 1) // 6\n        actual_sum_sq = sum(x * x for x in nums)\n        \n        diff = expected_sum - actual_sum  # missing - duplicate\n        diff_sq = expected_sum_sq - actual_sum_sq  # missing^2 - duplicate^2\n        \n        sum_val = diff_sq // diff  # missing + duplicate\n        \n        missing = (diff + sum_val) // 2\n        duplicate = (sum_val - diff) // 2\n        \n        return [duplicate, missing]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findErrorNums(int[] nums) {\n        int n = nums.length;\n        long expectedSum = (long) n * (n + 1) / 2;\n        long actualSum = 0;\n        \n        long expectedSumSq = (long) n * (n + 1) * (2 * n + 1) / 6;\n        long actualSumSq = 0;\n        \n        for (int num : nums) {\n            actualSum += num;\n            actualSumSq += (long) num * num;\n        }\n        \n        long diff = expectedSum - actualSum; // missing - duplicate\n        long diffSq = expectedSumSq - actualSumSq; // missing^2 - duplicate^2\n        \n        long sumVal = diffSq / diff; // missing + duplicate\n        \n        int missing = (int) ((diff + sumVal) / 2);\n        int duplicate = (int) ((sumVal - diff) / 2);\n        \n        return new int[]{duplicate, missing};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        long long expectedSum = (long long) n * (n + 1) / 2;\n        long long actualSum = 0;\n        \n        long long expectedSumSq = (long long) n * (n + 1) * (2 * n + 1) / 6;\n        long long actualSumSq = 0;\n        \n        for (int num : nums) {\n            actualSum += num;\n            actualSumSq += (long long) num * num;\n        }\n        \n        long long diff = expectedSum - actualSum; // missing - duplicate\n        long long diffSq = expectedSumSq - actualSumSq; // missing^2 - duplicate^2\n        \n        long long sumVal = diffSq / diff; // missing + duplicate\n        \n        int missing = (diff + sumVal) / 2;\n        int duplicate = (sumVal - diff) / 2;\n        \n        return {duplicate, missing};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        const n = nums.length;\n        const expectedSum = n * (n + 1) / 2;\n        let actualSum = 0;\n        \n        const expectedSumSq = n * (n + 1) * (2 * n + 1) / 6;\n        let actualSumSq = 0;\n        \n        for (const num of nums) {\n            actualSum += num;\n            actualSumSq += num * num;\n        }\n        \n        const diff = expectedSum - actualSum; // missing - duplicate\n        const diffSq = expectedSumSq - actualSumSq; // missing^2 - duplicate^2\n        \n        const sumVal = diffSq / diff; // missing + duplicate\n        \n        const missing = (diff + sumVal) / 2;\n        const duplicate = (sumVal - diff) / 2;\n        \n        return [duplicate, missing];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        const n = nums.length;\n        const expectedSum = n * (n + 1) / 2;\n        let actualSum = 0;\n        \n        const expectedSumSq = n * (n + 1) * (2 * n + 1) / 6;\n        let actualSumSq = 0;\n        \n        for (const num of nums) {\n            actualSum += num;\n            actualSumSq += num * num;\n        }\n        \n        const diff = expectedSum - actualSum; // missing - duplicate\n        const diffSq = expectedSumSq - actualSumSq; // missing^2 - duplicate^2\n        \n        const sumVal = diffSq / diff; // missing + duplicate\n        \n        const missing = (diff + sumVal) / 2;\n        const duplicate = (sumVal - diff) / 2;\n        \n        return [duplicate, missing];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Elegant mathematical solution but requires careful handling of large numbers
+
+---
+
+## Bit Manipulation
+
+**Intuition**
+XOR all numbers from 1 to n with all array elements. The result is (missing XOR duplicate). Use this to separate and identify both numbers.
+
+**Steps**
+- XOR all numbers from 1 to n with all array elements
+- The result is xor = missing XOR duplicate
+- Find any set bit in xor (rightmost set bit)
+- Partition all numbers (1 to n and array elements) into two groups based on this bit
+- XOR each group separately to get missing and duplicate
+- Determine which is which by checking the original array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        n = len(nums)\n        xor = 0\n        \n        for i in range(1, n + 1):\n            xor ^= i\n        \n        for num in nums:\n            xor ^= num\n        \n        # xor = missing ^ duplicate\n        # Find rightmost set bit\n        rightmost_bit = xor & (-xor)\n        \n        num1, num2 = 0, 0\n        \n        for i in range(1, n + 1):\n            if i & rightmost_bit:\n                num1 ^= i\n            else:\n                num2 ^= i\n        \n        for num in nums:\n            if num & rightmost_bit:\n                num1 ^= num\n            else:\n                num2 ^= num\n        \n        # Determine which is duplicate\n        for num in nums:\n            if num == num1:\n                return [num1, num2]\n        \n        return [num2, num1]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findErrorNums(int[] nums) {\n        int n = nums.length;\n        int xor = 0;\n        \n        for (int i = 1; i &lt;= n; i++) {\n            xor ^= i;\n        }\n        \n        for (int num : nums) {\n            xor ^= num;\n        }\n        \n        // xor = missing ^ duplicate\n        // Find rightmost set bit\n        int rightmostBit = xor & (-xor);\n        \n        int num1 = 0, num2 = 0;\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if ((i & rightmostBit) != 0) {\n                num1 ^= i;\n            } else {\n                num2 ^= i;\n            }\n        }\n        \n        for (int num : nums) {\n            if ((num & rightmostBit) != 0) {\n                num1 ^= num;\n            } else {\n                num2 ^= num;\n            }\n        }\n        \n        // Determine which is duplicate\n        for (int num : nums) {\n            if (num == num1) {\n                return new int[]{num1, num2};\n            }\n        }\n        \n        return new int[]{num2, num1};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int xor = 0;\n        \n        for (int i = 1; i &lt;= n; i++) {\n            xor ^= i;\n        }\n        \n        for (int num : nums) {\n            xor ^= num;\n        }\n        \n        // xor = missing ^ duplicate\n        // Find rightmost set bit\n        int rightmostBit = xor & (-xor);\n        \n        int num1 = 0, num2 = 0;\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if ((i & rightmostBit) != 0) {\n                num1 ^= i;\n            } else {\n                num2 ^= i;\n            }\n        }\n        \n        for (int num : nums) {\n            if ((num & rightmostBit) != 0) {\n                num1 ^= num;\n            } else {\n                num2 ^= num;\n            }\n        }\n        \n        // Determine which is duplicate\n        for (int num : nums) {\n            if (num == num1) {\n                return {num1, num2};\n            }\n        }\n        \n        return {num2, num1};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        const n = nums.length;\n        let xor = 0;\n        \n        for (let i = 1; i &lt;= n; i++) {\n            xor ^= i;\n        }\n        \n        for (const num of nums) {\n            xor ^= num;\n        }\n        \n        // xor = missing ^ duplicate\n        // Find rightmost set bit\n        const rightmostBit = xor & (-xor);\n        \n        let num1 = 0, num2 = 0;\n        \n        for (let i = 1; i &lt;= n; i++) {\n            if ((i & rightmostBit) !== 0) {\n                num1 ^= i;\n            } else {\n                num2 ^= i;\n            }\n        }\n        \n        for (const num of nums) {\n            if ((num & rightmostBit) !== 0) {\n                num1 ^= num;\n            } else {\n                num2 ^= num;\n            }\n        }\n        \n        // Determine which is duplicate\n        for (const num of nums) {\n            if (num === num1) {\n                return [num1, num2];\n            }\n        }\n        \n        return [num2, num1];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        const n = nums.length;\n        let xor = 0;\n        \n        for (let i = 1; i &lt;= n; i++) {\n            xor ^= i;\n        }\n        \n        for (const num of nums) {\n            xor ^= num;\n        }\n        \n        // xor = missing ^ duplicate\n        // Find rightmost set bit\n        const rightmostBit = xor & (-xor);\n        \n        let num1 = 0, num2 = 0;\n        \n        for (let i = 1; i &lt;= n; i++) {\n            if ((i & rightmostBit) !== 0) {\n                num1 ^= i;\n            } else {\n                num2 ^= i;\n            }\n        }\n        \n        for (const num of nums) {\n            if ((num & rightmostBit) !== 0) {\n                num1 ^= num;\n            } else {\n                num2 ^= num;\n            }\n        }\n        \n        // Determine which is duplicate\n        for (const num of nums) {\n            if (num === num1) {\n                return [num1, num2];\n            }\n        }\n        \n        return [num2, num1];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Constant space solution using XOR properties, but more complex to understand
+
+---
+
+## Negation Marking
+
+**Intuition**
+Use the array itself as a marker by negating values at indices. When we encounter a negative value at an index, that number is the duplicate.
+
+**Steps**
+- Iterate through the array
+- For each number, use its absolute value as an index
+- If the value at that index is already negative, the current number is the duplicate
+- Otherwise, negate the value at that index
+- After first pass, the index with positive value indicates the missing number
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        n = len(nums)\n        duplicate = -1\n        \n        for num in nums:\n            idx = abs(num) - 1\n            if nums[idx] &lt; 0:\n                duplicate = abs(num)\n            else:\n                nums[idx] = -nums[idx]\n        \n        missing = -1\n        for i in range(n):\n            if nums[i] &gt; 0:\n                missing = i + 1\n                break\n        \n        return [duplicate, missing]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findErrorNums(int[] nums) {\n        int n = nums.length;\n        int duplicate = -1;\n        \n        for (int num : nums) {\n            int idx = Math.abs(num) - 1;\n            if (nums[idx] &lt; 0) {\n                duplicate = Math.abs(num);\n            } else {\n                nums[idx] = -nums[idx];\n            }\n        }\n        \n        int missing = -1;\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] &gt; 0) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return new int[]{duplicate, missing};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int duplicate = -1;\n        \n        for (int num : nums) {\n            int idx = abs(num) - 1;\n            if (nums[idx] &lt; 0) {\n                duplicate = abs(num);\n            } else {\n                nums[idx] = -nums[idx];\n            }\n        }\n        \n        int missing = -1;\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] &gt; 0) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return {duplicate, missing};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        const n = nums.length;\n        let duplicate = -1;\n        \n        for (const num of nums) {\n            const idx = Math.abs(num) - 1;\n            if (nums[idx] &lt; 0) {\n                duplicate = Math.abs(num);\n            } else {\n                nums[idx] = -nums[idx];\n            }\n        }\n        \n        let missing = -1;\n        for (let i = 0; i &lt; n; i++) {\n            if (nums[i] &gt; 0) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return [duplicate, missing];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        const n = nums.length;\n        let duplicate = -1;\n        \n        for (const num of nums) {\n            const idx = Math.abs(num) - 1;\n            if (nums[idx] &lt; 0) {\n                duplicate = Math.abs(num);\n            } else {\n                nums[idx] = -nums[idx];\n            }\n        }\n        \n        let missing = -1;\n        for (let i = 0; i &lt; n; i++) {\n            if (nums[i] &gt; 0) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return [duplicate, missing];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Modifies the input array in-place, uses negation as a marker
+
+---
+
+## Cyclic Sort
+
+**Intuition**
+Place each number at its correct index (number-1). The number that can't be placed is the duplicate, and the index where the number doesn't match is the missing number.
+
+**Steps**
+- Iterate through the array
+- For each position, swap the current number to its correct index (number-1)
+- If the correct position already has the same number, it's the duplicate
+- After sorting, find the index where number doesn't equal index+1 to get the missing number
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findErrorNums(self, nums):\n        n = len(nums)\n        i = 0\n        duplicate = -1\n        \n        while i &lt; n:\n            correct_idx = nums[i] - 1\n            if nums[i] != nums[correct_idx]:\n                nums[i], nums[correct_idx] = nums[correct_idx], nums[i]\n            else:\n                if i != correct_idx:\n                    duplicate = nums[i]\n                i += 1\n        \n        missing = -1\n        for i in range(n):\n            if nums[i] != i + 1:\n                missing = i + 1\n                break\n        \n        return [duplicate, missing]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findErrorNums(int[] nums) {\n        int n = nums.length;\n        int i = 0;\n        int duplicate = -1;\n        \n        while (i &lt; n) {\n            int correctIdx = nums[i] - 1;\n            if (nums[i] != nums[correctIdx]) {\n                int temp = nums[i];\n                nums[i] = nums[correctIdx];\n                nums[correctIdx] = temp;\n            } else {\n                if (i != correctIdx) {\n                    duplicate = nums[i];\n                }\n                i++;\n            }\n        }\n        \n        int missing = -1;\n        for (i = 0; i &lt; n; i++) {\n            if (nums[i] != i + 1) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return new int[]{duplicate, missing};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findErrorNums(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int i = 0;\n        int duplicate = -1;\n        \n        while (i &lt; n) {\n            int correctIdx = nums[i] - 1;\n            if (nums[i] != nums[correctIdx]) {\n                swap(nums[i], nums[correctIdx]);\n            } else {\n                if (i != correctIdx) {\n                    duplicate = nums[i];\n                }\n                i++;\n            }\n        }\n        \n        int missing = -1;\n        for (i = 0; i &lt; n; i++) {\n            if (nums[i] != i + 1) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return {duplicate, missing};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    findErrorNums(nums) {\n        const n = nums.length;\n        let i = 0;\n        let duplicate = -1;\n        \n        while (i &lt; n) {\n            const correctIdx = nums[i] - 1;\n            if (nums[i] !== nums[correctIdx]) {\n                [nums[i], nums[correctIdx]] = [nums[correctIdx], nums[i]];\n            } else {\n                if (i !== correctIdx) {\n                    duplicate = nums[i];\n                }\n                i++;\n            }\n        }\n        \n        let missing = -1;\n        for (let i = 0; i &lt; n; i++) {\n            if (nums[i] !== i + 1) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return [duplicate, missing];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findErrorNums(nums: number[]): number[] {\n        const n = nums.length;\n        let i = 0;\n        let duplicate = -1;\n        \n        while (i &lt; n) {\n            const correctIdx = nums[i] - 1;\n            if (nums[i] !== nums[correctIdx]) {\n                [nums[i], nums[correctIdx]] = [nums[correctIdx], nums[i]];\n            } else {\n                if (i !== correctIdx) {\n                    duplicate = nums[i];\n                }\n                i++;\n            }\n        }\n        \n        let missing = -1;\n        for (let i = 0; i &lt; n; i++) {\n            if (nums[i] !== i + 1) {\n                missing = i + 1;\n                break;\n            }\n        }\n        \n        return [duplicate, missing];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Modifies the input array, optimal for range-based problems
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Set Mismatch Solutions","datePublished":"2024-07-20","description":"Find the duplicate and missing number in an array containing 1 to n","keywords":"LeetCode, Set Mismatch, Easy, Array, Hash Table, Bit Manipulation, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach has O(n) time complexity as we iterate through the array once and then check numbers 1 to n."}},{"@type":"Question","name":"Which approach uses O(1) extra space?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical, Bit Manipulation, Negation Marking, and Cyclic Sort approaches all use O(1) extra space."}},{"@type":"Question","name":"What is the fastest approach for Set Mismatch?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set, Mathematical, Bit Manipulation, Negation Marking, and Cyclic Sort approaches all have O(n) time complexity, making them equally efficient in terms of time."}},{"@type":"Question","name":"Does the Sorting approach modify the input array?","acceptedAnswer":{"@type":"Answer","text":"Yes, the Sorting approach modifies the input array by sorting it in place."}},{"@type":"Question","name":"Which approach is recommended for interview?","acceptedAnswer":{"@type":"Answer","text":"The Negation Marking or Cyclic Sort approaches are often recommended as they demonstrate clever use of the input array for O(1) space without complex math."}}]}).replace(/</g,'\u003c')}
+</script>

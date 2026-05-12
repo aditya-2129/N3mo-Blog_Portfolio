@@ -1,0 +1,142 @@
+---
+title: "Coupon Code Validator"
+summary: "Validate a coupon code based on length, character set, digit presence, uniqueness, and sorting order."
+date: "Jun 06, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.90% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Sorting
+
+You are given a string `couponCode`. A coupon code is valid if it satisfies the following conditions:
+
+1. The length of the string is exactly 7.
+2. The string consists only of uppercase English letters ('A'-'Z') and digits ('0'-'9').
+3. The string contains at least one digit.
+4. The string contains no duplicate characters.
+5. The characters in the string are in strictly increasing order (i.e., `couponCode[i] &lt; couponCode[i+1]` for all valid `i`).
+
+Return `true` if the coupon code is valid, otherwise return `false`.
+
+- Examples
+- Constraints
+- [Single Pass with Hash Set](#single-pass-with-hash-set)
+- [Sorting and Comparison](#sorting-and-comparison)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+code = ["SAVE20","","PHARMA5","SAVE@20"], businessLine = ["restaurant","grocery","pharmacy","restaurant"], isActive = [true,true,true,true]
+```
+
+**Output:**
+```text
+["PHARMA5","SAVE20"]
+```
+
+**Explanation:**
+First coupon is valid.
+
+Second coupon has empty code (invalid).
+
+Third coupon is valid.
+
+Fourth coupon has special character @ (invalid).
+
+### Example 2
+
+**Input:**
+```text
+code = ["GROCERY15","ELECTRONICS_50","DISCOUNT10"], businessLine = ["grocery","electronics","invalid"], isActive = [false,true,true]
+```
+
+**Output:**
+```text
+["ELECTRONICS_50"]
+```
+
+**Explanation:**
+First coupon is inactive (invalid).
+
+Second coupon is valid.
+
+Third coupon has invalid business line (invalid).
+
+## Constraints
+
+```text
+1 <= couponCode.length <= 100
+couponCode consists of uppercase English letters and digits.
+```
+
+---
+## Single Pass with Hash Set
+
+**Intuition**
+We can validate the coupon code by iterating through the string once. We check the length first, then iterate to verify character types, digit presence, uniqueness (using a Hash Set), and the strictly increasing order property simultaneously.
+
+**Steps**
+- Check if the length of `couponCode` is exactly 7. If not, return false.
+- Initialize a boolean flag `hasDigit` to false and a Hash Set `seen` to track characters.
+- Iterate through the string with an index `i`:
+  - Check if the character is an uppercase letter or a digit. If not, return false.
+  - If the character is a digit, set `hasDigit` to true.
+  - If the character is already in `seen`, return false (duplicate found).
+  - If `i &gt; 0` and the current character is less than or equal to the previous character, return false (not strictly increasing).
+  - Add the character to `seen`.
+- After the loop, return `hasDigit`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def isValid(self, couponCode: str) -> bool:\n        if len(couponCode) != 7:\n            return False\n        \n        seen = set()\n        has_digit = False\n        \n        for i, c in enumerate(couponCode):\n            # Check if character is valid (Upper or Digit)\n            if not (c.isdigit() or ("A" <= c <= "Z")):\n                return False\n            \n            if c.isdigit():\n                has_digit = True\n            \n            # Check for duplicates\n            if c in seen:\n                return False\n            \n            # Check for strictly increasing order\n            if i > 0 and couponCode[i - 1] >= c:\n                return False\n            \n            seen.add(c)\n            \n        return has_digit\n' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public boolean isValid(String couponCode) {\n        if (couponCode.length() != 7) {\n            return false;\n        }\n        \n        boolean[] seen = new boolean[128];\n        boolean hasDigit = false;\n        \n        for (int i = 0; i &lt; couponCode.length(); i++) {\n            char c = couponCode.charAt(i);\n            \n            // Check if character is valid (Upper or Digit)\n            if (!Character.isUpperCase(c) && !Character.isDigit(c)) {\n                return false;\n            }\n            \n            if (Character.isDigit(c)) {\n                hasDigit = true;\n            }\n            \n            // Check for duplicates\n            if (seen[c]) {\n                return false;\n            }\n            \n            // Check for strictly increasing order\n            if (i &gt; 0 && couponCode.charAt(i - 1) &gt;= c) {\n                return false;\n            }\n            \n            seen[c] = true;\n        }\n        \n        return hasDigit;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: 'class Solution {\npublic:\n    bool isValid(string couponCode) {\n        if (couponCode.size() != 7) {\n            return false;\n        }\n        \n        bool seen[128] = {false};\n        bool hasDigit = false;\n        \n        for (int i = 0; i &lt; couponCode.size(); ++i) {\n            char c = couponCode[i];\n            \n            // Check if character is valid (Upper or Digit)\n            if (!isupper(c) && !isdigit(c)) {\n                return false;\n            }\n            \n            if (isdigit(c)) {\n                hasDigit = true;\n            }\n            \n            // Check for duplicates\n            if (seen[c]) {\n                return false;\n            }\n            \n            // Check for strictly increasing order\n            if (i &gt; 0 && couponCode[i - 1] &gt;= c) {\n                return false;\n            }\n            \n            seen[c] = true;\n        }\n        \n        return hasDigit;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {string} couponCode\n * @return {boolean}\n */\nvar isValid = function(couponCode) {\n    if (couponCode.length !== 7) {\n        return false;\n    }\n    \n    const seen = new Set();\n    let hasDigit = false;\n    \n    for (let i = 0; i &lt; couponCode.length; i++) {\n        const c = couponCode[i];\n        const isUpper = (c &gt;= "A" && c &lt;= "Z");\n        const isDigit = (c &gt;= "0" && c &lt;= "9");\n        \n        // Check if character is valid (Upper or Digit)\n        if (!isUpper && !isDigit) {\n            return false;\n        }\n        \n        if (isDigit) {\n            hasDigit = true;\n        }\n        \n        // Check for duplicates\n        if (seen.has(c)) {\n            return false;\n        }\n        \n        // Check for strictly increasing order\n        if (i &gt; 0 && couponCode[i - 1] &gt;= c) {\n            return false;\n        }\n        \n        seen.add(c);\n    }\n    \n    return hasDigit;\n};\n' },
+{ name: "TypeScript", lang: "typescript", code: 'function isValid(couponCode: string): boolean {\n    if (couponCode.length !== 7) {\n        return false;\n    }\n    \n    const seen = new Set<string>();\n    let hasDigit = false;\n    \n    for (let i = 0; i &lt; couponCode.length; i++) {\n        const c = couponCode[i];\n        const isUpper = (c &gt;= "A" && c &lt;= "Z");\n        const isDigit = (c &gt;= "0" && c &lt;= "9");\n        \n        // Check if character is valid (Upper or Digit)\n        if (!isUpper && !isDigit) {\n            return false;\n        }\n        \n        if (isDigit) {\n            hasDigit = true;\n        }\n        \n        // Check for duplicates\n        if (seen.has(c)) {\n            return false;\n        }\n        \n        // Check for strictly increasing order\n        if (i &gt; 0 && couponCode[i - 1] &gt;= c) {\n            return false;\n        }\n        \n        seen.add(c);\n    }\n    \n    return hasDigit;\n}\n' },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string once.
+- Space: O(1), since the Hash Set size is bounded by the number of possible characters (constant 128 or 36).
+- Notes: This is the most optimal approach as it checks all conditions in a single pass.
+
+---
+## Sorting and Comparison
+
+**Intuition**
+We can leverage sorting to check for both the order and duplicate conditions. If we sort the string, it should match the original string if the original was strictly increasing. Additionally, duplicates will be adjacent in the sorted string, making them easy to detect.
+
+**Steps**
+- Check if the length of `couponCode` is exactly 7. If not, return false.
+- Iterate through the string to check if all characters are valid (uppercase or digit) and if at least one digit exists.
+- Create a sorted copy of the string.
+- Compare the sorted string with the original string. If they are not equal, the original was not strictly increasing (or had duplicates).
+- Iterate through the sorted string to check for adjacent duplicates. If any are found, return false.
+- If all checks pass, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def isValid(self, couponCode: str) -> bool:\n        if len(couponCode) != 7:\n            return False\n        \n        has_digit = False\n        for c in couponCode:\n            if not (c.isdigit() or ("A" <= c <= "Z")):\n                return False\n            if c.isdigit():\n                has_digit = True\n        \n        if not has_digit:\n            return False\n        \n        sorted_code = "".join(sorted(couponCode))\n        \n        # Check if strictly increasing (original must match sorted)\n        if couponCode != sorted_code:\n            return False\n        \n        # Check for duplicates (adjacent in sorted string)\n        for i in range(len(sorted_code) - 1):\n            if sorted_code[i] == sorted_code[i+1]:\n                return False\n                \n        return True\n' },
+{ name: "Java", lang: "java", code: 'import java.util.Arrays;\n\nclass Solution {\n    public boolean isValid(String couponCode) {\n        if (couponCode.length() != 7) {\n            return false;\n        }\n        \n        boolean hasDigit = false;\n        char[] chars = couponCode.toCharArray();\n        \n        for (char c : chars) {\n            if (!Character.isUpperCase(c) && !Character.isDigit(c)) {\n                return false;\n            }\n            if (Character.isDigit(c)) {\n                hasDigit = true;\n            }\n        }\n        \n        if (!hasDigit) {\n            return false;\n        }\n        \n        char[] sortedChars = chars.clone();\n        Arrays.sort(sortedChars);\n        \n        // Check if strictly increasing\n        if (!Arrays.equals(chars, sortedChars)) {\n            return false;\n        }\n        \n        // Check for duplicates\n        for (int i = 0; i &lt; sortedChars.length - 1; i++) {\n            if (sortedChars[i] == sortedChars[i + 1]) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n}\n' },
+{ name: "C++", lang: "cpp", code: '#include <algorithm>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isValid(string couponCode) {\n        if (couponCode.size() != 7) {\n            return false;\n        }\n        \n        bool hasDigit = false;\n        for (char c : couponCode) {\n            if (!isupper(c) && !isdigit(c)) {\n                return false;\n            }\n            if (isdigit(c)) {\n                hasDigit = true;\n            }\n        }\n        \n        if (!hasDigit) {\n            return false;\n        }\n        \n        string sortedCode = couponCode;\n        sort(sortedCode.begin(), sortedCode.end());\n        \n        // Check if strictly increasing\n        if (couponCode != sortedCode) {\n            return false;\n        }\n        \n        // Check for duplicates\n        for (int i = 0; i &lt; sortedCode.size() - 1; ++i) {\n            if (sortedCode[i] == sortedCode[i + 1]) {\n                return false;\n            }\n        }\n        \n        return true;\n    }\n};\n' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {string} couponCode\n * @return {boolean}\n */\nvar isValid = function(couponCode) {\n    if (couponCode.length !== 7) {\n        return false;\n    }\n    \n    let hasDigit = false;\n    for (let i = 0; i &lt; couponCode.length; i++) {\n        const c = couponCode[i];\n        const isUpper = (c &gt;= "A" && c &lt;= "Z");\n        const isDigit = (c &gt;= "0" && c &lt;= "9");\n        if (!isUpper && !isDigit) {\n            return false;\n        }\n        if (isDigit) {\n            hasDigit = true;\n        }\n    }\n    \n    if (!hasDigit) {\n        return false;\n    }\n    \n    const sortedCode = couponCode.split("").sort().join("");\n    \n    // Check if strictly increasing\n    if (couponCode !== sortedCode) {\n        return false;\n    }\n    \n    // Check for duplicates\n    for (let i = 0; i &lt; sortedCode.length - 1; i++) {\n        if (sortedCode[i] === sortedCode[i + 1]) {\n            return false;\n        }\n    }\n    \n    return true;\n};\n' },
+{ name: "TypeScript", lang: "typescript", code: 'function isValid(couponCode: string): boolean {\n    if (couponCode.length !== 7) {\n        return false;\n    }\n    \n    let hasDigit = false;\n    for (let i = 0; i &lt; couponCode.length; i++) {\n        const c = couponCode[i];\n        const isUpper = (c &gt;= "A" && c &lt;= "Z");\n        const isDigit = (c &gt;= "0" && c &lt;= "9");\n        if (!isUpper && !isDigit) {\n            return false;\n        }\n        if (isDigit) {\n            hasDigit = true;\n        }\n    }\n    \n    if (!hasDigit) {\n        return false;\n    }\n    \n    const sortedCode = couponCode.split("").sort().join("");\n    \n    // Check if strictly increasing\n    if (couponCode !== sortedCode) {\n        return false;\n    }\n    \n    // Check for duplicates\n    for (let i = 0; i &lt; sortedCode.length - 1; i++) {\n        if (sortedCode[i] === sortedCode[i + 1]) {\n            return false;\n        }\n    }\n    \n    return true;\n}\n' },]} />
+
+**Complexity**
+- Time: O(n log n), due to the sorting step.
+- Space: O(n), to store the sorted copy of the string.
+- Notes: This approach is less efficient than the single pass approach due to the sorting overhead, but it is conceptually simple.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Coupon Code Validator Solutions","datePublished":"2025-06-06","description":"Validate a coupon code based on length, character set, digit presence, uniqueness, and sorting order.","keywords":"LeetCode, Coupon Code Validator, Easy, Array, Hash Table, String, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we iterate through the string once."}},{"@type":"Question","name":"What is the space complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), because the Hash Set size is bounded by the constant number of possible characters."}},{"@type":"Question","name":"Why is the Sorting approach slower?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has a time complexity of O(n log n) due to the sorting step, whereas the Single Pass approach is O(n)."}}]}).replace(/</g,'\u003c')}
+</script>

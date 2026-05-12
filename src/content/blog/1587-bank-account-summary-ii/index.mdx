@@ -1,0 +1,150 @@
+---
+title: "Bank Account Summary II"
+summary: "Report the name and balance of US users with a positive net balance."
+date: "Mar 22, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.00% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| account      | int     |
+| name         | varchar |
++--------------+---------+
+account is the primary key (column with unique values) for this table.
+Each row of this table contains the account number and name of the user.
+Table: Transactions
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| trans_id     | int     |
+| account      | int     |
+| day          | date    |
+| amount       | int     |
+| type         | varchar |
++--------------+---------+
+trans_id is the primary key (column with unique values) for this table.
+Each row of this table contains information about the transaction.
+type is ENUM ('Deposit', 'Withdrawal').
+amount is the positive amount of money transferred.
+
+Write a solution to report the name and the balance of the users who are in the US and have a positive net balance.
+The net balance is calculated as total deposits - total withdrawals.
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Hash Map Aggregation](#hash-map-aggregation)
+- [Brute Force](#brute-force)
+
+## Examples
+
+### Example 1
+Input:
+Users table:
++------------+--------------+---------+
+| account    | name         | country |
++------------+--------------+---------+
+| 900001     | Alice        | US      |
+| 900002     | Bob          | UK      |
+| 900003     | Charlie      | US      |
++------------+--------------+---------+
+Transactions table:
++------------+------------+------------+----------+------------+
+| trans_id   | account    | day        | amount   | type       |
++------------+------------+------------+----------+------------+
+| 1          | 900001     | 2021-04-20 | 2000     | Deposit    |
+| 2          | 900001     | 2021-04-20 | 1500     | Withdrawal |
+| 3          | 900002     | 2021-04-21 | 3000     | Deposit    |
+| 4          | 900003     | 2021-04-22 | 1000     | Deposit    |
+| 5          | 900003     | 2021-04-23 | 1500     | Withdrawal |
++------------+------------+------------+----------+------------+
+Output:
++----------+----------+
+| name     | balance  |
++----------+----------+
+| Alice    | 500      |
++----------+----------+
+Explanation:
+Alice (US user) has a net balance of 2000 - 1500 = 500.
+Bob (UK user) should be excluded.
+Charlie (US user) has a net balance of 1000 - 1500 = -500, which is negative, so he should be excluded.
+
+## Constraints
+
+```text
+Users table:
+0 <= rows <= 1000
+Transactions table:
+0 <= rows <= 2000
+amount: 0 <= amount <= 10^4
+name length: 1 to 20
+```
+
+---
+## Hash Map Aggregation
+
+**Intuition**
+We can simulate the database join and aggregation using a hash map. First, we identify all US users and initialize their balance to zero. Then, we iterate through transactions, updating the balance for valid accounts. Finally, we filter for positive balances.
+
+**Steps**
+- Create a hash map to store account info (name and balance).
+- Iterate through the Users list. If the country is 'US', add the account to the map with balance 0.
+- Iterate through the Transactions list. If the account exists in the map, add or subtract the amount based on the transaction type.
+- Collect all entries from the map where the balance is greater than 0.
+- Return the result as a list of lists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def bankAccountSummary(users, transactions):\n    balances = {}\n    for acc, name, country in users:\n        if country == 'US':\n            balances[acc] = [name, 0]\n    for _, acc, _, amount, t_type in transactions:\n        if acc in balances:\n            if t_type == 'Deposit':\n                balances[acc][1] += amount\n            else:\n                balances[acc][1] -= amount\n    result = [[name, bal] for acc, (name, bal) in balances.items() if bal &gt; 0]\n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; bankAccountSummary(List&lt;List&lt;String&gt;&gt; users, List&lt;List&lt;String&gt;&gt; transactions) {\n        Map&lt;Integer, String&gt; accToName = new HashMap&lt;&gt;();\n        Map&lt;Integer, Long&gt; accToBal = new HashMap&lt;&gt;();\n        \n        for (List&lt;String&gt; u : users) {\n            int acc = Integer.parseInt(u.get(0));\n            String name = u.get(1);\n            String country = u.get(2);\n            if (\"US\".equals(country)) {\n                accToName.put(acc, name);\n                accToBal.put(acc, 0L);\n            }\n        }\n        \n        for (List&lt;String&gt; t : transactions) {\n            int acc = Integer.parseInt(t.get(1));\n            if (accToBal.containsKey(acc)) {\n                long amount = Long.parseLong(t.get(3));\n                String type = t.get(4);\n                if (\"Deposit\".equals(type)) {\n                    accToBal.put(acc, accToBal.get(acc) + amount);\n                } else {\n                    accToBal.put(acc, accToBal.get(acc) - amount);\n                }\n            }\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;Integer, Long&gt; entry : accToBal.entrySet()) {\n            if (entry.getValue() &gt; 0) {\n                List&lt;String&gt; row = new ArrayList&lt;&gt;();\n                row.add(accToName.get(entry.getKey()));\n                row.add(String.valueOf(entry.getValue()));\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;cstdlib&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; bankAccountSummary(vector&lt;vector&lt;string&gt;&gt;& users, vector&lt;vector&lt;string&gt;&gt;& transactions) {\n        unordered_map&lt;int, pair&lt;string, long long&gt;&gt; mp; // account -&gt; {name, balance}\n        \n        for (auto& u : users) {\n            int acc = stoi(u[0]);\n            if (u[2] == \"US\") {\n                mp[acc] = {u[1], 0};\n            }\n        }\n        \n        for (auto& t : transactions) {\n            int acc = stoi(t[1]);\n            if (mp.find(acc) != mp.end()) {\n                long long amount = stoll(t[3]);\n                if (t[4] == \"Deposit\") {\n                    mp[acc].second += amount;\n                } else {\n                    mp[acc].second -= amount;\n                }\n            }\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (auto& p : mp) {\n            if (p.second.second &gt; 0) {\n                result.push_back({p.second.first, to_string(p.second.second)});\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} users\n * @param {string[][]} transactions\n * @return {string[][]}\n */\nvar bankAccountSummary = function(users, transactions) {\n    const map = new Map();\n    \n    for (const [acc, name, country] of users) {\n        if (country === 'US') {\n            map.set(parseInt(acc), { name, balance: 0 });\n        }\n    }\n    \n    for (const [_, acc, _, amount, type] of transactions) {\n        const key = parseInt(acc);\n        if (map.has(key)) {\n            const entry = map.get(key);\n            const val = parseInt(amount);\n            entry.balance += (type === 'Deposit' ? val : -val);\n        }\n    }\n    \n    const result = [];\n    for (const [_, val] of map) {\n        if (val.balance &gt; 0) {\n            result.push([val.name, val.balance.toString()]);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function bankAccountSummary(users: string[][], transactions: string[][]): string[][] {\n    const map = new Map&lt;number, {name: string, balance: number}&gt;();\n    \n    for (const [acc, name, country] of users) {\n        if (country === 'US') {\n            map.set(Number(acc), { name, balance: 0 });\n        }\n    }\n    \n    for (const [_, acc, _, amount, type] of transactions) {\n        const key = Number(acc);\n        if (map.has(key)) {\n            const entry = map.get(key)!;\n            const val = Number(amount);\n            entry.balance += (type === 'Deposit' ? val : -val);\n        }\n    }\n    \n    const result: string[][] = [];\n    for (const [_, val] of map) {\n        if (val.balance &gt; 0) {\n            result.push([val.name, val.balance.toString()]);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N is the number of users and M is the number of transactions.
+- Space: O(N), to store the map of users.
+- Notes: This approach is efficient as it processes each record exactly once.
+
+---
+## Brute Force
+
+**Intuition**
+For every transaction, we can scan the entire list of users to find the matching account and check their country. This avoids using extra space for a hash map but is slower.
+
+**Steps**
+- Initialize a list to store results.
+- Iterate through the Transactions list.
+- For each transaction, iterate through the Users list to find the matching account.
+- If the user is from the US, calculate their net balance by summing all their transactions (this requires re-scanning or storing state).
+- Since we need the final balance, we would typically need to aggregate first. A true brute force would aggregate by scanning all transactions for every user, leading to O(N*M).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def bankAccountSummary(users, transactions):\n    # Create a lookup for US users first to simplify the brute force logic slightly\n    # but strictly speaking, brute force implies nested loops without preprocessing.\n    # Here we simulate the O(N*M) approach.\n    us_users = {u[0]: u[1] for u in users if u[2] == 'US'}\n    result = []\n    \n    # For every US user, calculate balance by scanning all transactions\n    for acc, name in us_users.items():\n        balance = 0\n        for t in transactions:\n            if int(t[1]) == int(acc):\n                amount = int(t[3])\n                if t[4] == 'Deposit':\n                    balance += amount\n                else:\n                    balance -= amount\n        if balance &gt; 0:\n            result.append([name, balance])\n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; bankAccountSummary(List&lt;List&lt;String&gt;&gt; users, List&lt;List&lt;String&gt;&gt; transactions) {\n        Map&lt;String, String&gt; usUsers = new HashMap&lt;&gt;();\n        for (List&lt;String&gt; u : users) {\n            if (\"US\".equals(u.get(2))) {\n                usUsers.put(u.get(0), u.get(1));\n            }\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, String&gt; entry : usUsers.entrySet()) {\n            String acc = entry.getKey();\n            String name = entry.getValue();\n            long balance = 0;\n            for (List&lt;String&gt; t : transactions) {\n                if (t.get(1).equals(acc)) {\n                    long amount = Long.parseLong(t.get(3));\n                    if (\"Deposit\".equals(t.get(4))) {\n                        balance += amount;\n                    } else {\n                        balance -= amount;\n                    }\n                }\n            }\n            if (balance &gt; 0) {\n                result.add(Arrays.asList(name, String.valueOf(balance)));\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; bankAccountSummary(vector&lt;vector&lt;string&gt;&gt;& users, vector&lt;vector&lt;string&gt;&gt;& transactions) {\n        map&lt;string, string&gt; usUsers;\n        for (auto& u : users) {\n            if (u[2] == \"US\") {\n                usUsers[u[0]] = u[1];\n            }\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (auto& [acc, name] : usUsers) {\n            long long balance = 0;\n            for (auto& t : transactions) {\n                if (t[1] == acc) {\n                    long long amount = stoll(t[3]);\n                    if (t[4] == \"Deposit\") {\n                        balance += amount;\n                    } else {\n                        balance -= amount;\n                    }\n                }\n            }\n            if (balance &gt; 0) {\n                result.push_back({name, to_string(balance)});\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} users\n * @param {string[][]} transactions\n * @return {string[][]}\n */\nvar bankAccountSummary = function(users, transactions) {\n    const usUsers = new Map();\n    for (const [acc, name, country] of users) {\n        if (country === 'US') {\n            usUsers.set(acc, name);\n        }\n    }\n    \n    const result = [];\n    for (const [acc, name] of usUsers) {\n        let balance = 0;\n        for (const t of transactions) {\n            if (t[1] === acc) {\n                const amount = parseInt(t[3]);\n                balance += (t[4] === 'Deposit' ? amount : -amount);\n            }\n        }\n        if (balance &gt; 0) {\n            result.push([name, balance.toString()]);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function bankAccountSummary(users: string[][], transactions: string[][]): string[][] {\n    const usUsers = new Map&lt;string, string&gt;();\n    for (const [acc, name, country] of users) {\n        if (country === 'US') {\n            usUsers.set(acc, name);\n        }\n    }\n    \n    const result: string[][] = [];\n    for (const [acc, name] of usUsers) {\n        let balance = 0;\n        for (const t of transactions) {\n            if (t[1] === acc) {\n                const amount = Number(t[3]);\n                balance += (t[4] === 'Deposit' ? amount : -amount);\n            }\n        }\n        if (balance &gt; 0) {\n            result.push([name, balance.toString()]);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the number of users and M is the number of transactions. For each user, we scan all transactions.
+- Space: O(N), to store the list of US users.
+- Notes: This is significantly slower than the hash map approach when M is large.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Bank Account Summary II Solutions","datePublished":"2024-03-22","description":"Report the name and balance of US users with a positive net balance.","keywords":"LeetCode, Bank Account Summary II, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N is the number of users and M is the number of transactions."}},{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * M), as we iterate through all transactions for every user."}}]}).replace(/</g,'\u003c')}
+</script>

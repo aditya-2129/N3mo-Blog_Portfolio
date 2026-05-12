@@ -1,0 +1,139 @@
+---
+title: "Minimum Cost to Reach Every Position"
+summary: "Calculate the minimum cost to reach each index in an array where you can jump 1 or 2 steps."
+date: "Oct 18, 2024"
+tags:
+  - Array
+  - Dynamic Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.30% | **Paid:** No
+> **Topics:** Array
+
+You are given a 0-indexed integer array `cost` of length `n`, where `cost[i]` represents the cost to land on index `i`. You start at index `0`.
+
+From index `i`, you can jump to index `i + 1` or `i + 2`.
+
+Return an array `ans` of length `n`, where `ans[i]` is the minimum cost to reach index `i`.
+
+- Examples
+- Constraints
+- [Dynamic Programming (Iterative)](#dynamic-programming-iterative)
+- [Dynamic Programming (In-Place)](#dynamic-programming-in-place)
+- [Recursion with Memoization](#recursion-with-memoization)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: cost = [5, 3, 4, 2]
+Output: [5, 8, 9, 10]
+Explanation:
+- ans[0] = cost[0] = 5
+- ans[1] = cost[0] + cost[1] = 5 + 3 = 8
+- ans[2] = min(ans[0], ans[1]) + cost[2] = min(5, 8) + 4 = 9
+- ans[3] = min(ans[1], ans[2]) + cost[3] = min(8, 9) + 2 = 10
+```
+
+**Example 2:**
+
+```text
+Input: cost = [10, 20]
+Output: [10, 30]
+Explanation:
+- ans[0] = cost[0] = 10
+- ans[1] = cost[0] + cost[1] = 10 + 20 = 30
+```
+
+## Constraints
+
+```text
+- 1 <= n == cost.length <= 100
+- 1 <= cost[i] <= 100
+```
+
+---
+
+## Dynamic Programming (Iterative)
+
+**Intuition**
+We can solve this problem by building up the solution from the base cases. Since we can only reach index `i` from `i-1` or `i-2`, the minimum cost to reach `i` is the cost to land on `i` plus the minimum cost to reach either of the two previous positions.
+
+**Steps**
+- Initialize an array `ans` of the same length as `cost`.
+- Set `ans[0] = cost[0]` and `ans[1] = cost[0] + cost[1]`.
+- Iterate from index `2` to `n-1`. For each index `i`, calculate `ans[i] = cost[i] + min(ans[i-1], ans[i-2])`.
+- Return the `ans` array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCost(self, cost: list[int]) -&gt; list[int]:\n        n = len(cost)\n        ans = [0] * n\n        ans[0] = cost[0]\n        ans[1] = cost[0] + cost[1]\n        \n        for i in range(2, n):\n            ans[i] = cost[i] + min(ans[i-1], ans[i-2])\n            \n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] minCost(int[] cost) {\n        int n = cost.length;\n        int[] ans = new int[n];\n        ans[0] = cost[0];\n        ans[1] = cost[0] + cost[1];\n        \n        for (int i = 2; i &lt; n; i++) {\n            ans[i] = cost[i] + Math.min(ans[i-1], ans[i-2]);\n        }\n        \n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; minCost(vector&lt;int&gt;& cost) {\n        int n = cost.size();\n        vector&lt;int&gt; ans(n);\n        ans[0] = cost[0];\n        ans[1] = cost[0] + cost[1];\n        \n        for (int i = 2; i &lt; n; ++i) {\n            ans[i] = cost[i] + min(ans[i-1], ans[i-2]);\n        }\n        \n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCost = function(cost) {\n    const n = cost.length;\n    const ans = new Array(n);\n    ans[0] = cost[0];\n    ans[1] = cost[0] + cost[1];\n    \n    for (let i = 2; i &lt; n; i++) {\n        ans[i] = cost[i] + Math.min(ans[i-1], ans[i-2]);\n    }\n    \n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCost(cost: number[]): number[] {\n    const n = cost.length;\n    const ans: number[] = new Array(n);\n    ans[0] = cost[0];\n    ans[1] = cost[0] + cost[1];\n    \n    for (let i = 2; i &lt; n; i++) {\n        ans[i] = cost[i] + Math.min(ans[i-1], ans[i-2]);\n    }\n    \n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses O(n) space to store the result array.
+
+---
+
+## Dynamic Programming (In-Place)
+
+**Intuition**
+We can optimize the auxiliary space used by modifying the input `cost` array directly to store the cumulative minimum costs. This avoids allocating a new array for the result.
+
+**Steps**
+- Update `cost[1]` by adding `cost[0]` to it.
+- Iterate from index `2` to `n-1`. Update `cost[i]` by adding the minimum of `cost[i-1]` and `cost[i-2]`.
+- Return the modified `cost` array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCost(self, cost: list[int]) -&gt; list[int]:\n        n = len(cost)\n        cost[1] += cost[0]\n        \n        for i in range(2, n):\n            cost[i] += min(cost[i-1], cost[i-2])\n            \n        return cost" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] minCost(int[] cost) {\n        int n = cost.length;\n        cost[1] += cost[0];\n        \n        for (int i = 2; i &lt; n; i++) {\n            cost[i] += Math.min(cost[i-1], cost[i-2]);\n        }\n        \n        return cost;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; minCost(vector&lt;int&gt;& cost) {\n        int n = cost.size();\n        cost[1] += cost[0];\n        \n        for (int i = 2; i &lt; n; ++i) {\n            cost[i] += min(cost[i-1], cost[i-2]);\n        }\n        \n        return cost;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCost = function(cost) {\n    const n = cost.length;\n    cost[1] += cost[0];\n    \n    for (let i = 2; i &lt; n; i++) {\n        cost[i] += Math.min(cost[i-1], cost[i-2]);\n    }\n    \n    return cost;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCost(cost: number[]): number[] {\n    const n = cost.length;\n    cost[1] += cost[0];\n    \n    for (let i = 2; i &lt; n; i++) {\n        cost[i] += Math.min(cost[i-1], cost[i-2]);\n    }\n    \n    return cost;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1) auxiliary (excluding input/output storage)
+- Notes: Modifies the input array in place.
+
+---
+
+## Recursion with Memoization
+
+**Intuition**
+We can define the problem recursively: the minimum cost to reach index `i` is `cost[i]` plus the minimum cost to reach `i-1` or `i-2`. To avoid redundant calculations, we memoize the results of subproblems.
+
+**Steps**
+- Create a memoization array (or map) initialized to -1 or null.
+- Define a recursive function `solve(i)` that returns the minimum cost to reach index `i`.
+- Base cases: if `i == 0` return `cost[0]`; if `i == 1` return `cost[0] + cost[1]`.
+- If `memo[i]` is already calculated, return it.
+- Otherwise, calculate `memo[i] = cost[i] + min(solve(i-1), solve(i-2))`.
+- Iterate through all indices `0` to `n-1` to populate the result array using the recursive function.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minCost(self, cost: list[int]) -&gt; list[int]:\n        n = len(cost)\n        memo = {}\n        \n        def solve(i):\n            if i == 0:\n                return cost[0]\n            if i == 1:\n                return cost[0] + cost[1]\n            if i in memo:\n                return memo[i]\n            memo[i] = cost[i] + min(solve(i-1), solve(i-2))\n            return memo[i]\n        \n        return [solve(i) for i in range(n)]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private int[] cost;\n    private int[] memo;\n    \n    public int[] minCost(int[] cost) {\n        this.cost = cost;\n        int n = cost.length;\n        this.memo = new int[n];\n        Arrays.fill(memo, -1);\n        \n        int[] ans = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            ans[i] = solve(i);\n        }\n        return ans;\n    }\n    \n    private int solve(int i) {\n        if (i == 0) return cost[0];\n        if (i == 1) return cost[0] + cost[1];\n        if (memo[i] != -1) return memo[i];\n        \n        memo[i] = cost[i] + Math.min(solve(i-1), solve(i-2));\n        return memo[i];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; cost;\n    vector&lt;int&gt; memo;\n    \n    int solve(int i) {\n        if (i == 0) return cost[0];\n        if (i == 1) return cost[0] + cost[1];\n        if (memo[i] != -1) return memo[i];\n        \n        memo[i] = cost[i] + min(solve(i-1), solve(i-2));\n        return memo[i];\n    }\n    \n    vector&lt;int&gt; minCost(vector&lt;int&gt;& c) {\n        cost = c;\n        int n = cost.size();\n        memo.assign(n, -1);\n        \n        vector&lt;int&gt; ans(n);\n        for (int i = 0; i &lt; n; ++i) {\n            ans[i] = solve(i);\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var minCost = function(cost) {\n    const n = cost.length;\n    const memo = {};\n    \n    const solve = (i) =&gt; {\n        if (i === 0) return cost[0];\n        if (i === 1) return cost[0] + cost[1];\n        if (memo[i] !== undefined) return memo[i];\n        \n        memo[i] = cost[i] + Math.min(solve(i-1), solve(i-2));\n        return memo[i];\n    };\n    \n    const ans = [];\n    for (let i = 0; i &lt; n; i++) {\n        ans.push(solve(i));\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minCost(cost: number[]): number[] {\n    const n = cost.length;\n    const memo: Record&lt;number, number&gt; = {};\n    \n    const solve = (i: number): number =&gt; {\n        if (i === 0) return cost[0];\n        if (i === 1) return cost[0] + cost[1];\n        if (memo[i] !== undefined) return memo[i];\n        \n        memo[i] = cost[i] + Math.min(solve(i-1), solve(i-2));\n        return memo[i];\n    };\n    \n    const ans: number[] = [];\n    for (let i = 0; i &lt; n; i++) {\n        ans.push(solve(i));\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n) for recursion stack and memoization
+- Notes: May cause stack overflow for large `n` due to recursion depth.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Cost to Reach Every Position Solutions","datePublished":"2024-10-18","description":"Calculate the minimum cost to reach each index in an array where you can jump 1 or 2 steps.","keywords":"LeetCode, Minimum Cost to Reach Every Position, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the iterative DP approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the cost array, as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the in-place DP approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, as we modify the input array directly without allocating extra space proportional to n."}},{"@type":"Question","name":"Why is recursion with memoization less preferred here?","acceptedAnswer":{"@type":"Answer","text":"Recursion with memoization has O(n) space complexity for the stack and memo, and risks stack overflow for large inputs (n up to 10⁵), making iterative approaches safer."}}]}).replace(/</g,'\u003c')}
+</script>

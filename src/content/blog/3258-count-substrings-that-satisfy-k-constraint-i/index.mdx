@@ -1,0 +1,123 @@
+---
+title: "Count Substrings That Satisfy K-Constraint I"
+summary: "Count the number of substrings in a binary string where the count of 0s or 1s is at most k."
+date: "Jul 02, 2024"
+tags:
+  - String
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.00% | **Paid:** No
+> **Topics:** String, Sliding Window
+
+You are given a binary string s and an integer k.
+
+A binary string satisfies the k-constraint if either the number of 0's in the string is at most k or the number of 1's in the string is at most k.
+
+Return the number of substrings of s that satisfy the k-constraint.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window](#sliding-window)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "10101", k = 1
+Output: 5
+Explanation:
+The substrings that satisfy the k-constraint are ["1", "0", "1", "0", "1"].
+```
+
+**Example 2:**
+
+```text
+Input: s = "1010101", k = 2
+Output: 10
+Explanation:
+The substrings that satisfy the k-constraint are ["1", "0", "1", "0", "1", "0", "1", "10", "01", "10"].
+```
+
+**Example 3:**
+
+```text
+Input: s = "11111", k = 2
+Output: 15
+Explanation:
+All substrings satisfy the k-constraint because the number of 1's is at most 2 in all of them.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 50
+s[i] is either '0' or '1'.
+1 <= k <= s.length
+```
+
+---
+## Brute Force
+
+**Intuition**
+Since the string length is at most 50, we can afford to check every possible substring. We iterate through all start and end indices, count the zeros and ones in that window, and check if the count of either is at most k.
+
+**Steps**
+- Initialize a counter for the result.
+- Iterate through the string with index `i` as the start of the substring.
+- Iterate through the string with index `j` from `i` to the end as the end of the substring.
+- Maintain counts of zeros and ones for the current substring.
+- If `zeros &lt;= k` or `ones &lt;= k`, increment the result.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countKConstraintSubstrings(self, s: str, k: int) -&gt; int:\n        n = len(s)\n        ans = 0\n        for i in range(n):\n            zeros = 0\n            ones = 0\n            for j in range(i, n):\n                if s[j] == '0':\n                    zeros += 1\n                else:\n                    ones += 1\n                if zeros &lt;= k or ones &lt;= k:\n                    ans += 1\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countKConstraintSubstrings(String s, int k) {\n        int n = s.length();\n        int ans = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int zeros = 0, ones = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (s.charAt(j) == '0') zeros++;\n                else ones++;\n                if (zeros &lt;= k || ones &lt;= k) ans++;\n            }\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countKConstraintSubstrings(string s, int k) {\n        int n = s.size();\n        int ans = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            int zeros = 0, ones = 0;\n            for (int j = i; j &lt; n; ++j) {\n                if (s[j] == '0') zeros++;\n                else ones++;\n                if (zeros &lt;= k || ones &lt;= k) ans++;\n            }\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countKConstraintSubstrings = function(s, k) {\n    let n = s.length;\n    let ans = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0, ones = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') zeros++;\n            else ones++;\n            if (zeros &lt;= k || ones &lt;= k) ans++;\n        }\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKConstraintSubstrings(s: string, k: number): number {\n    let n = s.length;\n    let ans = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0, ones = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') zeros++;\n            else ones++;\n            if (zeros &lt;= k || ones &lt;= k) ans++;\n        }\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - We iterate through all possible substrings.
+- Space: O(1) - We only use a few variables for counting.
+- Notes: Simple and effective given the small constraint (n &lt;= 50).
+
+---
+## Sliding Window
+
+**Intuition**
+We can optimize the solution using a sliding window approach. For every ending index `right`, we find the smallest starting index `left` such that the substring `s[left...right]` satisfies the k-constraint. All substrings ending at `right` and starting from `0` to `left-1` are valid, but actually, it's easier to count the valid substrings ending at `right` by maintaining the window where the constraint is satisfied. If the window violates the constraint (both zeros &gt; k and ones &gt; k), we shrink it from the left until it becomes valid again. The number of valid substrings ending at `right` is `right - left + 1`.
+
+**Steps**
+- Initialize `left = 0`, `count0 = 0`, `count1 = 0`, and `ans = 0`.
+- Iterate `right` from 0 to `n - 1`:
+    - Increment `count0` or `count1` based on `s[right]`.
+    - While `count0 &gt; k` and `count1 &gt; k`:
+        - Decrement `count0` or `count1` based on `s[left]`.
+        - Increment `left`.
+    - Add `right - left + 1` to `ans`.
+- Return `ans`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countKConstraintSubstrings(self, s: str, k: int) -&gt; int:\n        left = 0\n        count0 = 0\n        count1 = 0\n        ans = 0\n        for right in range(len(s)):\n            if s[right] == '0':\n                count0 += 1\n            else:\n                count1 += 1\n            while count0 &gt; k and count1 &gt; k:\n                if s[left] == '0':\n                    count0 -= 1\n                else:\n                    count1 -= 1\n                left += 1\n            ans += right - left + 1\n        return ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countKConstraintSubstrings(String s, int k) {\n        int left = 0;\n        int count0 = 0;\n        int count1 = 0;\n        int ans = 0;\n        for (int right = 0; right &lt; s.length(); right++) {\n            if (s.charAt(right) == '0') count0++;\n            else count1++;\n            while (count0 &gt; k && count1 &gt; k) {\n                if (s.charAt(left) == '0') count0--;\n                else count1--;\n                left++;\n            }\n            ans += right - left + 1;\n        }\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countKConstraintSubstrings(string s, int k) {\n        int left = 0;\n        int count0 = 0;\n        int count1 = 0;\n        int ans = 0;\n        for (int right = 0; right &lt; s.size(); right++) {\n            if (s[right] == '0') count0++;\n            else count1++;\n            while (count0 &gt; k && count1 &gt; k) {\n                if (s[left] == '0') count0--;\n                else count1--;\n                left++;\n            }\n            ans += right - left + 1;\n        }\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countKConstraintSubstrings = function(s, k) {\n    let left = 0;\n    let count0 = 0;\n    let count1 = 0;\n    let ans = 0;\n    for (let right = 0; right &lt; s.length; right++) {\n        if (s[right] === '0') count0++;\n        else count1++;\n        while (count0 &gt; k && count1 &gt; k) {\n            if (s[left] === '0') count0--;\n            else count1--;\n            left++;\n        }\n        ans += right - left + 1;\n    }\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countKConstraintSubstrings(s: string, k: number): number {\n    let left = 0;\n    let count0 = 0;\n    let count1 = 0;\n    let ans = 0;\n    for (let right = 0; right &lt; s.length; right++) {\n        if (s[right] === '0') count0++;\n        else count1++;\n        while (count0 &gt; k && count1 &gt; k) {\n            if (s[left] === '0') count0--;\n            else count1--;\n            left++;\n        }\n        ans += right - left + 1;\n    }\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Each character is added to the window and removed from the window at most once.
+- Space: O(1) - We only use a few variables for counting.
+- Notes: This is the optimal approach for larger inputs, though for this specific problem (n &lt;= 50), the brute force is also sufficient.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Substrings That Satisfy K-Constraint I Solutions","datePublished":"2024-07-02","description":"Count the number of substrings in a binary string where the count of 0s or 1s is at most k.","keywords":"LeetCode, Count Substrings That Satisfy K-Constraint I, Easy, String, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as each element is processed at most twice."}},{"@type":"Question","name":"What is the space complexity of these approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for both approaches as we only use a few extra variables."}}]}).replace(/</g,'\u003c')}
+</script>

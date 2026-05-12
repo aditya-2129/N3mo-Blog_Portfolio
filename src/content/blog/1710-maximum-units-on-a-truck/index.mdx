@@ -1,0 +1,115 @@
+---
+title: "Maximum Units on a Truck"
+summary: "Maximize the total number of units loaded on a truck by selecting boxes with the highest number of units per box first."
+date: "Jan 31, 2025"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.80% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting
+
+You are assigned to put some amount of boxes onto one truck. You are given a 2D array boxTypes, where boxTypes[i] = [numberOfBoxesi, numberOfUnitsPerBoxi]:
+
+numberOfBoxesi is the number of boxes of type i.
+numberOfUnitsPerBoxi is the number of units in each box of type i.
+You are also given an integer truckSize, which is the maximum number of boxes that can be put on the truck. You can choose any boxes to put on the truck as long as the number of boxes does not exceed truckSize.
+
+Return the maximum total number of units that can be put on the truck.
+
+- Examples
+- Constraints
+- [Greedy with Sorting](#greedy-with-sorting)
+- [Counting Sort (Bucket Sort)](#counting-sort-bucket-sort)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: boxTypes = [[1,3],[2,2],[3,1]], truckSize = 4
+Output: 8
+Explanation: There are:
+- 1 box of the first type that contains 3 units.
+- 2 boxes of the second type that contain 2 units each.
+- 3 boxes of the third type that contain 1 unit each.
+You can take all the boxes of the first and second types, and one box of the third type.
+The total number of units will be = 1 + 2 + 2 + 3 = 8.
+```
+
+**Example 2:**
+
+```text
+Input: boxTypes = [[5,10],[2,5],[4,7],[3,9]], truckSize = 10
+Output: 91
+```
+
+## Constraints
+
+```text
+1 <= boxTypes.length <= 1000
+1 <= numberOfBoxesi, numberOfUnitsPerBoxi <= 1000
+1 <= truckSize <= 10^6
+```
+
+---
+## Greedy with Sorting
+
+**Intuition**
+To maximize the total units, we should prioritize boxes that offer the most units per box. By sorting the box types in descending order based on their units per box, we can greedily fill the truck with the most valuable boxes first.
+
+**Steps**
+- Sort the `boxTypes` array based on the number of units per box in descending order.
+- Iterate through the sorted array.
+- For each box type, take as many boxes as possible (either all available boxes or as many as the remaining truck size allows).
+- Add the total units from the taken boxes to the result and decrement the remaining truck size.
+- Stop if the truck is full.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumUnits(self, boxTypes: list[list[int]], truckSize: int) -&gt; int:\n        # Sort by units per box in descending order\n        boxTypes.sort(key=lambda x: x[1], reverse=True)\n        \n        total_units = 0\n        \n        for boxes, units in boxTypes:\n            if truckSize &gt;= boxes:\n                total_units += boxes * units\n                truckSize -= boxes\n            else:\n                total_units += truckSize * units\n                break\n                \n        return total_units\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumUnits(int[][] boxTypes, int truckSize) {\n        // Sort by units per box in descending order\n        Arrays.sort(boxTypes, (a, b) -&gt; Integer.compare(b[1], a[1]));\n        \n        int totalUnits = 0;\n        \n        for (int[] box : boxTypes) {\n            int count = box[0];\n            int units = box[1];\n            \n            if (truckSize &gt;= count) {\n                totalUnits += count * units;\n                truckSize -= count;\n            } else {\n                totalUnits += truckSize * units;\n                break;\n            }\n        }\n        \n        return totalUnits;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumUnits(vector&lt;vector&lt;int&gt;&gt;& boxTypes, int truckSize) {\n        // Sort by units per box in descending order\n        sort(boxTypes.begin(), boxTypes.end(), [](const vector&lt;int&gt;& a, const vector&lt;int&gt;& b) {\n            return a[1] &gt; b[1];\n        });\n        \n        int totalUnits = 0;\n        \n        for (const auto& box : boxTypes) {\n            int count = box[0];\n            int units = box[1];\n            \n            if (truckSize &gt;= count) {\n                totalUnits += count * units;\n                truckSize -= count;\n            } else {\n                totalUnits += truckSize * units;\n                break;\n            }\n        }\n        \n        return totalUnits;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} boxTypes\n * @param {number} truckSize\n * @return {number}\n */\nvar maximumUnits = function(boxTypes, truckSize) {\n    // Sort by units per box in descending order\n    boxTypes.sort((a, b) =&gt; b[1] - a[1]);\n    \n    let totalUnits = 0;\n    \n    for (const [count, units] of boxTypes) {\n        if (truckSize &gt;= count) {\n            totalUnits += count * units;\n            truckSize -= count;\n        } else {\n            totalUnits += truckSize * units;\n            break;\n        }\n    }\n    \n    return totalUnits;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumUnits(boxTypes: number[][], truckSize: number): number {\n    // Sort by units per box in descending order\n    boxTypes.sort((a, b) =&gt; b[1] - a[1]);\n    \n    let totalUnits = 0;\n    \n    for (const [count, units] of boxTypes) {\n        if (truckSize &gt;= count) {\n            totalUnits += count * units;\n            truckSize -= count;\n        } else {\n            totalUnits += truckSize * units;\n            break;\n        }\n    }\n    \n    return totalUnits;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting, where N is the number of box types.
+- Space: O(1) or O(N) depending on the sorting algorithm's implementation.
+- Notes: Sorting is the most straightforward approach but has a logarithmic time factor.
+
+---
+## Counting Sort (Bucket Sort)
+
+**Intuition**
+The constraints state that the number of units per box is at most 1000. Instead of sorting, we can use an array (bucket sort) where the index represents the number of units and the value represents the total number of boxes available with that unit count. This allows us to iterate from the highest units downwards in linear time relative to the fixed range.
+
+**Steps**
+- Initialize an array `count` of size 1001 (since units are between 1 and 1000) with zeros.
+- Iterate through `boxTypes` and accumulate the number of boxes for each unit value in the `count` array.
+- Iterate through the `count` array from index 1000 down to 1.
+- For each unit count, take as many boxes as possible, add to the total, and update the remaining truck size.
+- Stop if the truck is full.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumUnits(self, boxTypes: list[list[int]], truckSize: int) -&gt; int:\n        # Bucket array to store count of boxes for each unit value\n        # Max units per box is 1000\n        unit_counts = [0] * 1001\n        \n        for boxes, units in boxTypes:\n            unit_counts[units] += boxes\n        \n        total_units = 0\n        \n        # Iterate from highest units to lowest\n        for units in range(1000, 0, -1):\n            if truckSize == 0:\n                break\n            \n            available_boxes = unit_counts[units]\n            \n            if available_boxes &gt; 0:\n                take = min(truckSize, available_boxes)\n                total_units += take * units\n                truckSize -= take\n                \n        return total_units\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumUnits(int[][] boxTypes, int truckSize) {\n        // Bucket array to store count of boxes for each unit value\n        int[] unitCounts = new int[1001];\n        \n        for (int[] box : boxTypes) {\n            unitCounts[box[1]] += box[0];\n        }\n        \n        int totalUnits = 0;\n        \n        // Iterate from highest units to lowest\n        for (int i = 1000; i &gt; 0; i--) {\n            if (truckSize == 0) break;\n            \n            int availableBoxes = unitCounts[i];\n            \n            if (availableBoxes &gt; 0) {\n                int take = Math.min(truckSize, availableBoxes);\n                totalUnits += take * i;\n                truckSize -= take;\n            }\n        }\n        \n        return totalUnits;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumUnits(vector&lt;vector&lt;int&gt;&gt;& boxTypes, int truckSize) {\n        // Bucket array to store count of boxes for each unit value\n        int unitCounts[1001] = {0};\n        \n        for (const auto& box : boxTypes) {\n            unitCounts[box[1]] += box[0];\n        }\n        \n        int totalUnits = 0;\n        \n        // Iterate from highest units to lowest\n        for (int i = 1000; i &gt; 0; --i) {\n            if (truckSize == 0) break;\n            \n            int availableBoxes = unitCounts[i];\n            \n            if (availableBoxes &gt; 0) {\n                int take = min(truckSize, availableBoxes);\n                totalUnits += take * i;\n                truckSize -= take;\n            }\n        }\n        \n        return totalUnits;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} boxTypes\n * @param {number} truckSize\n * @return {number}\n */\nvar maximumUnits = function(boxTypes, truckSize) {\n    // Bucket array to store count of boxes for each unit value\n    const unitCounts = new Array(1001).fill(0);\n    \n    for (const [boxes, units] of boxTypes) {\n        unitCounts[units] += boxes;\n    }\n    \n    let totalUnits = 0;\n    \n    // Iterate from highest units to lowest\n    for (let i = 1000; i &gt; 0; i--) {\n        if (truckSize === 0) break;\n        \n        const availableBoxes = unitCounts[i];\n        \n        if (availableBoxes &gt; 0) {\n            const take = Math.min(truckSize, availableBoxes);\n            totalUnits += take * i;\n            truckSize -= take;\n        }\n    }\n    \n    return totalUnits;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumUnits(boxTypes: number[][], truckSize: number): number {\n    // Bucket array to store count of boxes for each unit value\n    const unitCounts: number[] = new Array(1001).fill(0);\n    \n    for (const [boxes, units] of boxTypes) {\n        unitCounts[units] += boxes;\n    }\n    \n    let totalUnits = 0;\n    \n    // Iterate from highest units to lowest\n    for (let i = 1000; i &gt; 0; i--) {\n        if (truckSize === 0) break;\n        \n        const availableBoxes = unitCounts[i];\n        \n        if (availableBoxes &gt; 0) {\n            const take = Math.min(truckSize, availableBoxes);\n            totalUnits += take * i;\n            truckSize -= take;\n        }\n    }\n    \n    return totalUnits;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N + K), where N is the number of box types and K is the maximum units per box (1000). Since K is constant, this is effectively O(N).
+- Space: O(K) for the counting array, which is constant space (1001 integers).
+- Notes: This approach is more efficient than sorting when the range of values (units per box) is small and fixed.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Units on a Truck Solutions","datePublished":"2025-01-31","description":"Maximize the total number of units loaded on a truck by selecting boxes with the highest number of units per box first.","keywords":"LeetCode, Maximum Units on a Truck, Easy, Array, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy with Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of box types, due to the sorting step."}},{"@type":"Question","name":"Why is Counting Sort efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Counting Sort is efficient because the number of units per box is constrained to a maximum of 1000. This allows us to use a fixed-size array to count boxes, resulting in O(N) time complexity."}},{"@type":"Question","name":"What is the space complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(K), where K is the maximum units per box (1000). Since K is a constant small integer, it is considered constant space."}}]}).replace(/</g,'\u003c')}
+</script>

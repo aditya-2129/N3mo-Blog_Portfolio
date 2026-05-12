@@ -1,0 +1,143 @@
+---
+title: "Minimum Bit Flips to Convert Number"
+summary: "Find the minimum number of bit flips required to convert one integer to another by comparing their binary representations."
+date: "Aug 27, 2025"
+tags:
+  - Bit Manipulation
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.90% | **Paid:** No
+> **Topics:** Bit Manipulation
+
+A bit flip of a number x is choosing a bit position i (0-indexed) and flipping the value of that bit from 0 to 1 or from 1 to 0.
+
+Given two integers start and goal, return the minimum number of bit flips to convert start to goal.
+
+- Examples
+- Constraints
+- [XOR and Brian Kernighan's Algorithm](#xor-and-brian-kernighans-algorithm)
+- [XOR and Built-in Bit Count](#xor-and-built-in-bit-count)
+- [Bit by Bit Comparison](#bit-by-bit-comparison)
+- [String Conversion](#string-conversion)
+
+## Examples
+
+```text
+Input: start = 10, goal = 7
+Output: 3
+Explanation: The binary representation of 10 and 7 are 1010 and 0111 respectively. We can convert 10 to 7 by flipping the 1st, 2nd, and 4th bits from the right.
+```
+
+```text
+Input: start = 3, goal = 4
+Output: 3
+Explanation: The binary representation of 3 and 4 are 011 and 100 respectively. We can convert 3 to 4 by flipping all three bits.
+```
+
+## Constraints
+
+```text
+0 <= start, goal <= 10^9
+```
+
+---
+## XOR and Brian Kernighan's Algorithm
+
+**Intuition**
+XOR of two numbers produces a result where each bit is 1 only where the original bits differ. Counting these 1s gives us the minimum flips needed. Brian Kernighan's algorithm efficiently counts set bits by repeatedly clearing the rightmost set bit.
+
+**Steps**
+- Compute XOR of start and goal to find differing bit positions
+- While XOR is not zero, clear the rightmost set bit using n & (n-1)
+- Increment count for each cleared bit
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitFlips(self, start: int, goal: int) -&gt; int:\n        xor = start ^ goal\n        count = 0\n        while xor:\n            xor &= xor - 1\n            count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minBitFlips(int start, int goal) {\n        int xor = start ^ goal;\n        int count = 0;\n        while (xor != 0) {\n            xor &= xor - 1;\n            count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minBitFlips(int start, int goal) {\n        int xor = start ^ goal;\n        int count = 0;\n        while (xor) {\n            xor &= xor - 1;\n            count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} start\n * @param {number} goal\n * @return {number}\n */\nvar minBitFlips = function(start, goal) {\n    let xor = start ^ goal;\n    let count = 0;\n    while (xor !== 0) {\n        xor &= xor - 1;\n        count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minBitFlips(start: number, goal: number): number {\n    let xor = start ^ goal;\n    let count = 0;\n    while (xor !== 0) {\n        xor &= xor - 1;\n        count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(k) where k is the number of set bits in XOR result
+- Space: O(1)
+- Notes: Most efficient for sparse bit differences
+
+---
+## XOR and Built-in Bit Count
+
+**Intuition**
+After XOR to find differing bits, use language's built-in population count function to directly count set bits in a single operation.
+
+**Steps**
+- Compute XOR of start and goal
+- Use built-in bit count function to count 1s in the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitFlips(self, start: int, goal: int) -&gt; int:\n        return bin(start ^ goal).count('1')" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minBitFlips(int start, int goal) {\n        return Integer.bitCount(start ^ goal);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minBitFlips(int start, int goal) {\n        return __builtin_popcount(start ^ goal);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} start\n * @param {number} goal\n * @return {number}\n */\nvar minBitFlips = function(start, goal) {\n    return (start ^ goal).toString(2).split('1').length - 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minBitFlips(start: number, goal: number): number {\n    return (start ^ goal).toString(2).split('1').length - 1;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - hardware instruction or constant time string conversion
+- Space: O(1)
+- Notes: Cleanest and most readable solution
+
+---
+## Bit by Bit Comparison
+
+**Intuition**
+Directly compare each bit position of both numbers using bitwise AND and right shift operations, counting positions where bits differ.
+
+**Steps**
+- Initialize count to 0
+- While either number has remaining bits, compare the least significant bits
+- If bits differ, increment count
+- Right shift both numbers to process next bit
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitFlips(self, start: int, goal: int) -&gt; int:\n        count = 0\n        while start &gt; 0 or goal &gt; 0:\n            if (start & 1) != (goal & 1):\n                count += 1\n            start &gt;&gt;= 1\n            goal &gt;&gt;= 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minBitFlips(int start, int goal) {\n        int count = 0;\n        while (start &gt; 0 || goal &gt; 0) {\n            if ((start & 1) != (goal & 1)) {\n                count++;\n            }\n            start &gt;&gt;= 1;\n            goal &gt;&gt;= 1;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minBitFlips(int start, int goal) {\n        int count = 0;\n        while (start &gt; 0 || goal &gt; 0) {\n            if ((start & 1) != (goal & 1)) {\n                count++;\n            }\n            start &gt;&gt;= 1;\n            goal &gt;&gt;= 1;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} start\n * @param {number} goal\n * @return {number}\n */\nvar minBitFlips = function(start, goal) {\n    let count = 0;\n    while (start &gt; 0 || goal &gt; 0) {\n        if ((start & 1) !== (goal & 1)) {\n            count++;\n        }\n        start &gt;&gt;= 1;\n        goal &gt;&gt;= 1;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minBitFlips(start: number, goal: number): number {\n    let count = 0;\n    while (start &gt; 0 || goal &gt; 0) {\n        if ((start & 1) !== (goal & 1)) {\n            count++;\n        }\n        start &gt;&gt;= 1;\n        goal &gt;&gt;= 1;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) where n is the larger of start and goal
+- Space: O(1)
+- Notes: Intuitive but less efficient than XOR-based approaches
+
+---
+## String Conversion
+
+**Intuition**
+Convert both numbers to binary strings, pad them to equal length, then compare characters to count differing positions.
+
+**Steps**
+- Convert both numbers to binary strings
+- Pad shorter string with leading zeros
+- Compare each character position
+- Count positions where characters differ
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBitFlips(self, start: int, goal: int) -&gt; int:\n        max_len = max(start.bit_length(), goal.bit_length())\n        start_bin = format(start, f'0{max_len}b')\n        goal_bin = format(goal, f'0{max_len}b')\n        \n        count = 0\n        for s, g in zip(start_bin, goal_bin):\n            if s != g:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minBitFlips(int start, int goal) {\n        String startBin = Integer.toBinaryString(start);\n        String goalBin = Integer.toBinaryString(goal);\n        \n        int maxLen = Math.max(startBin.length(), goalBin.length());\n        while (startBin.length() &lt; maxLen) {\n            startBin = \"0\" + startBin;\n        }\n        while (goalBin.length() &lt; maxLen) {\n            goalBin = \"0\" + goalBin;\n        }\n        \n        int count = 0;\n        for (int i = 0; i &lt; maxLen; i++) {\n            if (startBin.charAt(i) != goalBin.charAt(i)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minBitFlips(int start, int goal) {\n        string startBin = bitset&lt;32&gt;(start).to_string();\n        string goalBin = bitset&lt;32&gt;(goal).to_string();\n        \n        int count = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            if (startBin[i] != goalBin[i]) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} start\n * @param {number} goal\n * @return {number}\n */\nvar minBitFlips = function(start, goal) {\n    const startBin = start.toString(2);\n    const goalBin = goal.toString(2);\n    \n    const maxLen = Math.max(startBin.length, goalBin.length);\n    const paddedStart = startBin.padStart(maxLen, '0');\n    const paddedGoal = goalBin.padStart(maxLen, '0');\n    \n    let count = 0;\n    for (let i = 0; i &lt; maxLen; i++) {\n        if (paddedStart[i] !== paddedGoal[i]) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minBitFlips(start: number, goal: number): number {\n    const startBin = start.toString(2);\n    const goalBin = goal.toString(2);\n    \n    const maxLen = Math.max(startBin.length, goalBin.length);\n    const paddedStart = startBin.padStart(maxLen, '0');\n    const paddedGoal = goalBin.padStart(maxLen, '0');\n    \n    let count = 0;\n    for (let i = 0; i &lt; maxLen; i++) {\n        if (paddedStart[i] !== paddedGoal[i]) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) for string conversion and comparison
+- Space: O(log n) for storing binary strings
+- Notes: Less efficient due to string allocation overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Bit Flips to Convert Number Solutions","datePublished":"2025-08-27","description":"Find the minimum number of bit flips required to convert one integer to another by comparing their binary representations.","keywords":"LeetCode, Minimum Bit Flips to Convert Number, Easy, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of XOR and Brian Kernighan's Algorithm?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of set bits in the XOR result. This is optimal for sparse bit differences."}},{"@type":"Question","name":"What is the time complexity of XOR and Built-in Bit Count?","acceptedAnswer":{"@type":"Answer","text":"O(1) as it uses a hardware instruction or constant time string conversion. This is the most efficient approach."}},{"@type":"Question","name":"What is the time complexity of Bit by Bit Comparison?","acceptedAnswer":{"@type":"Answer","text":"O(log n) where n is the larger of start and goal, as we process each bit position."}},{"@type":"Question","name":"What is the time complexity of String Conversion?","acceptedAnswer":{"@type":"Answer","text":"O(log n) for string conversion and comparison, with O(log n) space for storing binary strings."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,118 @@
+---
+title: "Increasing Decreasing String"
+summary: "Reorder string characters by repeatedly picking the smallest available character, then the largest, until empty."
+date: "Oct 22, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.30% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+You are given a string s. Reorder the string using the following algorithm:
+
+1. Pick the smallest character from s and append it to the result.
+2. Pick the smallest character from s which is greater than the last appended character to the result and append it.
+3. Repeat step 2 until you cannot pick a character.
+4. Pick the largest character from s and append it to the result.
+5. Pick the largest character from s which is smaller than the last appended character to the result and append it.
+6. Repeat step 5 until you cannot pick a character.
+7. Repeat the process from step 1 until you pick all characters from s.
+
+Return the resulting string.
+
+- Examples
+- Constraints
+- [Counting Sort (Frequency Array)](#counting-sort-frequency-array)
+- [Sorting and Simulation](#sorting-and-simulation)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "aaaabbbbcccc"
+Output: "abccbaabccba"
+Explanation: After steps 1, 2, and 3 of the first iteration, result = "abc".
+After steps 4, 5, and 6 of the first iteration, result = "abccba".
+The first iteration is finished. Now, s = "aabbcc" and we repeat steps 1-6.
+Result = "abccbaabccba"
+```
+
+### Example 2
+```text
+Input: s = "rat"
+Output: "art"
+Explanation: The word "rat" becomes "art" after re-ordering it with the algorithm.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 500
+s consists of only lowercase English letters.
+```
+
+---
+## Counting Sort (Frequency Array)
+
+**Intuition**
+Since the input string consists only of lowercase English letters, we can use a fixed-size array of length 26 to count the frequency of each character. This allows us to efficiently pick the smallest and largest available characters in linear time.
+
+**Steps**
+- Create an integer array `count` of size 26 initialized to 0.
+- Iterate through the string `s` and increment the count for each character.
+- Initialize an empty result string (or list).
+- While the length of the result is less than the length of `s`:
+  - Iterate from index 0 to 25 (a to z). If `count[i] &gt; 0`, append the character to the result and decrement `count[i]`.
+  - Iterate from index 25 down to 0 (z to a). If `count[i] &gt; 0`, append the character to the result and decrement `count[i]`.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortString(self, s: str) -&gt; str:\n        count = [0] * 26\n        for c in s:\n            count[ord(c) - ord('a')] += 1\n        \n        res = []\n        n = len(s)\n        \n        while len(res) &lt; n:\n            # Pick smallest\n            for i in range(26):\n                if count[i] &gt; 0:\n                    res.append(chr(i + ord('a')))\n                    count[i] -= 1\n            \n            # Pick largest\n            for i in range(25, -1, -1):\n                if count[i] &gt; 0:\n                    res.append(chr(i + ord('a')))\n                    count[i] -= 1\n                    \n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String sortString(String s) {\n        int[] count = new int[26];\n        for (char c : s.toCharArray()) {\n            count[c - 'a']++;\n        }\n        \n        StringBuilder sb = new StringBuilder();\n        int n = s.length();\n        \n        while (sb.length() &lt; n) {\n            // Pick smallest\n            for (int i = 0; i &lt; 26; i++) {\n                if (count[i] &gt; 0) {\n                    sb.append((char) (i + 'a'));\n                    count[i]--;\n                }\n            }\n            \n            // Pick largest\n            for (int i = 25; i &gt;= 0; i--) {\n                if (count[i] &gt; 0) {\n                    sb.append((char) (i + 'a'));\n                    count[i]--;\n                }\n            }\n        }\n        \n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string sortString(string s) {\n        int count[26] = {0};\n        for (char c : s) {\n            count[c - 'a']++;\n        }\n        \n        string res = \"\";\n        int n = s.size();\n        \n        while (res.size() &lt; n) {\n            // Pick smallest\n            for (int i = 0; i &lt; 26; ++i) {\n                if (count[i] &gt; 0) {\n                    res += (char)(i + 'a');\n                    count[i]--;\n                }\n            }\n            \n            // Pick largest\n            for (int i = 25; i &gt;= 0; --i) {\n                if (count[i] &gt; 0) {\n                    res += (char)(i + 'a');\n                    count[i]--;\n                }\n            }\n        }\n        \n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar sortString = function(s) {\n    let count = new Array(26).fill(0);\n    for (let c of s) {\n        count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    let res = [];\n    let n = s.length;\n    \n    while (res.length &lt; n) {\n        // Pick smallest\n        for (let i = 0; i &lt; 26; i++) {\n            if (count[i] &gt; 0) {\n                res.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\n                count[i]--;\n            }\n        }\n        \n        // Pick largest\n        for (let i = 25; i &gt;= 0; i--) {\n            if (count[i] &gt; 0) {\n                res.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\n                count[i]--;\n            }\n        }\n    }\n    \n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortString(s: string): string {\n    let count = new Array(26).fill(0);\n    for (let c of s) {\n        count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    let res: string[] = [];\n    let n = s.length;\n    \n    while (res.length &lt; n) {\n        // Pick smallest\n        for (let i = 0; i &lt; 26; i++) {\n            if (count[i] &gt; 0) {\n                res.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\n                count[i]--;\n            }\n        }\n        \n        // Pick largest\n        for (let i = 25; i &gt;= 0; i--) {\n            if (count[i] &gt; 0) {\n                res.push(String.fromCharCode(i + 'a'.charCodeAt(0)));\n                count[i]--;\n            }\n        }\n    }\n    \n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. We iterate through the string to count and then iterate through the fixed 26-character alphabet to build the result.
+- Space: O(1) auxiliary space, as we use a fixed-size array of 26 integers regardless of the input size.
+- Notes: This is the most optimal approach for this problem given the constraints on character set.
+
+---
+## Sorting and Simulation
+
+**Intuition**
+We can sort the string first to easily access the smallest and largest characters. Then, we simulate the picking process by scanning the sorted list and removing characters as we pick them.
+
+**Steps**
+- Convert the string `s` into a list of characters and sort it.
+- Initialize an empty result list.
+- While the character list is not empty:
+  - **Increasing Phase:** Iterate through the list. If the current character is greater than the last picked character (or if it's the first pick), append it to the result and remove it from the list.
+  - **Decreasing Phase:** Iterate through the list. If the current character is smaller than the last picked character (or if it's the first pick), append it to the result and remove it from the list.
+- Return the joined result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortString(self, s: str) -&gt; str:\n        chars = sorted(s)\n        res = []\n        \n        while chars:\n            # Increasing phase\n            i = 0\n            last = ''\n            while i &lt; len(chars):\n                if chars[i] &gt; last:\n                    last = chars[i]\n                    res.append(chars.pop(i))\n                else:\n                    i += 1\n            \n            # Decreasing phase\n            i = 0\n            last = '{' # Character after 'z'\n            while i &lt; len(chars):\n                if chars[i] &lt; last:\n                    last = chars[i]\n                    res.append(chars.pop(i))\n                else:\n                    i += 1\n                    \n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.Collections;\n\nclass Solution {\n    public String sortString(String s) {\n        ArrayList&lt;Character&gt; chars = new ArrayList&lt;&gt;();\n        for (char c : s.toCharArray()) {\n            chars.add(c);\n        }\n        Collections.sort(chars);\n        \n        StringBuilder sb = new StringBuilder();\n        \n        while (!chars.isEmpty()) {\n            // Increasing phase\n            int i = 0;\n            char last = 0; // 0 is less than 'a'\n            while (i &lt; chars.size()) {\n                if (chars.get(i) &gt; last) {\n                    last = chars.get(i);\n                    sb.append(last);\n                    chars.remove(i);\n                } else {\n                    i++;\n                }\n            }\n            \n            // Decreasing phase\n            i = 0;\n            last = (char) ('z' + 1); // Greater than 'z'\n            while (i &lt; chars.size()) {\n                if (chars.get(i) &lt; last) {\n                    last = chars.get(i);\n                    sb.append(last);\n                    chars.remove(i);\n                } else {\n                    i++;\n                }\n            }\n        }\n        \n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    string sortString(string s) {\n        sort(s.begin(), s.end());\n        string res = \"\";\n        \n        while (!s.empty()) {\n            // Increasing phase\n            int i = 0;\n            char last = 0;\n            while (i &lt; s.size()) {\n                if (s[i] &gt; last) {\n                    last = s[i];\n                    res += last;\n                    s.erase(i, 1);\n                } else {\n                    i++;\n                }\n            }\n            \n            // Decreasing phase\n            i = 0;\n            last = 'z' + 1;\n            while (i &lt; s.size()) {\n                if (s[i] &lt; last) {\n                    last = s[i];\n                    res += last;\n                    s.erase(i, 1);\n                } else {\n                    i++;\n                }\n            }\n        }\n        \n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar sortString = function(s) {\n    let chars = s.split('').sort();\n    let res = [];\n    \n    while (chars.length &gt; 0) {\n        // Increasing phase\n        let i = 0;\n        let last = '';\n        while (i &lt; chars.length) {\n            if (chars[i] &gt; last) {\n                last = chars[i];\n                res.push(chars.splice(i, 1)[0]);\n            } else {\n                i++;\n            }\n        }\n        \n        // Decreasing phase\n        i = 0;\n        last = String.fromCharCode('z'.charCodeAt(0) + 1);\n        while (i &lt; chars.length) {\n            if (chars[i] &lt; last) {\n                last = chars[i];\n                res.push(chars.splice(i, 1)[0]);\n            } else {\n                i++;\n            }\n        }\n    }\n    \n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortString(s: string): string {\n    let chars: string[] = s.split('').sort();\n    let res: string[] = [];\n    \n    while (chars.length &gt; 0) {\n        // Increasing phase\n        let i = 0;\n        let last = '';\n        while (i &lt; chars.length) {\n            if (chars[i] &gt; last) {\n                last = chars[i];\n                res.push(chars.splice(i, 1)[0]);\n            } else {\n                i++;\n            }\n        }\n        \n        // Decreasing phase\n        i = 0;\n        last = String.fromCharCode('z'.charCodeAt(0) + 1);\n        while (i &lt; chars.length) {\n            if (chars[i] &lt; last) {\n                last = chars[i];\n                res.push(chars.splice(i, 1)[0]);\n            } else {\n                i++;\n            }\n        }\n    }\n    \n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(N²), where N is the length of the string. Sorting takes O(N log N), but removing elements from a list/array takes O(N) in the worst case, and we do this N times.
+- Space: O(N) to store the list of characters.
+- Notes: This approach is intuitive but less efficient than Counting Sort due to the cost of element removal.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Increasing Decreasing String Solutions","datePublished":"2025-10-22","description":"Reorder string characters by repeatedly picking the smallest available character, then the largest, until empty.","keywords":"LeetCode, Increasing Decreasing String, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"O(N), where N is the length of the string. We iterate through the string to count and then iterate through the fixed 26-character alphabet to build the result."}},{"@type":"Question","name":"What is the space complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) auxiliary space, as we use a fixed-size array of 26 integers regardless of the input size."}},{"@type":"Question","name":"Why is Counting Sort preferred over Sorting?","acceptedAnswer":{"@type":"Answer","text":"Counting Sort runs in O(N) time, whereas standard comparison sorts run in O(N log N). Since the character set is limited to lowercase English letters, Counting Sort is optimal."}}]}).replace(/</g,'\u003c')}
+</script>

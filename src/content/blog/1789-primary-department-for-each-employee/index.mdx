@@ -1,0 +1,154 @@
+---
+title: "Primary Department for Each Employee"
+summary: "Find the primary department for each employee, prioritizing the 'Y' flag or the smallest department ID if no flag exists."
+date: "Jan 30, 2026"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Employee
+
+| Column Name  | Type    |
+|--------------|---------|
+| employee_id  | int     |
+| department_id| int     |
+| primary_flag | varchar |
+
+(employee_id, department_id) is the primary key (combination of columns with unique values) for this table.
+This table contains information about the assignment of employees to departments in the company.
+primary_flag is an ENUM (category) of type ('Y', 'N'). If the department is the primary department for the employee, then the flag is 'Y', otherwise 'N'.
+Each employee belongs to only one department, and is assigned to only one primary department.
+
+Write a solution to report all the employees with their primary department. For employees who have not been assigned a primary department, report the department with the smallest ID.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Window Functions](#window-functions)
+- [Conditional Aggregation](#conditional-aggregation)
+- [Union All](#union-all)
+
+## Examples
+
+### Example 1:
+
+**Input:**
+
+Employee table:
+
+| employee_id | department_id | primary_flag |
+|-------------|---------------|--------------|
+| 1           | 1             | N            |
+| 2           | 1             | Y            |
+| 2           | 2             | N            |
+| 3           | 3             | N            |
+| 4           | 4             | N            |
+| 4           | 5             | N            |
+| 4           | 6             | N            |
+
+**Output:**
+
+| employee_id | department_id |
+|-------------|---------------|
+| 1           | 1             |
+| 2           | 1             |
+| 3           | 3             |
+| 4           | 4             |
+
+**Explanation:**
+- The primary department for employee 1 is 1 because they have not been assigned to a primary department, and department 1 has the smallest ID.
+- The primary department for employee 2 is 1 because they have been assigned to a primary department (primary_flag = 'Y').
+- The primary department for employee 3 is 3 because they have not been assigned to a primary department, and department 3 has the smallest ID.
+- The primary department for employee 4 is 4 because they have not been assigned to a primary department, and department 4 has the smallest ID among departments (4, 5, 6).
+
+## Constraints
+
+```text
+1 <= employee_id, department_id <= 1000
+primary_flag is 'Y' or 'N'
+```
+
+---
+## Window Functions
+
+**Intuition**
+We can assign a rank to each department for every employee. The ranking logic should prioritize the 'Y' flag first, and then the smallest department ID. Finally, we select the row with rank 1 for each employee.
+
+**Steps**
+- Use the `ROW_NUMBER()` window function to rank rows partitioned by `employee_id`.
+- Order the rows by `primary_flag` in descending order (so 'Y' comes before 'N') and then by `department_id` in ascending order.
+- Filter the result to keep only rows where the rank is 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM (\n    SELECT employee_id, department_id,\n    ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY primary_flag DESC, department_id ASC) as rn\n    FROM Employee\n) t\nWHERE rn = 1" },
+{ name: "Java", lang: "java", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM (\n    SELECT employee_id, department_id,\n    ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY primary_flag DESC, department_id ASC) as rn\n    FROM Employee\n) t\nWHERE rn = 1" },
+{ name: "C++", lang: "cpp", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM (\n    SELECT employee_id, department_id,\n    ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY primary_flag DESC, department_id ASC) as rn\n    FROM Employee\n) t\nWHERE rn = 1" },
+{ name: "JavaScript", lang: "javascript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM (\n    SELECT employee_id, department_id,\n    ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY primary_flag DESC, department_id ASC) as rn\n    FROM Employee\n) t\nWHERE rn = 1" },
+{ name: "TypeScript", lang: "typescript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM (\n    SELECT employee_id, department_id,\n    ROW_NUMBER() OVER(PARTITION BY employee_id ORDER BY primary_flag DESC, department_id ASC) as rn\n    FROM Employee\n) t\nWHERE rn = 1" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting required by the window function.
+- Space: O(N) for storing the intermediate results of the window function.
+- Notes: This is a very readable and standard approach for "Top N per Group" problems.
+
+---
+## Conditional Aggregation
+
+**Intuition**
+We can group by `employee_id` and use conditional logic to pick the correct department. If a 'Y' flag exists, we pick that department ID; otherwise, we pick the minimum department ID.
+
+**Steps**
+- Group the table by `employee_id`.
+- Use `MAX(CASE WHEN primary_flag = 'Y' THEN department_id END)` to find the department ID marked as primary. This returns NULL if no primary exists.
+- Use `COALESCE` (or `IFNULL`) to return the primary department ID if found, otherwise fall back to `MIN(department_id)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Solution in SQL (Problem is Database specific)\nSELECT employee_id,\nCOALESCE(\n    MAX(CASE WHEN primary_flag = 'Y' THEN department_id END),\n    MIN(department_id)\n) as department_id\nFROM Employee\nGROUP BY employee_id" },
+{ name: "Java", lang: "java", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id,\nCOALESCE(\n    MAX(CASE WHEN primary_flag = 'Y' THEN department_id END),\n    MIN(department_id)\n) as department_id\nFROM Employee\nGROUP BY employee_id" },
+{ name: "C++", lang: "cpp", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id,\nCOALESCE(\n    MAX(CASE WHEN primary_flag = 'Y' THEN department_id END),\n    MIN(department_id)\n) as department_id\nFROM Employee\nGROUP BY employee_id" },
+{ name: "JavaScript", lang: "javascript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id,\nCOALESCE(\n    MAX(CASE WHEN primary_flag = 'Y' THEN department_id END),\n    MIN(department_id)\n) as department_id\nFROM Employee\nGROUP BY employee_id" },
+{ name: "TypeScript", lang: "typescript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id,\nCOALESCE(\n    MAX(CASE WHEN primary_flag = 'Y' THEN department_id END),\n    MIN(department_id)\n) as department_id\nFROM Employee\nGROUP BY employee_id" },]} />
+
+**Complexity**
+- Time: O(N) assuming a linear scan for aggregation.
+- Space: O(N) for the hash table used to group employees.
+- Notes: This approach can be more efficient than window functions as it avoids explicit sorting, relying only on grouping.
+
+---
+## Union All
+
+**Intuition**
+We can explicitly handle the two scenarios: employees with a primary department and employees without one. We then combine these results.
+
+**Steps**
+- Select all rows where `primary_flag` is 'Y'.
+- Select all employees who do *not* have a 'Y' flag (using a subquery or `NOT IN`), and for those, select the minimum `department_id`.
+- Combine these two result sets using `UNION ALL`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nUNION ALL\nSELECT employee_id, MIN(department_id)\nFROM Employee\nWHERE employee_id NOT IN (SELECT employee_id FROM Employee WHERE primary_flag = 'Y')\nGROUP BY employee_id" },
+{ name: "Java", lang: "java", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nUNION ALL\nSELECT employee_id, MIN(department_id)\nFROM Employee\nWHERE employee_id NOT IN (SELECT employee_id FROM Employee WHERE primary_flag = 'Y')\nGROUP BY employee_id" },
+{ name: "C++", lang: "cpp", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nUNION ALL\nSELECT employee_id, MIN(department_id)\nFROM Employee\nWHERE employee_id NOT IN (SELECT employee_id FROM Employee WHERE primary_flag = 'Y')\nGROUP BY employee_id" },
+{ name: "JavaScript", lang: "javascript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nUNION ALL\nSELECT employee_id, MIN(department_id)\nFROM Employee\nWHERE employee_id NOT IN (SELECT employee_id FROM Employee WHERE primary_flag = 'Y')\nGROUP BY employee_id" },
+{ name: "TypeScript", lang: "typescript", code: "-- Solution in SQL (Problem is Database specific)\nSELECT employee_id, department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nUNION ALL\nSELECT employee_id, MIN(department_id)\nFROM Employee\nWHERE employee_id NOT IN (SELECT employee_id FROM Employee WHERE primary_flag = 'Y')\nGROUP BY employee_id" },]} />
+
+**Complexity**
+- Time: O(N) for the scans, though `NOT IN` can be slow on large datasets without proper indexing.
+- Space: O(N) to store intermediate results.
+- Notes: This approach is very intuitive and breaks the problem down into distinct logical parts.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Primary Department for Each Employee Solutions","datePublished":"2026-01-30","description":"Find the primary department for each employee, prioritizing the 'Y' flag or the smallest department ID if no flag exists.","keywords":"LeetCode, Primary Department for Each Employee, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Window Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(N log N) due to the sorting required by the window function."}},{"@type":"Question","name":"What is the space complexity of the Window Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) for storing the intermediate results of the window function."}},{"@type":"Question","name":"What is the time complexity of the Conditional Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) assuming a linear scan for aggregation."}},{"@type":"Question","name":"What is the space complexity of the Conditional Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) for the hash table used to group employees."}}]}).replace(/</g,'\u003c')}
+</script>

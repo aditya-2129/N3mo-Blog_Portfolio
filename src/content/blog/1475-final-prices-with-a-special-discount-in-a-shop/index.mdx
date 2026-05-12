@@ -1,0 +1,119 @@
+---
+title: "Final Prices With a Special Discount in a Shop"
+summary: "Given an array prices, for each item find the first subsequent item with a price &lt;= current item to apply a discount, otherwise keep the price."
+date: "Apr 24, 2024"
+tags:
+  - Array
+  - Stack
+  - Monotonic Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.10% | **Paid:** No
+> **Topics:** Array, Stack, Monotonic Stack
+
+You are given an integer array prices where prices[i] is the price of the ith item in a shop.
+
+There is a special discount for items in the shop. If you buy the ith item, then you will receive a discount equivalent to prices[j] where j is the minimum index such that j &gt; i and prices[j] &lt;= prices[i]. Otherwise, you will not receive any discount at all.
+
+Return an integer array answer where answer[i] is the final price you will pay for the ith item of the shop considering the special discount.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Monotonic Stack](#monotonic-stack)
+
+## Examples
+
+```text
+Input: prices = [8,4,6,2,3]
+Output: [4,2,4,2,3]
+Explanation: 
+- Item 0 (price 8) has a discount equivalent to item 1 (price 4), so final price is 8 - 4 = 4.
+- Item 1 (price 4) has a discount equivalent to item 3 (price 2), so final price is 4 - 2 = 2.
+- Item 2 (price 6) has a discount equivalent to item 3 (price 2), so final price is 6 - 2 = 4.
+- Items 3 and 4 have no discount, so final price is 2 and 3 respectively.
+```
+
+```text
+Input: prices = [1,2,3,4,5]
+Output: [1,2,3,4,5]
+Explanation: No item has a discount, so the final prices remain the same.
+```
+
+```text
+Input: prices = [10,1,1,6]
+Output: [9,0,1,6]
+Explanation: 
+- Item 0 (price 10) has a discount equivalent to item 1 (price 1), so final price is 10 - 1 = 9.
+- Item 1 (price 1) has a discount equivalent to item 2 (price 1), so final price is 1 - 1 = 0.
+- Item 2 (price 1) has no discount, so final price is 1.
+- Item 3 (price 6) has no discount, so final price is 6.
+```
+
+## Constraints
+
+```text
+- 1 <= prices.length <= 500
+- 1 <= prices[i] <= 1000
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each element in the array, we can simply scan all the elements to its right to find the first element that is less than or equal to it.
+
+**Steps**
+- Create a result array and copy the prices into it.
+- Iterate through the array with index `i`.
+- For each `i`, iterate through indices `j` from `i + 1` to the end of the array.
+- If `prices[j] &lt;= prices[i]`, update `result[i]` to be `prices[i] - prices[j]` and break the inner loop.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def finalPrices(self, prices: List[int]) -&gt; List[int]:\r\n        n = len(prices)\r\n        res = prices[:]\r\n        for i in range(n):\r\n            for j in range(i + 1, n):\r\n                if prices[j] &lt;= prices[i]:\r\n                    res[i] = prices[i] - prices[j]\r\n                    break\r\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int[] finalPrices(int[] prices) {\r\n        int n = prices.length;\r\n        int[] res = new int[n];\r\n        System.arraycopy(prices, 0, res, 0, n);\r\n        for (int i = 0; i &lt; n; i++) {\r\n            for (int j = i + 1; j &lt; n; j++) {\r\n                if (prices[j] &lt;= prices[i]) {\r\n                    res[i] = prices[i] - prices[j];\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n        return res;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;int&gt; finalPrices(vector&lt;int&gt;& prices) {\r\n        int n = prices.size();\r\n        vector&lt;int&gt; res = prices;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            for (int j = i + 1; j &lt; n; j++) {\r\n                if (prices[j] &lt;= prices[i]) {\r\n                    res[i] = prices[i] - prices[j];\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n        return res;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var finalPrices = function(prices) {\r\n    const n = prices.length;\r\n    const res = [...prices];\r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = i + 1; j &lt; n; j++) {\r\n            if (prices[j] &lt;= prices[i]) {\r\n                res[i] = prices[i] - prices[j];\r\n                break;\r\n            }\r\n        }\r\n    }\r\n    return res;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function finalPrices(prices: number[]): number[] {\r\n    const n = prices.length;\r\n    const res = [...prices];\r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = i + 1; j &lt; n; j++) {\r\n            if (prices[j] &lt;= prices[i]) {\r\n                res[i] = prices[i] - prices[j];\r\n                break;\r\n            }\r\n        }\r\n    }\r\n    return res;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case, for every element, we traverse the rest of the array.
+- Space: O(1) - We only use a constant amount of extra space (excluding the output array).
+- Notes: Simple to implement but inefficient for large input sizes.
+
+---
+## Monotonic Stack
+
+**Intuition**
+We can optimize the search for the next smaller or equal element using a monotonic stack. By iterating from right to left, we maintain a stack of potential discount values. The top of the stack will always be the nearest smaller element to the right of the current element.
+
+**Steps**
+- Initialize an empty stack and a result array.
+- Iterate through the `prices` array from right to left.
+- While the stack is not empty and the top element of the stack is greater than the current price, pop from the stack. This ensures we maintain a monotonic increasing stack.
+- If the stack is not empty, the top element is the discount for the current price. Calculate `prices[i] - stack.top()`. If the stack is empty, there is no discount.
+- Push the current price onto the stack.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def finalPrices(self, prices: List[int]) -&gt; List[int]:\r\n        n = len(prices)\r\n        res = prices[:]\r\n        stack = []\r\n        for i in range(n - 1, -1, -1):\r\n            while stack and stack[-1] &gt; prices[i]:\r\n                stack.pop()\r\n            if stack:\r\n                res[i] = prices[i] - stack[-1]\r\n            stack.append(prices[i])\r\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayDeque;\r\nimport java.util.Deque;\r\n\r\nclass Solution {\r\n    public int[] finalPrices(int[] prices) {\r\n        int n = prices.length;\r\n        int[] res = new int[n];\r\n        Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();\r\n        for (int i = n - 1; i &gt;= 0; i--) {\r\n            while (!stack.isEmpty() && stack.peek() &gt; prices[i]) {\r\n                stack.pop();\r\n            }\r\n            res[i] = stack.isEmpty() ? prices[i] : prices[i] - stack.peek();\r\n            stack.push(prices[i]);\r\n        }\r\n        return res;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;stack&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;int&gt; finalPrices(vector&lt;int&gt;& prices) {\r\n        int n = prices.size();\r\n        vector&lt;int&gt; res(n);\r\n        stack&lt;int&gt; st;\r\n        for (int i = n - 1; i &gt;= 0; i--) {\r\n            while (!st.empty() && st.top() &gt; prices[i]) {\r\n                st.pop();\r\n            }\r\n            res[i] = st.empty() ? prices[i] : prices[i] - st.top();\r\n            st.push(prices[i]);\r\n        }\r\n        return res;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var finalPrices = function(prices) {\r\n    const n = prices.length;\r\n    const res = new Array(n);\r\n    const stack = [];\r\n    for (let i = n - 1; i &gt;= 0; i--) {\r\n        while (stack.length &gt; 0 && stack[stack.length - 1] &gt; prices[i]) {\r\n            stack.pop();\r\n        }\r\n        res[i] = stack.length === 0 ? prices[i] : prices[i] - stack[stack.length - 1];\r\n        stack.push(prices[i]);\r\n    }\r\n    return res;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function finalPrices(prices: number[]): number[] {\r\n    const n = prices.length;\r\n    const res: number[] = new Array(n);\r\n    const stack: number[] = [];\r\n    for (let i = n - 1; i &gt;= 0; i--) {\r\n        while (stack.length &gt; 0 && stack[stack.length - 1] &gt; prices[i]) {\r\n            stack.pop();\r\n        }\r\n        res[i] = stack.length === 0 ? prices[i] : prices[i] - stack[stack.length - 1];\r\n        stack.push(prices[i]);\r\n    }\r\n    return res;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Each element is pushed and popped from the stack at most once.
+- Space: O(n) - In the worst case, the stack may store all elements.
+- Notes: This is the optimal solution for finding the next smaller element.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Final Prices With a Special Discount in a Shop Solutions","datePublished":"2024-04-24","description":"Given an array prices, for each item find the first subsequent item with a price &lt;= current item to apply a discount, otherwise keep the price.","keywords":"LeetCode, Final Prices With a Special Discount in a Shop, Easy, Array, Stack, Monotonic Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the number of items in the prices array."}},{"@type":"Question","name":"What is the time complexity of the Monotonic Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Monotonic Stack approach is O(n), as each element is processed exactly once."}},{"@type":"Question","name":"What is the space complexity of the Monotonic Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case to store the stack."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,148 @@
+---
+title: "Rings and Rods"
+summary: "Count rods that have all three colored rings (red, green, blue) placed on them."
+date: "Mar 07, 2026"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.50% | **Paid:** No
+> **Topics:** Hash Table, String
+
+There are n rings and each ring is either red, green, or blue. The rings are distributed across ten rods labeled from 0 to 9.
+
+You are given a string rings of length 2n that describes the n rings that are placed onto rods. Every two characters in rings forms a color-position pair that describes a ring where:
+
+The first character of the ith pair denotes the ith ring's color ('R', 'G', 'B').
+The second character of the ith pair denotes the rod that the ith ring is placed onto ('0' to '9').
+
+For example, "R3G2B1" describes n == 3 rings: a red ring placed onto the rod labeled 3, a green ring placed onto the rod labeled 2, and a blue ring placed onto the rod labeled 1.
+
+Return the number of rods that have all three colors of rings on them.
+
+- Examples
+- Constraints
+- [Hash Map Approach](#hash-map-approach)
+- [Bitmask Approach](#bitmask-approach)
+- [Array of Sets Approach](#array-of-sets-approach)
+
+## Examples
+
+```text
+Input: rings = "B0B6G0R6R0R6G9"
+Output: 1
+Explanation: 
+- Rod 0 has 3 rings: red, green, blue.
+- Rod 6 has 3 rings: red, red, red.
+- Rod 9 has 1 ring: green.
+Only rod 0 has all three colors.
+```
+
+```text
+Input: rings = "B0R0G0R9R0B0G0"
+Output: 2
+Explanation: 
+- Rod 0 has 6 rings: red, green, blue, red, blue, green.
+- Rod 9 has 1 ring: red.
+Rods 0 and 9 have all three colors.
+```
+
+```text
+Input: rings = "G4"
+Output: 0
+Explanation: 
+Only one ring is placed. Only rod 4 has a ring and it is green.
+No rod has all three colors.
+```
+
+## Constraints
+
+```text
+- rings.length == 2 * n
+- 1 <= n <= 100
+- rings[i] is either 'R', 'G', or 'B'.
+- rings[i + 1] is a digit from '0' to '9'.
+```
+
+---
+## Hash Map Approach
+
+**Intuition**
+Use a hash map to track which colors are on each rod, then count rods with all three colors.
+
+**Steps**
+- Create a hash map where keys are rod identifiers and values are sets of colors
+- Iterate through the string in pairs (color, rod)
+- Add each color to the corresponding rod's color set
+- Count rods whose color set has size 3
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPoints(self, rings: str) -&gt; int:\n        rods = {}\n        for i in range(0, len(rings), 2):\n            color = rings[i]\n            rod = rings[i+1]\n            if rod not in rods:\n                rods[rod] = set()\n            rods[rod].add(color)\n        count = 0\n        for rod in rods:\n            if len(rods[rod]) == 3:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPoints(String rings) {\n        Map&lt;Character, Set&lt;Character&gt;&gt; rods = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; rings.length(); i += 2) {\n            char color = rings.charAt(i);\n            char rod = rings.charAt(i + 1);\n            rods.computeIfAbsent(rod, k -&gt; new HashSet&lt;&gt;()).add(color);\n        }\n        int count = 0;\n        for (Set&lt;Character&gt; colors : rods.values()) {\n            if (colors.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPoints(string rings) {\n        unordered_map&lt;char, unordered_set&lt;char&gt;&gt; rods;\n        for (int i = 0; i &lt; rings.size(); i += 2) {\n            char color = rings[i];\n            char rod = rings[i + 1];\n            rods[rod].insert(color);\n        }\n        int count = 0;\n        for (auto& [rod, colors] : rods) {\n            if (colors.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPoints(rings) {\n        const rods = new Map();\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = rings[i + 1];\n            if (!rods.has(rod)) {\n                rods.set(rod, new Set());\n            }\n            rods.get(rod).add(color);\n        }\n        let count = 0;\n        for (const colors of rods.values()) {\n            if (colors.size === 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPoints(rings: string): number {\n        const rods = new Map&lt;string, Set&lt;string&gt;&gt;();\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = rings[i + 1];\n            if (!rods.has(rod)) {\n                rods.set(rod, new Set());\n            }\n            rods.get(rod)!.add(color);\n        }\n        let count = 0;\n        for (const colors of rods.values()) {\n            if (colors.size === 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) since we have at most 10 rods and 3 colors
+- Notes: Clean and readable approach using hash map with sets
+
+---
+## Bitmask Approach
+
+**Intuition**
+Represent each rod's colors using a 3-bit integer where each bit corresponds to a color (R=1, G=2, B=4).
+
+**Steps**
+- Create an array of 10 integers initialized to 0
+- Map each color to a power of 2: R→1, G→2, B→4
+- For each ring, OR the corresponding bit into the rod's mask
+- Count rods where mask equals 7 (all three bits set)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPoints(self, rings: str) -&gt; int:\n        rods = [0] * 10\n        color_map = {'R': 1, 'G': 2, 'B': 4}\n        for i in range(0, len(rings), 2):\n            color = rings[i]\n            rod = int(rings[i+1])\n            rods[rod] |= color_map[color]\n        count = 0\n        for mask in rods:\n            if mask == 7:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPoints(String rings) {\n        int[] rods = new int[10];\n        for (int i = 0; i &lt; rings.length(); i += 2) {\n            char color = rings.charAt(i);\n            int rod = rings.charAt(i + 1) - '0';\n            int bit = 0;\n            if (color == 'R') bit = 1;\n            else if (color == 'G') bit = 2;\n            else bit = 4;\n            rods[rod] |= bit;\n        }\n        int count = 0;\n        for (int mask : rods) {\n            if (mask == 7) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPoints(string rings) {\n        vector&lt;int&gt; rods(10, 0);\n        unordered_map&lt;char, int&gt; color_map = {{'R', 1}, {'G', 2}, {'B', 4}};\n        for (int i = 0; i &lt; rings.size(); i += 2) {\n            char color = rings[i];\n            int rod = rings[i + 1] - '0';\n            rods[rod] |= color_map[color];\n        }\n        int count = 0;\n        for (int mask : rods) {\n            if (mask == 7) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPoints(rings) {\n        const rods = new Array(10).fill(0);\n        const colorMap = {'R': 1, 'G': 2, 'B': 4};\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = parseInt(rings[i + 1]);\n            rods[rod] |= colorMap[color];\n        }\n        let count = 0;\n        for (const mask of rods) {\n            if (mask === 7) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPoints(rings: string): number {\n        const rods: number[] = new Array(10).fill(0);\n        const colorMap: {[key: string]: number} = {'R': 1, 'G': 2, 'B': 4};\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = parseInt(rings[i + 1]);\n            rods[rod] |= colorMap[color];\n        }\n        let count = 0;\n        for (const mask of rods) {\n            if (mask === 7) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) fixed array of 10 integers
+- Notes: Most space-efficient approach using bitwise operations
+
+---
+## Array of Sets Approach
+
+**Intuition**
+Since rods are numbered 0-9, use direct array indexing with sets for color tracking.
+
+**Steps**
+- Create an array of 10 empty sets
+- Iterate through the string in pairs
+- Convert rod character to integer index
+- Add color to the corresponding set
+- Count sets with size 3
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPoints(self, rings: str) -&gt; int:\n        rods = [set() for _ in range(10)]\n        for i in range(0, len(rings), 2):\n            color = rings[i]\n            rod = int(rings[i+1])\n            rods[rod].add(color)\n        count = 0\n        for colors in rods:\n            if len(colors) == 3:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPoints(String rings) {\n        Set&lt;Character&gt;[] rods = new Set[10];\n        for (int i = 0; i &lt; 10; i++) {\n            rods[i] = new HashSet&lt;&gt;();\n        }\n        for (int i = 0; i &lt; rings.length(); i += 2) {\n            char color = rings.charAt(i);\n            int rod = rings.charAt(i + 1) - '0';\n            rods[rod].add(color);\n        }\n        int count = 0;\n        for (Set&lt;Character&gt; colors : rods) {\n            if (colors.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPoints(string rings) {\n        vector&lt;unordered_set&lt;char&gt;&gt; rods(10);\n        for (int i = 0; i &lt; rings.size(); i += 2) {\n            char color = rings[i];\n            int rod = rings[i + 1] - '0';\n            rods[rod].insert(color);\n        }\n        int count = 0;\n        for (auto& colors : rods) {\n            if (colors.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPoints(rings) {\n        const rods = Array.from({length: 10}, () =&gt; new Set());\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = parseInt(rings[i + 1]);\n            rods[rod].add(color);\n        }\n        let count = 0;\n        for (const colors of rods) {\n            if (colors.size === 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPoints(rings: string): number {\n        const rods: Set&lt;string&gt;[] = Array.from({length: 10}, () =&gt; new Set());\n        for (let i = 0; i &lt; rings.length; i += 2) {\n            const color = rings[i];\n            const rod = parseInt(rings[i + 1]);\n            rods[rod].add(color);\n        }\n        let count = 0;\n        for (const colors of rods) {\n            if (colors.size === 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) fixed array of 10 sets
+- Notes: Simple and intuitive with direct array access
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rings and Rods Solutions","datePublished":"2026-03-07","description":"Count rods that have all three colored rings (red, green, blue) placed on them.","keywords":"LeetCode, Rings and Rods, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the rings string."}},{"@type":"Question","name":"What is the space complexity of the Bitmask approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since we use a fixed array of 10 integers regardless of input size."}},{"@type":"Question","name":"Why is the Bitmask approach efficient?","acceptedAnswer":{"@type":"Answer","text":"It uses bitwise operations to represent colors as bits, allowing us to check for all three colors with a single comparison (mask == 7)."}},{"@type":"Question","name":"How many rods can exist in this problem?","acceptedAnswer":{"@type":"Answer","text":"Exactly 10 rods, labeled from 0 to 9."}}]}).replace(/</g,'\u003c')}
+</script>

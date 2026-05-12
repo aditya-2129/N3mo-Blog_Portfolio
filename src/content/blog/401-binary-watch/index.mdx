@@ -1,0 +1,122 @@
+---
+title: "Binary Watch"
+summary: "Given the number of LEDs turned on, return all possible times a binary watch could display."
+date: "May 24, 2025"
+tags:
+  - Backtracking
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.50% | **Paid:** No
+> **Topics:** Backtracking, Bit Manipulation
+
+A binary watch has 4 LEDs on the top which represent the hours (0-11), and 6 LEDs on the bottom which represent the minutes (0-59). Each LED represents a binary digit (0 or 1), with the least significant bit on the right.
+
+Given an integer turnedOn which represents the number of LEDs that are currently on, return all possible times the watch could represent. You may return the answer in any order.
+
+The hour must not contain a leading zero, for example "01:00" is not valid. It should be "1:00".
+The minute must consist of two digits and may contain a leading zero, for example "10:2" is not valid. It should be "10:02".
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Backtracking](#backtracking)
+- [Bit Manipulation with Precomputation](#bit-manipulation-with-precomputation)
+
+## Examples
+
+**Example 1:**
+```text
+Input: turnedOn = 1
+Output: ["1:00","2:00","4:00","8:00","0:01","0:02","0:04","0:08","0:16","0:32"]
+```
+
+**Example 2:**
+```text
+Input: turnedOn = 9
+Output: []
+```
+
+## Constraints
+
+```text
+0 <= turnedOn <= 10
+```
+
+## Brute Force
+
+**Intuition**
+Iterate through all valid hour (0-11) and minute (0-59) combinations, count the set bits in each, and collect times where the total matches turnedOn.
+
+**Steps**
+- Loop through all hours from 0 to 11
+- Loop through all minutes from 0 to 59
+- Count the number of 1 bits in hour and minute
+- If the sum equals turnedOn, format and add the time to result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def readBinaryWatch(self, turnedOn: int) -&gt; List[str]:\n        result = []\n        for h in range(12):\n            for m in range(60):\n                if bin(h).count('1') + bin(m).count('1') == turnedOn:\n                    result.append(str(h) + ':' + str(m).zfill(2))\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; readBinaryWatch(int turnedOn) {\n        List&lt;String&gt; result = new ArrayList&lt;&gt;();\n        for (int h = 0; h &lt; 12; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                if (Integer.bitCount(h) + Integer.bitCount(m) == turnedOn) {\n                    result.add(h + \":\" + String.format(\"%02d\", m));\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; readBinaryWatch(int turnedOn) {\n        vector&lt;string&gt; result;\n        for (int h = 0; h &lt; 12; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                if (__builtin_popcount(h) + __builtin_popcount(m) == turnedOn) {\n                    char time[6];\n                    sprintf(time, \"%d:%02d\", h, m);\n                    result.push_back(time);\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} turnedOn\n * @return {string[]}\n */\nvar readBinaryWatch = function(turnedOn) {\n    const result = [];\n    const countBits = (n) =&gt; n.toString(2).split('0').join('').length;\n    \n    for (let h = 0; h &lt; 12; h++) {\n        for (let m = 0; m &lt; 60; m++) {\n            if (countBits(h) + countBits(m) === turnedOn) {\n                result.push(h + ':' + m.toString().padStart(2, '0'));\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function readBinaryWatch(turnedOn: number): string[] {\n    const result: string[] = [];\n    const countBits = (n: number): number =&gt; n.toString(2).split('0').join('').length;\n    \n    for (let h = 0; h &lt; 12; h++) {\n        for (let m = 0; m &lt; 60; m++) {\n            if (countBits(h) + countBits(m) === turnedOn) {\n                result.push(h + ':' + m.toString().padStart(2, '0'));\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed 12 × 60 = 720 iterations
+- Space: O(1) - Output space excluded, constant extra space
+- Notes: Simple and efficient enough for this problem
+
+## Backtracking
+
+**Intuition**
+Use backtracking to explore all combinations of turning on exactly turnedOn LEDs across the 10 positions (4 for hours, 6 for minutes), filtering invalid times.
+
+**Steps**
+- Use recursive backtracking to select which LEDs to turn on
+- Track current hour and minute values
+- When exactly turnedOn LEDs are selected, check if time is valid
+- Add valid times to result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def readBinaryWatch(self, turnedOn: int) -&gt; List[str]:\n        result = []\n        \n        def backtrack(count, start, hours, minutes):\n            if count == turnedOn:\n                if hours &lt; 12 and minutes &lt; 60:\n                    result.append(str(hours) + ':' + str(minutes).zfill(2))\n                return\n            for i in range(start, 10):\n                if i &lt; 4:\n                    backtrack(count + 1, i + 1, hours + (1 &lt;&lt; i), minutes)\n                else:\n                    backtrack(count + 1, i + 1, hours, minutes + (1 &lt;&lt; (i - 4)))\n        \n        backtrack(0, 0, 0, 0)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private List&lt;String&gt; result;\n    private int turnedOn;\n    \n    public List&lt;String&gt; readBinaryWatch(int turnedOn) {\n        this.result = new ArrayList&lt;&gt;();\n        this.turnedOn = turnedOn;\n        backtrack(0, 0, 0, 0);\n        return result;\n    }\n    \n    private void backtrack(int count, int start, int hours, int minutes) {\n        if (count == turnedOn) {\n            if (hours &lt; 12 && minutes &lt; 60) {\n                result.add(hours + \":\" + String.format(\"%02d\", minutes));\n            }\n            return;\n        }\n        for (int i = start; i &lt; 10; i++) {\n            if (i &lt; 4) {\n                backtrack(count + 1, i + 1, hours + (1 &lt;&lt; i), minutes);\n            } else {\n                backtrack(count + 1, i + 1, hours, minutes + (1 &lt;&lt; (i - 4)));\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\nprivate:\n    vector&lt;string&gt; result;\n    int turnedOn;\n    \n    void backtrack(int count, int start, int hours, int minutes) {\n        if (count == turnedOn) {\n            if (hours &lt; 12 && minutes &lt; 60) {\n                char time[6];\n                sprintf(time, \"%d:%02d\", hours, minutes);\n                result.push_back(time);\n            }\n            return;\n        }\n        for (int i = start; i &lt; 10; i++) {\n            if (i &lt; 4) {\n                backtrack(count + 1, i + 1, hours + (1 &lt;&lt; i), minutes);\n            } else {\n                backtrack(count + 1, i + 1, hours, minutes + (1 &lt;&lt; (i - 4)));\n            }\n        }\n    }\n    \npublic:\n    vector&lt;string&gt; readBinaryWatch(int turnedOn) {\n        this-&gt;turnedOn = turnedOn;\n        backtrack(0, 0, 0, 0);\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} turnedOn\n * @return {string[]}\n */\nvar readBinaryWatch = function(turnedOn) {\n    const result = [];\n    \n    const backtrack = (count, start, hours, minutes) =&gt; {\n        if (count === turnedOn) {\n            if (hours &lt; 12 && minutes &lt; 60) {\n                result.push(hours + ':' + minutes.toString().padStart(2, '0'));\n            }\n            return;\n        }\n        for (let i = start; i &lt; 10; i++) {\n            if (i &lt; 4) {\n                backtrack(count + 1, i + 1, hours + (1 &lt;&lt; i), minutes);\n            } else {\n                backtrack(count + 1, i + 1, hours, minutes + (1 &lt;&lt; (i - 4)));\n            }\n        }\n    };\n    \n    backtrack(0, 0, 0, 0);\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function readBinaryWatch(turnedOn: number): string[] {\n    const result: string[] = [];\n    \n    const backtrack = (count: number, start: number, hours: number, minutes: number): void =&gt; {\n        if (count === turnedOn) {\n            if (hours &lt; 12 && minutes &lt; 60) {\n                result.push(hours + ':' + minutes.toString().padStart(2, '0'));\n            }\n            return;\n        }\n        for (let i = start; i &lt; 10; i++) {\n            if (i &lt; 4) {\n                backtrack(count + 1, i + 1, hours + (1 &lt;&lt; i), minutes);\n            } else {\n                backtrack(count + 1, i + 1, hours, minutes + (1 &lt;&lt; (i - 4)));\n            }\n        }\n    };\n    \n    backtrack(0, 0, 0, 0);\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(C(10, turnedOn)) - At most C(10,5) = 252 combinations
+- Space: O(turnedOn) - Recursion stack depth
+- Notes: More elegant but similar efficiency to brute force
+
+## Bit Manipulation with Precomputation
+
+**Intuition**
+Precompute the number of set bits for all possible hours (0-11) and minutes (0-59), then use lookup tables to find valid combinations.
+
+**Steps**
+- Create arrays mapping each hour/minute to its bit count
+- Iterate through all hour-minute pairs
+- Use precomputed bit counts to check validity
+- Format and collect valid times
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def readBinaryWatch(self, turnedOn: int) -&gt; List[str]:\n        # Precompute bit counts\n        hour_bits = [bin(i).count('1') for i in range(12)]\n        minute_bits = [bin(i).count('1') for i in range(60)]\n        \n        result = []\n        for h in range(12):\n            for m in range(60):\n                if hour_bits[h] + minute_bits[m] == turnedOn:\n                    result.append(str(h) + ':' + str(m).zfill(2))\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; readBinaryWatch(int turnedOn) {\n        // Precompute bit counts\n        int[] hourBits = new int[12];\n        int[] minuteBits = new int[60];\n        \n        for (int i = 0; i &lt; 12; i++) {\n            hourBits[i] = Integer.bitCount(i);\n        }\n        for (int i = 0; i &lt; 60; i++) {\n            minuteBits[i] = Integer.bitCount(i);\n        }\n        \n        List&lt;String&gt; result = new ArrayList&lt;&gt;();\n        for (int h = 0; h &lt; 12; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                if (hourBits[h] + minuteBits[m] == turnedOn) {\n                    result.add(h + \":\" + String.format(\"%02d\", m));\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; readBinaryWatch(int turnedOn) {\n        // Precompute bit counts\n        int hourBits[12], minuteBits[60];\n        \n        for (int i = 0; i &lt; 12; i++) {\n            hourBits[i] = __builtin_popcount(i);\n        }\n        for (int i = 0; i &lt; 60; i++) {\n            minuteBits[i] = __builtin_popcount(i);\n        }\n        \n        vector&lt;string&gt; result;\n        for (int h = 0; h &lt; 12; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                if (hourBits[h] + minuteBits[m] == turnedOn) {\n                    char time[6];\n                    sprintf(time, \"%d:%02d\", h, m);\n                    result.push_back(time);\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} turnedOn\n * @return {string[]}\n */\nvar readBinaryWatch = function(turnedOn) {\n    // Precompute bit counts\n    const hourBits = [];\n    const minuteBits = [];\n    \n    const countBits = (n) =&gt; n.toString(2).split('0').join('').length;\n    \n    for (let i = 0; i &lt; 12; i++) {\n        hourBits[i] = countBits(i);\n    }\n    for (let i = 0; i &lt; 60; i++) {\n        minuteBits[i] = countBits(i);\n    }\n    \n    const result = [];\n    for (let h = 0; h &lt; 12; h++) {\n        for (let m = 0; m &lt; 60; m++) {\n            if (hourBits[h] + minuteBits[m] === turnedOn) {\n                result.push(h + ':' + m.toString().padStart(2, '0'));\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function readBinaryWatch(turnedOn: number): string[] {\n    // Precompute bit counts\n    const hourBits: number[] = [];\n    const minuteBits: number[] = [];\n    \n    const countBits = (n: number): number =&gt; n.toString(2).split('0').join('').length;\n    \n    for (let i = 0; i &lt; 12; i++) {\n        hourBits[i] = countBits(i);\n    }\n    for (let i = 0; i &lt; 60; i++) {\n        minuteBits[i] = countBits(i);\n    }\n    \n    const result: string[] = [];\n    for (let h = 0; h &lt; 12; h++) {\n        for (let m = 0; m &lt; 60; m++) {\n            if (hourBits[h] + minuteBits[m] === turnedOn) {\n                result.push(h + ':' + m.toString().padStart(2, '0'));\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed 12 × 60 = 720 iterations with O(1) lookup
+- Space: O(1) - Fixed size precomputed arrays (12 + 60 = 72 elements)
+- Notes: Slightly faster bit counting at the cost of minimal extra space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Binary Watch Solutions","datePublished":"2025-05-24","description":"Given the number of LEDs turned on, return all possible times a binary watch could display.","keywords":"LeetCode, Binary Watch, Easy, Backtracking, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Fixed 12 × 60 = 720 iterations"}},{"@type":"Question","name":"What is the time complexity of the Backtracking approach?","acceptedAnswer":{"@type":"Answer","text":"O(C(10, turnedOn)) - At most C(10,5) = 252 combinations"}},{"@type":"Question","name":"What is the time complexity of the Bit Manipulation with Precomputation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Fixed 12 × 60 = 720 iterations with O(1) lookup"}}]}).replace(/</g,'\u003c')}
+</script>

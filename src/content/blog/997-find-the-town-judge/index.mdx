@@ -1,0 +1,140 @@
+---
+title: "Find the Town Judge"
+summary: "Identify the town judge who is trusted by everyone but trusts no one, given a list of trust relationships."
+date: "Apr 21, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Graph Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 50.70% | **Paid:** No
+> **Topics:** Array, Hash Table, Graph Theory
+
+In a town, there are n people labeled from 1 to n. One of these people is the town judge.
+
+The town judge trusts nobody.
+Everybody (except for the town judge) trusts the town judge.
+There is exactly one person that satisfies properties 1 and 2.
+
+You are given trust, an array of pairs trust[i] = [a, b] representing that the person labeled a trusts the person labeled b.
+
+Return the label of the town judge if the town judge exists and can be identified, or return -1 otherwise.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Graph Indegree/Outdegree](#graph-indegreeoutdegree)
+- [Single Array Score](#single-array-score)
+
+## Examples
+
+Example 1:
+```text
+Input: n = 2, trust = [[1,2]]
+Output: 2
+```
+
+Example 2:
+```text
+Input: n = 3, trust = [[1,3],[2,3]]
+Output: 3
+```
+
+Example 3:
+```text
+Input: n = 3, trust = [[1,3],[2,3],[3,1]]
+Output: -1
+```
+
+## Constraints
+
+```text
+1 <= n <= 1000
+0 <= trust.length <= 10⁴
+trust[i].length == 2
+0 <= ai, bi <= n
+ai != bi
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+We can check every person from 1 to n to see if they meet the criteria of being a judge. For each candidate, we scan the entire trust list to verify they trust no one and everyone else trusts them.
+
+**Steps**
+- Iterate through each person i from 1 to n.
+- Assume i is the judge. Check if i appears as the first element (truster) in any pair. If yes, i is disqualified.
+- Check if every other person j (where j != i) appears as the first element in a pair where i is the second element (trusted).
+- If both conditions are met, return i.
+- If the loop finishes without finding a judge, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findJudge(self, n: int, trust: List[List[int]]) -&gt; int:\n        for i in range(1, n + 1):\n            trusts_someone = False\n            for a, b in trust:\n                if a == i:\n                    trusts_someone = True\n                    break\n            if trusts_someone:\n                continue\n            \n            trusted_by_all = True\n            for j in range(1, n + 1):\n                if i == j:\n                    continue\n                found = False\n                for a, b in trust:\n                    if a == j and b == i:\n                        found = True\n                        break\n                if not found:\n                    trusted_by_all = False\n                    break\n            \n            if trusted_by_all:\n                return i\n        return -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findJudge(int n, int[][] trust) {\n        for (int i = 1; i &lt;= n; i++) {\n            boolean trustsSomeone = false;\n            for (int[] t : trust) {\n                if (t[0] == i) {\n                    trustsSomeone = true;\n                    break;\n                }\n            }\n            if (trustsSomeone) continue;\n\n            boolean trustedByAll = true;\n            for (int j = 1; j &lt;= n; j++) {\n                if (i == j) continue;\n                boolean found = false;\n                for (int[] t : trust) {\n                    if (t[0] == j && t[1] == i) {\n                        found = true;\n                        break;\n                    }\n                }\n                if (!found) {\n                    trustedByAll = false;\n                    break;\n                }\n            }\n            if (trustedByAll) return i;\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;& trust) {\n        for (int i = 1; i &lt;= n; ++i) {\n            bool trustsSomeone = false;\n            for (const auto& t : trust) {\n                if (t[0] == i) {\n                    trustsSomeone = true;\n                    break;\n                }\n            }\n            if (trustsSomeone) continue;\n\n            bool trustedByAll = true;\n            for (int j = 1; j &lt;= n; ++j) {\n                if (i == j) continue;\n                bool found = false;\n                for (const auto& t : trust) {\n                    if (t[0] == j && t[1] == i) {\n                        found = true;\n                        break;\n                    }\n                }\n                if (!found) {\n                    trustedByAll = false;\n                    break;\n                }\n            }\n            if (trustedByAll) return i;\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findJudge = function(n, trust) {\n    for (let i = 1; i &lt;= n; i++) {\n        let trustsSomeone = false;\n        for (let t of trust) {\n            if (t[0] === i) {\n                trustsSomeone = true;\n                break;\n            }\n        }\n        if (trustsSomeone) continue;\n\n        let trustedByAll = true;\n        for (let j = 1; j &lt;= n; j++) {\n            if (i === j) continue;\n            let found = false;\n            for (let t of trust) {\n                if (t[0] === j && t[1] === i) {\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) {\n                trustedByAll = false;\n                break;\n            }\n        }\n        if (trustedByAll) return i;\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findJudge(n: number, trust: number[][]): number {\n    for (let i = 1; i &lt;= n; i++) {\n        let trustsSomeone = false;\n        for (const t of trust) {\n            if (t[0] === i) {\n                trustsSomeone = true;\n                break;\n            }\n        }\n        if (trustsSomeone) continue;\n\n        let trustedByAll = true;\n        for (let j = 1; j &lt;= n; j++) {\n            if (i === j) continue;\n            let found = false;\n            for (const t of trust) {\n                if (t[0] === j && t[1] === i) {\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) {\n                trustedByAll = false;\n                break;\n            }\n        }\n        if (trustedByAll) return i;\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(n² + n·E) where E is the length of trust. In the worst case, for each person, we scan the trust list multiple times.
+- Space: O(1)
+- Notes: Simple to understand but inefficient for large inputs.
+
+---
+## Graph Indegree/Outdegree
+
+**Intuition**
+Model the problem as a directed graph. An edge a -> b means a trusts b. The judge must have an indegree of n-1 (trusted by everyone else) and an outdegree of 0 (trusts nobody).
+
+**Steps**
+- Initialize two arrays, `inDegree` and `outDegree`, of size n+1 with zeros.
+- Iterate through the `trust` array. For each pair [a, b], increment `outDegree[a]` and increment `inDegree[b]`.
+- Iterate from 1 to n. If a person i has `inDegree[i] == n-1` and `outDegree[i] == 0`, return i.
+- If no such person is found, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findJudge(self, n: int, trust: List[List[int]]) -&gt; int:\n        if n == 1:\n            return 1\n        \n        in_degree = [0] * (n + 1)\n        out_degree = [0] * (n + 1)\n        \n        for a, b in trust:\n            out_degree[a] += 1\n            in_degree[b] += 1\n            \n        for i in range(1, n + 1):\n            if in_degree[i] == n - 1 and out_degree[i] == 0:\n                return i\n                \n        return -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findJudge(int n, int[][] trust) {\n        if (n == 1) return 1;\n        \n        int[] inDegree = new int[n + 1];\n        int[] outDegree = new int[n + 1];\n        \n        for (int[] t : trust) {\n            outDegree[t[0]]++;\n            inDegree[t[1]]++;\n        }\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if (inDegree[i] == n - 1 && outDegree[i] == 0) {\n                return i;\n            }\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;& trust) {\n        if (n == 1) return 1;\n        vector&lt;int&gt; inDegree(n + 1, 0);\n        vector&lt;int&gt; outDegree(n + 1, 0);\n        \n        for (const auto& t : trust) {\n            outDegree[t[0]]++;\n            inDegree[t[1]]++;\n        }\n        \n        for (int i = 1; i &lt;= n; ++i) {\n            if (inDegree[i] == n - 1 && outDegree[i] == 0) {\n                return i;\n            }\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findJudge = function(n, trust) {\n    if (n === 1) return 1;\n    \n    const inDegree = new Array(n + 1).fill(0);\n    const outDegree = new Array(n + 1).fill(0);\n    \n    for (const [a, b] of trust) {\n        outDegree[a]++;\n        inDegree[b]++;\n    }\n    \n    for (let i = 1; i &lt;= n; i++) {\n        if (inDegree[i] === n - 1 && outDegree[i] === 0) {\n            return i;\n        }\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findJudge(n: number, trust: number[][]): number {\n    if (n === 1) return 1;\n    \n    const inDegree: number[] = new Array(n + 1).fill(0);\n    const outDegree: number[] = new Array(n + 1).fill(0);\n    \n    for (const [a, b] of trust) {\n        outDegree[a]++;\n        inDegree[b]++;\n    }\n    \n    for (let i = 1; i &lt;= n; i++) {\n        if (inDegree[i] === n - 1 && outDegree[i] === 0) {\n            return i;\n        }\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(n + E) where E is the length of the trust array.
+- Space: O(n) to store the degree arrays.
+- Notes: Efficient and standard graph traversal approach.
+
+---
+## Single Array Score
+
+**Intuition**
+We can optimize space by using a single array to track the "trust score". If a trusts b, we decrement a's score (since they trust someone) and increment b's score (since they are trusted). The judge will end up with a score of n-1 (trusted by n-1 people, trusts 0).
+
+**Steps**
+- Initialize a `score` array of size n+1 with zeros.
+- Iterate through `trust`. For each pair [a, b], decrement `score[a]` and increment `score[b]`.
+- Iterate from 1 to n. If `score[i] == n-1`, return i.
+- Return -1 if no judge is found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findJudge(self, n: int, trust: List[List[int]]) -&gt; int:\n        score = [0] * (n + 1)\n        \n        for a, b in trust:\n            score[a] -= 1\n            score[b] += 1\n            \n        for i in range(1, n + 1):\n            if score[i] == n - 1:\n                return i\n                \n        return -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findJudge(int n, int[][] trust) {\n        int[] score = new int[n + 1];\n        \n        for (int[] t : trust) {\n            score[t[0]]--;\n            score[t[1]]++;\n        }\n        \n        for (int i = 1; i &lt;= n; i++) {\n            if (score[i] == n - 1) {\n                return i;\n            }\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;& trust) {\n        vector&lt;int&gt; score(n + 1, 0);\n        \n        for (const auto& t : trust) {\n            score[t[0]]--;\n            score[t[1]]++;\n        }\n        \n        for (int i = 1; i &lt;= n; ++i) {\n            if (score[i] == n - 1) {\n                return i;\n            }\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findJudge = function(n, trust) {\n    const score = new Array(n + 1).fill(0);\n    \n    for (const [a, b] of trust) {\n        score[a]--;\n        score[b]++;\n    }\n    \n    for (let i = 1; i &lt;= n; i++) {\n        if (score[i] === n - 1) {\n            return i;\n        }\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findJudge(n: number, trust: number[][]): number {\n    const score: number[] = new Array(n + 1).fill(0);\n    \n    for (const [a, b] of trust) {\n        score[a]--;\n        score[b]++;\n    }\n    \n    for (let i = 1; i &lt;= n; i++) {\n        if (score[i] === n - 1) {\n            return i;\n        }\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(n + E)
+- Space: O(n)
+- Notes: Optimal solution with reduced constant factors compared to using two arrays.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Town Judge Solutions","datePublished":"2025-04-21","description":"Identify the town judge who is trusted by everyone but trusts no one, given a list of trust relationships.","keywords":"LeetCode, Find the Town Judge, Easy, Array, Hash Table, Graph Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n² + n·E), where E is the length of the trust array."}},{"@type":"Question","name":"What is the time complexity of the Graph Indegree/Outdegree approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + E), where E is the length of the trust array."}},{"@type":"Question","name":"What is the space complexity of the Single Array Score approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the score array."}}]}).replace(/</g,'\u003c')}
+</script>

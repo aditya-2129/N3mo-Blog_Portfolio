@@ -1,0 +1,487 @@
+---
+title: "Sales Person"
+summary: "Find all sales people who did not have any orders with company named RED"
+date: "Dec 15, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.00% | **Paid:** No
+> **Topics:** Database
+
+Table: SalesPerson
++-----------------+---------+
+| Column Name     | Type    |
++-----------------+---------+
+| sales_id        | int     |
+| name            | varchar |
+| salary          | int     |
+| commission_rate | int     |
+| hire_date       | date    |
++-----------------+---------+
+sales_id is the primary key column for this table.
+
+Table: Company
++-----------------+---------+
+| Column Name     | Type    |
++-----------------+---------+
+| com_id          | int     |
+| name            | varchar |
+| city            | varchar |
++-----------------+---------+
+com_id is the primary key column for this table.
+
+Table: Orders
++-----------------+---------+
+| Column Name     | Type    |
++-----------------+---------+
+| order_id        | int     |
+| order_date      | date    |
+| com_id          | int     |
+| sales_id        | int     |
++-----------------+---------+
+order_id is the primary key column for this table.
+com_id is a foreign key to Company table.
+sales_id is a foreign key to SalesPerson table.
+
+Write an SQL query to report the names of all the salespersons who did not have any orders with company named "RED".
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: LEFT JOIN with IS NULL](#approach-1-left-join-with-is-null)
+- [Approach 2: NOT IN Subquery](#approach-2-not-in-subquery)
+- [Approach 3: NOT EXISTS Subquery](#approach-3-not-exists-subquery)
+
+## Examples
+
+### Example 1
+
+**Input:**
+
+SalesPerson table:
++-----------+------+--------+-----------------+------------+
+| sales_id  | name | salary | commission_rate | hire_date  |
++-----------+------+--------+-----------------+------------+
+| 1         | John | 100000 | 6                | 4/1/2006   |
+| 2         | Amy  | 12000  | 5                | 5/1/2010   |
+| 3         | Mark | 65000  | 12               | 12/25/2008 |
+| 4         | Pam  | 25000  | 25               | 1/1/2005   |
+| 5         | Alex | 5000   | 10               | 2/3/2007   |
++-----------+------+--------+-----------------+------------+
+
+Company table:
++--------+--------+----------+
+| com_id | name   | city     |
++--------+--------+----------+
+| 1      | RED    | Boston   |
+| 2      | ORANGE | New York |
+| 3      | YELLOW | Boston   |
+| 4      | GREEN  | Austin   |
++--------+--------+----------+
+
+Orders table:
++----------+------------+--------+-----------+
+| order_id | order_date | com_id | sales_id  |
++----------+------------+--------+-----------+
+| 1        | 1/1/2014   | 3      | 4         |
+| 2        | 2/1/2014   | 4      | 5         |
+| 3        | 3/1/2014   | 1      | 1         |
+| 4        | 4/1/2014   | 1      | 4         |
+| 5        | 5/1/2014   | 1      | 3         |
++----------+------------+--------+-----------+
+
+**Output:**
++------+
+| name |
++------+
+| Amy  |
+| Mark |
+| Alex |
++------+
+
+**Explanation:**
+According to orders table:
+- Salesperson with id 1 made 1 order with company RED (id 1).
+- Salesperson with id 3 made 1 order with company RED (id 1).
+- Salesperson with id 4 made 2 orders with company RED (id 1).
+- Salesperson with id 2 (Amy) and salesperson with id 5 (Alex) did not make any orders with company RED.
+
+## Constraints
+
+```text
+- SalesPerson table contains at most 1000 rows.
+- Company table contains at most 1000 rows.
+- Orders table contains at most 1000 rows.
+- All names are case-sensitive.
+```
+
+---
+## Approach 1: LEFT JOIN with IS NULL
+
+**Intuition**
+Use LEFT JOIN to find all sales people and their orders with RED company, then filter for those with no matches (NULL).
+
+**Steps**
+- LEFT JOIN SalesPerson with Orders and Company (filtered for RED)
+- Filter rows where Company columns are NULL (no RED orders found)
+- Select distinct names
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL Solution for LeetCode Database Problem
+# In Python, you would execute this SQL query using a database connector
+
+sql = """
+SELECT DISTINCT sp.name
+FROM SalesPerson sp
+LEFT JOIN Orders o ON sp.sales_id = o.sales_id
+LEFT JOIN Company c ON o.com_id = c.com_id AND c.name = 'RED'
+WHERE c.com_id IS NULL
+"""
+
+# Example using sqlite3:
+# import sqlite3
+# conn = sqlite3.connect(':memory:')
+# cursor = conn.cursor()
+# cursor.execute(sql)
+# result = cursor.fetchall()
+# print(result)
+` },
+{ name: "Java", lang: "java", code: `// SQL Solution for LeetCode Database Problem
+// In Java, you would execute this SQL query using JDBC
+
+String sql = "SELECT DISTINCT sp.name " +
+             "FROM SalesPerson sp " +
+             "LEFT JOIN Orders o ON sp.sales_id = o.sales_id " +
+             "LEFT JOIN Company c ON o.com_id = c.com_id AND c.name = 'RED' " +
+             "WHERE c.com_id IS NULL";
+
+// Example using JDBC:
+// import java.sql.*;
+// Connection conn = DriverManager.getConnection(url, user, password);
+// Statement stmt = conn.createStatement();
+// ResultSet rs = stmt.executeQuery(sql);
+// while (rs.next()) {
+//     System.out.println(rs.getString("name"));
+// }
+` },
+{ name: "C++", lang: "cpp", code: `// SQL Solution for LeetCode Database Problem
+// In C++, you would execute this SQL query using a database library
+
+const char* sql = "SELECT DISTINCT sp.name "
+                  "FROM SalesPerson sp "
+                  "LEFT JOIN Orders o ON sp.sales_id = o.sales_id "
+                  "LEFT JOIN Company c ON o.com_id = c.com_id AND c.name = 'RED' "
+                  "WHERE c.com_id IS NULL";
+
+// Example using SQLite C API:
+// sqlite3* db;
+// sqlite3_open("database.db", &db);
+// sqlite3_stmt* stmt;
+// sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+// while (sqlite3_step(stmt) == SQLITE_ROW) {
+//     const char* name = (const char*)sqlite3_column_text(stmt, 0);
+//     printf("%s\\n", name);
+// }
+// sqlite3_finalize(stmt);
+// sqlite3_close(db);
+` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL Solution for LeetCode Database Problem
+// In JavaScript, you would execute this SQL query using a database driver
+
+const sql = "SELECT DISTINCT sp.name\\n" +
+            "FROM SalesPerson sp\\n" +
+            "LEFT JOIN Orders o ON sp.sales_id = o.sales_id\\n" +
+            "LEFT JOIN Company c ON o.com_id = c.com_id AND c.name = 'RED'\\n" +
+            "WHERE c.com_id IS NULL";
+
+// Example using node-postgres:
+// const { Pool } = require('pg');
+// const pool = new Pool();
+// const result = await pool.query(sql);
+// console.log(result.rows);
+` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL Solution for LeetCode Database Problem
+// In TypeScript, you would execute this SQL query using a database driver
+
+const sql: string = "SELECT DISTINCT sp.name\\n" +
+                    "FROM SalesPerson sp\\n" +
+                    "LEFT JOIN Orders o ON sp.sales_id = o.sales_id\\n" +
+                    "LEFT JOIN Company c ON o.com_id = c.com_id AND c.name = 'RED'\\n" +
+                    "WHERE c.com_id IS NULL";
+
+// Example using node-postgres with TypeScript:
+// import { Pool, QueryResult } from 'pg';
+// const pool = new Pool();
+// interface SalesPersonResult {
+//     name: string;
+// }
+// const result: QueryResult<SalesPersonResult> = await pool.query(sql);
+// console.log(result.rows);
+` },]} />
+
+**Complexity**
+- Time: O(n + m + p) where n, m, p are the sizes of SalesPerson, Company, and Orders tables
+- Space: O(k) where k is the number of sales persons without RED orders
+- Notes: LEFT JOIN is efficient for finding non-matching rows
+
+---
+## Approach 2: NOT IN Subquery
+
+**Intuition**
+Find all sales IDs that have orders with RED company, then use NOT IN to exclude them from the result.
+
+**Steps**
+- Create a subquery to find sales_id of people with RED orders
+- Use NOT IN to select sales people not in that list
+- Return their names
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL Solution for LeetCode Database Problem
+# In Python, you would execute this SQL query using a database connector
+
+sql = """
+SELECT name
+FROM SalesPerson
+WHERE sales_id NOT IN (
+    SELECT sales_id
+    FROM Orders
+    JOIN Company ON Orders.com_id = Company.com_id
+    WHERE Company.name = 'RED'
+)
+"""
+
+# Example using sqlite3:
+# import sqlite3
+# conn = sqlite3.connect(':memory:')
+# cursor = conn.cursor()
+# cursor.execute(sql)
+# result = cursor.fetchall()
+# print(result)
+` },
+{ name: "Java", lang: "java", code: `// SQL Solution for LeetCode Database Problem
+// In Java, you would execute this SQL query using JDBC
+
+String sql = "SELECT name " +
+             "FROM SalesPerson " +
+             "WHERE sales_id NOT IN (" +
+             "    SELECT sales_id " +
+             "    FROM Orders " +
+             "    JOIN Company ON Orders.com_id = Company.com_id " +
+             "    WHERE Company.name = 'RED'" +
+             ")";
+
+// Example using JDBC:
+// import java.sql.*;
+// Connection conn = DriverManager.getConnection(url, user, password);
+// Statement stmt = conn.createStatement();
+// ResultSet rs = stmt.executeQuery(sql);
+// while (rs.next()) {
+//     System.out.println(rs.getString("name"));
+// }
+` },
+{ name: "C++", lang: "cpp", code: `// SQL Solution for LeetCode Database Problem
+// In C++, you would execute this SQL query using a database library
+
+const char* sql = "SELECT name "
+                  "FROM SalesPerson "
+                  "WHERE sales_id NOT IN ("
+                  "    SELECT sales_id "
+                  "    FROM Orders "
+                  "    JOIN Company ON Orders.com_id = Company.com_id "
+                  "    WHERE Company.name = 'RED'"
+                  ")";
+
+// Example using SQLite C API:
+// sqlite3* db;
+// sqlite3_open("database.db", &db);
+// sqlite3_stmt* stmt;
+// sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+// while (sqlite3_step(stmt) == SQLITE_ROW) {
+//     const char* name = (const char*)sqlite3_column_text(stmt, 0);
+//     printf("%s\\n", name);
+// }
+// sqlite3_finalize(stmt);
+// sqlite3_close(db);
+` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL Solution for LeetCode Database Problem
+// In JavaScript, you would execute this SQL query using a database driver
+
+const sql = "SELECT name\\n" +
+            "FROM SalesPerson\\n" +
+            "WHERE sales_id NOT IN (\\n" +
+            "    SELECT sales_id\\n" +
+            "    FROM Orders\\n" +
+            "    JOIN Company ON Orders.com_id = Company.com_id\\n" +
+            "    WHERE Company.name = 'RED'\\n" +
+            ")";
+
+// Example using node-postgres:
+// const { Pool } = require('pg');
+// const pool = new Pool();
+// const result = await pool.query(sql);
+// console.log(result.rows);
+` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL Solution for LeetCode Database Problem
+// In TypeScript, you would execute this SQL query using a database driver
+
+const sql: string = "SELECT name\\n" +
+                    "FROM SalesPerson\\n" +
+                    "WHERE sales_id NOT IN (\\n" +
+                    "    SELECT sales_id\\n" +
+                    "    FROM Orders\\n" +
+                    "    JOIN Company ON Orders.com_id = Company.com_id\\n" +
+                    "    WHERE Company.name = 'RED'\\n" +
+                    ")";
+
+// Example using node-postgres with TypeScript:
+// import { Pool, QueryResult } from 'pg';
+// const pool = new Pool();
+// interface SalesPersonResult {
+//     name: string;
+// }
+// const result: QueryResult<SalesPersonResult> = await pool.query(sql);
+// console.log(result.rows);
+` },]} />
+
+**Complexity**
+- Time: O(n + m + p) where n, m, p are the sizes of SalesPerson, Company, and Orders tables
+- Space: O(k) where k is the number of sales persons with RED orders (for the subquery)
+- Notes: NOT IN is intuitive but can be slow with NULL values (not an issue here)
+
+---
+## Approach 3: NOT EXISTS Subquery
+
+**Intuition**
+Use NOT EXISTS to check if each sales person has any orders with RED company, returning only those without any.
+
+**Steps**
+- For each sales person, check if there exists any order with RED company
+- Use NOT EXISTS to filter out those who have such orders
+- Return names of remaining sales people
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL Solution for LeetCode Database Problem
+# In Python, you would execute this SQL query using a database connector
+
+sql = """
+SELECT name
+FROM SalesPerson sp
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Orders o
+    JOIN Company c ON o.com_id = c.com_id
+    WHERE o.sales_id = sp.sales_id AND c.name = 'RED'
+)
+"""
+
+# Example using sqlite3:
+# import sqlite3
+# conn = sqlite3.connect(':memory:')
+# cursor = conn.cursor()
+# cursor.execute(sql)
+# result = cursor.fetchall()
+# print(result)
+` },
+{ name: "Java", lang: "java", code: `// SQL Solution for LeetCode Database Problem
+// In Java, you would execute this SQL query using JDBC
+
+String sql = "SELECT name " +
+             "FROM SalesPerson sp " +
+             "WHERE NOT EXISTS (" +
+             "    SELECT 1 " +
+             "    FROM Orders o " +
+             "    JOIN Company c ON o.com_id = c.com_id " +
+             "    WHERE o.sales_id = sp.sales_id AND c.name = 'RED'" +
+             ")";
+
+// Example using JDBC:
+// import java.sql.*;
+// Connection conn = DriverManager.getConnection(url, user, password);
+// Statement stmt = conn.createStatement();
+// ResultSet rs = stmt.executeQuery(sql);
+// while (rs.next()) {
+//     System.out.println(rs.getString("name"));
+// }
+` },
+{ name: "C++", lang: "cpp", code: `// SQL Solution for LeetCode Database Problem
+// In C++, you would execute this SQL query using a database library
+
+const char* sql = "SELECT name "
+                  "FROM SalesPerson sp "
+                  "WHERE NOT EXISTS ("
+                  "    SELECT 1 "
+                  "    FROM Orders o "
+                  "    JOIN Company c ON o.com_id = c.com_id "
+                  "    WHERE o.sales_id = sp.sales_id AND c.name = 'RED'"
+                  ")";
+
+// Example using SQLite C API:
+// sqlite3* db;
+// sqlite3_open("database.db", &db);
+// sqlite3_stmt* stmt;
+// sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+// while (sqlite3_step(stmt) == SQLITE_ROW) {
+//     const char* name = (const char*)sqlite3_column_text(stmt, 0);
+//     printf("%s\\n", name);
+// }
+// sqlite3_finalize(stmt);
+// sqlite3_close(db);
+` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL Solution for LeetCode Database Problem
+// In JavaScript, you would execute this SQL query using a database driver
+
+const sql = "SELECT name\\n" +
+            "FROM SalesPerson sp\\n" +
+            "WHERE NOT EXISTS (\\n" +
+            "    SELECT 1\\n" +
+            "    FROM Orders o\\n" +
+            "    JOIN Company c ON o.com_id = c.com_id\\n" +
+            "    WHERE o.sales_id = sp.sales_id AND c.name = 'RED'\\n" +
+            ")";
+
+// Example using node-postgres:
+// const { Pool } = require('pg');
+// const pool = new Pool();
+// const result = await pool.query(sql);
+// console.log(result.rows);
+` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL Solution for LeetCode Database Problem
+// In TypeScript, you would execute this SQL query using a database driver
+
+const sql: string = "SELECT name\\n" +
+                    "FROM SalesPerson sp\\n" +
+                    "WHERE NOT EXISTS (\\n" +
+                    "    SELECT 1\\n" +
+                    "    FROM Orders o\\n" +
+                    "    JOIN Company c ON o.com_id = c.com_id\\n" +
+                    "    WHERE o.sales_id = sp.sales_id AND c.name = 'RED'\\n" +
+                    ")";
+
+// Example using node-postgres with TypeScript:
+// import { Pool, QueryResult } from 'pg';
+// const pool = new Pool();
+// interface SalesPersonResult {
+//     name: string;
+// }
+// const result: QueryResult<SalesPersonResult> = await pool.query(sql);
+// console.log(result.rows);
+` },]} />
+
+**Complexity**
+- Time: O(n × p) in worst case where n is SalesPerson count and p is Orders count
+- Space: O(1) additional space (no intermediate results stored)
+- Notes: NOT EXISTS can be more efficient than NOT IN with proper indexing
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sales Person Solutions","datePublished":"2025-12-15","description":"Find all sales people who did not have any orders with company named RED","keywords":"LeetCode, Sales Person, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of LEFT JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m + p) where n, m, p are the sizes of SalesPerson, Company, and Orders tables."}},{"@type":"Question","name":"What is the time complexity of NOT IN approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m + p) where n, m, p are the sizes of SalesPerson, Company, and Orders tables."}},{"@type":"Question","name":"What is the time complexity of NOT EXISTS approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × p) in worst case where n is SalesPerson count and p is Orders count."}}]}).replace(/</g,'\u003c')}
+</script>

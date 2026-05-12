@@ -1,0 +1,106 @@
+---
+title: "Hexadecimal and Hexatrigesimal Conversion"
+summary: "Convert a given hexadecimal string to its equivalent representation in base 36 (hexatrigesimal)."
+date: "Aug 01, 2024"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.90% | **Paid:** No
+> **Topics:** Math, String
+
+You are given a string `num` representing a positive integer in hexadecimal (base 16).
+
+Return the string representation of the same integer in hexadecimal (base 36).
+
+Hexadecimal digits are the lowercase characters `0` to `9` and `a` to `f`.
+Hexadecimal does not contain leading zeros.
+
+Hexadecimal digits are the lowercase characters `0` to `9` and `a` to `z`.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in BigInt Libraries](#approach-1-built-in-bigint-libraries)
+- [Approach 2: Manual Base Conversion (String Arithmetic)](#approach-2-manual-base-conversion-string-arithmetic)
+
+## Examples
+
+### Example 1
+```text
+Input: num = "1a"
+Output: "q"
+Explanation: 1a in hexadecimal is 26 in decimal. 26 in hexadecimal is "q".
+```
+
+### Example 2
+```text
+Input: num = "ff"
+Output: "73"
+Explanation: ff in hexadecimal is 255 in decimal. 255 = 7 * 36 + 3. So it is "73".
+```
+
+## Constraints
+
+```text
+1 <= num.length <= 100
+num consists of lowercase English letters and digits.
+num does not have leading zeros.
+```
+
+---
+## Approach 1: Built-in BigInt Libraries
+
+**Intuition**
+Most modern programming languages provide built-in support for arbitrary-precision integers (BigInt). We can leverage these libraries to parse the hexadecimal string into a BigInt and then format it into a base-36 string.
+
+**Steps**
+- Parse the input string `num` as a base-16 integer to obtain a BigInt value.
+- Convert the BigInt value to a string representation in base-36.
+- Return the resulting string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def toHexatrigesimal(self, num: str) -&gt; str:\n        # Python int handles arbitrary precision automatically\n        val = int(num, 16)\n        if val == 0:\n            return \"0\"\n        chars = \"0123456789abcdefghijklmnopqrstuvwxyz\"\n        res = []\n        while val &gt; 0:\n            res.append(chars[val % 36])\n            val //= 36\n        return \"\".join(reversed(res))\n" },
+{ name: "Java", lang: "java", code: "import java.math.BigInteger;\n\nclass Solution {\n    public String toHexatrigesimal(String num) {\n        // Java BigInteger handles arbitrary precision\n        BigInteger val = new BigInteger(num, 16);\n        return val.toString(36);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;algorithm&gt;\n#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string addStrings(string num1, int num2) {\n        string res;\n        int carry = num2;\n        int i = num1.size() - 1;\n        while (i &gt;= 0 || carry &gt; 0) {\n            int d1 = (i &gt;= 0) ? (num1[i--] - '0') : 0;\n            int sum = d1 + carry;\n            res.push_back((sum % 10) + '0');\n            carry = sum / 10;\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n\n    string mulStrings(string num1, int num2) {\n        if (num1 == \"0\" || num2 == 0) return \"0\";\n        string res;\n        int carry = 0;\n        for (int i = num1.size() - 1; i &gt;= 0; i--) {\n            int product = (num1[i] - '0') * num2 + carry;\n            res.push_back((product % 10) + '0');\n            carry = product / 10;\n        }\n        while (carry) {\n            res.push_back((carry % 10) + '0');\n            carry /= 10;\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n\n    string toHexadecimal(string num) {\n        string dec = \"0\";\n        for (char c : num) {\n            int val = (c &gt;= 'a') ? (c - 'a' + 10) : (c - '0');\n            dec = mulStrings(dec, 16);\n            dec = addStrings(dec, val);\n        }\n        return dec;\n    }\n\n    string toHexatrigesimal(string num) {\n        // C++ standard library lacks built-in BigInt, so we implement manual conversion.\n        // 1. Convert Hex string to Decimal string\n        string dec = toHexadecimal(num);\n        \n        if (dec == \"0\") return \"0\";\n        \n        // 2. Convert Decimal string to Base 36\n        string res;\n        string chars = \"0123456789abcdefghijklmnopqrstuvwxyz\";\n        while (dec != \"0\") {\n            int rem = 0;\n            string next_dec;\n            for (char c : dec) {\n                int curr = rem * 10 + (c - '0');\n                next_dec.push_back((curr / 36) + '0');\n                rem = curr % 36;\n            }\n            // Remove leading zeros from next_dec\n            size_t start = next_dec.find_first_not_of('0');\n            if (start == string::npos) dec = \"0\";\n            else dec = next_dec.substr(start);\n            \n            res.push_back(chars[rem]);\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} num\n * @return {string}\n */\nvar toHexatrigesimal = function(num) {\n    // JS BigInt handles arbitrary precision\n    let val = BigInt('0x' + num);\n    return val.toString(36);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function toHexatrigesimal(num: string): string {\n    // TS BigInt handles arbitrary precision\n    let val = BigInt('0x' + num);\n    return val.toString(36);\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the string. (Assuming BigInt operations are linear or near-linear for this size).
+- Space: O(N) to store the result.
+- Notes: This is the most concise solution for languages with built-in BigInt support. For C++, a manual implementation is required.
+
+---
+## Approach 2: Manual Base Conversion (String Arithmetic)
+
+**Intuition**
+For languages or environments without BigInt support, we simulate arithmetic operations on strings. We first convert the hexadecimal string to a decimal string by iterating and multiplying by 16. Then, we repeatedly divide the decimal string by 36 to extract base-36 digits.
+
+**Steps**
+- Implement helper functions to add an integer to a decimal string and multiply a decimal string by an integer.
+- Convert the input hexadecimal string to a decimal string using the helpers (processing digit by digit).
+- Repeatedly divide the decimal string by 36. The remainder of each division corresponds to a digit in the base-36 result.
+- Construct the result string from the remainders.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def toHexadecimal(self, num: str) -&gt; str:\n        dec = \"0\"\n        for c in num:\n            val = int(c, 16)\n            # Multiply dec by 16\n            carry = 0\n            mul_res = []\n            for ch in reversed(dec):\n                temp = (int(ch) * 16) + carry\n                mul_res.append(str(temp % 10))\n                carry = temp // 10\n            if carry:\n                mul_res.append(str(carry))\n            dec = \"\".join(reversed(mul_res))\n            \n            # Add val to dec\n            carry = val\n            add_res = []\n            for ch in reversed(dec):\n                temp = int(ch) + carry\n                add_res.append(str(temp % 10))\n                carry = temp // 10\n            if carry:\n                add_res.append(str(carry))\n            dec = \"\".join(reversed(add_res))\n        return dec\n\n    def toHexatrigesimal(self, num: str) -&gt; str:\n        # Manual conversion without int(num, 16)\n        dec = self.toHexadecimal(num)\n        \n        if dec == \"0\":\n            return \"0\"\n        \n        chars = \"0123456789abcdefghijklmnopqrstuvwxyz\"\n        res = []\n        \n        while dec != \"0\":\n            rem = 0\n            next_dec = []\n            for ch in dec:\n                curr = rem * 10 + int(ch)\n                next_dec.append(str(curr // 36))\n                rem = curr % 36\n            \n            # Remove leading zeros\n            dec = \"\".join(next_dec).lstrip('0')\n            if not dec: dec = \"0\"\n            \n            res.append(chars[rem])\n            \n        return \"\".join(reversed(res))\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String toHexadecimal(String num) {\n        StringBuilder dec = new StringBuilder(\"0\");\n        for (int i = 0; i &lt; num.length(); i++) {\n            char c = num.charAt(i);\n            int val = (c &gt;= 'a') ? (c - 'a' + 10) : (c - '0');\n            \n            // Multiply dec by 16\n            StringBuilder mulRes = new StringBuilder();\n            int carry = 0;\n            for (int j = dec.length() - 1; j &gt;= 0; j--) {\n                int temp = (dec.charAt(j) - '0') * 16 + carry;\n                mulRes.insert(0, temp % 10);\n                carry = temp / 10;\n            }\n            if (carry &gt; 0) mulRes.insert(0, carry);\n            dec = mulRes;\n            \n            // Add val to dec\n            StringBuilder addRes = new StringBuilder();\n            carry = val;\n            for (int j = dec.length() - 1; j &gt;= 0; j--) {\n                int temp = (dec.charAt(j) - '0') + carry;\n                addRes.insert(0, temp % 10);\n                carry = temp / 10;\n            }\n            if (carry &gt; 0) addRes.insert(0, carry);\n            dec = addRes;\n        }\n        return dec.toString();\n    }\n\n    public String toHexatrigesimal(String num) {\n        String dec = toHexadecimal(num);\n        if (dec.equals(\"0\")) return \"0\";\n        \n        String chars = \"0123456789abcdefghijklmnopqrstuvwxyz\";\n        StringBuilder res = new StringBuilder();\n        \n        while (!dec.equals(\"0\")) {\n            int rem = 0;\n            StringBuilder nextDec = new StringBuilder();\n            for (int i = 0; i &lt; dec.length(); i++) {\n                int curr = rem * 10 + (dec.charAt(i) - '0');\n                nextDec.append(curr / 36);\n                rem = curr % 36;\n            }\n            // Remove leading zeros\n            dec = nextDec.toString().replaceFirst(\"^0+\", \"\");\n            if (dec.isEmpty()) dec = \"0\";\n            \n            res.insert(0, chars.charAt(rem));\n        }\n        return res.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;algorithm&gt;\n#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string addStrings(string num1, int num2) {\n        string res;\n        int carry = num2;\n        int i = num1.size() - 1;\n        while (i &gt;= 0 || carry &gt; 0) {\n            int d1 = (i &gt;= 0) ? (num1[i--] - '0') : 0;\n            int sum = d1 + carry;\n            res.push_back((sum % 10) + '0');\n            carry = sum / 10;\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n\n    string mulStrings(string num1, int num2) {\n        if (num1 == \"0\" || num2 == 0) return \"0\";\n        string res;\n        int carry = 0;\n        for (int i = num1.size() - 1; i &gt;= 0; i--) {\n            int product = (num1[i] - '0') * num2 + carry;\n            res.push_back((product % 10) + '0');\n            carry = product / 10;\n        }\n        while (carry) {\n            res.push_back((carry % 10) + '0');\n            carry /= 10;\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n\n    string toHexadecimal(string num) {\n        string dec = \"0\";\n        for (char c : num) {\n            int val = (c &gt;= 'a') ? (c - 'a' + 10) : (c - '0');\n            dec = mulStrings(dec, 16);\n            dec = addStrings(dec, val);\n        }\n        return dec;\n    }\n\n    string toHexatrigesimal(string num) {\n        string dec = toHexadecimal(num);\n        if (dec == \"0\") return \"0\";\n        \n        string res;\n        string chars = \"0123456789abcdefghijklmnopqrstuvwxyz\";\n        while (dec != \"0\") {\n            int rem = 0;\n            string next_dec;\n            for (char c : dec) {\n                int curr = rem * 10 + (c - '0');\n                next_dec.push_back((curr / 36) + '0');\n                rem = curr % 36;\n            }\n            size_t start = next_dec.find_first_not_of('0');\n            if (start == string::npos) dec = \"0\";\n            else dec = next_dec.substr(start);\n            \n            res.push_back(chars[rem]);\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} num\n * @return {string}\n */\nvar toHexadecimal = function(num) {\n    let dec = \"0\";\n    for (let i = 0; i &lt; num.length; i++) {\n        let c = num[i];\n        let val = parseInt(c, 16);\n        \n        // Multiply dec by 16\n        let carry = 0;\n        let mulRes = [];\n        for (let j = dec.length - 1; j &gt;= 0; j--) {\n            let temp = parseInt(dec[j]) * 16 + carry;\n            mulRes.unshift(temp % 10);\n            carry = Math.floor(temp / 10);\n        }\n        if (carry &gt; 0) mulRes.unshift(carry);\n        dec = mulRes.join(\"\");\n        \n        // Add val to dec\n        carry = val;\n        let addRes = [];\n        for (let j = dec.length - 1; j &gt;= 0; j--) {\n            let temp = parseInt(dec[j]) + carry;\n            addRes.unshift(temp % 10);\n            carry = Math.floor(temp / 10);\n        }\n        if (carry &gt; 0) addRes.unshift(carry);\n        dec = addRes.join(\"\");\n    }\n    return dec;\n};\n\nvar toHexatrigesimal = function(num) {\n    let dec = toHexadecimal(num);\n    if (dec === \"0\") return \"0\";\n    \n    let chars = \"0123456789abcdefghijklmnopqrstuvwxyz\";\n    let res = [];\n    \n    while (dec !== \"0\") {\n        let rem = 0;\n        let nextDec = [];\n        for (let i = 0; i &lt; dec.length; i++) {\n            let curr = rem * 10 + parseInt(dec[i]);\n            nextDec.push(Math.floor(curr / 36));\n            rem = curr % 36;\n        }\n        // Remove leading zeros\n        dec = nextDec.join(\"\").replace(/^0+/, \"\");\n        if (dec === \"\") dec = \"0\";\n        \n        res.unshift(chars[rem]);\n    }\n    return res.join(\"\");\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function toHexadecimal(num: string): string {\n    let dec: string = \"0\";\n    for (let i = 0; i &lt; num.length; i++) {\n        let c = num[i];\n        let val = parseInt(c, 16);\n        \n        // Multiply dec by 16\n        let carry = 0;\n        let mulRes: number[] = [];\n        for (let j = dec.length - 1; j &gt;= 0; j--) {\n            let temp = parseInt(dec[j]) * 16 + carry;\n            mulRes.unshift(temp % 10);\n            carry = Math.floor(temp / 10);\n        }\n        if (carry &gt; 0) mulRes.unshift(carry);\n        dec = mulRes.join(\"\");\n        \n        // Add val to dec\n        carry = val;\n        let addRes: number[] = [];\n        for (let j = dec.length - 1; j &gt;= 0; j--) {\n            let temp = parseInt(dec[j]) + carry;\n            addRes.unshift(temp % 10);\n            carry = Math.floor(temp / 10);\n        }\n        if (carry &gt; 0) addRes.unshift(carry);\n        dec = addRes.join(\"\");\n    }\n    return dec;\n}\n\nfunction toHexatrigesimal(num: string): string {\n    let dec: string = toHexadecimal(num);\n    if (dec === \"0\") return \"0\";\n    \n    let chars = \"0123456789abcdefghijklmnopqrstuvwxyz\";\n    let res: string[] = [];\n    \n    while (dec !== \"0\") {\n        let rem = 0;\n        let nextDec: number[] = [];\n        for (let i = 0; i &lt; dec.length; i++) {\n            let curr = rem * 10 + parseInt(dec[i]);\n            nextDec.push(Math.floor(curr / 36));\n            rem = curr % 36;\n        }\n        // Remove leading zeros\n        dec = nextDec.join(\"\").replace(/^0+/, \"\");\n        if (dec === \"\") dec = \"0\";\n        \n        res.unshift(chars[rem]);\n    }\n    return res.join(\"\");\n}\n" },]} />
+
+**Complexity**
+- Time: O(N²) in the worst case, where N is the length of the string. This is because string arithmetic (multiplication/division) takes O(N) time, and we perform it O(N) times (once per digit).
+- Space: O(N) to store intermediate string representations.
+- Notes: This approach is universally applicable but significantly slower than built-in BigInt for very large numbers.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Hexadecimal and Hexatrigesimal Conversion Solutions","datePublished":"2024-08-01","description":"Convert a given hexadecimal string to its equivalent representation in base 36 (hexatrigesimal).","keywords":"LeetCode, Hexadecimal and Hexatrigesimal Conversion, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in BigInt approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the string, assuming BigInt operations are linear or near-linear for this size."}},{"@type":"Question","name":"What is the time complexity of the Manual Base Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N²) in the worst case, where N is the length of the string. This is because string arithmetic (multiplication/division) takes O(N) time, and we perform it O(N) times."}},{"@type":"Question","name":"Why is C++ implementation different in the Built-in approach?","acceptedAnswer":{"@type":"Answer","text":"C++ standard library lacks a built-in arbitrary precision integer class comparable to Python's int or Java's BigInteger. Therefore, a manual string-based implementation is required to handle the large constraints."}}]}).replace(/</g,'\u003c')}
+</script>

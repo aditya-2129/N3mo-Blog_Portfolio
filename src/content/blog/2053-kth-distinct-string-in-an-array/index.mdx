@@ -1,0 +1,121 @@
+---
+title: "Kth Distinct String in an Array"
+summary: "Find the kth distinct string in an array, where a distinct string appears exactly once."
+date: "Oct 26, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.10% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Counting
+
+A distinct string is a string that is present only once in an array.
+
+Given an array of strings arr, and an integer k, return the kth distinct string present in arr. If there are fewer than k distinct strings, return an empty string "".
+
+- Examples
+- Constraints
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Brute Force Counting](#brute-force-counting)
+
+## Examples
+
+```text
+Input: arr = ["d","b","c","b","c","a"], k = 2
+Output: "a"
+Explanation: 
+The distinct strings in arr are "d" and "a". 
+"d" appears first, so it is the 1st distinct string.
+"a" appears second, so it is the 2nd distinct string.
+The 2nd distinct string is "a".
+```
+
+```text
+Input: arr = ["aaa","aa","a"], k = 1
+Output: "aa"
+Explanation: 
+The distinct strings in arr are "aa" and "a". 
+"aa" appears first, so it is the 1st distinct string.
+"a" appears second, so it is the 2nd distinct string.
+Since k is 1, the 1st distinct string is "aa".
+```
+
+```text
+Input: arr = ["a","b","a"], k = 3
+Output: ""
+Explanation: 
+The distinct strings in arr are "b". 
+Since there is only 1 distinct string, the 3rd distinct string does not exist, so we return "".
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 1000
+arr[i].length >= 1
+arr[i] consists of lowercase English letters.
+1 <= k <= 1000
+```
+
+---
+## Hash Map Frequency Count
+
+**Intuition**
+Count the frequency of each string using a hash map, then iterate through the array to find the kth string with frequency 1.
+
+**Steps**
+- Build a frequency map of all strings in the array
+- Iterate through the array in original order
+- For each string, check if its frequency is 1 (distinct)
+- When we find the kth distinct string, return it
+- If we finish without finding k distinct strings, return ""
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\nfrom typing import List\n\nclass Solution:\n    def kthDistinct(self, arr: List[str], k: int) -&gt; str:\n        freq = Counter(arr)\n        count = 0\n        for s in arr:\n            if freq[s] == 1:\n                count += 1\n                if count == k:\n                    return s\n        return \"\"" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String kthDistinct(String[] arr, int k) {\n        Map&lt;String, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (String s : arr) {\n            freq.put(s, freq.getOrDefault(s, 0) + 1);\n        }\n        int count = 0;\n        for (String s : arr) {\n            if (freq.get(s) == 1) {\n                count++;\n                if (count == k) {\n                    return s;\n                }\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string kthDistinct(vector&lt;string&gt;& arr, int k) {\n        unordered_map&lt;string, int&gt; freq;\n        for (const string& s : arr) {\n            freq[s]++;\n        }\n        int count = 0;\n        for (const string& s : arr) {\n            if (freq[s] == 1) {\n                count++;\n                if (count == k) {\n                    return s;\n                }\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} arr\n * @param {number} k\n * @return {string}\n */\nvar kthDistinct = function(arr, k) {\n    const freq = new Map();\n    for (const s of arr) {\n        freq.set(s, (freq.get(s) || 0) + 1);\n    }\n    let count = 0;\n    for (const s of arr) {\n        if (freq.get(s) === 1) {\n            count++;\n            if (count === k) {\n                return s;\n            }\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kthDistinct(arr: string[], k: number): string {\n    const freq = new Map&lt;string, number&gt;();\n    for (const s of arr) {\n        freq.set(s, (freq.get(s) || 0) + 1);\n    }\n    let count = 0;\n    for (const s of arr) {\n        if (freq.get(s) === 1) {\n            count++;\n            if (count === k) {\n                return s;\n            }\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of arr
+- Space: O(n) for the frequency map
+- Notes: Optimal solution with linear time complexity
+
+---
+## Brute Force Counting
+
+**Intuition**
+For each string in the array, count its total occurrences by scanning the entire array. Track distinct strings and return the kth one.
+
+**Steps**
+- Iterate through each string in the array
+- For each string, count its total occurrences in the array
+- If the count is exactly 1, increment our distinct counter
+- When the distinct counter reaches k, return that string
+- If we finish the loop, return ""
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def kthDistinct(self, arr: List[str], k: int) -&gt; str:\n        count = 0\n        for i, s in enumerate(arr):\n            # Check if this is the first occurrence\n            is_first = True\n            for j in range(i):\n                if arr[j] == s:\n                    is_first = False\n                    break\n            if not is_first:\n                continue\n            \n            # Count total occurrences\n            total = 0\n            for t in arr:\n                if t == s:\n                    total += 1\n            \n            if total == 1:\n                count += 1\n                if count == k:\n                    return s\n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String kthDistinct(String[] arr, int k) {\n        int count = 0;\n        for (int i = 0; i &lt; arr.length; i++) {\n            String s = arr[i];\n            // Check if this is the first occurrence\n            boolean isFirst = true;\n            for (int j = 0; j &lt; i; j++) {\n                if (arr[j].equals(s)) {\n                    isFirst = false;\n                    break;\n                }\n            }\n            if (!isFirst) continue;\n            \n            // Count total occurrences\n            int total = 0;\n            for (String t : arr) {\n                if (t.equals(s)) {\n                    total++;\n                }\n            }\n            \n            if (total == 1) {\n                count++;\n                if (count == k) {\n                    return s;\n                }\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string kthDistinct(vector&lt;string&gt;& arr, int k) {\n        int count = 0;\n        int n = arr.size();\n        for (int i = 0; i &lt; n; i++) {\n            string s = arr[i];\n            // Check if this is the first occurrence\n            bool isFirst = true;\n            for (int j = 0; j &lt; i; j++) {\n                if (arr[j] == s) {\n                    isFirst = false;\n                    break;\n                }\n            }\n            if (!isFirst) continue;\n            \n            // Count total occurrences\n            int total = 0;\n            for (const string& t : arr) {\n                if (t == s) {\n                    total++;\n                }\n            }\n            \n            if (total == 1) {\n                count++;\n                if (count == k) {\n                    return s;\n                }\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} arr\n * @param {number} k\n * @return {string}\n */\nvar kthDistinct = function(arr, k) {\n    let count = 0;\n    for (let i = 0; i &lt; arr.length; i++) {\n        const s = arr[i];\n        // Check if this is the first occurrence\n        let isFirst = true;\n        for (let j = 0; j &lt; i; j++) {\n            if (arr[j] === s) {\n                isFirst = false;\n                break;\n            }\n        }\n        if (!isFirst) continue;\n        \n        // Count total occurrences\n        let total = 0;\n        for (const t of arr) {\n            if (t === s) {\n                total++;\n            }\n        }\n        \n        if (total === 1) {\n            count++;\n            if (count === k) {\n                return s;\n            }\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kthDistinct(arr: string[], k: number): string {\n    let count = 0;\n    for (let i = 0; i &lt; arr.length; i++) {\n        const s = arr[i];\n        // Check if this is the first occurrence\n        let isFirst = true;\n        for (let j = 0; j &lt; i; j++) {\n            if (arr[j] === s) {\n                isFirst = false;\n                break;\n            }\n        }\n        if (!isFirst) continue;\n        \n        // Count total occurrences\n        let total = 0;\n        for (const t of arr) {\n            if (t === s) {\n                total++;\n            }\n        }\n        \n        if (total === 1) {\n            count++;\n            if (count === k) {\n                return s;\n            }\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of arr
+- Space: O(1) no extra space used
+- Notes: Simpler implementation but quadratic time complexity, not recommended for large inputs
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Kth Distinct String in an Array Solutions","datePublished":"2024-10-26","description":"Find the kth distinct string in an array, where a distinct string appears exactly once.","keywords":"LeetCode, Kth Distinct String in an Array, Easy, Array, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map approach has O(n) time complexity where n is the length of the array."}},{"@type":"Question","name":"What is the space complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(1) space complexity as it doesn't use any extra data structures."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map approach is recommended as it provides optimal O(n) time complexity."}}]}).replace(/</g,'\u003c')}
+</script>

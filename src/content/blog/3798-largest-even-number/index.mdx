@@ -1,0 +1,432 @@
+---
+title: "Largest Even Number"
+summary: "Given a string of digits, rearrange them to form the largest possible even number."
+date: "Sep 15, 2025"
+tags:
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.40% | **Paid:** No
+> **Topics:** String
+
+You are given a string `num` consisting of digits only. Your task is to rearrange the digits of `num` to form the largest possible even number.
+
+Return the resulting string. If it is impossible to form an even number, return an empty string.
+
+Note that the resulting number may have leading zeros.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Greedy with Sorting](#greedy-with-sorting)
+- [Counting Sort Approach](#counting-sort-approach)
+
+## Examples
+
+### Example 1
+```text
+Input: num = "420"
+Output: "420"
+Explanation: "420" is already the largest even number that can be formed.
+```
+
+### Example 2
+```text
+Input: num = "123"
+Output: "312"
+Explanation: The largest even number that can be formed is "312".
+```
+
+### Example 3
+```text
+Input: num = "135"
+Output: ""
+Explanation: It is impossible to form an even number as all digits are odd.
+```
+
+## Constraints
+
+```text
+- 1 <= s.length <= 100
+- s consists only of the characters '1' and '2'.
+```
+
+## Greedy with Sorting
+
+**Intuition**
+To form the largest even number, we want the largest digits at the front and an even digit at the end. We can sort digits in descending order and then find the smallest even digit to place at the end.
+
+**Steps**
+- Sort the string in descending order
+- Find the rightmost (smallest) even digit
+- Move that digit to the end
+- If no even digit exists, return empty string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def largestEvenNumber(self, num: str) -> str:
+        # Convert to list and sort in descending order
+        digits = sorted(num, reverse=True)
+        
+        # Find the smallest even digit (rightmost even digit)
+        even_idx = -1
+        for i in range(len(digits) - 1, -1, -1):
+            if int(digits[i]) % 2 == 0:
+                even_idx = i
+                break
+        
+        # If no even digit found, return empty string
+        if even_idx == -1:
+            return ""
+        
+        # Move the even digit to the end
+        even_digit = digits.pop(even_idx)
+        digits.append(even_digit)
+        
+        return "".join(digits)
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public String largestEvenNumber(String num) {
+        char[] digits = num.toCharArray();
+        
+        // Sort in descending order
+        Arrays.sort(digits);
+        reverse(digits);
+        
+        // Find the smallest even digit (rightmost even digit)
+        int evenIdx = -1;
+        for (int i = digits.length - 1; i &gt;= 0; i--) {
+            if ((digits[i] - '0') % 2 == 0) {
+                evenIdx = i;
+                break;
+            }
+        }
+        
+        // If no even digit found, return empty string
+        if (evenIdx == -1) {
+            return "";
+        }
+        
+        // Move the even digit to the end
+        char evenDigit = digits[evenIdx];
+        for (int i = evenIdx; i &lt; digits.length - 1; i++) {
+            digits[i] = digits[i + 1];
+        }
+        digits[digits.length - 1] = evenDigit;
+        
+        return new String(digits);
+    }
+    
+    private void reverse(char[] arr) {
+        int left = 0, right = arr.length - 1;
+        while (left &lt; right) {
+            char temp = arr[left];
+            arr[left] = arr[right];
+            arr[right] = temp;
+            left++;
+            right--;
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    string largestEvenNumber(string num) {
+        // Sort in descending order
+        sort(num.rbegin(), num.rend());
+        
+        // Find the smallest even digit (rightmost even digit)
+        int evenIdx = -1;
+        for (int i = num.length() - 1; i &gt;= 0; i--) {
+            if ((num[i] - '0') % 2 == 0) {
+                evenIdx = i;
+                break;
+            }
+        }
+        
+        // If no even digit found, return empty string
+        if (evenIdx == -1) {
+            return "";
+        }
+        
+        // Move the even digit to the end
+        char evenDigit = num[evenIdx];
+        num.erase(evenIdx, 1);
+        num += evenDigit;
+        
+        return num;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var largestEvenNumber = function(num) {
+    // Convert to array and sort in descending order
+    let digits = num.split('').sort((a, b) =&gt; parseInt(b) - parseInt(a));
+    
+    // Find the smallest even digit (rightmost even digit)
+    let evenIdx = -1;
+    for (let i = digits.length - 1; i &gt;= 0; i--) {
+        if (parseInt(digits[i]) % 2 === 0) {
+            evenIdx = i;
+            break;
+        }
+    }
+    
+    // If no even digit found, return empty string
+    if (evenIdx === -1) {
+        return "";
+    }
+    
+    // Move the even digit to the end
+    let evenDigit = digits.splice(evenIdx, 1)[0];
+    digits.push(evenDigit);
+    
+    return digits.join('');
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function largestEvenNumber(num: string): string {
+    // Convert to array and sort in descending order
+    let digits: string[] = num.split('').sort((a, b) =&gt; parseInt(b) - parseInt(a));
+    
+    // Find the smallest even digit (rightmost even digit)
+    let evenIdx: number = -1;
+    for (let i = digits.length - 1; i &gt;= 0; i--) {
+        if (parseInt(digits[i]) % 2 === 0) {
+            evenIdx = i;
+            break;
+        }
+    }
+    
+    // If no even digit found, return empty string
+    if (evenIdx === -1) {
+        return "";
+    }
+    
+    // Move the even digit to the end
+    let evenDigit: string = digits.splice(evenIdx, 1)[0];
+    digits.push(evenDigit);
+    
+    return digits.join('');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) for sorting
+- Space: O(n) for storing the character array
+- Notes: Simple and intuitive, but sorting takes O(n log n) time
+
+## Counting Sort Approach
+
+**Intuition**
+Since we only have 10 possible digits (0-9), we can use counting sort to achieve O(n) time complexity. We count the frequency of each digit and then construct the result by placing digits from largest to smallest, ensuring the last digit is even.
+
+**Steps**
+- Count the frequency of each digit (0-9)
+- Find the smallest even digit that exists
+- Construct the result by placing digits from 9 down to 0
+- Use one less of the chosen even digit and place it at the end
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def largestEvenNumber(self, num: str) -> str:
+        # Count frequency of each digit
+        count = [0] * 10
+        for ch in num:
+            count[int(ch)] += 1
+        
+        # Find the smallest even digit that exists
+        even_digit = -1
+        for d in range(0, 10, 2):  # 0, 2, 4, 6, 8
+            if count[d] &gt; 0:
+                even_digit = d
+                break
+        
+        # If no even digit found, return empty string
+        if even_digit == -1:
+            return ""
+        
+        # Use one occurrence of the even digit for the end
+        count[even_digit] -= 1
+        
+        # Build the result from largest to smallest digit
+        result = []
+        for d in range(9, -1, -1):
+            result.append(str(d) * count[d])
+        
+        # Append the even digit at the end
+        result.append(str(even_digit))
+        
+        return "".join(result)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String largestEvenNumber(String num) {
+        // Count frequency of each digit
+        int[] count = new int[10];
+        for (char ch : num.toCharArray()) {
+            count[ch - '0']++;
+        }
+        
+        // Find the smallest even digit that exists
+        int evenDigit = -1;
+        for (int d = 0; d &lt;= 8; d += 2) {  // 0, 2, 4, 6, 8
+            if (count[d] &gt; 0) {
+                evenDigit = d;
+                break;
+            }
+        }
+        
+        // If no even digit found, return empty string
+        if (evenDigit == -1) {
+            return "";
+        }
+        
+        // Use one occurrence of the even digit for the end
+        count[evenDigit]--;
+        
+        // Build the result from largest to smallest digit
+        StringBuilder result = new StringBuilder();
+        for (int d = 9; d &gt;= 0; d--) {
+            for (int i = 0; i &lt; count[d]; i++) {
+                result.append(d);
+            }
+        }
+        
+        // Append the even digit at the end
+        result.append(evenDigit);
+        
+        return result.toString();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+class Solution {
+public:
+    string largestEvenNumber(string num) {
+        // Count frequency of each digit
+        int count[10] = {0};
+        for (char ch : num) {
+            count[ch - '0']++;
+        }
+        
+        // Find the smallest even digit that exists
+        int evenDigit = -1;
+        for (int d = 0; d &lt;= 8; d += 2) {  // 0, 2, 4, 6, 8
+            if (count[d] &gt; 0) {
+                evenDigit = d;
+                break;
+            }
+        }
+        
+        // If no even digit found, return empty string
+        if (evenDigit == -1) {
+            return "";
+        }
+        
+        // Use one occurrence of the even digit for the end
+        count[evenDigit]--;
+        
+        // Build the result from largest to smallest digit
+        string result = "";
+        for (int d = 9; d &gt;= 0; d--) {
+            result += string(count[d], '0' + d);
+        }
+        
+        // Append the even digit at the end
+        result += to_string(evenDigit);
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var largestEvenNumber = function(num) {
+    // Count frequency of each digit
+    let count = new Array(10).fill(0);
+    for (let ch of num) {
+        count[parseInt(ch)]++;
+    }
+    
+    // Find the smallest even digit that exists
+    let evenDigit = -1;
+    for (let d = 0; d &lt;= 8; d += 2) {  // 0, 2, 4, 6, 8
+        if (count[d] &gt; 0) {
+            evenDigit = d;
+            break;
+        }
+    }
+    
+    // If no even digit found, return empty string
+    if (evenDigit === -1) {
+        return "";
+    }
+    
+    // Use one occurrence of the even digit for the end
+    count[evenDigit]--;
+    
+    // Build the result from largest to smallest digit
+    let result = "";
+    for (let d = 9; d &gt;= 0; d--) {
+        result += String(d).repeat(count[d]);
+    }
+    
+    // Append the even digit at the end
+    result += evenDigit.toString();
+    
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function largestEvenNumber(num: string): string {
+    // Count frequency of each digit
+    let count: number[] = new Array(10).fill(0);
+    for (let ch of num) {
+        count[parseInt(ch)]++;
+    }
+    
+    // Find the smallest even digit that exists
+    let evenDigit: number = -1;
+    for (let d = 0; d &lt;= 8; d += 2) {  // 0, 2, 4, 6, 8
+        if (count[d] &gt; 0) {
+            evenDigit = d;
+            break;
+        }
+    }
+    
+    // If no even digit found, return empty string
+    if (evenDigit === -1) {
+        return "";
+    }
+    
+    // Use one occurrence of the even digit for the end
+    count[evenDigit]--;
+    
+    // Build the result from largest to smallest digit
+    let result: string = "";
+    for (let d = 9; d &gt;= 0; d--) {
+        result += String(d).repeat(count[d]);
+    }
+    
+    // Append the even digit at the end
+    result += evenDigit.toString();
+    
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) for the count array (fixed size 10) plus O(n) for the result
+- Notes: Optimal solution with linear time complexity
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Even Number Solutions","datePublished":"2025-09-15","description":"Given a string of digits, rearrange them to form the largest possible even number.","keywords":"LeetCode, Largest Even Number, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy with Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to sorting, where n is the length of the input string."}},{"@type":"Question","name":"What is the time complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the input string, as we only iterate through the string and a fixed-size array of 10 elements."}},{"@type":"Question","name":"Why do we need to find the smallest even digit?","acceptedAnswer":{"@type":"Answer","text":"We want the largest possible number, so we place the largest digits at the front. The smallest even digit should be at the end to minimize the impact on the overall value while ensuring the number is even."}}]}).replace(/</g,'\u003c')}
+</script>

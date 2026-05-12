@@ -1,0 +1,146 @@
+---
+title: "How Many Numbers Are Smaller Than the Current Number"
+summary: "Given an array nums, for each element find the count of numbers smaller than it in the array."
+date: "May 20, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+  - Counting Sort
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.40% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting, Counting Sort
+
+Given the array nums, for each nums[i] find out how many numbers in the array are smaller than it. That is, for each nums[i] you have to count the number of valid j's such that j != i and nums[j] &lt; nums[i].
+
+Return the answer in an array.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting](#sorting)
+- [Counting Sort](#counting-sort)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [8,1,2,2,3]
+Output: [4,0,1,1,3]
+Explanation: 
+For nums[0]=8 there exist four smaller numbers than it (1, 2, 2 and 3). 
+For nums[1]=1 does not exist any smaller number than it.
+For nums[2]=2 there exist one smaller number than it (1). 
+For nums[3]=2 there exist one smaller number than it (1). 
+For nums[4]=3 there exist three smaller numbers than it (1, 2 and 2).
+```
+
+Example 2:
+```text
+Input: nums = [6,5,4,8]
+Output: [2,1,0,3]
+```
+
+Example 3:
+```text
+Input: nums = [7,7,7,7]
+Output: [0,0,0,0]
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 500
+0 <= nums[i] <= 100
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+For every number in the array, iterate through the entire array and count how many numbers are strictly smaller than the current number.
+
+**Steps**
+- Initialize an empty result array.
+- Loop through each element `nums[i]` in the array.
+- For each `nums[i]`, initialize a counter to 0.
+- Loop through every element `nums[j]` in the array.
+- If `nums[j] &lt; nums[i]`, increment the counter.
+- Append the counter to the result array.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def smallerNumbersThanCurrent(self, nums: list[int]) -&gt; list[int]:\n        res = []\n        for i in range(len(nums)):\n            count = 0\n            for j in range(len(nums)):\n                if nums[j] &lt; nums[i]:\n                    count += 1\n            res.append(count)\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] smallerNumbersThanCurrent(int[] nums) {\n        int[] res = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            int count = 0;\n            for (int j = 0; j &lt; nums.length; j++) {\n                if (nums[j] &lt; nums[i]) {\n                    count++;\n                }\n            }\n            res[i] = count;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; smallerNumbersThanCurrent(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; res;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            int count = 0;\n            for (int j = 0; j &lt; nums.size(); j++) {\n                if (nums[j] &lt; nums[i]) {\n                    count++;\n                }\n            }\n            res.push_back(count);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var smallerNumbersThanCurrent = function(nums) {\n    let res = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        let count = 0;\n        for (let j = 0; j &lt; nums.length; j++) {\n            if (nums[j] &lt; nums[i]) {\n                count++;\n            }\n        }\n        res.push(count);\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function smallerNumbersThanCurrent(nums: number[]): number[] {\n    let res: number[] = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        let count = 0;\n        for (let j = 0; j &lt; nums.length; j++) {\n            if (nums[j] &lt; nums[i]) {\n                count++;\n            }\n        }\n        res.push(count);\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the array.
+- Space: O(1) if we exclude the output array, otherwise O(n).
+- Notes: Simple to implement but inefficient for large inputs.
+
+---
+
+## Sorting
+
+**Intuition**
+If we sort the array, the index of an element corresponds to the number of elements smaller than it. We can use a hash map to store the first occurrence index of each unique number to handle duplicates.
+
+**Steps**
+- Create a copy of the original array and sort it.
+- Initialize a hash map.
+- Iterate through the sorted array. If a number is not already in the map, add it with its current index as the value. This ensures we store the index of the first occurrence (smallest index).
+- Iterate through the original array. For each number, look up its value in the map and append it to the result array.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def smallerNumbersThanCurrent(self, nums: list[int]) -&gt; list[int]:\n        sorted_nums = sorted(nums)\n        mapping = {}\n        for i, val in enumerate(sorted_nums):\n            if val not in mapping:\n                mapping[val] = i\n        return [mapping[num] for num in nums]" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\nimport java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int[] smallerNumbersThanCurrent(int[] nums) {\n        int[] sorted = nums.clone();\n        Arrays.sort(sorted);\n        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; sorted.length; i++) {\n            if (!map.containsKey(sorted[i])) {\n                map.put(sorted[i], i);\n            }\n        }\n        int[] res = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            res[i] = map.get(nums[i]);\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; smallerNumbersThanCurrent(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; sorted = nums;\n        sort(sorted.begin(), sorted.end());\n        unordered_map&lt;int, int&gt; map;\n        for (int i = 0; i &lt; sorted.size(); i++) {\n            if (map.find(sorted[i]) == map.end()) {\n                map[sorted[i]] = i;\n            }\n        }\n        vector&lt;int&gt; res;\n        for (int num : nums) {\n            res.push_back(map[num]);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var smallerNumbersThanCurrent = function(nums) {\n    let sorted = [...nums].sort((a, b) =&gt; a - b);\n    let map = new Map();\n    for (let i = 0; i &lt; sorted.length; i++) {\n        if (!map.has(sorted[i])) {\n            map.set(sorted[i], i);\n        }\n    }\n    return nums.map(num =&gt; map.get(num));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function smallerNumbersThanCurrent(nums: number[]): number[] {\n    let sorted: number[] = [...nums].sort((a, b) =&gt; a - b);\n    let map = new Map&lt;number, number&gt;();\n    for (let i = 0; i &lt; sorted.length; i++) {\n        if (!map.has(sorted[i])) {\n            map.set(sorted[i], i);\n        }\n    }\n    return nums.map(num =&gt; map.get(num));\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(n) to store the sorted array and the hash map.
+- Notes: More efficient than brute force, but modifies the order (via copy) and requires extra space.
+
+---
+
+## Counting Sort
+
+**Intuition**
+Given the constraint `0 &lt;= nums[i] &lt;= 100`, the range of values is small. We can use counting sort (frequency array) to count occurrences of each number. Then, we calculate the prefix sum to determine how many numbers are smaller than a specific value.
+
+**Steps**
+- Initialize a frequency array `count` of size 101 with zeros.
+- Iterate through `nums` and increment the count for each number.
+- Transform the `count` array into a prefix sum array where `count[i]` represents the number of elements less than or equal to `i`. This is done by adding `count[i-1]` to `count[i]` for `i` from 1 to 100.
+- Initialize the result array.
+- Iterate through `nums`. For each number `num`, the number of smaller elements is `count[num-1]` if `num &gt; 0`, otherwise 0.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def smallerNumbersThanCurrent(self, nums: list[int]) -&gt; list[int]:\n        count = [0] * 101\n        for num in nums:\n            count[num] += 1\n        for i in range(1, 101):\n            count[i] += count[i - 1]\n        res = []\n        for num in nums:\n            if num == 0:\n                res.append(0)\n            else:\n                res.append(count[num - 1])\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] smallerNumbersThanCurrent(int[] nums) {\n        int[] count = new int[101];\n        for (int num : nums) {\n            count[num]++;\n        }\n        for (int i = 1; i &lt; 101; i++) {\n            count[i] += count[i - 1];\n        }\n        int[] res = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            res[i] = nums[i] == 0 ? 0 : count[nums[i] - 1];\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; smallerNumbersThanCurrent(vector&lt;int&gt;& nums) {\n        int count[101] = {0};\n        for (int num : nums) {\n            count[num]++;\n        }\n        for (int i = 1; i &lt; 101; i++) {\n            count[i] += count[i - 1];\n        }\n        vector&lt;int&gt; res;\n        for (int num : nums) {\n            res.push_back(num == 0 ? 0 : count[num - 1]);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var smallerNumbersThanCurrent = function(nums) {\n    let count = new Array(101).fill(0);\n    for (let num of nums) {\n        count[num]++;\n    }\n    for (let i = 1; i &lt; 101; i++) {\n        count[i] += count[i - 1];\n    }\n    let res = [];\n    for (let num of nums) {\n        res.push(num === 0 ? 0 : count[num - 1]);\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function smallerNumbersThanCurrent(nums: number[]): number[] {\n    let count: number[] = new Array(101).fill(0);\n    for (let num of nums) {\n        count[num]++;\n    }\n    for (let i = 1; i &lt; 101; i++) {\n        count[i] += count[i - 1];\n    }\n    let res: number[] = [];\n    for (let num of nums) {\n        res.push(num === 0 ? 0 : count[num - 1]);\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k) where n is the number of elements and k is the range of values (101).
+- Space: O(k) for the frequency array.
+- Notes: The most optimal approach for this problem given the constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode How Many Numbers Are Smaller Than the Current Number Solutions","datePublished":"2025-05-20","description":"Given an array nums, for each element find the count of numbers smaller than it in the array.","keywords":"LeetCode, How Many Numbers Are Smaller Than the Current Number, Easy, Array, Hash Table, Sorting, Counting Sort"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the most optimal approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Counting Sort approach is optimal with O(n + k) time complexity, where k is the range of numbers (101)."}}]}).replace(/</g,'\u003c')}
+</script>

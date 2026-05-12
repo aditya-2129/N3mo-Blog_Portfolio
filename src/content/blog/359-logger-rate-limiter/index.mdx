@@ -1,0 +1,120 @@
+---
+title: "Logger Rate Limiter"
+summary: "Design a logger system that restricts printing the same message within a 10-second window."
+date: "Apr 05, 2024"
+tags:
+  - Hash Table
+  - Design
+  - Data Stream
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Hash Table, Design, Data Stream
+
+Design a logger system that receives stream of messages along with their timestamps. Each message should be printed if and only if it has not been printed in the last 10 seconds.
+
+Given a message and its timestamp (in seconds), return true if the message should be printed, otherwise false.
+
+It is possible that several messages arrive roughly at the same time.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map](#hash-map)
+
+## Examples
+
+```text
+Input
+["Logger", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage"]
+[[], [1, "bad"], [2, "bad"], [3, "bad"], [8, "bad"], [10, "bad"], [11, "bad"]]
+Output
+[null, true, false, false, false, false, true]
+
+Explanation
+Logger logger = new Logger();
+logger.shouldPrintMessage(1, "bad");  // return true, next allowed timestamp for "bad" is 1 + 10 = 11
+logger.shouldPrintMessage(2, "bad");  // return false, 2 is less than 11
+logger.shouldPrintMessage(3, "bad");  // return false, 3 is less than 11
+logger.shouldPrintMessage(8, "bad");  // return false, 8 is less than 11
+logger.shouldPrintMessage(10, "bad"); // return false, 10 is less than 11
+logger.shouldPrintMessage(11, "bad"); // return true, 11 is equal to 11
+```
+
+```text
+Input
+["Logger", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage"]
+[[], [1, "foo"], [2, "bar"], [3, "foo"]]
+Output
+[null, true, true, false]
+```
+
+## Constraints
+
+```text
+0 <= timestamp <= 10^9
+Every timestamp will be in strictly increasing order.
+message will consist of lowercase English letters only.
+The length of message will be in the range [1, 10].
+At most 100 calls will be made to shouldPrintMessage.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Store every message that has been printed along with its timestamp in a list. When a new message arrives, iterate through the entire list to check if the same message was printed within the last 10 seconds.
+
+**Steps**
+- Initialize an empty list to store printed messages.
+- When `shouldPrintMessage` is called, iterate through the list.
+- If a message in the list matches the current message and the difference between the current timestamp and the stored timestamp is less than 10, return false.
+- If the loop completes without finding a recent match, add the current message and timestamp to the list and return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Logger:\n    def __init__(self):\n        self.history = []\n\n    def shouldPrintMessage(self, timestamp: int, message: str) -&gt; bool:\n        for msg, ts in self.history:\n            if msg == message and timestamp - ts &lt; 10:\n                return False\n        self.history.append((message, timestamp))\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Logger {\n    private List&lt;Object[]&gt; history;\n\n    public Logger() {\n        this.history = new ArrayList&lt;&gt;();\n    }\n\n    public boolean shouldPrintMessage(int timestamp, String message) {\n        for (Object[] record : history) {\n            String msg = (String) record[0];\n            int ts = (int) record[1];\n            if (msg.equals(message) && timestamp - ts &lt; 10) {\n                return false;\n            }\n        }\n        history.add(new Object[]{message, timestamp});\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;utility&gt;\nusing namespace std;\n\nclass Logger {\npublic:\n    vector&lt;pair&lt;string, int&gt;&gt; history;\n    Logger() {}\n    \n    bool shouldPrintMessage(int timestamp, string message) {\n        for (const auto& record : history) {\n            if (record.first == message && timestamp - record.second &lt; 10) {\n                return false;\n            }\n        }\n        history.push_back({message, timestamp});\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var Logger = function() {\n    this.history = [];\n};\n\nLogger.prototype.shouldPrintMessage = function(timestamp, message) {\n    for (let i = 0; i &lt; this.history.length; i++) {\n        const record = this.history[i];\n        if (record.msg === message && timestamp - record.ts &lt; 10) {\n            return false;\n        }\n    }\n    this.history.push({ msg: message, ts: timestamp });\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Logger {\n    private history: { msg: string, ts: number }[];\n\n    constructor() {\n        this.history = [];\n    }\n\n    shouldPrintMessage(timestamp: number, message: string): boolean {\n        for (const record of this.history) {\n            if (record.msg === message && timestamp - record.ts &lt; 10) {\n                return false;\n            }\n        }\n        this.history.push({ msg: message, ts: timestamp });\n        return true;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of messages printed so far.
+- Space: O(N) to store the history.
+- Notes: This approach is inefficient for a large number of messages as it requires scanning the entire history for every new message.
+
+---
+## Hash Map
+
+**Intuition**
+Use a hash map (dictionary) to store the most recent timestamp for each unique message. This allows for O(1) lookups to check if a message was printed recently.
+
+**Steps**
+- Initialize an empty hash map.
+- When `shouldPrintMessage` is called, check if the message exists in the map.
+- If it exists, check if the difference between the current timestamp and the stored timestamp is greater than or equal to 10.
+  - If yes, update the map with the new timestamp and return true.
+  - If no, return false.
+- If the message does not exist in the map, add it with the current timestamp and return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Logger:\n    def __init__(self):\n        self.store = {}\n\n    def shouldPrintMessage(self, timestamp: int, message: str) -&gt; bool:\n        if message in self.store:\n            if timestamp - self.store[message] &gt;= 10:\n                self.store[message] = timestamp\n                return True\n            return False\n        self.store[message] = timestamp\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Logger {\n    private Map&lt;String, Integer&gt; map;\n\n    public Logger() {\n        this.map = new HashMap&lt;&gt;();\n    }\n\n    public boolean shouldPrintMessage(int timestamp, String message) {\n        if (map.containsKey(message)) {\n            if (timestamp - map.get(message) &gt;= 10) {\n                map.put(message, timestamp);\n                return true;\n            }\n            return false;\n        }\n        map.put(message, timestamp);\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Logger {\npublic:\n    unordered_map&lt;string, int&gt; mp;\n    Logger() {}\n    \n    bool shouldPrintMessage(int timestamp, string message) {\n        if (mp.find(message) != mp.end()) {\n            if (timestamp - mp[message] &gt;= 10) {\n                mp[message] = timestamp;\n                return true;\n            }\n            return false;\n        }\n        mp[message] = timestamp;\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var Logger = function() {\n    this.map = new Map();\n};\n\nLogger.prototype.shouldPrintMessage = function(timestamp, message) {\n    if (this.map.has(message)) {\n        if (timestamp - this.map.get(message) &gt;= 10) {\n            this.map.set(message, timestamp);\n            return true;\n        }\n        return false;\n    }\n    this.map.set(message, timestamp);\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Logger {\n    private map: Map&lt;string, number&gt;;\n\n    constructor() {\n        this.map = new Map();\n    }\n\n    shouldPrintMessage(timestamp: number, message: string): boolean {\n        if (this.map.has(message)) {\n            if (timestamp - this.map.get(message) &gt;= 10) {\n                this.map.set(message, timestamp);\n                return true;\n            }\n            return false;\n        }\n        this.map.set(message, timestamp);\n        return true;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) average time complexity for hash map operations.
+- Space: O(N) to store the last timestamp for each unique message.
+- Notes: This is the optimal solution for this problem, providing constant time access and updates.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Logger Rate Limiter Solutions","datePublished":"2024-04-05","description":"Design a logger system that restricts printing the same message within a 10-second window.","keywords":"LeetCode, Logger Rate Limiter, Easy, Hash Table, Design, Data Stream"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) average time complexity for hash map operations."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) to store the last timestamp for each unique message."}}]}).replace(/</g,'\u003c')}
+</script>

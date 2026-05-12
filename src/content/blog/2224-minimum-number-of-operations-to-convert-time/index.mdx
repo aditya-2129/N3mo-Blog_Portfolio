@@ -1,0 +1,147 @@
+---
+title: "Minimum Number of Operations to Convert Time"
+summary: "Convert time from current to correct using minimum operations of adding 1, 5, 15, or 60 minutes."
+date: "Jan 23, 2026"
+tags:
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.40% | **Paid:** No
+> **Topics:** String, Greedy
+
+You are given two strings current and correct representing two times on a 24-hour digital clock. current and correct are in the format "HH:MM" (00 &lt;= HH &lt;= 23, 00 &lt;= MM &lt;= 59).
+
+In one operation you can increase the time current by 1, 5, 15, or 60 minutes. You can perform this operation any number of times.
+
+Return the minimum number of operations needed to convert current to correct.
+
+- Examples
+- Constraints
+- [Greedy Approach](#greedy-approach)
+- [Mathematical Approach](#mathematical-approach)
+- [Dynamic Programming Approach](#dynamic-programming-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+current = "02:30", correct = "04:35"
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+We can convert current to correct in 3 operations as follows:
+- Add 60 minutes to current. current becomes "03:30".
+- Add 60 minutes to current. current becomes "04:30".
+- Add 5 minutes to current. current becomes "04:35".
+It can be proven that it is not possible to convert current to correct in fewer than 3 operations.
+
+### Example 2
+
+**Input:**
+```text
+current = "11:00", correct = "11:01"
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+We only have to add one minute to current, so the minimum number of operations needed is 1.
+
+## Constraints
+
+```text
+- current and correct are in the format "HH:MM"
+- current <= correct
+```
+
+---
+## Greedy Approach
+
+**Intuition**
+Since the allowed operations (60, 15, 5, 1) are divisors of each other, using the largest possible operation first always yields the optimal solution. This is a classic greedy coin change problem.
+
+**Steps**
+- Parse both time strings to get hours and minutes
+- Convert both times to total minutes since midnight
+- Calculate the difference in minutes
+- Greedily use the largest operation (60, then 15, then 5, then 1) as many times as possible
+- Count the total operations used
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def convertTime(self, current: str, correct: str) -&gt; int:\n        curr_h, curr_m = map(int, current.split(':'))\n        corr_h, corr_m = map(int, correct.split(':'))\n        \n        curr_total = curr_h * 60 + curr_m\n        corr_total = corr_h * 60 + corr_m\n        \n        diff = corr_total - curr_total\n        \n        operations = [60, 15, 5, 1]\n        count = 0\n        for op in operations:\n            count += diff // op\n            diff %= op\n        \n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int convertTime(String current, String correct) {\n        String[] curr = current.split(\":\");\n        String[] corr = correct.split(\":\");\n        \n        int currTotal = Integer.parseInt(curr[0]) * 60 + Integer.parseInt(curr[1]);\n        int corrTotal = Integer.parseInt(corr[0]) * 60 + Integer.parseInt(corr[1]);\n        \n        int diff = corrTotal - currTotal;\n        \n        int[] operations = {60, 15, 5, 1};\n        int count = 0;\n        for (int op : operations) {\n            count += diff / op;\n            diff %= op;\n        }\n        \n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int convertTime(string current, string correct) {\n        int curr_h = stoi(current.substr(0, 2));\n        int curr_m = stoi(current.substr(3, 2));\n        int corr_h = stoi(correct.substr(0, 2));\n        int corr_m = stoi(correct.substr(3, 2));\n        \n        int curr_total = curr_h * 60 + curr_m;\n        int corr_total = corr_h * 60 + corr_m;\n        \n        int diff = corr_total - curr_total;\n        \n        vector&lt;int&gt; operations = {60, 15, 5, 1};\n        int count = 0;\n        for (int op : operations) {\n            count += diff / op;\n            diff %= op;\n        }\n        \n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} current\n * @param {string} correct\n * @return {number}\n */\nvar convertTime = function(current, correct) {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    let diff = corr_total - curr_total;\n    \n    const operations = [60, 15, 5, 1];\n    let count = 0;\n    for (const op of operations) {\n        count += Math.floor(diff / op);\n        diff %= op;\n    }\n    \n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function convertTime(current: string, correct: string): number {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    let diff = corr_total - curr_total;\n    \n    const operations = [60, 15, 5, 1];\n    let count = 0;\n    for (const op of operations) {\n        count += Math.floor(diff / op);\n        diff %= op;\n    }\n    \n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed number of operations (4 iterations)
+- Space: O(1) - Only using a few variables
+- Notes: Optimal solution with constant time and space
+
+---
+## Mathematical Approach
+
+**Intuition**
+The problem can be solved mathematically using division and modulo operations. Since each operation value divides the next larger one, we can directly compute the count for each operation.
+
+**Steps**
+- Convert both times to total minutes
+- Calculate the difference
+- Use integer division and modulo to count operations: diff//60 + (diff%60)//15 + ((diff%60)%15)//5 + ((diff%60)%15)%5
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def convertTime(self, current: str, correct: str) -&gt; int:\n        curr_h, curr_m = map(int, current.split(':'))\n        corr_h, corr_m = map(int, correct.split(':'))\n        \n        curr_total = curr_h * 60 + curr_m\n        corr_total = corr_h * 60 + corr_m\n        \n        diff = corr_total - curr_total\n        \n        # Mathematical approach using division and modulo\n        count = diff // 60\n        diff %= 60\n        count += diff // 15\n        diff %= 15\n        count += diff // 5\n        diff %= 5\n        count += diff\n        \n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int convertTime(String current, String correct) {\n        String[] curr = current.split(\":\");\n        String[] corr = correct.split(\":\");\n        \n        int currTotal = Integer.parseInt(curr[0]) * 60 + Integer.parseInt(curr[1]);\n        int corrTotal = Integer.parseInt(corr[0]) * 60 + Integer.parseInt(corr[1]);\n        \n        int diff = corrTotal - currTotal;\n        \n        int count = diff / 60;\n        diff %= 60;\n        count += diff / 15;\n        diff %= 15;\n        count += diff / 5;\n        diff %= 5;\n        count += diff;\n        \n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int convertTime(string current, string correct) {\n        int curr_h = stoi(current.substr(0, 2));\n        int curr_m = stoi(current.substr(3, 2));\n        int corr_h = stoi(correct.substr(0, 2));\n        int corr_m = stoi(correct.substr(3, 2));\n        \n        int curr_total = curr_h * 60 + curr_m;\n        int corr_total = corr_h * 60 + corr_m;\n        \n        int diff = corr_total - curr_total;\n        \n        int count = diff / 60;\n        diff %= 60;\n        count += diff / 15;\n        diff %= 15;\n        count += diff / 5;\n        diff %= 5;\n        count += diff;\n        \n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} current\n * @param {string} correct\n * @return {number}\n */\nvar convertTime = function(current, correct) {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    let diff = corr_total - curr_total;\n    \n    let count = Math.floor(diff / 60);\n    diff %= 60;\n    count += Math.floor(diff / 15);\n    diff %= 15;\n    count += Math.floor(diff / 5);\n    diff %= 5;\n    count += diff;\n    \n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function convertTime(current: string, correct: string): number {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    let diff = corr_total - curr_total;\n    \n    let count = Math.floor(diff / 60);\n    diff %= 60;\n    count += Math.floor(diff / 15);\n    diff %= 15;\n    count += Math.floor(diff / 5);\n    diff %= 5;\n    count += diff;\n    \n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1) - Constant number of arithmetic operations
+- Space: O(1) - Only using a few variables
+- Notes: Same complexity as greedy, just expressed differently
+
+---
+## Dynamic Programming Approach
+
+**Intuition**
+This is a classic unbounded knapsack / coin change problem. We can use DP to find the minimum number of operations to reach each minute value from 0 to the target difference.
+
+**Steps**
+- Convert both times to total minutes and calculate difference
+- Create a DP array where dp[i] represents minimum operations to reach i minutes
+- Initialize dp[0] = 0 and others to infinity
+- For each minute from 1 to diff, try all 4 operations and take minimum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def convertTime(self, current: str, correct: str) -&gt; int:\n        curr_h, curr_m = map(int, current.split(':'))\n        corr_h, corr_m = map(int, correct.split(':'))\n        \n        curr_total = curr_h * 60 + curr_m\n        corr_total = corr_h * 60 + corr_m\n        \n        diff = corr_total - curr_total\n        \n        operations = [1, 5, 15, 60]\n        dp = [float('inf')] * (diff + 1)\n        dp[0] = 0\n        \n        for i in range(1, diff + 1):\n            for op in operations:\n                if i &gt;= op:\n                    dp[i] = min(dp[i], dp[i - op] + 1)\n        \n        return dp[diff]\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int convertTime(String current, String correct) {\n        String[] curr = current.split(\":\");\n        String[] corr = correct.split(\":\");\n        \n        int currTotal = Integer.parseInt(curr[0]) * 60 + Integer.parseInt(curr[1]);\n        int corrTotal = Integer.parseInt(corr[0]) * 60 + Integer.parseInt(corr[1]);\n        \n        int diff = corrTotal - currTotal;\n        \n        int[] operations = {1, 5, 15, 60};\n        int[] dp = new int[diff + 1];\n        Arrays.fill(dp, Integer.MAX_VALUE);\n        dp[0] = 0;\n        \n        for (int i = 1; i &lt;= diff; i++) {\n            for (int op : operations) {\n                if (i &gt;= op && dp[i - op] != Integer.MAX_VALUE) {\n                    dp[i] = Math.min(dp[i], dp[i - op] + 1);\n                }\n            }\n        }\n        \n        return dp[diff];\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;climits&gt;\n\nclass Solution {\npublic:\n    int convertTime(string current, string correct) {\n        int curr_h = stoi(current.substr(0, 2));\n        int curr_m = stoi(current.substr(3, 2));\n        int corr_h = stoi(correct.substr(0, 2));\n        int corr_m = stoi(correct.substr(3, 2));\n        \n        int curr_total = curr_h * 60 + curr_m;\n        int corr_total = corr_h * 60 + corr_m;\n        \n        int diff = corr_total - curr_total;\n        \n        vector&lt;int&gt; operations = {1, 5, 15, 60};\n        vector&lt;int&gt; dp(diff + 1, INT_MAX);\n        dp[0] = 0;\n        \n        for (int i = 1; i &lt;= diff; i++) {\n            for (int op : operations) {\n                if (i &gt;= op && dp[i - op] != INT_MAX) {\n                    dp[i] = min(dp[i], dp[i - op] + 1);\n                }\n            }\n        }\n        \n        return dp[diff];\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} current\n * @param {string} correct\n * @return {number}\n */\nvar convertTime = function(current, correct) {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    const diff = corr_total - curr_total;\n    \n    const operations = [1, 5, 15, 60];\n    const dp = new Array(diff + 1).fill(Infinity);\n    dp[0] = 0;\n    \n    for (let i = 1; i &lt;= diff; i++) {\n        for (const op of operations) {\n            if (i &gt;= op) {\n                dp[i] = Math.min(dp[i], dp[i - op] + 1);\n            }\n        }\n    }\n    \n    return dp[diff];\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function convertTime(current: string, correct: string): number {\n    const [curr_h, curr_m] = current.split(':').map(Number);\n    const [corr_h, corr_m] = correct.split(':').map(Number);\n    \n    const curr_total = curr_h * 60 + curr_m;\n    const corr_total = corr_h * 60 + corr_m;\n    \n    const diff = corr_total - curr_total;\n    \n    const operations = [1, 5, 15, 60];\n    const dp = new Array(diff + 1).fill(Infinity);\n    dp[0] = 0;\n    \n    for (let i = 1; i &lt;= diff; i++) {\n        for (const op of operations) {\n            if (i &gt;= op) {\n                dp[i] = Math.min(dp[i], dp[i - op] + 1);\n            }\n        }\n    }\n    \n    return dp[diff];\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the difference in minutes (max 1439)
+- Space: O(n) for the DP array
+- Notes: Overkill for this problem but demonstrates the general coin change DP pattern
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Number of Operations to Convert Time Solutions","datePublished":"2026-01-23","description":"Convert time from current to correct using minimum operations of adding 1, 5, 15, or 60 minutes.","keywords":"LeetCode, Minimum Number of Operations to Convert Time, Easy, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The Greedy approach has O(1) time complexity since we only iterate through 4 fixed operations regardless of input size."}},{"@type":"Question","name":"What is the space complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The Greedy approach has O(1) space complexity as we only use a few variables for counting."}},{"@type":"Question","name":"Why does the greedy approach work for this problem?","acceptedAnswer":{"@type":"Answer","text":"The greedy approach works because each operation value (60, 15, 5, 1) is a divisor of the next larger value. This property ensures that using the largest possible operation first always leads to the optimal solution."}},{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The DP approach has O(n) time complexity where n is the difference in minutes (maximum 1439 for a full day)."}},{"@type":"Question","name":"What is the space complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The DP approach has O(n) space complexity for storing the dp array of size n+1."}}]}).replace(/</g,'\u003c')}
+</script>

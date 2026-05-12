@@ -1,0 +1,146 @@
+---
+title: "Generate Tag for Video Caption"
+summary: "Generate a video tag by taking the first letter of each word, capitalizing the first, and lowercasing the rest."
+date: "Apr 12, 2026"
+tags:
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 32.50% | **Paid:** No
+> **Topics:** String, Simulation
+
+You are given a string `caption` representing the caption of a video. Your task is to generate a tag for the video based on the following rules:
+
+1. The tag must start with the character `#`.
+2. The tag must consist of the first character of each word in the caption.
+3. The first character of the tag (immediately following `#`) must be uppercase.
+4. All other characters in the tag must be lowercase.
+5. If the caption is empty or contains only spaces, return `#`.
+
+Words are considered to be separated by spaces.
+
+- Examples
+- Constraints
+- [Approach 1: Split and Build](#approach-1-split-and-build)
+- [Approach 2: Single Pass Iteration](#approach-2-single-pass-iteration)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+caption = "Leetcode daily streak achieved"
+```
+
+**Output:**
+```text
+"#leetcodeDailyStreakAchieved"
+```
+
+**Explanation:**
+The first letter for all words except "leetcode" should be capitalized.
+
+### Example 2
+
+**Input:**
+```text
+caption = "can I Go There"
+```
+
+**Output:**
+```text
+"#canIGoThere"
+```
+
+**Explanation:**
+The first letter for all words except "can" should be capitalized.
+
+### Example 3
+
+**Input:**
+```text
+caption = "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh"
+```
+
+**Output:**
+```text
+"#hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh"
+```
+
+**Explanation:**
+Since the first word has length 101, we need to truncate the last two letters from the word.
+
+## Constraints
+
+```text
+0 <= caption.length <= 1000
+caption consists of printable ASCII characters.
+```
+
+---
+## Approach 1: Split and Build
+
+**Intuition**
+We can split the input string into an array of words using spaces as delimiters. Then, we iterate through these words, extracting the first character of each. We apply the capitalization rules (uppercase for the very first character, lowercase for the rest) and join them back together with a `#` prefix.
+
+**Steps**
+- Split the `caption` string by whitespace to get a list of words.
+- If the list is empty (or only contains empty strings), return `#`.
+- Initialize a result string with `#`.
+- Iterate through the words:
+    - If it is the first word, append the uppercase version of its first character.
+    - Otherwise, append the lowercase version of its first character.
+- Return the constructed string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def generateTag(self, caption: str) -&gt; str:\n        # Split by whitespace, which handles multiple spaces automatically\n        words = caption.split()\n        \n        if not words:\n            return \"#\"\n        \n        tag = [\"#\"]\n        for i, word in enumerate(words):\n            if word:\n                first_char = word[0]\n                if i == 0:\n                    tag.append(first_char.upper())\n                else:\n                    tag.append(first_char.lower())\n                    \n        return \"\".join(tag)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String generateTag(String caption) {\n        // Trim to handle leading/trailing spaces, then split by one or more spaces\n        String[] words = caption.trim().split(\"\\\\s+\");\n        \n        // Handle empty string or string with only spaces\n        if (words.length == 0 || (words.length == 1 && words[0].isEmpty())) {\n            return \"#\";\n        }\n        \n        StringBuilder sb = new StringBuilder(\"#\");\n        for (int i = 0; i &lt; words.length; i++) {\n            if (!words[i].isEmpty()) {\n                char c = words[i].charAt(0);\n                if (i == 0) {\n                    sb.append(Character.toUpperCase(c));\n                } else {\n                    sb.append(Character.toLowerCase(c));\n                }\n            }\n        }\n        return sb.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;sstream&gt;\n#include &lt;cctype&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string generateTag(string caption) {\n        vector&lt;string&gt; words;\n        string word;\n        stringstream ss(caption);\n        \n        // stringstream skips whitespace by default\n        while (ss &gt;&gt; word) {\n            words.push_back(word);\n        }\n        \n        if (words.empty()) {\n            return \"#\";\n        }\n        \n        string res = \"#\";\n        for (int i = 0; i &lt; words.size(); ++i) {\n            char c = words[i][0];\n            if (i == 0) {\n                res += toupper(c);\n            } else {\n                res += tolower(c);\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} caption\n * @return {string}\n */\nvar generateTag = function(caption) {\n    // Trim and split by regex for one or more spaces\n    const words = caption.trim().split(/\\s+/).filter(w =&gt; w.length &gt; 0);\n    \n    if (words.length === 0) {\n        return \"#\";\n    }\n    \n    let tag = \"#\";\n    for (let i = 0; i &lt; words.length; i++) {\n        let c = words[i][0];\n        if (i === 0) {\n            tag += c.toUpperCase();\n        } else {\n            tag += c.toLowerCase();\n        }\n    }\n    return tag;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function generateTag(caption: string): string {\n    // Trim and split by regex for one or more spaces\n    const words = caption.trim().split(/\\s+/).filter(w =&gt; w.length &gt; 0);\n    \n    if (words.length === 0) {\n        return \"#\";\n    }\n    \n    let tag = \"#\";\n    for (let i = 0; i &lt; words.length; i++) {\n        let c = words[i][0];\n        if (i === 0) {\n            tag += c.toUpperCase();\n        } else {\n            tag += c.toLowerCase();\n        }\n    }\n    return tag;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. Splitting and iterating are linear operations.
+- Space: O(N) to store the array of words and the resulting string.
+- Notes: This approach is very readable and leverages built-in string manipulation functions effectively.
+
+---
+## Approach 2: Single Pass Iteration
+
+**Intuition**
+Instead of creating an intermediate array of words, we can iterate through the string once. We identify the start of a word by checking if the current character is not a space and the previous character is a space (or it is the start of the string). This allows us to build the tag on the fly with O(1) extra space (excluding the output).
+
+**Steps**
+- Initialize a result string with `#`.
+- Initialize a boolean flag `firstWordFound` to false.
+- Iterate through the string with an index `i`:
+    - If `caption[i]` is not a space:
+        - Check if it is the start of a word (`i == 0` or `caption[i-1]` is a space).
+        - If it is the start of a word:
+            - If `firstWordFound` is false, append the uppercase version of `caption[i]` and set `firstWordFound` to true.
+            - Otherwise, append the lowercase version of `caption[i]`.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def generateTag(self, caption: str) -&gt; str:\n        res = [\"#\"]\n        first_word_found = False\n        n = len(caption)\n        \n        for i in range(n):\n            char = caption[i]\n            # Check if current char is not space and (is start of string or prev char is space)\n            if char != ' ' and (i == 0 or caption[i-1] == ' '):\n                if not first_word_found:\n                    res.append(char.upper())\n                    first_word_found = True\n                else:\n                    res.append(char.lower())\n                    \n        return \"\".join(res)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String generateTag(String caption) {\n        StringBuilder sb = new StringBuilder(\"#\");\n        boolean firstWordFound = false;\n        \n        for (int i = 0; i &lt; caption.length(); i++) {\n            char c = caption.charAt(i);\n            // Check if current char is not space and (is start of string or prev char is space)\n            if (c != ' ' && (i == 0 || caption.charAt(i - 1) == ' ')) {\n                if (!firstWordFound) {\n                    sb.append(Character.toUpperCase(c));\n                    firstWordFound = true;\n                } else {\n                    sb.append(Character.toLowerCase(c));\n                }\n            }\n        }\n        return sb.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;cctype&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string generateTag(string caption) {\n        string res = \"#\";\n        bool firstWordFound = false;\n        int n = caption.length();\n        \n        for (int i = 0; i &lt; n; ++i) {\n            char c = caption[i];\n            // Check if current char is not space and (is start of string or prev char is space)\n            if (c != ' ' && (i == 0 || caption[i-1] == ' ')) {\n                if (!firstWordFound) {\n                    res += toupper(c);\n                    firstWordFound = true;\n                } else {\n                    res += tolower(c);\n                }\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} caption\n * @return {string}\n */\nvar generateTag = function(caption) {\n    let res = \"#\";\n    let firstWordFound = false;\n    \n    for (let i = 0; i &lt; caption.length; i++) {\n        let c = caption[i];\n        // Check if current char is not space and (is start of string or prev char is space)\n        if (c !== ' ' && (i === 0 || caption[i-1] === ' ')) {\n            if (!firstWordFound) {\n                res += c.toUpperCase();\n                firstWordFound = true;\n            } else {\n                res += c.toLowerCase();\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function generateTag(caption: string): string {\n    let res = \"#\";\n    let firstWordFound = false;\n    \n    for (let i = 0; i &lt; caption.length; i++) {\n        let c = caption[i];\n        // Check if current char is not space and (is start of string or prev char is space)\n        if (c !== ' ' && (i === 0 || caption[i-1] === ' ')) {\n            if (!firstWordFound) {\n                res += c.toUpperCase();\n                firstWordFound = true;\n            } else {\n                res += c.toLowerCase();\n            }\n        }\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. We traverse the string exactly once.
+- Space: O(1) auxiliary space (excluding the space required for the output string).
+- Notes: This approach is more memory efficient as it avoids storing the split array, though it is slightly more verbose.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Generate Tag for Video Caption Solutions","datePublished":"2026-04-12","description":"Generate a video tag by taking the first letter of each word, capitalizing the first, and lowercasing the rest.","keywords":"LeetCode, Generate Tag for Video Caption, Easy, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Split and Build approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the length of the caption string, due to splitting and iterating."}},{"@type":"Question","name":"What is the space complexity of the Single Pass Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space needed for the output string."}},{"@type":"Question","name":"How are multiple spaces handled in the caption?","acceptedAnswer":{"@type":"Answer","text":"Multiple spaces are treated as a single delimiter or ignored, as they do not constitute valid words."}}]}).replace(/</g,'\u003c')}
+</script>

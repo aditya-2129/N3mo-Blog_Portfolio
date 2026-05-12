@@ -1,0 +1,126 @@
+---
+title: "Unique Email Addresses"
+summary: "Count unique email addresses after applying rules: ignore dots in local name and ignore everything after a plus sign."
+date: "Jul 16, 2024"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.90% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+Every valid email consists of a local name and a domain name, separated by the '@' sign.
+
+Besides lowercase letters, these emails may contain one or more '.' or '+'.
+
+If you add periods '.' between some characters in the local name part of an email address, mail sent there will be forwarded to the same address without dots in the local name.
+
+Note that this rule does not apply to domain names.
+
+If you add a plus '+' in the local name, everything after the first plus sign will be ignored. This allows certain emails to be filtered. Note that this rule does not apply to domain names.
+
+It is possible to use both of these rules at the same time.
+
+Given a list of emails, we send one email to each address in the list. How many different addresses actually receive mails?
+
+- Examples
+- Constraints
+- [String Parsing](#string-parsing)
+- [Iterative Character Processing](#iterative-character-processing)
+
+## Examples
+
+Example 1:
+```text
+Input: emails = ["test.email+alex@leetcode.com","test.e.mail+bob.cathy@leetcode.com","testemail+david@lee.tcode.com"]
+Output: 2
+Explanation: "testemail@leetcode.com" and "testemail@lee.tcode.com" actually receive mails.
+```
+
+Example 2:
+```text
+Input: emails = ["a@leetcode.com","b@leetcode.com","c@leetcode.com"]
+Output: 3
+```
+
+## Constraints
+
+```text
+1 <= emails.length <= 100
+1 <= emails[i].length <= 100
+emails[i] consist of lowercase English letters, '+', '.' and '@'.
+Each emails[i] contains exactly one '@' character.
+All local and domain names are non-empty.
+Local names do not start with a '+' character.
+Domain names end with ".com".
+```
+
+---
+## String Parsing
+
+**Intuition**
+We can process each email by splitting it into local and domain parts. For the local part, we remove all '.' and ignore any characters following the first '+'. The domain part remains unchanged. We then combine the processed local part with the domain and store the result in a set to automatically handle uniqueness.
+
+**Steps**
+- Initialize an empty set to store unique email addresses.
+- Iterate through each email in the input list.
+- Split the email into local and domain parts using the '@' delimiter.
+- Find the index of '+' in the local part. If it exists, truncate the local part up to that index.
+- Remove all occurrences of '.' from the processed local part.
+- Concatenate the cleaned local part, '@', and the domain part.
+- Add the resulting string to the set.
+- Return the size of the set.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def numUniqueEmails(self, emails: list[str]) -&gt; int:\n        unique = set()\n        for email in emails:\n            local, domain = email.split('@')\n            # Ignore everything after '+'\n            if '+' in local:\n                local = local[:local.index('+')]\n            # Remove all '.'\n            local = local.replace('.', '')\n            unique.add(local + '@' + domain)\n        return len(unique)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int numUniqueEmails(String[] emails) {\n        Set&lt;String&gt; seen = new HashSet&lt;&gt;();\n        for (String email : emails) {\n            int at = email.indexOf('@');\n            String local = email.substring(0, at);\n            String domain = email.substring(at);\n            if (local.contains(\"+\")) {\n                local = local.substring(0, local.indexOf('+'));\n            }\n            local = local.replace(\".\", \"\");\n            seen.add(local + domain);\n        }\n        return seen.size();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int numUniqueEmails(vector&lt;string&gt;& emails) {\n        unordered_set&lt;string&gt; seen;\n        for (string& email : emails) {\n            auto at = email.find('@');\n            string local = email.substr(0, at);\n            string domain = email.substr(at);\n            auto plus = local.find('+');\n            if (plus != string::npos) {\n                local = local.substr(0, plus);\n            }\n            local.erase(remove(local.begin(), local.end(), '.'), local.end());\n            seen.insert(local + domain);\n        }\n        return seen.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var numUniqueEmails = function(emails) {\n    const seen = new Set();\n    for (const email of emails) {\n        const [local, domain] = email.split('@');\n        const plusIndex = local.indexOf('+');\n        const cleanLocal = (plusIndex &gt; -1 ? local.slice(0, plusIndex) : local).replace(/\\./g, '');\n        seen.add(cleanLocal + '@' + domain);\n    }\n    return seen.size;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numUniqueEmails(emails: string[]): number {\n    const seen = new Set&lt;string&gt;();\n    for (const email of emails) {\n        const [local, domain] = email.split('@');\n        const plusIndex = local.indexOf('+');\n        const cleanLocal = (plusIndex &gt; -1 ? local.slice(0, plusIndex) : local).replace(/\\./g, '');\n        seen.add(cleanLocal + '@' + domain);\n    }\n    return seen.size;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of emails and L is the maximum length of an email.
+- Space: O(N * L) to store the unique emails in the set.
+- Notes: Using built-in string functions makes the code concise and readable.
+
+---
+## Iterative Character Processing
+
+**Intuition**
+Instead of creating multiple intermediate strings via split and replace, we can iterate through each character of the email once. We build the normalized email character by character. This approach avoids the overhead of creating multiple string objects and is more memory efficient in languages where strings are immutable.
+
+**Steps**
+- Initialize an empty set to store unique email addresses.
+- Iterate through each email in the input list.
+- Initialize a string builder (or list) to construct the normalized email.
+- Iterate through each character of the email:
+    - If the character is '@', append the rest of the email (domain) to the builder and break.
+    - If the character is '+', skip all characters until the '@' is found.
+    - If the character is '.', skip it.
+    - Otherwise, append the character to the builder.
+- Add the constructed string to the set.
+- Return the size of the set.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def numUniqueEmails(self, emails: list[str]) -&gt; int:\n        unique = set()\n        for email in emails:\n            clean = []\n            i = 0\n            while i &lt; len(email):\n                if email[i] == '@':\n                    clean.append(email[i:])\n                    break\n                elif email[i] == '+':\n                    while email[i] != '@':\n                        i += 1\n                    clean.append(email[i:])\n                    break\n                elif email[i] == '.':\n                    i += 1\n                else:\n                    clean.append(email[i])\n                    i += 1\n            unique.add(''.join(clean))\n        return len(unique)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int numUniqueEmails(String[] emails) {\n        Set&lt;String&gt; seen = new HashSet&lt;&gt;();\n        for (String email : emails) {\n            StringBuilder sb = new StringBuilder();\n            for (int i = 0; i &lt; email.length(); i++) {\n                char c = email.charAt(i);\n                if (c == '@') {\n                    sb.append(email.substring(i));\n                    break;\n                } else if (c == '+') {\n                    while (email.charAt(i) != '@') i++;\n                    sb.append(email.substring(i));\n                    break;\n                } else if (c != '.') {\n                    sb.append(c);\n                }\n            }\n            seen.add(sb.toString());\n        }\n        return seen.size();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int numUniqueEmails(vector&lt;string&gt;& emails) {\n        unordered_set&lt;string&gt; seen;\n        for (string& email : emails) {\n            string clean;\n            for (int i = 0; i &lt; email.size(); ++i) {\n                if (email[i] == '@') {\n                    clean += email.substr(i);\n                    break;\n                } else if (email[i] == '+') {\n                    while (email[i] != '@') i++;\n                    clean += email.substr(i);\n                    break;\n                } else if (email[i] != '.') {\n                    clean += email[i];\n                }\n            }\n            seen.insert(clean);\n        }\n        return seen.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var numUniqueEmails = function(emails) {\n    const seen = new Set();\n    for (const email of emails) {\n        let clean = [];\n        for (let i = 0; i &lt; email.length; i++) {\n            const c = email[i];\n            if (c === '@') {\n                clean.push(email.slice(i));\n                break;\n            } else if (c === '+') {\n                while (email[i] !== '@') i++;\n                clean.push(email.slice(i));\n                break;\n            } else if (c !== '.') {\n                clean.push(c);\n            }\n        }\n        seen.add(clean.join(''));\n    }\n    return seen.size;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numUniqueEmails(emails: string[]): number {\n    const seen = new Set&lt;string&gt;();\n    for (const email of emails) {\n        let clean: string[] = [];\n        for (let i = 0; i &lt; email.length; i++) {\n            const c = email[i];\n            if (c === '@') {\n                clean.push(email.slice(i));\n                break;\n            } else if (c === '+') {\n                while (email[i] !== '@') i++;\n                clean.push(email.slice(i));\n                break;\n            } else if (c !== '.') {\n                clean.push(c);\n            }\n        }\n        seen.add(clean.join(''));\n    }\n    return seen.size;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of emails and L is the maximum length of an email.
+- Space: O(N * L) to store the unique emails in the set.
+- Notes: This approach minimizes string allocations and is generally more performant for large inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Unique Email Addresses Solutions","datePublished":"2024-07-16","description":"Count unique email addresses after applying rules: ignore dots in local name and ignore everything after a plus sign.","keywords":"LeetCode, Unique Email Addresses, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the String Parsing approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of emails and L is the maximum length of an email."}},{"@type":"Question","name":"What is the space complexity of the Iterative Character Processing approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N * L) to store the unique emails in the set."}}]}).replace(/</g,'\u003c')}
+</script>

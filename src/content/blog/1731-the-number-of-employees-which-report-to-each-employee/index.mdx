@@ -1,0 +1,140 @@
+---
+title: "The Number of Employees Which Report to Each Employee"
+summary: "Count the number of employees that report to each employee and calculate their average age."
+date: "May 08, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| name        | varchar |
+| reports_to  | int     |
+| age         | int     |
++-------------+---------+
+employee_id is the primary key for this table.
+This table contains information about the employees and the ID of the manager they report to (reports_to).
+Some employees do not report to anyone (reports_to is null).
+
+Write an SQL query to report the ids and the names of all the employees that do not report to anyone, and the number of employees that report to each of them, rounded to the nearest integer.
+
+Return the result table ordered by employee_id.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Self-Join with Group By](#self-join-with-group-by)
+- [Approach 2: Subquery with Aggregation](#subquery-with-aggregation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+Employees table:
++-------------+---------------+------------+-----+
+| employee_id | name          | reports_to | age |
++-------------+---------------+------------+-----+
+| 9           | Hercy         | null       | 43  |
+| 6           | Alice         | 9          | 41  |
+| 4           | Bob           | 9          | 36  |
+| 2           | Winston       | null       | 37  |
++-------------+---------------+------------+-----+
+```
+
+**Output:**
+```text
++-------------+---------------+--------------+-------------+
+| employee_id | name          | reports_count| average_age |
++-------------+---------------+--------------+-------------+
+| 2           | Winston       | 0            | null        |
+| 9           | Hercy         | 2            | 39          |
++-------------+---------------+--------------+-------------+
+```
+
+**Explanation:**
+- Hercy has 2 people report to him: Alice and Bob. Their average age is (41 + 36) / 2 = 38.5, which rounds to 39.
+- Winston has no one report to him.
+- The result table is ordered by employee_id.
+
+## Constraints
+
+```text
+1 <= employee_id <= 1000
+name is a non-empty string
+age is a positive integer
+reports_to is either null or a valid employee_id
+```
+
+---
+## Approach 1: Self-Join with Group By
+
+**Intuition**
+Join the Employees table with itself on the condition that the manager's employee_id matches the reports_to column, then filter for managers only and group by manager to count reports and calculate average age.
+
+**Steps**
+- Perform a LEFT JOIN of Employees with itself, matching employee_id with reports_to
+- Filter for employees where reports_to is null (managers only)
+- Group by the manager's employee_id and name
+- Count the number of reports using COUNT on employee_id
+- Calculate the average age using AVG on the employee's age
+- Round the average age to the nearest integer
+- Order the result by employee_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\nimport numpy as np\n\ndef count_employees(employees: pd.DataFrame) -&gt; pd.DataFrame:\n    # Filter for managers (employees with null reports_to)\n    managers = employees[employees['reports_to'].isna()][['employee_id', 'name']]\n    \n    # Self-join to find reporting relationships\n    merged = managers.merge(employees, left_on='employee_id', right_on='reports_to', how='left')\n    \n    # Group by manager and count reports\n    result = merged.groupby(['employee_id_x', 'name_x']).agg(\n        reports_count=('employee_id_y', 'count'),\n        average_age=('age_y', 'mean')\n    ).reset_index()\n    \n    # Rename columns\n    result.columns = ['employee_id', 'name', 'reports_count', 'average_age']\n    \n    # Round average_age to nearest integer, keep null for no reports\n    result['average_age'] = result['average_age'].round().astype('Int64')\n    \n    # Sort by employee_id\n    result = result.sort_values('employee_id')\n    \n    return result[['employee_id', 'name', 'reports_count', 'average_age']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.sql.*;\n\npublic class Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; countEmployees() {\n        String query = \"SELECT e1.employee_id, e1.name, \" +\n                       \"COUNT(e2.employee_id) AS reports_count, \" +\n                       \"ROUND(AVG(e2.age)) AS average_age \" +\n                       \"FROM Employees e1 \" +\n                       \"LEFT JOIN Employees e2 ON e1.employee_id = e2.reports_to \" +\n                       \"WHERE e1.reports_to IS NULL \" +\n                       \"GROUP BY e1.employee_id, e1.name \" +\n                       \"ORDER BY e1.employee_id\";\n        \n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        // Execute query and populate result list\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string countEmployees() {\n        return \"SELECT e1.employee_id, e1.name, \"\n               \"COUNT(e2.employee_id) AS reports_count, \"\n               \"ROUND(AVG(e2.age)) AS average_age \"\n               \"FROM Employees e1 \"\n               \"LEFT JOIN Employees e2 ON e1.employee_id = e2.reports_to \"\n               \"WHERE e1.reports_to IS NULL \"\n               \"GROUP BY e1.employee_id, e1.name \"\n               \"ORDER BY e1.employee_id\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array} employees\n * @return {Array}\n */\nfunction countEmployees(employees) {\n    // Find all managers (employees with null reports_to)\n    const managers = employees.filter(emp =&gt; emp.reports_to === null);\n    \n    // Create a map to store reports for each manager\n    const managerStats = new Map();\n    \n    // Initialize all managers with empty stats\n    managers.forEach(manager =&gt; {\n        managerStats.set(manager.employee_id, {\n            employee_id: manager.employee_id,\n            name: manager.name,\n            reports: [],\n            reports_count: 0,\n            average_age: null\n        });\n    });\n    \n    // Populate reports for each manager\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to !== null && managerStats.has(emp.reports_to)) {\n            const manager = managerStats.get(emp.reports_to);\n            manager.reports.push(emp.age);\n        }\n    });\n    \n    // Calculate counts and averages\n    const result = [];\n    managerStats.forEach((value) =&gt; {\n        value.reports_count = value.reports.length;\n        if (value.reports_count &gt; 0) {\n            const sum = value.reports.reduce((a, b) =&gt; a + b, 0);\n            value.average_age = Math.round(sum / value.reports_count);\n        }\n        result.push({\n            employee_id: value.employee_id,\n            name: value.name,\n            reports_count: value.reports_count,\n            average_age: value.average_age\n        });\n    });\n    \n    // Sort by employee_id\n    result.sort((a, b) =&gt; a.employee_id - b.employee_id);\n    \n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\n    employee_id: number;\n    name: string;\n    reports_to: number | null;\n    age: number;\n}\n\ninterface Result {\n    employee_id: number;\n    name: string;\n    reports_count: number;\n    average_age: number | null;\n}\n\nfunction countEmployees(employees: Employee[]): Result[] {\n    // Find all managers (employees with null reports_to)\n    const managers = employees.filter(emp =&gt; emp.reports_to === null);\n    \n    // Create a map to store reports for each manager\n    const managerStats = new Map&lt;number, Result & { reports: number[] }&gt;();\n    \n    // Initialize all managers with empty stats\n    managers.forEach(manager =&gt; {\n        managerStats.set(manager.employee_id, {\n            employee_id: manager.employee_id,\n            name: manager.name,\n            reports: [],\n            reports_count: 0,\n            average_age: null\n        });\n    });\n    \n    // Populate reports for each manager\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to !== null && managerStats.has(emp.reports_to)) {\n            const manager = managerStats.get(emp.reports_to)!;\n            manager.reports.push(emp.age);\n        }\n    });\n    \n    // Calculate counts and averages\n    const result: Result[] = [];\n    managerStats.forEach((value) =&gt; {\n        value.reports_count = value.reports.length;\n        if (value.reports_count &gt; 0) {\n            const sum = value.reports.reduce((a, b) =&gt; a + b, 0);\n            value.average_age = Math.round(sum / value.reports_count);\n        }\n        result.push({\n            employee_id: value.employee_id,\n            name: value.name,\n            reports_count: value.reports_count,\n            average_age: value.average_age\n        });\n    });\n    \n    // Sort by employee_id\n    result.sort((a, b) =&gt; a.employee_id - b.employee_id);\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of employees
+- Space: O(n) for storing the result
+- Notes: The LEFT JOIN ensures we include managers with no reports, and AVG returns NULL for empty groups
+
+---
+## Approach 2: Subquery with Aggregation
+
+**Intuition**
+Use a subquery to count reports and calculate average age for each manager, then join with the main table to get manager information, filtering only for employees who don't report to anyone.
+
+**Steps**
+- Create a subquery that groups by reports_to and counts employees
+- Calculate the average age for each group in the subquery
+- Join this subquery with the original Employees table on employee_id = reports_to
+- Filter for employees where reports_to is null (managers only)
+- Handle null values for managers with no reports
+- Order the result by employee_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\nimport numpy as np\n\ndef count_employees(employees: pd.DataFrame) -&gt; pd.DataFrame:\n    # Group by reports_to to count and calculate average age\n    reports = employees[employees['reports_to'].notna()].groupby('reports_to').agg(\n        reports_count=('employee_id', 'size'),\n        average_age=('age', 'mean')\n    ).reset_index()\n    reports.columns = ['employee_id', 'reports_count', 'average_age']\n    \n    # Round average_age\n    reports['average_age'] = reports['average_age'].round().astype('Int64')\n    \n    # Filter for managers and merge with reports\n    managers = employees[employees['reports_to'].isna()][['employee_id', 'name']]\n    result = managers.merge(\n        reports, \n        on='employee_id', \n        how='left'\n    )\n    \n    # Fill NaN values for managers with no reports\n    result['reports_count'] = result['reports_count'].fillna(0).astype(int)\n    \n    # Sort by employee_id\n    result = result.sort_values('employee_id')\n    \n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.sql.*;\n\npublic class Solution {\n    public List&lt;Map&lt;String, Object&gt;&gt; countEmployees() {\n        String query = \"SELECT e.employee_id, e.name, \" +\n                       \"COALESCE(r.reports_count, 0) AS reports_count, \" +\n                       \"r.average_age \" +\n                       \"FROM Employees e \" +\n                       \"LEFT JOIN (\" +\n                       \"    SELECT reports_to, \" +\n                       \"           COUNT(*) AS reports_count, \" +\n                       \"           ROUND(AVG(age)) AS average_age \" +\n                       \"    FROM Employees \" +\n                       \"    WHERE reports_to IS NOT NULL \" +\n                       \"    GROUP BY reports_to\" +\n                       \") r ON e.employee_id = r.reports_to \" +\n                       \"WHERE e.reports_to IS NULL \" +\n                       \"ORDER BY e.employee_id\";\n        \n        List&lt;Map&lt;String, Object&gt;&gt; result = new ArrayList&lt;&gt;();\n        // Execute query and populate result list\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    string countEmployees() {\n        return \"SELECT e.employee_id, e.name, \"\n               \"COALESCE(r.reports_count, 0) AS reports_count, \"\n               \"r.average_age \"\n               \"FROM Employees e \"\n               \"LEFT JOIN (\"\n               \"    SELECT reports_to, \"\n               \"           COUNT(*) AS reports_count, \"\n               \"           ROUND(AVG(age)) AS average_age \"\n               \"    FROM Employees \"\n               \"    WHERE reports_to IS NOT NULL \"\n               \"    GROUP BY reports_to\"\n               \") r ON e.employee_id = r.reports_to \"\n               \"WHERE e.reports_to IS NULL \"\n               \"ORDER BY e.employee_id\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array} employees\n * @return {Array}\n */\nfunction countEmployees(employees) {\n    // Create a map to store reports for each manager\n    const managerStats = new Map();\n    \n    // First pass: collect all managers\n    const managers = new Map();\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to === null) {\n            managers.set(emp.employee_id, {\n                employee_id: emp.employee_id,\n                name: emp.name\n            });\n        }\n    });\n    \n    // Second pass: calculate stats for managers\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to !== null && managers.has(emp.reports_to)) {\n            if (!managerStats.has(emp.reports_to)) {\n                managerStats.set(emp.reports_to, {\n                    count: 0,\n                    ageSum: 0\n                });\n            }\n            const stats = managerStats.get(emp.reports_to);\n            stats.count++;\n            stats.ageSum += emp.age;\n        }\n    });\n    \n    // Build result\n    const result = [];\n    managers.forEach((emp) =&gt; {\n        const stats = managerStats.get(emp.employee_id);\n        let reports_count = 0;\n        let average_age = null;\n        \n        if (stats && stats.count &gt; 0) {\n            reports_count = stats.count;\n            average_age = Math.round(stats.ageSum / stats.count);\n        }\n        \n        result.push({\n            employee_id: emp.employee_id,\n            name: emp.name,\n            reports_count: reports_count,\n            average_age: average_age\n        });\n    });\n    \n    // Sort by employee_id\n    result.sort((a, b) =&gt; a.employee_id - b.employee_id);\n    \n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\n    employee_id: number;\n    name: string;\n    reports_to: number | null;\n    age: number;\n}\n\ninterface Result {\n    employee_id: number;\n    name: string;\n    reports_count: number;\n    average_age: number | null;\n}\n\nfunction countEmployees(employees: Employee[]): Result[] {\n    // Create a map to store reports for each manager\n    const managerStats = new Map&lt;number, { count: number; ageSum: number }&gt;();\n    \n    // First pass: collect all managers\n    const managers = new Map&lt;number, { employee_id: number; name: string }&gt;();\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to === null) {\n            managers.set(emp.employee_id, {\n                employee_id: emp.employee_id,\n                name: emp.name\n            });\n        }\n    });\n    \n    // Second pass: calculate stats for managers\n    employees.forEach(emp =&gt; {\n        if (emp.reports_to !== null && managers.has(emp.reports_to)) {\n            if (!managerStats.has(emp.reports_to)) {\n                managerStats.set(emp.reports_to, {\n                    count: 0,\n                    ageSum: 0\n                });\n            }\n            const stats = managerStats.get(emp.reports_to)!;\n            stats.count++;\n            stats.ageSum += emp.age;\n        }\n    });\n    \n    // Build result\n    const result: Result[] = [];\n    managers.forEach((emp) =&gt; {\n        const stats = managerStats.get(emp.employee_id);\n        let reports_count = 0;\n        let average_age: number | null = null;\n        \n        if (stats && stats.count &gt; 0) {\n            reports_count = stats.count;\n            average_age = Math.round(stats.ageSum / stats.count);\n        }\n        \n        result.push({\n            employee_id: emp.employee_id,\n            name: emp.name,\n            reports_count: reports_count,\n            average_age: average_age\n        });\n    });\n    \n    // Sort by employee_id\n    result.sort((a, b) =&gt; a.employee_id - b.employee_id);\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of employees
+- Space: O(n) for storing intermediate results
+- Notes: Using subqueries can sometimes be more readable for complex aggregations and filtering
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode The Number of Employees Which Report to Each Employee Solutions","datePublished":"2025-05-08","description":"Count the number of employees that report to each employee and calculate their average age.","keywords":"LeetCode, The Number of Employees Which Report to Each Employee, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of employees, as we need to process each employee once."}},{"@type":"Question","name":"What is the space complexity of Approach 2?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing intermediate results and the final output."}},{"@type":"Question","name":"Why do we filter for employees with null reports_to?","acceptedAnswer":{"@type":"Answer","text":"The problem specifically asks for employees that do not report to anyone, which means reports_to must be null."}},{"@type":"Question","name":"How is average_age handled when there are no reports?","acceptedAnswer":{"@type":"Answer","text":"When there are no reports, AVG() returns NULL in SQL, which correctly represents that there is no average age to calculate."}}]}).replace(/</g,'\u003c')}
+</script>

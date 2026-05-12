@@ -1,0 +1,482 @@
+---
+title: "Shortest Distance to a Character"
+summary: "Given a string and a character, find the shortest distance from each character to the target character."
+date: "Aug 06, 2025"
+tags:
+  - Array
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.80% | **Paid:** No
+> **Topics:** Array, Two Pointers, String
+
+Given a string s and a character c that appears in s, return an array of integers answer where answer.length == s.length and answer[i] is the distance from index i to the closest occurrence of character c in s.
+
+The distance between two indices i and j is abs(i - j).
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Two Pass](#two-pass)
+- [BFS from All Occurrences](#bfs-from-all-occurrences)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "loveleetcode", c = "e"
+Output: [3,2,1,0,1,0,0,1,2,2,1,0]
+Explanation: The character 'e' appears at indices 3, 5, 6, and 11.
+```
+
+### Example 2
+```text
+Input: s = "aaab", c = "b"
+Output: [3,2,1,0]
+Explanation: The character 'b' appears at index 3.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁴
+s[i] and c are lowercase English letters.
+c is guaranteed to appear at least once in s.
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+For each position in the string, scan through all positions to find the minimum distance to the target character.
+
+**Steps**
+- Iterate through each index of the string
+- For each index, scan through all positions of the string
+- Track the minimum distance to any occurrence of character c
+- Store the minimum distance in the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def shortestToChar(self, s: str, c: str) -> list[int]:
+        n = len(s)
+        result = []
+        for i in range(n):
+            min_dist = float('inf')
+            for j in range(n):
+                if s[j] == c:
+                    min_dist = min(min_dist, abs(i - j))
+            result.append(min_dist)
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] shortestToChar(String s, char c) {
+        int n = s.length();
+        int[] result = new int[n];
+        for (int i = 0; i &lt; n; i++) {
+            int minDist = Integer.MAX_VALUE;
+            for (int j = 0; j &lt; n; j++) {
+                if (s.charAt(j) == c) {
+                    minDist = Math.min(minDist, Math.abs(i - j));
+                }
+            }
+            result[i] = minDist;
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> shortestToChar(string s, char c) {
+        int n = s.length();
+        vector<int> result(n);
+        for (int i = 0; i &lt; n; i++) {
+            int minDist = INT_MAX;
+            for (int j = 0; j &lt; n; j++) {
+                if (s[j] == c) {
+                    minDist = min(minDist, abs(i - j));
+                }
+            }
+            result[i] = minDist;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestToChar(s, c) {
+        const n = s.length;
+        const result = new Array(n);
+        for (let i = 0; i &lt; n; i++) {
+            let minDist = Infinity;
+            for (let j = 0; j &lt; n; j++) {
+                if (s[j] === c) {
+                    minDist = Math.min(minDist, Math.abs(i - j));
+                }
+            }
+            result[i] = minDist;
+        }
+        return result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestToChar(s: string, c: string): number[] {
+        const n = s.length;
+        const result = new Array(n);
+        for (let i = 0; i &lt; n; i++) {
+            let minDist = Infinity;
+            for (let j = 0; j &lt; n; j++) {
+                if (s[j] === c) {
+                    minDist = Math.min(minDist, Math.abs(i - j));
+                }
+            }
+            result[i] = minDist;
+        }
+        return result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Simple but inefficient for large inputs
+
+---
+
+## Two Pass
+
+**Intuition**
+Make two passes through the string: left-to-right to find distances to the nearest c on the left, and right-to-left to find distances to the nearest c on the right, then take the minimum.
+
+**Steps**
+- First pass (left to right): track the most recent occurrence of c and compute distance from the left
+- Second pass (right to left): track the most recent occurrence of c and compute distance from the right
+- For each position, take the minimum of left and right distances
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def shortestToChar(self, s: str, c: str) -> list[int]:
+        n = len(s)
+        result = [float('inf')] * n
+        
+        # Left to right pass
+        prev = -n
+        for i in range(n):
+            if s[i] == c:
+                prev = i
+            result[i] = i - prev
+        
+        # Right to left pass
+        prev = 2 * n
+        for i in range(n - 1, -1, -1):
+            if s[i] == c:
+                prev = i
+            result[i] = min(result[i], prev - i)
+        
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] shortestToChar(String s, char c) {
+        int n = s.length();
+        int[] result = new int[n];
+        
+        // Left to right pass
+        int prev = -n;
+        for (int i = 0; i &lt; n; i++) {
+            if (s.charAt(i) == c) {
+                prev = i;
+            }
+            result[i] = i - prev;
+        }
+        
+        // Right to left pass
+        prev = 2 * n;
+        for (int i = n - 1; i &gt;= 0; i--) {
+            if (s.charAt(i) == c) {
+                prev = i;
+            }
+            result[i] = Math.min(result[i], prev - i);
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> shortestToChar(string s, char c) {
+        int n = s.length();
+        vector<int> result(n);
+        
+        // Left to right pass
+        int prev = -n;
+        for (int i = 0; i &lt; n; i++) {
+            if (s[i] == c) {
+                prev = i;
+            }
+            result[i] = i - prev;
+        }
+        
+        // Right to left pass
+        prev = 2 * n;
+        for (int i = n - 1; i &gt;= 0; i--) {
+            if (s[i] == c) {
+                prev = i;
+            }
+            result[i] = min(result[i], prev - i);
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestToChar(s, c) {
+        const n = s.length;
+        const result = new Array(n);
+        
+        // Left to right pass
+        let prev = -n;
+        for (let i = 0; i &lt; n; i++) {
+            if (s[i] === c) {
+                prev = i;
+            }
+            result[i] = i - prev;
+        }
+        
+        // Right to left pass
+        prev = 2 * n;
+        for (let i = n - 1; i &gt;= 0; i--) {
+            if (s[i] === c) {
+                prev = i;
+            }
+            result[i] = Math.min(result[i], prev - i);
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestToChar(s: string, c: string): number[] {
+        const n = s.length;
+        const result = new Array(n);
+        
+        // Left to right pass
+        let prev = -n;
+        for (let i = 0; i &lt; n; i++) {
+            if (s[i] === c) {
+                prev = i;
+            }
+            result[i] = i - prev;
+        }
+        
+        // Right to left pass
+        prev = 2 * n;
+        for (let i = n - 1; i &gt;= 0; i--) {
+            if (s[i] === c) {
+                prev = i;
+            }
+            result[i] = Math.min(result[i], prev - i);
+        }
+        
+        return result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Optimal solution with linear time complexity
+
+---
+
+## BFS from All Occurrences
+
+**Intuition**
+Treat this as a shortest path problem where all occurrences of c are starting points with distance 0, and we expand outward using BFS.
+
+**Steps**
+- Initialize result array with -1 (unvisited)
+- Add all positions of character c to queue with distance 0
+- Perform BFS, expanding to adjacent positions
+- For each unvisited neighbor, set its distance to current distance + 1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from collections import deque
+
+class Solution:
+    def shortestToChar(self, s: str, c: str) -> list[int]:
+        n = len(s)
+        result = [-1] * n
+        queue = deque()
+        
+        # Initialize queue with all positions of c
+        for i, ch in enumerate(s):
+            if ch == c:
+                result[i] = 0
+                queue.append(i)
+        
+        # BFS
+        directions = [-1, 1]
+        while queue:
+            curr = queue.popleft()
+            for d in directions:
+                nxt = curr + d
+                if 0 &lt;= nxt &lt; n and result[nxt] == -1:
+                    result[nxt] = result[curr] + 1
+                    queue.append(nxt)
+        
+        return result
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int[] shortestToChar(String s, char c) {
+        int n = s.length();
+        int[] result = new int[n];
+        Arrays.fill(result, -1);
+        Queue<Integer> queue = new LinkedList&lt;&gt;();
+        
+        // Initialize queue with all positions of c
+        for (int i = 0; i &lt; n; i++) {
+            if (s.charAt(i) == c) {
+                result[i] = 0;
+                queue.offer(i);
+            }
+        }
+        
+        // BFS
+        int[] directions = {-1, 1};
+        while (!queue.isEmpty()) {
+            int curr = queue.poll();
+            for (int d : directions) {
+                int next = curr + d;
+                if (next &gt;= 0 && next &lt; n && result[next] == -1) {
+                    result[next] = result[curr] + 1;
+                    queue.offer(next);
+                }
+            }
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> shortestToChar(string s, char c) {
+        int n = s.length();
+        vector<int> result(n, -1);
+        queue<int> q;
+        
+        // Initialize queue with all positions of c
+        for (int i = 0; i &lt; n; i++) {
+            if (s[i] == c) {
+                result[i] = 0;
+                q.push(i);
+            }
+        }
+        
+        // BFS
+        int directions[] = {-1, 1};
+        while (!q.empty()) {
+            int curr = q.front();
+            q.pop();
+            for (int d : directions) {
+                int next = curr + d;
+                if (next &gt;= 0 && next &lt; n && result[next] == -1) {
+                    result[next] = result[curr] + 1;
+                    q.push(next);
+                }
+            }
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    shortestToChar(s, c) {
+        const n = s.length;
+        const result = new Array(n).fill(-1);
+        const queue = [];
+        
+        // Initialize queue with all positions of c
+        for (let i = 0; i &lt; n; i++) {
+            if (s[i] === c) {
+                result[i] = 0;
+                queue.push(i);
+            }
+        }
+        
+        // BFS
+        const directions = [-1, 1];
+        let front = 0;
+        while (front &lt; queue.length) {
+            const curr = queue[front++];
+            for (const d of directions) {
+                const next = curr + d;
+                if (next &gt;= 0 && next &lt; n && result[next] === -1) {
+                    result[next] = result[curr] + 1;
+                    queue.push(next);
+                }
+            }
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    shortestToChar(s: string, c: string): number[] {
+        const n = s.length;
+        const result = new Array(n).fill(-1);
+        const queue: number[] = [];
+        
+        // Initialize queue with all positions of c
+        for (let i = 0; i &lt; n; i++) {
+            if (s[i] === c) {
+                result[i] = 0;
+                queue.push(i);
+            }
+        }
+        
+        // BFS
+        const directions = [-1, 1];
+        let front = 0;
+        while (front &lt; queue.length) {
+            const curr = queue[front++];
+            for (const d of directions) {
+                const next = curr + d;
+                if (next &gt;= 0 && next &lt; n && result[next] === -1) {
+                    result[next] = result[curr] + 1;
+                    queue.push(next);
+                }
+            }
+        }
+        
+        return result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Useful pattern for multi-source shortest path problems
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Shortest Distance to a Character Solutions","datePublished":"2025-08-06","description":"Given a string and a character, find the shortest distance from each character to the target character.","keywords":"LeetCode, Shortest Distance to a Character, Easy, Array, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(n²) time complexity where n is the length of the string, as we check all positions for each index."}},{"@type":"Question","name":"What is the optimal time complexity for this problem?","acceptedAnswer":{"@type":"Answer","text":"The optimal time complexity is O(n), achieved by the Two Pass approach and BFS approach."}},{"@type":"Question","name":"How does the Two Pass approach work?","acceptedAnswer":{"@type":"Answer","text":"The Two Pass approach makes a left-to-right pass to find distances to the nearest c on the left, then a right-to-left pass to find distances to the nearest c on the right, taking the minimum of both."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"All approaches use O(n) space to store the result array. The BFS approach additionally uses O(n) space for the queue in the worst case."}}]}).replace(/</g,'\u003c')}
+</script>

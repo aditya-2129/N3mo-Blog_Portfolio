@@ -1,0 +1,123 @@
+---
+title: "Time Needed to Buy Tickets"
+summary: "Calculate the total time taken for the person at position k to finish buying tickets in a queue where people cycle back after buying one."
+date: "Jul 26, 2024"
+tags:
+  - Array
+  - Queue
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.50% | **Paid:** No
+> **Topics:** Array, Queue, Simulation
+
+There are n people in a line queuing to buy tickets, where the 0th person is at the front of the line and the (n - 1)th person is at the back of the line.
+
+You are given a 0-indexed integer array tickets of length n where the ith person wants to buy tickets[i] tickets.
+
+Each person takes exactly 1 second to buy a ticket. A person can only buy 1 ticket at a time and has to go back to the end of the line (which happens instantaneously) in order to buy more tickets. If a person does not have any tickets left to buy, the person will leave the line.
+
+Return the time taken for the person at position k (0-indexed) to finish buying all tickets.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation using Queue](#approach-1-simulation-using-queue)
+- [Approach 2: Mathematical Calculation](#approach-2-mathematical-calculation)
+
+## Examples
+
+### Example 1:
+```text
+Input: tickets = [2,3,2], k = 2
+Output: 6
+Explanation: 
+- In the first pass, everyone in the line buys a ticket and the line becomes [1, 2, 1].
+- In the second pass, everyone in the line buys a ticket and the line becomes [0, 1, 0].
+The person at index 2 has successfully bought 2 tickets and finished.
+```
+
+### Example 2:
+```text
+Input: tickets = [5,1,1,1], k = 0
+Output: 8
+Explanation:
+- In the first pass, everyone in the line buys a ticket and the line becomes [4, 0, 0, 0].
+- In the next 4 passes, only the person in position 0 is buying tickets.
+The person at index 0 has successfully bought 5 tickets and finished.
+```
+
+## Constraints
+
+```text
+n == tickets.length
+1 <= n <= 100
+1 <= tickets[i] <= 100
+0 <= k < n
+```
+
+---
+## Approach 1: Simulation using Queue
+
+**Intuition**
+We can simulate the exact process described in the problem using a queue. We store the indices of people in the queue. We process the person at the front, decrement their ticket count, and if they still need tickets, we move them to the back. We stop when the person at index `k` has no tickets left.
+
+**Steps**
+- Initialize a queue with indices from 0 to n-1.
+- Initialize a time counter to 0.
+- While the queue is not empty:
+    - Pop the front index `i`.
+    - Decrement `tickets[i]` by 1.
+    - Increment time by 1.
+    - If `tickets[i]` is 0:
+        - If `i` is equal to `k`, return the time.
+    - Else:
+        - Push `i` to the back of the queue.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\r\nfrom typing import List\r\n\r\nclass Solution:\r\n    def timeRequiredToBuy(self, tickets: List[int], k: int) -&gt; int:\r\n        q = deque(range(len(tickets)))\r\n        time = 0\r\n        \r\n        while q:\r\n            i = q.popleft()\r\n            tickets[i] -= 1\r\n            time += 1\r\n            \r\n            if tickets[i] == 0:\r\n                if i == k:\r\n                    return time\r\n            else:\r\n                q.append(i)\r\n                \r\n        return time" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\r\nimport java.util.Queue;\r\n\r\nclass Solution {\r\n    public int timeRequiredToBuy(int[] tickets, int k) {\r\n        Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();\r\n        for (int i = 0; i &lt; tickets.length; i++) {\r\n            q.add(i);\r\n        }\r\n        \r\n        int time = 0;\r\n        while (!q.isEmpty()) {\r\n            int i = q.poll();\r\n            tickets[i]--;\r\n            time++;\r\n            \r\n            if (tickets[i] == 0) {\r\n                if (i == k) {\r\n                    return time;\r\n                }\r\n            } else {\r\n                q.add(i);\r\n            }\r\n        }\r\n        return time;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;queue&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    int timeRequiredToBuy(std::vector&lt;int&gt;& tickets, int k) {\r\n        std::queue&lt;int&gt; q;\r\n        for (int i = 0; i &lt; tickets.size(); ++i) {\r\n            q.push(i);\r\n        }\r\n        \r\n        int time = 0;\r\n        while (!q.empty()) {\r\n            int i = q.front();\r\n            q.pop();\r\n            tickets[i]--;\r\n            time++;\r\n            \r\n            if (tickets[i] == 0) {\r\n                if (i == k) {\r\n                    return time;\r\n                }\r\n            } else {\r\n                q.push(i);\r\n            }\r\n        }\r\n        return time;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var timeRequiredToBuy = function(tickets, k) {\r\n    let q = [];\r\n    for (let i = 0; i &lt; tickets.length; i++) {\r\n        q.push(i);\r\n    }\r\n    \r\n    let time = 0;\r\n    while (q.length &gt; 0) {\r\n        let i = q.shift();\r\n        tickets[i]--;\r\n        time++;\r\n        \r\n        if (tickets[i] === 0) {\r\n            if (i === k) {\r\n                return time;\r\n            }\r\n        } else {\r\n            q.push(i);\r\n        }\r\n    }\r\n    return time;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function timeRequiredToBuy(tickets: number[], k: number): number {\r\n    let q: number[] = [];\r\n    for (let i = 0; i &lt; tickets.length; i++) {\r\n        q.push(i);\r\n    }\r\n    \r\n    let time = 0;\r\n    while (q.length &gt; 0) {\r\n        let i = q.shift()!;\r\n        tickets[i]--;\r\n        time++;\r\n        \r\n        if (tickets[i] === 0) {\r\n            if (i === k) {\r\n                return time;\r\n            }\r\n        } else {\r\n            q.push(i);\r\n        }\r\n    }\r\n    return time;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n * max(tickets)) - In the worst case, we iterate through the queue until the maximum number of tickets is bought.
+- Space: O(n) - To store the queue.
+- Notes: Straightforward simulation but can be optimized mathematically.
+
+---
+## Approach 2: Mathematical Calculation
+
+**Intuition**
+We can calculate the time directly without simulation. Every person `i` will buy at most `tickets[k]` tickets. However, if a person is behind `k` (i.e., `i &gt; k`), they get one fewer turn because the person at `k` leaves the line before the person behind them can get their next ticket.
+
+**Steps**
+- Initialize `time` to 0.
+- Iterate through the `tickets` array with index `i` and value `t`.
+- If `i &lt;= k`:
+    - Add `min(t, tickets[k])` to `time`.
+- If `i &gt; k`:
+    - Add `min(t, tickets[k] - 1)` to `time`.
+- Return `time`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def timeRequiredToBuy(self, tickets: List[int], k: int) -&gt; int:\r\n        target = tickets[k]\r\n        time = 0\r\n        \r\n        for i, t in enumerate(tickets):\r\n            if i &lt;= k:\r\n                time += min(t, target)\r\n            else:\r\n                time += min(t, target - 1)\r\n                \r\n        return time" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int timeRequiredToBuy(int[] tickets, int k) {\r\n        int target = tickets[k];\r\n        int time = 0;\r\n        \r\n        for (int i = 0; i &lt; tickets.length; i++) {\r\n            if (i &lt;= k) {\r\n                time += Math.min(tickets[i], target);\r\n            } else {\r\n                time += Math.min(tickets[i], target - 1);\r\n            }\r\n        }\r\n        \r\n        return time;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    int timeRequiredToBuy(std::vector&lt;int&gt;& tickets, int k) {\r\n        int target = tickets[k];\r\n        int time = 0;\r\n        \r\n        for (int i = 0; i &lt; tickets.size(); ++i) {\r\n            if (i &lt;= k) {\r\n                time += std::min(tickets[i], target);\r\n            } else {\r\n                time += std::min(tickets[i], target - 1);\r\n            }\r\n        }\r\n        \r\n        return time;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var timeRequiredToBuy = function(tickets, k) {\r\n    const target = tickets[k];\r\n    let time = 0;\r\n    \r\n    for (let i = 0; i &lt; tickets.length; i++) {\r\n        if (i &lt;= k) {\r\n            time += Math.min(tickets[i], target);\r\n        } else {\r\n            time += Math.min(tickets[i], target - 1);\r\n        }\r\n    }\r\n    \r\n    return time;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function timeRequiredToBuy(tickets: number[], k: number): number {\r\n    const target = tickets[k];\r\n    let time = 0;\r\n    \r\n    for (let i = 0; i &lt; tickets.length; i++) {\r\n        if (i &lt;= k) {\r\n            time += Math.min(tickets[i], target);\r\n        } else {\r\n            time += Math.min(tickets[i], target - 1);\r\n        }\r\n    }\r\n    \r\n    return time;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the array.
+- Space: O(1) - No extra space used besides variables.
+- Notes: This is the most optimal solution.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Time Needed to Buy Tickets Solutions","datePublished":"2024-07-26","description":"Calculate the total time taken for the person at position k to finish buying tickets in a queue where people cycle back after buying one.","keywords":"LeetCode, Time Needed to Buy Tickets, Easy, Array, Queue, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * max(tickets)), where n is the number of people."}},{"@type":"Question","name":"What is the time complexity of the Mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we iterate through the tickets array once."}},{"@type":"Question","name":"What is the space complexity of the Mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we only use a few variables for calculation."}}]}).replace(/</g,'\u003c')}
+</script>

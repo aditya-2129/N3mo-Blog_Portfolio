@@ -1,0 +1,133 @@
+---
+title: "Create a New Column"
+summary: "Write a solution to create a new column 'bonus' in a DataFrame by doubling the 'salary' values."
+date: "Mar 11, 2026"
+tags:
+  - Pandas
+  - Dataframe
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 90.10% | **Paid:** No
+> **Topics:** N/A
+
+Write a solution to create a new column named 'bonus' in the DataFrame employees. The values in this column should be double the values in the 'salary' column.
+
+- Examples
+- Constraints
+- [Approach 1: Direct Column Assignment](#approach-1-direct-column-assignment)
+- [Approach 2: Using assign Method](#approach-2-using-assign-method)
+- [Approach 3: Using apply Function](#approach-3-using-apply-function)
+
+## Examples
+
+**Example 1:**
+
+**Input:**
+```text
++---------+--------+
+| name    | salary |
++---------+--------+
+| Piper   | 10000  |
+| Grace   | 20000  |
+| Georgia | 50000  |
++---------+--------+
+```
+
+**Output:**
+```text
++---------+--------+-------+
+| name    | salary | bonus |
++---------+--------+-------+
+| Piper   | 10000  | 20000 |
+| Grace   | 20000  | 40000 |
+| Georgia | 50000  | 100000|
++---------+--------+-------+
+```
+
+**Explanation:**
+A new column 'bonus' is created by doubling the values in the 'salary' column.
+
+## Constraints
+
+```text
+0 <= employees.length <= 100
+1000 <= employees['salary'] <= 10^5
+```
+
+---
+## Approach 1: Direct Column Assignment
+
+**Intuition**
+Pandas allows vectorized operations, meaning we can multiply an entire column (Series) by a scalar value directly without iterating through rows.
+
+**Steps**
+- Access the 'salary' column of the DataFrame.
+- Multiply the Series by 2.
+- Assign the result to a new column named 'bonus'.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef createBonusColumn(employees: pd.DataFrame) -&gt; pd.DataFrame:\r\n    employees['bonus'] = employees['salary'] * 2\r\n    return employees" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Employee {\r\n    String name;\r\n    int salary;\r\n    int bonus;\r\n    Employee(String name, int salary) {\r\n        this.name = name;\r\n        this.salary = salary;\r\n    }\r\n}\r\n\r\nclass Solution {\r\n    public List&lt;Employee&gt; createBonusColumn(List&lt;Employee&gt; employees) {\r\n        for (Employee e : employees) {\r\n            e.bonus = e.salary * 2;\r\n        }\r\n        return employees;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n\r\nusing namespace std;\r\n\r\nstruct Employee {\r\n    string name;\r\n    int salary;\r\n    int bonus;\r\n};\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;Employee&gt; createBonusColumn(vector&lt;Employee&gt;& employees) {\r\n        for (auto& e : employees) {\r\n            e.bonus = e.salary * 2;\r\n        }\r\n        return employees;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Array&lt;Object&gt;} employees\r\n * @return {Array&lt;Object&gt;}\r\n */\r\nvar createBonusColumn = function(employees) {\r\n    for (var i = 0; i &lt; employees.length; i++) {\r\n        employees[i].bonus = employees[i].salary * 2;\r\n    }\r\n    return employees;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\r\n    name: string;\r\n    salary: number;\r\n    bonus?: number;\r\n}\r\n\r\nfunction createBonusColumn(employees: Employee[]): Employee[] {\r\n    for (let i = 0; i &lt; employees.length; i++) {\r\n        employees[i].bonus = employees[i].salary * 2;\r\n    }\r\n    return employees;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows.
+- Space: O(n) to store the new column.
+- Notes: This is the most idiomatic and efficient way to perform column-wise arithmetic in Pandas.
+
+---
+## Approach 2: Using assign Method
+
+**Intuition**
+The `assign` method returns a new object with all original columns in addition to new ones. It is useful for method chaining.
+
+**Steps**
+- Call the `assign` method on the DataFrame.
+- Pass a keyword argument `bonus` set to `employees['salary'] * 2`.
+- Return the resulting DataFrame.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef createBonusColumn(employees: pd.DataFrame) -&gt; pd.DataFrame:\r\n    return employees.assign(bonus=employees['salary'] * 2)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\nimport java.util.stream.*;\r\n\r\nclass Employee {\r\n    String name;\r\n    int salary;\r\n    int bonus;\r\n    Employee(String name, int salary) {\r\n        this.name = name;\r\n        this.salary = salary;\r\n    }\r\n    Employee(Employee e) {\r\n        this.name = e.name;\r\n        this.salary = e.salary;\r\n        this.bonus = e.salary * 2;\r\n    }\r\n}\r\n\r\nclass Solution {\r\n    public List&lt;Employee&gt; createBonusColumn(List&lt;Employee&gt; employees) {\r\n        return employees.stream().map(Employee::new).collect(Collectors.toList());\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nstruct Employee {\r\n    string name;\r\n    int salary;\r\n    int bonus;\r\n};\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;Employee&gt; createBonusColumn(vector&lt;Employee&gt;& employees) {\r\n        vector&lt;Employee&gt; result;\r\n        result.reserve(employees.size());\r\n        for (const auto& e : employees) {\r\n            result.push_back({e.name, e.salary, e.salary * 2});\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Array&lt;Object&gt;} employees\r\n * @return {Array&lt;Object&gt;}\r\n */\r\nvar createBonusColumn = function(employees) {\r\n    return employees.map(function(e) {\r\n        return {\r\n            name: e.name,\r\n            salary: e.salary,\r\n            bonus: e.salary * 2\r\n        };\r\n    });\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\r\n    name: string;\r\n    salary: number;\r\n    bonus?: number;\r\n}\r\n\r\nfunction createBonusColumn(employees: Employee[]): Employee[] {\r\n    return employees.map((e): Employee =&gt; {\r\n        return {\r\n            name: e.name,\r\n            salary: e.salary,\r\n            bonus: e.salary * 2\r\n        };\r\n    });\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows.
+- Space: O(n) to store the new column (and potentially a copy of the DataFrame depending on implementation).
+- Notes: This approach creates a new DataFrame copy, which can be safer for functional programming styles but uses slightly more memory than in-place assignment.
+
+---
+## Approach 3: Using apply Function
+
+**Intuition**
+The `apply` function allows applying a custom function along an axis of the DataFrame. While slower than vectorization, it is flexible for complex logic.
+
+**Steps**
+- Select the 'salary' column.
+- Use the `apply` method with a lambda function that multiplies the input by 2.
+- Assign the result to the 'bonus' column.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef createBonusColumn(employees: pd.DataFrame) -&gt; pd.DataFrame:\r\n    employees['bonus'] = employees['salary'].apply(lambda x: x * 2)\r\n    return employees" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\nimport java.util.function.*;\r\n\r\nclass Employee {\r\n    String name;\r\n    int salary;\r\n    int bonus;\r\n    Employee(String name, int salary) {\r\n        this.name = name;\r\n        this.salary = salary;\r\n    }\r\n}\r\n\r\nclass Solution {\r\n    public List&lt;Employee&gt; createBonusColumn(List&lt;Employee&gt; employees) {\r\n        Function&lt;Integer, Integer&gt; bonusCalc = x -&gt; x * 2;\r\n        for (Employee e : employees) {\r\n            e.bonus = bonusCalc.apply(e.salary);\r\n        }\r\n        return employees;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;functional&gt;\r\n\r\nusing namespace std;\r\n\r\nstruct Employee {\r\n    string name;\r\n    int salary;\r\n    int bonus;\r\n};\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;Employee&gt; createBonusColumn(vector&lt;Employee&gt;& employees) {\r\n        function&lt;int(int)&gt; calculateBonus = [](int salary) { return salary * 2; };\r\n        for (auto& e : employees) {\r\n            e.bonus = calculateBonus(e.salary);\r\n        }\r\n        return employees;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Array&lt;Object&gt;} employees\r\n * @return {Array&lt;Object&gt;}\r\n */\r\nvar createBonusColumn = function(employees) {\r\n    var calculateBonus = function(salary) {\r\n        return salary * 2;\r\n    };\r\n    for (var i = 0; i &lt; employees.length; i++) {\r\n        employees[i].bonus = calculateBonus(employees[i].salary);\r\n    }\r\n    return employees;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "interface Employee {\r\n    name: string;\r\n    salary: number;\r\n    bonus?: number;\r\n}\r\n\r\nfunction createBonusColumn(employees: Employee[]): Employee[] {\r\n    const calculateBonus = (salary: number): number =&gt; salary * 2;\r\n    for (let i = 0; i &lt; employees.length; i++) {\r\n        employees[i].bonus = calculateBonus(employees[i].salary);\r\n    }\r\n    return employees;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows.
+- Space: O(n) to store the new column.
+- Notes: In Pandas, `apply` is generally slower than vectorized operations because it often loops at the Python level (or Cython level with overhead). Use vectorization (Approach 1) for simple arithmetic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Create a New Column Solutions","datePublished":"2026-03-11","description":"Write a solution to create a new column 'bonus' in a DataFrame by doubling the 'salary' values.","keywords":"LeetCode, Create a New Column, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direct Column Assignment?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the DataFrame."}},{"@type":"Question","name":"What is the time complexity of Using assign Method?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the DataFrame."}},{"@type":"Question","name":"What is the time complexity of Using apply Function?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the DataFrame."}}]}).replace(/</g,'\u003c')}
+</script>

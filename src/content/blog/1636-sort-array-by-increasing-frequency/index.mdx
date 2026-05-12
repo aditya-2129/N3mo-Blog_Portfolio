@@ -1,0 +1,136 @@
+---
+title: "Sort Array by Increasing Frequency"
+summary: "Sort an array based on the frequency of values, with ties broken by decreasing value."
+date: "May 10, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+Given an array of integers nums, sort the array in increasing order based on the frequency of the values. If multiple values have the same frequency, sort them in decreasing order.
+
+Return the sorted array.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting with Custom Comparator](#approach-1-sorting-with-custom-comparator)
+- [Approach 2: Bucket Sort](#approach-2-bucket-sort)
+- [Approach 3: Brute Force Selection](#approach-3-brute-force-selection)
+
+## Examples
+
+```text
+Input: nums = [1,1,2,2,2,3]
+Output: [3,1,1,2,2,2]
+Explanation: '3' has a frequency of 1, '1' has a frequency of 2, and '2' has a frequency of 3.
+```
+
+```text
+Input: nums = [2,3,1,3,2]
+Output: [1,3,3,2,2]
+Explanation: '2' and '3' both have a frequency of 2, so they are sorted in decreasing order.
+```
+
+```text
+Input: nums = [-1,1,-6,4,5,-6,1,4,1]
+Output: [5,-1,4,4,-6,-6,1,1,1]
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+-100 <= nums[i] <= 100
+```
+
+---
+
+## Approach 1: Sorting with Custom Comparator
+
+**Intuition**
+We can count the frequency of each number using a hash map, then sort the array using a custom comparator that sorts by frequency first, and by value in descending order for ties.
+
+**Steps**
+- Count the frequency of each number in the array.
+- Sort the array using a custom comparator:
+  - If frequencies are different, sort by increasing frequency.
+  - If frequencies are the same, sort by decreasing value.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def frequencySort(self, nums: List[int]) -&gt; List[int]:\n        freq = collections.Counter(nums)\n        return sorted(nums, key=lambda x: (freq[x], -x))\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] frequencySort(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int n : nums) {\n            freq.put(n, freq.getOrDefault(n, 0) + 1);\n        }\n        Integer[] arr = Arrays.stream(nums).boxed().toArray(Integer[]::new);\n        Arrays.sort(arr, (a, b) -&gt; {\n            if (freq.get(a).equals(freq.get(b))) {\n                return b - a;\n            }\n            return freq.get(a) - freq.get(b);\n        });\n        return Arrays.stream(arr).mapToInt(Integer::intValue).toArray();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; frequencySort(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int n : nums) freq[n]++;\n        sort(nums.begin(), nums.end(), [&](int a, int b) {\n            if (freq[a] == freq[b]) return a &gt; b;\n            return freq[a] &lt; freq[b];\n        });\n        return nums;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var frequencySort = function(nums) {\n    const freq = {};\n    for (const n of nums) {\n        freq[n] = (freq[n] || 0) + 1;\n    }\n    nums.sort((a, b) =&gt; {\n        if (freq[a] === freq[b]) return b - a;\n        return freq[a] - freq[b];\n    });\n    return nums;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function frequencySort(nums: number[]): number[] {\n    const freq: Record&lt;number, number&gt; = {};\n    for (const n of nums) {\n        freq[n] = (freq[n] || 0) + 1;\n    }\n    nums.sort((a, b) =&gt; {\n        if (freq[a] === freq[b]) return b - a;\n        return freq[a] - freq[b];\n    });\n    return nums;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: The sorting step dominates the time complexity.
+
+---
+
+## Approach 2: Bucket Sort
+
+**Intuition**
+Since the range of values and the length of the array are limited, we can use bucket sort. We create buckets where the index represents the frequency, and each bucket contains numbers with that frequency. We then iterate through the buckets in increasing order of frequency, and within each bucket, sort numbers in decreasing order.
+
+**Steps**
+- Count the frequency of each number.
+- Create an array of buckets (lists) where the index corresponds to the frequency.
+- Populate the buckets with numbers.
+- Iterate through the buckets from index 1 to n.
+- For each bucket, sort the numbers in descending order and add them to the result array, repeating each number according to its frequency.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def frequencySort(self, nums: List[int]) -&gt; List[int]:\n        freq = collections.Counter(nums)\n        buckets = [[] for _ in range(len(nums) + 1)]\n        for num, count in freq.items():\n            buckets[count].append(num)\n        res = []\n        for i in range(len(buckets)):\n            if buckets[i]:\n                buckets[i].sort(reverse=True)\n                for num in buckets[i]:\n                    res.extend([num] * i)\n        return res\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] frequencySort(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int n : nums) freq.put(n, freq.getOrDefault(n, 0) + 1);\n        List&lt;Integer&gt;[] buckets = new List[nums.length + 1];\n        for (int i = 0; i &lt;= nums.length; i++) buckets[i] = new ArrayList&lt;&gt;();\n        for (int key : freq.keySet()) buckets[freq.get(key)].add(key);\n        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt;= nums.length; i++) {\n            if (buckets[i].isEmpty()) continue;\n            Collections.sort(buckets[i], Collections.reverseOrder());\n            for (int num : buckets[i]) {\n                for (int j = 0; j &lt; i; j++) res.add(num);\n            }\n        }\n        return res.stream().mapToInt(i -&gt; i).toArray();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; frequencySort(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int n : nums) freq[n]++;\n        vector&lt;vector&lt;int&gt;&gt; buckets(nums.size() + 1);\n        for (auto& p : freq) buckets[p.second].push_back(p.first);\n        vector&lt;int&gt; res;\n        for (int i = 0; i &lt;= nums.size(); ++i) {\n            sort(buckets[i].rbegin(), buckets[i].rend());\n            for (int num : buckets[i]) {\n                for (int j = 0; j &lt; i; ++j) res.push_back(num);\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var frequencySort = function(nums) {\n    const freq = {};\n    for (const n of nums) freq[n] = (freq[n] || 0) + 1;\n    const buckets = Array.from({ length: nums.length + 1 }, () =&gt; []);\n    for (const key in freq) buckets[freq[key]].push(parseInt(key));\n    const res = [];\n    for (let i = 0; i &lt;= nums.length; i++) {\n        if (buckets[i].length === 0) continue;\n        buckets[i].sort((a, b) =&gt; b - a);\n        for (const num of buckets[i]) {\n            for (let j = 0; j &lt; i; j++) res.push(num);\n        }\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function frequencySort(nums: number[]): number[] {\n    const freq: Record&lt;number, number&gt; = {};\n    for (const n of nums) freq[n] = (freq[n] || 0) + 1;\n    const buckets: number[][] = Array.from({ length: nums.length + 1 }, () =&gt; []);\n    for (const key in freq) buckets[freq[key]].push(parseInt(key));\n    const res: number[] = [];\n    for (let i = 0; i &lt;= nums.length; i++) {\n        if (buckets[i].length === 0) continue;\n        buckets[i].sort((a, b) =&gt; b - a);\n        for (const num of buckets[i]) {\n            for (let j = 0; j &lt; i; j++) res.push(num);\n        }\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n + k log k) where k is the range of values (max 201).
+- Space: O(n)
+- Notes: This approach can be more efficient than sorting if the range of frequencies is small.
+
+---
+
+## Approach 3: Brute Force Selection
+
+**Intuition**
+Repeatedly scan the remaining elements to find the one with the lowest frequency (and highest value if tied), add it to the result, and remove it from the list of available elements.
+
+**Steps**
+- Count the frequency of each number.
+- Initialize an empty result array.
+- While the input array is not empty:
+  - Find the element with the minimum frequency.
+  - If there is a tie, choose the element with the maximum value.
+  - Append this element to the result.
+  - Remove this element from the input array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def frequencySort(self, nums: List[int]) -&gt; List[int]:\n        freq = collections.Counter(nums)\n        res = []\n        while nums:\n            candidate = nums[0]\n            for x in nums:\n                if freq[x] &lt; freq[candidate] or (freq[x] == freq[candidate] and x &gt; candidate):\n                    candidate = x\n            res.append(candidate)\n            nums.remove(candidate)\n        return res\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] frequencySort(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int n : nums) freq.put(n, freq.getOrDefault(n, 0) + 1);\n        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();\n        for (int n : nums) list.add(n);\n        int[] res = new int[nums.length];\n        int idx = 0;\n        while (!list.isEmpty()) {\n            int candidate = list.get(0);\n            for (int x : list) {\n                if (freq.get(x) &lt; freq.get(candidate) || (freq.get(x).equals(freq.get(candidate)) && x &gt; candidate)) {\n                    candidate = x;\n                }\n            }\n            res[idx++] = candidate;\n            list.remove(Integer.valueOf(candidate));\n        }\n        return res;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; frequencySort(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int n : nums) freq[n]++;\n        vector&lt;int&gt; res;\n        while (!nums.empty()) {\n            int candidate = nums[0];\n            for (int x : nums) {\n                if (freq[x] &lt; freq[candidate] || (freq[x] == freq[candidate] && x &gt; candidate)) {\n                    candidate = x;\n                }\n            }\n            res.push_back(candidate);\n            nums.erase(find(nums.begin(), nums.end(), candidate));\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var frequencySort = function(nums) {\n    const freq = {};\n    for (const n of nums) freq[n] = (freq[n] || 0) + 1;\n    const res = [];\n    while (nums.length &gt; 0) {\n        let candidate = nums[0];\n        for (let i = 1; i &lt; nums.length; i++) {\n            const x = nums[i];\n            if (freq[x] &lt; freq[candidate] || (freq[x] === freq[candidate] && x &gt; candidate)) {\n                candidate = x;\n            }\n        }\n        res.push(candidate);\n        const idx = nums.indexOf(candidate);\n        nums.splice(idx, 1);\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function frequencySort(nums: number[]): number[] {\n    const freq: Record&lt;number, number&gt; = {};\n    for (const n of nums) freq[n] = (freq[n] || 0) + 1;\n    const res: number[] = [];\n    while (nums.length &gt; 0) {\n        let candidate = nums[0];\n        for (let i = 1; i &lt; nums.length; i++) {\n            const x = nums[i];\n            if (freq[x] &lt; freq[candidate] || (freq[x] === freq[candidate] && x &gt; candidate)) {\n                candidate = x;\n            }\n        }\n        res.push(candidate);\n        const idx = nums.indexOf(candidate);\n        nums.splice(idx, 1);\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: This approach is inefficient for large inputs but demonstrates the logic clearly.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort Array by Increasing Frequency Solutions","datePublished":"2024-05-10","description":"Sort an array based on the frequency of values, with ties broken by decreasing value.","keywords":"LeetCode, Sort Array by Increasing Frequency, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Sorting with Custom Comparator?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n), where n is the number of elements in the array."}},{"@type":"Question","name":"What is the space complexity of Bucket Sort?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the frequency map and the buckets."}},{"@type":"Question","name":"What is the time complexity of Brute Force Selection?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because we scan the remaining elements for each position in the result array."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,113 @@
+---
+title: "Maximum Length Substring With Two Occurrences"
+summary: "Find the longest substring where no character appears more than twice."
+date: "Feb 25, 2025"
+tags:
+  - Hash Table
+  - String
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.50% | **Paid:** No
+> **Topics:** Hash Table, String, Sliding Window
+
+Given a string s, return the maximum length of a substring such that it contains at most two occurrences of each character.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window](#sliding-window)
+
+## Examples
+
+```text
+Input: s = "bcbbbcba"
+Output: 4
+Explanation: The following substrings are valid:
+- "bcbb" (Invalid, 'b' appears 3 times)
+- "bcbc" (Valid, 'b' appears 2 times, 'c' appears 2 times)
+- "cbcb" (Valid)
+- "bcba" (Valid)
+The longest valid substring is "bcbc" with a length of 4.
+```
+
+```text
+Input: s = "aaaa"
+Output: 2
+Explanation: The longest valid substring is "aa" where 'a' appears exactly 2 times. Any longer substring would have 'a' appearing more than 2 times.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists only of lowercase English letters.
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+Since the constraint on the string length is small (up to 100), we can check every possible substring. For each starting index, we expand to the right, counting character frequencies until a character appears more than twice.
+
+**Steps**
+- Iterate through the string with a pointer `i` representing the start of the substring.
+- Initialize a frequency map (or array) for the current substring.
+- Iterate with a pointer `j` from `i` to the end of the string.
+- Increment the count for `s[j]`.
+- If the count for `s[j]` exceeds 2, stop the inner loop (no need to check further extensions of this specific substring).
+- Otherwise, update the maximum length found so far.
+- Return the maximum length.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumLengthSubstring(self, s: str) -&gt; int:\n        n = len(s)\n        max_len = 0\n        for i in range(n):\n            count = {}\n            for j in range(i, n):\n                count[s[j]] = count.get(s[j], 0) + 1\n                if count[s[j]] &gt; 2:\n                    break\n                max_len = max(max_len, j - i + 1)\n        return max_len" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumLengthSubstring(String s) {\n        int n = s.length();\n        int maxLen = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int[] count = new int[26];\n            for (int j = i; j &lt; n; j++) {\n                count[s.charAt(j) - 'a']++;\n                if (count[s.charAt(j) - 'a'] &gt; 2) {\n                    break;\n                }\n                maxLen = Math.max(maxLen, j - i + 1);\n            }\n        }\n        return maxLen;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumLengthSubstring(string s) {\n        int n = s.size();\n        int maxLen = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            int count[26] = {0};\n            for (int j = i; j &lt; n; ++j) {\n                count[s[j] - 'a']++;\n                if (count[s[j] - 'a'] &gt; 2) break;\n                maxLen = max(maxLen, j - i + 1);\n            }\n        }\n        return maxLen;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumLengthSubstring = function(s) {\n    const n = s.length;\n    let maxLen = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const count = new Array(26).fill(0);\n        for (let j = i; j &lt; n; j++) {\n            const idx = s.charCodeAt(j) - 97;\n            count[idx]++;\n            if (count[idx] &gt; 2) break;\n            maxLen = Math.max(maxLen, j - i + 1);\n        }\n    }\n    return maxLen;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumLengthSubstring(s: string): number {\n    const n = s.length;\n    let maxLen = 0;\n    for (let i = 0; i &lt; n; i++) {\n        const count = new Array(26).fill(0);\n        for (let j = i; j &lt; n; j++) {\n            const idx = s.charCodeAt(j) - 97;\n            count[idx]++;\n            if (count[idx] &gt; 2) break;\n            maxLen = Math.max(maxLen, j - i + 1);\n        }\n    }\n    return maxLen;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) — We iterate through all possible substrings in the worst case.
+- Space: O(1) — The frequency array/map has a fixed size of 26 (alphabet size).
+- Notes: Simple to implement and efficient enough given the constraint `n &lt;= 100`.
+
+---
+
+## Sliding Window
+
+**Intuition**
+We can optimize the solution to linear time using the sliding window technique. We maintain a window `[left, right]` that always satisfies the condition (at most two occurrences of each character). As we expand the window to the right, if a character count exceeds 2, we shrink the window from the left until the condition is restored.
+
+**Steps**
+- Initialize a frequency array of size 26 with zeros.
+- Initialize `left = 0` and `max_len = 0`.
+- Iterate through the string with `right` from 0 to `n-1`.
+- Increment the count of the character at `s[right]`.
+- While the count of `s[right]` is greater than 2:
+    - Decrement the count of the character at `s[left]`.
+    - Increment `left`.
+- Update `max_len` with the maximum of its current value and the window size (`right - left + 1`).
+- Return `max_len`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumLengthSubstring(self, s: str) -&gt; int:\n        count = {}\n        left = 0\n        max_len = 0\n        for right, char in enumerate(s):\n            count[char] = count.get(char, 0) + 1\n            while count[char] &gt; 2:\n                count[s[left]] -= 1\n                left += 1\n            max_len = max(max_len, right - left + 1)\n        return max_len" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumLengthSubstring(String s) {\n        int[] count = new int[26];\n        int left = 0;\n        int maxLen = 0;\n        for (int right = 0; right &lt; s.length(); right++) {\n            count[s.charAt(right) - 'a']++;\n            while (count[s.charAt(right) - 'a'] &gt; 2) {\n                count[s.charAt(left) - 'a']--;\n                left++;\n            }\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n        return maxLen;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumLengthSubstring(string s) {\n        int count[26] = {0};\n        int left = 0;\n        int maxLen = 0;\n        for (int right = 0; right &lt; s.size(); ++right) {\n            count[s[right] - 'a']++;\n            while (count[s[right] - 'a'] &gt; 2) {\n                count[s[left] - 'a']--;\n                left++;\n            }\n            maxLen = max(maxLen, right - left + 1);\n        }\n        return maxLen;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maximumLengthSubstring = function(s) {\n    const count = new Array(26).fill(0);\n    let left = 0;\n    let maxLen = 0;\n    for (let right = 0; right &lt; s.length; right++) {\n        const idx = s.charCodeAt(right) - 97;\n        count[idx]++;\n        while (count[idx] &gt; 2) {\n            count[s.charCodeAt(left) - 97]--;\n            left++;\n        }\n        maxLen = Math.max(maxLen, right - left + 1);\n    }\n    return maxLen;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumLengthSubstring(s: string): number {\n    const count = new Array(26).fill(0);\n    let left = 0;\n    let maxLen = 0;\n    for (let right = 0; right &lt; s.length; right++) {\n        const idx = s.charCodeAt(right) - 97;\n        count[idx]++;\n        while (count[idx] &gt; 2) {\n            count[s.charCodeAt(left) - 97]--;\n            left++;\n        }\n        maxLen = Math.max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}" },]} />
+
+**Complexity**
+- Time: O(n) — Each character is processed at most twice (once by `right` and once by `left`).
+- Space: O(1) — The frequency array has a fixed size of 26.
+- Notes: This is the optimal approach for string problems involving substring constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Length Substring With Two Occurrences Solutions","datePublished":"2025-02-25","description":"Find the longest substring where no character appears more than twice.","keywords":"LeetCode, Maximum Length Substring With Two Occurrences, Easy, Hash Table, String, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as each character is visited at most twice."}},{"@type":"Question","name":"What data structure is used to track character frequencies?","acceptedAnswer":{"@type":"Answer","text":"A fixed-size array of length 26 is used, corresponding to the lowercase English letters."}}]}).replace(/</g,'\u003c')}
+</script>

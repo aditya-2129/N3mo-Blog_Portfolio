@@ -1,0 +1,150 @@
+---
+title: "Linked List Cycle"
+summary: "Given head, determine if there is a cycle in the linked list. Return true if there is a cycle, otherwise false."
+date: "May 12, 2026"
+tags:
+  - Hash Table
+  - Linked List
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.30% | **Paid:** No
+> **Topics:** Hash Table, Linked List, Two Pointers
+
+Given head, the head of a linked list, determine if the linked list has a cycle in it.
+
+There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to. Note that pos is not passed as a parameter.
+
+Return true if there is a cycle in the linked list. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Brute Force (Nested Iteration)](#brute-force-nested-iteration)
+- [Hash Set](#hash-set)
+- [Floyd's Cycle-Finding Algorithm (Tortoise and Hare)](#floyds-cycle-finding-algorithm-tortoise-and-hare)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: head = [3,2,0,-4], pos = 1
+Output: true
+Explanation: There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed).
+```
+
+**Example 2:**
+
+```text
+Input: head = [1,2], pos = 0
+Output: true
+Explanation: There is a cycle in the linked list, where the tail connects to the 0th node.
+```
+
+**Example 3:**
+
+```text
+Input: head = [1], pos = -1
+Output: false
+Explanation: There is no cycle in the linked list.
+```
+
+## Constraints
+
+```text
+- The number of the nodes in the list is in the range [0, 10^4].
+- -10^5 <= Node.val <= 10^5
+- pos is -1 or a valid index in the linked-list.
+```
+
+---
+
+## Brute Force (Nested Iteration)
+
+**Intuition**
+For every node, traverse the list from the beginning to check if we encounter the current node again. If we do, a cycle exists.
+
+**Steps**
+- Initialize an outer pointer `current` to the head.
+- While `current` is not null:
+    - Initialize an inner pointer `checker` to the head.
+    - While `checker` is not `current`:
+        - If `checker.next` is `current`, we found a cycle, return true.
+        - Move `checker` forward.
+    - Move `current` forward.
+- If the loop finishes, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for singly-linked list.\n# class ListNode:\n#     def __init__(self, x):\n#         self.val = x\n#         self.next = None\n\nclass Solution:\n    def hasCycle(self, head):\n        outer = head\n        while outer:\n            inner = head\n            while inner is not outer:\n                if inner.next is outer:\n                    return True\n                inner = inner.next\n            outer = outer.next\n        return False\n" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int x) {\n *         val = x;\n *         next = null;\n *     }\n * }\n */\npublic class Solution {\n    public boolean hasCycle(ListNode head) {\n        ListNode outer = head;\n        while (outer != null) {\n            ListNode inner = head;\n            while (inner != outer) {\n                if (inner.next == outer) {\n                    return true;\n                }\n                inner = inner.next;\n            }\n            outer = outer.next;\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode(int x) : val(x), next(NULL) {}\n * };\n */\nclass Solution {\npublic:\n    bool hasCycle(ListNode *head) {\n        ListNode* outer = head;\n        while (outer != nullptr) {\n            ListNode* inner = head;\n            while (inner != outer) {\n                if (inner-&gt;next == outer) {\n                    return true;\n                }\n                inner = inner-&gt;next;\n            }\n            outer = outer-&gt;next;\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val) {\n *     this.val = val;\n *     this.next = null;\n * }\n */\n\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar hasCycle = function(head) {\n    let outer = head;\n    while (outer !== null) {\n        let inner = head;\n        while (inner !== outer) {\n            if (inner.next === outer) {\n                return true;\n            }\n            inner = inner.next;\n        }\n        outer = outer.next;\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction hasCycle(head: ListNode | null): boolean {\n    let outer: ListNode | null = head;\n    while (outer !== null) {\n        let inner: ListNode | null = head;\n        while (inner !== outer) {\n            if (inner!.next === outer) {\n                return true;\n            }\n            inner = inner!.next;\n        }\n        outer = outer.next;\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²) - For each node, we traverse the list up to that node.
+- Space: O(1) - We only use two pointers.
+- Notes: Simple but inefficient for large lists.
+
+---
+
+## Hash Set
+
+**Intuition**
+Traverse the list and store every visited node in a hash set. If we encounter a node that is already in the set, it means we have visited it before, indicating a cycle.
+
+**Steps**
+- Initialize an empty set `visited`.
+- Traverse the list with pointer `current`.
+- If `current` is in `visited`, return true.
+- Add `current` to `visited`.
+- Move `current` to `current.next`.
+- If `current` becomes null, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for singly-linked list.\n# class ListNode:\n#     def __init__(self, x):\n#         self.val = x\n#         self.next = None\n\nclass Solution:\n    def hasCycle(self, head):\n        visited = set()\n        current = head\n        while current:\n            if current in visited:\n                return True\n            visited.add(current)\n            current = current.next\n        return False\n" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int x) {\n *         val = x;\n *         next = null;\n *     }\n * }\n */\nimport java.util.HashSet;\nimport java.util.Set;\n\npublic class Solution {\n    public boolean hasCycle(ListNode head) {\n        Set&lt;ListNode&gt; visited = new HashSet&lt;&gt;();\n        ListNode current = head;\n        while (current != null) {\n            if (visited.contains(current)) {\n                return true;\n            }\n            visited.add(current);\n            current = current.next;\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode(int x) : val(x), next(NULL) {}\n * };\n */\n#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    bool hasCycle(ListNode *head) {\n        std::unordered_set&lt;ListNode*&gt; visited;\n        ListNode* current = head;\n        while (current != nullptr) {\n            if (visited.find(current) != visited.end()) {\n                return true;\n            }\n            visited.insert(current);\n            current = current-&gt;next;\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val) {\n *     this.val = val;\n *     this.next = null;\n * }\n */\n\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar hasCycle = function(head) {\n    const visited = new Set();\n    let current = head;\n    while (current !== null) {\n        if (visited.has(current)) {\n            return true;\n        }\n        visited.add(current);\n        current = current.next;\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction hasCycle(head: ListNode | null): boolean {\n    const visited = new Set&lt;ListNode&gt;();\n    let current: ListNode | null = head;\n    while (current !== null) {\n        if (visited.has(current)) {\n            return true;\n        }\n        visited.add(current);\n        current = current.next;\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the list once.
+- Space: O(n) - In the worst case, we store all nodes in the set.
+- Notes: Faster time complexity than brute force, but uses extra memory.
+
+---
+
+## Floyd's Cycle-Finding Algorithm (Tortoise and Hare)
+
+**Intuition**
+Use two pointers, `slow` and `fast`. `slow` moves one step at a time, while `fast` moves two steps. If there is a cycle, `fast` will eventually lap `slow` and they will meet. If there is no cycle, `fast` will reach the end.
+
+**Steps**
+- Initialize `slow` and `fast` to `head`.
+- Loop while `fast` and `fast.next` are not null:
+    - Move `slow` one step: `slow = slow.next`.
+    - Move `fast` two steps: `fast = fast.next.next`.
+    - If `slow` equals `fast`, return true.
+- If the loop ends, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for singly-linked list.\n# class ListNode:\n#     def __init__(self, x):\n#         self.val = x\n#         self.next = None\n\nclass Solution:\n    def hasCycle(self, head):\n        slow = head\n        fast = head\n        while fast and fast.next:\n            slow = slow.next\n            fast = fast.next.next\n            if slow is fast:\n                return True\n        return False\n" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     int val;\n *     ListNode next;\n *     ListNode(int x) {\n *         val = x;\n *         next = null;\n *     }\n * }\n */\npublic class Solution {\n    public boolean hasCycle(ListNode head) {\n        ListNode slow = head;\n        ListNode fast = head;\n        while (fast != null && fast.next != null) {\n            slow = slow.next;\n            fast = fast.next.next;\n            if (slow == fast) {\n                return true;\n            }\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode(int x) : val(x), next(NULL) {}\n * };\n */\nclass Solution {\npublic:\n    bool hasCycle(ListNode *head) {\n        ListNode* slow = head;\n        ListNode* fast = head;\n        while (fast != nullptr && fast-&gt;next != nullptr) {\n            slow = slow-&gt;next;\n            fast = fast-&gt;next-&gt;next;\n            if (slow == fast) {\n                return true;\n            }\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for singly-linked list.\n * function ListNode(val) {\n *     this.val = val;\n *     this.next = null;\n * }\n */\n\n/**\n * @param {ListNode} head\n * @return {boolean}\n */\nvar hasCycle = function(head) {\n    let slow = head;\n    let fast = head;\n    while (fast !== null && fast.next !== null) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow === fast) {\n            return true;\n        }\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for singly-linked list.\n * class ListNode {\n *     val: number\n *     next: ListNode | null\n *     constructor(val?: number, next?: ListNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.next = (next===undefined ? null : next)\n *     }\n * }\n */\n\nfunction hasCycle(head: ListNode | null): boolean {\n    let slow: ListNode | null = head;\n    let fast: ListNode | null = head;\n    while (fast !== null && fast.next !== null) {\n        slow = slow!.next;\n        fast = fast.next.next;\n        if (slow === fast) {\n            return true;\n        }\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - In the worst case, we traverse the list a constant number of times.
+- Space: O(1) - We only use two pointers.
+- Notes: Optimal solution with linear time and constant space.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Linked List Cycle Solutions","datePublished":"2026-05-12","description":"Given head, determine if there is a cycle in the linked list. Return true if there is a cycle, otherwise false.","keywords":"LeetCode, Linked List Cycle, Easy, Hash Table, Linked List, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because for each node, we traverse the list from the beginning up to that node."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) as we may need to store every node in the set in the worst case."}},{"@type":"Question","name":"What is the optimal approach for Linked List Cycle?","acceptedAnswer":{"@type":"Answer","text":"Floyd's Cycle-Finding Algorithm (Tortoise and Hare) is optimal with O(n) time and O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

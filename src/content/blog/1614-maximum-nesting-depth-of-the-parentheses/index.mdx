@@ -1,0 +1,120 @@
+---
+title: "Maximum Nesting Depth of the Parentheses"
+summary: "Find the maximum nesting depth of parentheses in a valid string."
+date: "Jul 25, 2024"
+tags:
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.90% | **Paid:** No
+> **Topics:** String, Stack
+
+A string is a valid parentheses string (denoted VPS) if it meets one of the following:
+
+It is an empty string "", or a single character not equal to "(" or ")",
+It can be written as AB (A concatenated with B), where A and B are VPS's, or
+It can be written as (A), where A is a VPS.
+We can similarly define the nesting depth depth(S) of any VPS S as follows:
+
+depth("") = 0
+depth(C) = 0, where C is a string with a single character not equal to "(" or ")".
+depth(A + B) = max(depth(A), depth(B)), where A and B are VPS's.
+depth("(" + A + ")") = 1 + depth(A), where A is a VPS.
+For example, "", "()()", and "()(()())" are VPS's (with nesting depths 0, 1, and 2), and ")(" and "(()" are not VPS's.
+
+Given a VPS represented as string s, return the maximum nesting depth of s.
+
+- Examples
+- Constraints
+- [Approach 1: Counter](#approach-1-counter)
+- [Approach 2: Stack](#approach-2-stack)
+
+## Examples
+
+```text
+Input: s = "(1+(2*3)+((8)/4))+1"
+Output: 3
+Explanation:
+The digit 8 is inside of 3 nested parentheses in the string.
+```
+
+```text
+Input: s = "(1+(2*3)/2)"
+Output: 1
+Explanation:
+The digit 2 is inside of 1 nested parentheses in the string.
+```
+
+```text
+Input: s = "1+(2*3)/(2-1)"
+Output: 1
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of digits 0-9, '+', '-', '*', '/', '(', and ')'.
+It is guaranteed that parentheses expression s is a VPS.
+```
+
+---
+## Approach 1: Counter
+
+**Intuition**
+Since the input string is guaranteed to be a valid parentheses string (VPS), we do not need to explicitly store the opening brackets to match them later. We can simply iterate through the string and maintain a counter representing the current depth.
+
+**Steps**
+- Initialize `currentDepth` and `maxDepth` to 0.
+- Iterate through each character in the string.
+- If the character is '(', increment `currentDepth` and update `maxDepth` if `currentDepth` is greater.
+- If the character is ')', decrement `currentDepth`.
+- Return `maxDepth`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDepth(self, s: str) -&gt; int:\n        current_depth = 0\n        max_depth = 0\n        for char in s:\n            if char == '(':\n                current_depth += 1\n                max_depth = max(max_depth, current_depth)\n            elif char == ')':\n                current_depth -= 1\n        return max_depth" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxDepth(String s) {\n        int currentDepth = 0;\n        int maxDepth = 0;\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                currentDepth++;\n                maxDepth = Math.max(maxDepth, currentDepth);\n            } else if (c == ')') {\n                currentDepth--;\n            }\n        }\n        return maxDepth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxDepth(string s) {\n        int currentDepth = 0;\n        int maxDepth = 0;\n        for (char c : s) {\n            if (c == '(') {\n                currentDepth++;\n                maxDepth = max(maxDepth, currentDepth);\n            } else if (c == ')') {\n                currentDepth--;\n            }\n        }\n        return maxDepth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxDepth = function(s) {\n    let currentDepth = 0;\n    let maxDepth = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (char === '(') {\n            currentDepth++;\n            maxDepth = Math.max(maxDepth, currentDepth);\n        } else if (char === ')') {\n            currentDepth--;\n        }\n    }\n    return maxDepth;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDepth(s: string): number {\n    let currentDepth = 0;\n    let maxDepth = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (char === '(') {\n            currentDepth++;\n            maxDepth = Math.max(maxDepth, currentDepth);\n        } else if (char === ')') {\n            currentDepth--;\n        }\n    }\n    return maxDepth;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string once.
+- Space: O(1). We only use a few integer variables for counting.
+- Notes: This is the most optimal solution for this problem.
+
+---
+## Approach 2: Stack
+
+**Intuition**
+We can simulate the nesting structure using a stack. Every time we encounter an opening parenthesis '(', we push it onto the stack. The size of the stack at any point represents the current nesting depth.
+
+**Steps**
+- Initialize an empty stack and `maxDepth` to 0.
+- Iterate through each character in the string.
+- If the character is '(', push it onto the stack and update `maxDepth` with the stack size.
+- If the character is ')', pop the top element from the stack.
+- Return `maxDepth`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDepth(self, s: str) -&gt; int:\n        stack = []\n        max_depth = 0\n        for char in s:\n            if char == '(':\n                stack.append(char)\n                max_depth = max(max_depth, len(stack))\n            elif char == ')':\n                stack.pop()\n        return max_depth" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public int maxDepth(String s) {\n        Stack&lt;Character&gt; stack = new Stack&lt;&gt;();\n        int maxDepth = 0;\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                stack.push(c);\n                maxDepth = Math.max(maxDepth, stack.size());\n            } else if (c == ')') {\n                stack.pop();\n            }\n        }\n        return maxDepth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;stack&gt;\n\nclass Solution {\npublic:\n    int maxDepth(string s) {\n        stack&lt;char&gt; st;\n        int maxDepth = 0;\n        for (char c : s) {\n            if (c == '(') {\n                st.push(c);\n                maxDepth = max(maxDepth, (int)st.size());\n            } else if (c == ')') {\n                st.pop();\n            }\n        }\n        return maxDepth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxDepth = function(s) {\n    let stack = [];\n    let maxDepth = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (char === '(') {\n            stack.push(char);\n            maxDepth = Math.max(maxDepth, stack.length);\n        } else if (char === ')') {\n            stack.pop();\n        }\n    }\n    return maxDepth;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDepth(s: string): number {\n    let stack: string[] = [];\n    let maxDepth = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        const char = s[i];\n        if (char === '(') {\n            stack.push(char);\n            maxDepth = Math.max(maxDepth, stack.length);\n        } else if (char === ')') {\n            stack.pop();\n        }\n    }\n    return maxDepth;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We process each character once.
+- Space: O(n), in the worst case where the string consists of all opening parentheses, the stack will grow to size n.
+- Notes: While conceptually clear, this uses more memory than the counter approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Nesting Depth of the Parentheses Solutions","datePublished":"2024-07-25","description":"Find the maximum nesting depth of parentheses in a valid string.","keywords":"LeetCode, Maximum Nesting Depth of the Parentheses, Easy, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Counter approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we iterate through the string once."}},{"@type":"Question","name":"What is the space complexity of the Counter approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since we only use a few variables for counting."}},{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we process each character in the string exactly once."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case, where the stack might store all opening parentheses."}}]}).replace(/</g,'\u003c')}
+</script>

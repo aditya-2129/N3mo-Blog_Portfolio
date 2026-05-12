@@ -1,0 +1,126 @@
+---
+title: "Hamming Distance"
+summary: "The Hamming distance between two integers is the number of positions at which the corresponding bits are different."
+date: "Jan 07, 2026"
+tags:
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.80% | **Paid:** No
+> **Topics:** Bit Manipulation
+
+The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
+
+Given two integers x and y, return the Hamming distance between them.
+
+- Examples
+- Constraints
+- [Bit Shifting](#bit-shifting)
+- [Brian Kernighan's Algorithm](#brian-kernighans-algorithm)
+- [Built-in Functions](#built-in-functions)
+
+## Examples
+
+```text
+Input: x = 1, y = 4
+Output: 2
+Explanation:
+1   (0 0 0 1)
+4   (0 1 0 0)
+       ↑   ↑
+The above arrows point to positions where the corresponding bits are different.
+```
+
+```text
+Input: x = 3, y = 1
+Output: 1
+```
+
+## Constraints
+
+```text
+0 <= x, y <= 2³¹ - 1
+```
+
+---
+## Bit Shifting
+
+**Intuition**
+The XOR operation (`^`) between two numbers results in a number where the bits are set to 1 only where the corresponding bits of the operands are different. We can iterate through the bits of the XOR result to count the number of 1s.
+
+**Steps**
+- Calculate `xor = x ^ y`.
+- Initialize a counter to 0.
+- Loop while `xor` is greater than 0:
+    - Add the result of `xor & 1` to the counter (checks if the least significant bit is 1).
+    - Right shift `xor` by 1 bit (`xor &gt;&gt;= 1`).
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingDistance(self, x: int, y: int) -&gt; int:\n        xor = x ^ y\n        distance = 0\n        while xor:\n            distance += xor & 1\n            xor &gt;&gt;= 1\n        return distance" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int hammingDistance(int x, int y) {\n        int xor = x ^ y;\n        int distance = 0;\n        while (xor != 0) {\n            distance += xor & 1;\n            xor = xor &gt;&gt;&gt; 1;\n        }\n        return distance;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingDistance(int x, int y) {\n        int xor = x ^ y;\n        int distance = 0;\n        while (xor) {\n            distance += xor & 1;\n            xor &gt;&gt;= 1;\n        }\n        return distance;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var hammingDistance = function(x, y) {\n    let xor = x ^ y;\n    let distance = 0;\n    while (xor &gt; 0) {\n        distance += xor & 1;\n        xor = xor &gt;&gt; 1;\n    }\n    return distance;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingDistance(x: number, y: number): number {\n    let xor = x ^ y;\n    let distance = 0;\n    while (xor &gt; 0) {\n        distance += xor & 1;\n        xor = xor &gt;&gt; 1;\n    }\n    return distance;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - We iterate at most 32 times (for 32-bit integers).
+- Space: O(1) - We use a constant amount of extra space.
+- Notes: This is a straightforward approach but always iterates 32 times in the worst case.
+
+---
+## Brian Kernighan's Algorithm
+
+**Intuition**
+This is an optimized bit manipulation trick. The expression `n & (n - 1)` drops the lowest set bit (turns the rightmost 1 to 0). We can use this to count the number of 1s by repeatedly clearing the lowest set bit until the number becomes 0.
+
+**Steps**
+- Calculate `xor = x ^ y`.
+- Initialize a counter to 0.
+- Loop while `xor` is greater than 0:
+    - Update `xor` to `xor & (xor - 1)`.
+    - Increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingDistance(self, x: int, y: int) -&gt; int:\n        xor = x ^ y\n        distance = 0\n        while xor:\n            xor &= xor - 1\n            distance += 1\n        return distance" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int hammingDistance(int x, int y) {\n        int xor = x ^ y;\n        int distance = 0;\n        while (xor != 0) {\n            xor &= (xor - 1);\n            distance++;\n        }\n        return distance;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingDistance(int x, int y) {\n        int xor = x ^ y;\n        int distance = 0;\n        while (xor) {\n            xor &= (xor - 1);\n            distance++;\n        }\n        return distance;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var hammingDistance = function(x, y) {\n    let xor = x ^ y;\n    let distance = 0;\n    while (xor &gt; 0) {\n        xor &= (xor - 1);\n        distance++;\n    }\n    return distance;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingDistance(x: number, y: number): number {\n    let xor = x ^ y;\n    let distance = 0;\n    while (xor &gt; 0) {\n        xor &= (xor - 1);\n        distance++;\n    }\n    return distance;\n}" },]} />
+
+**Complexity**
+- Time: O(k) - Where k is the number of set bits in `xor`. In the worst case, it is O(32) = O(1).
+- Space: O(1) - Constant space usage.
+- Notes: This is generally faster than the standard bit shifting approach when the number of differing bits is small.
+
+---
+## Built-in Functions
+
+**Intuition**
+Most programming languages provide built-in functions or library methods to count the number of set bits (population count) in an integer. We can leverage these to solve the problem concisely.
+
+**Steps**
+- Calculate `xor = x ^ y`.
+- Return the result of the built-in popcount function applied to `xor`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def hammingDistance(self, x: int, y: int) -&gt; int:\n        return bin(x ^ y).count('1')" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int hammingDistance(int x, int y) {\n        return Integer.bitCount(x ^ y);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int hammingDistance(int x, int y) {\n        return __builtin_popcount(x ^ y);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var hammingDistance = function(x, y) {\n    return (x ^ y).toString(2).replace(/0/g, '').length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function hammingDistance(x: number, y: number): number {\n    return (x ^ y).toString(2).replace(/0/g, '').length;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - The operation is generally optimized to hardware instructions or runs in constant time relative to integer size.
+- Space: O(1) - Constant space.
+- Notes: This is the most readable and concise solution, though it relies on language-specific features.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Hamming Distance Solutions","datePublished":"2026-01-07","description":"The Hamming distance between two integers is the number of positions at which the corresponding bits are different.","keywords":"LeetCode, Hamming Distance, Easy, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Bit Shifting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we iterate a maximum of 32 times for 32-bit integers."}},{"@type":"Question","name":"What is the time complexity of Brian Kernighan's Algorithm?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(k), where k is the number of set bits in the XOR result. In the worst case, it is O(1)."}},{"@type":"Question","name":"What is the space complexity of these approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for all approaches as they use a constant amount of extra memory."}}]}).replace(/</g,'\u003c')}
+</script>

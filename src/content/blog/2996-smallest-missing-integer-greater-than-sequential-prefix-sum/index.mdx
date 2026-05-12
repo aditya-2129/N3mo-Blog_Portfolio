@@ -1,0 +1,145 @@
+---
+title: "Smallest Missing Integer Greater Than Sequential Prefix Sum"
+summary: "Find the smallest missing integer greater than the sum of the longest sequential prefix of the array."
+date: "Jul 18, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 35.40% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+You are given a 0-indexed array of integers `nums`.
+
+A prefix `nums[0..i]` is sequential if, for every element `j` in the range `[1, i]`, `nums[j] = nums[j - 1] + 1`. In other words, each element is exactly one more than the previous element.
+
+Return the smallest missing integer greater than the sum of the longest sequential prefix of `nums`.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Hash Set](#approach-2-hash-set)
+- [Approach 3: Sorting](#approach-3-sorting)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,3,2,5]
+```
+
+**Output:**
+```text
+6
+```
+
+**Explanation:**
+The longest sequential prefix of nums is [1,2,3] with a sum of 6. 6 is not in the array, therefore 6 is the smallest missing integer greater than or equal to the sum of the longest sequential prefix.
+
+### Example 2
+
+**Input:**
+```text
+nums = [3,4,5,1,12,14,13]
+```
+
+**Output:**
+```text
+15
+```
+
+**Explanation:**
+The longest sequential prefix of nums is [3,4,5] with a sum of 12. 12, 13, and 14 belong to the array while 15 does not. Therefore 15 is the smallest missing integer greater than or equal to the sum of the longest sequential prefix.
+
+## Constraints
+
+```text
+1 <= nums.length <= 50
+1 <= nums[i] <= 50
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+First, calculate the sum of the longest sequential prefix. Then, iterate starting from `sum + 1` and check if each number exists in the array using a linear search.
+
+**Steps**
+- Iterate through `nums` to find the longest sequential prefix and calculate its sum.
+- Initialize `missing` to `sum + 1`.
+- While `missing` is found in `nums` (using a loop), increment `missing`.
+- Return `missing`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def missingInteger(self, nums: list[int]) -&gt; int:\n        prefix_sum = nums[0]\n        i = 1\n        while i &lt; len(nums) and nums[i] == nums[i-1] + 1:\n            prefix_sum += nums[i]\n            i += 1\n        \n        missing = prefix_sum + 1\n        while True:\n            found = False\n            for num in nums:\n                if num == missing:\n                    found = True\n                    break\n            if not found:\n                return missing\n            missing += 1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int missingInteger(int[] nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.length && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        int missing = prefixSum + 1;\n        while (true) {\n            boolean found = false;\n            for (int num : nums) {\n                if (num == missing) {\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) return missing;\n            missing++;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int missingInteger(vector&lt;int&gt;& nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.size() && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        int missing = prefixSum + 1;\n        while (true) {\n            bool found = false;\n            for (int num : nums) {\n                if (num == missing) {\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) return missing;\n            missing++;\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var missingInteger = function(nums) {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    let missing = prefixSum + 1;\n    while (true) {\n        if (!nums.includes(missing)) {\n            return missing;\n        }\n        missing++;\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function missingInteger(nums: number[]): number {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    let missing = prefixSum + 1;\n    while (true) {\n        if (!nums.includes(missing)) {\n            return missing;\n        }\n        missing++;\n    }\n};" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case, where n is the length of `nums`.
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large arrays due to repeated linear scans.
+
+---
+## Approach 2: Hash Set
+
+**Intuition**
+Optimize the lookup process by storing all elements of `nums` in a Hash Set. This allows O(1) average time complexity for checking the existence of a number.
+
+**Steps**
+- Calculate the sum of the longest sequential prefix.
+- Store all elements of `nums` in a set.
+- Initialize `missing` to `sum + 1`.
+- While `missing` is present in the set, increment `missing`.
+- Return `missing`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def missingInteger(self, nums: list[int]) -&gt; int:\n        prefix_sum = nums[0]\n        i = 1\n        while i &lt; len(nums) and nums[i] == nums[i-1] + 1:\n            prefix_sum += nums[i]\n            i += 1\n        \n        num_set = set(nums)\n        missing = prefix_sum + 1\n        while missing in num_set:\n            missing += 1\n        return missing\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int missingInteger(int[] nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.length && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        Set&lt;Integer&gt; numSet = new HashSet&lt;&gt;();\n        for (int num : nums) {\n            numSet.add(num);\n        }\n        \n        int missing = prefixSum + 1;\n        while (numSet.contains(missing)) {\n            missing++;\n        }\n        return missing;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    int missingInteger(vector&lt;int&gt;& nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.size() && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        unordered_set&lt;int&gt; numSet(nums.begin(), nums.end());\n        \n        int missing = prefixSum + 1;\n        while (numSet.find(missing) != numSet.end()) {\n            missing++;\n        }\n        return missing;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var missingInteger = function(nums) {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    const numSet = new Set(nums);\n    let missing = prefixSum + 1;\n    while (numSet.has(missing)) {\n        missing++;\n    }\n    return missing;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function missingInteger(nums: number[]): number {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    const numSet = new Set(nums);\n    let missing = prefixSum + 1;\n    while (numSet.has(missing)) {\n        missing++;\n    }\n    return missing;\n};" },]} />
+
+**Complexity**
+- Time: O(n) on average, where n is the length of `nums`.
+- Space: O(n) to store the set.
+- Notes: This is the most optimal approach for general cases, trading space for time.
+
+---
+## Approach 3: Sorting
+
+**Intuition**
+Sort the array to easily identify the smallest missing integer. After sorting, we can iterate through the array to find the first gap greater than the prefix sum.
+
+**Steps**
+- Calculate the sum of the longest sequential prefix.
+- Sort a copy of the array.
+- Iterate through the sorted array. If we encounter a number equal to `target` (starting from `sum + 1`), increment `target`. If we encounter a number greater than `target`, we have found the missing integer.
+- Return `target`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def missingInteger(self, nums: list[int]) -&gt; int:\n        prefix_sum = nums[0]\n        i = 1\n        while i &lt; len(nums) and nums[i] == nums[i-1] + 1:\n            prefix_sum += nums[i]\n            i += 1\n        \n        sorted_nums = sorted(nums)\n        target = prefix_sum + 1\n        for num in sorted_nums:\n            if num == target:\n                target += 1\n            elif num &gt; target:\n                break\n        return target\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int missingInteger(int[] nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.length && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        int[] sortedNums = Arrays.copyOf(nums, nums.length);\n        Arrays.sort(sortedNums);\n        \n        int target = prefixSum + 1;\n        for (int num : sortedNums) {\n            if (num == target) {\n                target++;\n            } else if (num &gt; target) {\n                break;\n            }\n        }\n        return target;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int missingInteger(vector&lt;int&gt;& nums) {\n        int prefixSum = nums[0];\n        int i = 1;\n        while (i &lt; nums.size() && nums[i] == nums[i - 1] + 1) {\n            prefixSum += nums[i];\n            i++;\n        }\n        \n        vector&lt;int&gt; sortedNums = nums;\n        sort(sortedNums.begin(), sortedNums.end());\n        \n        int target = prefixSum + 1;\n        for (int num : sortedNums) {\n            if (num == target) {\n                target++;\n            } else if (num &gt; target) {\n                break;\n            }\n        }\n        return target;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var missingInteger = function(nums) {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    const sortedNums = [...nums].sort((a, b) =&gt; a - b);\n    let target = prefixSum + 1;\n    for (const num of sortedNums) {\n        if (num === target) {\n            target++;\n        } else if (num &gt; target) {\n            break;\n        }\n    }\n    return target;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function missingInteger(nums: number[]): number {\n    let prefixSum = nums[0];\n    let i = 1;\n    while (i &lt; nums.length && nums[i] === nums[i - 1] + 1) {\n        prefixSum += nums[i];\n        i++;\n    }\n    \n    const sortedNums = [...nums].sort((a, b) =&gt; a - b);\n    let target = prefixSum + 1;\n    for (const num of sortedNums) {\n        if (num === target) {\n            target++;\n        } else if (num &gt; target) {\n            break;\n        }\n    }\n    return target;\n};" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(n) if we create a copy of the array, or O(1) if we sort in-place (though modifying input is generally discouraged).
+- Notes: Useful if the array is already sorted or if memory is extremely constrained (in-place sort).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Smallest Missing Integer Greater Than Sequential Prefix Sum Solutions","datePublished":"2024-07-18","description":"Find the smallest missing integer greater than the sum of the longest sequential prefix of the array.","keywords":"LeetCode, Smallest Missing Integer Greater Than Sequential Prefix Sum, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case, where n is the length of nums."}},{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) on average, where n is the length of nums."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}}]}).replace(/</g,'\u003c')}
+</script>

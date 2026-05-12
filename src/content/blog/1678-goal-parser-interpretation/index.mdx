@@ -1,0 +1,141 @@
+---
+title: "Goal Parser Interpretation"
+summary: "Interpret the command string by mapping 'G' to 'G', '()' to 'o', and '(al)' to 'al'."
+date: "Sep 26, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 88.10% | **Paid:** No
+> **Topics:** String
+
+You own a Goal Parser that can interpret a string command. The command consists of an alphabet of "G", "()", and "(al)". The Goal Parser will interpret "G" as the string "G", "()" as the string "o", and "(al)" as the string "al". The interpreted strings are then concatenated in the original order.
+
+Given the string command, return the Goal Parser's interpretation of command.
+
+- Examples
+- Constraints
+- [Built-in String Replacement](#built-in-string-replacement)
+- [Iterative Parsing](#iterative-parsing)
+- [Regular Expressions](#regular-expressions)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: command = "G()(al)"
+Output: "Goal"
+Explanation: The Goal Parser interprets the command as follows:
+G -> G
+() -> o
+(al) -> al
+The final concatenated result is "Goal".
+```
+
+**Example 2:**
+
+```text
+Input: command = "G()()()()(al)"
+Output: "Gooooal"
+```
+
+**Example 3:**
+
+```text
+Input: command = "(al)G(al)()()G"
+Output: "alGalooG"
+```
+
+## Constraints
+
+```text
+1 <= command.length <= 100
+command[i] is one of 'G', '(', ')', 'a', 'l'.
+```
+
+---
+## Built-in String Replacement
+
+**Intuition**
+The problem requires mapping specific substrings to other strings. Since the mappings are distinct and fixed, we can directly use the string replacement functions provided by standard libraries to transform the input string into the output.
+
+**Steps**
+- First, replace all occurrences of "(al)" with "al". This must be done first to avoid partial matches with "()".
+- Next, replace all occurrences of "()" with "o".
+- The character "G" remains unchanged, so no replacement is needed for it.
+- Return the modified string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def interpret(self, command: str) -&gt; str:\n        return command.replace(\"(al)\", \"al\").replace(\"()\", \"o\")" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String interpret(String command) {\n        return command.replace(\"(al)\", \"al\").replace(\"()\", \"o\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    string interpret(string command) {\n        // Using regex_replace for sequential replacement\n        string res = std::regex_replace(command, std::regex(\"\\\\(al\\\\)\"), \"al\");\n        res = std::regex_replace(res, std::regex(\"\\\\(\\\\)\"), \"o\");\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} command\n * @return {string}\n */\nvar interpret = function(command) {\n    return command.replaceAll(\"(al)\", \"al\").replaceAll(\"()\", \"o\");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function interpret(command: string): string {\n    return command.replaceAll(\"(al)\", \"al\").replaceAll(\"()\", \"o\");\n}" },]} />
+
+**Complexity**
+- Time: O(n) - String replacement typically scans the string.
+- Space: O(n) - To store the new string.
+- Notes: Very concise and readable. The order of replacement is critical.
+
+---
+## Iterative Parsing
+
+**Intuition**
+We can scan the string character by character. If we encounter a 'G', we add it to the result. If we encounter an '(', we look ahead to determine if it forms "()" or "(al)" and append the corresponding result.
+
+**Steps**
+- Initialize an empty result list/string builder and an index `i` at 0.
+- Loop while `i` is less than the length of the command.
+- If the character at `i` is 'G', append 'G' to the result and increment `i`.
+- If the character at `i` is '(', check the character at `i + 1`.
+    - If it is ')', append 'o' to the result and increment `i` by 2.
+    - If it is 'a', append 'al' to the result and increment `i` by 4 (to skip past "(al)").
+- Return the joined result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def interpret(self, command: str) -&gt; str:\n        res = []\n        i = 0\n        n = len(command)\n        while i &lt; n:\n            if command[i] == 'G':\n                res.append('G')\n                i += 1\n            elif command[i] == '(':\n                if command[i+1] == ')':\n                    res.append('o')\n                    i += 2\n                else:\n                    res.append('al')\n                    i += 4\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String interpret(String command) {\n        StringBuilder sb = new StringBuilder();\n        int i = 0;\n        int n = command.length();\n        while (i &lt; n) {\n            char c = command.charAt(i);\n            if (c == 'G') {\n                sb.append('G');\n                i++;\n            } else if (c == '(') {\n                if (command.charAt(i + 1) == ')') {\n                    sb.append('o');\n                    i += 2;\n                } else {\n                    sb.append('al');\n                    i += 4;\n                }\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string interpret(string command) {\n        string res;\n        int i = 0;\n        int n = command.size();\n        while (i &lt; n) {\n            if (command[i] == 'G') {\n                res += 'G';\n                i++;\n            } else if (command[i] == '(') {\n                if (command[i+1] == ')') {\n                    res += 'o';\n                    i += 2;\n                } else {\n                    res += \"al\";\n                    i += 4;\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} command\n * @return {string}\n */\nvar interpret = function(command) {\n    let res = [];\n    let i = 0;\n    const n = command.length;\n    while (i &lt; n) {\n        if (command[i] === 'G') {\n            res.push('G');\n            i++;\n        } else if (command[i] === '(') {\n            if (command[i + 1] === ')') {\n                res.push('o');\n                i += 2;\n            } else {\n                res.push('al');\n                i += 4;\n            }\n        }\n    }\n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function interpret(command: string): string {\n    let res: string[] = [];\n    let i: number = 0;\n    const n: number = command.length;\n    while (i &lt; n) {\n        if (command[i] === 'G') {\n            res.push('G');\n            i++;\n        } else if (command[i] === '(') {\n            if (command[i + 1] === ')') {\n                res.push('o');\n                i += 2;\n            } else {\n                res.push('al');\n                i += 4;\n            }\n        }\n    }\n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n) - We visit each character at most once.
+- Space: O(n) - To store the result.
+- Notes: Efficient single-pass algorithm.
+
+---
+## Regular Expressions
+
+**Intuition**
+We can use a regular expression to match all valid tokens ("G", "()", or "(al)") simultaneously and replace them with their corresponding interpretations using a mapping function or replacement string.
+
+**Steps**
+- Define a regex pattern that matches "G", "()", or "(al)".
+- Use the language's regex replace function with a callback/mapping to transform matches:
+    - "G" -> "G"
+    - "()" -> "o"
+    - "(al)" -> "al"
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def interpret(self, command: str) -&gt; str:\n        def repl(match):\n            if match.group() == '()': return 'o'\n            if match.group() == '(al)': return 'al'\n            return 'G'\n        return re.sub(r'G|\\(\\)|\\(al\\)', repl, command)" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public String interpret(String command) {\n        // Java replaceAll does not support callbacks easily, \n        // so we perform sequential regex replacement.\n        return command.replaceAll(\"\\\\(al\\\\)\", \"al\")\n                     .replaceAll(\"\\\\(\\\\)\", \"o\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    string interpret(string command) {\n        // C++ regex_replace can handle this with a custom match object, \n        // but sequential replacement is cleaner for this specific problem.\n        string res = std::regex_replace(command, std::regex(\"\\\\(al\\\\)\"), \"al\");\n        res = std::regex_replace(res, std::regex(\"\\\\(\\\\)\"), \"o\");\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} command\n * @return {string}\n */\nvar interpret = function(command) {\n    return command.replace(/\\(\\)|\\(al\\)|G/g, (match) =&gt; {\n        if (match === '()') return 'o';\n        if (match === '(al)') return 'al';\n        return 'G';\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function interpret(command: string): string {\n    return command.replace(/\\(\\)|\\(al\\)|G/g, (match: string): string =&gt; {\n        if (match === '()') return 'o';\n        if (match === '(al)') return 'al';\n        return 'G';\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Regex engines generally operate in linear time for simple patterns.
+- Space: O(n) - For the result string.
+- Notes: Flexible and powerful, but might be overkill for such simple fixed mappings.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Goal Parser Interpretation Solutions","datePublished":"2024-09-26","description":"Interpret the command string by mapping 'G' to 'G', '()' to 'o', and '(al)' to 'al'.","keywords":"LeetCode, Goal Parser Interpretation, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Built-in String Replacement?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as string replacement scans the string."}},{"@type":"Question","name":"What is the space complexity of Iterative Parsing?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the resulting string."}},{"@type":"Question","name":"Why is the order of replacement important in the Built-in approach?","acceptedAnswer":{"@type":"Answer","text":"You must replace '(al)' before '()' to avoid incorrectly transforming '(al)' into '(o)'."}}]}).replace(/</g,'\u003c')}
+</script>

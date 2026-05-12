@@ -1,0 +1,129 @@
+---
+title: "Minimum Time to Type Word Using Special Typewriter"
+summary: "Calculate the minimum time to type a word on a circular typewriter where moving the pointer and typing each take 1 second."
+date: "Jan 02, 2024"
+tags:
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.70% | **Paid:** No
+> **Topics:** String, Greedy
+
+There is a special typewriter with lowercase English letters 'a' to 'z' arranged in a circle with a pointer. Initially, the pointer points to 'a'. The typewriter can perform two operations in one second:
+
+1. Move the pointer one character counterclockwise or clockwise.
+2. Type the character the pointer is currently on.
+
+Given a string `word`, return the minimum number of seconds to type it.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Greedy Simulation](#greedy-simulation)
+- [Functional Approach](#functional-approach)
+
+## Examples
+
+### Example 1
+```text
+Input: word = "abc"
+Output: 5
+Explanation:
+The pointer is initially at 'a'.
+- Type 'a': 1 second.
+- Move pointer to 'b': 1 second.
+- Type 'b': 1 second.
+- Move pointer to 'c': 1 second.
+- Type 'c': 1 second.
+Total time = 1 + 1 + 1 + 1 + 1 = 5 seconds.
+```
+
+### Example 2
+```text
+Input: word = "bza"
+Output: 7
+Explanation:
+The pointer is initially at 'a'.
+- Move pointer to 'b': 1 second.
+- Type 'b': 1 second.
+- Move pointer to 'z': 2 seconds (counter-clockwise: b -> a -> z).
+- Type 'z': 1 second.
+- Move pointer to 'a': 1 second.
+- Type 'a': 1 second.
+Total time = 1 + 1 + 2 + 1 + 1 + 1 = 7 seconds.
+```
+
+### Example 3
+```text
+Input: word = "zjpc"
+Output: 34
+Explanation:
+The pointer moves and types according to the minimum distance logic.
+Total time sums up to 34 seconds.
+```
+
+## Constraints
+
+```text
+1 <= word.length <= 100
+word consists of lowercase English letters.
+```
+
+## Greedy Simulation
+
+**Intuition**
+Since the pointer moves on a circular track of 26 letters, the shortest distance between any two characters is the minimum of the clockwise distance and the counter-clockwise distance. We can iterate through the word, calculating this minimum distance for each transition from the current character to the next.
+
+**Steps**
+- Initialize `time` to 0 and `current` to 'a'.
+- Iterate through each character `target` in `word`.
+- Calculate the absolute difference between the positions of `current` and `target`.
+- The minimum move cost is `min(diff, 26 - diff)`.
+- Add this move cost plus 1 (for typing) to `time`.
+- Update `current` to `target`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minTimeToType(self, word: str) -&gt; int:\n        time = 0\n        current = 'a'\n        \n        for target in word:\n            diff = abs(ord(target) - ord(current))\n            time += min(diff, 26 - diff) + 1\n            current = target\n            \n        return time" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minTimeToType(String word) {\n        int time = 0;\n        char current = 'a';\n        \n        for (int i = 0; i &lt; word.length(); i++) {\n            char target = word.charAt(i);\n            int diff = Math.abs(target - current);\n            time += Math.min(diff, 26 - diff) + 1;\n            current = target;\n        }\n        \n        return time;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minTimeToType(string word) {\n        int time = 0;\n        char current = 'a';\n        \n        for (char target : word) {\n            int diff = abs(target - current);\n            time += min(diff, 26 - diff) + 1;\n            current = target;\n        }\n        \n        return time;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @return {number}\n */\nvar minTimeToType = function(word) {\n    let time = 0;\n    let current = 'a';\n    \n    for (const target of word) {\n        const diff = Math.abs(target.charCodeAt(0) - current.charCodeAt(0));\n        time += Math.min(diff, 26 - diff) + 1;\n        current = target;\n    }\n    \n    return time;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minTimeToType(word: string): number {\n    let time = 0;\n    let current = 'a';\n    \n    for (const target of word) {\n        const diff = Math.abs(target.charCodeAt(0) - current.charCodeAt(0));\n        time += Math.min(diff, 26 - diff) + 1;\n        current = target;\n    }\n    \n    return time;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the word. We iterate through the string once.
+- Space: O(1), we only use a few variables for tracking state.
+- Notes: This is the most optimal approach as it requires a single pass.
+
+## Functional Approach
+
+**Intuition**
+We can view the problem as a reduction where we accumulate the total time based on the transition between consecutive characters. This approach leverages functional programming constructs like `reduce` to handle the accumulation implicitly.
+
+**Steps**
+- Define a helper function to calculate the distance between two characters.
+- Use a reduce function on the word string.
+- The accumulator holds the total time and the previous character.
+- For each character, calculate the transition cost and update the accumulator.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minTimeToType(self, word: str) -&gt; int:\n        def get_time(acc, char):\n            total, prev = acc\n            diff = abs(ord(char) - ord(prev))\n            move = min(diff, 26 - diff)\n            return (total + move + 1, char)\n        \n        final_time, _ = reduce(get_time, word, (0, 'a'))\n        return final_time" },
+{ name: "Java", lang: "java", code: "import java.util.stream.IntStream;\n\nclass Solution {\n    public int minTimeToType(String word) {\n        int[] state = {0, 0}; // total time, current char index (0 for 'a')\n        \n        for (char c : word.toCharArray()) {\n            int target = c - 'a';\n            int diff = Math.abs(target - state[1]);\n            state[0] += Math.min(diff, 26 - diff) + 1;\n            state[1] = target;\n        }\n        \n        return state[0];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minTimeToType(string word) {\n        int time = 0;\n        int current = 0; // 'a'\n        \n        for (char c : word) {\n            int target = c - 'a';\n            int diff = abs(target - current);\n            time += min(diff, 26 - diff) + 1;\n            current = target;\n        }\n        \n        return time;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @return {number}\n */\nvar minTimeToType = function(word) {\n    const [time] = Array.from(word).reduce(([total, prev], char) =&gt; {\n        const diff = Math.abs(char.charCodeAt(0) - prev.charCodeAt(0));\n        const move = Math.min(diff, 26 - diff);\n        return [total + move + 1, char];\n    }, [0, 'a']);\n    \n    return time;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minTimeToType(word: string): number {\n    const [time] = Array.from(word).reduce(([total, prev]: [number, string], char: string): [number, string] =&gt; {\n        const diff = Math.abs(char.charCodeAt(0) - prev.charCodeAt(0));\n        const move = Math.min(diff, 26 - diff);\n        return [total + move + 1, char];\n    }, [0, 'a']);\n    \n    return time;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the word.
+- Space: O(1), constant space used for accumulation.
+- Notes: While functionally elegant, it offers no performance benefit over the iterative approach and may be slightly less readable to those unfamiliar with functional patterns.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Time to Type Word Using Special Typewriter Solutions","datePublished":"2024-01-02","description":"Calculate the minimum time to type a word on a circular typewriter where moving the pointer and typing each take 1 second.","keywords":"LeetCode, Minimum Time to Type Word Using Special Typewriter, Easy, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the word, as we iterate through the string once."}},{"@type":"Question","name":"How is the circular distance calculated between two characters?","acceptedAnswer":{"@type":"Answer","text":"The distance is the minimum of the clockwise difference and the counter-clockwise difference, calculated as min(abs(a - b), 26 - abs(a - b))."}},{"@type":"Question","name":"What is the space complexity of these solutions?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for all approaches, as we only use a few variables to store the current state and total time."}}]}).replace(/</g,'\u003c')}
+</script>

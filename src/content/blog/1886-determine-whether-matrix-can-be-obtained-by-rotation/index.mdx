@@ -1,0 +1,112 @@
+---
+title: "Determine Whether Matrix Can Be Obtained By Rotation"
+summary: "Check if one n x n matrix can be transformed into another by rotating it 90 degrees clockwise any number of times."
+date: "Feb 04, 2024"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.30% | **Paid:** No
+> **Topics:** Array, Matrix
+
+Given two n x n binary matrices mat and target, return true if it is possible to make mat equal to target by rotating mat in 90-degree increments, or false otherwise.
+
+- Examples
+- Constraints
+- [Simulation](#simulation)
+- [Index Mapping](#index-mapping)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: mat = [[0,1],[1,0]], target = [[1,0],[0,1]]
+Output: true
+Explanation: We can rotate mat 90 degrees clockwise two times to make mat equal target.
+```
+
+**Example 2:**
+
+```text
+Input: mat = [[0,1],[1,1]], target = [[1,0],[0,1]]
+Output: false
+Explanation: It is impossible to make mat equal to target by rotating mat.
+```
+
+**Example 3:**
+
+```text
+Input: mat = [[0,0,0],[0,1,0],[1,1,1]], target = [[1,1,1],[0,1,0],[0,0,0]]
+Output: true
+Explanation: We can rotate mat 90 degrees clockwise three times to make mat equal target.
+```
+
+## Constraints
+
+```text
+n == mat.length == target.length
+n == mat[i].length == target[i].length
+1 <= n <= 100
+mat[i][j] and target[i][j] are either 0 or 1.
+```
+
+---
+## Simulation
+
+**Intuition**
+Since the matrix is square (n x n), rotating it 4 times brings it back to the original state. We can simulate the rotation process up to 3 times and check for equality after each rotation.
+
+**Steps**
+- Check if `mat` is already equal to `target`.
+- Rotate `mat` 90 degrees clockwise.
+- Repeat the check and rotation process 3 more times.
+- If any check passes, return true; otherwise, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findRotation(self, mat: List[List[int]], target: List[List[int]]) -&gt; bool:\n        for _ in range(4):\n            if mat == target:\n                return True\n            mat = [list(row) for row in zip(*mat[::-1])]\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean findRotation(int[][] mat, int[][] target) {\n        int n = mat.length;\n        for (int k = 0; k &lt; 4; k++) {\n            if (check(mat, target, n)) return true;\n            rotate(mat, n);\n        }\n        return false;\n    }\n    \n    private boolean check(int[][] mat, int[][] target, int n) {\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (mat[i][j] != target[i][j]) return false;\n            }\n        }\n        return true;\n    }\n    \n    private void rotate(int[][] mat, int n) {\n        int[][] temp = new int[n][n];\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                temp[j][n - 1 - i] = mat[i][j];\n            }\n        }\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                mat[i][j] = temp[i][j];\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool findRotation(vector&lt;vector&lt;int&gt;&gt;& mat, vector&lt;vector&lt;int&gt;&gt;& target) {\n        int n = mat.size();\n        for (int k = 0; k &lt; 4; ++k) {\n            if (mat == target) return true;\n            rotate(mat);\n        }\n        return false;\n    }\n    \n    void rotate(vector&lt;vector&lt;int&gt;&gt;& mat) {\n        int n = mat.size();\n        vector&lt;vector&lt;int&gt;&gt; temp(n, vector&lt;int&gt;(n));\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                temp[j][n - 1 - i] = mat[i][j];\n            }\n        }\n        mat = temp;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findRotation = function(mat, target) {\n    const n = mat.length;\n    const check = (m) =&gt; {\n        for(let i=0; i&lt;n; i++){\n            for(let j=0; j&lt;n; j++){\n                if(m[i][j] !== target[i][j]) return false;\n            }\n        }\n        return true;\n    };\n    const rotate = (m) =&gt; {\n        const res = new Array(n).fill(0).map(() =&gt; new Array(n).fill(0));\n        for(let i=0; i&lt;n; i++){\n            for(let j=0; j&lt;n; j++){\n                res[j][n-1-i] = m[i][j];\n            }\n        }\n        return res;\n    };\n    for(let k=0; k&lt;4; k++){\n        if(check(mat)) return true;\n        mat = rotate(mat);\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findRotation(mat: number[][], target: number[][]): boolean {\n    const n = mat.length;\n    const check = (m: number[][]): boolean =&gt; {\n        for(let i=0; i&lt;n; i++){\n            for(let j=0; j&lt;n; j++){\n                if(m[i][j] !== target[i][j]) return false;\n            }\n        }\n        return true;\n    };\n    const rotate = (m: number[][]): number[][] =&gt; {\n        const res = new Array(n).fill(0).map(() =&gt; new Array(n).fill(0));\n        for(let i=0; i&lt;n; i++){\n            for(let j=0; j&lt;n; j++){\n                res[j][n-1-i] = m[i][j];\n            }\n        }\n        return res;\n    };\n    for(let k=0; k&lt;4; k++){\n        if(check(mat)) return true;\n        mat = rotate(mat);\n    }\n    return false;\n};" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n²)
+- Notes: We use extra space to store the rotated matrix.
+
+---
+## Index Mapping
+
+**Intuition**
+Instead of physically rotating the matrix, we can determine the corresponding indices in the original matrix for each cell in the target matrix for all 4 possible rotations (0°, 90°, 180°, 270°). If all cells match for any of these rotation states, the answer is true.
+
+**Steps**
+- Initialize four boolean flags representing the four possible rotation states (0°, 90°, 180°, 270°) to true.
+- Iterate through every cell (i, j) in the matrix.
+- For each cell, check if `mat[i][j]` matches `target[i][j]` (0°), `mat[n-1-j][i]` (90°), `mat[n-1-i][n-1-j]` (180°), or `mat[j][n-1-i]` (270°).
+- If a mismatch is found for a specific rotation, set its corresponding flag to false.
+- If any flag remains true after checking all cells, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findRotation(self, mat: List[List[int]], target: List[List[int]]) -&gt; bool:\n        n = len(mat)\n        c0 = c90 = c180 = c270 = True\n        for i in range(n):\n            for j in range(n):\n                if mat[i][j] != target[i][j]: c0 = False\n                if mat[n-1-j][i] != target[i][j]: c90 = False\n                if mat[n-1-i][n-1-j] != target[i][j]: c180 = False\n                if mat[j][n-1-i] != target[i][j]: c270 = False\n        return c0 or c90 or c180 or c270" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean findRotation(int[][] mat, int[][] target) {\n        int n = mat.length;\n        boolean c0 = true, c90 = true, c180 = true, c270 = true;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (mat[i][j] != target[i][j]) c0 = false;\n                if (mat[n - 1 - j][i] != target[i][j]) c90 = false;\n                if (mat[n - 1 - i][n - 1 - j] != target[i][j]) c180 = false;\n                if (mat[j][n - 1 - i] != target[i][j]) c270 = false;\n            }\n        }\n        return c0 || c90 || c180 || c270;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool findRotation(vector&lt;vector&lt;int&gt;&gt;& mat, vector&lt;vector&lt;int&gt;&gt;& target) {\n        int n = mat.size();\n        bool c0 = true, c90 = true, c180 = true, c270 = true;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                if (mat[i][j] != target[i][j]) c0 = false;\n                if (mat[n - 1 - j][i] != target[i][j]) c90 = false;\n                if (mat[n - 1 - i][n - 1 - j] != target[i][j]) c180 = false;\n                if (mat[j][n - 1 - i] != target[i][j]) c270 = false;\n            }\n        }\n        return c0 || c90 || c180 || c270;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findRotation = function(mat, target) {\n    const n = mat.length;\n    let c0 = true, c90 = true, c180 = true, c270 = true;\n    for(let i=0; i&lt;n; i++){\n        for(let j=0; j&lt;n; j++){\n            if(mat[i][j] !== target[i][j]) c0 = false;\n            if(mat[n-1-j][i] !== target[i][j]) c90 = false;\n            if(mat[n-1-i][n-1-j] !== target[i][j]) c180 = false;\n            if(mat[j][n-1-i] !== target[i][j]) c270 = false;\n        }\n    }\n    return c0 || c90 || c180 || c270;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findRotation(mat: number[][], target: number[][]): boolean {\n    const n = mat.length;\n    let c0 = true, c90 = true, c180 = true, c270 = true;\n    for(let i=0; i&lt;n; i++){\n        for(let j=0; j&lt;n; j++){\n            if(mat[i][j] !== target[i][j]) c0 = false;\n            if(mat[n-1-j][i] !== target[i][j]) c90 = false;\n            if(mat[n-1-i][n-1-j] !== target[i][j]) c180 = false;\n            if(mat[j][n-1-i] !== target[i][j]) c270 = false;\n        }\n    }\n    return c0 || c90 || c180 || c270;\n};" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: This approach is optimal in terms of space complexity as it only uses a few extra variables.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Determine Whether Matrix Can Be Obtained By Rotation Solutions","datePublished":"2024-02-04","description":"Check if one n x n matrix can be transformed into another by rotating it 90 degrees clockwise any number of times.","keywords":"LeetCode, Determine Whether Matrix Can Be Obtained By Rotation, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²), where n is the dimension of the matrix."}},{"@type":"Question","name":"What is the space complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) to store the rotated matrix."}},{"@type":"Question","name":"What is the time complexity of the Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²), as we iterate through the matrix once."}},{"@type":"Question","name":"What is the space complexity of the Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"O(1), since we only use a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

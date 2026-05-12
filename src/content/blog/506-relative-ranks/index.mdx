@@ -1,0 +1,585 @@
+---
+title: "Relative Ranks"
+summary: "Assign ranks to athletes based on their scores with Gold, Silver, Bronze medals for top 3."
+date: "Feb 14, 2026"
+tags:
+  - Array
+  - Sorting
+  - Heap
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.60% | **Paid:** No
+> **Topics:** Array, Sorting, Heap (Priority Queue)
+
+You are given an integer array score of size n, where score[i] is the score of the ith athlete in a competition. All the scores are guaranteed to be unique.
+
+The athletes are placed based on their scores, where the 1st place athlete has the highest score, the 2nd place athlete has the 2nd highest score, and so on. The placement of each athlete determines their rank:
+
+The 1st place athlete's rank is "Gold Medal".
+The 2nd place athlete's rank is "Silver Medal".
+The 3rd place athlete's rank is "Bronze Medal".
+For the 4th place to the nth place athlete, their rank is their placement number (i.e., 4th place athlete's rank is "4").
+
+Return an array answer of size n such that answer[i] is the rank of the ith athlete.
+
+- Examples
+- Constraints
+- [Sorting with Index Tracking](#sorting-with-index-tracking)
+- [Max Heap Approach](#max-heap-approach)
+- [Copy and Sort with Map](#copy-and-sort-with-map)
+
+## Examples
+
+### Example 1:
+```text
+Input: score = [5,4,3,2,1]
+Output: ["Gold Medal","Silver Medal","Bronze Medal","4","5"]
+Explanation: The first athlete has the highest score (5) and gets "Gold Medal". The second athlete has the second highest score (4) and gets "Silver Medal". The third athlete has the third highest score (3) and gets "Bronze Medal". The fourth athlete has the fourth highest score (2) and gets "4". The fifth athlete has the fifth highest score (1) and gets "5".
+```
+
+### Example 2:
+```text
+Input: score = [10,3,8,9,4]
+Output: ["Gold Medal","5","Bronze Medal","Silver Medal","4"]
+Explanation: The first athlete has the highest score (10) and gets "Gold Medal". The second athlete has the second highest score (9) and gets "Silver Medal". The third athlete has the third highest score (8) and gets "Bronze Medal". The fourth athlete has the fourth highest score (4) and gets "4". The fifth athlete has the fifth highest score (3) and gets "5".
+```
+
+## Constraints
+
+```text
+- n == score.length
+- 1 <= n <= 10^4
+- 0 <= score[i] <= 10^6
+- All the values in score are unique.
+```
+
+---
+## Sorting with Index Tracking
+
+**Intuition**
+Create pairs of (score, original index), sort by score in descending order, then assign ranks based on sorted position.
+
+**Steps**
+- Create an array of pairs containing (score, original index)
+- Sort the array in descending order by score
+- Iterate through sorted array and assign ranks to result at original indices
+- Use "Gold Medal", "Silver Medal", "Bronze Medal" for first three positions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findRelativeRanks(self, score: list[int]) -> list[str]:
+        n = len(score)
+        indexed_scores = [(score[i], i) for i in range(n)]
+        indexed_scores.sort(reverse=True, key=lambda x: x[0])
+        
+        result = [None] * n
+        medals = ["Gold Medal", "Silver Medal", "Bronze Medal"]
+        
+        for rank, (_, original_idx) in enumerate(indexed_scores):
+            if rank &lt; 3:
+                result[original_idx] = medals[rank]
+            else:
+                result[original_idx] = str(rank + 1)
+        
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        int n = score.length;
+        int[][] indexedScores = new int[n][2];
+        for (int i = 0; i &lt; n; i++) {
+            indexedScores[i][0] = score[i];
+            indexedScores[i][1] = i;
+        }
+        
+        Arrays.sort(indexedScores, (a, b) -> Integer.compare(b[0], a[0]));
+        
+        String[] result = new String[n];
+        String[] medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            int originalIdx = indexedScores[rank][1];
+            if (rank &lt; 3) {
+                result[originalIdx] = medals[rank];
+            } else {
+                result[originalIdx] = String.valueOf(rank + 1);
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& score) {
+        int n = score.size();
+        vector<pair<int, int>&gt; indexedScores;
+        for (int i = 0; i &lt; n; i++) {
+            indexedScores.push_back({score[i], i});
+        }
+        
+        sort(indexedScores.begin(), indexedScores.end(), 
+             [](const pair<int, int>& a, const pair<int, int>& b) {
+                 return a.first &gt; b.first;
+             });
+        
+        vector<string> result(n);
+        vector<string> medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            int originalIdx = indexedScores[rank].second;
+            if (rank &lt; 3) {
+                result[originalIdx] = medals[rank];
+            } else {
+                result[originalIdx] = to_string(rank + 1);
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} score
+ * @return {string[]}
+ */
+var findRelativeRanks = function(score) {
+    const n = score.length;
+    const indexedScores = score.map((s, i) =&gt; ({ score: s, index: i }));
+    indexedScores.sort((a, b) =&gt; b.score - a.score);
+    
+    const result = new Array(n);
+    const medals = ["Gold Medal", "Silver Medal", "Bronze Medal"];
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const originalIdx = indexedScores[rank].index;
+        if (rank &lt; 3) {
+            result[originalIdx] = medals[rank];
+        } else {
+            result[originalIdx] = String(rank + 1);
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findRelativeRanks(score: number[]): string[] {
+    const n = score.length;
+    const indexedScores = score.map((s, i) =&gt; ({ score: s, index: i }));
+    indexedScores.sort((a, b) =&gt; b.score - a.score);
+    
+    const result = new Array(n);
+    const medals = ["Gold Medal", "Silver Medal", "Bronze Medal"];
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const originalIdx = indexedScores[rank].index;
+        if (rank &lt; 3) {
+            result[originalIdx] = medals[rank];
+        } else {
+            result[originalIdx] = String(rank + 1);
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Simple and intuitive approach using sorting
+
+---
+## Max Heap Approach
+
+**Intuition**
+Use a max heap to extract scores in descending order while tracking original indices for rank assignment.
+
+**Steps**
+- Create a max heap with (score, index) pairs
+- Extract elements one by one from heap
+- Assign ranks based on extraction order
+- Handle special medal names for top 3
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import heapq
+
+class Solution:
+    def findRelativeRanks(self, score: list[int]) -> list[str]:
+        n = len(score)
+        max_heap = [(-score[i], i) for i in range(n)]
+        heapq.heapify(max_heap)
+        
+        result = [None] * n
+        medals = ["Gold Medal", "Silver Medal", "Bronze Medal"]
+        
+        for rank in range(n):
+            _, original_idx = heapq.heappop(max_heap)
+            if rank &lt; 3:
+                result[original_idx] = medals[rank]
+            else:
+                result[original_idx] = str(rank + 1)
+        
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.PriorityQueue;
+
+class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        int n = score.length;
+        PriorityQueue<int[]&gt; maxHeap = new PriorityQueue&lt;&gt;(
+            (a, b) -> Integer.compare(b[0], a[0])
+        );
+        
+        for (int i = 0; i &lt; n; i++) {
+            maxHeap.offer(new int[]{score[i], i});
+        }
+        
+        String[] result = new String[n];
+        String[] medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            int[] top = maxHeap.poll();
+            int originalIdx = top[1];
+            if (rank &lt; 3) {
+                result[originalIdx] = medals[rank];
+            } else {
+                result[originalIdx] = String.valueOf(rank + 1);
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& score) {
+        int n = score.size();
+        priority_queue<pair<int, int>&gt; maxHeap;
+        
+        for (int i = 0; i &lt; n; i++) {
+            maxHeap.push({score[i], i});
+        }
+        
+        vector<string> result(n);
+        vector<string> medals = {"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            auto top = maxHeap.top();
+            maxHeap.pop();
+            int originalIdx = top.second;
+            if (rank &lt; 3) {
+                result[originalIdx] = medals[rank];
+            } else {
+                result[originalIdx] = to_string(rank + 1);
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class MaxHeap {
+    constructor() {
+        this.heap = [];
+    }
+    
+    push(val) {
+        this.heap.push(val);
+        this.bubbleUp(this.heap.length - 1);
+    }
+    
+    bubbleUp(idx) {
+        while (idx &gt; 0) {
+            const parentIdx = Math.floor((idx - 1) / 2);
+            if (this.heap[parentIdx][0] &gt;= this.heap[idx][0]) break;
+            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];
+            idx = parentIdx;
+        }
+    }
+    
+    pop() {
+        const max = this.heap[0];
+        const last = this.heap.pop();
+        if (this.heap.length &gt; 0) {
+            this.heap[0] = last;
+            this.bubbleDown(0);
+        }
+        return max;
+    }
+    
+    bubbleDown(idx) {
+        while (true) {
+            const leftChild = 2 * idx + 1;
+            const rightChild = 2 * idx + 2;
+            let largest = idx;
+            
+            if (leftChild &lt; this.heap.length && this.heap[leftChild][0] &gt; this.heap[largest][0]) {
+                largest = leftChild;
+            }
+            if (rightChild &lt; this.heap.length && this.heap[rightChild][0] &gt; this.heap[largest][0]) {
+                largest = rightChild;
+            }
+            if (largest === idx) break;
+            
+            [this.heap[idx], this.heap[largest]] = [this.heap[largest], this.heap[idx]];
+            idx = largest;
+        }
+    }
+    
+    size() {
+        return this.heap.length;
+    }
+}
+
+/**
+ * @param {number[]} score
+ * @return {string[]}
+ */
+var findRelativeRanks = function(score) {
+    const n = score.length;
+    const maxHeap = new MaxHeap();
+    
+    for (let i = 0; i &lt; n; i++) {
+        maxHeap.push([score[i], i]);
+    }
+    
+    const result = new Array(n);
+    const medals = ["Gold Medal", "Silver Medal", "Bronze Medal"];
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const [_, originalIdx] = maxHeap.pop();
+        if (rank &lt; 3) {
+            result[originalIdx] = medals[rank];
+        } else {
+            result[originalIdx] = String(rank + 1);
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `class MaxHeap {
+    private heap: [number, number][];
+    
+    constructor() {
+        this.heap = [];
+    }
+    
+    push(val: [number, number]): void {
+        this.heap.push(val);
+        this.bubbleUp(this.heap.length - 1);
+    }
+    
+    private bubbleUp(idx: number): void {
+        while (idx &gt; 0) {
+            const parentIdx = Math.floor((idx - 1) / 2);
+            if (this.heap[parentIdx][0] &gt;= this.heap[idx][0]) break;
+            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];
+            idx = parentIdx;
+        }
+    }
+    
+    pop(): [number, number] {
+        const max = this.heap[0];
+        const last = this.heap.pop()!;
+        if (this.heap.length &gt; 0) {
+            this.heap[0] = last;
+            this.bubbleDown(0);
+        }
+        return max;
+    }
+    
+    private bubbleDown(idx: number): void {
+        while (true) {
+            const leftChild = 2 * idx + 1;
+            const rightChild = 2 * idx + 2;
+            let largest = idx;
+            
+            if (leftChild &lt; this.heap.length && this.heap[leftChild][0] &gt; this.heap[largest][0]) {
+                largest = leftChild;
+            }
+            if (rightChild &lt; this.heap.length && this.heap[rightChild][0] &gt; this.heap[largest][0]) {
+                largest = rightChild;
+            }
+            if (largest === idx) break;
+            
+            [this.heap[idx], this.heap[largest]] = [this.heap[largest], this.heap[idx]];
+            idx = largest;
+        }
+    }
+    
+    size(): number {
+        return this.heap.length;
+    }
+}
+
+function findRelativeRanks(score: number[]): string[] {
+    const n = score.length;
+    const maxHeap = new MaxHeap();
+    
+    for (let i = 0; i &lt; n; i++) {
+        maxHeap.push([score[i], i]);
+    }
+    
+    const result = new Array(n);
+    const medals = ["Gold Medal", "Silver Medal", "Bronze Medal"];
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const [_, originalIdx] = maxHeap.pop();
+        if (rank &lt; 3) {
+            result[originalIdx] = medals[rank];
+        } else {
+            result[originalIdx] = String(rank + 1);
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Heap operations are O(log n) each, performed n times
+
+---
+## Copy and Sort with Map
+
+**Intuition**
+Create a sorted copy of scores, then use a hash map to map each score to its rank for O(1) lookup.
+
+**Steps**
+- Create a copy of scores array and sort it in descending order
+- Build a hash map from score to rank
+- Iterate through original scores and look up ranks from map
+- Handle special medal names for top 3
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def findRelativeRanks(self, score: list[int]) -> list[str]:
+        sorted_score = sorted(score, reverse=True)
+        score_to_rank = {}
+        
+        for rank, s in enumerate(sorted_score):
+            if rank == 0:
+                score_to_rank[s] = "Gold Medal"
+            elif rank == 1:
+                score_to_rank[s] = "Silver Medal"
+            elif rank == 2:
+                score_to_rank[s] = "Bronze Medal"
+            else:
+                score_to_rank[s] = str(rank + 1)
+        
+        return [score_to_rank[s] for s in score]` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String[] findRelativeRanks(int[] score) {
+        int n = score.length;
+        int[] sortedScore = score.clone();
+        Arrays.sort(sortedScore);
+        
+        Map<Integer, String> scoreToRank = new HashMap&lt;&gt;();
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            int s = sortedScore[n - 1 - rank];
+            if (rank == 0) {
+                scoreToRank.put(s, "Gold Medal");
+            } else if (rank == 1) {
+                scoreToRank.put(s, "Silver Medal");
+            } else if (rank == 2) {
+                scoreToRank.put(s, "Bronze Medal");
+            } else {
+                scoreToRank.put(s, String.valueOf(rank + 1));
+            }
+        }
+        
+        String[] result = new String[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = scoreToRank.get(score[i]);
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& score) {
+        int n = score.size();
+        vector<int> sortedScore = score;
+        sort(sortedScore.begin(), sortedScore.end(), greater<int>());
+        
+        unordered_map<int, string> scoreToRank;
+        
+        for (int rank = 0; rank &lt; n; rank++) {
+            int s = sortedScore[rank];
+            if (rank == 0) {
+                scoreToRank[s] = "Gold Medal";
+            } else if (rank == 1) {
+                scoreToRank[s] = "Silver Medal";
+            } else if (rank == 2) {
+                scoreToRank[s] = "Bronze Medal";
+            } else {
+                scoreToRank[s] = to_string(rank + 1);
+            }
+        }
+        
+        vector<string> result(n);
+        for (int i = 0; i &lt; n; i++) {
+            result[i] = scoreToRank[score[i]];
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} score
+ * @return {string[]}
+ */
+var findRelativeRanks = function(score) {
+    const n = score.length;
+    const sortedScore = [...score].sort((a, b) =&gt; b - a);
+    
+    const scoreToRank = new Map();
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const s = sortedScore[rank];
+        if (rank === 0) {
+            scoreToRank.set(s, "Gold Medal");
+        } else if (rank === 1) {
+            scoreToRank.set(s, "Silver Medal");
+        } else if (rank === 2) {
+            scoreToRank.set(s, "Bronze Medal");
+        } else {
+            scoreToRank.set(s, String(rank + 1));
+        }
+    }
+    
+    return score.map(s =&gt; scoreToRank.get(s));
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findRelativeRanks(score: number[]): string[] {
+    const n = score.length;
+    const sortedScore = [...score].sort((a, b) =&gt; b - a);
+    
+    const scoreToRank = new Map<number, string>();
+    
+    for (let rank = 0; rank &lt; n; rank++) {
+        const s = sortedScore[rank];
+        if (rank === 0) {
+            scoreToRank.set(s, "Gold Medal");
+        } else if (rank === 1) {
+            scoreToRank.set(s, "Silver Medal");
+        } else if (rank === 2) {
+            scoreToRank.set(s, "Bronze Medal");
+        } else {
+            scoreToRank.set(s, String(rank + 1));
+        }
+    }
+    
+    return score.map(s =&gt; scoreToRank.get(s)!);
+}` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Clean approach using hash map for O(1) rank lookup
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Relative Ranks Solutions","datePublished":"2026-02-14","description":"Assign ranks to athletes based on their scores with Gold, Silver, Bronze medals for top 3.","keywords":"LeetCode, Relative Ranks, Easy, Array, Sorting, Heap (Priority Queue)"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting with Index Tracking approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) due to sorting the array of indexed scores."}},{"@type":"Question","name":"What is the space complexity of the Max Heap approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the heap and result array."}},{"@type":"Question","name":"What is the time complexity of the Copy and Sort with Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) for sorting the copy of scores array."}},{"@type":"Question","name":"What is the space complexity of the Copy and Sort with Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the sorted copy, hash map, and result array."}}]}).replace(/</g,'\u003c')}
+</script>

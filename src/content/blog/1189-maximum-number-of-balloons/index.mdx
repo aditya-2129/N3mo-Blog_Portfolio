@@ -1,0 +1,104 @@
+---
+title: "Maximum Number of Balloons"
+summary: "Given a string text, find the maximum number of times you can form the word 'balloon' using its characters."
+date: "Aug 03, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.20% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+Given a string text, you want to use the characters of text to form as many instances of the word "balloon" as possible.
+
+Each character can be used at most once. Return the maximum number of instances that can be formed.
+
+- Examples
+- Constraints
+- [Hash Map Counting](#hash-map-counting)
+- [Array-based Counting](#array-based-counting)
+
+## Examples
+
+```text
+Input: text = "nlaebolko"
+Output: 1
+Explanation: One 'balloon' can be formed using one 'b', one 'a', one 'l', one 'o', and one 'n'.
+```
+
+```text
+Input: text = "loonbalxballpoon"
+Output: 2
+Explanation: Two 'balloon' instances can be formed using the characters in the string.
+```
+
+```text
+Input: text = "leetcode"
+Output: 0
+Explanation: None of the characters required for 'balloon' are present in sufficient quantity.
+```
+
+## Constraints
+
+```text
+1 <= text.length <= 10⁴
+text consists of lower case English letters only.
+```
+
+---
+## Hash Map Counting
+
+**Intuition**
+Count the frequency of each character in the text using a hash map, then determine how many complete "balloon" words can be formed by finding the limiting character.
+
+**Steps**
+- Create a hash map to count occurrences of each character in text.
+- The word "balloon" requires: b:1, a:1, l:2, o:2, n:1
+- Return the minimum of (count['b'], count['a'], count['l']/2, count['o']/2, count['n'])
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\r\n\r\nclass Solution:\r\n    def maxNumberOfBalloons(self, text: str) -&gt; int:\r\n        count = Counter(text)\r\n        return min(count.get('b', 0), count.get('a', 0), count.get('l', 0) // 2, count.get('o', 0) // 2, count.get('n', 0))" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\r\nimport java.util.Map;\r\n\r\nclass Solution {\r\n    public int maxNumberOfBalloons(String text) {\r\n        Map&lt;Character, Integer&gt; count = new HashMap&lt;&gt;();\r\n        for (char c : text.toCharArray()) {\r\n            count.put(c, count.getOrDefault(c, 0) + 1);\r\n        }\r\n        int b = count.getOrDefault('b', 0);\r\n        int a = count.getOrDefault('a', 0);\r\n        int l = count.getOrDefault('l', 0) / 2;\r\n        int o = count.getOrDefault('o', 0) / 2;\r\n        int n = count.getOrDefault('n', 0);\r\n        return Math.min(Math.min(Math.min(Math.min(b, a), l), o), n);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\r\n#include &lt;string&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int maxNumberOfBalloons(string text) {\r\n        unordered_map&lt;char, int&gt; count;\r\n        for (char c : text) {\r\n            count[c]++;\r\n        }\r\n        int b = count.count('b') ? count['b'] : 0;\r\n        int a = count.count('a') ? count['a'] : 0;\r\n        int l = count.count('l') ? count['l'] / 2 : 0;\r\n        int o = count.count('o') ? count['o'] / 2 : 0;\r\n        int n = count.count('n') ? count['n'] : 0;\r\n        return min({b, a, l, o, n});\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    maxNumberOfBalloons(text) {\r\n        const count = {};\r\n        for (const c of text) {\r\n            count[c] = (count[c] || 0) + 1;\r\n        }\r\n        const b = count['b'] || 0;\r\n        const a = count['a'] || 0;\r\n        const l = Math.floor((count['l'] || 0) / 2);\r\n        const o = Math.floor((count['o'] || 0) / 2);\r\n        const n = count['n'] || 0;\r\n        return Math.min(b, a, l, o, n);\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    maxNumberOfBalloons(text: string): number {\r\n        const count: { [key: string]: number } = {};\r\n        for (const c of text) {\r\n            count[c] = (count[c] || 0) + 1;\r\n        }\r\n        const b = count['b'] || 0;\r\n        const a = count['a'] || 0;\r\n        const l = Math.floor((count['l'] || 0) / 2);\r\n        const o = Math.floor((count['o'] || 0) / 2);\r\n        const n = count['n'] || 0;\r\n        return Math.min(b, a, l, o, n);\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of text
+- Space: O(1) since we only store at most 26 characters
+- Notes: Hash map provides O(1) average lookup time
+
+---
+## Array-based Counting
+
+**Intuition**
+Use a fixed-size array of 26 elements to count character frequencies, which is more memory-efficient than a hash map for this specific problem.
+
+**Steps**
+- Initialize an array of size 26 with zeros (one for each lowercase letter).
+- For each character in text, increment the corresponding index using character offset.
+- Calculate the result based on the counts of 'b', 'a', 'l', 'o', 'n'.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\r\n    def maxNumberOfBalloons(self, text: str) -&gt; int:\r\n        count = [0] * 26\r\n        for c in text:\r\n            count[ord(c) - ord('a')] += 1\r\n        return min(count[ord('b') - ord('a')], count[ord('a') - ord('a')], count[ord('l') - ord('a')] // 2, count[ord('o') - ord('a')] // 2, count[ord('n') - ord('a')])" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int maxNumberOfBalloons(String text) {\r\n        int[] count = new int[26];\r\n        for (char c : text.toCharArray()) {\r\n            count[c - 'a']++;\r\n        }\r\n        int b = count['b' - 'a'];\r\n        int a = count['a' - 'a'];\r\n        int l = count['l' - 'a'] / 2;\r\n        int o = count['o' - 'a'] / 2;\r\n        int n = count['n' - 'a'];\r\n        return Math.min(Math.min(Math.min(Math.min(b, a), l), o), n);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int maxNumberOfBalloons(string text) {\r\n        int count[26] = {0};\r\n        for (char c : text) {\r\n            count[c - 'a']++;\r\n        }\r\n        int b = count['b' - 'a'];\r\n        int a = count['a' - 'a'];\r\n        int l = count['l' - 'a'] / 2;\r\n        int o = count['o' - 'a'] / 2;\r\n        int n = count['n' - 'a'];\r\n        return min({b, a, l, o, n});\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    maxNumberOfBalloons(text) {\r\n        const count = new Array(26).fill(0);\r\n        for (const c of text) {\r\n            count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\r\n        }\r\n        const b = count['b'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        const a = count['a'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        const l = Math.floor(count['l'.charCodeAt(0) - 'a'.charCodeAt(0)] / 2);\r\n        const o = Math.floor(count['o'.charCodeAt(0) - 'a'.charCodeAt(0)] / 2);\r\n        const n = count['n'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        return Math.min(b, a, l, o, n);\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    maxNumberOfBalloons(text: string): number {\r\n        const count: number[] = new Array(26).fill(0);\r\n        for (const c of text) {\r\n            count[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\r\n        }\r\n        const b = count['b'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        const a = count['a'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        const l = Math.floor(count['l'.charCodeAt(0) - 'a'.charCodeAt(0)] / 2);\r\n        const o = Math.floor(count['o'.charCodeAt(0) - 'a'.charCodeAt(0)] / 2);\r\n        const n = count['n'.charCodeAt(0) - 'a'.charCodeAt(0)];\r\n        return Math.min(b, a, l, o, n);\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of text
+- Space: O(1) fixed array of 26 integers
+- Notes: More cache-friendly than hash map approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Number of Balloons Solutions","datePublished":"2025-08-03","description":"Given a string text, find the maximum number of times you can form the word 'balloon' using its characters.","keywords":"LeetCode, Maximum Number of Balloons, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of text, as we iterate through the string once and perform O(1) hash map operations."}},{"@type":"Question","name":"What is the space complexity of Array-based Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since we use a fixed-size array of 26 elements regardless of input size."}},{"@type":"Question","name":"Why do we divide 'l' and 'o' counts by 2?","acceptedAnswer":{"@type":"Answer","text":"The word 'balloon' contains two 'l' characters and two 'o' characters, so we need half as many of these letters compared to 'b', 'a', and 'n'."}},{"@type":"Question","name":"Which approach is more efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Array-based counting is slightly more efficient due to better cache locality and no hash computation overhead, though both are O(n) time."}}]}).replace(/</g,'\u003c')}
+</script>

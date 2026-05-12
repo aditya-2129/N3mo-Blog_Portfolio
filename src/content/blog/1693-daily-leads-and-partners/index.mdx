@@ -1,0 +1,127 @@
+---
+title: "Daily Leads and Partners"
+summary: "Count the number of unique leads and partners for each day."
+date: "Jan 12, 2026"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.70% | **Paid:** No
+> **Topics:** Database
+
+Table: DailySales
++-------------+-------+
+| Column Name | Type  |
++-------------+-------+
+| date_id     | date  |
+| lead_name   | varchar |
+| partner_name| varchar |
++-------------+-------+
+There is no primary key for this table. It may contain duplicates.
+This table contains the date and the name of the lead and the partner that was contacted on that date.
+
+Write an SQL query to return the name of the lead and the partner and the number of times they appeared in the daily_sales table.
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Grouping](#hash-map-grouping)
+- [Approach 2: Sorting and Iterating](#sorting-and-iterating)
+
+## Examples
+
+**Example 1:**
+
+Input:
+DailySales table:
++-----------+-----------+--------------+
+| date_id   | lead_name | partner_name |
++-----------+-----------+--------------+
+| 2020-12-8 | gmail     | google       |
+| 2020-12-8 | gmail     | facebook     |
+| 2020-12-8 | outlook   | google       |
+| 2020-12-8 | outlook   | google       |
+| 2020-12-8 | gmail     | google       |
++-----------+-----------+--------------+
+
+Output:
++-----------+--------------+-------+
+| lead_name | partner_name | count |
++-----------+--------------+-------+
+| gmail     | facebook     | 1     |
+| gmail     | google       | 2     |
+| outlook   | google       | 2     |
++-----------+--------------+-------+
+
+Explanation:
+- The pair (gmail, facebook) appeared once.
+- The pair (gmail, google) appeared twice.
+- The pair (outlook, google) appeared twice.
+- The pair (outlook, facebook) never appeared.
+
+## Constraints
+
+```text
+The DailySales table may contain duplicates.
+```
+
+---
+## Hash Map Grouping
+
+**Intuition**
+The core logic of this problem is to count the frequency of specific pairs of strings (`lead_name`, `partner_name`). This is directly equivalent to the SQL `GROUP BY` clause. We can use a hash map (or dictionary) where the key is a combination of the lead and partner names, and the value is the running count.
+
+**Steps**
+- Initialize an empty hash map.
+- Iterate through each row in the input data.
+- Construct a unique key string by concatenating `lead_name` and `partner_name` (or use a tuple/object as the key).
+- Increment the count for this key in the hash map.
+- After processing all rows, iterate through the hash map and format the keys and values into the required output list format.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import defaultdict\nfrom typing import List\n\nclass Solution:\n    def dailyLeadsAndPartners(self, daily_sales: List[List[str]]) -&gt; List[List[str]]:\n        counts = defaultdict(int)\n        # Input format: [date_id, lead_name, partner_name]\n        for row in daily_sales:\n            lead = row[1]\n            partner = row[2]\n            # Use a tuple as the key\n            counts[(lead, partner)] += 1\n        \n        result = []\n        for (lead, partner), count in counts.items():\n            result.append([lead, partner, str(count)])\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; dailyLeadsAndPartners(List&lt;List&lt;String&gt;&gt; dailySales) {\n        Map&lt;String, Integer&gt; counts = new HashMap&lt;&gt;();\n        \n        for (List&lt;String&gt; row : dailySales) {\n            String lead = row.get(1);\n            String partner = row.get(2);\n            // Create a unique key string\n            String key = lead + \"|\" + partner;\n            counts.put(key, counts.getOrDefault(key, 0) + 1);\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, Integer&gt; entry : counts.entrySet()) {\n            String[] parts = entry.getKey().split(\"\\|\");\n            result.add(Arrays.asList(parts[0], parts[1], String.valueOf(entry.getValue())));\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; dailyLeadsAndPartners(vector&lt;vector&lt;string&gt;&gt;& dailySales) {\n        map&lt;string, int&gt; counts;\n        \n        for (const auto& row : dailySales) {\n            string lead = row[1];\n            string partner = row[2];\n            // Use a delimiter to ensure uniqueness (e.g. \"a|b\" vs \"ab|\")\n            string key = lead + \"|\" + partner;\n            counts[key]++;\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (const auto& pair : counts) {\n            string key = pair.first;\n            int count = pair.second;\n            \n            size_t delimiterPos = key.find('|');\n            string lead = key.substr(0, delimiterPos);\n            string partner = key.substr(delimiterPos + 1);\n            \n            result.push_back({lead, partner, to_string(count)});\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} dailySales\n * @return {string[][]}\n */\nvar dailyLeadsAndPartners = function(dailySales) {\n    const counts = new Map();\n    \n    for (const row of dailySales) {\n        const lead = row[1];\n        const partner = row[2];\n        const key = lead + \"|\" + partner;\n        counts.set(key, (counts.get(key) || 0) + 1);\n    }\n    \n    const result = [];\n    for (const [key, count] of counts) {\n        const [lead, partner] = key.split('|');\n        result.push([lead, partner, count.toString()]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function dailyLeadsAndPartners(dailySales: string[][]): string[][] {\n    const counts = new Map&lt;string, number&gt;();\n    \n    for (const row of dailySales) {\n        const lead = row[1];\n        const partner = row[2];\n        const key = lead + \"|\" + partner;\n        counts.set(key, (counts.get(key) || 0) + 1);\n    }\n    \n    const result: string[][] = [];\n    for (const [key, count] of counts) {\n        const [lead, partner] = key.split('|');\n        result.push([lead, partner, count.toString()]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of rows in the `DailySales` table. We iterate through the list once, and hash map operations are O(1) on average.
+- Space: O(n), to store the unique pairs in the hash map. In the worst case, every row is a unique pair.
+- Notes: This is the most efficient approach for unsorted data and is the standard algorithmic equivalent of SQL's `GROUP BY`.
+
+---
+## Sorting and Iterating
+
+**Intuition**
+If we sort the data first by `lead_name` and then by `partner_name`, all identical pairs will be adjacent. We can then iterate through the sorted list and count consecutive duplicates. This avoids the overhead of a hash map.
+
+**Steps**
+- Sort the input list of rows based on `lead_name` and `partner_name`.
+- Initialize an empty result list.
+- Iterate through the sorted rows. If the current row is the same as the previous one, increment a counter. If it is different, append the previous pair and its count to the result, then reset the counter.
+- Handle the last group after the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def dailyLeadsAndPartners(self, daily_sales: List[List[str]]) -&gt; List[List[str]]:\n        if not daily_sales:\n            return []\n        \n        # Sort by lead_name, then partner_name (indices 1 and 2)\n        daily_sales.sort(key=lambda x: (x[1], x[2]))\n        \n        result = []\n        count = 1\n        prev_lead = daily_sales[0][1]\n        prev_partner = daily_sales[0][2]\n        \n        for i in range(1, len(daily_sales)):\n            curr_lead = daily_sales[i][1]\n            curr_partner = daily_sales[i][2]\n            \n            if curr_lead == prev_lead and curr_partner == prev_partner:\n                count += 1\n            else:\n                result.append([prev_lead, prev_partner, str(count)])\n                prev_lead = curr_lead\n                prev_partner = curr_partner\n                count = 1\n                \n        # Append the last group\n        result.append([prev_lead, prev_partner, str(count)])\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; dailyLeadsAndPartners(List&lt;List&lt;String&gt;&gt; dailySales) {\n        if (dailySales == null || dailySales.isEmpty()) {\n            return new ArrayList&lt;&gt;();\n        }\n        \n        // Sort the list based on lead_name then partner_name\n        dailySales.sort((a, b) -&gt; {\n            int cmp = a.get(1).compareTo(b.get(1));\n            if (cmp != 0) return cmp;\n            return a.get(2).compareTo(b.get(2));\n        });\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        \n        String prevLead = dailySales.get(0).get(1);\n        String prevPartner = dailySales.get(0).get(2);\n        int count = 1;\n        \n        for (int i = 1; i &lt; dailySales.size(); i++) {\n            List&lt;String&gt; curr = dailySales.get(i);\n            String currLead = curr.get(1);\n            String currPartner = curr.get(2);\n            \n            if (currLead.equals(prevLead) && currPartner.equals(prevPartner)) {\n                count++;\n            } else {\n                result.add(Arrays.asList(prevLead, prevPartner, String.valueOf(count)));\n                prevLead = currLead;\n                prevPartner = currPartner;\n                count = 1;\n            }\n        }\n        \n        result.add(Arrays.asList(prevLead, prevPartner, String.valueOf(count)));\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; dailyLeadsAndPartners(vector&lt;vector&lt;string&gt;&gt;& dailySales) {\n        if (dailySales.empty()) return {};\n        \n        // Sort by lead_name then partner_name\n        sort(dailySales.begin(), dailySales.end(), [](const vector&lt;string&gt;& a, const vector&lt;string&gt;& b) {\n            if (a[1] != b[1]) return a[1] &lt; b[1];\n            return a[2] &lt; b[2];\n        });\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        string prevLead = dailySales[0][1];\n        string prevPartner = dailySales[0][2];\n        int count = 1;\n        \n        for (size_t i = 1; i &lt; dailySales.size(); ++i) {\n            const string& currLead = dailySales[i][1];\n            const string& currPartner = dailySales[i][2];\n            \n            if (currLead == prevLead && currPartner == prevPartner) {\n                count++;\n            } else {\n                result.push_back({prevLead, prevPartner, to_string(count)});\n                prevLead = currLead;\n                prevPartner = currPartner;\n                count = 1;\n            }\n        }\n        result.push_back({prevLead, prevPartner, to_string(count)});\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} dailySales\n * @return {string[][]}\n */\nvar dailyLeadsAndPartners = function(dailySales) {\n    if (dailySales.length === 0) return [];\n    \n    // Sort by lead_name then partner_name\n    dailySales.sort((a, b) =&gt; {\n        if (a[1] !== b[1]) return a[1].localeCompare(b[1]);\n        return a[2].localeCompare(b[2]);\n    });\n    \n    const result = [];\n    let prevLead = dailySales[0][1];\n    let prevPartner = dailySales[0][2];\n    let count = 1;\n    \n    for (let i = 1; i &lt; dailySales.length; i++) {\n        const currLead = dailySales[i][1];\n        const currPartner = dailySales[i][2];\n        \n        if (currLead === prevLead && currPartner === prevPartner) {\n            count++;\n        } else {\n            result.push([prevLead, prevPartner, count.toString()]);\n            prevLead = currLead;\n            prevPartner = currPartner;\n            count = 1;\n        }\n    }\n    result.push([prevLead, prevPartner, count.toString()]);\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function dailyLeadsAndPartners(dailySales: string[][]): string[][] {\n    if (dailySales.length === 0) return [];\n    \n    // Sort by lead_name then partner_name\n    dailySales.sort((a, b) =&gt; {\n        if (a[1] !== b[1]) return a[1].localeCompare(b[1]);\n        return a[2].localeCompare(b[2]);\n    });\n    \n    const result: string[][] = [];\n    let prevLead = dailySales[0][1];\n    let prevPartner = dailySales[0][2];\n    let count = 1;\n    \n    for (let i = 1; i &lt; dailySales.length; i++) {\n        const currLead = dailySales[i][1];\n        const currPartner = dailySales[i][2];\n        \n        if (currLead === prevLead && currPartner === prevPartner) {\n            count++;\n        } else {\n            result.push([prevLead, prevPartner, count.toString()]);\n            prevLead = currLead;\n            prevPartner = currPartner;\n            count = 1;\n        }\n    }\n    result.push([prevLead, prevPartner, count.toString()]);\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n), due to the sorting step. The iteration itself is O(n).
+- Space: O(n) or O(log n) depending on the sorting algorithm's space complexity (e.g., quicksort vs mergesort). The result list takes O(n) space.
+- Notes: This approach is useful if memory is extremely constrained and the data is already sorted, or if hash map collisions are a concern. However, for general cases, the Hash Map approach is preferred.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Daily Leads and Partners Solutions","datePublished":"2026-01-12","description":"Count the number of unique leads and partners for each day.","keywords":"LeetCode, Daily Leads and Partners, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Grouping approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of rows in the DailySales table."}},{"@type":"Question","name":"What is the time complexity of the Sorting and Iterating approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"Which approach is generally preferred for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map Grouping approach is generally preferred because it offers linear time complexity O(n) compared to O(n log n) for sorting."}}]}).replace(/</g,'\u003c')}
+</script>

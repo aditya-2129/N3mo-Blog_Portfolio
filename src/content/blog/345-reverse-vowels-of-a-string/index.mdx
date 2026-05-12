@@ -1,0 +1,430 @@
+---
+title: "Reverse Vowels of a String"
+summary: "Given a string s, reverse only all the vowels in the string and return it."
+date: "Feb 28, 2026"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.20% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Given a string s, reverse only all the vowels in the string and return it.
+
+The vowels are 'a', 'e', 'i', 'o', and 'u', and they can appear in both lower and upper cases, more than once.
+
+- Examples
+- Constraints
+- [Two Pointers Approach](#two-pointers-approach)
+- [Stack Approach](#stack-approach)
+- [Brute Force Approach](#brute-force-approach)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "hello"
+Output: "holle"
+Explanation: The vowels in "hello" are 'e' and 'o'. After reversing them, we get "holle".
+```
+
+Example 2:
+```text
+Input: s = "leetcode"
+Output: "leotcede"
+Explanation: The vowels in "leetcode" are 'e', 'e', 'o', 'e'. After reversing them, we get "leotcede".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 3 * 10⁵
+s consists of printable ASCII characters.
+```
+
+---
+## Two Pointers Approach
+
+**Intuition**
+Use two pointers starting from both ends of the string, moving towards each other while swapping vowels when both pointers land on them.
+
+**Steps**
+- Convert string to a mutable character array
+- Initialize left pointer at 0 and right pointer at end
+- Move left pointer right until it finds a vowel
+- Move right pointer left until it finds a vowel
+- Swap the vowels at both pointers
+- Continue until pointers meet or cross
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseVowels(self, s: str) -> str:
+        vowels = set('aeiouAEIOU')
+        s_list = list(s)
+        left, right = 0, len(s) - 1
+        
+        while left &lt; right:
+            while left &lt; right and s_list[left] not in vowels:
+                left += 1
+            while left &lt; right and s_list[right] not in vowels:
+                right -= 1
+            s_list[left], s_list[right] = s_list[right], s_list[left]
+            left += 1
+            right -= 1
+        
+        return ''.join(s_list)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseVowels(String s) {
+        char[] chars = s.toCharArray();
+        int left = 0, right = chars.length - 1;
+        String vowels = "aeiouAEIOU";
+        
+        while (left &lt; right) {
+            while (left &lt; right && vowels.indexOf(chars[left]) == -1) {
+                left++;
+            }
+            while (left &lt; right && vowels.indexOf(chars[right]) == -1) {
+                right--;
+            }
+            char temp = chars[left];
+            chars[left] = chars[right];
+            chars[right] = temp;
+            left++;
+            right--;
+        }
+        
+        return new String(chars);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseVowels(string s) {
+        int left = 0, right = s.size() - 1;
+        string vowels = "aeiouAEIOU";
+        
+        while (left &lt; right) {
+            while (left &lt; right && vowels.find(s[left]) == string::npos) {
+                left++;
+            }
+            while (left &lt; right && vowels.find(s[right]) == string::npos) {
+                right--;
+            }
+            swap(s[left], s[right]);
+            left++;
+            right--;
+        }
+        
+        return s;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {string}
+ */
+var reverseVowels = function(s) {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const chars = s.split('');
+    let left = 0, right = chars.length - 1;
+    
+    while (left &lt; right) {
+        while (left &lt; right && !vowels.has(chars[left])) {
+            left++;
+        }
+        while (left &lt; right && !vowels.has(chars[right])) {
+            right--;
+        }
+        [chars[left], chars[right]] = [chars[right], chars[left]];
+        left++;
+        right--;
+    }
+    
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseVowels(s: string): string {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const chars = s.split('');
+    let left = 0, right = chars.length - 1;
+    
+    while (left &lt; right) {
+        while (left &lt; right && !vowels.has(chars[left])) {
+            left++;
+        }
+        while (left &lt; right && !vowels.has(chars[right])) {
+            right--;
+        }
+        [chars[left], chars[right]] = [chars[right], chars[left]];
+        left++;
+        right--;
+    }
+    
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array (or O(1) if we consider input modification)
+- Notes: Most efficient approach with single pass through the string
+
+---
+## Stack Approach
+
+**Intuition**
+Collect all vowels in a stack (LIFO), then iterate through the string again replacing vowels with popped values to achieve reversal.
+
+**Steps**
+- Create a set of vowels for O(1) lookup
+- Iterate through string and push all vowels onto a stack
+- Convert string to character array
+- Iterate through array, replacing each vowel with the top of the stack (pop operation)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseVowels(self, s: str) -> str:
+        vowels = set('aeiouAEIOU')
+        stack = []
+        s_list = list(s)
+        
+        for char in s:
+            if char in vowels:
+                stack.append(char)
+        
+        for i in range(len(s_list)):
+            if s_list[i] in vowels:
+                s_list[i] = stack.pop()
+        
+        return ''.join(s_list)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseVowels(String s) {
+        char[] chars = s.toCharArray();
+        String vowels = "aeiouAEIOU";
+        java.util.Stack<Character> stack = new java.util.Stack&lt;&gt;();
+        
+        for (char c : chars) {
+            if (vowels.indexOf(c) != -1) {
+                stack.push(c);
+            }
+        }
+        
+        for (int i = 0; i &lt; chars.length; i++) {
+            if (vowels.indexOf(chars[i]) != -1) {
+                chars[i] = stack.pop();
+            }
+        }
+        
+        return new String(chars);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseVowels(string s) {
+        string vowels = "aeiouAEIOU";
+        stack<char> st;
+        
+        for (char c : s) {
+            if (vowels.find(c) != string::npos) {
+                st.push(c);
+            }
+        }
+        
+        for (int i = 0; i &lt; s.size(); i++) {
+            if (vowels.find(s[i]) != string::npos) {
+                s[i] = st.top();
+                st.pop();
+            }
+        }
+        
+        return s;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {string}
+ */
+var reverseVowels = function(s) {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const stack = [];
+    const chars = s.split('');
+    
+    for (const char of chars) {
+        if (vowels.has(char)) {
+            stack.push(char);
+        }
+    }
+    
+    for (let i = 0; i &lt; chars.length; i++) {
+        if (vowels.has(chars[i])) {
+            chars[i] = stack.pop();
+        }
+    }
+    
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseVowels(s: string): string {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const stack: string[] = [];
+    const chars = s.split('');
+    
+    for (const char of chars) {
+        if (vowels.has(char)) {
+            stack.push(char);
+        }
+    }
+    
+    for (let i = 0; i &lt; chars.length; i++) {
+        if (vowels.has(chars[i])) {
+            chars[i] = stack.pop()!;
+        }
+    }
+    
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the stack and character array
+- Notes: Requires two passes through the string but is intuitive and easy to understand
+
+---
+## Brute Force Approach
+
+**Intuition**
+Collect all vowels in a list, reverse the list, then iterate through the string replacing vowels in order with the reversed list.
+
+**Steps**
+- Create a set of vowels for O(1) lookup
+- Collect all vowels from the string into a list
+- Reverse the vowel list
+- Convert string to character array
+- Iterate through array, replacing each vowel with the next element from the reversed list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseVowels(self, s: str) -> str:
+        vowels = set('aeiouAEIOU')
+        vowel_list = []
+        s_list = list(s)
+        
+        for char in s:
+            if char in vowels:
+                vowel_list.append(char)
+        
+        vowel_list.reverse()
+        idx = 0
+        
+        for i in range(len(s_list)):
+            if s_list[i] in vowels:
+                s_list[i] = vowel_list[idx]
+                idx += 1
+        
+        return ''.join(s_list)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseVowels(String s) {
+        char[] chars = s.toCharArray();
+        String vowels = "aeiouAEIOU";
+        java.util.List<Character> vowelList = new java.util.ArrayList&lt;&gt;();
+        
+        for (char c : chars) {
+            if (vowels.indexOf(c) != -1) {
+                vowelList.add(c);
+            }
+        }
+        
+        java.util.Collections.reverse(vowelList);
+        int idx = 0;
+        
+        for (int i = 0; i &lt; chars.length; i++) {
+            if (vowels.indexOf(chars[i]) != -1) {
+                chars[i] = vowelList.get(idx++);
+            }
+        }
+        
+        return new String(chars);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseVowels(string s) {
+        string vowels = "aeiouAEIOU";
+        vector<char> vowelList;
+        
+        for (char c : s) {
+            if (vowels.find(c) != string::npos) {
+                vowelList.push_back(c);
+            }
+        }
+        
+        reverse(vowelList.begin(), vowelList.end());
+        int idx = 0;
+        
+        for (int i = 0; i &lt; s.size(); i++) {
+            if (vowels.find(s[i]) != string::npos) {
+                s[i] = vowelList[idx++];
+            }
+        }
+        
+        return s;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {string}
+ */
+var reverseVowels = function(s) {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const vowelList = [];
+    const chars = s.split('');
+    
+    for (const char of chars) {
+        if (vowels.has(char)) {
+            vowelList.push(char);
+        }
+    }
+    
+    vowelList.reverse();
+    let idx = 0;
+    
+    for (let i = 0; i &lt; chars.length; i++) {
+        if (vowels.has(chars[i])) {
+            chars[i] = vowelList[idx++];
+        }
+    }
+    
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseVowels(s: string): string {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const vowelList: string[] = [];
+    const chars = s.split('');
+    
+    for (const char of chars) {
+        if (vowels.has(char)) {
+            vowelList.push(char);
+        }
+    }
+    
+    vowelList.reverse();
+    let idx = 0;
+    
+    for (let i = 0; i &lt; chars.length; i++) {
+        if (vowels.has(chars[i])) {
+            chars[i] = vowelList[idx++];
+        }
+    }
+    
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the vowel list and character array
+- Notes: Simple and straightforward but uses extra space for the vowel list
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Vowels of a String Solutions","datePublished":"2026-02-28","description":"Given a string s, reverse only all the vowels in the string and return it.","keywords":"LeetCode, Reverse Vowels of a String, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we traverse the string once with two pointers."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the stack of vowels and the character array."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers approach is most efficient as it only requires a single pass through the string and uses minimal extra space."}}]}).replace(/</g,'\u003c')}
+</script>

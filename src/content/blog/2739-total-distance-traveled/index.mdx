@@ -1,0 +1,114 @@
+---
+title: "Total Distance Traveled"
+summary: "Calculate the total distance a truck can travel given a main and auxiliary fuel tank with specific transfer rules."
+date: "Feb 09, 2025"
+tags:
+  - Math
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 41.40% | **Paid:** No
+> **Topics:** Math, Simulation
+
+A truck has two fuel tanks. You are given two integers, mainTank representing the liters of fuel in the main tank and additionalTank representing the liters of fuel in the additional tank.
+
+The truck consumes 1 liter of fuel for every kilometer it travels. If the fuel in the main tank drops to 0 liters while driving, the truck cannot move forward.
+
+Whenever 5 liters of fuel are consumed from the main tank, if there is at least 1 liter of fuel in the additional tank, 1 liter of fuel will be transferred from the additional tank to the main tank.
+
+Return the maximum distance the truck can travel.
+
+- Examples
+- Constraints
+- [Simulation](#simulation)
+- [Mathematical Optimization](#mathematical-optimization)
+
+## Examples
+
+### Example 1:
+```text
+Input: mainTank = 5, additionalTank = 10
+Output: 60
+Explanation:
+- Start with 5 liters in main tank and 10 liters in additional tank.
+- Travel 5 km consuming 5 liters from main tank. Transfer 1 liter from additional to main.
+- Now main tank has 1 liter, additional tank has 9 liters.
+- Travel 1 km consuming 1 liter from main tank.
+- Total distance traveled is 5 + 1 = 60 km.
+```
+
+### Example 2:
+```text
+Input: mainTank = 1, additionalTank = 2
+Output: 10
+Explanation:
+- Start with 1 liter in main tank and 2 liters in additional tank.
+- Travel 1 km consuming 1 liter from main tank.
+- No transfer happens because main tank is empty.
+- Total distance traveled is 10 km.
+```
+
+## Constraints
+
+```text
+0 <= mainTank, additionalTank <= 100
+```
+
+---
+## Simulation
+
+**Intuition**
+We can directly simulate the process of driving the truck. We iterate while there is fuel in the main tank, consuming 1 liter (10 km) at a time. After every 5 liters consumed, we check if we can transfer fuel from the additional tank to the main tank.
+
+**Steps**
+- Initialize `distance` to 0.
+- Loop while `mainTank` is greater than 0.
+- Decrement `mainTank` by 1 and increment `distance` by 10.
+- Check if `distance` is a multiple of 50 (meaning 5 liters have been consumed) and if `additionalTank` is greater than 0.
+- If true, increment `mainTank` by 1 and decrement `additionalTank` by 1.
+- Return `distance`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def distanceTraveled(self, mainTank: int, additionalTank: int) -&gt; int:\n        distance = 0\n        while mainTank &gt; 0:\n            mainTank -= 1\n            distance += 10\n            if distance % 50 == 0 and additionalTank &gt; 0:\n                mainTank += 1\n                additionalTank -= 1\n        return distance" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int distanceTraveled(int mainTank, int additionalTank) {\n        int distance = 0;\n        while (mainTank &gt; 0) {\n            mainTank--;\n            distance += 10;\n            if (distance % 50 == 0 && additionalTank &gt; 0) {\n                mainTank++;\n                additionalTank--;\n            }\n        }\n        return distance;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int distanceTraveled(int mainTank, int additionalTank) {\n        int distance = 0;\n        while (mainTank &gt; 0) {\n            mainTank--;\n            distance += 10;\n            if (distance % 50 == 0 && additionalTank &gt; 0) {\n                mainTank++;\n                additionalTank--;\n            }\n        }\n        return distance;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distanceTraveled = function(mainTank, additionalTank) {\n    let distance = 0;\n    while (mainTank &gt; 0) {\n        mainTank--;\n        distance += 10;\n        if (distance % 50 === 0 && additionalTank &gt; 0) {\n            mainTank++;\n            additionalTank--;\n        }\n    }\n    return distance;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distanceTraveled(mainTank: number, additionalTank: number): number {\n    let distance = 0;\n    while (mainTank &gt; 0) {\n        mainTank--;\n        distance += 10;\n        if (distance % 50 === 0 && additionalTank &gt; 0) {\n            mainTank++;\n            additionalTank--;\n        }\n    }\n    return distance;\n}" },]} />
+
+**Complexity**
+- Time: O(mainTank + additionalTank) - In the worst case, we iterate once for every liter of fuel available.
+- Space: O(1) - We only use a few variables for tracking state.
+- Notes: This approach is intuitive and perfectly acceptable given the small constraints (max 100).
+
+---
+## Mathematical Optimization
+
+**Intuition**
+We can calculate the result mathematically without simulation. To transfer 1 liter from the additional tank, we must burn 5 liters from the main tank. Effectively, using 1 liter from the additional tank "costs" 5 liters of consumption from the main tank to unlock. However, the transferred liter itself adds to the main tank. So, for every 1 liter transferred, the net decrease in the *initial* main tank fuel is 4 liters (5 burned - 1 transferred). Thus, the maximum amount of fuel we can transfer is limited by `mainTank / 4` (integer division) and the amount available in `additionalTank`.
+
+**Steps**
+- Calculate the maximum fuel that can be transferred from the additional tank. This is the minimum of `additionalTank` and `mainTank / 4`.
+- The total fuel used is the sum of the initial `mainTank` and the calculated `transfer` amount.
+- Multiply the total fuel by 10 to get the distance.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def distanceTraveled(self, mainTank: int, additionalTank: int) -&gt; int:\n        transfer = min(additionalTank, mainTank // 4)\n        return (mainTank + transfer) * 10" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int distanceTraveled(int mainTank, int additionalTank) {\n        int transfer = Math.min(additionalTank, mainTank / 4);\n        return (mainTank + transfer) * 10;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int distanceTraveled(int mainTank, int additionalTank) {\n        int transfer = min(additionalTank, mainTank / 4);\n        return (mainTank + transfer) * 10;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distanceTraveled = function(mainTank, additionalTank) {\n    let transfer = Math.min(additionalTank, Math.floor(mainTank / 4));\n    return (mainTank + transfer) * 10;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distanceTraveled(mainTank: number, additionalTank: number): number {\n    let transfer = Math.min(additionalTank, Math.floor(mainTank / 4));\n    return (mainTank + transfer) * 10;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Constant time arithmetic operations.
+- Space: O(1) - No extra space used.
+- Notes: This is the optimal solution, reducing the problem to a simple formula.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Total Distance Traveled Solutions","datePublished":"2025-02-09","description":"Calculate the total distance a truck can travel given a main and auxiliary fuel tank with specific transfer rules.","keywords":"LeetCode, Total Distance Traveled, Easy, Math, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(mainTank + additionalTank), as we iterate once for every liter of fuel."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1), as it involves only basic arithmetic operations."}},{"@type":"Question","name":"How is the maximum fuel transfer calculated mathematically?","acceptedAnswer":{"@type":"Answer","text":"The maximum transfer is the minimum of additionalTank and mainTank / 4. This is because transferring 1 liter requires burning 5 liters, resulting in a net loss of 4 liters from the initial main tank capacity."}}]}).replace(/</g,'\u003c')}
+</script>

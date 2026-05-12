@@ -1,0 +1,179 @@
+---
+title: "Power of Three"
+summary: "Given an integer n, return true if it is a power of three. Otherwise, return false."
+date: "Apr 16, 2024"
+tags:
+  - Math
+  - Recursion
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.00% | **Paid:** No
+> **Topics:** Math, Recursion
+
+Given an integer n, return true if it is a power of three. Otherwise, return false.
+
+An integer x is a power of three if there exists an integer n such that x == 3ⁿ.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Division](#iterative-division)
+- [Approach 2: Base Conversion](#base-conversion)
+- [Approach 3: Mathematics (Logarithms)](#mathematics-logarithms)
+- [Approach 4: Integer Limit](#integer-limit)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+n = 27
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+27 = 3^3
+
+### Example 2
+
+**Input:**
+```text
+n = 0
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+There is no x where 3^x = 0.
+
+### Example 3
+
+**Input:**
+```text
+n = -1
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+There is no x where 3^x = (-1).
+
+## Constraints
+
+```text
+-2³¹ <= n <= 2³¹ - 1
+```
+
+---
+
+## Approach 1: Iterative Division
+
+**Intuition**
+We can repeatedly divide the number by 3 as long as it is divisible by 3. If we eventually reach 1, the original number was a power of three.
+
+**Steps**
+- Check if n is less than or equal to 0. If so, return false.
+- Use a while loop to check if n is divisible by 3 (n % 3 == 0).
+- Inside the loop, divide n by 3.
+- After the loop, check if n equals 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfThree(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        while n % 3 == 0:\n            n //= 3\n        return n == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfThree(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        while (n % 3 == 0) {\n            n /= 3;\n        }\n        return n == 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfThree(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        while (n % 3 == 0) {\n            n /= 3;\n        }\n        return n == 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPowerOfThree = function(n) {\n    if (n &lt;= 0) {\n        return false;\n    }\n    while (n % 3 === 0) {\n        n /= 3;\n    }\n    return n === 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isPowerOfThree(n: number): boolean {\n        if (n &lt;= 0) {\n            return false;\n        }\n        while (n % 3 === 0) {\n            n /= 3;\n        }\n        return n === 1;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log₃ n)
+- Space: O(1)
+- Notes: Simple and robust, but involves a loop.
+
+---
+
+## Approach 2: Base Conversion
+
+**Intuition**
+In base 3 (ternary number system), numbers that are powers of 3 are represented as a 1 followed by zeros (e.g., 1, 10, 100, 1000). We can convert the number to base 3 and check this pattern.
+
+**Steps**
+- Handle edge case where n &lt;= 0.
+- Convert n to a string representing its value in base 3.
+- Check if the string matches the regular expression `^10*$` (starts with 1, followed by zero or more 0s).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def isPowerOfThree(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        # Convert to base 3 string\n        base3_str = \"\"\n        temp = n\n        while temp &gt; 0:\n            base3_str = str(temp % 3) + base3_str\n            temp //= 3\n        return re.fullmatch(\"10*\", base3_str) is not None" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfThree(int n) {\n        return Integer.toString(n, 3).matches(\"^10*$\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n\nclass Solution {\npublic:\n    bool isPowerOfThree(int n) {\n        if (n &lt;= 0) return false;\n        // Check digits in base 3\n        bool foundOne = false;\n        while (n &gt; 0) {\n            int digit = n % 3;\n            if (digit &gt; 1) return false;\n            if (digit == 1) {\n                if (foundOne) return false; // Found a second 1\n                foundOne = true;\n            }\n            n /= 3;\n        }\n        return foundOne;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPowerOfThree = function(n) {\n    return n.toString(3).match(/^10*$/) !== null;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isPowerOfThree(n: number): boolean {\n        return n.toString(3).match(/^10*$/) !== null;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log₃ n)
+- Space: O(log₃ n)
+- Notes: Elegant but uses extra space for the string representation.
+
+---
+
+## Approach 3: Mathematics (Logarithms)
+
+**Intuition**
+If n is a power of three, then log₃ n must be an integer. We can calculate this using the change of base formula: log₃ n = log₁₀ n / log₁₀ 3.
+
+**Steps**
+- Check if n &lt;= 0.
+- Calculate the logarithm of n base 3.
+- Check if the result is an integer by comparing the rounded value to the original value (handling floating point precision errors).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\n\nclass Solution:\n    def isPowerOfThree(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        # Calculate log base 3\n        log_res = math.log10(n) / math.log10(3)\n        # Check if it is an integer\n        return abs(round(log_res) - log_res) &lt; 1e-10" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfThree(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        // Using natural log\n        double logRes = Math.log(n) / Math.log(3);\n        // Check if integer by comparing with nearest integer\n        return Math.abs(Math.round(logRes) - logRes) &lt; 1e-10;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    bool isPowerOfThree(int n) {\n        if (n &lt;= 0) return false;\n        double logRes = log(n) / log(3);\n        return abs(round(logRes) - logRes) &lt; 1e-10;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPowerOfThree = function(n) {\n    if (n &lt;= 0) {\n        return false;\n    }\n    const logRes = Math.log(n) / Math.log(3);\n    return Math.abs(Math.round(logRes) - logRes) &lt; 1e-10;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isPowerOfThree(n: number): boolean {\n        if (n &lt;= 0) {\n            return false;\n        }\n        const logRes = Math.log(n) / Math.log(3);\n        return Math.abs(Math.round(logRes) - logRes) &lt; 1e-10;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Constant time, but relies on floating point arithmetic which can be imprecise for very large integers.
+
+---
+
+## Approach 4: Integer Limit
+
+**Intuition**
+Since the input is a 32-bit signed integer, the maximum value is 2³¹ - 1. The largest power of 3 that fits in this range is 3¹⁹ = 1162261467. Any power of 3 must be a divisor of this maximum power.
+
+**Steps**
+- Check if n &gt; 0.
+- Check if 1162261467 is divisible by n.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfThree(self, n: int) -&gt; bool:\n        # 3^19 = 1162261467 is the largest power of 3 that fits in a 32-bit signed integer\n        return n &gt; 0 and 1162261467 % n == 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfThree(int n) {\n        // 3^19 = 1162261467 is the largest power of 3 that fits in a 32-bit signed integer\n        return n &gt; 0 && 1162261467 % n == 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfThree(int n) {\n        // 3^19 = 1162261467 is the largest power of 3 that fits in a 32-bit signed integer\n        return n &gt; 0 && 1162261467 % n == 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPowerOfThree = function(n) {\n    // 3^19 = 1162261467 is the largest power of 3 that fits in a 32-bit signed integer\n    return n &gt; 0 && 1162261467 % n === 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isPowerOfThree(n: number): boolean {\n        // 3^19 = 1162261467 is the largest power of 3 that fits in a 32-bit signed integer\n        return n &gt; 0 && 1162261467 % n === 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: The most optimal solution for integer constraints, avoiding loops and floating point errors.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Power of Three Solutions","datePublished":"2024-04-16","description":"Given an integer n, return true if it is a power of three. Otherwise, return false.","keywords":"LeetCode, Power of Three, Easy, Math, Recursion"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Division approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log₃ n) because we divide the number by 3 in each step."}},{"@type":"Question","name":"What is the space complexity of the Integer Limit approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}},{"@type":"Question","name":"Why is the Integer Limit approach considered optimal?","acceptedAnswer":{"@type":"Answer","text":"It runs in O(1) time and O(1) space without using loops or floating-point arithmetic, leveraging the constraint of 32-bit integers."}}]}).replace(/</g,'\u003c')}
+</script>

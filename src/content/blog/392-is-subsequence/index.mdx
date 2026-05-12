@@ -1,0 +1,125 @@
+---
+title: "Is Subsequence"
+summary: "Check if string s is a subsequence of string t by deleting some characters without changing the order."
+date: "Sep 22, 2025"
+tags:
+  - Two Pointers
+  - String
+  - Dynamic Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 49.00% | **Paid:** No
+> **Topics:** Two Pointers, String, Dynamic Programming
+
+Given two strings s and t, return true if s is a subsequence of t, or false otherwise.
+
+A subsequence of a string is a new string that is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (i.e., "ace" is a subsequence of "abcde" while "aec" is not).
+
+- Examples
+- Constraints
+- [Two Pointers](#two-pointers)
+- [Dynamic Programming](#dynamic-programming)
+- [Binary Search](#binary-search)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "abc", t = "ahbgdc"
+Output: true
+Explanation: "a", "b", "c" appear in t in order.
+```
+
+Example 2:
+```text
+Input: s = "axc", t = "ahbgdc"
+Output: false
+Explanation: "a", "x", "c" don't appear in t in order.
+```
+
+## Constraints
+
+```text
+0 <= s.length <= 100
+0 <= t.length <= 10⁴
+s and t consist only of lowercase English letters.
+```
+
+---
+## Two Pointers
+
+**Intuition**
+Use two pointers to traverse both strings simultaneously, matching characters from s in t while maintaining order.
+
+**Steps**
+- Initialize two pointers at the start of both strings
+- Move through t, advancing the s pointer only when characters match
+- Return true if we reach the end of s, false otherwise
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubsequence(self, s: str, t: str) -&gt; bool:\n        i, j = 0, 0\n        while i &lt; len(s) and j &lt; len(t):\n            if s[i] == t[j]:\n                i += 1\n            j += 1\n        return i == len(s)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSubsequence(String s, String t) {\n        int i = 0, j = 0;\n        while (i &lt; s.length() && j &lt; t.length()) {\n            if (s.charAt(i) == t.charAt(j)) {\n                i++;\n            }\n            j++;\n        }\n        return i == s.length();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSubsequence(string s, string t) {\n        int i = 0, j = 0;\n        while (i &lt; s.size() && j &lt; t.size()) {\n            if (s[i] == t[j]) {\n                i++;\n            }\n            j++;\n        }\n        return i == s.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isSubsequence = function(s, t) {\n    let i = 0, j = 0;\n    while (i &lt; s.length && j &lt; t.length) {\n        if (s[i] === t[j]) {\n            i++;\n        }\n        j++;\n    }\n    return i === s.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubsequence(s: string, t: string): boolean {\n    let i = 0, j = 0;\n    while (i &lt; s.length && j &lt; t.length) {\n        if (s[i] === t[j]) {\n            i++;\n        }\n        j++;\n    }\n    return i === s.length;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n = len(s), m = len(t)
+- Space: O(1)
+- Notes: Most efficient for single query, simple and intuitive
+
+---
+## Dynamic Programming
+
+**Intuition**
+Build a 2D table where dp[i][j] indicates if s[0:i] is a subsequence of t[0:j], using previous results to fill current cells.
+
+**Steps**
+- Create a (m+1) x (n+1) DP table initialized to false
+- Set dp[0][j] = true for all j (empty string is subsequence of any string)
+- Fill table: if characters match, inherit from diagonal; otherwise, inherit from left
+- Return dp[m][n]
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isSubsequence(self, s: str, t: str) -&gt; bool:\n        m, n = len(s), len(t)\n        dp = [[False] * (n + 1) for _ in range(m + 1)]\n        \n        for j in range(n + 1):\n            dp[0][j] = True\n        \n        for i in range(1, m + 1):\n            for j in range(1, n + 1):\n                if s[i - 1] == t[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1]\n                else:\n                    dp[i][j] = dp[i][j - 1]\n        \n        return dp[m][n]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isSubsequence(String s, String t) {\n        int m = s.length(), n = t.length();\n        boolean[][] dp = new boolean[m + 1][n + 1];\n        \n        for (int j = 0; j &lt;= n; j++) {\n            dp[0][j] = true;\n        }\n        \n        for (int i = 1; i &lt;= m; i++) {\n            for (int j = 1; j &lt;= n; j++) {\n                if (s.charAt(i - 1) == t.charAt(j - 1)) {\n                    dp[i][j] = dp[i - 1][j - 1];\n                } else {\n                    dp[i][j] = dp[i][j - 1];\n                }\n            }\n        }\n        \n        return dp[m][n];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isSubsequence(string s, string t) {\n        int m = s.size(), n = t.size();\n        vector&lt;vector&lt;bool&gt;&gt; dp(m + 1, vector&lt;bool&gt;(n + 1, false));\n        \n        for (int j = 0; j &lt;= n; j++) {\n            dp[0][j] = true;\n        }\n        \n        for (int i = 1; i &lt;= m; i++) {\n            for (int j = 1; j &lt;= n; j++) {\n                if (s[i - 1] == t[j - 1]) {\n                    dp[i][j] = dp[i - 1][j - 1];\n                } else {\n                    dp[i][j] = dp[i][j - 1];\n                }\n            }\n        }\n        \n        return dp[m][n];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isSubsequence = function(s, t) {\n    const m = s.length, n = t.length;\n    const dp = Array.from({ length: m + 1 }, () =&gt; Array(n + 1).fill(false));\n    \n    for (let j = 0; j &lt;= n; j++) {\n        dp[0][j] = true;\n    }\n    \n    for (let i = 1; i &lt;= m; i++) {\n        for (let j = 1; j &lt;= n; j++) {\n            if (s[i - 1] === t[j - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } else {\n                dp[i][j] = dp[i][j - 1];\n            }\n        }\n    }\n    \n    return dp[m][n];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubsequence(s: string, t: string): boolean {\n    const m = s.length, n = t.length;\n    const dp: boolean[][] = Array.from({ length: m + 1 }, () =&gt; Array(n + 1).fill(false));\n    \n    for (let j = 0; j &lt;= n; j++) {\n        dp[0][j] = true;\n    }\n    \n    for (let i = 1; i &lt;= m; i++) {\n        for (let j = 1; j &lt;= n; j++) {\n            if (s[i - 1] === t[j - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } else {\n                dp[i][j] = dp[i][j - 1];\n            }\n        }\n    }\n    \n    return dp[m][n];\n}" },]} />
+
+**Complexity**
+- Time: O(m × n) where m = len(s), n = len(t)
+- Space: O(m × n)
+- Notes: Useful for understanding the problem structure, but less efficient than two pointers
+
+---
+## Binary Search
+
+**Intuition**
+Preprocess t to store indices of each character, then use binary search to find valid positions for each character in s.
+
+**Steps**
+- Build a map from character to sorted list of its indices in t
+- For each character in s, binary search for the smallest index greater than previous position
+- If any character is missing or no valid position exists, return false
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from bisect import bisect_left\nfrom collections import defaultdict\n\nclass Solution:\n    def isSubsequence(self, s: str, t: str) -&gt; bool:\n        char_indices = defaultdict(list)\n        for idx, char in enumerate(t):\n            char_indices[char].append(idx)\n        \n        prev_idx = -1\n        for char in s:\n            if char not in char_indices:\n                return False\n            indices = char_indices[char]\n            i = bisect_left(indices, prev_idx + 1)\n            if i == len(indices):\n                return False\n            prev_idx = indices[i]\n        \n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean isSubsequence(String s, String t) {\n        Map&lt;Character, List&lt;Integer&gt;&gt; charIndices = new HashMap&lt;&gt;();\n        \n        for (int i = 0; i &lt; t.length(); i++) {\n            char c = t.charAt(i);\n            charIndices.computeIfAbsent(c, k -&gt; new ArrayList&lt;&gt;()).add(i);\n        }\n        \n        int prevIdx = -1;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (!charIndices.containsKey(c)) {\n                return false;\n            }\n            List&lt;Integer&gt; indices = charIndices.get(c);\n            int pos = Collections.binarySearch(indices, prevIdx + 1);\n            if (pos &lt; 0) {\n                pos = -pos - 1;\n            }\n            if (pos == indices.size()) {\n                return false;\n            }\n            prevIdx = indices.get(pos);\n        }\n        \n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isSubsequence(string s, string t) {\n        unordered_map&lt;char, vector&lt;int&gt;&gt; charIndices;\n        \n        for (int i = 0; i &lt; t.size(); i++) {\n            charIndices[t[i]].push_back(i);\n        }\n        \n        int prevIdx = -1;\n        for (char c : s) {\n            if (charIndices.find(c) == charIndices.end()) {\n                return false;\n            }\n            vector&lt;int&gt;& indices = charIndices[c];\n            auto it = lower_bound(indices.begin(), indices.end(), prevIdx + 1);\n            if (it == indices.end()) {\n                return false;\n            }\n            prevIdx = *it;\n        }\n        \n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isSubsequence = function(s, t) {\n    const charIndices = new Map();\n    \n    for (let i = 0; i &lt; t.length; i++) {\n        const c = t[i];\n        if (!charIndices.has(c)) {\n            charIndices.set(c, []);\n        }\n        charIndices.get(c).push(i);\n    }\n    \n    let prevIdx = -1;\n    for (let i = 0; i &lt; s.length; i++) {\n        const c = s[i];\n        if (!charIndices.has(c)) {\n            return false;\n        }\n        const indices = charIndices.get(c);\n        let left = 0, right = indices.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (indices[mid] &lt; prevIdx + 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        if (left === indices.length) {\n            return false;\n        }\n        prevIdx = indices[left];\n    }\n    \n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isSubsequence(s: string, t: string): boolean {\n    const charIndices = new Map&lt;string, number[]&gt;();\n    \n    for (let i = 0; i &lt; t.length; i++) {\n        const c = t[i];\n        if (!charIndices.has(c)) {\n            charIndices.set(c, []);\n        }\n        charIndices.get(c)!.push(i);\n    }\n    \n    let prevIdx = -1;\n    for (let i = 0; i &lt; s.length; i++) {\n        const c = s[i];\n        if (!charIndices.has(c)) {\n            return false;\n        }\n        const indices = charIndices.get(c)!;\n        let left = 0, right = indices.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (indices[mid] &lt; prevIdx + 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        if (left === indices.length) {\n            return false;\n        }\n        prevIdx = indices[left];\n    }\n    \n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m × log(k)) where n = len(t), m = len(s), k = average occurrences per character
+- Space: O(n) for storing character indices
+- Notes: Optimal for multiple queries against the same t string
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Is Subsequence Solutions","datePublished":"2025-09-22","description":"Check if string s is a subsequence of string t by deleting some characters without changing the order.","keywords":"LeetCode, Is Subsequence, Easy, Two Pointers, String, Dynamic Programming"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n is the length of string s and m is the length of string t."}},{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n) where m is the length of string s and n is the length of string t."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m × log(k)) where n is the length of t, m is the length of s, and k is the average occurrences per character in t."}},{"@type":"Question","name":"Which approach is best for multiple queries?","acceptedAnswer":{"@type":"Answer","text":"The Binary Search approach is optimal for multiple queries against the same t string, as preprocessing is done once and each query takes O(m × log(k)) time."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) constant space, as only two pointers are used."}}]}).replace(/</g,'\u003c')}
+</script>

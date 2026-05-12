@@ -1,0 +1,399 @@
+---
+title: "Minimum Moves to Equal Array Elements III"
+summary: "Find the minimum moves to equalize array elements by changing at most k elements to any value."
+date: "Sep 14, 2025"
+tags:
+  - Array
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.70% | **Paid:** No
+> **Topics:** Array, Math
+
+You are given an integer array `nums` and an integer `k`. In one operation, you can increment or decrement an element by 1. You are allowed to perform a special operation at most `k` times: choose an index `i` and set `nums[i]` to any value. Return the minimum number of moves required to make all elements equal.
+
+- Examples
+- Constraints
+- [Brute Force (Sorting)](#brute-force-sorting)
+- [Prefix Sum Optimization](#prefix-sum-optimization)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [1,2,3,4], k = 1
+Output: 2
+Explanation: We can change the last element 4 to 2 (special operation). 
+The array becomes [1, 2, 3, 2]. 
+We then need 1 move to change 1 to 2 and 1 move to change 3 to 2. 
+Total moves = 2.
+```
+
+### Example 2
+```text
+Input: nums = [1,10,10,10], k = 1
+Output: 0
+Explanation: We can change the first element 1 to 10 (special operation). 
+The array becomes [10, 10, 10, 10]. 
+No moves needed.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 1 <= nums[i] <= 100
+```
+
+---
+## Brute Force (Sorting)
+
+**Intuition**
+If we can change `k` elements to any value for free, we effectively need to find a subset of `n - k` elements that are already close to each other. The cost to make a set of numbers equal is minimized when the target value is the median of that set. We can sort the array and check every possible window of size `n - k`.
+
+**Steps**
+- Sort the array `nums`.
+- Calculate the window size `m = n - k`.
+- Iterate through every possible window of size `m` in the sorted array.
+- For each window, find the median (the middle element).
+- Calculate the sum of absolute differences between all elements in the window and the median.
+- Track the minimum sum found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def minMoves3(self, nums: list[int], k: int) -> int:
+        nums.sort()
+        n = len(nums)
+        m = n - k
+        if m &lt;= 0:
+            return 0
+        
+        min_cost = float('inf')
+        
+        # Iterate over all windows of size m
+        for l in range(k + 1):
+            r = l + m - 1
+            mid = (l + r) // 2
+            median = nums[mid]
+            
+            cost = 0
+            # Calculate cost for this window
+            for i in range(l, r + 1):
+                cost += abs(nums[i] - median)
+            
+            min_cost = min(min_cost, cost)
+            
+        return min_cost
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.Arrays;
+
+class Solution {
+    public long minMoves3(int[] nums, int k) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int m = n - k;
+        if (m &lt;= 0) return 0;
+        
+        long minCost = Long.MAX_VALUE;
+        
+        for (int l = 0; l &lt;= k; l++) {
+            int r = l + m - 1;
+            int mid = (l + r) / 2;
+            long median = nums[mid];
+            
+            long cost = 0;
+            for (int i = l; i &lt;= r; i++) {
+                cost += Math.abs(nums[i] - median);
+            }
+            minCost = Math.min(minCost, cost);
+        }
+        return minCost;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    long long minMoves3(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int n = nums.size();
+        int m = n - k;
+        if (m &lt;= 0) return 0;
+        
+        long long minCost = LLONG_MAX;
+        
+        for (int l = 0; l &lt;= k; l++) {
+            int r = l + m - 1;
+            int mid = (l + r) / 2;
+            long long median = nums[mid];
+            
+            long long cost = 0;
+            for (int i = l; i &lt;= r; i++) {
+                cost += abs(nums[i] - median);
+            }
+            minCost = min(minCost, cost);
+        }
+        return minCost;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minMoves3 = function(nums, k) {
+    nums.sort((a, b) =&gt; a - b);
+    const n = nums.length;
+    const m = n - k;
+    if (m &lt;= 0) return 0;
+    
+    let minCost = Infinity;
+    
+    for (let l = 0; l &lt;= k; l++) {
+        const r = l + m - 1;
+        const mid = Math.floor((l + r) / 2);
+        const median = nums[mid];
+        
+        let cost = 0;
+        for (let i = l; i &lt;= r; i++) {
+            cost += Math.abs(nums[i] - median);
+        }
+        minCost = Math.min(minCost, cost);
+    }
+    return minCost;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function minMoves3(nums: number[], k: number): number {
+    nums.sort((a, b) =&gt; a - b);
+    const n = nums.length;
+    const m = n - k;
+    if (m &lt;= 0) return 0;
+    
+    let minCost = Infinity;
+    
+    for (let l = 0; l &lt;= k; l++) {
+        const r = l + m - 1;
+        const mid = Math.floor((l + r) / 2);
+        const median = nums[mid];
+        
+        let cost = 0;
+        for (let i = l; i &lt;= r; i++) {
+            cost += Math.abs(nums[i] - median);
+        }
+        minCost = Math.min(minCost, cost);
+    }
+    return minCost;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case, we iterate through O(n) windows and sum O(n) elements for each.
+- Space: O(1) or O(n) depending on the sorting implementation.
+- Notes: Simple to implement but may time out for large inputs (n &gt; 10⁴).
+
+---
+## Prefix Sum Optimization
+
+**Intuition**
+To optimize the calculation of the sum of absolute differences for each window, we can use a prefix sum array. This allows us to compute the sum of any subarray in O(1) time. The cost to equalize a window to its median can be broken down into the sum of elements to the left of the median and the sum of elements to the right of the median.
+
+**Steps**
+- Sort the array `nums`.
+- Compute a prefix sum array `prefix` where `prefix[i]` is the sum of the first `i` elements.
+- Iterate through every window of size `m = n - k`.
+- For each window `[l, r]`, find the median index `mid`.
+- Calculate the sum of elements on the left of the median: `left_sum = median * (mid - l) - (prefix[mid] - prefix[l])`.
+- Calculate the sum of elements on the right of the median: `right_sum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid)`.
+- Total cost is `left_sum + right_sum`. Track the minimum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def minMoves3(self, nums: list[int], k: int) -> int:
+        nums.sort()
+        n = len(nums)
+        m = n - k
+        if m &lt;= 0:
+            return 0
+        
+        # Build prefix sum array
+        prefix = [0] * (n + 1)
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + nums[i]
+        
+        min_cost = float('inf')
+        
+        for l in range(k + 1):
+            r = l + m - 1
+            mid = (l + r) // 2
+            median = nums[mid]
+            
+            # Sum of elements to the left of median
+            # median * count - actual_sum
+            left_sum = median * (mid - l) - (prefix[mid] - prefix[l])
+            
+            # Sum of elements to the right of median
+            # actual_sum - median * count
+            right_sum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid)
+            
+            total = left_sum + right_sum
+            min_cost = min(min_cost, total)
+            
+        return min_cost
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.Arrays;
+
+class Solution {
+    public long minMoves3(int[] nums, int k) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int m = n - k;
+        if (m &lt;= 0) return 0;
+        
+        long[] prefix = new long[n + 1];
+        for (int i = 0; i &lt; n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+        
+        long minCost = Long.MAX_VALUE;
+        
+        for (int l = 0; l &lt;= k; l++) {
+            int r = l + m - 1;
+            int mid = (l + r) / 2;
+            long median = nums[mid];
+            
+            long leftSum = median * (mid - l) - (prefix[mid] - prefix[l]);
+            long rightSum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid);
+            
+            long total = leftSum + rightSum;
+            minCost = Math.min(minCost, total);
+        }
+        return minCost;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    long long minMoves3(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int n = nums.size();
+        int m = n - k;
+        if (m &lt;= 0) return 0;
+        
+        vector<long long> prefix(n + 1, 0);
+        for (int i = 0; i &lt; n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+        
+        long long minCost = LLONG_MAX;
+        
+        for (int l = 0; l &lt;= k; l++) {
+            int r = l + m - 1;
+            int mid = (l + r) / 2;
+            long long median = nums[mid];
+            
+            long long leftSum = median * (mid - l) - (prefix[mid] - prefix[l]);
+            long long rightSum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid);
+            
+            long long total = leftSum + rightSum;
+            minCost = min(minCost, total);
+        }
+        return minCost;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minMoves3 = function(nums, k) {
+    nums.sort((a, b) =&gt; a - b);
+    const n = nums.length;
+    const m = n - k;
+    if (m &lt;= 0) return 0;
+    
+    const prefix = new Array(n + 1).fill(0);
+    for (let i = 0; i &lt; n; i++) {
+        prefix[i + 1] = prefix[i] + nums[i];
+    }
+    
+    let minCost = Infinity;
+    
+    for (let l = 0; l &lt;= k; l++) {
+        const r = l + m - 1;
+        const mid = Math.floor((l + r) / 2);
+        const median = nums[mid];
+        
+        const leftSum = median * (mid - l) - (prefix[mid] - prefix[l]);
+        const rightSum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid);
+        
+        const total = leftSum + rightSum;
+        minCost = Math.min(minCost, total);
+    }
+    return minCost;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function minMoves3(nums: number[], k: number): number {
+    nums.sort((a, b) =&gt; a - b);
+    const n = nums.length;
+    const m = n - k;
+    if (m &lt;= 0) return 0;
+    
+    const prefix = new Array(n + 1).fill(0);
+    for (let i = 0; i &lt; n; i++) {
+        prefix[i + 1] = prefix[i] + nums[i];
+    }
+    
+    let minCost = Infinity;
+    
+    for (let l = 0; l &lt;= k; l++) {
+        const r = l + m - 1;
+        const mid = Math.floor((l + r) / 2);
+        const median = nums[mid];
+        
+        const leftSum = median * (mid - l) - (prefix[mid] - prefix[l]);
+        const rightSum = (prefix[r + 1] - prefix[mid + 1]) - median * (r - mid);
+        
+        const total = leftSum + rightSum;
+        minCost = Math.min(minCost, total);
+    }
+    return minCost;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) - Sorting dominates the time complexity. The sliding window iteration is O(n).
+- Space: O(n) - For the prefix sum array.
+- Notes: This is the optimal approach for large input sizes.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Moves to Equal Array Elements III Solutions","datePublished":"2025-09-14","description":"Find the minimum moves to equalize array elements by changing at most k elements to any value.","keywords":"LeetCode, Minimum Moves to Equal Array Elements III, Easy, Array, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because we iterate through O(n) windows and sum O(n) elements for each window."}},{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step. The sliding window iteration with prefix sums takes O(n)."}},{"@type":"Question","name":"Why is the median the optimal target value?","acceptedAnswer":{"@type":"Answer","text":"The median minimizes the sum of absolute deviations. Any other target value would result in a larger or equal sum of distances."}}]}).replace(/</g,'\u003c')}
+</script>

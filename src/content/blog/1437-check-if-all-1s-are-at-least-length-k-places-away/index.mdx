@@ -1,0 +1,126 @@
+---
+title: "Check If All 1's Are at Least Length K Places Away"
+summary: "Given an array of 0s and 1s, determine if every pair of adjacent 1s is separated by at least k 0s."
+date: "Aug 09, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.30% | **Paid:** No
+> **Topics:** Array
+
+Given an array nums of 0s and 1s and an integer k, return true if all 1's are at least k places away from each other, otherwise return false.
+
+## Examples
+
+```text
+Input: nums = [1,0,0,0,1,0,0,1], k = 2
+Output: true
+Explanation: Each of the 1's are at least 2 places away from each other.
+```
+
+```text
+Input: nums = [1,0,0,1,0,1], k = 2
+Output: false
+Explanation: The second 1 and third 1 are only one place apart.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁵
+0 <= nums[i] <= 1
+0 <= k <= 10⁵
+```
+
+- [Linear Scan](#linear-scan)
+- [Pre-processing Indices](#pre-processing-indices)
+- [Brute Force](#brute-force)
+
+---
+
+## Linear Scan
+
+**Intuition**
+We can iterate through the array once, keeping track of the index of the last seen '1'. If we encounter another '1', we simply check the distance between the current index and the previous index.
+
+**Steps**
+- Initialize a variable `prev` to `-k - 1` (or a very small number) to handle the first '1' correctly without special casing.
+- Iterate through the array with index `i`.
+- If `nums[i]` is 1:
+  - Check if `i - prev - 1 &lt; k`. If true, the distance is too short, return `false`.
+  - Update `prev` to `i`.
+- If the loop finishes, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kLengthApart(self, nums: List[int], k: int) -&gt; bool:\n        prev = -k - 1\n        for i, num in enumerate(nums):\n            if num == 1:\n                if i - prev - 1 &lt; k:\n                    return False\n                prev = i\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean kLengthApart(int[] nums, int k) {\n        int prev = -k - 1;\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] == 1) {\n                if (i - prev - 1 &lt; k) {\n                    return false;\n                }\n                prev = i;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool kLengthApart(vector&lt;int&gt;& nums, int k) {\n        int prev = -k - 1;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (nums[i] == 1) {\n                if (i - prev - 1 &lt; k) {\n                    return false;\n                }\n                prev = i;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kLengthApart = function(nums, k) {\n    let prev = -k - 1;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === 1) {\n            if (i - prev - 1 &lt; k) {\n                return false;\n            }\n            prev = i;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kLengthApart(nums: number[], k: number): boolean {\n    let prev = -k - 1;\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === 1) {\n            if (i - prev - 1 &lt; k) {\n                return false;\n            }\n            prev = i;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with single pass and constant space.
+
+---
+
+## Pre-processing Indices
+
+**Intuition**
+First, collect all the indices where the value is 1 into a separate list. Then, iterate through this list to check the distance between consecutive indices.
+
+**Steps**
+- Create an empty list `ones`.
+- Iterate through `nums` and append the index `i` to `ones` if `nums[i] == 1`.
+- Iterate through `ones` from index 1 to the end.
+- If `ones[i] - ones[i-1] - 1 &lt; k`, return `false`.
+- Return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kLengthApart(self, nums: List[int], k: int) -&gt; bool:\n        ones = [i for i, x in enumerate(nums) if x == 1]\n        for i in range(1, len(ones)):\n            if ones[i] - ones[i-1] - 1 &lt; k:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public boolean kLengthApart(int[] nums, int k) {\n        List&lt;Integer&gt; ones = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] == 1) {\n                ones.add(i);\n            }\n        }\n        for (int i = 1; i &lt; ones.size(); i++) {\n            if (ones.get(i) - ones.get(i - 1) - 1 &lt; k) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool kLengthApart(vector&lt;int&gt;& nums, int k) {\n        vector&lt;int&gt; ones;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (nums[i] == 1) {\n                ones.push_back(i);\n            }\n        }\n        for (int i = 1; i &lt; ones.size(); i++) {\n            if (ones[i] - ones[i-1] - 1 &lt; k) {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kLengthApart = function(nums, k) {\n    let ones = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === 1) {\n            ones.push(i);\n        }\n    }\n    for (let i = 1; i &lt; ones.length; i++) {\n        if (ones[i] - ones[i-1] - 1 &lt; k) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kLengthApart(nums: number[], k: number): boolean {\n    let ones: number[] = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] === 1) {\n            ones.push(i);\n        }\n    }\n    for (let i = 1; i &lt; ones.length; i++) {\n        if (ones[i] - ones[i-1] - 1 &lt; k) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses extra space to store indices, but logic is very clear.
+
+---
+
+## Brute Force
+
+**Intuition**
+For every '1' found in the array, look ahead at the next `k` elements to see if another '1' exists within that range.
+
+**Steps**
+- Iterate through the array with index `i`.
+- If `nums[i] == 1`:
+  - Iterate through `j` from `i + 1` to `min(n - 1, i + k)`.
+  - If `nums[j] == 1`, return `false`.
+- Return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kLengthApart(self, nums: List[int], k: int) -&gt; bool:\n        n = len(nums)\n        for i in range(n):\n            if nums[i] == 1:\n                limit = min(n - 1, i + k)\n                for j in range(i + 1, limit + 1):\n                    if nums[j] == 1:\n                        return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean kLengthApart(int[] nums, int k) {\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] == 1) {\n                int limit = Math.min(n - 1, i + k);\n                for (int j = i + 1; j &lt;= limit; j++) {\n                    if (nums[j] == 1) {\n                        return false;\n                    }\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool kLengthApart(vector&lt;int&gt;& nums, int k) {\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] == 1) {\n                int limit = min(n - 1, i + k);\n                for (int j = i + 1; j &lt;= limit; j++) {\n                    if (nums[j] == 1) {\n                        return false;\n                    }\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kLengthApart = function(nums, k) {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (nums[i] === 1) {\n            const limit = Math.min(n - 1, i + k);\n            for (let j = i + 1; j &lt;= limit; j++) {\n                if (nums[j] === 1) {\n                    return false;\n                }\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kLengthApart(nums: number[], k: number): boolean {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (nums[i] === 1) {\n            const limit = Math.min(n - 1, i + k);\n            for (let j = i + 1; j &lt;= limit; j++) {\n                if (nums[j] === 1) {\n                    return false;\n                }\n            }\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n * k)
+- Space: O(1)
+- Notes: Inefficient for large inputs where k is close to n.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check If All 1's Are at Least Length K Places Away Solutions","datePublished":"2024-08-09","description":"Given an array of 0s and 1s, determine if every pair of adjacent 1s is separated by at least k 0s.","keywords":"LeetCode, Check If All 1's Are at Least Length K Places Away, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array, as we traverse the array once."}},{"@type":"Question","name":"What is the space complexity of the Pre-processing Indices approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case (if all elements are 1) to store the list of indices."}},{"@type":"Question","name":"Why is the Brute Force approach inefficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n * k), which can be very slow if k is large, potentially up to 10⁵."}}]}).replace(/</g,'\u003c')}
+</script>

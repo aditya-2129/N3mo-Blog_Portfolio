@@ -1,0 +1,135 @@
+---
+title: "Detect Pattern of Length M Repeated K or More Times"
+summary: "Check if an array contains a pattern of length M repeated K or more times consecutively."
+date: "Mar 11, 2024"
+tags:
+  - Array
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 43.90% | **Paid:** No
+> **Topics:** Array, Enumeration
+
+Given an array of positive integers arr, return true if there exists a pattern of length m that is repeated k or more times, otherwise return false.
+
+A pattern is a subarray (contiguous subsequence) of arr that repeats consecutively without overlap. A pattern is defined by its length m and the number of repetitions k.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#brute-force)
+- [Approach 2: Counting Consecutive Matches](#counting-consecutive-matches)
+- [Approach 3: Direct Pattern Check](#direct-pattern-check)
+
+## Examples
+
+### Example 1
+```text
+Input: arr = [1,2,4,4,4,4], m = 1, k = 3
+Output: true
+Explanation: The pattern [4] of length 1 is repeated 4 times consecutively.
+```
+
+### Example 2
+```text
+Input: arr = [1,2,1,2,1,1,1,3], m = 2, k = 2
+Output: true
+Explanation: The pattern [1,2] of length 2 is repeated 2 times consecutively.
+```
+
+### Example 3
+```text
+Input: arr = [1,2,1,2,1,3], m = 2, k = 2
+Output: false
+Explanation: The pattern [1,2] of length 2 is not repeated 2 times consecutively.
+```
+
+## Constraints
+
+```text
+2 <= arr.length <= 100
+1 <= arr[i] <= 10⁵
+1 <= m <= 100
+2 <= k <= 100
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+Check every possible starting position and verify if the pattern of length m repeats k times consecutively.
+
+**Steps**
+- Iterate through all possible starting positions from 0 to n - m*k
+- For each position, check if the pattern repeats k times by comparing elements
+- Return true if any valid pattern is found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsPattern(self, arr: List[int], m: int, k: int) -&gt; bool:\n        n = len(arr)\n        for i in range(n - m * k + 1):\n            valid = True\n            for j in range(m):\n                for rep in range(1, k):\n                    if arr[i + j] != arr[i + rep * m + j]:\n                        valid = False\n                        break\n                if not valid:\n                    break\n            if valid:\n                return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean containsPattern(int[] arr, int m, int k) {\n        int n = arr.length;\n        for (int i = 0; i &lt;= n - m * k; i++) {\n            boolean valid = true;\n            outer:\n            for (int j = 0; j &lt; m; j++) {\n                for (int rep = 1; rep &lt; k; rep++) {\n                    if (arr[i + j] != arr[i + rep * m + j]) {\n                        valid = false;\n                        break outer;\n                    }\n                }\n            }\n            if (valid) return true;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsPattern(vector&lt;int&gt;& arr, int m, int k) {\n        int n = arr.size();\n        for (int i = 0; i &lt;= n - m * k; i++) {\n            bool valid = true;\n            for (int j = 0; j &lt; m; j++) {\n                for (int rep = 1; rep &lt; k; rep++) {\n                    if (arr[i + j] != arr[i + rep * m + j]) {\n                        valid = false;\n                        goto next_i;\n                    }\n                }\n            }\n            if (valid) return true;\n            next_i:;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @param {number} m\n * @param {number} k\n * @return {boolean}\n */\nvar containsPattern = function(arr, m, k) {\n    const n = arr.length;\n    for (let i = 0; i &lt;= n - m * k; i++) {\n        let valid = true;\n        outer:\n        for (let j = 0; j &lt; m; j++) {\n            for (let rep = 1; rep &lt; k; rep++) {\n                if (arr[i + j] !== arr[i + rep * m + j]) {\n                    valid = false;\n                    break outer;\n                }\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function containsPattern(arr: number[], m: number, k: number): boolean {\n    const n = arr.length;\n    for (let i = 0; i &lt;= n - m * k; i++) {\n        let valid = true;\n        outer:\n        for (let j = 0; j &lt; m; j++) {\n            for (let rep = 1; rep &lt; k; rep++) {\n                if (arr[i + j] !== arr[i + rep * m + j]) {\n                    valid = false;\n                    break outer;\n                }\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m × k)
+- Space: O(1)
+- Notes: Simple but not optimal for larger inputs
+
+---
+
+## Counting Consecutive Matches
+
+**Intuition**
+If a pattern of length m repeats k times, then each element at position i must equal the element at position i+m. Count consecutive matches to detect patterns.
+
+**Steps**
+- Iterate through the array comparing each element with the element m positions ahead
+- Maintain a count of consecutive matches
+- If count reaches m × (k-1), we found a valid pattern
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsPattern(self, arr: List[int], m: int, k: int) -&gt; bool:\n        n = len(arr)\n        count = 0\n        for i in range(n - m):\n            if arr[i] == arr[i + m]:\n                count += 1\n            else:\n                count = 0\n            if count &gt;= m * (k - 1):\n                return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean containsPattern(int[] arr, int m, int k) {\n        int n = arr.length;\n        int count = 0;\n        for (int i = 0; i &lt; n - m; i++) {\n            if (arr[i] == arr[i + m]) {\n                count++;\n            } else {\n                count = 0;\n            }\n            if (count &gt;= m * (k - 1)) {\n                return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsPattern(vector&lt;int&gt;& arr, int m, int k) {\n        int n = arr.size();\n        int count = 0;\n        for (int i = 0; i &lt; n - m; i++) {\n            if (arr[i] == arr[i + m]) {\n                count++;\n            } else {\n                count = 0;\n            }\n            if (count &gt;= m * (k - 1)) {\n                return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @param {number} m\n * @param {number} k\n * @return {boolean}\n */\nvar containsPattern = function(arr, m, k) {\n    const n = arr.length;\n    let count = 0;\n    for (let i = 0; i &lt; n - m; i++) {\n        if (arr[i] === arr[i + m]) {\n            count++;\n        } else {\n            count = 0;\n        }\n        if (count &gt;= m * (k - 1)) {\n            return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function containsPattern(arr: number[], m: number, k: number): boolean {\n    const n = arr.length;\n    let count = 0;\n    for (let i = 0; i &lt; n - m; i++) {\n        if (arr[i] === arr[i + m]) {\n            count++;\n        } else {\n            count = 0;\n        }\n        if (count &gt;= m * (k - 1)) {\n            return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m)
+- Space: O(1)
+- Notes: Optimal solution with single pass through array
+
+---
+
+## Direct Pattern Check
+
+**Intuition**
+Extract the pattern from each starting position and verify if it repeats k times consecutively by direct comparison.
+
+**Steps**
+- Iterate through all valid starting positions
+- Extract the pattern of length m from the starting position
+- Compare this pattern with subsequent segments of length m
+- Return true if all k segments match
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsPattern(self, arr: List[int], m: int, k: int) -&gt; bool:\n        n = len(arr)\n        for i in range(n - m * k + 1):\n            pattern = arr[i:i+m]\n            valid = True\n            for j in range(1, k):\n                if arr[i + j*m : i + (j+1)*m] != pattern:\n                    valid = False\n                    break\n            if valid:\n                return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean containsPattern(int[] arr, int m, int k) {\n        int n = arr.length;\n        for (int i = 0; i &lt;= n - m * k; i++) {\n            boolean valid = true;\n            for (int j = 1; j &lt; k; j++) {\n                for (int p = 0; p &lt; m; p++) {\n                    if (arr[i + p] != arr[i + j * m + p]) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (!valid) break;\n            }\n            if (valid) return true;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsPattern(vector&lt;int&gt;& arr, int m, int k) {\n        int n = arr.size();\n        for (int i = 0; i &lt;= n - m * k; i++) {\n            bool valid = true;\n            for (int j = 1; j &lt; k; j++) {\n                for (int p = 0; p &lt; m; p++) {\n                    if (arr[i + p] != arr[i + j * m + p]) {\n                        valid = false;\n                        goto next_i;\n                    }\n                }\n            }\n            if (valid) return true;\n            next_i:;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @param {number} m\n * @param {number} k\n * @return {boolean}\n */\nvar containsPattern = function(arr, m, k) {\n    const n = arr.length;\n    for (let i = 0; i &lt;= n - m * k; i++) {\n        let valid = true;\n        outer:\n        for (let j = 1; j &lt; k; j++) {\n            for (let p = 0; p &lt; m; p++) {\n                if (arr[i + p] !== arr[i + j * m + p]) {\n                    valid = false;\n                    break outer;\n                }\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function containsPattern(arr: number[], m: number, k: number): boolean {\n    const n = arr.length;\n    for (let i = 0; i &lt;= n - m * k; i++) {\n        let valid = true;\n        outer:\n        for (let j = 1; j &lt; k; j++) {\n            for (let p = 0; p &lt; m; p++) {\n                if (arr[i + p] !== arr[i + j * m + p]) {\n                    valid = false;\n                    break outer;\n                }\n            }\n        }\n        if (valid) return true;\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m × k)
+- Space: O(1)
+- Notes: Similar to brute force but with cleaner structure
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Detect Pattern of Length M Repeated K or More Times Solutions","datePublished":"2024-03-11","description":"Check if an array contains a pattern of length M repeated K or more times consecutively.","keywords":"LeetCode, Detect Pattern of Length M Repeated K or More Times, Easy, Array, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m × k) where n is the array length, m is the pattern length, and k is the number of repetitions."}},{"@type":"Question","name":"What is the optimal time complexity for this problem?","acceptedAnswer":{"@type":"Answer","text":"The optimal time complexity is O(n × m) achieved by the Counting Consecutive Matches approach."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"All approaches have O(1) space complexity as they only use a constant amount of extra space."}},{"@type":"Question","name":"How does the Counting Consecutive Matches approach work?","acceptedAnswer":{"@type":"Answer","text":"It counts how many consecutive positions satisfy arr[i] == arr[i+m]. If count reaches m × (k-1), a valid pattern exists."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,282 @@
+---
+title: "Modify the Matrix"
+summary: "Given a matrix, replace every -1 with the maximum value in its respective column."
+date: "Apr 02, 2026"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.10% | **Paid:** No
+> **Topics:** Array, Matrix
+
+Given a 0-indexed m x n integer matrix matrix, create a new 0-indexed matrix answer which has dimensions m x n and satisfies the following:
+
+- answer[i][j] = matrix[i][j] if matrix[i][j] != -1.
+- Otherwise, answer[i][j] = the maximum value in column j of the matrix if matrix[i][j] == -1.
+
+Return the matrix answer.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Precompute Column Maxima](#precompute-column-maxima)
+
+## Examples
+
+```text
+Input: matrix = [[1,2,-1],[4,-1,6],[7,8,9]]
+Output: [[1,2,9],[4,8,6],[7,8,9]]
+Explanation: The diagram above shows the transformation of the matrix.
+- In the blue cells, -1 is replaced by the maximum value in the column.
+- In the red cells, the value remains unchanged.
+```
+
+```text
+Input: matrix = [[3,-1],[5,2]]
+Output: [[3,2],[5,2]]
+Explanation: The diagram above shows the transformation of the matrix.
+- In the blue cells, -1 is replaced by the maximum value in the column.
+- In the red cells, the value remains unchanged.
+```
+
+## Constraints
+
+```text
+m == matrix.length
+n == matrix[i].length
+2 <= m, n <= 50
+-1 <= matrix[i][j] <= 100
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through every cell in the matrix. If a cell contains -1, scan the entire column to find the maximum value and replace the -1 with that maximum.
+
+**Steps**
+- Get the number of rows `m` and columns `n` from the matrix.
+- Iterate through each cell `(i, j)` using nested loops.
+- If `matrix[i][j]` is -1:
+  - Initialize a variable `maxVal` to a very small number (e.g., -1 or minimum integer value).
+  - Loop through all rows `k` from 0 to `m-1` for the current column `j`.
+  - Update `maxVal` with `max(maxVal, matrix[k][j])`.
+  - Set `matrix[i][j]` to `maxVal`.
+- Return the modified matrix.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def modifiedMatrix(self, matrix: list[list[int]]) -> list[list[int]]:
+        m, n = len(matrix), len(matrix[0])
+        for i in range(m):
+            for j in range(n):
+                if matrix[i][j] == -1:
+                    max_val = -1
+                    for k in range(m):
+                        max_val = max(max_val, matrix[k][j])
+                    matrix[i][j] = max_val
+        return matrix` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] modifiedMatrix(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (matrix[i][j] == -1) {
+                    int max = Integer.MIN_VALUE;
+                    for (int k = 0; k &lt; m; k++) {
+                        max = Math.max(max, matrix[k][j]);
+                    }
+                    matrix[i][j] = max;
+                }
+            }
+        }
+        return matrix;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; modifiedMatrix(vector<vector<int>&gt;& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        for (int i = 0; i &lt; m; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                if (matrix[i][j] == -1) {
+                    int maxVal = INT_MIN;
+                    for (int k = 0; k &lt; m; ++k) {
+                        maxVal = max(maxVal, matrix[k][j]);
+                    }
+                    matrix[i][j] = maxVal;
+                }
+            }
+        }
+        return matrix;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} matrix
+ * @return {number[][]}
+ */
+var modifiedMatrix = function(matrix) {
+    const m = matrix.length;
+    const n = matrix[0].length;
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (matrix[i][j] === -1) {
+                let maxVal = -Infinity;
+                for (let k = 0; k &lt; m; k++) {
+                    maxVal = Math.max(maxVal, matrix[k][j]);
+                }
+                matrix[i][j] = maxVal;
+            }
+        }
+    }
+    return matrix;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function modifiedMatrix(matrix: number[][]): number[][] {
+    const m = matrix.length;
+    const n = matrix[0].length;
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (matrix[i][j] === -1) {
+                let maxVal = -Infinity;
+                for (let k = 0; k &lt; m; k++) {
+                    maxVal = Math.max(maxVal, matrix[k][j]);
+                }
+                matrix[i][j] = maxVal;
+            }
+        }
+    }
+    return matrix;
+}` },]} />
+
+**Complexity**
+- Time: O(m² * n) in the worst case where every element is -1, requiring a full column scan for each cell.
+- Space: O(1) extra space (modifying in-place).
+- Notes: Simple to implement but inefficient for larger matrices due to repeated scanning.
+
+---
+## Precompute Column Maxima
+
+**Intuition**
+Instead of scanning the column every time we encounter a -1, we can calculate the maximum value for each column once and store it in an auxiliary array. Then, we iterate through the matrix to replace -1s using the precomputed values.
+
+**Steps**
+- Get dimensions `m` (rows) and `n` (columns).
+- Create an array `colMax` of size `n`.
+- Iterate through each column `j`:
+  - Iterate through each row `i` to find the maximum value in that column.
+  - Store this maximum in `colMax[j]`.
+- Iterate through the matrix again:
+  - If `matrix[i][j]` is -1, replace it with `colMax[j]`.
+- Return the modified matrix.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def modifiedMatrix(self, matrix: list[list[int]]) -> list[list[int]]:
+        m, n = len(matrix), len(matrix[0])
+        col_max = [max(col) for col in zip(*matrix)]
+        for i in range(m):
+            for j in range(n):
+                if matrix[i][j] == -1:
+                    matrix[i][j] = col_max[j]
+        return matrix` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] modifiedMatrix(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        int[] colMax = new int[n];
+        for (int j = 0; j &lt; n; j++) {
+            int max = Integer.MIN_VALUE;
+            for (int i = 0; i &lt; m; i++) {
+                max = Math.max(max, matrix[i][j]);
+            }
+            colMax[j] = max;
+        }
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (matrix[i][j] == -1) {
+                    matrix[i][j] = colMax[j];
+                }
+            }
+        }
+        return matrix;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; modifiedMatrix(vector<vector<int>&gt;& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        vector<int> colMax(n, INT_MIN);
+        for (int j = 0; j &lt; n; ++j) {
+            for (int i = 0; i &lt; m; ++i) {
+                colMax[j] = max(colMax[j], matrix[i][j]);
+            }
+        }
+        for (int i = 0; i &lt; m; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                if (matrix[i][j] == -1) {
+                    matrix[i][j] = colMax[j];
+                }
+            }
+        }
+        return matrix;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} matrix
+ * @return {number[][]}
+ */
+var modifiedMatrix = function(matrix) {
+    const m = matrix.length;
+    const n = matrix[0].length;
+    const colMax = new Array(n).fill(-Infinity);
+    for (let j = 0; j &lt; n; j++) {
+        for (let i = 0; i &lt; m; i++) {
+            colMax[j] = Math.max(colMax[j], matrix[i][j]);
+        }
+    }
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (matrix[i][j] === -1) {
+                matrix[i][j] = colMax[j];
+            }
+        }
+    }
+    return matrix;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function modifiedMatrix(matrix: number[][]): number[][] {
+    const m = matrix.length;
+    const n = matrix[0].length;
+    const colMax: number[] = new Array(n).fill(-Infinity);
+    for (let j = 0; j &lt; n; j++) {
+        for (let i = 0; i &lt; m; i++) {
+            colMax[j] = Math.max(colMax[j], matrix[i][j]);
+        }
+    }
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (matrix[i][j] === -1) {
+                matrix[i][j] = colMax[j];
+            }
+        }
+    }
+    return matrix;
+}` },]} />
+
+**Complexity**
+- Time: O(m * n) since we traverse the matrix a constant number of times (once to find maxes, once to replace).
+- Space: O(n) to store the maximum values for each column.
+- Notes: Optimal approach for this problem, trading a small amount of space for significant time savings.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Modify the Matrix Solutions","datePublished":"2026-04-02","description":"Given a matrix, replace every -1 with the maximum value in its respective column.","keywords":"LeetCode, Modify the Matrix, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m² * n) in the worst case, where m is the number of rows and n is the number of columns. This happens if every cell is -1, requiring a full column scan for each cell."}},{"@type":"Question","name":"What is the time complexity of the Precompute Column Maxima approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m * n). We iterate through the matrix once to find the maximum for each column and once more to replace the -1 values."}},{"@type":"Question","name":"What is the space complexity of the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n), where n is the number of columns. This space is used to store the maximum value for each column."}}]}).replace(/</g,'\u003c')}
+</script>

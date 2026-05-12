@@ -1,0 +1,413 @@
+---
+title: "Minimum Operations to Collect Elements"
+summary: "You are given an array nums of positive integers and an integer k."
+date: "May 12, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.30% | **Paid:** No
+
+> **Topics:** Array, Hash Table, Bit Manipulation
+
+You are given an array nums of positive integers and an integer k. In one operation, you can remove the last element of the array and add it to your collection. Return the minimum number of operations needed to collect elements 1, 2, ..., k. An element x is added to the collection if it is in the range [1, k] and it is not already in the collection.
+
+- Examples
+- Constraints
+- [Hash Set](#hash-set)
+- [Boolean Frequency Array](#boolean-frequency-array)
+- [Bit Manipulation](#bit-manipulation)
+
+## Examples
+
+**Input**
+
+```text
+nums = [3,1,5,4,2], k = 2
+```
+
+**Output**
+
+```text
+4
+```
+
+**Explanation**
+
+After 4 operations, we collect elements 2, 4, 5, and 1, in this order. Our collection contains elements 1 and 2. Hence, the answer is 4.
+
+**Input**
+
+```text
+nums = [3,1,5,4,2], k = 5
+```
+
+**Output**
+
+```text
+5
+```
+
+**Explanation**
+
+After 5 operations, we collect elements 2, 4, 5, 1, and 3, in this order. Our collection contains elements 1, 2, 3, 4, and 5. Hence, the answer is 5.
+
+**Input**
+
+```text
+nums = [3,2,5,3,1], k = 3
+```
+
+**Output**
+
+```text
+4
+```
+
+**Explanation**
+
+After 4 operations, we collect elements 1, 3, 5, and 2, in this order. Our collection contains elements 1, 2, and 3. Hence, the answer is 4.
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 50
+- 1 <= nums[i] <= nums.length
+- 1 <= k <= nums.length
+- The input is generated such that you can collect elements 1, 2, ..., k.
+```
+---
+
+---
+
+## Hash Set
+
+**Intuition**
+
+To collect all numbers from 1 to k, we should iterate from the end of the array (simulating the removal of the last element) and keep track of the unique numbers we've encountered that are less than or equal to k.
+
+**Steps**
+
+- Initialize an empty set to store the unique elements found that are in the range [1, k].
+- Initialize a counter for the number of operations.
+- Iterate through the array starting from the last element (index n-1) down to the first element.
+- For each element, increment the operation count.
+- If the current element is less than or equal to k, add it to the set.
+- Check if the size of the set has reached k. If it has, it means we have collected all numbers from 1 to k.
+- Return the current operation count as soon as the set size equals k.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        seen = set()
+        ops = 0
+        for i in range(len(nums) - 1, -1, -1):
+            ops += 1
+            if nums[i] <= k:
+                seen.add(nums[i])
+            if len(seen) == k:
+                return ops
+        return ops` },
+{ name: "Java", lang: "java", code: `import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public int minOperations(List<Integer> nums, int k) {
+        Set<Integer> seen = new HashSet<>();
+        int ops = 0;
+        for (int i = nums.size() - 1; i >= 0; i--) {
+            ops++;
+            if (nums.get(i) <= k) {
+                seen.add(nums.get(i));
+            }
+            if (seen.size() == k) {
+                return ops;
+            }
+        }
+        return ops;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_set>
+
+class Solution {
+public:
+    int minOperations(std::vector<int>& nums, int k) {
+        std::unordered_set<int> seen;
+        int ops = 0;
+        for (int i = nums.size() - 1; i >= 0; --i) {
+            ops++;
+            if (nums[i] <= k) {
+                seen.insert(nums[i]);
+            }
+            if (seen.size() == k) {
+                return ops;
+            }
+        }
+        return ops;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minOperations = function(nums, k) {
+    const seen = new Set();
+    let ops = 0;
+    for (let i = nums.length - 1; i >= 0; i--) {
+        ops++;
+        if (nums[i] <= k) {
+            seen.add(nums[i]);
+        }
+        if (seen.size === k) {
+            return ops;
+        }
+    }
+    return ops;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function minOperations(nums: number[], k: number): number {
+    const seen: Set<number> = new Set();
+    let ops: number = 0;
+    for (let i = nums.length - 1; i >= 0; i--) {
+        ops++;
+        if (nums[i] <= k) {
+            seen.add(nums[i]);
+        }
+        if (seen.size === k) {
+            return ops;
+        }
+    }
+    return ops;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n) where n is the length of the array. In the worst case, we might iterate through the entire array.
+- Space: O(k) to store the unique elements in the set.
+- Notes: The set operations (add, size) are O(1) on average.
+
+---
+
+## Boolean Frequency Array
+
+**Intuition**
+
+Since the range of numbers we care about is small (1 to k), we can use a boolean array instead of a hash set to track which numbers have been collected.
+
+**Steps**
+
+- Create a boolean array 'seen' of size k + 1, initialized to false.
+- Initialize a variable 'count' to 0 to track how many unique elements from [1, k] we have found.
+- Iterate from the end of the 'nums' array.
+- For each element 'nums[i]', if 'nums[i] &lt;= k' and 'seen[nums[i]]' is false:
+- Mark 'seen[nums[i]]' as true and increment 'count'.
+- If 'count' reaches k, return the number of elements processed so far (n - i).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        seen = [False] * (k + 1)
+        count = 0
+        n = len(nums)
+        for i in range(n - 1, -1, -1):
+            val = nums[i]
+            if val <= k and not seen[val]:
+                seen[val] = True
+                count += 1
+            if count == k:
+                return n - i
+        return n` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minOperations(List<Integer> nums, int k) {
+        boolean[] seen = new boolean[k + 1];
+        int count = 0;
+        int n = nums.size();
+        for (int i = n - 1; i >= 0; i--) {
+            int val = nums.get(i);
+            if (val <= k && !seen[val]) {
+                seen[val] = true;
+                count++;
+            }
+            if (count == k) {
+                return n - i;
+            }
+        }
+        return n;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+
+class Solution {
+public:
+    int minOperations(std::vector<int>& nums, int k) {
+        std::vector<bool> seen(k + 1, false);
+        int count = 0;
+        int n = nums.size();
+        for (int i = n - 1; i >= 0; --i) {
+            if (nums[i] <= k && !seen[nums[i]]) {
+                seen[nums[i]] = true;
+                count++;
+            }
+            if (count == k) {
+                return n - i;
+            }
+        }
+        return n;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minOperations = function(nums, k) {
+    const seen = new Array(k + 1).fill(false);
+    let count = 0;
+    const n = nums.length;
+    for (let i = n - 1; i >= 0; i--) {
+        if (nums[i] <= k && !seen[nums[i]]) {
+            seen[nums[i]] = true;
+            count++;
+        }
+        if (count === k) {
+            return n - i;
+        }
+    }
+    return n;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function minOperations(nums: number[], k: number): number {
+    const seen: boolean[] = new Array(k + 1).fill(false);
+    let count: number = 0;
+    const n: number = nums.length;
+    for (let i = n - 1; i >= 0; i--) {
+        if (nums[i] <= k && !seen[nums[i]]) {
+            seen[nums[i]] = true;
+            count++;
+        }
+        if (count === k) {
+            return n - i;
+        }
+    }
+    return n;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n) where n is the length of the array.
+- Space: O(k) to store the boolean array.
+- Notes: This approach is slightly more memory-efficient than a Hash Set because it avoids the overhead of hash table management.
+
+---
+
+## Bit Manipulation
+
+**Intuition**
+
+Since k is small (up to 50), we can represent the set of collected numbers using a single 64-bit integer (bitmask). Each bit i represents whether the number i has been collected.
+
+**Steps**
+
+- Initialize a bitmask 'mask' to 0.
+- Define a 'target' mask where bits 1 through k are set to 1. This can be calculated as (2^(k+1) - 2).
+- Iterate from the end of the array.
+- If the current element 'nums[i]' is less than or equal to k, set the corresponding bit in the mask: mask |= (1 &lt;&lt; nums[i]).
+- After each update, check if 'mask' equals 'target'. If it does, return the number of operations performed.
+- Note: In JavaScript, bitwise operations are 32-bit, so BigInt must be used for k up to 50.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        mask = 0
+        target = (1 << (k + 1)) - 2
+        n = len(nums)
+        for i in range(n - 1, -1, -1):
+            if nums[i] <= k:
+                mask |= (1 << nums[i])
+            if mask == target:
+                return n - i
+        return n` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minOperations(List<Integer> nums, int k) {
+        long mask = 0;
+        long target = (1L << (k + 1)) - 2;
+        int n = nums.size();
+        for (int i = n - 1; i >= 0; i--) {
+            if (nums.get(i) <= k) {
+                mask |= (1L << nums.get(i));
+            }
+            if (mask == target) {
+                return n - i;
+            }
+        }
+        return n;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minOperations(std::vector<int>& nums, int k) {
+        long long mask = 0;
+        long long target = (1LL << (k + 1)) - 2;
+        int n = nums.size();
+        for (int i = n - 1; i >= 0; --i) {
+            if (nums[i] <= k) {
+                mask |= (1LL << nums[i]);
+            }
+            if (mask == target) {
+                return n - i;
+            }
+        }
+        return n;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minOperations = function(nums, k) {
+    let mask = 0n;
+    let target = (1n << BigInt(k + 1)) - 2n;
+    const n = nums.length;
+    for (let i = n - 1; i >= 0; i--) {
+        if (nums[i] <= k) {
+            mask |= (1n << BigInt(nums[i]));
+        }
+        if (mask === target) {
+            return n - i;
+        }
+    }
+    return n;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function minOperations(nums: number[], k: number): number {
+    let mask: bigint = 0n;
+    let target: bigint = (1n << BigInt(k + 1)) - 2n;
+    const n: number = nums.length;
+    for (let i = n - 1; i >= 0; i--) {
+        if (nums[i] <= k) {
+            mask |= (1n << BigInt(nums[i]));
+        }
+        if (mask === target) {
+            return n - i;
+        }
+    }
+    return n;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n) where n is the length of the array.
+- Space: O(1) as we only use a few variables and a single bitmask integer.
+- Notes: This is the most space-efficient approach. It works because k is constrained to 50, fitting within a 64-bit integer.
+
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Operations to Collect Elements Solutions","datePublished":"2026-05-12T22:51:06.961160","description":"You are given an array nums of positive integers and an integer k.","keywords":"LeetCode, Minimum Operations to Collect Elements, Easy, Array, Hash Table, Bit Manipulation, Hash Map, Brute Force, Array"}).replace(/</g,'\\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Hash Set complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n) where n is the length of the array. In the worst case, we might iterate through the entire array.; Space: O(k) to store the unique elements in the set.. The set operations (add, size) are O(1) on average."}},{"@type":"Question","name":"Boolean Frequency Array complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n) where n is the length of the array.; Space: O(k) to store the boolean array.. This approach is slightly more memory-efficient than a Hash Set because it avoids the overhead of hash table management."}},{"@type":"Question","name":"Bit Manipulation complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n) where n is the length of the array.; Space: O(1) as we only use a few variables and a single bitmask integer.. This is the most space-efficient approach. It works because k is constrained to 50, fitting within a 64-bit integer."}}]}).replace(/</g,'\\u003c')}
+</script>

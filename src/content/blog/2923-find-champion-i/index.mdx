@@ -1,0 +1,368 @@
+---
+title: "Find Champion I"
+summary: "Find the champion team in a tournament given a results matrix where 1 means the row team is stronger than the column team."
+date: "Mar 31, 2026"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.40% | **Paid:** No
+> **Topics:** Array, Matrix
+
+There is a tournament with n teams. The results are given in a matrix grid where grid[i][j] = 1 means team i is stronger than team j, and grid[i][j] = 0 means team i is weaker than team j. A team is the champion if it is stronger than all other teams. Return the champion team.
+
+- Examples
+- Constraints
+- [Row Check Approach](#row-check-approach)
+- [Column Check Approach](#column-check-approach)
+- [Count Wins Approach](#count-wins-approach)
+
+## Examples
+
+### Example 1
+```text
+Input: grid = [[0,1],[0,0]]
+Output: 0
+Explanation: Team 0 is stronger than team 1. Team 1 is weaker than team 0. So team 0 is the champion.
+```
+
+### Example 2
+```text
+Input: grid = [[0,0,1],[1,0,1],[0,0,0]]
+Output: 1
+Explanation: Team 1 is stronger than teams 0 and 2. Team 0 is stronger than team 2. Team 2 is weaker than teams 0 and 1. So team 1 is the champion.
+```
+
+## Constraints
+
+```text
+n == grid.length
+n == grid[i].length
+2 <= n <= 100
+grid[i][j] is either 0 or 1.
+For all i, grid[i][i] == 0.
+For all i != j, grid[i][j] != grid[j][i].
+The input is generated such that there is exactly one champion.
+```
+
+---
+## Row Check Approach
+
+**Intuition**
+The champion team must have all 1s in its row (except the diagonal), meaning it beats every other team.
+
+**Steps**
+- Iterate through each team (row)
+- For each team, check if it beats all other teams (all 1s in the row except diagonal)
+- Return the first team that satisfies this condition
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findChampion(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        for i in range(n):
+            is_champion = True
+            for j in range(n):
+                if i != j and grid[i][j] == 0:
+                    is_champion = False
+                    break
+            if is_champion:
+                return i
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findChampion(int[][] grid) {
+        int n = grid.length;
+        for (int i = 0; i &lt; n; i++) {
+            boolean isChampion = true;
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && grid[i][j] == 0) {
+                    isChampion = false;
+                    break;
+                }
+            }
+            if (isChampion) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findChampion(vector<vector<int>&gt;& grid) {
+        int n = grid.size();
+        for (int i = 0; i &lt; n; i++) {
+            bool isChampion = true;
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && grid[i][j] == 0) {
+                    isChampion = false;
+                    break;
+                }
+            }
+            if (isChampion) {
+                return i;
+            }
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {number}
+ */
+var findChampion = function(grid) {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let isChampion = true;
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && grid[i][j] === 0) {
+                isChampion = false;
+                break;
+            }
+        }
+        if (isChampion) {
+            return i;
+        }
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findChampion(grid: number[][]): number {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let isChampion = true;
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && grid[i][j] === 0) {
+                isChampion = false;
+                break;
+            }
+        }
+        if (isChampion) {
+            return i;
+        }
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - We check each element in the matrix
+- Space: O(1) - Only using constant extra space
+- Notes: Simple and straightforward approach
+
+---
+## Column Check Approach
+
+**Intuition**
+The champion team has no losses, meaning no other team beats it. So in its column, all values should be 0 (except the diagonal).
+
+**Steps**
+- Iterate through each team (column)
+- For each team, check if no other team beats it (all 0s in the column except diagonal)
+- Return the first team that satisfies this condition
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findChampion(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        for i in range(n):
+            is_champion = True
+            for j in range(n):
+                if i != j and grid[j][i] == 1:
+                    is_champion = False
+                    break
+            if is_champion:
+                return i
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findChampion(int[][] grid) {
+        int n = grid.length;
+        for (int i = 0; i &lt; n; i++) {
+            boolean isChampion = true;
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && grid[j][i] == 1) {
+                    isChampion = false;
+                    break;
+                }
+            }
+            if (isChampion) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findChampion(vector<vector<int>&gt;& grid) {
+        int n = grid.size();
+        for (int i = 0; i &lt; n; i++) {
+            bool isChampion = true;
+            for (int j = 0; j &lt; n; j++) {
+                if (i != j && grid[j][i] == 1) {
+                    isChampion = false;
+                    break;
+                }
+            }
+            if (isChampion) {
+                return i;
+            }
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {number}
+ */
+var findChampion = function(grid) {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let isChampion = true;
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && grid[j][i] === 1) {
+                isChampion = false;
+                break;
+            }
+        }
+        if (isChampion) {
+            return i;
+        }
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findChampion(grid: number[][]): number {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let isChampion = true;
+        for (let j = 0; j &lt; n; j++) {
+            if (i !== j && grid[j][i] === 1) {
+                isChampion = false;
+                break;
+            }
+        }
+        if (isChampion) {
+            return i;
+        }
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - We check each element in the matrix
+- Space: O(1) - Only using constant extra space
+- Notes: Alternative perspective - checking for no losses instead of all wins
+
+---
+## Count Wins Approach
+
+**Intuition**
+The champion team must have exactly n-1 wins (beating all other teams). Count wins for each team and find the one with n-1 wins.
+
+**Steps**
+- Count the number of wins (1s) for each team
+- Return the team with exactly n-1 wins
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findChampion(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        for i in range(n):
+            if sum(grid[i]) == n - 1:
+                return i
+        return -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int findChampion(int[][] grid) {
+        int n = grid.length;
+        for (int i = 0; i &lt; n; i++) {
+            int wins = 0;
+            for (int j = 0; j &lt; n; j++) {
+                wins += grid[i][j];
+            }
+            if (wins == n - 1) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int findChampion(vector<vector<int>&gt;& grid) {
+        int n = grid.size();
+        for (int i = 0; i &lt; n; i++) {
+            int wins = 0;
+            for (int j = 0; j &lt; n; j++) {
+                wins += grid[i][j];
+            }
+            if (wins == n - 1) {
+                return i;
+            }
+        }
+        return -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {number}
+ */
+var findChampion = function(grid) {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let wins = 0;
+        for (let j = 0; j &lt; n; j++) {
+            wins += grid[i][j];
+        }
+        if (wins === n - 1) {
+            return i;
+        }
+    }
+    return -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findChampion(grid: number[][]): number {
+    const n = grid.length;
+    for (let i = 0; i &lt; n; i++) {
+        let wins = 0;
+        for (let j = 0; j &lt; n; j++) {
+            wins += grid[i][j];
+        }
+        if (wins === n - 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - We sum each row which requires iterating through all elements
+- Space: O(1) - Only using constant extra space
+- Notes: More intuitive but same complexity as other approaches
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Champion I Solutions","datePublished":"2026-03-31","description":"Find the champion team in a tournament given a results matrix where 1 means the row team is stronger than the column team.","keywords":"LeetCode, Find Champion I, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Row Check Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) as we check each element in the matrix."}},{"@type":"Question","name":"What is the space complexity of the Column Check Approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use constant extra space."}},{"@type":"Question","name":"What is the time complexity of the Count Wins Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) as we sum each row which requires iterating through all elements."}}]}).replace(/</g,'\u003c')}
+</script>

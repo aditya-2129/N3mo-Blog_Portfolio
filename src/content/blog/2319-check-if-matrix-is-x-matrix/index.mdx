@@ -1,0 +1,139 @@
+---
+title: "Check if Matrix Is X-Matrix"
+summary: "A square matrix is an X-Matrix if all diagonal elements are non-zero and all other elements are zero."
+date: "May 06, 2024"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.60% | **Paid:** No
+> **Topics:** Array, Matrix
+
+A square matrix is said to be an X-Matrix if both the following conditions hold:
+
+1. All the elements in the diagonals of the matrix are non-zero.
+2. All other elements are 0.
+
+Given a 2D integer array grid of size n x n representing a square matrix, return true if grid is an X-Matrix. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Single Pass Simulation](#single-pass-simulation)
+- [Two-Pass Validation](#two-pass-validation)
+- [Hash Set of Diagonal Indices](#hash-set-of-diagonal-indices)
+
+## Examples
+
+Example 1:
+```text
+Input: grid = [[2,0,0,1],[0,3,1,0],[0,5,2,0],[4,0,0,2]]
+Output: true
+Explanation: Refer to the diagram above. 
+An X-Matrix should have the green elements (diagonals) be non-zero and the red elements be 0.
+Thus, grid is an X-Matrix.
+```
+
+Example 2:
+```text
+Input: grid = [[5,7,0],[0,3,1],[0,5,0]]
+Output: false
+Explanation: Refer to the diagram above. 
+An X-Matrix should have the green elements (diagonals) be non-zero and the red elements be 0.
+Thus, grid is not an X-Matrix.
+```
+
+## Constraints
+
+```text
+n == grid.length == grid[i].length
+3 <= n <= 100
+0 <= grid[i][j] <= 10⁵
+```
+
+---
+## Single Pass Simulation
+
+**Intuition**
+We iterate through every cell in the matrix once. For each cell, we determine if it lies on a diagonal using mathematical indices. If it is on a diagonal, it must be non-zero; otherwise, it must be zero.
+
+**Steps**
+- Get the size of the matrix `n`.
+- Loop through each row `i` from `0` to `n-1`.
+- Loop through each column `j` from `0` to `n-1`.
+- Check if the current cell `(i, j)` is on the main diagonal (`i == j`) or the anti-diagonal (`i + j == n - 1`).
+- If it is on a diagonal and the value is `0`, return `false`.
+- If it is not on a diagonal and the value is not `0`, return `false`.
+- If the loops complete without returning `false`, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def checkXMatrix(self, grid: List[List[int]]) -&gt; bool:\n        n = len(grid)\n        for i in range(n):\n            for j in range(n):\n                if i == j or i + j == n - 1:\n                    if grid[i][j] == 0:\n                        return False\n                else:\n                    if grid[i][j] != 0:\n                        return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkXMatrix(int[][] grid) {\n        int n = grid.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                boolean isDiagonal = (i == j) || (i + j == n - 1);\n                if (isDiagonal) {\n                    if (grid[i][j] == 0) return false;\n                } else {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool checkXMatrix(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                if (i == j || i + j == n - 1) {\n                    if (grid[i][j] == 0) return false;\n                } else {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var checkXMatrix = function(grid) {\n    const n = grid.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const isDiagonal = (i === j) || (i + j === n - 1);\n            if (isDiagonal) {\n                if (grid[i][j] === 0) return false;\n            } else {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkXMatrix(grid: number[][]): boolean {\n    const n = grid.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const isDiagonal = (i === j) || (i + j === n - 1);\n            if (isDiagonal) {\n                if (grid[i][j] === 0) return false;\n            } else {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(n²) — We visit every element in the n x n matrix exactly once.
+- Space: O(1) — We only use a few variables for indices and size.
+- Notes: This is the most optimal approach in terms of both time and space complexity.
+
+---
+## Two-Pass Validation
+
+**Intuition**
+We separate the validation logic into two distinct passes. First, we verify that all diagonal elements are non-zero. Then, we verify that all non-diagonal elements are zero. This can sometimes be easier to reason about or optimize if one condition fails early.
+
+**Steps**
+- Get the size of the matrix `n`.
+- **Pass 1:** Iterate `i` from `0` to `n-1`. Check `grid[i][i]` (main diagonal) and `grid[i][n-1-i]` (anti-diagonal). If any are `0`, return `false`.
+- **Pass 2:** Iterate through all cells `(i, j)`. If the cell is not on a diagonal and the value is not `0`, return `false`.
+- If both passes complete, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def checkXMatrix(self, grid: List[List[int]]) -&gt; bool:\n        n = len(grid)\n        # Check diagonals\n        for i in range(n):\n            if grid[i][i] == 0 or grid[i][n - 1 - i] == 0:\n                return False\n        # Check non-diagonals\n        for i in range(n):\n            for j in range(n):\n                if i != j and i + j != n - 1:\n                    if grid[i][j] != 0:\n                        return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkXMatrix(int[][] grid) {\n        int n = grid.length;\n        // Check diagonals\n        for (int i = 0; i &lt; n; i++) {\n            if (grid[i][i] == 0 || grid[i][n - 1 - i] == 0) {\n                return false;\n            }\n        }\n        // Check non-diagonals\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (i != j && i + j != n - 1) {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool checkXMatrix(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        // Check diagonals\n        for (int i = 0; i &lt; n; ++i) {\n            if (grid[i][i] == 0 || grid[i][n - 1 - i] == 0) {\n                return false;\n            }\n        }\n        // Check non-diagonals\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                if (i != j && i + j != n - 1) {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var checkXMatrix = function(grid) {\n    const n = grid.length;\n    // Check diagonals\n    for (let i = 0; i &lt; n; i++) {\n        if (grid[i][i] === 0 || grid[i][n - 1 - i] === 0) {\n            return false;\n        }\n    }\n    // Check non-diagonals\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (i !== j && i + j !== n - 1) {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkXMatrix(grid: number[][]): boolean {\n    const n = grid.length;\n    // Check diagonals\n    for (let i = 0; i &lt; n; i++) {\n        if (grid[i][i] === 0 || grid[i][n - 1 - i] === 0) {\n            return false;\n        }\n    }\n    // Check non-diagonals\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (i !== j && i + j !== n - 1) {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(n²) — In the worst case, we traverse the entire matrix.
+- Space: O(1) — No extra space is used.
+- Notes: While the time complexity is the same, this approach might perform slightly worse if the matrix is large and valid, as it iterates over diagonal elements twice (once in the first pass and once in the second pass).
+
+---
+## Hash Set of Diagonal Indices
+
+**Intuition**
+We can pre-calculate all the coordinates of the diagonal cells and store them in a set. Then, we iterate through the matrix. If a cell's coordinates are in the set, we check for non-zero; otherwise, we check for zero. This trades some space for potentially simpler conditional logic inside the loop.
+
+**Steps**
+- Get the size of the matrix `n`.
+- Create an empty set to store diagonal coordinates.
+- Iterate `i` from `0` to `n-1`. Add `(i, i)` and `(i, n-1-i)` to the set.
+- Iterate through all cells `(i, j)`.
+- If `(i, j)` is in the set and `grid[i][j] == 0`, return `false`.
+- If `(i, j)` is not in the set and `grid[i][j] != 0`, return `false`.
+- Return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Set, Tuple\n\nclass Solution:\n    def checkXMatrix(self, grid: List[List[int]]) -&gt; bool:\n        n = len(grid)\n        diagonals: Set[Tuple[int, int]] = set()\n        for i in range(n):\n            diagonals.add((i, i))\n            diagonals.add((i, n - 1 - i))\n        for i in range(n):\n            for j in range(n):\n                if (i, j) in diagonals:\n                    if grid[i][j] == 0:\n                        return False\n                else:\n                    if grid[i][j] != 0:\n                        return False\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean checkXMatrix(int[][] grid) {\n        int n = grid.length;\n        Set&lt;String&gt; diagonals = new HashSet&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) {\n            diagonals.add(i + \",\" + i);\n            diagonals.add(i + \",\" + (n - 1 - i));\n        }\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                String key = i + \",\" + j;\n                if (diagonals.contains(key)) {\n                    if (grid[i][j] == 0) return false;\n                } else {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool checkXMatrix(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        unordered_set&lt;string&gt; diagonals;\n        for (int i = 0; i &lt; n; ++i) {\n            diagonals.insert(to_string(i) + \",\" + to_string(i));\n            diagonals.insert(to_string(i) + \",\" + to_string(n - 1 - i));\n        }\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                string key = to_string(i) + \",\" + to_string(j);\n                if (diagonals.count(key)) {\n                    if (grid[i][j] == 0) return false;\n                } else {\n                    if (grid[i][j] != 0) return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var checkXMatrix = function(grid) {\n    const n = grid.length;\n    const diagonals = new Set();\n    for (let i = 0; i &lt; n; i++) {\n        diagonals.add(i + \",\" + i);\n        diagonals.add(i + \",\" + (n - 1 - i));\n    }\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const key = i + \",\" + j;\n            if (diagonals.has(key)) {\n                if (grid[i][j] === 0) return false;\n            } else {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkXMatrix(grid: number[][]): boolean {\n    const n = grid.length;\n    const diagonals = new Set&lt;string&gt;();\n    for (let i = 0; i &lt; n; i++) {\n        diagonals.add(i + \",\" + i);\n        diagonals.add(i + \",\" + (n - 1 - i));\n    }\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const key = i + \",\" + j;\n            if (diagonals.has(key)) {\n                if (grid[i][j] === 0) return false;\n            } else {\n                if (grid[i][j] !== 0) return false;\n            }\n        }\n    }\n    return true;\n};" },]} />
+
+**Complexity**
+- Time: O(n²) — We iterate through the matrix to build the set (O(n)) and then to check values (O(n²)).
+- Space: O(n) — The set stores 2n coordinates (minus the center overlap), so the space complexity is linear relative to the dimension.
+- Notes: This approach is less space-efficient than the mathematical check but demonstrates how to trade space for lookup speed or code clarity in more complex scenarios.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Matrix Is X-Matrix Solutions","datePublished":"2024-05-06","description":"A square matrix is an X-Matrix if all diagonal elements are non-zero and all other elements are zero.","keywords":"LeetCode, Check if Matrix Is X-Matrix, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the optimal solution for Check if Matrix Is X-Matrix?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the number of rows (and columns) in the matrix, as we must check every element."}},{"@type":"Question","name":"What is the space complexity of the Single Pass Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few variables for iteration and do not allocate any extra data structures proportional to the input size."}},{"@type":"Question","name":"How do you determine if a cell is on a diagonal in a matrix?","acceptedAnswer":{"@type":"Answer","text":"A cell at (i, j) is on the main diagonal if i == j, and on the anti-diagonal if i + j == n - 1, where n is the size of the matrix."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,120 @@
+---
+title: "Missing Ranges"
+summary: "You are given an inclusive range [lower, upper] and a sorted unique integer array nums. Return the smallest sorted list of ranges that cover every missing number exactly."
+date: "Jul 08, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Array
+
+You are given an inclusive range [lower, upper] and a sorted unique integer array nums, where all elements are in the inclusive range.
+
+A number x is considered missing if x is in the range [lower, upper] and x is not in nums.
+
+Return the smallest sorted list of ranges that exactly cover all the missing numbers. That is, no element of nums is included in any of the ranges, and each missing number is covered by one of the ranges.
+
+Each range [a,b] should be output as:
+"a->b" if a != b
+"a" if a == b
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Scan with Sentinels](#approach-1-iterative-scan-with-sentinels)
+- [Approach 2: Segment Boundary Check](#approach-2-segment-boundary-check)
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [0,1,3,50,75], lower = 0, upper = 99
+Output: ["2","4->49","51->74","76->99"]
+Explanation: The ranges are:
+[2,2] --> "2"
+[4,49] --> "4->49"
+[51,74] --> "51->74"
+[76,99] --> "76->99"
+```
+
+### Example 2:
+```text
+Input: nums = [-1], lower = -1, upper = -1
+Output: []
+Explanation: There are no missing numbers since [-1,-1] is covered by -1 in nums.
+```
+
+### Example 3:
+```text
+Input: nums = [], lower = 1, upper = 1
+Output: ["1"]
+Explanation: The only missing number is 1.
+```
+
+## Constraints
+
+```text
+0 <= nums.length <= 100
+-10⁹ <= nums[i] <= 10⁹
+-10⁹ <= lower <= upper <= 10⁹
+nums is sorted in ascending order and contains unique elements.
+```
+
+---
+## Approach 1: Iterative Scan with Sentinels
+
+**Intuition**
+We can iterate through the numbers while keeping track of the "previous" number that should have been present. By conceptually adding `lower - 1` before the array and `upper + 1` after the array, we can handle all gaps uniformly using a single loop.
+
+**Steps**
+- Initialize `prev` to `lower - 1`.
+- Iterate through the array, treating the current element as `curr`.
+- If `curr - prev &gt; 1`, it means there is a gap between `prev` and `curr`. Add the range `[prev + 1, curr - 1]` to the result.
+- Update `prev` to `curr`.
+- After the loop, perform one final check between the last element and `upper + 1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findMissingRanges(self, nums: List[int], lower: int, upper: int) -&gt; List[str]:\n        res = []\n        prev = lower - 1\n        for i in range(len(nums) + 1):\n            curr = nums[i] if i &lt; len(nums) else upper + 1\n            if curr - prev &gt; 1:\n                res.append(self.formatRange(prev + 1, curr - 1))\n            prev = curr\n        return res\n\n    def formatRange(self, lower, upper):\n        if lower == upper:\n            return str(lower)\n        return str(lower) + \"-&gt;\" + str(upper)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; findMissingRanges(int[] nums, int lower, int upper) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        long prev = (long) lower - 1;\n        for (int i = 0; i &lt;= nums.length; i++) {\n            long curr = (i == nums.length) ? (long) upper + 1 : nums[i];\n            if (curr - prev &gt; 1) {\n                res.add(formatRange(prev + 1, curr - 1));\n            }\n            prev = curr;\n        }\n        return res;\n    }\n\n    private String formatRange(long lower, long upper) {\n        if (lower == upper) return String.valueOf(lower);\n        return lower + \"-&gt;\" + upper;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; findMissingRanges(vector&lt;int&gt;& nums, int lower, int upper) {\n        vector&lt;string&gt; res;\n        long prev = (long)lower - 1;\n        for (int i = 0; i &lt;= nums.size(); i++) {\n            long curr = (i == nums.size()) ? (long)upper + 1 : nums[i];\n            if (curr - prev &gt; 1) {\n                res.push_back(formatRange(prev + 1, curr - 1));\n            }\n            prev = curr;\n        }\n        return res;\n    }\n\n    string formatRange(long lower, long upper) {\n        if (lower == upper) return to_string(lower);\n        return to_string(lower) + \"-&gt;\" + to_string(upper);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} lower\n * @param {number} upper\n * @return {string[]}\n */\nvar findMissingRanges = function(nums, lower, upper) {\n    const res = [];\n    let prev = lower - 1;\n    for (let i = 0; i &lt;= nums.length; i++) {\n        let curr = (i === nums.length) ? upper + 1 : nums[i];\n        if (curr - prev &gt; 1) {\n            res.push(formatRange(prev + 1, curr - 1));\n        }\n        prev = curr;\n    }\n    return res;\n};\n\nfunction formatRange(lower, upper) {\n    if (lower === upper) return \"\" + lower;\n    return \"\" + lower + \"-&gt;\" + upper;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function findMissingRanges(nums: number[], lower: number, upper: number): string[] {\n    const res: string[] = [];\n    let prev: number = lower - 1;\n    for (let i = 0; i &lt;= nums.length; i++) {\n        let curr: number = (i === nums.length) ? upper + 1 : nums[i];\n        if (curr - prev &gt; 1) {\n            res.push(formatRange(prev + 1, curr - 1));\n        }\n        prev = curr;\n    }\n    return res;\n}\n\nfunction formatRange(lower: number, upper: number): string {\n    if (lower === upper) return \"\" + lower;\n    return \"\" + lower + \"-&gt;\" + upper;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the array.
+- Space: O(1) auxiliary space (excluding the output list).
+- Notes: Using `long` (in Java/C++) or handling arithmetic carefully prevents overflow when `lower` is at the minimum integer value.
+
+---
+## Approach 2: Segment Boundary Check
+
+**Intuition**
+Instead of using sentinel values, we explicitly check the three segments where missing numbers can occur: before the first element, between elements, and after the last element.
+
+**Steps**
+- Check the range from `lower` to `nums[0] - 1`. If valid, add to result.
+- Iterate through the array from index 1 to the end. Check the range from `nums[i-1] + 1` to `nums[i] - 1`. If valid, add to result.
+- Check the range from `nums[last] + 1` to `upper`. If valid, add to result.
+- Handle edge cases where the array is empty (range is just `lower` to `upper`).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findMissingRanges(self, nums: List[int], lower: int, upper: int) -&gt; List[str]:\n        res = []\n        n = len(nums)\n        \n        if n == 0:\n            res.append(self.formatRange(lower, upper))\n            return res\n\n        # Check start\n        if nums[0] &gt; lower:\n            res.append(self.formatRange(lower, nums[0] - 1))\n\n        # Check middle\n        for i in range(1, n):\n            if nums[i] &gt; nums[i-1] + 1:\n                res.append(self.formatRange(nums[i-1] + 1, nums[i] - 1))\n\n        # Check end\n        if nums[-1] &lt; upper:\n            res.append(self.formatRange(nums[-1] + 1, upper))\n\n        return res\n\n    def formatRange(self, lower, upper):\n        if lower == upper:\n            return str(lower)\n        return str(lower) + \"-&gt;\" + str(upper)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; findMissingRanges(int[] nums, int lower, int upper) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int n = nums.length;\n        \n        if (n == 0) {\n            res.add(formatRange(lower, upper));\n            return res;\n        }\n\n        // Check start\n        if (nums[0] &gt; lower) {\n            res.add(formatRange(lower, (long)nums[0] - 1));\n        }\n\n        // Check middle\n        for (int i = 1; i &lt; n; i++) {\n            if ((long)nums[i] &gt; nums[i-1] + 1) {\n                res.add(formatRange((long)nums[i-1] + 1, (long)nums[i] - 1));\n            }\n        }\n\n        // Check end\n        if (nums[n-1] &lt; upper) {\n            res.add(formatRange((long)nums[n-1] + 1, upper));\n        }\n\n        return res;\n    }\n\n    private String formatRange(long lower, long upper) {\n        if (lower == upper) return String.valueOf(lower);\n        return lower + \"-&gt;\" + upper;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; findMissingRanges(vector&lt;int&gt;& nums, int lower, int upper) {\n        vector&lt;string&gt; res;\n        int n = nums.size();\n        \n        if (n == 0) {\n            res.push_back(formatRange(lower, upper));\n            return res;\n        }\n\n        // Check start\n        if (nums[0] &gt; lower) {\n            res.push_back(formatRange(lower, (long)nums[0] - 1));\n        }\n\n        // Check middle\n        for (int i = 1; i &lt; n; i++) {\n            if ((long)nums[i] &gt; nums[i-1] + 1) {\n                res.push_back(formatRange((long)nums[i-1] + 1, (long)nums[i] - 1));\n            }\n        }\n\n        // Check end\n        if (nums[n-1] &lt; upper) {\n            res.push_back(formatRange((long)nums[n-1] + 1, upper));\n        }\n\n        return res;\n    }\n\n    string formatRange(long lower, long upper) {\n        if (lower == upper) return to_string(lower);\n        return to_string(lower) + \"-&gt;\" + to_string(upper);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} lower\n * @param {number} upper\n * @return {string[]}\n */\nvar findMissingRanges = function(nums, lower, upper) {\n    const res = [];\n    const n = nums.length;\n    \n    if (n === 0) {\n        res.push(formatRange(lower, upper));\n        return res;\n    }\n\n    // Check start\n    if (nums[0] &gt; lower) {\n        res.push(formatRange(lower, nums[0] - 1));\n    }\n\n    // Check middle\n    for (let i = 1; i &lt; n; i++) {\n        if (nums[i] &gt; nums[i-1] + 1) {\n            res.push(formatRange(nums[i-1] + 1, nums[i] - 1));\n        }\n    }\n\n    // Check end\n    if (nums[n-1] &lt; upper) {\n        res.push(formatRange(nums[n-1] + 1, upper));\n    }\n\n    return res;\n};\n\nfunction formatRange(lower, upper) {\n    if (lower === upper) return \"\" + lower;\n    return \"\" + lower + \"-&gt;\" + upper;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function findMissingRanges(nums: number[], lower: number, upper: number): string[] {\n    const res: string[] = [];\n    const n: number = nums.length;\n    \n    if (n === 0) {\n        res.push(formatRange(lower, upper));\n        return res;\n    }\n\n    // Check start\n    if (nums[0] &gt; lower) {\n        res.push(formatRange(lower, nums[0] - 1));\n    }\n\n    // Check middle\n    for (let i = 1; i &lt; n; i++) {\n        if (nums[i] &gt; nums[i-1] + 1) {\n            res.push(formatRange(nums[i-1] + 1, nums[i] - 1));\n        }\n    }\n\n    // Check end\n    if (nums[n-1] &lt; upper) {\n        res.push(formatRange(nums[n-1] + 1, upper));\n    }\n\n    return res;\n}\n\nfunction formatRange(lower: number, upper: number): string {\n    if (lower === upper) return \"\" + lower;\n    return \"\" + lower + \"-&gt;\" + upper;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the length of the array.
+- Space: O(1) auxiliary space.
+- Notes: This approach requires more conditional checks (start, middle, end) compared to the sentinel approach, but it is equally efficient.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Missing Ranges Solutions","datePublished":"2025-07-08","description":"You are given an inclusive range [lower, upper] and a sorted unique integer array nums. Return the smallest sorted list of ranges that cover every missing number exactly.","keywords":"LeetCode, Missing Ranges, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of elements in the input array."}},{"@type":"Question","name":"What is the space complexity of the Segment Boundary Check approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space required for the output list."}},{"@type":"Question","name":"Why do we use long in Java and C++ solutions?","acceptedAnswer":{"@type":"Answer","text":"We use long to prevent integer overflow when calculating lower - 1 or upper + 1, especially when lower or upper are near the integer limits."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,171 @@
+---
+title: "Power of Four"
+summary: "Given an integer n, return true if it is a power of four, otherwise return false."
+date: "May 03, 2024"
+tags:
+  - Math
+  - Bit Manipulation
+  - Recursion
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 52.00% | **Paid:** No
+> **Topics:** Math, Bit Manipulation, Recursion
+
+Given an integer n, return true if it is a power of four, otherwise return false.
+
+An integer n is a power of four, if there exists an integer x such that n == 4x.
+
+- Examples
+- Constraints
+- [Iterative Division](#iterative-division)
+- [Mathematical Logarithm](#mathematical-logarithm)
+- [Bit Manipulation - Power of 2 + Odd Position](#bit-manipulation-power-of-2-odd-position)
+- [Bit Manipulation - Modulo 3](#bit-manipulation-modulo-3)
+- [Recursion](#recursion)
+
+## Examples
+
+```text
+Input: n = 16
+Output: true
+Explanation: 24 = 16
+```
+
+```text
+Input: n = 5
+Output: false
+```
+
+```text
+Input: n = 1
+Output: true
+```
+
+## Constraints
+
+```text
+- -2^31 <= n <= 2^31 - 1
+```
+
+---
+## Iterative Division
+
+**Intuition**
+Continuously divide n by 4 until it's no longer divisible. If we reach 1, n was a power of 4.
+
+**Steps**
+- Handle edge case where n &lt;= 0
+- While n is divisible by 4, divide it by 4
+- Check if the final result equals 1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfFour(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        while n % 4 == 0:\n            n //= 4\n        return n == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        while (n % 4 == 0) {\n            n /= 4;\n        }\n        return n == 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        while (n % 4 == 0) {\n            n /= 4;\n        }\n        return n == 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isPowerOfFour = function(n) {\n    if (n &lt;= 0) {\n        return false;\n    }\n    while (n % 4 === 0) {\n        n = Math.floor(n / 4);\n    }\n    return n === 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPowerOfFour(n: number): boolean {\n    if (n &lt;= 0) {\n        return false;\n    }\n    while (n % 4 === 0) {\n        n = Math.floor(n / 4);\n    }\n    return n === 1;\n}" },]} />
+
+**Complexity**
+- Time: O(log₄n)
+- Space: O(1)
+- Notes: Simple and intuitive, but requires multiple iterations for large numbers
+
+---
+## Mathematical Logarithm
+
+**Intuition**
+If n is a power of 4, then log₄(n) must be an integer. We can check this using logarithms.
+
+**Steps**
+- Handle edge case where n &lt;= 0
+- Calculate log base 4 of n
+- Check if the result is close to an integer (accounting for floating point precision)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\n\nclass Solution:\n    def isPowerOfFour(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        log_val = math.log(n, 4)\n        return abs(log_val - round(log_val)) &lt; 1e-10" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        double logVal = Math.log(n) / Math.log(4);\n        return Math.abs(logVal - Math.round(logVal)) &lt; 1e-10;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    bool isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        double logVal = log(n) / log(4);\n        return abs(logVal - round(logVal)) &lt; 1e-10;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isPowerOfFour = function(n) {\n    if (n &lt;= 0) {\n        return false;\n    }\n    const logVal = Math.log(n) / Math.log(4);\n    return Math.abs(logVal - Math.round(logVal)) &lt; 1e-10;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPowerOfFour(n: number): boolean {\n    if (n &lt;= 0) {\n        return false;\n    }\n    const logVal = Math.log(n) / Math.log(4);\n    return Math.abs(logVal - Math.round(logVal)) &lt; 1e-10;\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Constant time but relies on floating-point arithmetic which may have precision issues
+
+---
+## Bit Manipulation - Power of 2 + Odd Position
+
+**Intuition**
+A power of 4 is also a power of 2 (exactly one bit set), but the single bit must be at an even position (0, 2, 4, 6, ...). The mask 0x55555555 has bits set at all even positions.
+
+**Steps**
+- Check n &gt; 0
+- Check if n is a power of 2 using n & (n-1) == 0
+- Check if the single bit is at an even position using n & 0x55555555 != 0
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfFour(self, n: int) -&gt; bool:\n        return n &gt; 0 and (n & (n - 1)) == 0 and (n & 0x55555555) != 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfFour(int n) {\n        return n &gt; 0 && (n & (n - 1)) == 0 && (n & 0x55555555) != 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfFour(int n) {\n        return n &gt; 0 && (n & (n - 1)) == 0 && (n & 0x55555555) != 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isPowerOfFour = function(n) {\n    return n &gt; 0 && (n & (n - 1)) === 0 && (n & 0x55555555) !== 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPowerOfFour(n: number): boolean {\n    return n &gt; 0 && (n & (n - 1)) === 0 && (n & 0x55555555) !== 0;\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Most efficient bit manipulation approach with constant time operations
+
+---
+## Bit Manipulation - Modulo 3
+
+**Intuition**
+All powers of 4 are congruent to 1 modulo 3. Combined with the power of 2 check, this uniquely identifies powers of 4.
+
+**Steps**
+- Check n &gt; 0
+- Check if n is a power of 2 using n & (n-1) == 0
+- Check if n % 3 == 1
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfFour(self, n: int) -&gt; bool:\n        return n &gt; 0 and (n & (n - 1)) == 0 and n % 3 == 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfFour(int n) {\n        return n &gt; 0 && (n & (n - 1)) == 0 && n % 3 == 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfFour(int n) {\n        return n &gt; 0 && (n & (n - 1)) == 0 && n % 3 == 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isPowerOfFour = function(n) {\n    return n &gt; 0 && (n & (n - 1)) === 0 && n % 3 === 1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPowerOfFour(n: number): boolean {\n    return n &gt; 0 && (n & (n - 1)) === 0 && n % 3 === 1;\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Elegant mathematical property that avoids the need for a bitmask
+
+---
+## Recursion
+
+**Intuition**
+Recursively check if n/4 is a power of 4, with base cases for n &lt;= 0, n == 1, and n not divisible by 4.
+
+**Steps**
+- Return false if n &lt;= 0
+- Return true if n == 1
+- Return false if n is not divisible by 4
+- Recursively call with n/4
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPowerOfFour(self, n: int) -&gt; bool:\n        if n &lt;= 0:\n            return False\n        if n == 1:\n            return True\n        if n % 4 != 0:\n            return False\n        return self.isPowerOfFour(n // 4)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        if (n == 1) {\n            return true;\n        }\n        if (n % 4 != 0) {\n            return false;\n        }\n        return isPowerOfFour(n / 4);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPowerOfFour(int n) {\n        if (n &lt;= 0) {\n            return false;\n        }\n        if (n == 1) {\n            return true;\n        }\n        if (n % 4 != 0) {\n            return false;\n        }\n        return isPowerOfFour(n / 4);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {boolean}\n */\nvar isPowerOfFour = function(n) {\n    if (n &lt;= 0) {\n        return false;\n    }\n    if (n === 1) {\n        return true;\n    }\n    if (n % 4 !== 0) {\n        return false;\n    }\n    return isPowerOfFour(Math.floor(n / 4));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPowerOfFour(n: number): boolean {\n    if (n &lt;= 0) {\n        return false;\n    }\n    if (n === 1) {\n        return true;\n    }\n    if (n % 4 !== 0) {\n        return false;\n    }\n    return isPowerOfFour(Math.floor(n / 4));\n}" },]} />
+
+**Complexity**
+- Time: O(log₄n)
+- Space: O(log₄n) for recursion stack
+- Notes: Clean recursive solution but uses stack space proportional to the input size
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Power of Four Solutions","datePublished":"2024-05-03","description":"Given an integer n, return true if it is a power of four, otherwise return false.","keywords":"LeetCode, Power of Four, Easy, Math, Bit Manipulation, Recursion"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Iterative Division approach?","acceptedAnswer":{"@type":"Answer","text":"O(log₄n) - We divide by 4 in each iteration until we reach 1."}},{"@type":"Question","name":"What is the time complexity of Bit Manipulation approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) - All bit manipulation operations are constant time."}},{"@type":"Question","name":"What is the space complexity of Recursion approach?","acceptedAnswer":{"@type":"Answer","text":"O(log₄n) - The recursion stack grows with the number of divisions needed."}},{"@type":"Question","name":"Why does the modulo 3 approach work for powers of 4?","acceptedAnswer":{"@type":"Answer","text":"All powers of 4 (4ⁿ) are congruent to 1 modulo 3, which combined with being a power of 2 uniquely identifies powers of 4."}}]}).replace(/</g,'\u003c')}
+</script>

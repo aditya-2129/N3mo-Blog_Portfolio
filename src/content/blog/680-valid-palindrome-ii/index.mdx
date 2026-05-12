@@ -1,0 +1,112 @@
+---
+title: "Valid Palindrome II"
+summary: "Given a string s, return true if the s can be palindrome after deleting at most one character from it."
+date: "Sep 19, 2025"
+tags:
+  - Two Pointers
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 44.20% | **Paid:** No
+> **Topics:** Two Pointers, String, Greedy
+
+Given a string s, return true if the s can be palindrome after deleting at most one character from it.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "aba"
+Output: true
+Explanation: Already a palindrome.
+```
+
+### Example 2
+```text
+Input: s = "abca"
+Output: true
+Explanation: Delete 'b' or 'c'.
+```
+
+### Example 3
+```text
+Input: s = "abc"
+Output: false
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can try deleting every character from the string one by one and check if the resulting string is a palindrome. If the original string is already a palindrome, we return true immediately.
+
+**Steps**
+- Check if the string `s` is already a palindrome. If yes, return true.
+- Iterate through each index `i` of the string.
+- Create a new string by skipping the character at index `i`.
+- Check if this new string is a palindrome.
+- If any of these new strings is a palindrome, return true.
+- If the loop finishes without finding a valid palindrome, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def validPalindrome(self, s: str) -&gt; bool:\n        def is_palindrome(t):\n            return t == t[::-1]\n        \n        if is_palindrome(s):\n            return True\n        \n        for i in range(len(s)):\n            if is_palindrome(s[:i] + s[i+1:]):\n                return True\n                \n        return False\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean validPalindrome(String s) {\n        if (isPalindrome(s)) return true;\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            String t = s.substring(0, i) + s.substring(i + 1);\n            if (isPalindrome(t)) return true;\n        }\n        return false;\n    }\n    \n    private boolean isPalindrome(String s) {\n        int l = 0, r = s.length() - 1;\n        while (l &lt; r) {\n            if (s.charAt(l) != s.charAt(r)) return false;\n            l++;\n            r--;\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPalindrome(string s) {\n        int l = 0, r = s.size() - 1;\n        while (l &lt; r) {\n            if (s[l] != s[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    }\n\n    bool validPalindrome(string s) {\n        if (isPalindrome(s)) return true;\n        \n        for (int i = 0; i &lt; s.size(); i++) {\n            string t = s.substr(0, i) + s.substr(i + 1);\n            if (isPalindrome(t)) return true;\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function validPalindrome(s) {\n    const isPalindrome = (t) =&gt; {\n        let l = 0, r = t.length - 1;\n        while (l &lt; r) {\n            if (t[l] !== t[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    };\n    \n    if (isPalindrome(s)) return true;\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        let t = s.slice(0, i) + s.slice(i + 1);\n        if (isPalindrome(t)) return true;\n    }\n    return false;\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "function validPalindrome(s: string): boolean {\n    const isPalindrome = (t: string): boolean =&gt; {\n        let l = 0, r = t.length - 1;\n        while (l &lt; r) {\n            if (t[l] !== t[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    };\n    \n    if (isPalindrome(s)) return true;\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        let t = s.slice(0, i) + s.slice(i + 1);\n        if (isPalindrome(t)) return true;\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²) - Creating a substring takes O(n) and we do it for n characters.
+- Space: O(n) - To store the temporary substring.
+- Notes: Simple to implement but inefficient for large strings.
+
+---
+## Two Pointers
+
+**Intuition**
+Use two pointers starting at both ends of the string. If characters match, move pointers inward. If a mismatch occurs, we have exactly one chance to delete a character. We check if the string becomes a palindrome by skipping either the left character or the right character.
+
+**Steps**
+- Initialize `left` pointer to 0 and `right` pointer to `s.length - 1`.
+- While `left &lt; right`:
+  - If `s[left] == s[right]`, increment `left` and decrement `right`.
+  - If `s[left] != s[right]`:
+    - Check if the substring `s[left+1...right]` is a palindrome.
+    - OR check if the substring `s[left...right-1]` is a palindrome.
+    - Return the result of these checks.
+- If the loop completes without returning false, it means the string is a palindrome (or became one by matching all pairs), so return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def validPalindrome(self, s: str) -&gt; bool:\n        def is_palindrome(s, l, r):\n            while l &lt; r:\n                if s[l] != s[r]:\n                    return False\n                l += 1\n                r -= 1\n            return True\n\n        l, r = 0, len(s) - 1\n        while l &lt; r:\n            if s[l] != s[r]:\n                return is_palindrome(s, l + 1, r) or is_palindrome(s, l, r - 1)\n            l += 1\n            r -= 1\n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean validPalindrome(String s) {\n        int l = 0, r = s.length() - 1;\n        while (l &lt; r) {\n            if (s.charAt(l) != s.charAt(r)) {\n                return isPalindrome(s, l + 1, r) || isPalindrome(s, l, r - 1);\n            }\n            l++;\n            r--;\n        }\n        return true;\n    }\n    \n    private boolean isPalindrome(String s, int l, int r) {\n        while (l &lt; r) {\n            if (s.charAt(l) != s.charAt(r)) return false;\n            l++;\n            r--;\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPalindrome(const string& s, int l, int r) {\n        while (l &lt; r) {\n            if (s[l] != s[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    }\n\n    bool validPalindrome(string s) {\n        int l = 0, r = s.size() - 1;\n        while (l &lt; r) {\n            if (s[l] != s[r]) {\n                return isPalindrome(s, l + 1, r) || isPalindrome(s, l, r - 1);\n            }\n            l++;\n            r--;\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function validPalindrome(s) {\n    const isPalindrome = (str, l, r) =&gt; {\n        while (l &lt; r) {\n            if (str[l] !== str[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    };\n    \n    let l = 0, r = s.length - 1;\n    while (l &lt; r) {\n        if (s[l] !== s[r]) {\n            return isPalindrome(s, l + 1, r) || isPalindrome(s, l, r - 1);\n        }\n        l++;\n        r--;\n    }\n    return true;\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "function validPalindrome(s: string): boolean {\n    const isPalindrome = (str: string, l: number, r: number): boolean =&gt; {\n        while (l &lt; r) {\n            if (str[l] !== str[r]) return false;\n            l++;\n            r--;\n        }\n        return true;\n    };\n    \n    let l = 0, r = s.length - 1;\n    while (l &lt; r) {\n        if (s[l] !== s[r]) {\n            return isPalindrome(s, l + 1, r) || isPalindrome(s, l, r - 1);\n        }\n        l++;\n        r--;\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the string at most twice.
+- Space: O(1) - No extra space proportional to input size is used.
+- Notes: Optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Valid Palindrome II Solutions","datePublished":"2025-09-19","description":"Given a string s, return true if the s can be palindrome after deleting at most one character from it.","keywords":"LeetCode, Valid Palindrome II, Easy, Two Pointers, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because for each of the n characters, we create a new string and check if it is a palindrome, which takes O(n) time."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n). In the worst case, we might traverse the string twice (once from the left and once from the right) to verify the palindrome condition after a mismatch."}},{"@type":"Question","name":"Why is the Two Pointers approach optimal?","acceptedAnswer":{"@type":"Answer","text":"It is optimal because it only requires a single pass through the string (or two partial passes) and uses constant extra space, efficiently checking the condition by leveraging the palindrome property."}}]}).replace(/</g,'\u003c')}
+</script>

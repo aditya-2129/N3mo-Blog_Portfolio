@@ -1,0 +1,135 @@
+---
+title: "Sum of Left Leaves"
+summary: "Find the sum of all left leaves in a binary tree. A left leaf is a node that is a left child of its parent and has no children."
+date: "Mar 30, 2024"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.70% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given the root of a binary tree, return the sum of all left leaves.
+
+A left leaf is a leaf that is the left child of its parent.
+
+- Examples
+- Constraints
+- [Depth-First Search (Recursive)](#depth-first-search-recursive)
+- [Breadth-First Search (Iterative)](#breadth-first-search-iterative)
+- [Depth-First Search (Iterative with Stack)](#depth-first-search-iterative-with-stack)
+
+## Examples
+
+Example 1:
+
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: 24
+Explanation: There are two left leaves in the binary tree, with values 9 and 15 respectively.
+```
+
+Example 2:
+
+```text
+Input: root = [1]
+Output: 0
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 1000].
+-1000 <= Node.val <= 1000
+```
+
+---
+## Depth-First Search (Recursive)
+
+**Intuition**
+We traverse the tree recursively. For each node, we check if its left child is a leaf. If it is, we add its value to the sum. Then we continue the traversal on both the left and right subtrees.
+
+**Steps**
+- If the root is null, return 0.
+- Check if the left child of the current node exists and is a leaf (both left and right children are null).
+- If the left child is a leaf, add its value to the result of the recursive call on the right subtree.
+- Otherwise, return the sum of recursive calls on both left and right subtrees.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        if root.left and not root.left.left and not root.left.right:\n            return root.left.val + self.sumOfLeftLeaves(root.right)\n        \n        return self.sumOfLeftLeaves(root.left) + self.sumOfLeftLeaves(root.right)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int sumOfLeftLeaves(TreeNode root) {\n        if (root == null) return 0;\n        \n        int ans = 0;\n        if (root.left != null) {\n            if (root.left.left == null && root.left.right == null) {\n                ans += root.left.val;\n            } else {\n                ans += sumOfLeftLeaves(root.left);\n            }\n        }\n        ans += sumOfLeftLeaves(root.right);\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int sumOfLeftLeaves(TreeNode* root) {\n        if (!root) return 0;\n        \n        int ans = 0;\n        if (root-&gt;left) {\n            if (!root-&gt;left-&gt;left && !root-&gt;left-&gt;right) {\n                ans += root-&gt;left-&gt;val;\n            } else {\n                ans += sumOfLeftLeaves(root-&gt;left);\n            }\n        }\n        ans += sumOfLeftLeaves(root-&gt;right);\n        return ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOfLeftLeaves = function(root) {\n    if (!root) return 0;\n    \n    let ans = 0;\n    if (root.left) {\n        if (!root.left.left && !root.left.right) {\n            ans += root.left.val;\n        } else {\n            ans += sumOfLeftLeaves(root.left);\n        }\n    }\n    ans += sumOfLeftLeaves(root.right);\n    return ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfLeftLeaves(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    let ans = 0;\n    if (root.left) {\n        if (!root.left.left && !root.left.right) {\n            ans += root.left.val;\n        } else {\n            ans += sumOfLeftLeaves(root.left);\n        }\n    }\n    ans += sumOfLeftLeaves(root.right);\n    return ans;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree.
+- Space: O(H) where H is the height of the tree, due to the recursion stack. In the worst case, H can be N.
+- Notes: This approach is concise and leverages the call stack for traversal.
+
+---
+## Breadth-First Search (Iterative)
+
+**Intuition**
+We use a queue to perform a level-order traversal. As we process each node, we inspect its left child. If the left child is a leaf, we add its value to the sum. Otherwise, we add the left child to the queue for further processing. We always add the right child to the queue if it exists.
+
+**Steps**
+- Initialize a queue with the root node.
+- While the queue is not empty:
+    - Dequeue a node.
+    - If the node has a left child:
+        - Check if it is a leaf. If yes, add value to sum.
+        - If no, enqueue the left child.
+    - If the node has a right child, enqueue it.
+- Return the accumulated sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        queue = deque([root])\n        total = 0\n        \n        while queue:\n            node = queue.popleft()\n            \n            if node.left:\n                if not node.left.left and not node.left.right:\n                    total += node.left.val\n                else:\n                    queue.append(node.left)\n            \n            if node.right:\n                queue.append(node.right)\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass Solution {\n    public int sumOfLeftLeaves(TreeNode root) {\n        if (root == null) return 0;\n        \n        Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(root);\n        int total = 0;\n        \n        while (!queue.isEmpty()) {\n            TreeNode node = queue.poll();\n            \n            if (node.left != null) {\n                if (node.left.left == null && node.left.right == null) {\n                    total += node.left.val;\n                } else {\n                    queue.offer(node.left);\n                }\n            }\n            \n            if (node.right != null) {\n                queue.offer(node.right);\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass Solution {\npublic:\n    int sumOfLeftLeaves(TreeNode* root) {\n        if (!root) return 0;\n        \n        std::queue&lt;TreeNode*&gt; q;\n        q.push(root);\n        int total = 0;\n        \n        while (!q.empty()) {\n            TreeNode* node = q.front();\n            q.pop();\n            \n            if (node-&gt;left) {\n                if (!node-&gt;left-&gt;left && !node-&gt;left-&gt;right) {\n                    total += node-&gt;left-&gt;val;\n                } else {\n                    q.push(node-&gt;left);\n                }\n            }\n            \n            if (node-&gt;right) {\n                q.push(node-&gt;right);\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOfLeftLeaves = function(root) {\n    if (!root) return 0;\n    \n    const queue = [root];\n    let total = 0;\n    \n    while (queue.length &gt; 0) {\n        const node = queue.shift();\n        \n        if (node.left) {\n            if (!node.left.left && !node.left.right) {\n                total += node.left.val;\n            } else {\n                queue.push(node.left);\n            }\n        }\n        \n        if (node.right) {\n            queue.push(node.right);\n        }\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfLeftLeaves(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const queue: TreeNode[] = [root];\n    let total = 0;\n    \n    while (queue.length &gt; 0) {\n        const node = queue.shift()!;\n        \n        if (node.left) {\n            if (!node.left.left && !node.left.right) {\n                total += node.left.val;\n            } else {\n                queue.push(node.left);\n            }\n        }\n        \n        if (node.right) {\n            queue.push(node.right);\n        }\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree.
+- Space: O(W) where W is the maximum width of the tree (maximum number of nodes at any level).
+- Notes: Iterative approach avoids potential stack overflow issues with very deep trees.
+
+---
+## Depth-First Search (Iterative with Stack)
+
+**Intuition**
+We simulate the recursive DFS using an explicit stack. To determine if a node is a left leaf, we need to know if it is a left child of its parent. We can store a boolean flag along with the node in the stack indicating whether it is a left child.
+
+**Steps**
+- Initialize a stack with the root node and a flag set to false.
+- While the stack is not empty:
+    - Pop a node and its isLeft flag.
+    - If the node is a leaf (no children) and isLeft is true, add its value to the sum.
+    - Push the right child onto the stack with flag false.
+    - Push the left child onto the stack with flag true.
+- Return the accumulated sum.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        stack = [(root, False)]\n        total = 0\n        \n        while stack:\n            node, is_left = stack.pop()\n            \n            if not node.left and not node.right and is_left:\n                total += node.val\n            \n            if node.right:\n                stack.append((node.right, False))\n            if node.left:\n                stack.append((node.left, True))\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public int sumOfLeftLeaves(TreeNode root) {\n        if (root == null) return 0;\n        \n        Stack&lt;TreeNode[]&gt; stack = new Stack&lt;&gt;();\n        stack.push(new TreeNode[]{root, null});\n        int total = 0;\n        \n        while (!stack.isEmpty()) {\n            TreeNode[] pair = stack.pop();\n            TreeNode node = pair[0];\n            TreeNode parent = pair[1];\n            \n            if (node.left == null && node.right == null) {\n                if (parent != null && parent.left == node) {\n                    total += node.val;\n                }\n            }\n            \n            if (node.right != null) stack.push(new TreeNode[]{node.right, node});\n            if (node.left != null) stack.push(new TreeNode[]{node.left, node});\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;stack&gt;\n\nclass Solution {\npublic:\n    int sumOfLeftLeaves(TreeNode* root) {\n        if (!root) return 0;\n        \n        std::stack&lt;std::pair&lt;TreeNode*, bool&gt;&gt; s;\n        s.push({root, false});\n        int total = 0;\n        \n        while (!s.empty()) {\n            auto [node, is_left] = s.top();\n            s.pop();\n            \n            if (!node-&gt;left && !node-&gt;right && is_left) {\n                total += node-&gt;val;\n            }\n            \n            if (node-&gt;right) s.push({node-&gt;right, false});\n            if (node-&gt;left) s.push({node-&gt;left, true});\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var sumOfLeftLeaves = function(root) {\n    if (!root) return 0;\n    \n    const stack = [[root, false]];\n    let total = 0;\n    \n    while (stack.length &gt; 0) {\n        const [node, isLeft] = stack.pop();\n        \n        if (!node.left && !node.right && isLeft) {\n            total += node.val;\n        }\n        \n        if (node.right) stack.push([node.right, false]);\n        if (node.left) stack.push([node.left, true]);\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sumOfLeftLeaves(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const stack: [TreeNode, boolean][] = [[root, false]];\n    let total = 0;\n    \n    while (stack.length &gt; 0) {\n        const [node, isLeft] = stack.pop()!;\n        \n        if (!node.left && !node.right && isLeft) {\n            total += node.val;\n        }\n        \n        if (node.right) stack.push([node.right, false]);\n        if (node.left) stack.push([node.left, true]);\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes in the tree.
+- Space: O(H) where H is the height of the tree, for the stack.
+- Notes: This approach gives fine-grained control over the traversal order and avoids recursion overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sum of Left Leaves Solutions","datePublished":"2024-03-30","description":"Find the sum of all left leaves in a binary tree. A left leaf is a node that is a left child of its parent and has no children.","keywords":"LeetCode, Sum of Left Leaves, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Depth-First Search (Recursive)?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of Breadth-First Search (Iterative)?","acceptedAnswer":{"@type":"Answer","text":"O(W) where W is the maximum width of the tree."}},{"@type":"Question","name":"What is the space complexity of Depth-First Search (Iterative with Stack)?","acceptedAnswer":{"@type":"Answer","text":"O(H) where H is the height of the tree, for the stack."}}]}).replace(/</g,'\u003c')}
+</script>

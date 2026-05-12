@@ -1,0 +1,348 @@
+---
+title: "Find the K-th Character in String Game I"
+summary: "Alice generates a string by repeatedly replacing characters with themselves and the next alphabet letter. Find the k-th character."
+date: "May 01, 2024"
+tags:
+  - Math
+  - Bit Manipulation
+  - Recursion
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.60% | **Paid:** No
+> **Topics:** Math, Bit Manipulation, Recursion, Simulation
+
+Alice and Bob are playing a game. Alice starts with a string `word = "a"`. In each turn, she transforms `word` by replacing each character `c` with `c` followed by the next character in the alphabet (wrapping 'z' to 'a'). She repeats this `k` times. Return the `k`-th character (1-indexed) in the final string.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation](#approach-1-simulation)
+- [Approach 2: Recursion](#approach-2-recursion)
+- [Approach 3: Bit Manipulation](#approach-3-bit-manipulation)
+
+## Examples
+
+```text
+Input: k = 5
+Output: "b"
+Explanation:
+Initially word = "a"
+1st turn: "ab"
+2nd turn: "abbc"
+3rd turn: "abbcbccd"
+4th turn: "abbcbccddeeffgghh"
+5th turn: "abbcbccddeeffgghhiijjkkllmmnnoopp"
+The 5th character is 'b'.
+```
+
+```text
+Input: k = 10
+Output: "c"
+```
+
+## Constraints
+
+```text
+- 1 <= k <= 500
+```
+
+---
+
+## Approach 1: Simulation
+
+**Intuition**
+The most straightforward approach is to simulate the process exactly as described. We start with "a" and iteratively build the string by expanding each character until we have performed `k` operations. Then we simply return the character at index `k-1`.
+
+**Steps**
+- Initialize `word = "a"`.
+- Loop `k` times:
+    - Create an empty string `new_word`.
+    - Iterate through each character `c` in `word`:
+        - Append `c` to `new_word`.
+        - Calculate the next character (increment `c`, wrapping from 'z' to 'a') and append it to `new_word`.
+    - Update `word = new_word`.
+- Return `word[k-1]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def kthCharacter(self, k: int) -> str:
+        word = "a"
+        for _ in range(k):
+            new_word = []
+            for c in word:
+                new_word.append(c)
+                # Calculate next char
+                next_ord = ord(c) - ord('a') + 1
+                if next_ord == 26:
+                    next_ord = 0
+                new_word.append(chr(next_ord + ord('a')))
+            word = "".join(new_word)
+        return word[k - 1]` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char kthCharacter(int k) {
+        StringBuilder word = new StringBuilder("a");
+        for (int i = 0; i &lt; k; i++) {
+            StringBuilder newWord = new StringBuilder();
+            for (int j = 0; j &lt; word.length(); j++) {
+                char c = word.charAt(j);
+                newWord.append(c);
+                char next = (char)('a' + (c - 'a' + 1) % 26);
+                newWord.append(next);
+            }
+            word = newWord;
+        }
+        return word.charAt(k - 1);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char kthCharacter(int k) {
+        string word = "a";
+        for (int i = 0; i &lt; k; ++i) {
+            string newWord;
+            for (char c : word) {
+                newWord.push_back(c);
+                char next = 'a' + (c - 'a' + 1) % 26;
+                newWord.push_back(next);
+            }
+            word = newWord;
+        }
+        return word[k - 1];
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} k
+ * @return {character}
+ */
+var kthCharacter = function(k) {
+    let word = "a";
+    for (let i = 0; i &lt; k; i++) {
+        let newWord = [];
+        for (let j = 0; j &lt; word.length; j++) {
+            let c = word[j];
+            newWord.push(c);
+            let nextCode = c.charCodeAt(0) - 97 + 1;
+            if (nextCode === 26) nextCode = 0;
+            newWord.push(String.fromCharCode(nextCode + 97));
+        }
+        word = newWord.join("");
+    }
+    return word[k - 1];
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function kthCharacter(k: number): string {
+    let word = "a";
+    for (let i = 0; i &lt; k; i++) {
+        let newWord: string[] = [];
+        for (let j = 0; j &lt; word.length; j++) {
+            let c = word[j];
+            newWord.push(c);
+            let nextCode = c.charCodeAt(0) - 97 + 1;
+            if (nextCode === 26) nextCode = 0;
+            newWord.push(String.fromCharCode(nextCode + 97));
+        }
+        word = newWord.join("");
+    }
+    return word[k - 1];
+}` },]} />
+
+**Complexity**
+- Time: O(2ᵏ) - The length of the string doubles in every step. After `k` steps, the length is 2ᵏ.
+- Space: O(2ᵏ) - We need to store the entire string.
+- Notes: This approach will result in a Time Limit Exceeded (TLE) and Memory Limit Exceeded (MLE) for large `k` (e.g., k &gt; 30).
+
+---
+
+## Approach 2: Recursion
+
+**Intuition**
+We can observe the recursive structure of the string generation. The string at step `i` is formed by taking the string at step `i-1` and appending the "next" version of it. This means the first half of the string at step `i` is identical to the string at step `i-1`, and the second half is the "next" of the string at step `i-1`.
+The character at position `k` in the final string (after `k` operations) depends on the character at position `ceil(k/2)` in the previous step. If `k` is even, it is the "next" character of the parent; if `k` is odd, it is the same as the parent.
+
+**Steps**
+- Define a recursive function `solve(n, k)` where `n` is the number of operations remaining (or simply track `k`).
+- Base case: If `k == 1`, return 'a' (the root of the generation).
+- Recursive step:
+    - Calculate the parent index: `parent = (k + 1) // 2` (integer division).
+    - Recursively find the character at `parent`: `c = solve(parent)`.
+    - If `k` is even, return the next character of `c`.
+    - If `k` is odd, return `c`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def kthCharacter(self, k: int) -> str:
+        def solve(k):
+            if k == 1:
+                return 'a'
+            parent = (k + 1) // 2
+            c = solve(parent)
+            if k % 2 == 0:
+                # Next char
+                return chr((ord(c) - ord('a') + 1) % 26 + ord('a'))
+            else:
+                return c
+        
+        return solve(k)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char kthCharacter(int k) {
+        return solve(k);
+    }
+    
+    private char solve(int k) {
+        if (k == 1) {
+            return 'a';
+        }
+        int parent = (k + 1) / 2;
+        char c = solve(parent);
+        if (k % 2 == 0) {
+            return (char)('a' + (c - 'a' + 1) % 26);
+        } else {
+            return c;
+        }
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char kthCharacter(int k) {
+        return solve(k);
+    }
+    
+private:
+    char solve(int k) {
+        if (k == 1) {
+            return 'a';
+        }
+        int parent = (k + 1) / 2;
+        char c = solve(parent);
+        if (k % 2 == 0) {
+            return 'a' + (c - 'a' + 1) % 26;
+        } else {
+            return c;
+        }
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} k
+ * @return {character}
+ */
+var kthCharacter = function(k) {
+    const solve = (k) =&gt; {
+        if (k === 1) {
+            return 'a';
+        }
+        const parent = Math.floor((k + 1) / 2);
+        const c = solve(parent);
+        if (k % 2 === 0) {
+            return String.fromCharCode('a'.charCodeAt(0) + (c.charCodeAt(0) - 'a'.charCodeAt(0) + 1) % 26);
+        } else {
+            return c;
+        }
+    };
+    return solve(k);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function kthCharacter(k: number): string {
+    const solve = (k: number): string =&gt; {
+        if (k === 1) {
+            return 'a';
+        }
+        const parent = Math.floor((k + 1) / 2);
+        const c = solve(parent);
+        if (k % 2 === 0) {
+            return String.fromCharCode('a'.charCodeAt(0) + (c.charCodeAt(0) - 'a'.charCodeAt(0) + 1) % 26);
+        } else {
+            return c;
+        }
+    };
+    return solve(k);
+}` },]} />
+
+**Complexity**
+- Time: O(log k) - We divide `k` by 2 in each step.
+- Space: O(log k) - Recursion stack depth.
+- Notes: Efficient for large `k`, but recursion can be converted to iteration to save stack space.
+
+---
+
+## Approach 3: Bit Manipulation
+
+**Intuition**
+We can optimize the recursive approach by using iteration. We trace the index `k` back to 1. Every time we divide `k` by 2 (rounding up), we check if the original `k` was even. If it was even, it means we are in the "second half" of a transformation step, so we increment the character.
+
+**Steps**
+- Initialize `c = 'a'`.
+- While `k &gt; 1`:
+    - If `k` is even, update `c` to be the next character in the alphabet.
+    - Update `k = (k + 1) // 2`.
+- Return `c`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def kthCharacter(self, k: int) -> str:
+        c = 'a'
+        while k &gt; 1:
+            if k % 2 == 0:
+                c = chr((ord(c) - ord('a') + 1) % 26 + ord('a'))
+            k = (k + 1) // 2
+        return c` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char kthCharacter(int k) {
+        char c = 'a';
+        while (k &gt; 1) {
+            if (k % 2 == 0) {
+                c = (char)('a' + (c - 'a' + 1) % 26);
+            }
+            k = (k + 1) / 2;
+        }
+        return c;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char kthCharacter(int k) {
+        char c = 'a';
+        while (k &gt; 1) {
+            if (k % 2 == 0) {
+                c = 'a' + (c - 'a' + 1) % 26;
+            }
+            k = (k + 1) / 2;
+        }
+        return c;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} k
+ * @return {character}
+ */
+var kthCharacter = function(k) {
+    let c = 'a'.charCodeAt(0);
+    while (k &gt; 1) {
+        if (k % 2 === 0) {
+            c = 'a'.charCodeAt(0) + (c - 'a'.charCodeAt(0) + 1) % 26;
+        }
+        k = Math.floor((k + 1) / 2);
+    }
+    return String.fromCharCode(c);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function kthCharacter(k: number): string {
+    let c = 'a'.charCodeAt(0);
+    while (k &gt; 1) {
+        if (k % 2 === 0) {
+            c = 'a'.charCodeAt(0) + (c - 'a'.charCodeAt(0) + 1) % 26;
+        }
+        k = Math.floor((k + 1) / 2);
+    }
+    return String.fromCharCode(c);
+}` },]} />
+
+**Complexity**
+- Time: O(log k) - The loop runs approximately log₂k times.
+- Space: O(1) - Only a few variables are used.
+- Notes: This is the most optimal approach, handling the maximum constraints efficiently.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the K-th Character in String Game I Solutions","datePublished":"2024-05-01","description":"Alice generates a string by repeatedly replacing characters with themselves and the next alphabet letter. Find the k-th character.","keywords":"LeetCode, Find the K-th Character in String Game I, Easy, Math, Bit Manipulation, Recursion, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(2^k) because the string length doubles in each of the k steps."}},{"@type":"Question","name":"What is the time complexity of the Bit Manipulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log k) as we reduce the search space by half in each iteration."}},{"@type":"Question","name":"Why does the Bit Manipulation approach work?","acceptedAnswer":{"@type":"Answer","text":"It works because the string at step i is formed by the string at step i-1 followed by its 'next' version. Thus, the k-th character depends on the ceil(k/2)-th character of the previous step, and we can trace this dependency back to the root."}}]}).replace(/</g,'\u003c')}
+</script>

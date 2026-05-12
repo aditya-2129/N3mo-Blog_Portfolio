@@ -1,0 +1,166 @@
+---
+title: "Number of Arithmetic Triplets"
+summary: "Count the number of index triplets (i, j, k) in a strictly increasing array where the differences between consecutive elements equal a given value."
+date: "Jan 22, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Two Pointers
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Two Pointers, Enumeration
+
+You are given a 0-indexed, strictly increasing integer array nums and a positive integer diff.
+
+A triplet (i, j, k) is an arithmetic triplet if both the following conditions are met:
+
+i &lt; j &lt; k,
+nums[j] - nums[i] == diff, and
+nums[k] - nums[j] == diff.
+Return the number of unique arithmetic triplets.
+
+- Examples
+- Constraints
+- [Brute Force Enumeration](#brute-force-enumeration)
+- [Hash Set Lookup](#hash-set-lookup)
+- [Two Pointers](#two-pointers)
+- [Binary Search](#binary-search)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [0,1,4,6,7,10], diff = 3
+Output: 2
+Explanation:
+(1, 2, 4) is an arithmetic triplet because both 7 - 4 == 3 and 4 - 1 == 3.
+(2, 4, 5) is an arithmetic triplet because both 10 - 7 == 3 and 7 - 4 == 3.
+```
+
+Example 2:
+```text
+Input: nums = [4,5,6,7,8,9], diff = 2
+Output: 2
+Explanation:
+(0, 2, 4) is an arithmetic triplet because both 8 - 6 == 2 and 6 - 4 == 2.
+(1, 3, 5) is an arithmetic triplet because both 9 - 7 == 2 and 7 - 5 == 2.
+```
+
+## Constraints
+
+```text
+3 <= nums.length <= 200
+0 <= nums[i] <= 200
+1 <= diff <= 50
+nums is strictly increasing.
+```
+
+---
+## Brute Force Enumeration
+
+**Intuition**
+Since the constraints are small (nums.length &lt;= 200), we can simply check every possible combination of three indices (i, j, k) to see if they satisfy the arithmetic conditions.
+
+**Steps**
+- Initialize a counter to 0.
+- Use three nested loops to iterate through all possible triplets (i, j, k) such that i &lt; j &lt; k.
+- For each triplet, check if nums[j] - nums[i] == diff and nums[k] - nums[j] == diff.
+- If the condition is met, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arithmeticTriplets(self, nums: list[int], diff: int) -&gt; int:\n        n = len(nums)\n        count = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    if nums[j] - nums[i] == diff and nums[k] - nums[j] == diff:\n                        count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int arithmeticTriplets(int[] nums, int diff) {\n        int n = nums.length;\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[j] - nums[i] == diff && nums[k] - nums[j] == diff) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int arithmeticTriplets(vector&lt;int&gt;& nums, int diff) {\n        int n = nums.size();\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[j] - nums[i] == diff && nums[k] - nums[j] == diff) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    arithmeticTriplets(nums, diff) {\n        const n = nums.length;\n        let count = 0;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                for (let k = j + 1; k &lt; n; k++) {\n                    if (nums[j] - nums[i] === diff && nums[k] - nums[j] === diff) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    arithmeticTriplets(nums: number[], diff: number): number {\n        const n = nums.length;\n        let count = 0;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                for (let k = j + 1; k &lt; n; k++) {\n                    if (nums[j] - nums[i] === diff && nums[k] - nums[j] === diff) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³) — We iterate through three nested loops.
+- Space: O(1) — We only use a few variables for counting.
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Hash Set Lookup
+
+**Intuition**
+We can optimize the lookup process by storing all numbers in a hash set. For any number `num` in the array, if `num - diff` and `num + diff` both exist in the set, then `num` is the middle element of a valid arithmetic triplet.
+
+**Steps**
+- Create a hash set containing all elements from `nums`.
+- Initialize a counter to 0.
+- Iterate through each number `num` in `nums`.
+- Check if `num - diff` is in the set AND `num + diff` is in the set.
+- If both exist, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arithmeticTriplets(self, nums: list[int], diff: int) -&gt; int:\n        num_set = set(nums)\n        count = 0\n        for num in nums:\n            if (num - diff) in num_set and (num + diff) in num_set:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int arithmeticTriplets(int[] nums, int diff) {\n        Set&lt;Integer&gt; numSet = new HashSet&lt;&gt;();\n        for (int num : nums) {\n            numSet.add(num);\n        }\n        int count = 0;\n        for (int num : nums) {\n            if (numSet.contains(num - diff) && numSet.contains(num + diff)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    int arithmeticTriplets(vector&lt;int&gt;& nums, int diff) {\n        unordered_set&lt;int&gt; numSet(nums.begin(), nums.end());\n        int count = 0;\n        for (int num : nums) {\n            if (numSet.count(num - diff) && numSet.count(num + diff)) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    arithmeticTriplets(nums, diff) {\n        const numSet = new Set(nums);\n        let count = 0;\n        for (const num of nums) {\n            if (numSet.has(num - diff) && numSet.has(num + diff)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    arithmeticTriplets(nums: number[], diff: number): number {\n        const numSet = new Set(nums);\n        let count = 0;\n        for (const num of nums) {\n            if (numSet.has(num - diff) && numSet.has(num + diff)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — Iterating through the array and set lookups take O(1) on average.
+- Space: O(n) — We store all elements in a hash set.
+- Notes: Very efficient time complexity, but trades off space for time.
+
+---
+## Two Pointers
+
+**Intuition**
+Since the array is strictly increasing, we can use two pointers to find the required elements for each middle element `nums[j]`. We can move pointers `i` and `k` to find values that match the difference `diff`.
+
+**Steps**
+- Initialize count to 0.
+- Iterate through the array with index `j` acting as the middle element.
+- Initialize pointer `i` to 0 and `k` to `nums.length - 1`.
+- While `i &lt; j` and `nums[j] - nums[i] &gt; diff`, increment `i`.
+- While `k &gt; j` and `nums[k] - nums[j] &gt; diff`, decrement `k`.
+- Check if `nums[j] - nums[i] == diff` and `nums[k] - nums[j] == diff`. If so, increment count.
+- Return count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arithmeticTriplets(self, nums: list[int], diff: int) -&gt; int:\n        n = len(nums)\n        count = 0\n        for j in range(n):\n            i = 0\n            while i &lt; j and nums[j] - nums[i] &gt; diff:\n                i += 1\n            k = n - 1\n            while k &gt; j and nums[k] - nums[j] &gt; diff:\n                k -= 1\n            if i &lt; j and k &gt; j and nums[j] - nums[i] == diff and nums[k] - nums[j] == diff:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int arithmeticTriplets(int[] nums, int diff) {\n        int n = nums.length;\n        int count = 0;\n        for (int j = 0; j &lt; n; j++) {\n            int i = 0;\n            while (i &lt; j && nums[j] - nums[i] &gt; diff) {\n                i++;\n            }\n            int k = n - 1;\n            while (k &gt; j && nums[k] - nums[j] &gt; diff) {\n                k--;\n            }\n            if (i &lt; j && k &gt; j && nums[j] - nums[i] == diff && nums[k] - nums[j] == diff) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int arithmeticTriplets(vector&lt;int&gt;& nums, int diff) {\n        int n = nums.size();\n        int count = 0;\n        for (int j = 0; j &lt; n; j++) {\n            int i = 0;\n            while (i &lt; j && nums[j] - nums[i] &gt; diff) {\n                i++;\n            }\n            int k = n - 1;\n            while (k &gt; j && nums[k] - nums[j] &gt; diff) {\n                k--;\n            }\n            if (i &lt; j && k &gt; j && nums[j] - nums[i] == diff && nums[k] - nums[j] == diff) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    arithmeticTriplets(nums, diff) {\n        const n = nums.length;\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            let i = 0;\n            while (i &lt; j && nums[j] - nums[i] &gt; diff) {\n                i++;\n            }\n            let k = n - 1;\n            while (k &gt; j && nums[k] - nums[j] &gt; diff) {\n                k--;\n            }\n            if (i &lt; j && k &gt; j && nums[j] - nums[i] === diff && nums[k] - nums[j] === diff) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    arithmeticTriplets(nums: number[], diff: number): number {\n        const n = nums.length;\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            let i = 0;\n            while (i &lt; j && nums[j] - nums[i] &gt; diff) {\n                i++;\n            }\n            let k = n - 1;\n            while (k &gt; j && nums[k] - nums[j] &gt; diff) {\n                k--;\n            }\n            if (i &lt; j && k &gt; j && nums[j] - nums[i] === diff && nums[k] - nums[j] === diff) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²) — In the worst case, pointers traverse the array for each j.
+- Space: O(1) — No extra space used.
+- Notes: Efficient space usage, though slightly slower than the hash set approach.
+
+---
+## Binary Search
+
+**Intuition**
+Since the array is sorted, for each middle element `nums[j]`, we can use binary search to check if `nums[j] - diff` exists in the left subarray and `nums[j] + diff` exists in the right subarray.
+
+**Steps**
+- Initialize count to 0.
+- Iterate through the array with index `j`.
+- Perform a binary search for `nums[j] - diff` in the range `[0, j)`.
+- Perform a binary search for `nums[j] + diff` in the range `(j, n)`.
+- If both elements are found, increment count.
+- Return count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import bisect\n\nclass Solution:\n    def arithmeticTriplets(self, nums: list[int], diff: int) -&gt; int:\n        n = len(nums)\n        count = 0\n        for j in range(n):\n            left = nums[j] - diff\n            right = nums[j] + diff\n            \n            i = bisect.bisect_left(nums, left, 0, j)\n            k = bisect.bisect_left(nums, right, j + 1, n)\n            \n            if i &lt; j and nums[i] == left and k &lt; n and nums[k] == right:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int arithmeticTriplets(int[] nums, int diff) {\n        int n = nums.length;\n        int count = 0;\n        for (int j = 0; j &lt; n; j++) {\n            int left = nums[j] - diff;\n            int right = nums[j] + diff;\n            \n            int i = Arrays.binarySearch(nums, 0, j, left);\n            int k = Arrays.binarySearch(nums, j + 1, n, right);\n            \n            if (i &gt;= 0 && k &gt;= 0) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int arithmeticTriplets(vector&lt;int&gt;& nums, int diff) {\n        int n = nums.size();\n        int count = 0;\n        for (int j = 0; j &lt; n; j++) {\n            int left = nums[j] - diff;\n            int right = nums[j] + diff;\n            \n            bool leftExists = binary_search(nums.begin(), nums.begin() + j, left);\n            bool rightExists = binary_search(nums.begin() + j + 1, nums.end(), right);\n            \n            if (leftExists && rightExists) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    arithmeticTriplets(nums, diff) {\n        const binarySearch = (arr, target, left, right) =&gt; {\n            while (left &lt;= right) {\n                const mid = Math.floor((left + right) / 2);\n                if (arr[mid] === target) return true;\n                if (arr[mid] &lt; target) left = mid + 1;\n                else right = mid - 1;\n            }\n            return false;\n        };\n\n        const n = nums.length;\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            const left = nums[j] - diff;\n            const right = nums[j] + diff;\n            \n            if (binarySearch(nums, left, 0, j - 1) && binarySearch(nums, right, j + 1, n - 1)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    arithmeticTriplets(nums: number[], diff: number): number {\n        const binarySearch = (arr: number[], target: number, left: number, right: number): boolean =&gt; {\n            while (left &lt;= right) {\n                const mid = Math.floor((left + right) / 2);\n                if (arr[mid] === target) return true;\n                if (arr[mid] &lt; target) left = mid + 1;\n                else right = mid - 1;\n            }\n            return false;\n        };\n\n        const n = nums.length;\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            const left = nums[j] - diff;\n            const right = nums[j] + diff;\n            \n            if (binarySearch(nums, left, 0, j - 1) && binarySearch(nums, right, j + 1, n - 1)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n) — Binary search takes O(log n) and we perform it n times.
+- Space: O(1) — No extra space used.
+- Notes: Good balance of time and space, leveraging the sorted property of the array.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Arithmetic Triplets Solutions","datePublished":"2025-01-22","description":"Count the number of index triplets (i, j, k) in a strictly increasing array where the differences between consecutive elements equal a given value.","keywords":"LeetCode, Number of Arithmetic Triplets, Easy, Array, Hash Table, Two Pointers, Enumeration"}).replace(/</g,'<')}
+</script>

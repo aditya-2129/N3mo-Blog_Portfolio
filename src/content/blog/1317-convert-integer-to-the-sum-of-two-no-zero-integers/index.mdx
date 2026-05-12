@@ -1,0 +1,148 @@
+---
+title: "Convert Integer to the Sum of Two No-Zero Integers"
+summary: "Find two positive integers without any zero digits that sum to the given integer n."
+date: "Sep 24, 2025"
+tags:
+  - Math
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.20% | **Paid:** No
+> **Topics:** Math
+
+Given an integer n. No-Zero integer is a positive integer which doesn't contain any 0 in its decimal representation.
+
+Return a list of two integers [A, B] where:
+
+A and B are No-Zero integers.
+A + B = n
+It's guaranteed that there is at least one valid solution. Try to optimize your time and space complexity.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Optimized Iteration](#optimized-iteration)
+- [Precompute No-Zero Numbers](#precompute-no-zero-numbers)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+n = 2
+```
+
+**Output:**
+```text
+[1,1]
+```
+
+**Explanation:**
+Let a = 1 and b = 1.
+Both a and b are no-zero integers, and a + b = 2 = n.
+
+### Example 2
+
+**Input:**
+```text
+n = 11
+```
+
+**Output:**
+```text
+[2,9]
+```
+
+**Explanation:**
+Let a = 2 and b = 9.
+Both a and b are no-zero integers, and a + b = 11 = n.
+Note that there are other valid answers as [8, 3] that can be accepted.
+
+## Constraints
+
+```text
+2 <= n <= 10⁴
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through all possible values of a from 1 to n-1 and check if both a and b = n - a don't contain any zero digits.
+
+**Steps**
+- Define a helper function to check if a number contains any zero digit
+- Iterate through all possible values of a from 1 to n-1
+- For each a, calculate b = n - a
+- Check if both a and b don't contain zeros
+- Return the first valid pair found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getNoZeroIntegers(self, n: int) -&gt; List[int]:\n        def has_zero(x: int) -&gt; bool:\n            while x &gt; 0:\n                if x % 10 == 0:\n                    return True\n                x //= 10\n            return False\n        \n        for a in range(1, n):\n            b = n - a\n            if not has_zero(a) and not has_zero(b):\n                return [a, b]\n        return []" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] getNoZeroIntegers(int n) {\n        for (int a = 1; a &lt; n; a++) {\n            int b = n - a;\n            if (!hasZero(a) && !hasZero(b)) {\n                return new int[]{a, b};\n            }\n        }\n        return new int[]{};\n    }\n    \n    private boolean hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; getNoZeroIntegers(int n) {\n        for (int a = 1; a &lt; n; a++) {\n            int b = n - a;\n            if (!hasZero(a) && !hasZero(b)) {\n                return {a, b};\n            }\n        }\n        return {};\n    }\n    \nprivate:\n    bool hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    getNoZeroIntegers(n) {\n        const hasZero = (x) =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        for (let a = 1; a &lt; n; a++) {\n            const b = n - a;\n            if (!hasZero(a) && !hasZero(b)) {\n                return [a, b];\n            }\n        }\n        return [];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    getNoZeroIntegers(n: number): number[] {\n        const hasZero = (x: number): boolean =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        for (let a = 1; a &lt; n; a++) {\n            const b = n - a;\n            if (!hasZero(a) && !hasZero(b)) {\n                return [a, b];\n            }\n        }\n        return [];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n × log n) - We iterate through n values and each check takes O(log n) time
+- Space: O(1) - Only using constant extra space
+- Notes: Simple and straightforward approach that works well for the given constraints
+
+---
+## Optimized Iteration
+
+**Intuition**
+Skip numbers that contain zeros while iterating to reduce unnecessary checks, improving efficiency.
+
+**Steps**
+- Define helper functions to check for zeros and find the next number without zeros
+- Start from a = 1 and find the next number without zeros
+- Calculate b = n - a and check if it also has no zeros
+- If valid, return the pair; otherwise, increment a and continue
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getNoZeroIntegers(self, n: int) -&gt; List[int]:\n        def has_zero(x: int) -&gt; bool:\n            while x &gt; 0:\n                if x % 10 == 0:\n                    return True\n                x //= 10\n            return False\n        \n        def next_no_zero(x: int) -&gt; int:\n            while has_zero(x):\n                x += 1\n            return x\n        \n        a = 1\n        while a &lt; n:\n            a = next_no_zero(a)\n            b = n - a\n            if b &gt; 0 and not has_zero(b):\n                return [a, b]\n            a += 1\n        return []" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] getNoZeroIntegers(int n) {\n        int a = 1;\n        while (a &lt; n) {\n            a = nextNoZero(a);\n            int b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return new int[]{a, b};\n            }\n            a++;\n        }\n        return new int[]{};\n    }\n    \n    private boolean hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n    \n    private int nextNoZero(int x) {\n        while (hasZero(x)) {\n            x++;\n        }\n        return x;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; getNoZeroIntegers(int n) {\n        int a = 1;\n        while (a &lt; n) {\n            a = nextNoZero(a);\n            int b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return {a, b};\n            }\n            a++;\n        }\n        return {};\n    }\n    \nprivate:\n    bool hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n    \n    int nextNoZero(int x) {\n        while (hasZero(x)) {\n            x++;\n        }\n        return x;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    getNoZeroIntegers(n) {\n        const hasZero = (x) =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        const nextNoZero = (x) =&gt; {\n            while (hasZero(x)) {\n                x++;\n            }\n            return x;\n        };\n        \n        let a = 1;\n        while (a &lt; n) {\n            a = nextNoZero(a);\n            const b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return [a, b];\n            }\n            a++;\n        }\n        return [];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    getNoZeroIntegers(n: number): number[] {\n        const hasZero = (x: number): boolean =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        const nextNoZero = (x: number): number =&gt; {\n            while (hasZero(x)) {\n                x++;\n            }\n            return x;\n        };\n        \n        let a = 1;\n        while (a &lt; n) {\n            a = nextNoZero(a);\n            const b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return [a, b];\n            }\n            a++;\n        }\n        return [];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n × log n) - Same worst case as brute force but with better average case
+- Space: O(1) - Only using constant extra space
+- Notes: Skips unnecessary checks for numbers containing zeros, improving average performance
+
+---
+## Precompute No-Zero Numbers
+
+**Intuition**
+Precompute all numbers without zeros up to n, then iterate through them to find a valid pair.
+
+**Steps**
+- Define a helper function to check if a number contains any zero digit
+- Precompute all numbers from 1 to n-1 that don't contain zeros
+- Iterate through the precomputed list and check if the complement also has no zeros
+- Return the first valid pair found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def getNoZeroIntegers(self, n: int) -&gt; List[int]:\n        def has_zero(x: int) -&gt; bool:\n            while x &gt; 0:\n                if x % 10 == 0:\n                    return True\n                x //= 10\n            return False\n        \n        no_zero = [i for i in range(1, n) if not has_zero(i)]\n        \n        for a in no_zero:\n            b = n - a\n            if b &gt; 0 and not has_zero(b):\n                return [a, b]\n        return []" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public int[] getNoZeroIntegers(int n) {\n        List&lt;Integer&gt; noZero = new ArrayList&lt;&gt;();\n        for (int i = 1; i &lt; n; i++) {\n            if (!hasZero(i)) {\n                noZero.add(i);\n            }\n        }\n        \n        for (int a : noZero) {\n            int b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return new int[]{a, b};\n            }\n        }\n        return new int[]{};\n    }\n    \n    private boolean hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; getNoZeroIntegers(int n) {\n        vector&lt;int&gt; noZero;\n        for (int i = 1; i &lt; n; i++) {\n            if (!hasZero(i)) {\n                noZero.push_back(i);\n            }\n        }\n        \n        for (int a : noZero) {\n            int b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return {a, b};\n            }\n        }\n        return {};\n    }\n    \nprivate:\n    bool hasZero(int x) {\n        while (x &gt; 0) {\n            if (x % 10 == 0) {\n                return true;\n            }\n            x /= 10;\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    getNoZeroIntegers(n) {\n        const hasZero = (x) =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        const noZero = [];\n        for (let i = 1; i &lt; n; i++) {\n            if (!hasZero(i)) {\n                noZero.push(i);\n            }\n        }\n        \n        for (const a of noZero) {\n            const b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return [a, b];\n            }\n        }\n        return [];\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    getNoZeroIntegers(n: number): number[] {\n        const hasZero = (x: number): boolean =&gt; {\n            while (x &gt; 0) {\n                if (x % 10 === 0) {\n                    return true;\n                }\n                x = Math.floor(x / 10);\n            }\n            return false;\n        };\n        \n        const noZero: number[] = [];\n        for (let i = 1; i &lt; n; i++) {\n            if (!hasZero(i)) {\n                noZero.push(i);\n            }\n        }\n        \n        for (const a of noZero) {\n            const b = n - a;\n            if (b &gt; 0 && !hasZero(b)) {\n                return [a, b];\n            }\n        }\n        return [];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n × log n) - Precomputation takes O(n × log n) time
+- Space: O(n) - Storing all no-zero numbers up to n
+- Notes: Uses extra space for precomputation but can be useful if multiple queries need to be processed
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Convert Integer to the Sum of Two No-Zero Integers Solutions","datePublished":"2025-09-24","description":"Find two positive integers without any zero digits that sum to the given integer n.","keywords":"LeetCode, Convert Integer to the Sum of Two No-Zero Integers, Easy, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × log n) where n is the input integer. We iterate through n values and each zero check takes O(log n) time proportional to the number of digits."}},{"@type":"Question","name":"What is the space complexity of the Optimized Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use constant extra space for variables and helper functions."}},{"@type":"Question","name":"What is the trade-off of the Precompute No-Zero Numbers approach?","acceptedAnswer":{"@type":"Answer","text":"This approach uses O(n) extra space to store all no-zero numbers, which can be beneficial for multiple queries but is less space-efficient for a single query."}}]}).replace(/</g,'\u003c')}
+</script>

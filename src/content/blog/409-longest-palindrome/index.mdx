@@ -1,0 +1,427 @@
+---
+title: "Longest Palindrome"
+summary: "Find the length of the longest palindrome that can be built using letters from a given string."
+date: "Apr 25, 2026"
+tags:
+  - Hash Table
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.00% | **Paid:** No
+> **Topics:** Hash Table, String, Greedy
+
+Given a string s which consists of lowercase or uppercase letters, return the length of the longest palindrome that can be built with those letters.
+
+Letters are case sensitive, for example, "Aa" is not considered a palindrome here.
+
+- Examples
+- Constraints
+- [Hash Table Approach](#hash-table-approach)
+- [Greedy Set Approach](#greedy-set-approach)
+- [Bit Manipulation Approach](#bit-manipulation-approach)
+
+## Examples
+
+```text
+Input: s = "abccccdd"
+Output: 7
+Explanation: One longest palindrome that can be built is "dccaccd", whose length is 7.
+```
+
+```text
+Input: s = "a"
+Output: 1
+Explanation: The longest palindrome that can be built is "a", whose length is 1.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 2000
+s consists of lowercase and/or uppercase English letters only.
+```
+
+---
+## Hash Table Approach
+
+**Intuition**
+Count the frequency of each character and use the largest even number from each count, plus one odd character for the center if any exists.
+
+**Steps**
+- Create a frequency map of all characters in the string
+- For each character, add the largest even number (count // 2 * 2) to the result
+- Track if any character has an odd count
+- If there's any odd count, add 1 to place one character in the center
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        from collections import Counter
+        char_count = Counter(s)
+        length = 0
+        has_odd = False
+        
+        for count in char_count.values():
+            length += count // 2 * 2
+            if count % 2 == 1:
+                has_odd = True
+        
+        if has_odd:
+            length += 1
+        
+        return length` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int longestPalindrome(String s) {
+        int[] charCount = new int[128];
+        for (char c : s.toCharArray()) {
+            charCount[c]++;
+        }
+        
+        int length = 0;
+        boolean hasOdd = false;
+        
+        for (int count : charCount) {
+            length += (count / 2) * 2;
+            if (count % 2 == 1) {
+                hasOdd = true;
+            }
+        }
+        
+        if (hasOdd) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int longestPalindrome(string s) {
+        int charCount[128] = {0};
+        for (char c : s) {
+            charCount[c]++;
+        }
+        
+        int length = 0;
+        bool hasOdd = false;
+        
+        for (int count : charCount) {
+            length += (count / 2) * 2;
+            if (count % 2 == 1) {
+                hasOdd = true;
+            }
+        }
+        
+        if (hasOdd) {
+            length++;
+        }
+        
+        return length;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    longestPalindrome(s) {
+        const charCount = new Map();
+        for (const c of s) {
+            charCount.set(c, (charCount.get(c) || 0) + 1);
+        }
+        
+        let length = 0;
+        let hasOdd = false;
+        
+        for (const count of charCount.values()) {
+            length += Math.floor(count / 2) * 2;
+            if (count % 2 === 1) {
+                hasOdd = true;
+            }
+        }
+        
+        if (hasOdd) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    longestPalindrome(s: string): number {
+        const charCount = new Map<string, number>();
+        for (const c of s) {
+            charCount.set(c, (charCount.get(c) || 0) + 1);
+        }
+        
+        let length = 0;
+        let hasOdd = false;
+        
+        for (const count of charCount.values()) {
+            length += Math.floor(count / 2) * 2;
+            if (count % 2 === 1) {
+                hasOdd = true;
+            }
+        }
+        
+        if (hasOdd) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) since the character set is fixed (52 letters)
+- Notes: Uses fixed-size array for efficiency in Java/C++
+
+---
+## Greedy Set Approach
+
+**Intuition**
+Use a set to track characters with odd counts. When we see a character twice, we can immediately add 2 to the result.
+
+**Steps**
+- Initialize an empty set and result counter
+- For each character, if it's in the set, remove it and add 2 to result
+- If not in set, add it
+- If set is not empty at the end, add 1 for the center character
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        odd_chars = set()
+        length = 0
+        
+        for c in s:
+            if c in odd_chars:
+                odd_chars.remove(c)
+                length += 2
+            else:
+                odd_chars.add(c)
+        
+        if odd_chars:
+            length += 1
+        
+        return length` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int longestPalindrome(String s) {
+        Set<Character> oddChars = new HashSet&lt;&gt;();
+        int length = 0;
+        
+        for (char c : s.toCharArray()) {
+            if (oddChars.contains(c)) {
+                oddChars.remove(c);
+                length += 2;
+            } else {
+                oddChars.add(c);
+            }
+        }
+        
+        if (!oddChars.isEmpty()) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int longestPalindrome(string s) {
+        unordered_set<char> oddChars;
+        int length = 0;
+        
+        for (char c : s) {
+            if (oddChars.count(c)) {
+                oddChars.erase(c);
+                length += 2;
+            } else {
+                oddChars.insert(c);
+            }
+        }
+        
+        if (!oddChars.empty()) {
+            length++;
+        }
+        
+        return length;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    longestPalindrome(s) {
+        const oddChars = new Set();
+        let length = 0;
+        
+        for (const c of s) {
+            if (oddChars.has(c)) {
+                oddChars.delete(c);
+                length += 2;
+            } else {
+                oddChars.add(c);
+            }
+        }
+        
+        if (oddChars.size &gt; 0) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    longestPalindrome(s: string): number {
+        const oddChars = new Set<string>();
+        let length = 0;
+        
+        for (const c of s) {
+            if (oddChars.has(c)) {
+                oddChars.delete(c);
+                length += 2;
+            } else {
+                oddChars.add(c);
+            }
+        }
+        
+        if (oddChars.size &gt; 0) {
+            length++;
+        }
+        
+        return length;
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) since the set can contain at most 52 characters
+- Notes: Single pass through the string with immediate pair counting
+
+---
+## Bit Manipulation Approach
+
+**Intuition**
+Use a bitmask to track which characters have odd counts. Each bit represents a character, toggling on each occurrence.
+
+**Steps**
+- Initialize a 64-bit bitmask
+- For each character, toggle its corresponding bit
+- If bitmask is 0, all characters have even counts
+- Otherwise, subtract the count of set bits from length and add 1 for center
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        bitmask = 0
+        
+        for c in s:
+            if 'A' &lt;= c &lt;= 'Z':
+                bit = 1 &lt;&lt; (ord(c) - ord('A'))
+            else:
+                bit = 1 &lt;&lt; (ord(c) - ord('a') + 26)
+            bitmask ^= bit
+        
+        if bitmask == 0:
+            return len(s)
+        else:
+            return len(s) - bin(bitmask).count('1') + 1` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int longestPalindrome(String s) {
+        long bitmask = 0;
+        
+        for (char c : s.toCharArray()) {
+            long bit;
+            if (c &gt;= 'A' && c &lt;= 'Z') {
+                bit = 1L &lt;&lt; (c - 'A');
+            } else {
+                bit = 1L &lt;&lt; (c - 'a' + 26);
+            }
+            bitmask ^= bit;
+        }
+        
+        if (bitmask == 0) {
+            return s.length();
+        } else {
+            int oddCount = Long.bitCount(bitmask);
+            return s.length() - oddCount + 1;
+        }
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int longestPalindrome(string s) {
+        long long bitmask = 0;
+        
+        for (char c : s) {
+            long long bit;
+            if (c &gt;= 'A' && c &lt;= 'Z') {
+                bit = 1LL &lt;&lt; (c - 'A');
+            } else {
+                bit = 1LL &lt;&lt; (c - 'a' + 26);
+            }
+            bitmask ^= bit;
+        }
+        
+        if (bitmask == 0) {
+            return s.length();
+        } else {
+            int oddCount = __builtin_popcountll(bitmask);
+            return s.length() - oddCount + 1;
+        }
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    longestPalindrome(s) {
+        let bitmask = 0;
+        
+        for (const c of s) {
+            let bit;
+            if (c &gt;= 'A' && c &lt;= 'Z') {
+                bit = 1 &lt;&lt; (c.charCodeAt(0) - 'A'.charCodeAt(0));
+            } else {
+                bit = 1 &lt;&lt; (c.charCodeAt(0) - 'a'.charCodeAt(0) + 26);
+            }
+            bitmask ^= bit;
+        }
+        
+        if (bitmask === 0) {
+            return s.length;
+        } else {
+            const oddCount = bitmask.toString(2).split('1').length - 1;
+            return s.length - oddCount + 1;
+        }
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    longestPalindrome(s: string): number {
+        let bitmask = 0;
+        
+        for (const c of s) {
+            let bit;
+            if (c &gt;= 'A' && c &lt;= 'Z') {
+                bit = 1 &lt;&lt; (c.charCodeAt(0) - 'A'.charCodeAt(0));
+            } else {
+                bit = 1 &lt;&lt; (c.charCodeAt(0) - 'a'.charCodeAt(0) + 26);
+            }
+            bitmask ^= bit;
+        }
+        
+        if (bitmask === 0) {
+            return s.length;
+        } else {
+            const oddCount = bitmask.toString(2).split('1').length - 1;
+            return s.length - oddCount + 1;
+        }
+    }
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) using only a single integer variable
+- Notes: Most space-efficient but requires bit counting operation
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longest Palindrome Solutions","datePublished":"2026-04-25","description":"Find the length of the longest palindrome that can be built using letters from a given string.","keywords":"LeetCode, Longest Palindrome, Easy, Hash Table, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Table Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we iterate through the string once and then through the character counts."}},{"@type":"Question","name":"What is the space complexity of the Greedy Set Approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) since the set can contain at most 52 characters (26 uppercase and 26 lowercase letters)."}},{"@type":"Question","name":"How does the Bit Manipulation Approach work?","acceptedAnswer":{"@type":"Answer","text":"The Bit Manipulation Approach uses a 64-bit bitmask where each bit represents a character. Toggling the bit on each occurrence tracks odd/even counts. The result is calculated by subtracting the count of set bits from the total length and adding 1 if any odd count exists."}},{"@type":"Question","name":"Why can we only use one character with an odd count in the center?","acceptedAnswer":{"@type":"Answer","text":"In a palindrome, only one character can appear an odd number of times (in the center). All other characters must appear an even number of times to maintain symmetry."}}]}).replace(/</g,'\u003c')}
+</script>

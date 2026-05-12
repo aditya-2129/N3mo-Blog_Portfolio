@@ -1,0 +1,170 @@
+---
+title: "Special Array With X Elements Greater Than or Equal X"
+summary: "Find the largest integer x such that exactly x elements in the array are greater than or equal to x."
+date: "Jul 03, 2024"
+tags:
+  - Array
+  - Binary Search
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.80% | **Paid:** No
+> **Topics:** Array, Binary Search, Sorting
+
+You are given an array nums of non-negative integers. An array is considered special if there exists a number x such that there are exactly x numbers in the array that are greater than or equal to x.
+
+Return x if the array is special, otherwise, return -1. It can be proven that if nums is special, the value for x is unique.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sorting](#approach-2-sorting)
+- [Approach 3: Counting Sort](#approach-3-counting-sort)
+- [Approach 4: Binary Search](#approach-4-binary-search)
+
+## Examples
+
+```text
+Input: nums = [3,5]
+Output: 2
+Explanation: There are 2 values (3 and 5) that are greater than or equal to 2.
+```
+
+```text
+Input: nums = [0,0]
+Output: -1
+Explanation: No numbers fit the criteria for x.
+If x = 0, there are 0 numbers >= 0.
+If x = 1, there are 0 numbers >= 1.
+If x = 2, there are 0 numbers >= 2.
+```
+
+```text
+Input: nums = [0,4,3,0,4]
+Output: 3
+Explanation: There are 3 values that are greater than or equal to 3 (4, 3, and 4).
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+0 <= nums[i] <= 1000
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Since the value of $x$ is bounded by the length of the array ($n$), we can iterate through all possible values of $x$ from $n$ down to 0 and check the condition directly.
+
+**Steps**
+- Iterate $x$ from the length of the array down to 0.
+- For each $x$, count how many numbers in the array are greater than or equal to $x$.
+- If the count equals $x$, return $x$.
+- If the loop finishes without finding a match, return -1.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def specialArray(self, nums: list[int]) -> int:\\n        n = len(nums)\\n        for x in range(n, -1, -1):\\n            count = 0\\n            for num in nums:\\n                if num >= x:\\n                    count += 1\\n            if count == x:\\n                return x\\n        return -1\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int specialArray(int[] nums) {\\n        int n = nums.length;\\n        for (int x = n; x >= 0; x--) {\\n            int count = 0;\\n            for (int num : nums) {\\n                if (num >= x) {\\n                    count++;\\n                }\\n            }\\n            if (count == x) {\\n                return x;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int specialArray(vector<int>& nums) {\\n        int n = nums.size();\\n        for (int x = n; x >= 0; x--) {\\n            int count = 0;\\n            for (int num : nums) {\\n                if (num >= x) {\\n                    count++;\\n                }\\n            }\\n            if (count == x) {\\n                return x;\\n            }\\n        }\\n        return -1;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\\n    specialArray(nums) {\\n        const n = nums.length;\\n        for (let x = n; x >= 0; x--) {\\n            let count = 0;\\n            for (const num of nums) {\\n                if (num >= x) {\\n                    count++;\\n                }\\n            }\\n            if (count === x) {\\n                return x;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    specialArray(nums: number[]): number {\\n        const n = nums.length;\\n        for (let x = n; x >= 0; x--) {\\n            let count = 0;\\n            for (const num of nums) {\\n                if (num >= x) {\\n                    count++;\\n                }\\n            }\\n            if (count === x) {\\n                return x;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Approach 2: Sorting
+
+**Intuition**
+By sorting the array in descending order, we can easily determine how many elements are greater than or equal to a specific value based on their index.
+
+**Steps**
+- Sort the array in descending order.
+- Iterate through the array. At index $i$ (0-based), there are $i+1$ elements that are greater than or equal to $nums[i]$.
+- Check if $i+1$ is a valid $x$. This is true if $nums[i] \ge i+1$ and ($i$ is the last index or $nums[i+1] &lt; i+1$).
+- If found, return $i+1$. Otherwise, return -1.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def specialArray(self, nums: list[int]) -> int:\\n        nums.sort(reverse=True)\\n        n = len(nums)\\n        for i in range(n):\\n            # i+1 is the count of elements >= nums[i]\\n            if nums[i] >= i + 1:\\n                # Check if this is the exact x (next element is smaller)\\n                if i == n - 1 or nums[i + 1] < i + 1:\\n                    return i + 1\\n        return -1\\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\\nimport java.util.Collections;\\n\\nclass Solution {\\n    public int specialArray(int[] nums) {\\n        // Convert to Integer array for descending sort\\n        Integer[] boxedNums = new Integer[nums.length];\\n        for (int i = 0; i < nums.length; i++) {\\n            boxedNums[i] = nums[i];\\n        }\\n        Arrays.sort(boxedNums, Collections.reverseOrder());\\n        \\n        int n = boxedNums.length;\\n        for (int i = 0; i < n; i++) {\\n            if (boxedNums[i] >= i + 1) {\\n                if (i == n - 1 || boxedNums[i + 1] < i + 1) {\\n                    return i + 1;\\n                }\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "#include <algorithm>\\n\\nclass Solution {\\npublic:\\n    int specialArray(vector<int>& nums) {\\n        sort(nums.begin(), nums.end(), greater<int>());\\n        int n = nums.size();\\n        for (int i = 0; i < n; i++) {\\n            if (nums[i] >= i + 1) {\\n                if (i == n - 1 || nums[i + 1] < i + 1) {\\n                    return i + 1;\\n                }\\n            }\\n        }\\n        return -1;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\\n    specialArray(nums) {\\n        nums.sort((a, b) => b - a);\\n        const n = nums.length;\\n        for (let i = 0; i < n; i++) {\\n            if (nums[i] >= i + 1) {\\n                if (i === n - 1 || nums[i + 1] < i + 1) {\\n                    return i + 1;\\n                }\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    specialArray(nums: number[]): number {\\n        nums.sort((a, b) => b - a);\\n        const n = nums.length;\\n        for (let i = 0; i < n; i++) {\\n            if (nums[i] >= i + 1) {\\n                if (i === n - 1 || nums[i + 1] < i + 1) {\\n                    return i + 1;\\n                }\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting implementation.
+- Notes: More efficient than brute force. Sorting allows us to check conditions in a single pass.
+
+---
+## Approach 3: Counting Sort
+
+**Intuition**
+Given the constraints ($nums[i] \le 1000$), we can use a frequency array (counting sort) to count occurrences of each number. Then, we can calculate suffix sums to find how many numbers are greater than or equal to $x$ for every $x$.
+
+**Steps**
+- Initialize a frequency array of size 1001 (since max value is 1000).
+- Count the frequency of each number in `nums`.
+- Iterate from 1000 down to 0, maintaining a running total of elements seen so far (suffix sum).
+- If at any point the total equals the current index $x$, return $x$.
+- If the total exceeds $x$, we can break early because for smaller $x$, the total will only increase while $x$ decreases, making equality impossible.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def specialArray(self, nums: list[int]) -> int:\\n        freq = [0] * 1001\\n        for num in nums:\\n            freq[num] += 1\\n        \\n        total = 0\\n        for i in range(1000, -1, -1):\\n            total += freq[i]\\n            if total == i:\\n                return i\\n            if total > i:\\n                break\\n        return -1\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int specialArray(int[] nums) {\\n        int[] freq = new int[1001];\\n        for (int num : nums) {\\n            freq[num]++;\\n        }\\n        \\n        int total = 0;\\n        for (int i = 1000; i >= 0; i--) {\\n            total += freq[i];\\n            if (total == i) {\\n                return i;\\n            }\\n            if (total > i) {\\n                break;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int specialArray(vector<int>& nums) {\\n        int freq[1001] = {0};\\n        for (int num : nums) {\\n            freq[num]++;\\n        }\\n        \\n        int total = 0;\\n        for (int i = 1000; i >= 0; i--) {\\n            total += freq[i];\\n            if (total == i) {\\n                return i;\\n            }\\n            if (total > i) {\\n                break;\\n            }\\n        }\\n        return -1;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\\n    specialArray(nums) {\\n        const freq = new Array(1001).fill(0);\\n        for (const num of nums) {\\n            freq[num]++;\\n        }\\n        \\n        let total = 0;\\n        for (let i = 1000; i >= 0; i--) {\\n            total += freq[i];\\n            if (total === i) {\\n                return i;\\n            }\\n            if (total > i) {\\n                break;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    specialArray(nums: number[]): number {\\n        const freq: number[] = new Array(1001).fill(0);\\n        for (const num of nums) {\\n            freq[num]++;\\n        }\\n        \\n        let total = 0;\\n        for (let i = 1000; i >= 0; i--) {\\n            total += freq[i];\\n            if (total === i) {\\n                return i;\\n            }\\n            if (total > i) {\\n                break;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n + k) where k is the range of values (1000).
+- Space: O(k) for the frequency array.
+- Notes: Very efficient for small value ranges. Linear time complexity relative to input size.
+
+---
+## Approach 4: Binary Search
+
+**Intuition**
+The function $f(x) = \text\{count of elements\} \ge x$ is monotonic (non-increasing). We can use binary search on the range $[0, n]$ to find $x$ such that $f(x) = x$.
+
+**Steps**
+- Initialize `left = 0` and `right = n` (length of array).
+- Perform binary search:
+    - Calculate `mid`.
+    - Count how many numbers in `nums` are greater than or equal to `mid`.
+    - If count == `mid`, return `mid`.
+    - If count &gt; `mid`, it means we need a larger $x$ to reduce the count, so move `left = mid + 1`.
+    - If count &lt; `mid`, it means we need a smaller $x$, so move `right = mid - 1`.
+- If the loop ends without finding a match, return -1.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def specialArray(self, nums: list[int]) -> int:\\n        n = len(nums)\\n        left, right = 0, n\\n        while left <= right:\\n            mid = (left + right) // 2\\n            count = 0\\n            for num in nums:\\n                if num >= mid:\\n                    count += 1\\n            \\n            if count == mid:\\n                return mid\\n            elif count > mid:\\n                left = mid + 1\\n            else:\\n                right = mid - 1\\n        return -1\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int specialArray(int[] nums) {\\n        int n = nums.length;\\n        int left = 0, right = n;\\n        while (left <= right) {\\n            int mid = left + (right - left) / 2;\\n            int count = 0;\\n            for (int num : nums) {\\n                if (num >= mid) {\\n                    count++;\\n                }\\n            }\\n            \\n            if (count == mid) {\\n                return mid;\\n            } else if (count > mid) {\\n                left = mid + 1;\\n            } else {\\n                right = mid - 1;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int specialArray(vector<int>& nums) {\\n        int n = nums.size();\\n        int left = 0, right = n;\\n        while (left <= right) {\\n            int mid = left + (right - left) / 2;\\n            int count = 0;\\n            for (int num : nums) {\\n                if (num >= mid) {\\n                    count++;\\n                }\\n            }\\n            \\n            if (count == mid) {\\n                return mid;\\n            } else if (count > mid) {\\n                left = mid + 1;\\n            } else {\\n                right = mid - 1;\\n            }\\n        }\\n        return -1;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\\n    specialArray(nums) {\\n        const n = nums.length;\\n        let left = 0, right = n;\\n        while (left <= right) {\\n            const mid = Math.floor((left + right) / 2);\\n            let count = 0;\\n            for (const num of nums) {\\n                if (num >= mid) {\\n                    count++;\\n                }\\n            }\\n            \\n            if (count === mid) {\\n                return mid;\\n            } else if (count > mid) {\\n                left = mid + 1;\\n            } else {\\n                right = mid - 1;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    specialArray(nums: number[]): number {\\n        const n = nums.length;\\n        let left = 0, right = n;\\n        while (left <= right) {\\n            const mid = Math.floor((left + right) / 2);\\n            let count = 0;\\n            for (const num of nums) {\\n                if (num >= mid) {\\n                    count++;\\n                }\\n            }\\n            \\n            if (count === mid) {\\n                return mid;\\n            } else if (count > mid) {\\n                left = mid + 1;\\n            } else {\\n                right = mid - 1;\\n            }\\n        }\\n        return -1;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1)
+- Notes: Efficient and leverages the monotonic nature of the problem. Good balance between implementation complexity and runtime.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Special Array With X Elements Greater Than or Equal X Solutions","datePublished":"2024-07-03","description":"Find the largest integer x such that exactly x elements in the array are greater than or equal to x.","keywords":"LeetCode, Special Array With X Elements Greater Than or Equal X, Easy, Array, Binary Search, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Counting Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + k), where k is the range of values (1000)."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n)."}}]}).replace(/</g,'\u003c')}
+</script>

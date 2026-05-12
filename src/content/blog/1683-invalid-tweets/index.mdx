@@ -1,0 +1,151 @@
+---
+title: "Invalid Tweets"
+summary: "Find the IDs of tweets where the content length exceeds 15 characters."
+date: "Jan 22, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.10% | **Paid:** No
+> **Topics:** Database
+
+Table: Tweets
+
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| tweet_id       | int     |
+| content        | varchar |
++----------------+---------+
+tweet_id is the primary key (column with unique values) for this table.
+This table contains all the tweets in a social media app.
+
+Write a solution to find the IDs of the invalid tweets. The tweet is invalid if the content of the tweet exceeds 15 characters.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Using Built-in Length Function](#approach-1-using-built-in-length-function)
+- [Approach 2: Using Regular Expressions](#approach-2-using-regular-expressions)
+- [Approach 3: Iterative Character Count](#approach-3-iterative-character-count)
+
+## Examples
+
+### Example 1:
+**Input:**
+Tweets table:
++----------+----------------------------------+
+| tweet_id | content                          |
++----------+----------------------------------+
+| 1        | Vote for Biden                   |
+| 2        | Let us make America great again! |
++----------+----------------------------------+
+
+**Output:**
++----------+
+| tweet_id |
++----------+
+| 2        |
++----------+
+
+**Explanation:**
+Tweet 1 has length = 14 characters. It is a valid tweet.
+Tweet 2 has length = 32 characters. It is an invalid tweet.
+
+## Constraints
+
+```text
+1 <= tweet_id <= 10⁴
+1 <= content.length <= 10⁴
+The table may contain at most 10⁵ rows.
+content consists of English letters, spaces, and punctuation marks.
+```
+
+---
+## Approach 1: Using Built-in Length Function
+
+**Intuition**
+The most direct way to determine if a tweet is invalid is to check the length of the content string using the language's built-in string length method. If the length is strictly greater than 15, the tweet ID should be included in the result.
+
+**Steps**
+- Iterate through the list of tweet records.
+- For each record, access the content field.
+- Check if the length of the content is greater than 15.
+- If the condition is met, add the tweet_id to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def invalidTweets(self, tweets: list[dict]) -&gt; list[int]:\n        # Simulating database query: SELECT tweet_id FROM Tweets WHERE LENGTH(content) &gt; 15\n        return [t['tweet_id'] for t in tweets if len(t['content']) &gt; 15]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Tweet {\n    int tweet_id;\n    String content;\n    public Tweet(int id, String c) { tweet_id = id; content = c; }\n    public int getTweetId() { return tweet_id; }\n    public String getContent() { return content; }\n}\n\nclass Solution {\n    public List&lt;Integer&gt; invalidTweets(List&lt;Tweet&gt; tweets) {\n        // Simulating database query: SELECT tweet_id FROM Tweets WHERE LENGTH(content) &gt; 15\n        return tweets.stream()\n            .filter(t -&gt; t.getContent().length() &gt; 15)\n            .map(Tweet::getTweetId)\n            .collect(Collectors.toList());\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nstruct Tweet {\n    int tweet_id;\n    string content;\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; invalidTweets(vector&lt;Tweet&gt;& tweets) {\n        // Simulating database query: SELECT tweet_id FROM Tweets WHERE LENGTH(content) &gt; 15\n        vector&lt;int&gt; result;\n        for (const auto& t : tweets) {\n            if (t.content.length() &gt; 15) {\n                result.push_back(t.tweet_id);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;{tweet_id: number, content: string}&gt;} tweets\n * @return {number[]}\n */\nfunction invalidTweets(tweets) {\n    // Simulating database query: SELECT tweet_id FROM Tweets WHERE LENGTH(content) &gt; 15\n    return tweets\n        .filter(t =&gt; t.content.length &gt; 15)\n        .map(t =&gt; t.tweet_id);\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Tweet {\n    tweet_id: number;\n    content: string;\n}\n\nfunction invalidTweets(tweets: Tweet[]): number[] {\n    // Simulating database query: SELECT tweet_id FROM Tweets WHERE LENGTH(content) &gt; 15\n    return tweets\n        .filter(t =&gt; t.content.length &gt; 15)\n        .map(t =&gt; t.tweet_id);\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of tweets and L is the average length of the content. Calculating the length of a string typically takes O(L) time.
+- Space: O(K), where K is the number of invalid tweets, to store the result.
+- Notes: This is the most idiomatic and efficient approach for general-purpose programming languages.
+
+---
+## Approach 2: Using Regular Expressions
+
+**Intuition**
+We can use a regular expression to match strings that have a length of at least 16 characters. The pattern `.{16,}` matches any character (except a line terminator) 16 or more times. This approach shifts the logic of length checking to the regex engine.
+
+**Steps**
+- Define a regular expression pattern that matches 16 or more characters.
+- Iterate through the list of tweet records.
+- For each record, test if the content matches the pattern.
+- If it matches, the tweet is invalid; add the ID to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def invalidTweets(self, tweets: list[dict]) -&gt; list[int]:\n        # Simulating database query: SELECT tweet_id FROM Tweets WHERE content REGEXP '.{16,}'\n        pattern = re.compile(r'.{16,}')\n        return [t['tweet_id'] for t in tweets if pattern.match(t['content'])]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\nimport java.util.regex.Pattern;\n\nclass Tweet {\n    int tweet_id;\n    String content;\n    public Tweet(int id, String c) { tweet_id = id; content = c; }\n    public int getTweetId() { return tweet_id; }\n    public String getContent() { return content; }\n}\n\nclass Solution {\n    public List&lt;Integer&gt; invalidTweets(List&lt;Tweet&gt; tweets) {\n        // Simulating database query: SELECT tweet_id FROM Tweets WHERE content REGEXP '.{16,}'\n        Pattern pattern = Pattern.compile(\".{16,}\");\n        return tweets.stream()\n            .filter(t -&gt; pattern.matcher(t.getContent()).matches())\n            .map(Tweet::getTweetId)\n            .collect(Collectors.toList());\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;regex&gt;\n\nusing namespace std;\n\nstruct Tweet {\n    int tweet_id;\n    string content;\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; invalidTweets(vector&lt;Tweet&gt;& tweets) {\n        // Simulating database query: SELECT tweet_id FROM Tweets WHERE content REGEXP '.{16,}'\n        regex pattern(\".{16,}\");\n        vector&lt;int&gt; result;\n        for (const auto& t : tweets) {\n            if (regex_match(t.content, pattern)) {\n                result.push_back(t.tweet_id);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;{tweet_id: number, content: string}&gt;} tweets\n * @return {number[]}\n */\nfunction invalidTweets(tweets) {\n    // Simulating database query: SELECT tweet_id FROM Tweets WHERE content REGEXP '.{16,}'\n    const pattern = /.{16,}/;\n    return tweets\n        .filter(t =&gt; pattern.test(t.content))\n        .map(t =&gt; t.tweet_id);\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Tweet {\n    tweet_id: number;\n    content: string;\n}\n\nfunction invalidTweets(tweets: Tweet[]): number[] {\n    // Simulating database query: SELECT tweet_id FROM Tweets WHERE content REGEXP '.{16,}'\n    const pattern: RegExp = /.{16,}/;\n    return tweets\n        .filter(t =&gt; pattern.test(t.content))\n        .map(t =&gt; t.tweet_id);\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of tweets and L is the average length of the content. Regex matching generally requires scanning the string.
+- Space: O(K) for the result, plus O(1) or O(M) for the regex compilation depending on the language implementation.
+- Notes: While flexible, regex is often slower than a direct length check for simple constraints like this.
+
+---
+## Approach 3: Iterative Character Count
+
+**Intuition**
+Instead of relying on a built-in length function, we can manually iterate through the characters of the content string and count them. If the count exceeds 15, we can immediately stop counting and mark the tweet as invalid. This mimics how a database engine might process a `LENGTH` function at a lower level.
+
+**Steps**
+- Initialize an empty result list.
+- Iterate through each tweet record.
+- Initialize a counter to 0.
+- Loop through each character in the content string:
+    - Increment the counter.
+    - If the counter becomes 16, break the loop (we know it's invalid).
+- If the counter reached 16, add the tweet_id to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def invalidTweets(self, tweets: list[dict]) -&gt; list[int]:\n        # Simulating manual length check\n        result = []\n        for t in tweets:\n            count = 0\n            for _ in t['content']:\n                count += 1\n                if count &gt; 15:\n                    result.append(t['tweet_id'])\n                    break\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Tweet {\n    int tweet_id;\n    String content;\n    public Tweet(int id, String c) { tweet_id = id; content = c; }\n}\n\nclass Solution {\n    public List&lt;Integer&gt; invalidTweets(List&lt;Tweet&gt; tweets) {\n        // Simulating manual length check\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (Tweet t : tweets) {\n            int count = 0;\n            for (char c : t.content.toCharArray()) {\n                count++;\n                if (count &gt; 15) {\n                    result.add(t.tweet_id);\n                    break;\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nstruct Tweet {\n    int tweet_id;\n    string content;\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; invalidTweets(vector&lt;Tweet&gt;& tweets) {\n        // Simulating manual length check\n        vector&lt;int&gt; result;\n        for (const auto& t : tweets) {\n            int count = 0;\n            for (char c : t.content) {\n                count++;\n                if (count &gt; 15) {\n                    result.push_back(t.tweet_id);\n                    break;\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;{tweet_id: number, content: string}&gt;} tweets\n * @return {number[]}\n */\nfunction invalidTweets(tweets) {\n    // Simulating manual length check\n    const result = [];\n    for (const t of tweets) {\n        let count = 0;\n        for (const char of t.content) {\n            count++;\n            if (count &gt; 15) {\n                result.push(t.tweet_id);\n                break;\n            }\n        }\n    }\n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Tweet {\n    tweet_id: number;\n    content: string;\n}\n\nfunction invalidTweets(tweets: Tweet[]): number[] {\n    // Simulating manual length check\n    const result: number[] = [];\n    for (const t of tweets) {\n        let count = 0;\n        for (const char of t.content) {\n            count++;\n            if (count &gt; 15) {\n                result.push(t.tweet_id);\n                break;\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of tweets and L is the average length of the content. In the worst case (valid tweets), we scan the whole string.
+- Space: O(K) for the result list.
+- Notes: This approach is functionally equivalent to the built-in length check but demonstrates the underlying algorithm. It can be slightly more efficient if we only need to know if the length exceeds a threshold (early termination), whereas `length()` might calculate the full length depending on implementation.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Invalid Tweets Solutions","datePublished":"2024-01-22","description":"Find the IDs of tweets where the content length exceeds 15 characters.","keywords":"LeetCode, Invalid Tweets, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Length approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of tweets and L is the average length of the content."}},{"@type":"Question","name":"How does the Regular Expression approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses a pattern matching 16 or more characters (.{16,}) to identify invalid tweets."}},{"@type":"Question","name":"What is the advantage of the Iterative Character Count approach?","acceptedAnswer":{"@type":"Answer","text":"It allows for early termination as soon as the count exceeds 15, potentially saving time on very long strings compared to calculating the full length."}}]}).replace(/</g,'\u003c')}
+</script>

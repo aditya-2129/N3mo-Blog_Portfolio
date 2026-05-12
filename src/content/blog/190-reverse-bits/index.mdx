@@ -1,0 +1,123 @@
+---
+title: "Reverse Bits"
+summary: "Reverse bits of a given 32 bits unsigned integer."
+date: "Mar 17, 2024"
+tags:
+  - Divide and Conquer
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.30% | **Paid:** No
+> **Topics:** Divide and Conquer, Bit Manipulation
+
+Reverse bits of a given 32 bits unsigned integer.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Bit by Bit Iteration](#bit-by-bit-iteration)
+- [Divide and Conquer (Bit Swapping)](#divide-and-conquer-bit-swapping)
+- [Divide and Conquer (Memoization)](#divide-and-conquer-memoization)
+
+## Examples
+
+Input: n = 00000010100101000001111010011100
+Output: 00111001011110000010100101000000
+Explanation: The input binary string 00000010100101000001111010011100 represents the unsigned integer 43261596, so return 964176192 which its binary representation is 00111001011110000010100101000000.
+
+Input: n = 11111111111111111111111111111101
+Output: 10111111111111111111111111111111
+Explanation: The input binary string 11111111111111111111111111111101 represents the unsigned integer 4294967293, so return 3221225471 which its binary representation is 10111111111111111111111111111111.
+
+## Constraints
+
+```text
+- 0 <= n <= 2^31 - 2
+- n is even.
+```
+
+---
+## Bit by Bit Iteration
+
+**Intuition**
+We can reverse the bits by iterating through each of the 32 bits of the input number. In each step, we extract the least significant bit (LSB) of the input and append it to the result.
+
+**Steps**
+- Initialize `result` to 0.
+- Loop 32 times (once for each bit).
+- In each iteration:
+    - Left shift `result` by 1 to make space for the new bit.
+    - Get the LSB of `n` using `n & 1`.
+    - Add this bit to `result` using bitwise OR `|`.
+    - Right shift `n` by 1 to process the next bit.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseBits(self, n: int) -&gt; int:\n        res = 0\n        for _ in range(32):\n            res = (res &lt;&lt; 1) | (n & 1)\n            n &gt;&gt;= 1\n        return res" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    // you need treat n as an unsigned value\n    public int reverseBits(int n) {\n        int res = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            res = (res &lt;&lt; 1) | (n & 1);\n            n &gt;&gt;&gt;= 1;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    uint32_t reverseBits(uint32_t n) {\n        uint32_t res = 0;\n        for (int i = 0; i &lt; 32; i++) {\n            res = (res &lt;&lt; 1) | (n & 1);\n            n &gt;&gt;= 1;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number} - a positive integer\n */\nvar reverseBits = function(n) {\n    let res = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        res = (res &lt;&lt; 1) | (n & 1);\n        n &gt;&gt;&gt;= 1;\n    }\n    return res &gt;&gt;&gt; 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseBits(n: number): number {\n    let res = 0;\n    for (let i = 0; i &lt; 32; i++) {\n        res = (res &lt;&lt; 1) | (n & 1);\n        n &gt;&gt;&gt;= 1;\n    }\n    return res &gt;&gt;&gt; 0;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - We perform a constant number of operations (32 iterations).
+- Space: O(1) - We only use a few variables for storage.
+- Notes: This is the most straightforward approach and works well for 32-bit integers.
+
+---
+## Divide and Conquer (Bit Swapping)
+
+**Intuition**
+We can treat the 32-bit integer as a sequence of bits and swap adjacent bits recursively. First, swap odd and even bits, then swap adjacent pairs of bits, then nibbles (4 bits), then bytes (8 bits), and finally the two 16-bit halves.
+
+**Steps**
+- Mask odd bits with `0x55555555` (0101...) and shift left.
+- Mask even bits with `0xAAAAAAAA` (1010...) and shift right.
+- Combine them.
+- Repeat the process for masks `0x33333333`/`0xCCCCCCCC` (2-bit chunks), `0x0F0F0F0F`/`0xF0F0F0F0` (4-bit chunks), `0x00FF00FF`/`0xFF00FF00` (8-bit chunks), and `0x0000FFFF`/`0xFFFF0000` (16-bit chunks).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseBits(self, n: int) -&gt; int:\n        n = (n &gt;&gt; 16) | (n &lt;&lt; 16)\n        n = ((n & 0xff00ff00) &gt;&gt; 8) | ((n & 0x00ff00ff) &lt;&lt; 8)\n        n = ((n & 0xf0f0f0f0) &gt;&gt; 4) | ((n & 0x0f0f0f0f) &lt;&lt; 4)\n        n = ((n & 0xcccccccc) &gt;&gt; 2) | ((n & 0x33333333) &lt;&lt; 2)\n        n = ((n & 0xaaaaaaaa) &gt;&gt; 1) | ((n & 0x55555555) &lt;&lt; 1)\n        return n & 0xffffffff" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    public int reverseBits(int n) {\n        n = (n &gt;&gt;&gt; 16) | (n &lt;&lt; 16);\n        n = ((n & 0xff00ff00) &gt;&gt;&gt; 8) | ((n & 0x00ff00ff) &lt;&lt; 8);\n        n = ((n & 0xf0f0f0f0) &gt;&gt;&gt; 4) | ((n & 0x0f0f0f0f) &lt;&lt; 4);\n        n = ((n & 0xcccccccc) &gt;&gt;&gt; 2) | ((n & 0x33333333) &lt;&lt; 2);\n        n = ((n & 0xaaaaaaaa) &gt;&gt;&gt; 1) | ((n & 0x55555555) &lt;&lt; 1);\n        return n;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    uint32_t reverseBits(uint32_t n) {\n        n = (n &gt;&gt; 16) | (n &lt;&lt; 16);\n        n = ((n & 0xff00ff00) &gt;&gt; 8) | ((n & 0x00ff00ff) &lt;&lt; 8);\n        n = ((n & 0xf0f0f0f0) &gt;&gt; 4) | ((n & 0x0f0f0f0f) &lt;&lt; 4);\n        n = ((n & 0xcccccccc) &gt;&gt; 2) | ((n & 0x33333333) &lt;&lt; 2);\n        n = ((n & 0xaaaaaaaa) &gt;&gt; 1) | ((n & 0x55555555) &lt;&lt; 1);\n        return n;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number} - a positive integer\n */\nvar reverseBits = function(n) {\n    n = (n &gt;&gt;&gt; 16) | (n &lt;&lt; 16);\n    n = ((n & 0xff00ff00) &gt;&gt;&gt; 8) | ((n & 0x00ff00ff) &lt;&lt; 8);\n    n = ((n & 0xf0f0f0f0) &gt;&gt;&gt; 4) | ((n & 0x0f0f0f0f) &lt;&lt; 4);\n    n = ((n & 0xcccccccc) &gt;&gt;&gt; 2) | ((n & 0x33333333) &lt;&lt; 2);\n    n = ((n & 0xaaaaaaaa) &gt;&gt;&gt; 1) | ((n & 0x55555555) &lt;&lt; 1);\n    return n &gt;&gt;&gt; 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseBits(n: number): number {\n    n = (n &gt;&gt;&gt; 16) | (n &lt;&lt; 16);\n    n = ((n & 0xff00ff00) &gt;&gt;&gt; 8) | ((n & 0x00ff00ff) &lt;&lt; 8);\n    n = ((n & 0xf0f0f0f0) &gt;&gt;&gt; 4) | ((n & 0x0f0f0f0f) &lt;&lt; 4);\n    n = ((n & 0xcccccccc) &gt;&gt;&gt; 2) | ((n & 0x33333333) &lt;&lt; 2);\n    n = ((n & 0xaaaaaaaa) &gt;&gt;&gt; 1) | ((n & 0x55555555) &lt;&lt; 1);\n    return n &gt;&gt;&gt; 0;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed number of bitwise operations.
+- Space: O(1) - No extra space used.
+- Notes: This is often faster in practice as it avoids loop overhead and branch prediction, utilizing CPU parallelism for bitwise operations.
+
+---
+## Divide and Conquer (Memoization)
+
+**Intuition**
+Since a 32-bit integer consists of 4 bytes, and there are only 256 possible values for a byte, we can precompute the reversed bits for all 256 possible bytes. Then, we reverse the 32-bit integer by reversing each byte individually and placing them in the correct positions.
+
+**Steps**
+- Create a cache (array/map) of size 256 to store the reversed bits for values 0 to 255.
+- Extract the 4 bytes from the input integer `n`.
+- Look up the reversed value for each byte in the cache.
+- Combine the reversed bytes in reverse order (byte 0 becomes the most significant byte, etc.).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseBits(self, n: int) -&gt; int:\n        # Precompute reversed byte values\n        cache = {}\n        for i in range(256):\n            cache[i] = (i &gt;&gt; 7 & 1) &lt;&lt; 0 | (i &gt;&gt; 6 & 1) &lt;&lt; 1 | \\\n                       (i &gt;&gt; 5 & 1) &lt;&lt; 2 | (i &gt;&gt; 4 & 1) &lt;&lt; 3 | \\\n                       (i &gt;&gt; 3 & 1) &lt;&lt; 4 | (i &gt;&gt; 2 & 1) &lt;&lt; 5 | \\\n                       (i &gt;&gt; 1 & 1) &lt;&lt; 6 | (i &gt;&gt; 0 & 1) &lt;&lt; 7\n        \n        b0 = (n &gt;&gt; 24) & 0xff\n        b1 = (n &gt;&gt; 16) & 0xff\n        b2 = (n &gt;&gt; 8) & 0xff\n        b3 = (n &gt;&gt; 0) & 0xff\n        \n        return (cache[b0] &lt;&lt; 0) | (cache[b1] &lt;&lt; 8) | (cache[b2] &lt;&lt; 16) | (cache[b3] &lt;&lt; 24)" },
+{ name: "Java", lang: "java", code: "public class Solution {\n    private int[] cache = new int[256];\n    \n    public int reverseBits(int n) {\n        // Initialize cache if empty (simplified for single call context)\n        if (cache[1] == 0) {\n            for (int i = 0; i &lt; 256; i++) {\n                cache[i] = reverseByte(i);\n            }\n        }\n        \n        int b0 = (n &gt;&gt;&gt; 24) & 0xff;\n        int b1 = (n &gt;&gt;&gt; 16) & 0xff;\n        int b2 = (n &gt;&gt;&gt; 8) & 0xff;\n        int b3 = (n &gt;&gt;&gt; 0) & 0xff;\n        \n        return (cache[b0] &lt;&lt; 0) | (cache[b1] &lt;&lt; 8) | (cache[b2] &lt;&lt; 16) | (cache[b3] &lt;&lt; 24);\n    }\n    \n    private int reverseByte(int b) {\n        b = (b & 0xAA) &gt;&gt;&gt; 1 | (b & 0x55) &lt;&lt; 1;\n        b = (b & 0xCC) &gt;&gt;&gt; 2 | (b & 0x33) &lt;&lt; 2;\n        b = (b & 0xF0) &gt;&gt;&gt; 4 | (b & 0x0F) &lt;&lt; 4;\n        return b;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    uint32_t reverseBits(uint32_t n) {\n        static uint32_t cache[256];\n        static bool initialized = false;\n        \n        if (!initialized) {\n            for (int i = 0; i &lt; 256; i++) {\n                uint32_t b = i;\n                b = (b & 0xAA) &gt;&gt; 1 | (b & 0x55) &lt;&lt; 1;\n                b = (b & 0xCC) &gt;&gt; 2 | (b & 0x33) &lt;&lt; 2;\n                b = (b & 0xF0) &gt;&gt; 4 | (b & 0x0F) &lt;&lt; 4;\n                cache[i] = b;\n            }\n            initialized = true;\n        }\n        \n        uint32_t b0 = (n &gt;&gt; 24) & 0xff;\n        uint32_t b1 = (n &gt;&gt; 16) & 0xff;\n        uint32_t b2 = (n &gt;&gt; 8) & 0xff;\n        uint32_t b3 = (n &gt;&gt; 0) & 0xff;\n        \n        return (cache[b0] &lt;&lt; 0) | (cache[b1] &lt;&lt; 8) | (cache[b2] &lt;&lt; 16) | (cache[b3] &lt;&lt; 24);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n - a positive integer\n * @return {number} - a positive integer\n */\nvar reverseBits = function(n) {\n    const cache = new Array(256);\n    \n    const reverseByte = (b) =&gt; {\n        if (cache[b] !== undefined) return cache[b];\n        let val = 0;\n        for (let i = 0; i &lt; 8; i++) {\n            val = (val &lt;&lt; 1) | ((b &gt;&gt; i) & 1);\n        }\n        cache[b] = val;\n        return val;\n    };\n\n    const b0 = (n &gt;&gt;&gt; 24) & 0xff;\n    const b1 = (n &gt;&gt;&gt; 16) & 0xff;\n    const b2 = (n &gt;&gt;&gt; 8) & 0xff;\n    const b3 = (n &gt;&gt;&gt; 0) & 0xff;\n\n    return ((reverseByte(b0) &lt;&lt; 0) | \n            (reverseByte(b1) &lt;&lt; 8) | \n            (reverseByte(b2) &lt;&lt; 16) | \n            (reverseByte(b3) &lt;&lt; 24)) &gt;&gt;&gt; 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseBits(n: number): number {\n    const cache: number[] = new Array(256).fill(0);\n    \n    const reverseByte = (b: number): number =&gt; {\n        if (cache[b] !== undefined) return cache[b];\n        let val = 0;\n        for (let i = 0; i &lt; 8; i++) {\n            val = (val &lt;&lt; 1) | ((b &gt;&gt; i) & 1);\n        }\n        cache[b] = val;\n        return val;\n    };\n\n    const b0 = (n &gt;&gt;&gt; 24) & 0xff;\n    const b1 = (n &gt;&gt;&gt; 16) & 0xff;\n    const b2 = (n &gt;&gt;&gt; 8) & 0xff;\n    const b3 = (n &gt;&gt;&gt; 0) & 0xff;\n\n    return ((reverseByte(b0) &lt;&lt; 0) | \n            (reverseByte(b1) &lt;&lt; 8) | \n            (reverseByte(b2) &lt;&lt; 16) | \n            (reverseByte(b3) &lt;&lt; 24)) &gt;&gt;&gt; 0;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Constant time lookup and combination.
+- Space: O(1) - Fixed size cache of 256 integers.
+- Notes: This approach is extremely efficient if the function is called multiple times, as the cache is initialized only once.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Bits Solutions","datePublished":"2024-03-17","description":"Reverse bits of a given 32 bits unsigned integer.","keywords":"LeetCode, Reverse Bits, Easy, Divide and Conquer, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Bit by Bit Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a fixed number of operations (32 iterations)."}},{"@type":"Question","name":"What is the time complexity of the Divide and Conquer (Bit Swapping) approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) as it involves a fixed number of bitwise operations without loops."}},{"@type":"Question","name":"What is the space complexity of the Memoization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the cache size is fixed at 256 entries regardless of input size."}}]}).replace(/</g,'\u003c')}
+</script>

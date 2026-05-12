@@ -1,0 +1,133 @@
+---
+title: "Valid Mountain Array"
+summary: "Check if an array strictly increases then strictly decreases."
+date: "Jan 01, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 35.20% | **Paid:** No
+> **Topics:** Array
+
+Given an array of integers arr, return true if and only if it is a valid mountain array.
+
+Recall that arr is a mountain array if and only if:
+
+arr.length &gt;= 3
+There exists some index i (0 &lt; i &lt; arr.length - 1) such that:
+arr[0] &lt; arr[1] &lt; ... &lt; arr[i - 1] &lt; arr[i]
+arr[i] &gt; arr[i + 1] &gt; ... &gt; arr[arr.length - 1]
+
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Two Pointers](#two-pointers)
+- [State Machine](#state-machine)
+
+## Examples
+
+Example 1:
+Input: arr = [2,1]
+Output: false
+Explanation: Length is less than 3.
+
+Example 2:
+Input: arr = [3,5,5]
+Output: false
+Explanation: Not strictly increasing (plateau).
+
+Example 3:
+Input: arr = [0,3,2,1]
+Output: true
+Explanation: Strictly increasing to 3, then strictly decreasing.
+
+## Constraints
+
+```text
+2 <= arr.length <= 10⁴
+0 <= arr[i] <= 10⁴
+```
+
+---
+## Linear Scan
+
+**Intuition**
+We can simulate the walk up and down the mountain. First, climb up while the next element is greater. Then, check if we are at a valid peak (not at the start or end). Finally, climb down while the next element is smaller. If we reach the end, it is a valid mountain.
+
+**Steps**
+- Initialize a pointer i at 0.
+- Walk from left to right as long as arr[i] &lt; arr[i+1], stopping at the peak.
+- If the peak is at the start (i == 0) or end (i == n-1), return false.
+- Walk from the peak to the end as long as arr[i] &gt; arr[i+1].
+- Return true if we reached the last element (i == n-1).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def validMountainArray(self, arr: list[int]) -&gt; bool:\n        n = len(arr)\n        if n &lt; 3:\n            return False\n        i = 0\n        \n        # Walk up\n        while i + 1 &lt; n and arr[i] &lt; arr[i + 1]:\n            i += 1\n            \n        # Peak can't be first or last\n        if i == 0 or i == n - 1:\n            return False\n            \n        # Walk down\n        while i + 1 &lt; n and arr[i] &gt; arr[i + 1]:\n            i += 1\n            \n        return i == n - 1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean validMountainArray(int[] arr) {\n        int n = arr.length;\n        if (n &lt; 3) return false;\n        int i = 0;\n        \n        // Walk up\n        while (i + 1 &lt; n && arr[i] &lt; arr[i + 1]) {\n            i++;\n        }\n        \n        // Peak can't be first or last\n        if (i == 0 || i == n - 1) return false;\n        \n        // Walk down\n        while (i + 1 &lt; n && arr[i] &gt; arr[i + 1]) {\n            i++;\n        }\n        \n        return i == n - 1;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool validMountainArray(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        if (n &lt; 3) return false;\n        int i = 0;\n        \n        // Walk up\n        while (i + 1 &lt; n && arr[i] &lt; arr[i + 1]) {\n            i++;\n        }\n        \n        // Peak can't be first or last\n        if (i == 0 || i == n - 1) return false;\n        \n        // Walk down\n        while (i + 1 &lt; n && arr[i] &gt; arr[i + 1]) {\n            i++;\n        }\n        \n        return i == n - 1;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var validMountainArray = function(arr) {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let i = 0;\n    \n    // Walk up\n    while (i + 1 &lt; n && arr[i] &lt; arr[i + 1]) {\n        i++;\n    }\n    \n    // Peak can't be first or last\n    if (i === 0 || i === n - 1) return false;\n    \n    // Walk down\n    while (i + 1 &lt; n && arr[i] &gt; arr[i + 1]) {\n        i++;\n    }\n    \n    return i === n - 1;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function validMountainArray(arr: number[]): boolean {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let i = 0;\n    \n    // Walk up\n    while (i + 1 &lt; n && arr[i] &lt; arr[i + 1]) {\n        i++;\n    }\n    \n    // Peak can't be first or last\n    if (i === 0 || i === n - 1) return false;\n    \n    // Walk down\n    while (i + 1 &lt; n && arr[i] &gt; arr[i + 1]) {\n        i++;\n    }\n    \n    return i === n - 1;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — We traverse the array at most twice.
+- Space: O(1) — We only use a few variables.
+- Notes: Simple and efficient, handles all edge cases explicitly.
+
+---
+## Two Pointers
+
+**Intuition**
+We can find the peak from the left and the peak from the right simultaneously. If the array is a valid mountain, both pointers should meet at the same index, and that index should not be at the boundaries.
+
+**Steps**
+- Initialize left = 0 and right = n - 1.
+- Move left forward while arr[left] &lt; arr[left + 1].
+- Move right backward while arr[right - 1] &gt; arr[right].
+- Check if left == right and left != 0 and right != n - 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def validMountainArray(self, arr: list[int]) -&gt; bool:\n        n = len(arr)\n        if n &lt; 3:\n            return False\n        left = 0\n        right = n - 1\n        \n        # Climb from left\n        while left + 1 &lt; n and arr[left] &lt; arr[left + 1]:\n            left += 1\n            \n        # Climb from right\n        while right &gt; 0 and arr[right - 1] &gt; arr[right]:\n            right -= 1\n            \n        return left == right and left != 0 and right != n - 1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean validMountainArray(int[] arr) {\n        int n = arr.length;\n        if (n &lt; 3) return false;\n        int left = 0;\n        int right = n - 1;\n        \n        // Climb from left\n        while (left + 1 &lt; n && arr[left] &lt; arr[left + 1]) {\n            left++;\n        }\n        \n        // Climb from right\n        while (right &gt; 0 && arr[right - 1] &gt; arr[right]) {\n            right--;\n        }\n        \n        return left == right && left != 0 && right != n - 1;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool validMountainArray(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        if (n &lt; 3) return false;\n        int left = 0;\n        int right = n - 1;\n        \n        // Climb from left\n        while (left + 1 &lt; n && arr[left] &lt; arr[left + 1]) {\n            left++;\n        }\n        \n        // Climb from right\n        while (right &gt; 0 && arr[right - 1] &gt; arr[right]) {\n            right--;\n        }\n        \n        return left == right && left != 0 && right != n - 1;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var validMountainArray = function(arr) {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let left = 0;\n    let right = n - 1;\n    \n    // Climb from left\n    while (left + 1 &lt; n && arr[left] &lt; arr[left + 1]) {\n        left++;\n    }\n    \n    // Climb from right\n    while (right &gt; 0 && arr[right - 1] &gt; arr[right]) {\n        right--;\n    }\n    \n    return left === right && left !== 0 && right !== n - 1;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function validMountainArray(arr: number[]): boolean {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let left = 0;\n    let right = n - 1;\n    \n    // Climb from left\n    while (left + 1 &lt; n && arr[left] &lt; arr[left + 1]) {\n        left++;\n    }\n    \n    // Climb from right\n    while (right &gt; 0 && arr[right - 1] &gt; arr[right]) {\n        right--;\n    }\n    \n    return left === right && left !== 0 && right !== n - 1;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — In the worst case, we traverse the array twice.
+- Space: O(1) — Constant extra space.
+- Notes: Elegant approach that validates the mountain shape from both ends.
+
+---
+## State Machine
+
+**Intuition**
+We can model the problem as a state machine with states: 0 (start), 1 (going up), 2 (going down), and 3 (invalid). We transition between states based on the comparison between consecutive elements.
+
+**Steps**
+- Initialize state = 0.
+- Iterate through the array comparing arr[i] and arr[i+1].
+- If arr[i] &lt; arr[i+1]: if state is 2 (down), invalid; else set state to 1 (up).
+- If arr[i] &gt; arr[i+1]: if state is 0 (start), invalid; else set state to 2 (down).
+- If arr[i] == arr[i+1]: invalid (plateau).
+- Return true if final state is 2 (down).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def validMountainArray(self, arr: list[int]) -&gt; bool:\n        n = len(arr)\n        if n &lt; 3:\n            return False\n        state = 0 # 0: start, 1: up, 2: down\n        \n        for i in range(n - 1):\n            if arr[i] &lt; arr[i + 1]:\n                if state == 2:\n                    return False\n                state = 1\n            elif arr[i] &gt; arr[i + 1]:\n                if state == 0:\n                    return False\n                state = 2\n            else:\n                return False\n                \n        return state == 2\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean validMountainArray(int[] arr) {\n        int n = arr.length;\n        if (n &lt; 3) return false;\n        int state = 0; // 0: start, 1: up, 2: down\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            if (arr[i] &lt; arr[i + 1]) {\n                if (state == 2) return false;\n                state = 1;\n            } else if (arr[i] &gt; arr[i + 1]) {\n                if (state == 0) return false;\n                state = 2;\n            } else {\n                return false;\n            }\n        }\n        return state == 2;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool validMountainArray(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        if (n &lt; 3) return false;\n        int state = 0; // 0: start, 1: up, 2: down\n        \n        for (int i = 0; i &lt; n - 1; i++) {\n            if (arr[i] &lt; arr[i + 1]) {\n                if (state == 2) return false;\n                state = 1;\n            } else if (arr[i] &gt; arr[i + 1]) {\n                if (state == 0) return false;\n                state = 2;\n            } else {\n                return false;\n            }\n        }\n        return state == 2;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var validMountainArray = function(arr) {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let state = 0; // 0: start, 1: up, 2: down\n    \n    for (let i = 0; i &lt; n - 1; i++) {\n        if (arr[i] &lt; arr[i + 1]) {\n            if (state === 2) return false;\n            state = 1;\n        } else if (arr[i] &gt; arr[i + 1]) {\n            if (state === 0) return false;\n            state = 2;\n        } else {\n            return false;\n        }\n    }\n    return state === 2;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function validMountainArray(arr: number[]): boolean {\n    const n = arr.length;\n    if (n &lt; 3) return false;\n    let state = 0; // 0: start, 1: up, 2: down\n    \n    for (let i = 0; i &lt; n - 1; i++) {\n        if (arr[i] &lt; arr[i + 1]) {\n            if (state === 2) return false;\n            state = 1;\n        } else if (arr[i] &gt; arr[i + 1]) {\n            if (state === 0) return false;\n            state = 2;\n        } else {\n            return false;\n        }\n    }\n    return state === 2;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) — Single pass through the array.
+- Space: O(1) — Only state variable is used.
+- Notes: Structured approach that clearly defines valid transitions.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Valid Mountain Array Solutions","datePublished":"2025-01-01","description":"Check if an array strictly increases then strictly decreases.","keywords":"LeetCode, Valid Mountain Array, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array. We traverse the array at most twice."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use two pointers for traversal."}},{"@type":"Question","name":"What is the time complexity of the State Machine approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) because we iterate through the array once to update states."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,103 @@
+---
+title: "Largest Perimeter Triangle"
+summary: "Given an integer array nums, return the largest perimeter of a triangle with a non-zero area, or 0 if impossible."
+date: "Apr 19, 2026"
+tags:
+  - Array
+  - Math
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.20% | **Paid:** No
+> **Topics:** Array, Math, Greedy, Sorting
+
+Given an integer array nums, return the largest perimeter of a triangle with a non-zero area, formed from three of these lengths. If it is impossible to form any triangle of a non-zero area, return 0.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sorting and Greedy](#approach-2-sorting-and-greedy)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [2,1,2]
+Output: 5
+Explanation: You can form a triangle with three side lengths: 1, 2, and 2.
+```
+
+Example 2:
+```text
+Input: nums = [1,2,1]
+Output: 0
+Explanation: You cannot form a triangle with the given values.
+```
+
+## Constraints
+
+```text
+- 3 <= nums.length <= 10^4
+- 1 <= nums[i] <= 10^6
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Check every possible combination of three sides in the array to see if they can form a valid triangle, keeping track of the maximum perimeter found.
+
+**Steps**
+- Initialize a variable `max_perimeter` to 0.
+- Use three nested loops to iterate through all unique triplets `(i, j, k)` where `i &lt; j &lt; k`.
+- For each triplet, check the triangle inequality theorem: `a + b &gt; c`, `a + c &gt; b`, and `b + c &gt; a`.
+- If the triplet forms a valid triangle, update `max_perimeter` with the maximum of its current value and the sum of the triplet.
+- Return `max_perimeter`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestPerimeter(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        max_perimeter = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    a, b, c = nums[i], nums[j], nums[k]\n                    if a + b &gt; c and a + c &gt; b and b + c &gt; a:\n                        max_perimeter = max(max_perimeter, a + b + c)\n        return max_perimeter\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int largestPerimeter(int[] nums) {\n        int n = nums.length;\n        int maxPerimeter = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    int a = nums[i];\n                    int b = nums[j];\n                    int c = nums[k];\n                    if (a + b &gt; c && a + c &gt; b && b + c &gt; a) {\n                        maxPerimeter = Math.max(maxPerimeter, a + b + c);\n                    }\n                }\n            }\n        }\n        return maxPerimeter;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestPerimeter(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int maxPerimeter = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    int a = nums[i];\n                    int b = nums[j];\n                    int c = nums[k];\n                    if (a + b &gt; c && a + c &gt; b && b + c &gt; a) {\n                        maxPerimeter = max(maxPerimeter, a + b + c);\n                    }\n                }\n            }\n        }\n        return maxPerimeter;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestPerimeter = function(nums) {\n    let n = nums.length;\n    let maxPerimeter = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                let a = nums[i];\n                let b = nums[j];\n                let c = nums[k];\n                if (a + b &gt; c && a + c &gt; b && b + c &gt; a) {\n                    maxPerimeter = Math.max(maxPerimeter, a + b + c);\n                }\n            }\n        }\n    }\n    return maxPerimeter;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestPerimeter(nums: number[]): number {\n    let n = nums.length;\n    let maxPerimeter = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            for (let k = j + 1; k &lt; n; k++) {\n                let a = nums[i];\n                let b = nums[j];\n                let c = nums[k];\n                if (a + b &gt; c && a + c &gt; b && b + c &gt; a) {\n                    maxPerimeter = Math.max(maxPerimeter, a + b + c);\n                }\n            }\n        }\n    }\n    return maxPerimeter;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³) - We iterate through all possible triplets.
+- Space: O(1) - We only use a few variables for storage.
+- Notes: This approach is inefficient for large inputs (n up to 10⁴) and will likely result in a Time Limit Exceeded error.
+
+---
+## Approach 2: Sorting and Greedy
+
+**Intuition**
+To maximize the perimeter, we should prioritize the largest numbers. If we sort the array in ascending order, we can efficiently check the largest valid triplet. For three sorted sides `a &lt;= b &lt;= c`, the condition `a + b &gt; c` is sufficient to form a triangle (since `c + a &gt; b` and `c + b &gt; a` are implicitly true).
+
+**Steps**
+- Sort the array `nums` in ascending order.
+- Iterate from the end of the array towards the beginning (index `i` from `n-1` down to `2`).
+- For each index `i`, check if `nums[i-2] + nums[i-1] &gt; nums[i]`.
+- If the condition is true, these three sides form the triangle with the largest possible perimeter (because we are checking from the largest sides downwards). Return their sum.
+- If the loop finishes without finding a valid triangle, return 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestPerimeter(self, nums: list[int]) -&gt; int:\n        nums.sort()\n        for i in range(len(nums) - 1, 1, -1):\n            if nums[i-2] + nums[i-1] &gt; nums[i]:\n                return nums[i-2] + nums[i-1] + nums[i]\n        return 0\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int largestPerimeter(int[] nums) {\n        Arrays.sort(nums);\n        for (int i = nums.length - 1; i &gt;= 2; i--) {\n            if (nums[i-2] + nums[i-1] &gt; nums[i]) {\n                return nums[i-2] + nums[i-1] + nums[i];\n            }\n        }\n        return 0;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestPerimeter(vector&lt;int&gt;& nums) {\n        sort(nums.begin(), nums.end());\n        for (int i = nums.size() - 1; i &gt;= 2; i--) {\n            if (nums[i-2] + nums[i-1] &gt; nums[i]) {\n                return nums[i-2] + nums[i-1] + nums[i];\n            }\n        }\n        return 0;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestPerimeter = function(nums) {\n    nums.sort(function(a, b) { return a - b; });\n    for (let i = nums.length - 1; i &gt;= 2; i--) {\n        if (nums[i-2] + nums[i-1] &gt; nums[i]) {\n            return nums[i-2] + nums[i-1] + nums[i];\n        }\n    }\n    return 0;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestPerimeter(nums: number[]): number {\n    nums.sort((a, b) =&gt; a - b);\n    for (let i = nums.length - 1; i &gt;= 2; i--) {\n        if (nums[i-2] + nums[i-1] &gt; nums[i]) {\n            return nums[i-2] + nums[i-1] + nums[i];\n        }\n    }\n    return 0;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n) - Dominated by the sorting step.
+- Space: O(1) or O(n) - Depending on the sorting algorithm's space complexity (e.g., `log n` stack space for quicksort, or `n` for mergesort).
+- Notes: This is the optimal approach for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Perimeter Triangle Solutions","datePublished":"2026-04-19","description":"Given an integer array nums, return the largest perimeter of a triangle with a non-zero area, or 0 if impossible.","keywords":"LeetCode, Largest Perimeter Triangle, Easy, Array, Math, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n³) where n is the number of elements in the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting and Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Sorting and Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(n) depending on the sorting algorithm implementation."}}]}).replace(/</g,'\u003c')}
+</script>

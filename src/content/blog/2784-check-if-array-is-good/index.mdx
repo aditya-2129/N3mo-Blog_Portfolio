@@ -1,0 +1,182 @@
+---
+title: "Check if Array is Good"
+summary: "Determine if an array is a permutation of [1, 2, ..., n, n]."
+date: "Apr 28, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+You are given an integer array `nums`. We consider an array good if it is a permutation of an array `base[n]` where `base[n] = [1, 2, ..., n - 1, n, n]`. In other words, it is an array of length `n + 1` that contains all integers from `1` to `n` (inclusive) exactly once, and the number `n` exactly twice. Return `true` if `nums` is good, otherwise return `false`.
+
+- Examples
+- Constraints
+- [Sorting](#sorting)
+- [Frequency Map](#frequency-map)
+- [Boolean Array](#boolean-array)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [2, 1, 3]
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+Since the maximum element of the array is 3, the only candidate n for which this array could be a permutation of base[n], is n = 3. However, base[3] has four elements but array nums has three. Therefore, it can not be a permutation of base[3] = [1, 2, 3, 3]. So the answer is false.
+
+### Example 2
+
+**Input:**
+```text
+nums = [1, 3, 3, 2]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Since the maximum element of the array is 3, the only candidate n for which this array could be a permutation of base[n], is n = 3. It can be seen that nums is a permutation of base[3] = [1, 2, 3, 3] (by swapping the second and fourth elements in nums, we reach base[3]). Therefore, the answer is true.
+
+### Example 3
+
+**Input:**
+```text
+nums = [1, 1]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Since the maximum element of the array is 1, the only candidate n for which this array could be a permutation of base[n], is n = 1. It can be seen that nums is a permutation of base[1] = [1, 1]. Therefore, the answer is true.
+
+### Example 4
+
+**Input:**
+```text
+nums = [3, 4, 4, 1, 2, 1]
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+Since the maximum element of the array is 4, the only candidate n for which this array could be a permutation of base[n], is n = 4. However, base[4] has five elements but array nums has six. Therefore, it can not be a permutation of base[4] = [1, 2, 3, 4, 4]. So the answer is false.
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+---
+## Sorting
+
+**Intuition**
+If we sort the array, a "good" array will strictly follow the pattern `[1, 2, ..., n, n]`. We can simply sort the input and compare it against this expected pattern element by element.
+
+**Steps**
+- Calculate `n` as `nums.length - 1`.
+- Sort the array `nums` in ascending order.
+- Iterate through the array with index `i` from `0` to `n`:
+    - For indices `0` to `n-1`, the value should be `i + 1`.
+    - For the last index `n`, the value should be `n`.
+- If any element does not match the expected value, return `false`.
+- If the loop completes, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isGood(self, nums: list[int]) -&gt; bool:\n        n = len(nums) - 1\n        nums.sort()\n        for i in range(n):\n            if nums[i] != i + 1:\n                return False\n        return nums[n] == n\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public boolean isGood(int[] nums) {\n        int n = nums.length - 1;\n        Arrays.sort(nums);\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] != i + 1) {\n                return false;\n            }\n        }\n        return nums[n] == n;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isGood(vector&lt;int&gt;& nums) {\n        int n = nums.size() - 1;\n        sort(nums.begin(), nums.end());\n        for (int i = 0; i &lt; n; i++) {\n            if (nums[i] != i + 1) {\n                return false;\n            }\n        }\n        return nums[n] == n;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {boolean}\n */\nvar isGood = function(nums) {\n    const n = nums.length - 1;\n    nums.sort((a, b) =&gt; a - b);\n    for (let i = 0; i &lt; n; i++) {\n        if (nums[i] !== i + 1) {\n            return false;\n        }\n    }\n    return nums[n] === n;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isGood(nums: number[]): boolean {\n    const n = nums.length - 1;\n    nums.sort((a, b) =&gt; a - b);\n    for (let i = 0; i &lt; n; i++) {\n        if (nums[i] !== i + 1) {\n            return false;\n        }\n    }\n    return nums[n] === n;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting.
+- Space: O(1) or O(n) depending on the sorting algorithm's implementation.
+- Notes: Modifies the input array.
+
+---
+## Frequency Map
+
+**Intuition**
+A "good" array has specific frequency requirements: every number from `1` to `n-1` appears exactly once, and `n` appears exactly twice. We can count the frequency of each number and verify these conditions.
+
+**Steps**
+- Calculate `n` as `nums.length - 1`.
+- Create a frequency map (hash table) to count occurrences of each number in `nums`.
+- Iterate from `1` to `n`:
+    - If the current number `i` is less than `n`, its count must be `1`.
+    - If the current number `i` is equal to `n`, its count must be `2`.
+    - If any count is incorrect, return `false`.
+- Return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def isGood(self, nums: list[int]) -&gt; bool:\n        n = len(nums) - 1\n        count = Counter(nums)\n        for i in range(1, n + 1):\n            if i &lt; n:\n                if count.get(i, 0) != 1:\n                    return False\n            else:\n                if count.get(i, 0) != 2:\n                    return False\n        return True\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean isGood(int[] nums) {\n        int n = nums.length - 1;\n        Map&lt;Integer, Integer&gt; count = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            count.put(num, count.getOrDefault(num, 0) + 1);\n        }\n        for (int i = 1; i &lt;= n; i++) {\n            int expected = (i &lt; n) ? 1 : 2;\n            if (count.getOrDefault(i, 0) != expected) {\n                return false;\n            }\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isGood(vector&lt;int&gt;& nums) {\n        int n = nums.size() - 1;\n        unordered_map&lt;int, int&gt; count;\n        for (int num : nums) {\n            count[num]++;\n        }\n        for (int i = 1; i &lt;= n; i++) {\n            int expected = (i &lt; n) ? 1 : 2;\n            if (count[i] != expected) {\n                return false;\n            }\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {boolean}\n */\nvar isGood = function(nums) {\n    const n = nums.length - 1;\n    const count = new Map();\n    for (const num of nums) {\n        count.set(num, (count.get(num) || 0) + 1);\n    }\n    for (let i = 1; i &lt;= n; i++) {\n        const expected = (i &lt; n) ? 1 : 2;\n        if ((count.get(i) || 0) !== expected) {\n            return false;\n        }\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isGood(nums: number[]): boolean {\n    const n = nums.length - 1;\n    const count = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        count.set(num, (count.get(num) || 0) + 1);\n    }\n    for (let i = 1; i &lt;= n; i++) {\n        const expected = (i &lt; n) ? 1 : 2;\n        if ((count.get(i) || 0) !== expected) {\n            return false;\n        }\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) for iterating through the array and the map.
+- Space: O(n) to store the frequency map.
+- Notes: Does not modify the input array.
+
+---
+## Boolean Array
+
+**Intuition**
+Since the constraints specify that `nums[i] &lt;= 100`, we can use a fixed-size boolean array (or a bitset) to track which numbers we have seen. This is more space-efficient than a hash map for small integer ranges. We specifically need to ensure `n` appears twice and others appear once.
+
+**Steps**
+- Calculate `n` as `nums.length - 1`.
+- Initialize a boolean array `seen` of size `n + 1` with `false`.
+- Initialize a counter `countN` to `0`.
+- Iterate through `nums`:
+    - If the current number `val` is greater than `n`, return `false`.
+    - If `val` equals `n`, increment `countN`.
+    - Otherwise, if `seen[val]` is already `true`, it means we have a duplicate of a number that should appear only once, so return `false`.
+    - Mark `seen[val]` as `true`.
+- After the loop, check if `countN == 2`.
+- Return `true` if all checks pass.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isGood(self, nums: list[int]) -&gt; bool:\n        n = len(nums) - 1\n        seen = [False] * (n + 1)\n        count_n = 0\n        for val in nums:\n            if val &gt; n:\n                return False\n            if val == n:\n                count_n += 1\n            else:\n                if seen[val]:\n                    return False\n                seen[val] = True\n        return count_n == 2\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isGood(int[] nums) {\n        int n = nums.length - 1;\n        boolean[] seen = new boolean[n + 1];\n        int countN = 0;\n        for (int val : nums) {\n            if (val &gt; n) {\n                return false;\n            }\n            if (val == n) {\n                countN++;\n            } else {\n                if (seen[val]) {\n                    return false;\n                }\n                seen[val] = true;\n            }\n        }\n        return countN == 2;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isGood(vector&lt;int&gt;& nums) {\n        int n = nums.size() - 1;\n        vector&lt;bool&gt; seen(n + 1, false);\n        int countN = 0;\n        for (int val : nums) {\n            if (val &gt; n) {\n                return false;\n            }\n            if (val == n) {\n                countN++;\n            } else {\n                if (seen[val]) {\n                    return false;\n                }\n                seen[val] = true;\n            }\n        }\n        return countN == 2;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {boolean}\n */\nvar isGood = function(nums) {\n    const n = nums.length - 1;\n    const seen = new Array(n + 1).fill(false);\n    let countN = 0;\n    for (const val of nums) {\n        if (val &gt; n) {\n            return false;\n        }\n        if (val === n) {\n            countN++;\n        } else {\n            if (seen[val]) {\n                return false;\n            }\n            seen[val] = true;\n        }\n    }\n    return countN === 2;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isGood(nums: number[]): boolean {\n    const n = nums.length - 1;\n    const seen: boolean[] = new Array(n + 1).fill(false);\n    let countN = 0;\n    for (const val of nums) {\n        if (val &gt; n) {\n            return false;\n        }\n        if (val === n) {\n            countN++;\n        } else {\n            if (seen[val]) {\n                return false;\n            }\n            seen[val] = true;\n        }\n    }\n    return countN === 2;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) for a single pass through the array.
+- Space: O(n) for the boolean array.
+- Notes: Efficient for small integer ranges; avoids the overhead of a hash map.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Array is Good Solutions","datePublished":"2024-04-28","description":"Determine if an array is a permutation of [1, 2, ..., n, n].","keywords":"LeetCode, Check if Array is Good, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Frequency Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the frequency counts of the elements."}},{"@type":"Question","name":"What is the time complexity of the Boolean Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Boolean Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the seen status of numbers up to n."}}]}).replace(/</g,'\u003c')}
+</script>

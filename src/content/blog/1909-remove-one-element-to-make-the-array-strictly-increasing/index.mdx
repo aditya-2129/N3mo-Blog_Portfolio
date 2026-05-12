@@ -1,0 +1,331 @@
+---
+title: "Remove One Element to Make the Array Strictly Increasing"
+summary: "Given an array, return true if it can be made strictly increasing by removing at most one element."
+date: "Oct 02, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 29.80% | **Paid:** No
+> **Topics:** Array
+
+Given a 0-indexed integer array nums, return true if it can be made strictly increasing by removing at most one element, or false otherwise.
+
+An array nums is strictly increasing if nums[i] &lt; nums[i+1] for all valid i.
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [1,2,10,5,7]
+Output: true
+Explanation: By removing 10 at index 2 from nums, it becomes [1,2,5,7].
+```
+
+### Example 2:
+```text
+Input: nums = [2,3,1,2]
+Output: false
+Explanation:
+[3,1,2] is the result of removing the element at index 0.
+[2,1,2] is the result of removing the element at index 1.
+[2,3,2] is the result of removing the element at index 2.
+[2,3,1] is the result of removing the element at index 3.
+No resulting array is strictly increasing, so false is returned.
+```
+
+### Example 3:
+```text
+Input: nums = [1,1,1]
+Output: false
+Explanation: The result of removing any of the elements is [1,1], which is not strictly increasing.
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 1000
+1 <= nums[i] <= 1000
+```
+
+- [Brute Force](#brute-force)
+- [Greedy One-Pass](#greedy-one-pass)
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [1,2,10,5,7]
+Output: true
+Explanation: By removing 10 at index 2 from nums, it becomes [1,2,5,7].
+```
+
+### Example 2:
+```text
+Input: nums = [2,3,1,2]
+Output: false
+Explanation:
+[3,1,2] is the result of removing the element at index 0.
+[2,1,2] is the result of removing the element at index 1.
+[2,3,2] is the result of removing the element at index 2.
+[2,3,1] is the result of removing the element at index 3.
+No resulting array is strictly increasing, so false is returned.
+```
+
+### Example 3:
+```text
+Input: nums = [1,1,1]
+Output: false
+Explanation: The result of removing any of the elements is [1,1], which is not strictly increasing.
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 1000
+1 <= nums[i] <= 1000
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can try removing every element one by one and check if the resulting array is strictly increasing. If any removal works, we return true.
+
+**Steps**
+- Iterate through the array indices.
+- For each index, create a new array excluding the element at that index.
+- Check if the new array is strictly increasing.
+- If any check passes, return true. If the loop finishes without success, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def canBeIncreasing(self, nums: list[int]) -> bool:
+        n = len(nums)
+        for i in range(n):
+            temp = nums[:i] + nums[i+1:]
+            if all(temp[j] &lt; temp[j+1] for j in range(len(temp)-1)):
+                return True
+        return False
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean canBeIncreasing(int[] nums) {
+        int n = nums.length;
+        for (int i = 0; i &lt; n; i++) {
+            if (isStrictlyIncreasing(nums, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isStrictlyIncreasing(int[] nums, int skipIndex) {
+        int prev = Integer.MIN_VALUE;
+        for (int i = 0; i &lt; nums.length; i++) {
+            if (i == skipIndex) continue;
+            if (nums[i] &lt;= prev) return false;
+            prev = nums[i];
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool canBeIncreasing(vector<int>& nums) {
+        int n = nums.size();
+        for (int i = 0; i &lt; n; i++) {
+            if (isStrictlyIncreasing(nums, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    bool isStrictlyIncreasing(vector<int>& nums, int skipIndex) {
+        int prev = INT_MIN;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (i == skipIndex) continue;
+            if (nums[i] &lt;= prev) return false;
+            prev = nums[i];
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var canBeIncreasing = function(nums) {
+    const n = nums.length;
+    for (let i = 0; i &lt; n; i++) {
+        if (isStrictlyIncreasing(nums, i)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+function isStrictlyIncreasing(nums, skipIndex) {
+    let prev = -Infinity;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i === skipIndex) continue;
+        if (nums[i] &lt;= prev) return false;
+        prev = nums[i];
+    }
+    return true;
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function canBeIncreasing(nums: number[]): boolean {
+    const n = nums.length;
+    for (let i = 0; i &lt; n; i++) {
+        if (isStrictlyIncreasing(nums, i)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isStrictlyIncreasing(nums: number[], skipIndex: number): boolean {
+    let prev = -Infinity;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i === skipIndex) continue;
+        if (nums[i] &lt;= prev) return false;
+        prev = nums[i];
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Greedy One-Pass
+
+**Intuition**
+We only need to find the first "dip" (where nums[i] &gt;= nums[i+1]). If we find a dip, we have two choices: remove the element at i or the element at i+1. We check if either choice results in a strictly increasing array.
+
+**Steps**
+- Iterate through the array.
+- If nums[i] &gt;= nums[i+1], we found a violation.
+- Check if the array is strictly increasing if we skip index i.
+- Check if the array is strictly increasing if we skip index i+1.
+- If either check passes, return true; otherwise, return false.
+- If the loop completes without finding a violation, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def canBeIncreasing(self, nums: list[int]) -> bool:
+        def is_increasing(arr):
+            for i in range(len(arr) - 1):
+                if arr[i] &gt;= arr[i+1]:
+                    return False
+            return True
+
+        for i in range(len(nums) - 1):
+            if nums[i] &gt;= nums[i+1]:
+                # Try removing nums[i]
+                if is_increasing(nums[:i] + nums[i+1:]):
+                    return True
+                # Try removing nums[i+1]
+                if is_increasing(nums[:i+1] + nums[i+2:]):
+                    return True
+                return False
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean canBeIncreasing(int[] nums) {
+        for (int i = 0; i &lt; nums.length - 1; i++) {
+            if (nums[i] &gt;= nums[i + 1]) {
+                return check(nums, i) || check(nums, i + 1);
+            }
+        }
+        return true;
+    }
+    
+    private boolean check(int[] nums, int skip) {
+        int prev = Integer.MIN_VALUE;
+        for (int i = 0; i &lt; nums.length; i++) {
+            if (i == skip) continue;
+            if (nums[i] &lt;= prev) return false;
+            prev = nums[i];
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool canBeIncreasing(vector<int>& nums) {
+        for (int i = 0; i &lt; nums.size() - 1; ++i) {
+            if (nums[i] &gt;= nums[i + 1]) {
+                return check(nums, i) || check(nums, i + 1);
+            }
+        }
+        return true;
+    }
+    
+    bool check(vector<int>& nums, int skip) {
+        int prev = INT_MIN;
+        for (int i = 0; i &lt; nums.size(); ++i) {
+            if (i == skip) continue;
+            if (nums[i] &lt;= prev) return false;
+            prev = nums[i];
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var canBeIncreasing = function(nums) {
+    for (let i = 0; i &lt; nums.length - 1; i++) {
+        if (nums[i] &gt;= nums[i + 1]) {
+            return check(nums, i) || check(nums, i + 1);
+        }
+    }
+    return true;
+};
+
+function check(nums, skip) {
+    let prev = -Infinity;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i === skip) continue;
+        if (nums[i] &lt;= prev) return false;
+        prev = nums[i];
+    }
+    return true;
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function canBeIncreasing(nums: number[]): boolean {
+    for (let i = 0; i &lt; nums.length - 1; i++) {
+        if (nums[i] &gt;= nums[i + 1]) {
+            return check(nums, i) || check(nums, i + 1);
+        }
+    }
+    return true;
+}
+
+function check(nums: number[], skip: number): boolean {
+    let prev = -Infinity;
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (i === skip) continue;
+        if (nums[i] &lt;= prev) return false;
+        prev = nums[i];
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with linear time complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Remove One Element to Make the Array Strictly Increasing Solutions","datePublished":"2024-10-02","description":"Given an array, return true if it can be made strictly increasing by removing at most one element.","keywords":"LeetCode, Remove One Element to Make the Array Strictly Increasing, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) because we iterate through the array and for each element, we check the rest of the array."}},{"@type":"Question","name":"What is the time complexity of the Greedy One-Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) because we iterate through the array at most twice (once to find the dip, and once to verify the fix)."}},{"@type":"Question","name":"What is the space complexity of the Greedy One-Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few extra variables for pointers and comparisons."}}]}).replace(/</g,'\u003c')}
+</script>

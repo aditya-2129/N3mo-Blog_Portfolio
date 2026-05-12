@@ -1,0 +1,195 @@
+---
+title: "Biggest Single Number"
+summary: "Find the largest number that appears exactly once in a table. If no such number exists, return null."
+date: "Jun 05, 2025"
+tags:
+  - Database
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.20% | **Paid:** No
+> **Topics:** Database
+
+Table: MyNumbers
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| num         | int  |
++-------------+------+
+There is no primary key for this table. Each row in this table contains a single integer num.
+
+Write a solution to find the largest number that appears exactly once in the MyNumbers table. If there is no such number, return null.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Frequency Count](#approach-1-hash-map-frequency-count)
+- [Approach 2: Sorting](#approach-2-sorting)
+- [Approach 3: Set Operations](#approach-3-set-operations)
+
+## Examples
+
+### Example 1:
+**Input:**
+MyNumbers table:
++-----+
+| num |
++-----+
+| 8   |
+| 8   |
+| 3   |
+| 3   |
+| 1   |
+| 4   |
+| 5   |
+| 6   |
++-----+
+
+**Output:**
++-----+
+| num |
++-----+
+| 6   |
++-----+
+
+**Explanation:**
+The number 6 is the largest number that appears exactly once.
+
+### Example 2:
+**Input:**
+MyNumbers table:
++-----+
+| num |
++-----+
+| 8   |
+| 1   |
+| 2   |
+| 2   |
+| 5   |
++-----+
+
+**Output:**
++-----+
+| num |
++-----+
+| 8   |
++-----+
+
+**Explanation:**
+The numbers 1, 5, and 8 appear exactly once. 8 is the largest among them.
+
+### Example 3:
+**Input:**
+MyNumbers table:
++-----+
+| num |
++-----+
+| 8   |
+| 8   |
+| 7   |
+| 7   |
++-----+
+
+**Output:**
++------+
+| num  |
++------+
+| null |
++------+
+
+**Explanation:**
+There is no number that appears exactly once.
+
+## Constraints
+
+```text
+-10⁹ <= num <= 10⁹
+```
+
+---
+## Approach 1: Hash Map Frequency Count
+
+**Intuition**
+We iterate through the list of numbers and count the frequency of each number using a hash map. Then, we iterate through the map to find the maximum number that has a frequency of exactly 1.
+
+**Steps**
+- Initialize an empty hash map (or dictionary) to store the frequency of each number.
+- Iterate through the input list of numbers. For each number, increment its count in the hash map.
+- Initialize a variable to store the result (e.g., `max_num`), set to `null` or a minimum value.
+- Iterate through the entries in the hash map. If a number's count is 1 and it is greater than the current `max_num`, update `max_num`.
+- Return `max_num`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass Solution:\n    def biggestSingleNumber(self, nums: List[int]) -&gt; Optional[int]:\n        freq = {}\n        for num in nums:\n            freq[num] = freq.get(num, 0) + 1\n        \n        max_num = None\n        for num, count in freq.items():\n            if count == 1:\n                if max_num is None or num &gt; max_num:\n                    max_num = num\n        return max_num" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public Integer biggestSingleNumber(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        \n        Integer maxNum = null;\n        for (Map.Entry&lt;Integer, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getValue() == 1) {\n                if (maxNum == null || entry.getKey() &gt; maxNum) {\n                    maxNum = entry.getKey();\n                }\n            }\n        }\n        return maxNum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int biggestSingleNumber(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        int maxNum = -1;\n        for (const auto& pair : freq) {\n            if (pair.second == 1) {\n                maxNum = max(maxNum, pair.first);\n            }\n        }\n        return maxNum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function biggestSingleNumber(nums) {\n    const freq = new Map();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxNum = null;\n    for (const [num, count] of freq.entries()) {\n        if (count === 1) {\n            if (maxNum === null || num &gt; maxNum) {\n                maxNum = num;\n            }\n        }\n    }\n    return maxNum;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function biggestSingleNumber(nums: number[]): number | null {\n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxNum: number | null = null;\n    for (const [num, count] of freq.entries()) {\n        if (count === 1) {\n            if (maxNum === null || num &gt; maxNum) {\n                maxNum = num;\n            }\n        }\n    }\n    return maxNum;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of elements in the input list. We iterate through the list once to build the map and once through the map to find the max.
+- Space: O(N) to store the frequency map.
+- Notes: This approach is very efficient and easy to understand. It requires extra space proportional to the number of unique elements.
+
+---
+## Approach 2: Sorting
+
+**Intuition**
+If we sort the numbers in descending order, the first number we encounter that is not equal to its neighbors is the largest single number.
+
+**Steps**
+- Sort the input list of numbers in descending order.
+- Iterate through the sorted list.
+- For each number at index `i`, check if it is equal to the number at `i-1` or `i+1` (handling boundary conditions).
+- If it is not equal to either neighbor, it is the largest single number. Return it immediately.
+- If the loop finishes without finding a unique number, return `null`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass Solution:\n    def biggestSingleNumber(self, nums: List[int]) -&gt; Optional[int]:\n        if not nums:\n            return None\n        \n        nums.sort(reverse=True)\n        n = len(nums)\n        \n        for i in range(n):\n            is_unique = True\n            if i &gt; 0 and nums[i] == nums[i-1]:\n                is_unique = False\n            if i &lt; n - 1 and nums[i] == nums[i+1]:\n                is_unique = False\n            \n            if is_unique:\n                return nums[i]\n        \n        return None" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\nimport java.util.Collections;\n\nclass Solution {\n    public Integer biggestSingleNumber(int[] nums) {\n        if (nums == null || nums.length == 0) {\n            return null;\n        }\n        \n        // Convert to Integer array for sorting in reverse\n        Integer[] boxedNums = new Integer[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            boxedNums[i] = nums[i];\n        }\n        \n        Arrays.sort(boxedNums, Collections.reverseOrder());\n        \n        int n = boxedNums.length;\n        for (int i = 0; i &lt; n; i++) {\n            boolean isUnique = true;\n            if (i &gt; 0 && boxedNums[i] == boxedNums[i - 1]) {\n                isUnique = false;\n            }\n            if (i &lt; n - 1 && boxedNums[i] == boxedNums[i + 1]) {\n                isUnique = false;\n            }\n            if (isUnique) {\n                return boxedNums[i];\n            }\n        }\n        return null;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int biggestSingleNumber(vector&lt;int&gt;& nums) {\n        if (nums.empty()) return -1;\n        \n        sort(nums.begin(), nums.end(), greater&lt;int&gt;());\n        int n = nums.size();\n        \n        for (int i = 0; i &lt; n; ++i) {\n            bool isUnique = true;\n            if (i &gt; 0 && nums[i] == nums[i-1]) isUnique = false;\n            if (i &lt; n - 1 && nums[i] == nums[i+1]) isUnique = false;\n            \n            if (isUnique) return nums[i];\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function biggestSingleNumber(nums) {\n    if (!nums || nums.length === 0) {\n        return null;\n    }\n    \n    nums.sort((a, b) =&gt; b - a);\n    const n = nums.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        let isUnique = true;\n        if (i &gt; 0 && nums[i] === nums[i - 1]) {\n            isUnique = false;\n        }\n        if (i &lt; n - 1 && nums[i] === nums[i + 1]) {\n            isUnique = false;\n        }\n        if (isUnique) {\n            return nums[i];\n        }\n    }\n    return null;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function biggestSingleNumber(nums: number[]): number | null {\n    if (!nums || nums.length === 0) {\n        return null;\n    }\n    \n    nums.sort((a, b) =&gt; b - a);\n    const n = nums.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        let isUnique = true;\n        if (i &gt; 0 && nums[i] === nums[i - 1]) {\n            isUnique = false;\n        }\n        if (i &lt; n - 1 && nums[i] === nums[i + 1]) {\n            isUnique = false;\n        }\n        if (isUnique) {\n            return nums[i];\n        }\n    }\n    return null;\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step.
+- Space: O(1) or O(N) depending on the sorting algorithm's space complexity (e.g., quicksort vs timsort).
+- Notes: This approach modifies the original array (or creates a copy). It is slower than the hash map approach for large N but uses less space if sorting is done in-place.
+
+---
+## Approach 3: Set Operations
+
+**Intuition**
+We can use two sets: one to track numbers we have seen, and another to track numbers we have seen more than once (duplicates). The result is the maximum number present in the "seen" set but not in the "duplicates" set.
+
+**Steps**
+- Initialize an empty set `seen` and an empty set `duplicates`.
+- Iterate through the input list.
+- If the current number is in `seen`, add it to `duplicates`.
+- Otherwise, add it to `seen`.
+- After processing all numbers, iterate through `seen`. If a number is not in `duplicates`, it is a candidate. Track the maximum candidate.
+- Return the maximum candidate or `null` if no candidate exists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass Solution:\n    def biggestSingleNumber(self, nums: List[int]) -&gt; Optional[int]:\n        seen = set()\n        duplicates = set()\n        \n        for num in nums:\n            if num in seen:\n                duplicates.add(num)\n            else:\n                seen.add(num)\n        \n        max_num = None\n        for num in seen:\n            if num not in duplicates:\n                if max_num is None or num &gt; max_num:\n                    max_num = num\n                    \n        return max_num" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public Integer biggestSingleNumber(int[] nums) {\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        Set&lt;Integer&gt; duplicates = new HashSet&lt;&gt;();\n        \n        for (int num : nums) {\n            if (seen.contains(num)) {\n                duplicates.add(num);\n            } else {\n                seen.add(num);\n            }\n        }\n        \n        Integer maxNum = null;\n        for (int num : seen) {\n            if (!duplicates.contains(num)) {\n                if (maxNum == null || num &gt; maxNum) {\n                    maxNum = num;\n                }\n            }\n        }\n        return maxNum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int biggestSingleNumber(vector&lt;int&gt;& nums) {\n        unordered_set&lt;int&gt; seen;\n        unordered_set&lt;int&gt; duplicates;\n        \n        for (int num : nums) {\n            if (seen.find(num) != seen.end()) {\n                duplicates.insert(num);\n            } else {\n                seen.insert(num);\n            }\n        }\n        \n        int maxNum = -1;\n        for (int num : seen) {\n            if (duplicates.find(num) == duplicates.end()) {\n                maxNum = max(maxNum, num);\n            }\n        }\n        return maxNum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function biggestSingleNumber(nums) {\n    const seen = new Set();\n    const duplicates = new Set();\n    \n    for (const num of nums) {\n        if (seen.has(num)) {\n            duplicates.add(num);\n        } else {\n            seen.add(num);\n        }\n    }\n    \n    let maxNum = null;\n    for (const num of seen) {\n        if (!duplicates.has(num)) {\n            if (maxNum === null || num &gt; maxNum) {\n                maxNum = num;\n            }\n        }\n    }\n    return maxNum;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function biggestSingleNumber(nums: number[]): number | null {\n    const seen = new Set&lt;number&gt;();\n    const duplicates = new Set&lt;number&gt;();\n    \n    for (const num of nums) {\n        if (seen.has(num)) {\n            duplicates.add(num);\n        } else {\n            seen.add(num);\n        }\n    }\n    \n    let maxNum: number | null = null;\n    for (const num of seen) {\n        if (!duplicates.has(num)) {\n            if (maxNum === null || num &gt; maxNum) {\n                maxNum = num;\n            }\n        }\n    }\n    return maxNum;\n}" },]} />
+
+**Complexity**
+- Time: O(N) average time complexity for set insertions and lookups.
+- Space: O(N) to store the sets.
+- Notes: This approach is conceptually clean and separates the logic of identifying duplicates from finding the maximum. It uses more memory than the single hash map approach because it stores two sets.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Biggest Single Number Solutions","datePublished":"2025-06-05","description":"Find the largest number that appears exactly once in a table. If no such number exists, return null.","keywords":"LeetCode, Biggest Single Number, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of elements in the input list."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) or O(N) depending on the sorting algorithm used."}},{"@type":"Question","name":"How does the Set Operations approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses two sets: one for seen numbers and one for duplicates. The result is the maximum number in the seen set that is not in the duplicates set."}}]}).replace(/</g,'\u003c')}
+</script>

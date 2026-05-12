@@ -1,0 +1,140 @@
+---
+title: "Design an Ordered Stream"
+summary: "Implement a data structure that inserts (id, value) pairs and returns consecutive chunks of values starting from a pointer."
+date: "Jan 16, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Design
+  - Data Stream
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.60% | **Paid:** No
+> **Topics:** Array, Hash Table, Design, Data Stream
+
+There is a stream of n (idKey, value) pairs arriving in an arbitrary order, where idKey is an integer between 1 and n and value is a string. No two pairs have the same id.
+
+Design a stream that returns the values in increasing order of their IDs by the order in which they were inserted. Implement the OrderedStream class:
+
+OrderedStream(int n) Constructs the stream to take n values and sets a current ptr to 1.
+String[] insert(int idKey, String value) Inserts the pair (idKey, value) into the stream and then returns the chunk of values that have been inserted starting from the current pointer ptr. The chunk consists of all values in the stream with IDs in the range [ptr, idKey], and then updates ptr to the next ID that is not in the stream. If there are no values in the range, returns an empty list [].
+
+- Examples
+- Constraints
+- [Approach 1: Array with Pointer](#approach-1-array-with-pointer)
+- [Approach 2: Hash Map with Pointer](#approach-2-hash-map-with-pointer)
+- [Approach 3: Sorting (Brute Force)](#approach-3-sorting-brute-force)
+
+## Examples
+
+### Example 1
+```text
+Input
+["OrderedStream", "insert", "insert", "insert", "insert", "insert"]
+[[5], [3, "ccccc"], [1, "aaaaa"], [2, "bbbbb"], [5, "eeeee"], [4, "ddddd"]]
+
+Output
+[null, [], ["aaaaa"], ["bbbbb", "ccccc"], [], ["ddddd", "eeeee"]]
+
+Explanation
+OrderedStream os=OrderedStream(5);
+os.insert(3, "ccccc"); // Inserts (3, "ccccc"), returns [].
+os.insert(1, "aaaaa"); // Inserts (1, "aaaaa"), returns ["aaaaa"].
+os.insert(2, "bbbbb"); // Inserts (2, "bbbbb"), returns ["bbbbb", "ccccc"].
+os.insert(5, "eeeee"); // Inserts (5, "eeeee"), returns [].
+os.insert(4, "ddddd"); // Inserts (4, "ddddd"), returns ["ddddd", "eeeee"].
+```
+
+## Constraints
+
+```text
+1 <= n <= 1000
+1 <= id <= n
+value.length == 5
+value consists only of lowercase letters.
+Each call to insert will use a unique id.
+```
+
+---
+## Approach 1: Array with Pointer
+
+**Intuition**
+Since the IDs are strictly bounded between 1 and n, we can use a fixed-size array (or list) to store the values directly at their corresponding index. We maintain a pointer `ptr` that starts at 1. When a value is inserted, we place it in the array. If the inserted ID matches the current `ptr`, we can iterate forward from `ptr` to collect all consecutively available values, updating `ptr` as we go.
+
+**Steps**
+- Initialize an array of size n + 1 (to accommodate 1-based indexing) and a pointer `ptr` set to 1.
+- In the `insert` method, store the value at the index `idKey`.
+- If `idKey` is equal to `ptr`, enter a loop to collect values starting from `ptr` while the array at that index is not empty.
+- Append each found value to the result list and increment `ptr`.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class OrderedStream:\n    def __init__(self, n: int):\n        self.stream = [""] * (n + 1)\n        self.ptr = 1\n\n    def insert(self, idKey: int, value: str) -> list[str]:\n        self.stream[idKey] = value\n        res = []\n        while self.ptr < len(self.stream) and self.stream[self.ptr] != "":\n            res.append(self.stream[self.ptr])\n            self.ptr += 1\n        return res' },
+{ name: "Java", lang: "java", code: 'class OrderedStream {\n    private String[] stream;\n    private int ptr;\n\n    public OrderedStream(int n) {\n        this.stream = new String[n + 1];\n        this.ptr = 1;\n    }\n\n    public List<String> insert(int idKey, String value) {\n        stream[idKey] = value;\n        List<String> res = new ArrayList&lt;&gt;();\n        while (ptr &lt; stream.length && stream[ptr] != null) {\n            res.add(stream[ptr]);\n            ptr++;\n        }\n        return res;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: 'class OrderedStream {\nprivate:\n    vector<string> stream;\n    int ptr;\npublic:\n    OrderedStream(int n) {\n        stream.resize(n + 1);\n        ptr = 1;\n    }\n\n    vector<string> insert(int idKey, string value) {\n        stream[idKey] = value;\n        vector<string> res;\n        while (ptr &lt; stream.size() && !stream[ptr].empty()) {\n            res.push_back(stream[ptr]);\n            ptr++;\n        }\n        return res;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var OrderedStream = function(n) {\n    this.stream = new Array(n + 1).fill("");\n    this.ptr = 1;\n};\n\nOrderedStream.prototype.insert = function(idKey, value) {\n    this.stream[idKey] = value;\n    const res = [];\n    while (this.ptr &lt; this.stream.length && this.stream[this.ptr] !== "") {\n        res.push(this.stream[this.ptr]);\n        this.ptr++;\n    }\n    return res;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'class OrderedStream {\n    private stream: string[];\n    private ptr: number;\n\n    constructor(n: number) {\n        this.stream = new Array(n + 1).fill("");\n        this.ptr = 1;\n    }\n\n    insert(idKey: number, value: string): string[] {\n        this.stream[idKey] = value;\n        const res: string[] = [];\n        while (this.ptr &lt; this.stream.length && this.stream[this.ptr] !== "") {\n            res.push(this.stream[this.ptr]);\n            this.ptr++;\n        }\n        return res;\n    }\n}' },]} />
+
+**Complexity**
+- Time: O(k) where k is the length of the returned chunk. Amortized O(1) per insertion since each element is visited at most once.
+- Space: O(n) to store the stream.
+- Notes: This is the most optimal approach for this problem due to the bounded ID range.
+
+---
+## Approach 2: Hash Map with Pointer
+
+**Intuition**
+If the ID range were not bounded or extremely sparse, a Hash Map (Dictionary) would be preferred to store values. The logic remains similar to the array approach: store the value and check if the current pointer exists in the map to form a consecutive chunk.
+
+**Steps**
+- Initialize a Hash Map and a pointer `ptr` set to 1.
+- In `insert`, add the `(idKey, value)` pair to the map.
+- If `idKey` equals `ptr`, iterate while `ptr` exists as a key in the map.
+- Add the value at `ptr` to the result and increment `ptr`.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class OrderedStream:\n    def __init__(self, n: int):\n        self.stream = {}\n        self.ptr = 1\n\n    def insert(self, idKey: int, value: str) -> list[str]:\n        self.stream[idKey] = value\n        res = []\n        if idKey == self.ptr:\n            while self.ptr in self.stream:\n                res.append(self.stream[self.ptr])\n                self.ptr += 1\n        return res' },
+{ name: "Java", lang: "java", code: 'class OrderedStream {\n    private Map<Integer, String> stream;\n    private int ptr;\n\n    public OrderedStream(int n) {\n        this.stream = new HashMap&lt;&gt;();\n        this.ptr = 1;\n    }\n\n    public List<String> insert(int idKey, String value) {\n        stream.put(idKey, value);\n        List<String> res = new ArrayList&lt;&gt;();\n        if (idKey == ptr) {\n            while (stream.containsKey(ptr)) {\n                res.add(stream.get(ptr));\n                ptr++;\n            }\n        }\n        return res;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: 'class OrderedStream {\nprivate:\n    unordered_map<int, string> stream;\n    int ptr;\npublic:\n    OrderedStream(int n) {\n        ptr = 1;\n    }\n\n    vector<string> insert(int idKey, string value) {\n        stream[idKey] = value;\n        vector<string> res;\n        if (idKey == ptr) {\n            while (stream.find(ptr) != stream.end()) {\n                res.push_back(stream[ptr]);\n                ptr++;\n            }\n        }\n        return res;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var OrderedStream = function(n) {\n    this.stream = {};\n    this.ptr = 1;\n};\n\nOrderedStream.prototype.insert = function(idKey, value) {\n    this.stream[idKey] = value;\n    const res = [];\n    if (idKey === this.ptr) {\n        while (this.ptr in this.stream) {\n            res.push(this.stream[this.ptr]);\n            this.ptr++;\n        }\n    }\n    return res;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'class OrderedStream {\n    private stream: Record<number, string>;\n    private ptr: number;\n\n    constructor(n: number) {\n        this.stream = {};\n        this.ptr = 1;\n    }\n\n    insert(idKey: number, value: string): string[] {\n        this.stream[idKey] = value;\n        const res: string[] = [];\n        if (idKey === this.ptr) {\n            while (this.ptr in this.stream) {\n                res.push(this.stream[this.ptr]);\n                this.ptr++;\n            }\n        }\n        return res;\n    }\n}' },]} />
+
+**Complexity**
+- Time: O(k) where k is the length of the returned chunk.
+- Space: O(n) to store the stream.
+- Notes: Slightly higher constant factors for hash lookups compared to array indexing, but more flexible for non-contiguous IDs.
+
+---
+## Approach 3: Sorting (Brute Force)
+
+**Intuition**
+A naive approach is to store all inserted pairs in a list. On every insertion, we sort the list by ID and then scan to find the longest consecutive sequence starting from the current pointer. This is inefficient but demonstrates the logic without relying on direct index access or hash maps.
+
+**Steps**
+- Initialize an empty list to store pairs and `ptr` = 1.
+- In `insert`, add the new `[idKey, value]` to the list.
+- Sort the list by the ID (the first element of the pair).
+- Iterate through the sorted list to find values matching `ptr`, `ptr+1`, etc.
+- Return the consecutive chunk found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class OrderedStream:\n    def __init__(self, n: int):\n        self.stream = []\n        self.ptr = 1\n\n    def insert(self, idKey: int, value: str) -> list[str]:\n        self.stream.append((idKey, value))\n        self.stream.sort(key=lambda x: x[0])\n        res = []\n        curr = self.ptr\n        # Find consecutive sequence starting from ptr\n        # We iterate through sorted list to find matches\n        # This is inefficient O(N log N) per insert\n        temp_ptr = self.ptr\n        for k, v in self.stream:\n            if k == temp_ptr:\n                res.append(v)\n                temp_ptr += 1\n        \n        if res:\n            self.ptr = temp_ptr\n        return res' },
+{ name: "Java", lang: "java", code: 'import java.util.*;\n\nclass OrderedStream {\n    private List<int[]&gt; ids;\n    private Map<Integer, String> values;\n    private int ptr;\n\n    public OrderedStream(int n) {\n        this.ids = new ArrayList&lt;&gt;();\n        this.values = new HashMap&lt;&gt;();\n        this.ptr = 1;\n    }\n\n    public List<String> insert(int idKey, String value) {\n        ids.add(new int[]{idKey, ids.size()}); // store id and original index for stable sort if needed, or just id\n        values.put(idKey, value);\n        \n        // Sort by ID\n        ids.sort((a, b) -> Integer.compare(a[0], b[0]));\n        \n        List<String> res = new ArrayList&lt;&gt;();\n        int tempPtr = ptr;\n        \n        for (int[] pair : ids) {\n            int id = pair[0];\n            if (id == tempPtr) {\n                res.add(values.get(id));\n                tempPtr++;\n            }\n        }\n        \n        if (!res.isEmpty()) {\n            ptr = tempPtr;\n        }\n        return res;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: 'class OrderedStream {\nprivate:\n    vector<pair<int, string>&gt; stream;\n    int ptr;\npublic:\n    OrderedStream(int n) {\n        ptr = 1;\n    }\n\n    vector<string> insert(int idKey, string value) {\n        stream.push_back({idKey, value});\n        sort(stream.begin(), stream.end());\n        \n        vector<string> res;\n        int tempPtr = ptr;\n        \n        for (auto& p : stream) {\n            if (p.first == tempPtr) {\n                res.push_back(p.second);\n                tempPtr++;\n            }\n        }\n        \n        if (!res.empty()) {\n            ptr = tempPtr;\n        }\n        return res;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var OrderedStream = function(n) {\n    this.stream = [];\n    this.ptr = 1;\n};\n\nOrderedStream.prototype.insert = function(idKey, value) {\n    this.stream.push([idKey, value]);\n    this.stream.sort((a, b) =&gt; a[0] - b[0]);\n    \n    const res = [];\n    let tempPtr = this.ptr;\n    \n    for (const pair of this.stream) {\n        if (pair[0] === tempPtr) {\n            res.push(pair[1]);\n            tempPtr++;\n        }\n    }\n    \n    if (res.length &gt; 0) {\n        this.ptr = tempPtr;\n    }\n    return res;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'class OrderedStream {\n    private stream: [number, string][];\n    private ptr: number;\n\n    constructor(n: number) {\n        this.stream = [];\n        this.ptr = 1;\n    }\n\n    insert(idKey: number, value: string): string[] {\n        this.stream.push([idKey, value]);\n        this.stream.sort((a, b) =&gt; a[0] - b[0]);\n        \n        const res: string[] = [];\n        let tempPtr = this.ptr;\n        \n        for (const pair of this.stream) {\n            if (pair[0] === tempPtr) {\n                res.push(pair[1]);\n                tempPtr++;\n            }\n        }\n        \n        if (res.length &gt; 0) {\n            this.ptr = tempPtr;\n        }\n        return res;\n    }\n}' },]} />
+
+**Complexity**
+- Time: O(m log m) per insertion, where m is the total number of elements inserted so far. This is due to sorting the list on every operation.
+- Space: O(n) to store the stream.
+- Notes: Highly inefficient compared to the pointer approach. Used here only for comparison.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Design an Ordered Stream Solutions","datePublished":"2026-01-16","description":"Implement a data structure that inserts (id, value) pairs and returns consecutive chunks of values starting from a pointer.","keywords":"LeetCode, Design an Ordered Stream, Easy, Array, Hash Table, Design, Data Stream"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Array with Pointer approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(k) where k is the length of the returned chunk. Amortized O(1) per insertion."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the stream elements in the map."}},{"@type":"Question","name":"Why is the Sorting approach considered Brute Force?","acceptedAnswer":{"@type":"Answer","text":"It requires sorting the entire list of inserted elements on every insert operation, resulting in O(m log m) time complexity, which is significantly slower than O(1) or O(k) approaches."}}]}).replace(/</g,'\u003c')}
+</script>

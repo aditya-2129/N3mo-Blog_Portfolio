@@ -1,0 +1,359 @@
+---
+title: "Transform Array by Parity"
+summary: "Rearrange array so all even numbers come before odd numbers while maintaining relative order."
+date: "Oct 04, 2024"
+tags:
+  - Array
+  - Sorting
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.80% | **Paid:** No
+> **Topics:** Array, Sorting, Counting
+
+You are given an array of integers nums. Transform the array such that all even integers appear before all odd integers. The relative order of even numbers among themselves and odd numbers among themselves should be preserved.
+
+Return the transformed array.
+
+- Examples
+- Constraints
+- [Two-Pass Approach](#two-pass-approach)
+- [Two-Pointer In-Place Approach](#two-pointer-in-place-approach)
+- [Sorting Approach](#sorting-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [4,3,2,1]
+```
+
+**Output:**
+```text
+[0,0,1,1]
+```
+
+**Explanation:**
+Replace the even numbers (4 and 2) with 0 and the odd numbers (3 and 1) with 1. Now, nums = [0, 1, 0, 1].
+
+After sorting nums in non-descending order, nums = [0, 0, 1, 1].
+
+### Example 2
+
+**Input:**
+```text
+nums = [1,5,1,4,2]
+```
+
+**Output:**
+```text
+[0,0,1,1,1]
+```
+
+**Explanation:**
+Replace the even numbers (4 and 2) with 0 and the odd numbers (1, 5 and 1) with 1. Now, nums = [1, 1, 1, 0, 0].
+
+After sorting nums in non-descending order, nums = [0, 0, 1, 1, 1].
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 100
+- 1 <= nums[i] <= 1000
+```
+
+---
+## Two-Pass Approach
+
+**Intuition**
+Make two passes through the array: first collect all even numbers, then collect all odd numbers. This naturally preserves the relative order within each group.
+
+**Steps**
+- Create an empty result array
+- First pass: iterate through nums and add all even numbers to result
+- Second pass: iterate through nums and add all odd numbers to result
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def transformArray(self, nums: List[int]) -> List[int]:
+        result = []
+        for num in nums:
+            if num % 2 == 0:
+                result.append(num)
+        for num in nums:
+            if num % 2 == 1:
+                result.append(num)
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] transformArray(int[] nums) {
+        int[] result = new int[nums.length];
+        int index = 0;
+        
+        for (int num : nums) {
+            if (num % 2 == 0) {
+                result[index++] = num;
+            }
+        }
+        
+        for (int num : nums) {
+            if (num % 2 == 1) {
+                result[index++] = num;
+            }
+        }
+        
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> transformArray(vector<int>& nums) {
+        vector<int> result;
+        for (int num : nums) {
+            if (num % 2 == 0) {
+                result.push_back(num);
+            }
+        }
+        for (int num : nums) {
+            if (num % 2 == 1) {
+                result.push_back(num);
+            }
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    transformArray(nums) {
+        const result = [];
+        for (const num of nums) {
+            if (num % 2 === 0) {
+                result.push(num);
+            }
+        }
+        for (const num of nums) {
+            if (num % 2 === 1) {
+                result.push(num);
+            }
+        }
+        return result;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    transformArray(nums: number[]): number[] {
+        const result: number[] = [];
+        for (const num of nums) {
+            if (num % 2 === 0) {
+                result.push(num);
+            }
+        }
+        for (const num of nums) {
+            if (num % 2 === 1) {
+                result.push(num);
+            }
+        }
+        return result;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array
+- Space: O(n) for the result array
+- Notes: Preserves relative order but uses extra space
+
+---
+## Two-Pointer In-Place Approach
+
+**Intuition**
+Use two pointers from both ends of the array. The left pointer finds odd numbers, and the right pointer finds even numbers. Swap them when both are found.
+
+**Steps**
+- Initialize left pointer at 0 and right pointer at n-1
+- While left &lt; right:
+  - Move left pointer right while nums[left] is even
+  - Move right pointer left while nums[right] is odd
+  - If left &lt; right, swap nums[left] and nums[right]
+- Return the array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def transformArray(self, nums: List[int]) -> List[int]:
+        left, right = 0, len(nums) - 1
+        while left &lt; right:
+            while left &lt; right and nums[left] % 2 == 0:
+                left += 1
+            while left &lt; right and nums[right] % 2 == 1:
+                right -= 1
+            if left &lt; right:
+                nums[left], nums[right] = nums[right], nums[left]
+                left += 1
+                right -= 1
+        return nums
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] transformArray(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left &lt; right) {
+            while (left &lt; right && nums[left] % 2 == 0) {
+                left++;
+            }
+            while (left &lt; right && nums[right] % 2 == 1) {
+                right--;
+            }
+            if (left &lt; right) {
+                int temp = nums[left];
+                nums[left] = nums[right];
+                nums[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        return nums;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> transformArray(vector<int>& nums) {
+        int left = 0, right = nums.size() - 1;
+        while (left &lt; right) {
+            while (left &lt; right && nums[left] % 2 == 0) {
+                left++;
+            }
+            while (left &lt; right && nums[right] % 2 == 1) {
+                right--;
+            }
+            if (left &lt; right) {
+                swap(nums[left], nums[right]);
+                left++;
+                right--;
+            }
+        }
+        return nums;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    transformArray(nums) {
+        let left = 0, right = nums.length - 1;
+        while (left &lt; right) {
+            while (left &lt; right && nums[left] % 2 === 0) {
+                left++;
+            }
+            while (left &lt; right && nums[right] % 2 === 1) {
+                right--;
+            }
+            if (left &lt; right) {
+                [nums[left], nums[right]] = [nums[right], nums[left]];
+                left++;
+                right--;
+            }
+        }
+        return nums;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    transformArray(nums: number[]): number[] {
+        let left = 0, right = nums.length - 1;
+        while (left &lt; right) {
+            while (left &lt; right && nums[left] % 2 === 0) {
+                left++;
+            }
+            while (left &lt; right && nums[right] % 2 === 1) {
+                right--;
+            }
+            if (left &lt; right) {
+                [nums[left], nums[right]] = [nums[right], nums[left]];
+                left++;
+                right--;
+            }
+        }
+        return nums;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array
+- Space: O(1) in-place modification
+- Notes: Does not preserve relative order but uses constant space
+
+---
+## Sorting Approach
+
+**Intuition**
+Sort the array using a custom comparator where even numbers are considered "smaller" than odd numbers.
+
+**Steps**
+- Sort the array with a comparator that returns true for (even, odd) pairs
+- Return the sorted array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def transformArray(self, nums: List[int]) -> List[int]:
+        nums.sort(key=lambda x: x % 2)
+        return nums
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int[] transformArray(int[] nums) {
+        nums = Arrays.stream(nums).boxed()
+            .sorted((a, b) -> Integer.compare(a % 2, b % 2))
+            .mapToInt(Integer::intValue)
+            .toArray();
+        return nums;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> transformArray(vector<int>& nums) {
+        sort(nums.begin(), nums.end(), [](int a, int b) {
+            return (a % 2) &lt; (b % 2);
+        });
+        return nums;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Solution {
+    transformArray(nums) {
+        nums.sort((a, b) =&gt; (a % 2) - (b % 2));
+        return nums;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Solution {
+    transformArray(nums: number[]): number[] {
+        nums.sort((a, b) =&gt; (a % 2) - (b % 2));
+        return nums;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting
+- Space: O(1) or O(n) depending on the sorting algorithm
+- Notes: Simple to implement but slower than linear approaches
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Transform Array by Parity Solutions","datePublished":"2024-10-04","description":"Rearrange array so all even numbers come before odd numbers while maintaining relative order.","keywords":"LeetCode, Transform Array by Parity, Easy, Array, Sorting, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two-Pass Approach?","acceptedAnswer":{"@type":"Answer","text":"The Two-Pass Approach has O(n) time complexity where n is the length of the array, as we iterate through the array twice."}},{"@type":"Question","name":"Does the Two-Pointer In-Place Approach preserve relative order?","acceptedAnswer":{"@type":"Answer","text":"No, the Two-Pointer In-Place Approach does not preserve the relative order of elements within each parity group, but it uses O(1) extra space."}},{"@type":"Question","name":"What is the time complexity of the Sorting Approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting Approach has O(n log n) time complexity due to the sorting operation, which is slower than the linear approaches."}}]}).replace(/</g,'\u003c')}
+</script>

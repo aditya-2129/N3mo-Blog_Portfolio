@@ -1,0 +1,127 @@
+---
+title: "Number of Unique Subjects Taught by Each Teacher"
+summary: "Count the number of unique subjects each teacher teaches from the Teacher table."
+date: "Jan 21, 2025"
+tags:
+  - Database
+  - SQL
+  - Group By
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.20% | **Paid:** No
+> **Topics:** Database
+
+Table: Teacher
+
+| Column Name  | Type |
+|--------------|------|
+| teacher_id   | int  |
+| subject_id   | int  |
+| dept_id      | int  |
+
+(teacher_id, subject_id) is the primary key (combination of columns with unique values) of this table.
+Each row in the table indicates that the teacher with teacher_id teaches the subject subject_id in the department dept_id.
+
+Write a solution to calculate the number of unique subjects each teacher teaches.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Grouping](#approach-1-hash-map-grouping)
+- [Approach 2: Sorting and Iteration](#approach-2-sorting-and-iteration)
+
+## Examples
+
+**Example 1:**
+
+Input:
+Teacher table:
+| teacher_id | subject_id | dept_id |
+|------------|------------|---------|
+| 1          | 2          | 3       |
+| 1          | 2          | 4       |
+| 1          | 3          | 3       |
+| 2          | 1          | 1       |
+| 2          | 2          | 1       |
+| 2          | 3          | 1       |
+
+Output:
+| teacher_id | cnt |
+|------------|-----|
+| 1          | 2   |
+| 2          | 3   |
+
+Explanation:
+Teacher 1 teaches subjects 2 and 3 (subject 2 is taught in two different departments, but we count it only once).
+Teacher 2 teaches subjects 1, 2, and 3.
+
+## Constraints
+
+```text
+The Teacher table may contain duplicate rows for the same teacher and subject in different departments.
+```
+
+---
+## Approach 1: Hash Map Grouping
+
+**Intuition**
+We can iterate through the list of teacher records and use a hash map (or dictionary) to keep track of the unique subject IDs for each teacher ID. The key will be the teacher_id, and the value will be a set of subject_ids. Finally, we count the size of each set.
+
+**Steps**
+- Initialize an empty hash map where keys are integers (teacher_id) and values are sets of integers (subject_id).
+- Iterate through each record in the input data.
+- For each record, extract the teacher_id and subject_id.
+- Add the subject_id to the set corresponding to the teacher_id in the map.
+- After processing all records, iterate through the map and create a result list containing [teacher_id, count_of_unique_subjects].
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def countUniqueSubjects(self, teachers: List[List[int]]) -&gt; List[List[int]]:\r\n        subject_map = {}\r\n        \r\n        for teacher_id, subject_id, _ in teachers:\r\n            if teacher_id not in subject_map:\r\n                subject_map[teacher_id] = set()\r\n            subject_map[teacher_id].add(subject_id)\r\n            \r\n        result = []\r\n        for teacher_id, subjects in subject_map.items():\r\n            result.append([teacher_id, len(subjects)])\r\n            \r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public List&lt;List&lt;Integer&gt;&gt; countUniqueSubjects(List&lt;List&lt;Integer&gt;&gt; teachers) {\r\n        Map&lt;Integer, Set&lt;Integer&gt;&gt; map = new HashMap&lt;&gt;();\r\n        \r\n        for (List&lt;Integer&gt; row : teachers) {\r\n            int teacherId = row.get(0);\r\n            int subjectId = row.get(1);\r\n            \r\n            map.computeIfAbsent(teacherId, k -&gt; new HashSet&lt;&gt;()).add(subjectId);\r\n        }\r\n        \r\n        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();\r\n        for (Map.Entry&lt;Integer, Set&lt;Integer&gt;&gt; entry : map.entrySet()) {\r\n            result.add(Arrays.asList(entry.getKey(), entry.getValue().size()));\r\n        }\r\n        \r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;unordered_map&gt;\r\n#include &lt;unordered_set&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;vector&lt;int&gt;&gt; countUniqueSubjects(vector&lt;vector&lt;int&gt;&gt;& teachers) {\r\n        unordered_map&lt;int, unordered_set&lt;int&gt;&gt; mp;\r\n        \r\n        for (auto& row : teachers) {\r\n            int teacherId = row[0];\r\n            int subjectId = row[1];\r\n            mp[teacherId].insert(subjectId);\r\n        }\r\n        \r\n        vector&lt;vector&lt;int&gt;&gt; result;\r\n        for (auto& p : mp) {\r\n            result.push_back({p.first, (int)p.second.size()});\r\n        }\r\n        \r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[][]} teachers\r\n * @return {number[][]}\r\n */\r\nvar Solution = function() {};\r\n\r\nSolution.prototype.countUniqueSubjects = function(teachers) {\r\n    const map = new Map();\r\n    \r\n    for (const [teacherId, subjectId] of teachers) {\r\n        if (!map.has(teacherId)) {\r\n            map.set(teacherId, new Set());\r\n        }\r\n        map.get(teacherId).add(subjectId);\r\n    }\r\n    \r\n    const result = [];\r\n    for (const [teacherId, subjects] of map) {\r\n        result.push([teacherId, subjects.size]);\r\n    }\r\n    \r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    countUniqueSubjects(teachers: number[][]): number[][] {\r\n        const map = new Map&lt;number, Set&lt;number&gt;&gt;();\r\n        \r\n        for (const [teacherId, subjectId] of teachers) {\r\n            if (!map.has(teacherId)) {\r\n                map.set(teacherId, new Set&lt;number&gt;());\r\n            }\r\n            map.get(teacherId)!.add(subjectId);\r\n        }\r\n        \r\n        const result: number[][] = [];\r\n        for (const [teacherId, subjects] of map) {\r\n            result.push([teacherId, subjects.size]);\r\n        }\r\n        \r\n        return result;\r\n    }\r\n}" }]} />
+
+**Complexity**
+- Time: O(N) where N is the number of rows in the Teacher table. We iterate through the list once, and set operations are O(1) on average.
+- Space: O(N) to store the unique subjects for each teacher in the hash map.
+- Notes: This is the most efficient approach for time complexity, trading off space for speed.
+
+---
+## Approach 2: Sorting and Iteration
+
+**Intuition**
+If we sort the records first by teacher_id and then by subject_id, all records for a specific teacher will be grouped together, and their subjects will be in sorted order. We can then iterate through the sorted list and count how many times the subject_id changes for each teacher.
+
+**Steps**
+- Sort the input list of records. The primary sort key is teacher_id, and the secondary sort key is subject_id.
+- Initialize an empty result list.
+- Iterate through the sorted records.
+- Keep track of the current teacher_id and the last seen subject_id.
+- If the teacher_id changes from the previous record, push the previous teacher's count to the result and reset the count.
+- If the subject_id changes from the previous record (and teacher_id is the same), increment the count.
+- Handle the edge case for the last teacher in the list after the loop finishes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def countUniqueSubjects(self, teachers: List[List[int]]) -&gt; List[List[int]]:\r\n        if not teachers:\r\n            return []\r\n            \r\n        # Sort by teacher_id, then subject_id\r\n        teachers.sort(key=lambda x: (x[0], x[1]))\r\n        \r\n        result = []\r\n        curr_teacher = teachers[0][0]\r\n        curr_subject = None\r\n        count = 0\r\n        \r\n        for t_id, s_id, _ in teachers:\r\n            if t_id != curr_teacher:\r\n                result.append([curr_teacher, count])\r\n                curr_teacher = t_id\r\n                count = 1\r\n                curr_subject = s_id\r\n            elif s_id != curr_subject:\r\n                count += 1\r\n                curr_subject = s_id\r\n                # If it is the very first record of the group, count starts at 1\r\n                if count == 0: count = 1\r\n        \r\n        # Append the last teacher\r\n        result.append([curr_teacher, count])\r\n        \r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public List&lt;List&lt;Integer&gt;&gt; countUniqueSubjects(List&lt;List&lt;Integer&gt;&gt; teachers) {\r\n        if (teachers == null || teachers.isEmpty()) {\r\n            return new ArrayList&lt;&gt;();\r\n        }\r\n        \r\n        // Sort by teacher_id, then subject_id\r\n        teachers.sort((a, b) -&gt; {\r\n            if (!a.get(0).equals(b.get(0))) {\r\n                return a.get(0) - b.get(0);\r\n            }\r\n            return a.get(1) - b.get(1);\r\n        });\r\n        \r\n        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();\r\n        int currTeacher = teachers.get(0).get(0);\r\n        int currSubject = Integer.MIN_VALUE;\r\n        int count = 0;\r\n        \r\n        for (List&lt;Integer&gt; row : teachers) {\r\n            int tId = row.get(0);\r\n            int sId = row.get(1);\r\n            \r\n            if (tId != currTeacher) {\r\n                result.add(Arrays.asList(currTeacher, count));\r\n                currTeacher = tId;\r\n                count = 1;\r\n                currSubject = sId;\r\n            } else if (sId != currSubject) {\r\n                count++;\r\n                currSubject = sId;\r\n            }\r\n        }\r\n        \r\n        // Add the last teacher\r\n        result.add(Arrays.asList(currTeacher, count));\r\n        \r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;vector&lt;int&gt;&gt; countUniqueSubjects(vector&lt;vector&lt;int&gt;&gt;& teachers) {\r\n        if (teachers.empty()) return {};\r\n        \r\n        // Sort by teacher_id, then subject_id\r\n        sort(teachers.begin(), teachers.end(), [](const vector&lt;int&gt;& a, const vector&lt;int&gt;& b) {\r\n            if (a[0] != b[0]) return a[0] &lt; b[0];\r\n            return a[1] &lt; b[1];\r\n        });\r\n        \r\n        vector&lt;vector&lt;int&gt;&gt; result;\r\n        int currTeacher = teachers[0][0];\r\n        int currSubject = INT_MIN;\r\n        int count = 0;\r\n        \r\n        for (auto& row : teachers) {\r\n            int tId = row[0];\r\n            int sId = row[1];\r\n            \r\n            if (tId != currTeacher) {\r\n                result.push_back({currTeacher, count});\r\n                currTeacher = tId;\r\n                count = 1;\r\n                currSubject = sId;\r\n            } else if (sId != currSubject) {\r\n                count++;\r\n                currSubject = sId;\r\n            }\r\n        }\r\n        \r\n        result.push_back({currTeacher, count});\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[][]} teachers\r\n * @return {number[][]}\r\n */\r\nvar Solution = function() {};\r\n\r\nSolution.prototype.countUniqueSubjects = function(teachers) {\r\n    if (teachers.length === 0) return [];\r\n    \r\n    // Sort by teacher_id, then subject_id\r\n    teachers.sort((a, b) =&gt; {\r\n        if (a[0] !== b[0]) return a[0] - b[0];\r\n        return a[1] - b[1];\r\n    });\r\n    \r\n    const result = [];\r\n    let currTeacher = teachers[0][0];\r\n    let currSubject = -Infinity;\r\n    let count = 0;\r\n    \r\n    for (const [tId, sId] of teachers) {\r\n        if (tId !== currTeacher) {\r\n            result.push([currTeacher, count]);\r\n            currTeacher = tId;\r\n            count = 1;\r\n            currSubject = sId;\r\n        } else if (sId !== currSubject) {\r\n            count++;\r\n            currSubject = sId;\r\n        }\r\n    }\r\n    \r\n    result.push([currTeacher, count]);\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    countUniqueSubjects(teachers: number[][]): number[][] {\r\n        if (teachers.length === 0) return [];\r\n        \r\n        // Sort by teacher_id, then subject_id\r\n        teachers.sort((a, b) =&gt; {\r\n            if (a[0] !== b[0]) return a[0] - b[0];\r\n            return a[1] - b[1];\r\n        });\r\n        \r\n        const result: number[][] = [];\r\n        let currTeacher = teachers[0][0];\r\n        let currSubject = -Infinity;\r\n        let count = 0;\r\n        \r\n        for (const [tId, sId] of teachers) {\r\n            if (tId !== currTeacher) {\r\n                result.push([currTeacher, count]);\r\n                currTeacher = tId;\r\n                count = 1;\r\n                currSubject = sId;\r\n            } else if (sId !== currSubject) {\r\n                count++;\r\n                currSubject = sId;\r\n            }\r\n        }\r\n        \r\n        result.push([currTeacher, count]);\r\n        return result;\r\n    }\r\n}" }]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step, where N is the number of rows. The iteration itself is O(N).
+- Space: O(1) or O(N) depending on the sorting algorithm's space complexity (e.g., quicksort is O(log N) stack space, mergesort is O(N)). We exclude the space required for the output.
+- Notes: This approach is useful if memory is extremely constrained and we cannot afford the overhead of a hash map, though it is generally slower than the hash map approach due to sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Unique Subjects Taught by Each Teacher Solutions","datePublished":"2025-01-21","description":"Count the number of unique subjects each teacher teaches from the Teacher table.","keywords":"LeetCode, Number of Unique Subjects Taught by Each Teacher, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of rows in the Teacher table."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) in the worst case for the sorting algorithm, or O(1) auxiliary space if using an in-place sort like heapsort."}},{"@type":"Question","name":"Why do we use a Set in the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"We use a Set to automatically handle duplicate subject_ids for the same teacher, ensuring we only count unique subjects."}}]}).replace(/</g,'\u003c')}
+</script>

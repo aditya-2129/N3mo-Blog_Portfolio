@@ -1,0 +1,120 @@
+---
+title: "Find the Longest Balanced Substring of a Binary String"
+summary: "Find the longest substring of a binary string where zeros and ones are grouped together and equal in number."
+date: "Feb 14, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 46.50% | **Paid:** No
+> **Topics:** String
+
+You are given a binary string s. A substring is balanced if it has an equal number of 0's and 1's, and all the 0's and all the 1's in these substrings are grouped consecutively.
+
+Substrings that are balanced:
+
+- "0101" is not balanced because the 0's and 1's are not grouped consecutively.
+- "0011" is balanced because the 0's and 1's are grouped consecutively, and their count is equal.
+- "0110" is not balanced because the 0's and 1's are not grouped consecutively.
+
+Return the length of the longest balanced substring of s.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Linear Scan](#linear-scan)
+
+## Examples
+
+### Example 1:
+```text
+Input: s = "01000111"
+Output: 6
+Explanation: "000111" is the longest balanced substring with equal number of 0's and 1's and grouped consecutively.
+```
+
+### Example 2:
+```text
+Input: s = "00111"
+Output: 4
+Explanation: "0011" is the longest balanced substring.
+```
+
+### Example 3:
+```text
+Input: s = "111"
+Output: 0
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s[i] is '0' or '1'.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can check every possible substring of the binary string to see if it is balanced. A substring is balanced if it consists of some number of 0s followed by the same number of 1s.
+
+**Steps**
+- Iterate through all possible starting indices of the substring.
+- For each starting index, iterate through all possible ending indices.
+- For each substring defined by the start and end indices, check if it is balanced:
+    - It must start with 0s.
+    - Once a 1 is encountered, no 0s can follow.
+    - The count of 0s must equal the count of 1s.
+- Keep track of the maximum length found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findTheLongestBalancedSubstring(self, s: str) -&gt; int:\n        res = 0\n        n = len(s)\n        for i in range(n):\n            zeros = 0\n            ones = 0\n            valid = True\n            for j in range(i, n):\n                if s[j] == '0':\n                    if ones &gt; 0:\n                        valid = False\n                        break\n                    zeros += 1\n                else:\n                    ones += 1\n                if zeros == ones:\n                    res = max(res, zeros + ones)\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findTheLongestBalancedSubstring(String s) {\n        int res = 0;\n        int n = s.length();\n        for (int i = 0; i &lt; n; i++) {\n            int zeros = 0;\n            int ones = 0;\n            boolean valid = true;\n            for (int j = i; j &lt; n; j++) {\n                if (s.charAt(j) == '0') {\n                    if (ones &gt; 0) {\n                        valid = false;\n                        break;\n                    }\n                    zeros++;\n                } else {\n                    ones++;\n                }\n                if (zeros == ones) {\n                    res = Math.max(res, zeros + ones);\n                }\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findTheLongestBalancedSubstring(string s) {\n        int res = 0;\n        int n = s.size();\n        for (int i = 0; i &lt; n; ++i) {\n            int zeros = 0;\n            int ones = 0;\n            bool valid = true;\n            for (int j = i; j &lt; n; ++j) {\n                if (s[j] == '0') {\n                    if (ones &gt; 0) {\n                        valid = false;\n                        break;\n                    }\n                    zeros++;\n                } else {\n                    ones++;\n                }\n                if (zeros == ones) {\n                    res = max(res, zeros + ones);\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findTheLongestBalancedSubstring = function(s) {\n    let res = 0;\n    const n = s.length;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0;\n        let ones = 0;\n        let valid = true;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') {\n                if (ones &gt; 0) {\n                    valid = false;\n                    break;\n                }\n                zeros++;\n            } else {\n                ones++;\n            }\n            if (zeros === ones) {\n                res = Math.max(res, zeros + ones);\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findTheLongestBalancedSubstring(s: string): number {\n    let res = 0;\n    const n = s.length;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0;\n        let ones = 0;\n        let valid = true;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') {\n                if (ones &gt; 0) {\n                    valid = false;\n                    break;\n                }\n                zeros++;\n            } else {\n                ones++;\n            }\n            if (zeros === ones) {\n                res = Math.max(res, zeros + ones);\n            }\n        }\n    }\n    return res;\n}" }]} />
+
+**Complexity**
+- Time: O(n³) - We iterate O(n²) substrings and validation can take O(n) in the worst case.
+- Space: O(1) - We only use a few variables for counting.
+- Notes: This approach is simple but inefficient for large strings. Given the constraint n &lt;= 100, it passes, but we can do better.
+
+---
+## Linear Scan
+
+**Intuition**
+We only need to track consecutive groups of 0s followed by 1s. As we iterate through the string, we count consecutive 0s. When we encounter a 1, we start counting consecutive 1s. The length of the balanced substring formed by these groups is limited by the smaller count (2 * min(zeros, ones)). If we encounter a 0 after counting 1s, the previous pattern is broken, so we reset our counters.
+
+**Steps**
+- Initialize `zeros` and `ones` counters to 0, and `res` to 0.
+- Iterate through each character in the string:
+    - If the character is '0':
+        - If we were previously counting 1s (`ones &gt; 0`), it means the pattern "0...1...0" occurred. Reset `zeros` and `ones` to 0.
+        - Increment `zeros`.
+    - If the character is '1':
+        - Increment `ones`.
+    - If `zeros &gt;= ones`, we have a valid balanced prefix of the current segment. Update `res` with `2 * ones`.
+- Return `res`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findTheLongestBalancedSubstring(self, s: str) -&gt; int:\n        res = 0\n        zeros = 0\n        ones = 0\n        for c in s:\n            if c == '0':\n                if ones &gt; 0:\n                    zeros = 0\n                    ones = 0\n                zeros += 1\n            else:\n                ones += 1\n            if zeros &gt;= ones:\n                res = max(res, 2 * ones)\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findTheLongestBalancedSubstring(String s) {\n        int res = 0;\n        int zeros = 0;\n        int ones = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == '0') {\n                if (ones &gt; 0) {\n                    zeros = 0;\n                    ones = 0;\n                }\n                zeros++;\n            } else {\n                ones++;\n            }\n            if (zeros &gt;= ones) {\n                res = Math.max(res, 2 * ones);\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findTheLongestBalancedSubstring(string s) {\n        int res = 0;\n        int zeros = 0;\n        int ones = 0;\n        for (char c : s) {\n            if (c == '0') {\n                if (ones &gt; 0) {\n                    zeros = 0;\n                    ones = 0;\n                }\n                zeros++;\n            } else {\n                ones++;\n            }\n            if (zeros &gt;= ones) {\n                res = max(res, 2 * ones);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findTheLongestBalancedSubstring = function(s) {\n    let res = 0;\n    let zeros = 0;\n    let ones = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let c = s[i];\n        if (c === '0') {\n            if (ones &gt; 0) {\n                zeros = 0;\n                ones = 0;\n            }\n            zeros++;\n        } else {\n            ones++;\n        }\n        if (zeros &gt;= ones) {\n            res = Math.max(res, 2 * ones);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findTheLongestBalancedSubstring(s: string): number {\n    let res = 0;\n    let zeros = 0;\n    let ones = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let c = s[i];\n        if (c === '0') {\n            if (ones &gt; 0) {\n                zeros = 0;\n                ones = 0;\n            }\n            zeros++;\n        } else {\n            ones++;\n        }\n        if (zeros &gt;= ones) {\n            res = Math.max(res, 2 * ones);\n        }\n    }\n    return res;\n}" }]} />
+
+**Complexity**
+- Time: O(n) - We traverse the string exactly once.
+- Space: O(1) - We only use a few integer variables.
+- Notes: This is the optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Longest Balanced Substring of a Binary String Solutions","datePublished":"2024-02-14","description":"Find the longest substring of a binary string where zeros and ones are grouped together and equal in number.","keywords":"LeetCode, Find the Longest Balanced Substring of a Binary String, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n³), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

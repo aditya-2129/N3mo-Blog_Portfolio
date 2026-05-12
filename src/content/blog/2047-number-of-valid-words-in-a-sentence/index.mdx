@@ -1,0 +1,178 @@
+---
+title: "Number of Valid Words in a Sentence"
+summary: "Count valid words in a sentence where words must follow specific rules for hyphens and punctuation."
+date: "Oct 10, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 31.10% | **Paid:** No
+> **Topics:** String
+
+A sentence consists of lowercase letters ('a' to 'z'), digits ('0' to '9'), hyphens ('-'), punctuation marks ('!', '.', and ','), and spaces (' '). Each sentence can be separated into one or more tokens separated by a single space.
+
+A token is a valid word if all three of the following are true:
+
+- It only contains lowercase letters, hyphens, and/or punctuation (no digits).
+- There is at most one hyphen '-'. If present, it must be surrounded by lowercase characters ("a-b" is valid, but "-ab" and "ab-" are not valid).
+- There is at most one punctuation mark. If present, it must be at the end of the token ("ab,", "cd!", and "." are valid, but "a!b" and "c.," are not valid).
+
+Examples of valid words: "a-b.", "cat", "and", "dance", "a-b-c"
+Examples of invalid words: "rat-", "a-b", "a-b-c-", "a-b-c.", "a-"
+
+Given a string sentence, return the number of valid words in sentence.
+
+- Examples
+- Constraints
+- [Iterative Validation](#iterative-validation)
+- [Regular Expression](#regular-expression)
+- [State Machine](#state-machine)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+sentence = "cat and  dog"
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+The valid words in the sentence are "cat", "and", and "dog".
+
+### Example 2
+
+**Input:**
+```text
+sentence = "!this  1-s b8d!"
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+There are no valid words in the sentence.
+"!this" is invalid because it starts with a punctuation mark.
+"1-s" and "b8d" are invalid because they contain digits.
+
+### Example 3
+
+**Input:**
+```text
+sentence = "alice and  bob are playing stone-game10"
+```
+
+**Output:**
+```text
+5
+```
+
+**Explanation:**
+The valid words in the sentence are "alice", "and", "bob", "are", and "playing".
+"stone-game10" is invalid because it contains digits.
+
+## Constraints
+
+```text
+1 <= sentence.length <= 1000
+sentence only contains lowercase English letters, digits, ' ', '-', '!', '.', and ','.
+sentence does not have leading or trailing spaces.
+All the words in sentence are separated by a single space.
+```
+
+---
+## Iterative Validation
+
+**Intuition**
+For each word, iterate through characters while tracking hyphen count, punctuation position, and checking for invalid digits.
+
+**Steps**
+- Split the sentence by spaces to get individual words
+- For each word, initialize counters for hyphens and punctuation
+- Iterate through each character:
+  - If digit found, word is invalid
+  - If hyphen found, check if it's surrounded by letters and count &lt;= 1
+  - If punctuation found, ensure it's at the end and count &lt;= 1
+- Count all words that pass all validation rules
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countValidWords(self, sentence: str) -&gt; int:\n        def is_valid(word):\n            hyphen_count = 0\n            punctuation_count = 0\n            n = len(word)\n            \n            for i, ch in enumerate(word):\n                if ch.isdigit():\n                    return False\n                elif ch == '-':\n                    hyphen_count += 1\n                    if hyphen_count &gt; 1:\n                        return False\n                    if i == 0 or i == n - 1:\n                        return False\n                    if not word[i-1].isalpha() or not word[i+1].isalpha():\n                        return False\n                elif ch in '!,.':\n                    punctuation_count += 1\n                    if punctuation_count &gt; 1:\n                        return False\n                    if i != n - 1:\n                        return False\n            return True\n        \n        words = sentence.split()\n        return sum(1 for word in words if is_valid(word))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countValidWords(String sentence) {\n        String[] words = sentence.split(\" \");\n        int count = 0;\n        \n        for (String word : words) {\n            if (isValid(word)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \n    private boolean isValid(String word) {\n        int hyphenCount = 0;\n        int punctuationCount = 0;\n        int n = word.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            char ch = word.charAt(i);\n            \n            if (Character.isDigit(ch)) {\n                return false;\n            } else if (ch == '-') {\n                hyphenCount++;\n                if (hyphenCount &gt; 1) {\n                    return false;\n                }\n                if (i == 0 || i == n - 1) {\n                    return false;\n                }\n                if (!Character.isLetter(word.charAt(i - 1)) || !Character.isLetter(word.charAt(i + 1))) {\n                    return false;\n                }\n            } else if (ch == '!' || ch == '.' || ch == ',') {\n                punctuationCount++;\n                if (punctuationCount &gt; 1) {\n                    return false;\n                }\n                if (i != n - 1) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countValidWords(string sentence) {\n        vector&lt;string&gt; words;\n        string word;\n        for (char ch : sentence) {\n            if (ch == ' ') {\n                if (!word.empty()) {\n                    words.push_back(word);\n                    word.clear();\n                }\n            } else {\n                word += ch;\n            }\n        }\n        if (!word.empty()) {\n            words.push_back(word);\n        }\n        \n        int count = 0;\n        for (const string& w : words) {\n            if (isValid(w)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \nprivate:\n    bool isValid(const string& word) {\n        int hyphenCount = 0;\n        int punctuationCount = 0;\n        int n = word.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            char ch = word[i];\n            \n            if (isdigit(ch)) {\n                return false;\n            } else if (ch == '-') {\n                hyphenCount++;\n                if (hyphenCount &gt; 1) {\n                    return false;\n                }\n                if (i == 0 || i == n - 1) {\n                    return false;\n                }\n                if (!isalpha(word[i - 1]) || !isalpha(word[i + 1])) {\n                    return false;\n                }\n            } else if (ch == '!' || ch == '.' || ch == ',') {\n                punctuationCount++;\n                if (punctuationCount &gt; 1) {\n                    return false;\n                }\n                if (i != n - 1) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} sentence\n * @return {number}\n */\nvar countValidWords = function(sentence) {\n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (isValid(word)) {\n            count++;\n        }\n    }\n    return count;\n};\n\nfunction isValid(word) {\n    let hyphenCount = 0;\n    let punctuationCount = 0;\n    const n = word.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        const ch = word[i];\n        \n        if (/\\d/.test(ch)) {\n            return false;\n        } else if (ch === '-') {\n            hyphenCount++;\n            if (hyphenCount &gt; 1) {\n                return false;\n            }\n            if (i === 0 || i === n - 1) {\n                return false;\n            }\n            if (!/[a-z]/.test(word[i - 1]) || !/[a-z]/.test(word[i + 1])) {\n                return false;\n            }\n        } else if (ch === '!' || ch === '.' || ch === ',') {\n            punctuationCount++;\n            if (punctuationCount &gt; 1) {\n                return false;\n            }\n            if (i !== n - 1) {\n                return false;\n            }\n        }\n    }\n    return true;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function countValidWords(sentence: string): number {\n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (isValid(word)) {\n            count++;\n        }\n    }\n    return count;\n}\n\nfunction isValid(word: string): boolean {\n    let hyphenCount = 0;\n    let punctuationCount = 0;\n    const n = word.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        const ch = word[i];\n        \n        if (/\\d/.test(ch)) {\n            return false;\n        } else if (ch === '-') {\n            hyphenCount++;\n            if (hyphenCount &gt; 1) {\n                return false;\n            }\n            if (i === 0 || i === n - 1) {\n                return false;\n            }\n            if (!/[a-z]/.test(word[i - 1]) || !/[a-z]/.test(word[i + 1])) {\n                return false;\n            }\n        } else if (ch === '!' || ch === '.' || ch === ',') {\n            punctuationCount++;\n            if (punctuationCount &gt; 1) {\n                return false;\n            }\n            if (i !== n - 1) {\n                return false;\n            }\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the sentence
+- Space: O(n) for storing the split words
+- Notes: Simple and straightforward approach with clear logic
+
+---
+## Regular Expression
+
+**Intuition**
+Use regex pattern matching to validate each word against all rules in a single pattern.
+
+**Steps**
+- Split the sentence by spaces to get individual words
+- Define a regex pattern that matches valid words:
+  - ^[a-z]+ - starts with one or more letters
+  - (-[a-z]+)? - optionally followed by hyphen and more letters
+  - [!,.]?$ - optionally ends with a single punctuation
+- Count words that match the pattern
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def countValidWords(self, sentence: str) -&gt; int:\n        pattern = re.compile(r'^[a-z]+(-[a-z]+)?[!,.]?$')\n        words = sentence.split()\n        return sum(1 for word in words if pattern.match(word))" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public int countValidWords(String sentence) {\n        String[] words = sentence.split(\" \");\n        Pattern pattern = Pattern.compile(\"^[a-z]+(-[a-z]+)?[!,.]?$\");\n        int count = 0;\n        \n        for (String word : words) {\n            if (pattern.matcher(word).matches()) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    int countValidWords(string sentence) {\n        vector&lt;string&gt; words;\n        string word;\n        for (char ch : sentence) {\n            if (ch == ' ') {\n                if (!word.empty()) {\n                    words.push_back(word);\n                    word.clear();\n                }\n            } else {\n                word += ch;\n            }\n        }\n        if (!word.empty()) {\n            words.push_back(word);\n        }\n        \n        regex pattern(\"^[a-z]+(-[a-z]+)?[!,.]?$\");\n        int count = 0;\n        for (const string& w : words) {\n            if (regex_match(w, pattern)) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} sentence\n * @return {number}\n */\nvar countValidWords = function(sentence) {\n    const pattern = /^[a-z]+(-[a-z]+)?[!,.]?$/;\n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (pattern.test(word)) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countValidWords(sentence: string): number {\n    const pattern = /^[a-z]+(-[a-z]+)?[!,.]?$/;\n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (pattern.test(word)) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the sentence
+- Space: O(n) for storing the split words
+- Notes: Concise code but regex may have overhead; pattern handles all rules elegantly
+
+---
+## State Machine
+
+**Intuition**
+Use a finite state machine to track the validation state as we process each character.
+
+**Steps**
+- Define states: START, LETTER, HYPHEN, PUNCTUATION, INVALID
+- For each word, start in START state
+- Transition between states based on character type:
+  - Letter: can go to LETTER from START or LETTER or HYPHEN
+  - Hyphen: can only go to HYPHEN from LETTER
+  - Punctuation: can only go to PUNCTUATION from START or LETTER
+  - Digit: go to INVALID
+- Word is valid if ends in START, LETTER, or PUNCTUATION state
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countValidWords(self, sentence: str) -&gt; int:\n        START, LETTER, HYPHEN, PUNCTUATION, INVALID = 0, 1, 2, 3, 4\n        \n        def is_valid(word):\n            state = START\n            hyphen_seen = False\n            \n            for i, ch in enumerate(word):\n                if ch.isdigit():\n                    return False\n                elif ch.isalpha():\n                    state = LETTER\n                elif ch == '-':\n                    if hyphen_seen or state != LETTER:\n                        return False\n                    hyphen_seen = True\n                    state = HYPHEN\n                elif ch in '!,.':\n                    if i != len(word) - 1:\n                        return False\n                    state = PUNCTUATION\n            \n            return state != INVALID\n        \n        words = sentence.split()\n        return sum(1 for word in words if is_valid(word))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private static final int START = 0, LETTER = 1, HYPHEN = 2, PUNCTUATION = 3, INVALID = 4;\n    \n    public int countValidWords(String sentence) {\n        String[] words = sentence.split(\" \");\n        int count = 0;\n        \n        for (String word : words) {\n            if (isValid(word)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \n    private boolean isValid(String word) {\n        int state = START;\n        boolean hyphenSeen = false;\n        int n = word.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            char ch = word.charAt(i);\n            \n            if (Character.isDigit(ch)) {\n                return false;\n            } else if (Character.isLetter(ch)) {\n                state = LETTER;\n            } else if (ch == '-') {\n                if (hyphenSeen || state != LETTER) {\n                    return false;\n                }\n                hyphenSeen = true;\n                state = HYPHEN;\n            } else if (ch == '!' || ch == '.' || ch == ',') {\n                if (i != n - 1) {\n                    return false;\n                }\n                state = PUNCTUATION;\n            }\n        }\n        return state != INVALID;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countValidWords(string sentence) {\n        vector&lt;string&gt; words;\n        string word;\n        for (char ch : sentence) {\n            if (ch == ' ') {\n                if (!word.empty()) {\n                    words.push_back(word);\n                    word.clear();\n                }\n            } else {\n                word += ch;\n            }\n        }\n        if (!word.empty()) {\n            words.push_back(word);\n        }\n        \n        int count = 0;\n        for (const string& w : words) {\n            if (isValid(w)) {\n                count++;\n            }\n        }\n        return count;\n    }\n    \nprivate:\n    bool isValid(const string& word) {\n        const int START = 0, LETTER = 1, HYPHEN = 2, PUNCTUATION = 3, INVALID = 4;\n        int state = START;\n        bool hyphenSeen = false;\n        int n = word.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            char ch = word[i];\n            \n            if (isdigit(ch)) {\n                return false;\n            } else if (isalpha(ch)) {\n                state = LETTER;\n            } else if (ch == '-') {\n                if (hyphenSeen || state != LETTER) {\n                    return false;\n                }\n                hyphenSeen = true;\n                state = HYPHEN;\n            } else if (ch == '!' || ch == '.' || ch == ',') {\n                if (i != n - 1) {\n                    return false;\n                }\n                state = PUNCTUATION;\n            }\n        }\n        return state != INVALID;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} sentence\n * @return {number}\n */\nvar countValidWords = function(sentence) {\n    const START = 0, LETTER = 1, HYPHEN = 2, PUNCTUATION = 3, INVALID = 4;\n    \n    function isValid(word) {\n        let state = START;\n        let hyphenSeen = false;\n        const n = word.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            const ch = word[i];\n            \n            if (/\\d/.test(ch)) {\n                return false;\n            } else if (/[a-z]/.test(ch)) {\n                state = LETTER;\n            } else if (ch === '-') {\n                if (hyphenSeen || state !== LETTER) {\n                    return false;\n                }\n                hyphenSeen = true;\n                state = HYPHEN;\n            } else if (ch === '!' || ch === '.' || ch === ',') {\n                if (i !== n - 1) {\n                    return false;\n                }\n                state = PUNCTUATION;\n            }\n        }\n        return state !== INVALID;\n    }\n    \n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (isValid(word)) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countValidWords(sentence: string): number {\n    const START = 0, LETTER = 1, HYPHEN = 2, PUNCTUATION = 3, INVALID = 4;\n    \n    function isValid(word: string): boolean {\n        let state = START;\n        let hyphenSeen = false;\n        const n = word.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            const ch = word[i];\n            \n            if (/\\d/.test(ch)) {\n                return false;\n            } else if (/[a-z]/.test(ch)) {\n                state = LETTER;\n            } else if (ch === '-') {\n                if (hyphenSeen || state !== LETTER) {\n                    return false;\n                }\n                hyphenSeen = true;\n                state = HYPHEN;\n            } else if (ch === '!' || ch === '.' || ch === ',') {\n                if (i !== n - 1) {\n                    return false;\n                }\n                state = PUNCTUATION;\n            }\n        }\n        return state !== INVALID;\n    }\n    \n    const words = sentence.trim().split(/\\s+/);\n    let count = 0;\n    \n    for (const word of words) {\n        if (isValid(word)) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the sentence
+- Space: O(n) for storing the split words
+- Notes: Structured approach that clearly models validation rules as state transitions
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Valid Words in a Sentence Solutions","datePublished":"2025-10-10","description":"Count valid words in a sentence where words must follow specific rules for hyphens and punctuation.","keywords":"LeetCode, Number of Valid Words in a Sentence, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the iterative validation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the sentence, as we process each character exactly once."}},{"@type":"Question","name":"What is the time complexity of the regular expression approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the sentence. Regex matching is linear for this pattern."}},{"@type":"Question","name":"What is the time complexity of the state machine approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the sentence, as we perform a single pass through each character."}},{"@type":"Question","name":"What is the space complexity for all approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the split words. The validation itself uses O(1) additional space."}}]}).replace(/</g,'\u003c')}
+</script>

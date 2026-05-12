@@ -1,0 +1,752 @@
+---
+title: "Design HashMap"
+summary: "Design a HashMap without using built-in hash table libraries, implementing put, get, and remove methods."
+date: "Oct 01, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Linked List
+  - Design
+  - Hash Function
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Linked List, Design, Hash Function
+
+Design a HashMap without using any built-in hash table libraries.
+
+To be specific, your design should include these functions:
+
+- `put(key, value)`: Insert a (key, value) pair into the HashMap. If the value already exists in the HashMap, update the value.
+- `get(key)`: Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key.
+- `remove(key)`: Remove the mapping for the value key if this map contains the mapping for the key.
+
+- Examples
+- Constraints
+- [Approach 1: Direct Addressing (Array)](#direct-addressing)
+- [Approach 2: Separate Chaining (Linked List)](#separate-chaining)
+- [Approach 3: Open Addressing (Linear Probing)](#open-addressing)
+
+## Examples
+
+```text
+Input:
+["MyHashMap", "put", "put", "get", "get", "put", "get", "remove", "get"]
+[[], [1, 1], [2, 2], [1], [3], [2, 1], [2], [2], [2]]
+
+Output:
+[null, null, null, 1, -1, null, 1, null, -1]
+
+Explanation:
+MyHashMap hashMap = new MyHashMap();
+hashMap.put(1, 1);          
+hashMap.put(2, 2);         
+hashMap.get(1);            // returns 1
+hashMap.get(3);            // returns -1 (not found)
+hashMap.put(2, 1);         // update the existing value
+hashMap.get(2);            // returns 1
+hashMap.remove(2);         // remove the mapping for 2
+hashMap.get(2);            // returns -1 (not found)
+```
+
+## Constraints
+
+```text
+0 <= key, value <= 10^6
+At most 10^4 calls will be made to put, get, and remove.
+```
+
+---
+
+## Direct Addressing (Array)
+
+**Intuition**
+Since the key range is limited to $10^6$, we can use a direct array where the index corresponds to the key. This avoids collision handling entirely.
+
+**Steps**
+- Initialize an array of size $10^6 + 1$ with -1 (indicating empty).
+- For `put`, simply assign `array[key] = value`.
+- For `get`, return `array[key]`.
+- For `remove`, set `array[key] = -1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MyHashMap:
+
+    def __init__(self):
+        self.size = 1000001
+        self.map = [-1] * self.size
+
+    def put(self, key: int, value: int) -> None:
+        self.map[key] = value
+
+    def get(self, key: int) -> int:
+        return self.map[key]
+
+    def remove(self, key: int) -> None:
+        self.map[key] = -1
+` },
+{ name: "Java", lang: "java", code: `class MyHashMap {
+    private int[] map;
+    private int size;
+
+    public MyHashMap() {
+        this.size = 1000001;
+        this.map = new int[size];
+        Arrays.fill(map, -1);
+    }
+
+    public void put(int key, int value) {
+        map[key] = value;
+    }
+
+    public int get(int key) {
+        return map[key];
+    }
+
+    public void remove(int key) {
+        map[key] = -1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MyHashMap {
+private:
+    vector<int> map;
+public:
+    MyHashMap() {
+        map.resize(1000001, -1);
+    }
+
+    void put(int key, int value) {
+        map[key] = value;
+    }
+
+    int get(int key) {
+        return map[key];
+    }
+
+    void remove(int key) {
+        map[key] = -1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var MyHashMap = function() {
+    this.size = 1000001;
+    this.map = new Array(this.size).fill(-1);
+};
+
+MyHashMap.prototype.put = function(key, value) {
+    this.map[key] = value;
+};
+
+MyHashMap.prototype.get = function(key) {
+    return this.map[key];
+};
+
+MyHashMap.prototype.remove = function(key) {
+    this.map[key] = -1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MyHashMap {
+    private size: number;
+    private map: number[];
+
+    constructor() {
+        this.size = 1000001;
+        this.map = new Array(this.size).fill(-1);
+    }
+
+    put(key: number, value: number): void {
+        this.map[key] = value;
+    }
+
+    get(key: number): number {
+        return this.map[key];
+    }
+
+    remove(key: number): void {
+        this.map[key] = -1;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: $O(1)$ for all operations.
+- Space: $O(10⁶)$ to store the array.
+- Notes: Extremely fast but memory-intensive. Not suitable if key range is very large.
+
+---
+
+## Separate Chaining (Linked List)
+
+**Intuition**
+Use a fixed-size array (buckets) where each index points to a linked list of key-value pairs. Collisions are resolved by appending to the list.
+
+**Steps**
+- Define a `ListNode` class to store key, value, and next pointer.
+- Initialize an array of dummy `ListNode` heads (size e.g., 1000).
+- Hash function: `key % size`.
+- Traverse the list to find, update, or delete a node.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class ListNode:
+    def __init__(self, key=-1, val=-1, next=None):
+        self.key = key
+        self.val = val
+        self.next = next
+
+class MyHashMap:
+
+    def __init__(self):
+        self.size = 1000
+        self.map = [ListNode() for _ in range(self.size)]
+
+    def _hash(self, key):
+        return key % self.size
+
+    def put(self, key: int, value: int) -> None:
+        idx = self._hash(key)
+        prev = self.map[idx]
+        curr = prev.next
+        while curr:
+            if curr.key == key:
+                curr.val = value
+                return
+            prev = curr
+            curr = curr.next
+        prev.next = ListNode(key, value)
+
+    def get(self, key: int) -> int:
+        idx = self._hash(key)
+        curr = self.map[idx].next
+        while curr:
+            if curr.key == key:
+                return curr.val
+            curr = curr.next
+        return -1
+
+    def remove(self, key: int) -> None:
+        idx = self._hash(key)
+        prev = self.map[idx]
+        curr = prev.next
+        while curr:
+            if curr.key == key:
+                prev.next = curr.next
+                return
+            prev = curr
+            curr = curr.next
+` },
+{ name: "Java", lang: "java", code: `class ListNode {
+    int key, val;
+    ListNode next;
+    ListNode(int key, int val) {
+        this.key = key;
+        this.val = val;
+    }
+}
+
+class MyHashMap {
+    private int size = 1000;
+    private ListNode[] map;
+
+    public MyHashMap() {
+        map = new ListNode[size];
+        for (int i = 0; i &lt; size; i++) {
+            map[i] = new ListNode(-1, -1);
+        }
+    }
+
+    private int hash(int key) {
+        return key % size;
+    }
+
+    public void put(int key, int value) {
+        int idx = hash(key);
+        ListNode prev = map[idx];
+        ListNode curr = prev.next;
+        while (curr != null) {
+            if (curr.key == key) {
+                curr.val = value;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+        prev.next = new ListNode(key, value);
+    }
+
+    public int get(int key) {
+        int idx = hash(key);
+        ListNode curr = map[idx].next;
+        while (curr != null) {
+            if (curr.key == key) {
+                return curr.val;
+            }
+            curr = curr.next;
+        }
+        return -1;
+    }
+
+    public void remove(int key) {
+        int idx = hash(key);
+        ListNode prev = map[idx];
+        ListNode curr = prev.next;
+        while (curr != null) {
+            if (curr.key == key) {
+                prev.next = curr.next;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `struct ListNode {
+    int key, val;
+    ListNode *next;
+    ListNode(int key, int val) : key(key), val(val), next(nullptr) {}
+};
+
+class MyHashMap {
+private:
+    int size = 1000;
+    vector<ListNode*&gt; map;
+
+    int hash(int key) {
+        return key % size;
+    }
+
+public:
+    MyHashMap() {
+        map.resize(size);
+        for (int i = 0; i &lt; size; i++) {
+            map[i] = new ListNode(-1, -1);
+        }
+    }
+
+    void put(int key, int value) {
+        int idx = hash(key);
+        ListNode *prev = map[idx];
+        ListNode *curr = prev->next;
+        while (curr != nullptr) {
+            if (curr->key == key) {
+                curr->val = value;
+                return;
+            }
+            prev = curr;
+            curr = curr->next;
+        }
+        prev->next = new ListNode(key, value);
+    }
+
+    int get(int key) {
+        int idx = hash(key);
+        ListNode *curr = map[idx]->next;
+        while (curr != nullptr) {
+            if (curr->key == key) {
+                return curr->val;
+            }
+            curr = curr->next;
+        }
+        return -1;
+    }
+
+    void remove(int key) {
+        int idx = hash(key);
+        ListNode *prev = map[idx];
+        ListNode *curr = prev->next;
+        while (curr != nullptr) {
+            if (curr->key == key) {
+                prev->next = curr->next;
+                return;
+            }
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class ListNode {
+    constructor(key, val) {
+        this.key = key;
+        this.val = val;
+        this.next = null;
+    }
+}
+
+var MyHashMap = function() {
+    this.size = 1000;
+    this.map = new Array(this.size);
+    for (let i = 0; i &lt; this.size; i++) {
+        this.map[i] = new ListNode(-1, -1);
+    }
+};
+
+MyHashMap.prototype.hash = function(key) {
+    return key % this.size;
+}
+
+MyHashMap.prototype.put = function(key, value) {
+    const idx = this.hash(key);
+    let prev = this.map[idx];
+    let curr = prev.next;
+    while (curr !== null) {
+        if (curr.key === key) {
+            curr.val = value;
+            return;
+        }
+        prev = curr;
+        curr = curr.next;
+    }
+    prev.next = new ListNode(key, value);
+};
+
+MyHashMap.prototype.get = function(key) {
+    const idx = this.hash(key);
+    let curr = this.map[idx].next;
+    while (curr !== null) {
+        if (curr.key === key) {
+            return curr.val;
+        }
+        curr = curr.next;
+    }
+    return -1;
+};
+
+MyHashMap.prototype.remove = function(key) {
+    const idx = this.hash(key);
+    let prev = this.map[idx];
+    let curr = prev.next;
+    while (curr !== null) {
+        if (curr.key === key) {
+            prev.next = curr.next;
+            return;
+        }
+        prev = curr;
+        curr = curr.next;
+    }
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `class ListNode {
+    public key: number;
+    public val: number;
+    public next: ListNode | null;
+    constructor(key: number, val: number) {
+        this.key = key;
+        this.val = val;
+        this.next = null;
+    }
+}
+
+class MyHashMap {
+    private size: number;
+    private map: ListNode[];
+
+    constructor() {
+        this.size = 1000;
+        this.map = new Array(this.size);
+        for (let i = 0; i &lt; this.size; i++) {
+            this.map[i] = new ListNode(-1, -1);
+        }
+    }
+
+    private hash(key: number): number {
+        return key % this.size;
+    }
+
+    put(key: number, value: number): void {
+        const idx = this.hash(key);
+        let prev = this.map[idx];
+        let curr = prev.next;
+        while (curr !== null) {
+            if (curr.key === key) {
+                curr.val = value;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+        prev.next = new ListNode(key, value);
+    }
+
+    get(key: number): number {
+        const idx = this.hash(key);
+        let curr = this.map[idx].next;
+        while (curr !== null) {
+            if (curr.key === key) {
+                return curr.val;
+            }
+            curr = curr.next;
+        }
+        return -1;
+    }
+
+    remove(key: number): void {
+        const idx = this.hash(key);
+        let prev = this.map[idx];
+        let curr = prev.next;
+        while (curr !== null) {
+            if (curr.key === key) {
+                prev.next = curr.next;
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: $O(N/K)$ on average, where $N$ is number of elements and $K$ is bucket size. Worst case $O(N)$.
+- Space: $O(N + K)$.
+- Notes: Standard approach for hash maps. Handles collisions gracefully.
+
+---
+
+## Open Addressing (Linear Probing)
+
+**Intuition**
+Store all key-value pairs in a single array. If a collision occurs, search for the next available slot (linear probing).
+
+**Steps**
+- Initialize an array of size $N$ (e.g., 20000) with null.
+- Hash function: `key % size`.
+- If slot is occupied by a different key, increment index (with wrap-around) until an empty slot or the key is found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MyHashMap:
+
+    def __init__(self):
+        self.cap = 20000
+        self.map = [None] * self.cap
+
+    def _hash(self, key):
+        return key % self.cap
+
+    def put(self, key: int, value: int) -> None:
+        idx = self._hash(key)
+        while self.map[idx] is not None:
+            if self.map[idx][0] == key:
+                self.map[idx] = (key, value)
+                return
+            idx = (idx + 1) % self.cap
+        self.map[idx] = (key, value)
+
+    def get(self, key: int) -> int:
+        idx = self._hash(key)
+        while self.map[idx] is not None:
+            if self.map[idx][0] == key:
+                return self.map[idx][1]
+            idx = (idx + 1) % self.cap
+        return -1
+
+    def remove(self, key: int) -> None:
+        idx = self._hash(key)
+        while self.map[idx] is not None:
+            if self.map[idx][0] == key:
+                self.map[idx] = None
+                return
+            idx = (idx + 1) % self.cap
+` },
+{ name: "Java", lang: "java", code: `class MyHashMap {
+    private int cap = 20000;
+    private int[][] map;
+
+    public MyHashMap() {
+        map = new int[cap][];
+    }
+
+    private int hash(int key) {
+        return key % cap;
+    }
+
+    public void put(int key, int value) {
+        int idx = hash(key);
+        while (map[idx] != null) {
+            if (map[idx][0] == key) {
+                map[idx][1] = value;
+                return;
+            }
+            idx = (idx + 1) % cap;
+        }
+        map[idx] = new int[]{key, value};
+    }
+
+    public int get(int key) {
+        int idx = hash(key);
+        while (map[idx] != null) {
+            if (map[idx][0] == key) {
+                return map[idx][1];
+            }
+            idx = (idx + 1) % cap;
+        }
+        return -1;
+    }
+
+    public void remove(int key) {
+        int idx = hash(key);
+        while (map[idx] != null) {
+            if (map[idx][0] == key) {
+                map[idx] = null;
+                return;
+            }
+            idx = (idx + 1) % cap;
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MyHashMap {
+private:
+    int cap = 20000;
+    vector<pair<int, int>*&gt; map;
+
+    int hash(int key) {
+        return key % cap;
+    }
+
+public:
+    MyHashMap() {
+        map.resize(cap, nullptr);
+    }
+
+    void put(int key, int value) {
+        int idx = hash(key);
+        while (map[idx] != nullptr) {
+            if (map[idx]->first == key) {
+                map[idx]->second = value;
+                return;
+            }
+            idx = (idx + 1) % cap;
+        }
+        map[idx] = new pair<int, int>(key, value);
+    }
+
+    int get(int key) {
+        int idx = hash(key);
+        while (map[idx] != nullptr) {
+            if (map[idx]->first == key) {
+                return map[idx]->second;
+            }
+            idx = (idx + 1) % cap;
+        }
+        return -1;
+    }
+
+    void remove(int key) {
+        int idx = hash(key);
+        while (map[idx] != nullptr) {
+            if (map[idx]->first == key) {
+                map[idx] = nullptr;
+                return;
+            }
+            idx = (idx + 1) % cap;
+        }
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var MyHashMap = function() {
+    this.cap = 20000;
+    this.map = new Array(this.cap).fill(null);
+};
+
+MyHashMap.prototype.hash = function(key) {
+    return key % this.cap;
+}
+
+MyHashMap.prototype.put = function(key, value) {
+    let idx = this.hash(key);
+    while (this.map[idx] !== null) {
+        if (this.map[idx][0] === key) {
+            this.map[idx][1] = value;
+            return;
+        }
+        idx = (idx + 1) % this.cap;
+    }
+    this.map[idx] = [key, value];
+};
+
+MyHashMap.prototype.get = function(key) {
+    let idx = this.hash(key);
+    while (this.map[idx] !== null) {
+        if (this.map[idx][0] === key) {
+            return this.map[idx][1];
+        }
+        idx = (idx + 1) % this.cap;
+    }
+    return -1;
+};
+
+MyHashMap.prototype.remove = function(key) {
+    let idx = this.hash(key);
+    while (this.map[idx] !== null) {
+        if (this.map[idx][0] === key) {
+            this.map[idx] = null;
+            return;
+        }
+        idx = (idx + 1) % this.cap;
+    }
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MyHashMap {
+    private cap: number;
+    private map: (number[] | null)[];
+
+    constructor() {
+        this.cap = 20000;
+        this.map = new Array(this.cap).fill(null);
+    }
+
+    private hash(key: number): number {
+        return key % this.cap;
+    }
+
+    put(key: number, value: number): void {
+        let idx = this.hash(key);
+        while (this.map[idx] !== null) {
+            if (this.map[idx]![0] === key) {
+                this.map[idx]![1] = value;
+                return;
+            }
+            idx = (idx + 1) % this.cap;
+        }
+        this.map[idx] = [key, value];
+    }
+
+    get(key: number): number {
+        let idx = this.hash(key);
+        while (this.map[idx] !== null) {
+            if (this.map[idx]![0] === key) {
+                return this.map[idx]![1];
+            }
+            idx = (idx + 1) % this.cap;
+        }
+        return -1;
+    }
+
+    remove(key: number): void {
+        let idx = this.hash(key);
+        while (this.map[idx] !== null) {
+            if (this.map[idx]![0] === key) {
+                this.map[idx] = null;
+                return;
+            }
+            idx = (idx + 1) % this.cap;
+        }
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: $O(1)$ average, $O(N)$ worst case (clustering).
+- Space: $O(N)$.
+- Notes: Good cache locality, but performance degrades with high load factor.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Design HashMap Solutions","datePublished":"2025-10-01","description":"Design a HashMap without using built-in hash table libraries, implementing put, get, and remove methods.","keywords":"LeetCode, Design HashMap, Easy, Array, Hash Table, Linked List, Design, Hash Function"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Direct Addressing?","acceptedAnswer":{"@type":"Answer","text":"Time complexity is O(1) for all operations. Space complexity is O(10⁶) to store the array."}},{"@type":"Question","name":"What is the time complexity of Approach 2: Separate Chaining?","acceptedAnswer":{"@type":"Answer","text":"Time complexity is O(N/K) on average, where N is number of elements and K is bucket size. Worst case is O(N). Space complexity is O(N + K)."}},{"@type":"Question","name":"What is the time complexity of Approach 3: Open Addressing?","acceptedAnswer":{"@type":"Answer","text":"Time complexity is O(1) on average, but O(N) in the worst case due to clustering. Space complexity is O(N)."}}]}).replace(/</g,'\u003c')}
+</script>

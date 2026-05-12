@@ -1,0 +1,111 @@
+---
+title: "Minimum Deletions for At Most K Distinct Characters"
+summary: "Find the minimum number of deletions required to make a string contain at most K distinct characters."
+date: "Mar 11, 2024"
+tags:
+  - Hash Table
+  - String
+  - Greedy
+  - Sorting
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.10% | **Paid:** No
+> **Topics:** Hash Table, String, Greedy, Sorting, Counting
+
+Given a string s and an integer k, return the minimum number of characters you need to delete from s so that the resulting string contains at most k distinct characters.
+
+- Examples
+- Constraints
+- [Sorting (Greedy)](#sorting-greedy)
+- [Bucket Sort (Counting)](#bucket-sort-counting)
+
+## Examples
+
+```text
+Input: s = "aabab", k = 2
+Output: 0
+Explanation: The string already has at most 2 distinct characters ('a' and 'b').
+```
+
+```text
+Input: s = "aabab", k = 1
+Output: 2
+Explanation: We can delete the two 'b's to get "aaa".
+```
+
+```text
+Input: s = "abc", k = 2
+Output: 1
+Explanation: We can delete 'c' to get "ab".
+```
+
+## Constraints
+
+```text
+- 1 <= s.length <= 16
+- 1 <= k <= 16
+- s consists only of lowercase English letters.
+```
+
+---
+## Sorting (Greedy)
+
+**Intuition**
+To minimize deletions, we should maximize the length of the string we keep. Since we are limited to keeping at most `k` distinct characters, we should keep the `k` characters that appear most frequently in the original string.
+
+**Steps**
+- Count the frequency of each character in the string.
+- Store these frequencies in a list.
+- Sort the list of frequencies in descending order.
+- Sum the first `k` frequencies (or all of them if there are fewer than `k` distinct characters). This sum represents the maximum length of the string we can keep.
+- Subtract this sum from the total length of the string to get the number of deletions.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def minimumDeletions(self, s: str, k: int) -> int:\\n        from collections import Counter\\n        \\n        # Count frequency of each character\\n        freq_map = Counter(s)\\n        \\n        # Extract frequencies and sort them in descending order\\n        frequencies = list(freq_map.values())\\n        frequencies.sort(reverse=True)\\n        \\n        # Sum the top k frequencies\\n        keep = 0\\n        for i in range(min(k, len(frequencies))):\\n            keep += frequencies[i]\\n            \\n        # Deletions = total length - length we keep\\n        return len(s) - keep\\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\\n\\nclass Solution {\\n    public int minimumDeletions(String s, int k) {\\n        // Count frequency of each character\\n        Map<Character, Integer> freqMap = new HashMap<>();\\n        for (char c : s.toCharArray()) {\\n            freqMap.put(c, freqMap.getOrDefault(c, 0) + 1);\\n        }\\n        \\n        // Extract frequencies\\n        List<Integer> frequencies = new ArrayList<>(freqMap.values());\\n        \\n        // Sort in descending order\\n        Collections.sort(frequencies, Collections.reverseOrder());\\n        \\n        // Sum the top k frequencies\\n        int keep = 0;\\n        int limit = Math.min(k, frequencies.size());\\n        for (int i = 0; i < limit; i++) {\\n            keep += frequencies.get(i);\\n        }\\n        \\n        return s.length() - keep;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\\n#include <string>\\n#include <unordered_map>\\n#include <algorithm>\\n\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    int minimumDeletions(string s, int k) {\\n        // Count frequency of each character\\n        unordered_map<char, int> freqMap;\\n        for (char c : s) {\\n            freqMap[c]++;\\n        }\\n        \\n        // Extract frequencies\\n        vector<int> frequencies;\\n        for (auto& pair : freqMap) {\\n            frequencies.push_back(pair.second);\\n        }\\n        \\n        // Sort in descending order\\n        sort(frequencies.rbegin(), frequencies.rend());\\n        \\n        // Sum the top k frequencies\\n        int keep = 0;\\n        int limit = min((int)k, (int)frequencies.size());\\n        for (int i = 0; i < limit; i++) {\\n            keep += frequencies[i];\\n        }\\n        \\n        return s.length() - keep;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @param {number} k\\n * @return {number}\\n */\\nvar minimumDeletions = function(s, k) {\\n    // Count frequency of each character\\n    const freqMap = new Map();\\n    for (const char of s) {\\n        freqMap.set(char, (freqMap.get(char) || 0) + 1);\\n    }\\n    \\n    // Extract frequencies\\n    const frequencies = Array.from(freqMap.values());\\n    \\n    // Sort in descending order\\n    frequencies.sort((a, b) => b - a);\\n    \\n    // Sum the top k frequencies\\n    let keep = 0;\\n    const limit = Math.min(k, frequencies.length);\\n    for (let i = 0; i < limit; i++) {\\n        keep += frequencies[i];\\n    }\\n    \\n    return s.length - keep;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumDeletions(s: string, k: number): number {\\n    // Count frequency of each character\\n    const freqMap = new Map<string, number>();\\n    for (const char of s) {\\n        freqMap.set(char, (freqMap.get(char) || 0) + 1);\\n    }\\n    \\n    // Extract frequencies\\n    const frequencies: number[] = Array.from(freqMap.values());\\n    \\n    // Sort in descending order\\n    frequencies.sort((a, b) => b - a);\\n    \\n    // Sum the top k frequencies\\n    let keep: number = 0;\\n    const limit: number = Math.min(k, frequencies.length);\\n    for (let i = 0; i < limit; i++) {\\n        keep += frequencies[i];\\n    }\\n    \\n    return s.length - keep;\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(N + M log M), where N is the length of the string and M is the number of distinct characters (at most 26). Since M is constant, this is effectively O(N).
+- Space: O(M) to store the frequency map and list.
+- Notes: Sorting is very efficient here because the number of distinct characters is capped at 26.
+
+---
+## Bucket Sort (Counting)
+
+**Intuition**
+Since the input consists only of lowercase English letters, the number of distinct characters is small (26). However, the frequency of a character can be up to 10⁵. Instead of sorting the frequencies, we can use a "Bucket Sort" approach where we iterate through possible frequencies from high to low to greedily pick the most frequent characters.
+
+**Steps**
+- Count the frequency of each character using a fixed-size array of length 26.
+- Determine the maximum frequency present in the string.
+- Create a `bucket` array of size `max_freq + 1`, where `bucket[i]` stores the count of distinct characters that have a frequency of `i`.
+- Iterate from `max_freq` down to 0. For each frequency `i`, if we still need characters (i.e., `k &gt; 0`), we take characters from this bucket.
+- The total length kept is the sum of `i * count_taken` for each bucket.
+- Return `len(s) - total_kept`.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def minimumDeletions(self, s: str, k: int) -> int:\\n        # Count frequencies using a fixed array (26 lowercase letters)\\n        count = [0] * 26\\n        for char in s:\\n            count[ord(char) - ord(\\'a\\')] += 1\\n            \\n        # Filter out zero frequencies\\n        frequencies = [f for f in count if f > 0]\\n        \\n        # Find max frequency to size the bucket array\\n        max_freq = max(frequencies) if frequencies else 0\\n        \\n        # Bucket sort: bucket[i] = number of chars with frequency i\\n        bucket = [0] * (max_freq + 1)\\n        for f in frequencies:\\n            bucket[f] += 1\\n            \\n        # Greedily pick top k frequencies\\n        keep = 0\\n        chars_remaining = k\\n        \\n        for i in range(max_freq, -1, -1):\\n            if bucket[i] == 0:\\n                continue\\n            \\n            # We can take at most bucket[i] chars from this frequency level\\n            take = min(bucket[i], chars_remaining)\\n            keep += take * i\\n            chars_remaining -= take\\n            \\n            if chars_remaining == 0:\\n                break\\n                \\n        return len(s) - keep\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int minimumDeletions(String s, int k) {\\n        // Count frequencies using a fixed array\\n        int[] count = new int[26];\\n        for (char c : s.toCharArray()) {\\n            count[c - \\'a\\']++;\\n        }\\n        \\n        // Find max frequency\\n        int maxFreq = 0;\\n        for (int c : count) {\\n            maxFreq = Math.max(maxFreq, c);\\n        }\\n        \\n        // Bucket sort\\n        int[] bucket = new int[maxFreq + 1];\\n        for (int c : count) {\\n            if (c > 0) {\\n                bucket[c]++;\\n            }\\n        }\\n        \\n        // Greedily pick top k\\n        int keep = 0;\\n        int charsRemaining = k;\\n        \\n        for (int i = maxFreq; i >= 0; i--) {\\n            if (bucket[i] == 0) continue;\\n            \\n            int take = Math.min(bucket[i], charsRemaining);\\n            keep += take * i;\\n            charsRemaining -= take;\\n            \\n            if (charsRemaining == 0) break;\\n        }\\n        \\n        return s.length() - keep;\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\\n#include <string>\\n#include <algorithm>\\n\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    int minimumDeletions(string s, int k) {\\n        // Count frequencies\\n        int count[26] = {0};\\n        for (char c : s) {\\n            count[c - \\'a\\']++;\\n        }\\n        \\n        // Find max frequency\\n        int maxFreq = 0;\\n        for (int i = 0; i < 26; i++) {\\n            maxFreq = max(maxFreq, count[i]);\\n        }\\n        \\n        // Bucket sort\\n        vector<int> bucket(maxFreq + 1, 0);\\n        for (int i = 0; i < 26; i++) {\\n            if (count[i] > 0) {\\n                bucket[count[i]]++;\\n            }\\n        }\\n        \\n        // Greedily pick top k\\n        int keep = 0;\\n        int charsRemaining = k;\\n        \\n        for (int i = maxFreq; i >= 0; i--) {\\n            if (bucket[i] == 0) continue;\\n            \\n            int take = min(bucket[i], charsRemaining);\\n            keep += take * i;\\n            charsRemaining -= take;\\n            \\n            if (charsRemaining == 0) break;\\n        }\\n        \\n        return s.length() - keep;\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @param {number} k\\n * @return {number}\\n */\\nvar minimumDeletions = function(s, k) {\\n    // Count frequencies\\n    const count = new Array(26).fill(0);\\n    for (const char of s) {\\n        count[char.charCodeAt(0) - 97]++;\\n    }\\n    \\n    // Find max frequency\\n    let maxFreq = 0;\\n    for (let i = 0; i < 26; i++) {\\n        maxFreq = Math.max(maxFreq, count[i]);\\n    }\\n    \\n    // Bucket sort\\n    const bucket = new Array(maxFreq + 1).fill(0);\\n    for (let i = 0; i < 26; i++) {\\n        if (count[i] > 0) {\\n            bucket[count[i]]++;\\n        }\\n    }\\n    \\n    // Greedily pick top k\\n    let keep = 0;\\n    let charsRemaining = k;\\n    \\n    for (let i = maxFreq; i >= 0; i--) {\\n        if (bucket[i] === 0) continue;\\n        \\n        const take = Math.min(bucket[i], charsRemaining);\\n        keep += take * i;\\n        charsRemaining -= take;\\n        \\n        if (charsRemaining === 0) break;\\n    }\\n    \\n    return s.length - keep;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumDeletions(s: string, k: number): number {\\n    // Count frequencies\\n    const count: number[] = new Array(26).fill(0);\\n    for (const char of s) {\\n        count[char.charCodeAt(0) - 97]++;\\n    }\\n    \\n    // Find max frequency\\n    let maxFreq: number = 0;\\n    for (let i = 0; i < 26; i++) {\\n        maxFreq = Math.max(maxFreq, count[i]);\\n    }\\n    \\n    // Bucket sort\\n    const bucket: number[] = new Array(maxFreq + 1).fill(0);\\n    for (let i = 0; i < 26; i++) {\\n        if (count[i] > 0) {\\n            bucket[count[i]]++;\\n        }\\n    }\\n    \\n    // Greedily pick top k\\n    let keep: number = 0;\\n    let charsRemaining: number = k;\\n    \\n    for (let i = maxFreq; i >= 0; i--) {\\n        if (bucket[i] === 0) continue;\\n        \\n        const take: number = Math.min(bucket[i], charsRemaining);\\n        keep += take * i;\\n        charsRemaining -= take;\\n        \\n        if (charsRemaining === 0) break;\\n    }\\n    \\n    return s.length - keep;\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(N + M), where N is the length of the string and M is the maximum frequency of any character. Since M can be up to N, this is O(N).
+- Space: O(M) for the bucket array.
+- Notes: This approach avoids the logarithmic factor of sorting by iterating through the frequency range. It is particularly efficient if the frequency range is not significantly larger than the number of distinct characters.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Deletions for At Most K Distinct Characters Solutions","datePublished":"2024-03-11","description":"Find the minimum number of deletions required to make a string contain at most K distinct characters.","keywords":"LeetCode, Minimum Deletions for At Most K Distinct Characters, Easy, Hash Table, String, Greedy, Sorting, Counting"}).replace(/</g,'\u003c')}
+</script>
+

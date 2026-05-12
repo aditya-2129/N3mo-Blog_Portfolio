@@ -1,0 +1,131 @@
+---
+title: "Longer Contiguous Segments of Ones than Zeros"
+summary: "Check if the longest contiguous segment of 1s is strictly longer than the longest contiguous segment of 0s in a binary string."
+date: "Mar 07, 2026"
+tags:
+  - String
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.50% | **Paid:** No
+> **Topics:** String
+
+Given a binary string s, return true if the longest contiguous segment of 1's is strictly longer than the longest contiguous segment of 0's in s, or return false otherwise.
+
+For example, in s = "110100010", the longest contiguous segment of 1's has length 2, and the longest contiguous segment of 0's has length 3. So, we return false.
+
+- Examples
+- Constraints
+- [Single Pass](#single-pass)
+- [Split and Compare](#split-and-compare)
+- [Two Pass](#two-pass)
+
+## Examples
+
+```text
+Input: s = "1101"
+Output: true
+Explanation: The longest contiguous segment of 1's has length 2, and the longest contiguous segment of 0's has length 1.
+```
+
+```text
+Input: s = "111000"
+Output: false
+Explanation: The longest contiguous segment of 1's has length 3, and the longest contiguous segment of 0's has length 3.
+```
+
+```text
+Input: s = "110100010"
+Output: false
+Explanation: The longest contiguous segment of 1's has length 2, and the longest contiguous segment of 0's has length 3.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s[i] is either '0' or '1'.
+```
+
+---
+## Single Pass
+
+**Intuition**
+Traverse the string once while tracking the current run length of consecutive 1s and 0s, updating the maximum lengths seen so far.
+
+**Steps**
+- Initialize variables to track maximum and current run lengths for both 1s and 0s
+- Iterate through each character in the string
+- If character is '1', increment current 1s run and reset current 0s run, update max 1s
+- If character is '0', increment current 0s run and reset current 1s run, update max 0s
+- Return whether max 1s is strictly greater than max 0s
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkZeroOnes(self, s: str) -&gt; bool:\n        max_ones = max_zeros = 0\n        curr_ones = curr_zeros = 0\n        \n        for c in s:\n            if c == '1':\n                curr_ones += 1\n                curr_zeros = 0\n                max_ones = max(max_ones, curr_ones)\n            else:\n                curr_zeros += 1\n                curr_ones = 0\n                max_zeros = max(max_zeros, curr_zeros)\n        \n        return max_ones &gt; max_zeros" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkZeroOnes(String s) {\n        int maxOnes = 0, maxZeros = 0;\n        int currOnes = 0, currZeros = 0;\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == '1') {\n                currOnes++;\n                currZeros = 0;\n                maxOnes = Math.max(maxOnes, currOnes);\n            } else {\n                currZeros++;\n                currOnes = 0;\n                maxZeros = Math.max(maxZeros, currZeros);\n            }\n        }\n        \n        return maxOnes &gt; maxZeros;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkZeroOnes(string s) {\n        int maxOnes = 0, maxZeros = 0;\n        int currOnes = 0, currZeros = 0;\n        \n        for (char c : s) {\n            if (c == '1') {\n                currOnes++;\n                currZeros = 0;\n                maxOnes = max(maxOnes, currOnes);\n            } else {\n                currZeros++;\n                currOnes = 0;\n                maxZeros = max(maxZeros, currZeros);\n            }\n        }\n        \n        return maxOnes &gt; maxZeros;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar checkZeroOnes = function(s) {\n    let maxOnes = 0, maxZeros = 0;\n    let currOnes = 0, currZeros = 0;\n    \n    for (let c of s) {\n        if (c === '1') {\n            currOnes++;\n            currZeros = 0;\n            maxOnes = Math.max(maxOnes, currOnes);\n        } else {\n            currZeros++;\n            currOnes = 0;\n            maxZeros = Math.max(maxZeros, currZeros);\n        }\n    }\n    \n    return maxOnes &gt; maxZeros;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkZeroOnes(s: string): boolean {\n    let maxOnes = 0, maxZeros = 0;\n    let currOnes = 0, currZeros = 0;\n    \n    for (const c of s) {\n        if (c === '1') {\n            currOnes++;\n            currZeros = 0;\n            maxOnes = Math.max(maxOnes, currOnes);\n        } else {\n            currZeros++;\n            currOnes = 0;\n            maxZeros = Math.max(maxZeros, currZeros);\n        }\n    }\n    \n    return maxOnes &gt; maxZeros;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) only using constant extra space
+- Notes: Most efficient approach with single traversal
+
+---
+## Split and Compare
+
+**Intuition**
+Split the string by '0' to get all segments of 1s, and split by '1' to get all segments of 0s, then compare the maximum lengths.
+
+**Steps**
+- Split the string by '0' to get an array of 1s segments
+- Split the string by '1' to get an array of 0s segments
+- Find the maximum length among 1s segments
+- Find the maximum length among 0s segments
+- Return whether max 1s length is strictly greater than max 0s length
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkZeroOnes(self, s: str) -&gt; bool:\n        ones_segments = s.split('0')\n        zeros_segments = s.split('1')\n        \n        max_ones = max(len(seg) for seg in ones_segments) if ones_segments else 0\n        max_zeros = max(len(seg) for seg in zeros_segments) if zeros_segments else 0\n        \n        return max_ones &gt; max_zeros" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkZeroOnes(String s) {\n        String[] onesSegments = s.split(\"0\");\n        String[] zerosSegments = s.split(\"1\");\n        \n        int maxOnes = 0;\n        for (String seg : onesSegments) {\n            maxOnes = Math.max(maxOnes, seg.length());\n        }\n        \n        int maxZeros = 0;\n        for (String seg : zerosSegments) {\n            maxZeros = Math.max(maxZeros, seg.length());\n        }\n        \n        return maxOnes &gt; maxZeros;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkZeroOnes(string s) {\n        int maxOnes = 0, maxZeros = 0;\n        int curr = 0;\n        \n        for (int i = 0; i &lt;= s.length(); i++) {\n            if (i &lt; s.length() && s[i] == '1') {\n                curr++;\n            } else {\n                maxOnes = max(maxOnes, curr);\n                curr = 0;\n            }\n        }\n        \n        curr = 0;\n        for (int i = 0; i &lt;= s.length(); i++) {\n            if (i &lt; s.length() && s[i] == '0') {\n                curr++;\n            } else {\n                maxZeros = max(maxZeros, curr);\n                curr = 0;\n            }\n        }\n        \n        return maxOnes &gt; maxZeros;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar checkZeroOnes = function(s) {\n    const onesSegments = s.split('0');\n    const zerosSegments = s.split('1');\n    \n    const maxOnes = onesSegments.reduce((max, seg) =&gt; Math.max(max, seg.length), 0);\n    const maxZeros = zerosSegments.reduce((max, seg) =&gt; Math.max(max, seg.length), 0);\n    \n    return maxOnes &gt; maxZeros;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkZeroOnes(s: string): boolean {\n    const onesSegments: string[] = s.split('0');\n    const zerosSegments: string[] = s.split('1');\n    \n    const maxOnes: number = onesSegments.reduce((max: number, seg: string) =&gt; Math.max(max, seg.length), 0);\n    const maxZeros: number = zerosSegments.reduce((max: number, seg: string) =&gt; Math.max(max, seg.length), 0);\n    \n    return maxOnes &gt; maxZeros;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing split segments
+- Notes: More readable but uses extra space for split arrays
+
+---
+## Two Pass
+
+**Intuition**
+Make two separate passes through the string - first to find the longest segment of 1s, then to find the longest segment of 0s.
+
+**Steps**
+- Define a helper function to find the longest contiguous segment of a given character
+- First pass: find the longest segment of '1's
+- Second pass: find the longest segment of '0's
+- Return whether the longest 1s segment is strictly longer than the longest 0s segment
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkZeroOnes(self, s: str) -&gt; bool:\n        def max_segment(char):\n            max_len = 0\n            curr_len = 0\n            for c in s:\n                if c == char:\n                    curr_len += 1\n                    max_len = max(max_len, curr_len)\n                else:\n                    curr_len = 0\n            return max_len\n        \n        return max_segment('1') &gt; max_segment('0')" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkZeroOnes(String s) {\n        return maxSegment(s, '1') &gt; maxSegment(s, '0');\n    }\n    \n    private int maxSegment(String s, char target) {\n        int maxLen = 0, currLen = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s.charAt(i) == target) {\n                currLen++;\n                maxLen = Math.max(maxLen, currLen);\n            } else {\n                currLen = 0;\n            }\n        }\n        return maxLen;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkZeroOnes(string s) {\n        return maxSegment(s, '1') &gt; maxSegment(s, '0');\n    }\n    \nprivate:\n    int maxSegment(const string& s, char target) {\n        int maxLen = 0, currLen = 0;\n        for (char c : s) {\n            if (c == target) {\n                currLen++;\n                maxLen = max(maxLen, currLen);\n            } else {\n                currLen = 0;\n            }\n        }\n        return maxLen;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {boolean}\n */\nvar checkZeroOnes = function(s) {\n    const maxSegment = (target) =&gt; {\n        let maxLen = 0, currLen = 0;\n        for (const c of s) {\n            if (c === target) {\n                currLen++;\n                maxLen = Math.max(maxLen, currLen);\n            } else {\n                currLen = 0;\n            }\n        }\n        return maxLen;\n    };\n    \n    return maxSegment('1') &gt; maxSegment('0');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function checkZeroOnes(s: string): boolean {\n    const maxSegment = (target: string): number =&gt; {\n        let maxLen = 0, currLen = 0;\n        for (const c of s) {\n            if (c === target) {\n                currLen++;\n                maxLen = Math.max(maxLen, currLen);\n            } else {\n                currLen = 0;\n            }\n        }\n        return maxLen;\n    };\n    \n    return maxSegment('1') &gt; maxSegment('0');\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) only using constant extra space
+- Notes: Clean code with helper function, but traverses string twice
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longer Contiguous Segments of Ones than Zeros Solutions","datePublished":"2026-03-07","description":"Check if the longest contiguous segment of 1s is strictly longer than the longest contiguous segment of 0s in a binary string.","keywords":"LeetCode, Longer Contiguous Segments of Ones than Zeros, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach has O(n) time complexity where n is the length of the string, as we traverse the string exactly once."}},{"@type":"Question","name":"What is the space complexity of the Split and Compare approach?","acceptedAnswer":{"@type":"Answer","text":"The Split and Compare approach has O(n) space complexity because it creates arrays to store the split segments of the string."}},{"@type":"Question","name":"Which approach is the most efficient?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach is the most efficient with O(n) time and O(1) space, as it only requires one traversal through the string and uses constant extra space."}},{"@type":"Question","name":"What is the time complexity of the Two Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The Two Pass approach has O(n) time complexity where n is the length of the string, as we traverse the string twice (once for 1s and once for 0s)."}}]}).replace(/</g,'\u003c')}
+</script>

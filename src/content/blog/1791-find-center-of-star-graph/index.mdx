@@ -1,0 +1,126 @@
+---
+title: "Find Center of Star Graph"
+summary: "There is an undirected star graph consisting of n nodes labeled from 1 to n. Find the center node."
+date: "Apr 06, 2026"
+tags:
+  - Graph Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.60% | **Paid:** No
+> **Topics:** Graph Theory
+
+There is an undirected star graph consisting of n nodes labeled from 1 to n. A star graph is a graph where there is one center node and exactly n - 1 edges that connect the center node with every other node.
+
+You are given a 2D integer array edges where each edges[i] = [ui, vi] indicates that there is an edge between the nodes ui and vi.
+
+Return the center of the given star graph.
+
+- Examples
+- Constraints
+- [Comparison of First Two Edges](#comparison-of-first-two-edges)
+- [Frequency Counting](#frequency-counting)
+- [Degree Array](#degree-array)
+
+## Examples
+
+```text
+Input: edges = [[1,2],[2,3],[4,2]]
+Output: 2
+Explanation: As shown in the figure above, node 2 is connected to every other node, so 2 is the center.
+```
+
+```text
+Input: edges = [[1,2],[5,1],[1,3],[1,4]]
+Output: 1
+```
+
+## Constraints
+
+```text
+3 <= n <= 10⁵
+edges.length == n - 1
+edges[i].length == 2
+1 <= ui, vi <= n
+ui != vi
+The given edges represent a valid star graph.
+```
+
+---
+## Comparison of First Two Edges
+
+**Intuition**
+In a star graph, the center node is connected to all other nodes. This means the center node must appear in every single edge provided. Therefore, the center node must be present in both the first edge and the second edge. The intersection of the first two edges is the center.
+
+**Steps**
+- Check if the first node of the first edge (`edges[0][0]`) is present in the second edge (`edges[1]`).
+- If it is, return `edges[0][0]`.
+- Otherwise, the center must be the second node of the first edge (`edges[0][1]`), so return that.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findCenter(self, edges: List[List[int]]) -&gt; int:\n        # The center must be in the first edge.\n        # Check if the first node of the first edge is in the second edge.\n        if edges[0][0] == edges[1][0] or edges[0][0] == edges[1][1]:\n            return edges[0][0]\n        else:\n            return edges[0][1]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findCenter(int[][] edges) {\n        // Check if the first node of the first edge is in the second edge\n        if (edges[0][0] == edges[1][0] || edges[0][0] == edges[1][1]) {\n            return edges[0][0];\n        }\n        return edges[0][1];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findCenter(vector&lt;vector&lt;int&gt;&gt;& edges) {\n        // Check if the first node of the first edge is in the second edge\n        if (edges[0][0] == edges[1][0] || edges[0][0] == edges[1][1]) {\n            return edges[0][0];\n        }\n        return edges[0][1];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} edges\n * @return {number}\n */\nvar findCenter = function(edges) {\n    // Check if the first node of the first edge is in the second edge\n    if (edges[0][0] === edges[1][0] || edges[0][0] === edges[1][1]) {\n        return edges[0][0];\n    }\n    return edges[0][1];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findCenter(edges: number[][]): number {\n    // Check if the first node of the first edge is in the second edge\n    if (edges[0][0] === edges[1][0] || edges[0][0] === edges[1][1]) {\n        return edges[0][0];\n    }\n    return edges[0][1];\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: This is the optimal solution as it only inspects the first two edges regardless of input size.
+
+---
+## Frequency Counting
+
+**Intuition**
+We can count the frequency of each node appearing in the edge list. Since the center node is connected to all other n-1 nodes, it will appear exactly n-1 times in the list of edges. All other nodes appear exactly once.
+
+**Steps**
+- Initialize a hash map (or dictionary) to store node counts.
+- Iterate through all edges in the input list.
+- For each edge, increment the count for both nodes involved.
+- Iterate through the map and return the node that has a count greater than 1 (or specifically n-1).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def findCenter(self, edges: List[List[int]]) -&gt; int:\n        count = defaultdict(int)\n        for u, v in edges:\n            count[u] += 1\n            count[v] += 1\n            # Optimization: if any count reaches 2 (or &gt; 1), it's the center\n            # because in a star graph only the center appears more than once.\n            if count[u] &gt; 1:\n                return u\n            if count[v] &gt; 1:\n                return v\n        return -1" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int findCenter(int[][] edges) {\n        Map&lt;Integer, Integer&gt; count = new HashMap&lt;&gt;();\n        for (int[] edge : edges) {\n            int u = edge[0];\n            int v = edge[1];\n            count.put(u, count.getOrDefault(u, 0) + 1);\n            count.put(v, count.getOrDefault(v, 0) + 1);\n            \n            if (count.get(u) &gt; 1) return u;\n            if (count.get(v) &gt; 1) return v;\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findCenter(vector&lt;vector&lt;int&gt;&gt;& edges) {\n        unordered_map&lt;int, int&gt; count;\n        for (auto& edge : edges) {\n            int u = edge[0];\n            int v = edge[1];\n            count[u]++;\n            count[v]++;\n            if (count[u] &gt; 1) return u;\n            if (count[v] &gt; 1) return v;\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} edges\n * @return {number}\n */\nvar findCenter = function(edges) {\n    const count = new Map();\n    for (const [u, v] of edges) {\n        count.set(u, (count.get(u) || 0) + 1);\n        count.set(v, (count.get(v) || 0) + 1);\n        \n        if (count.get(u) &gt; 1) return u;\n        if (count.get(v) &gt; 1) return v;\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findCenter(edges: number[][]): number {\n    const count = new Map&lt;number, number&gt;();\n    for (const [u, v] of edges) {\n        count.set(u, (count.get(u) || 0) + 1);\n        count.set(v, (count.get(v) || 0) + 1);\n        \n        if (count.get(u)! &gt; 1) return u;\n        if (count.get(v)! &gt; 1) return v;\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(E), where E is the number of edges (n-1).
+- Space: O(N), to store the frequency counts.
+- Notes: While correct, this uses extra memory compared to the constant-time approach.
+
+---
+## Degree Array
+
+**Intuition**
+Since the nodes are labeled from 1 to n, we can use an array instead of a hash map to count the degrees (number of connections) of each node. This is often faster than a hash map due to better cache locality and lack of hashing overhead.
+
+**Steps**
+- Determine the number of nodes `n` based on the number of edges (n = edges.length + 1).
+- Initialize an integer array `degree` of size n + 1 with zeros.
+- Iterate through the edges and increment the degree for both nodes of each edge.
+- Iterate through the degree array and return the index `i` where `degree[i]` is greater than 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findCenter(self, edges: List[List[int]]) -&gt; int:\n        # n is edges.length + 1\n        n = len(edges) + 1\n        degree = [0] * (n + 1)\n        \n        for u, v in edges:\n            degree[u] += 1\n            degree[v] += 1\n            # Early exit optimization\n            if degree[u] &gt; 1:\n                return u\n            if degree[v] &gt; 1:\n                return v\n                \n        return -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findCenter(int[][] edges) {\n        int n = edges.length + 1;\n        int[] degree = new int[n + 1];\n        \n        for (int[] edge : edges) {\n            int u = edge[0];\n            int v = edge[1];\n            degree[u]++;\n            degree[v]++;\n            \n            if (degree[u] &gt; 1) return u;\n            if (degree[v] &gt; 1) return v;\n        }\n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int findCenter(vector&lt;vector&lt;int&gt;&gt;& edges) {\n        int n = edges.size() + 1;\n        vector&lt;int&gt; degree(n + 1, 0);\n        \n        for (auto& edge : edges) {\n            int u = edge[0];\n            int v = edge[1];\n            degree[u]++;\n            degree[v]++;\n            if (degree[u] &gt; 1) return u;\n            if (degree[v] &gt; 1) return v;\n        }\n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} edges\n * @return {number}\n */\nvar findCenter = function(edges) {\n    const n = edges.length + 1;\n    const degree = new Array(n + 1).fill(0);\n    \n    for (const [u, v] of edges) {\n        degree[u]++;\n        degree[v]++;\n        if (degree[u] &gt; 1) return u;\n        if (degree[v] &gt; 1) return v;\n    }\n    return -1;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findCenter(edges: number[][]): number {\n    const n = edges.length + 1;\n    const degree: number[] = new Array(n + 1).fill(0);\n    \n    for (const [u, v] of edges) {\n        degree[u]++;\n        degree[v]++;\n        if (degree[u] &gt; 1) return u;\n        if (degree[v] &gt; 1) return v;\n    }\n    return -1;\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes.
+- Space: O(N), to store the degree array.
+- Notes: This approach is generally faster than hash maps for integer keys but uses more space than the O(1) comparison approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Center of Star Graph Solutions","datePublished":"2026-04-06","description":"There is an undirected star graph consisting of n nodes labeled from 1 to n. Find the center node.","keywords":"LeetCode, Find Center of Star Graph, Easy, Graph Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Comparison of First Two Edges approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1), as it only checks the first two edges."}},{"@type":"Question","name":"What is the space complexity of the Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the frequency counts of the nodes."}},{"@type":"Question","name":"Why does the center node appear in the first two edges?","acceptedAnswer":{"@type":"Answer","text":"In a star graph, the center node is connected to every other node. Therefore, it must be part of every edge, including the first two."}}]}).replace(/</g,'\u003c')}
+</script>

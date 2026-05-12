@@ -1,0 +1,125 @@
+---
+title: "Find Special Substring of Length K"
+summary: "Count the number of substrings of length k where all characters are identical."
+date: "Mar 24, 2026"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 35.20% | **Paid:** No
+> **Topics:** String
+
+You are given a string `s` and an integer `k`. A substring is called special if all characters in the substring are the same. Return the number of special substrings of length `k` in `s`.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Linear Scan](#linear-scan)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "aaabaaa", k = 3
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+The substring s[4..6] == "aaa" satisfies the conditions.
+
+It has a length of 3.
+
+All characters are the same.
+
+The character before "aaa" is 'b', which is different from 'a'.
+
+There is no character after "aaa".
+
+### Example 2
+
+**Input:**
+```text
+s = "abc", k = 2
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+There is no substring of length 2 that consists of one distinct character and satisfies the conditions.
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+1 <= k <= s.length
+s consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can iterate through every possible starting index for a substring of length `k` and check if all characters in that window are identical.
+
+**Steps**
+- Iterate `i` from `0` to `len(s) - k`.
+- For each `i`, extract the substring `s[i : i+k]`.
+- Check if the set of characters in this substring has a size of 1.
+- If yes, increment the count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countSpecialSubstrings(self, s: str, k: int) -&gt; int:\n        n = len(s)\n        count = 0\n        for i in range(n - k + 1):\n            # Check if all characters in the window are the same\n            if len(set(s[i:i+k])) == 1:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countSpecialSubstrings(String s, int k) {\n        int n = s.length();\n        int count = 0;\n        for (int i = 0; i &lt;= n - k; i++) {\n            boolean isSpecial = true;\n            char firstChar = s.charAt(i);\n            for (int j = 1; j &lt; k; j++) {\n                if (s.charAt(i + j) != firstChar) {\n                    isSpecial = false;\n                    break;\n                }\n            }\n            if (isSpecial) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countSpecialSubstrings(string s, int k) {\n        int n = s.length();\n        int count = 0;\n        for (int i = 0; i &lt;= n - k; ++i) {\n            bool isSpecial = true;\n            char firstChar = s[i];\n            for (int j = 1; j &lt; k; ++j) {\n                if (s[i + j] != firstChar) {\n                    isSpecial = false;\n                    break;\n                }\n            }\n            if (isSpecial) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {number} k\n * @return {number}\n */\nvar countSpecialSubstrings = function(s, k) {\n    let n = s.length;\n    let count = 0;\n    for (let i = 0; i &lt;= n - k; i++) {\n        let isSpecial = true;\n        let firstChar = s[i];\n        for (let j = 1; j &lt; k; j++) {\n            if (s[i + j] !== firstChar) {\n                isSpecial = false;\n                break;\n            }\n        }\n        if (isSpecial) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countSpecialSubstrings(s: string, k: number): number {\n    let n = s.length;\n    let count = 0;\n    for (let i = 0; i &lt;= n - k; i++) {\n        let isSpecial = true;\n        let firstChar = s[i];\n        for (let j = 1; j &lt; k; j++) {\n            if (s[i + j] !== firstChar) {\n                isSpecial = false;\n                break;\n            }\n        }\n        if (isSpecial) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n * k), where n is the length of the string. In the worst case, we check k characters for each of the n starting positions.
+- Space: O(1) or O(k) depending on how the substring check is implemented (e.g., creating a set takes O(k) space).
+- Notes: This approach is simple but may be too slow for large inputs (n up to 10⁵) if k is also large.
+
+---
+## Linear Scan
+
+**Intuition**
+Instead of checking every window, we can identify contiguous blocks of identical characters. For a block of length `L`, the number of substrings of length `k` that fit entirely within this block is `L - k + 1` (if `L &gt;= k`).
+
+**Steps**
+- Initialize a pointer `i` to 0.
+- While `i` is less than the length of `s`:
+    - Expand a window starting at `i` as long as the characters are the same. Let `j` be the end of this window.
+    - Calculate the length of the block: `length = j - i`.
+    - If `length &gt;= k`, add `length - k + 1` to the result.
+    - Move `i` to `j` to start the next block.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countSpecialSubstrings(self, s: str, k: int) -&gt; int:\n        n = len(s)\n        res = 0\n        i = 0\n        while i &lt; n:\n            j = i\n            # Expand the window while characters are the same\n            while j &lt; n and s[j] == s[i]:\n                j += 1\n            length = j - i\n            # Calculate number of valid substrings in this block\n            if length &gt;= k:\n                res += length - k + 1\n            i = j\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countSpecialSubstrings(String s, int k) {\n        int n = s.length();\n        int res = 0;\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            // Expand the window while characters are the same\n            while (j &lt; n && s.charAt(j) == s.charAt(i)) {\n                j++;\n            }\n            int length = j - i;\n            // Calculate number of valid substrings in this block\n            if (length &gt;= k) {\n                res += length - k + 1;\n            }\n            i = j;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countSpecialSubstrings(string s, int k) {\n        int n = s.size();\n        int res = 0;\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            // Expand the window while characters are the same\n            while (j &lt; n && s[j] == s[i]) {\n                j++;\n            }\n            int length = j - i;\n            // Calculate number of valid substrings in this block\n            if (length &gt;= k) {\n                res += length - k + 1;\n            }\n            i = j;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {number} k\n * @return {number}\n */\nvar countSpecialSubstrings = function(s, k) {\n    let n = s.length;\n    let res = 0;\n    let i = 0;\n    while (i &lt; n) {\n        let j = i;\n        // Expand the window while characters are the same\n        while (j &lt; n && s[j] === s[i]) {\n            j++;\n        }\n        let length = j - i;\n        // Calculate number of valid substrings in this block\n        if (length &gt;= k) {\n            res += length - k + 1;\n        }\n        i = j;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countSpecialSubstrings(s: string, k: number): number {\n    let n = s.length;\n    let res = 0;\n    let i = 0;\n    while (i &lt; n) {\n        let j = i;\n        // Expand the window while characters are the same\n        while (j &lt; n && s[j] === s[i]) {\n            j++;\n        }\n        let length = j - i;\n        // Calculate number of valid substrings in this block\n        if (length &gt;= k) {\n            res += length - k + 1;\n        }\n        i = j;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string exactly once.
+- Space: O(1), we only use a few variables for pointers and counters.
+- Notes: This is the optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Special Substring of Length K Solutions","datePublished":"2026-03-24","description":"Count the number of substrings of length k where all characters are identical.","keywords":"LeetCode, Find Special Substring of Length K, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * k), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as it uses a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

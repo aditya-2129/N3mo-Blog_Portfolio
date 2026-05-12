@@ -1,0 +1,137 @@
+---
+title: "Delete Characters to Make Fancy String"
+summary: "Delete minimum characters from a string so no three consecutive characters are equal."
+date: "May 24, 2025"
+tags:
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.10% | **Paid:** No
+> **Topics:** String
+
+A fancy string is a string where no three consecutive characters are equal.
+
+Given a string s, delete the minimum possible number of characters from s to make it fancy.
+
+Return the final string after the deletion. It can be shown that the answer is unique.
+
+- Examples
+- Constraints
+- [Iterative String Building](#iterative-string-building)
+- [In-place Modification](#in-place-modification)
+- [Regular Expression](#regular-expression)
+
+## Examples
+
+```text
+Input: s = "leeetcode"
+Output: "leetcode"
+Explanation: Remove an 'e' from the first group of "ee" to get "leetcode".
+There are no more than two consecutive characters that are equal, so the answer is "leetcode".
+```
+
+```text
+Input: s = "aaabaaaa"
+Output: "aabaa"
+Explanation: Remove an 'a' from the first group of "aaa" to get "aabaaaa".
+Remove two 'a's from the second group of "aaaa" to get "aabaa".
+There are no more than two consecutive characters that are equal, so the answer is "aabaa".
+```
+
+```text
+Input: s = "aab"
+Output: "aab"
+Explanation: No three consecutive characters are equal, so no characters need to be removed.
+The answer is "aab".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s consists only of lowercase English letters.
+```
+
+---
+## Iterative String Building
+
+**Intuition**
+Build a new string character by character, checking if adding the current character would create three consecutive identical characters.
+
+**Steps**
+- Initialize an empty result list/array
+- Iterate through each character in the input string
+- For each character, check if the last two characters in the result are the same as the current character
+- If yes, skip this character; otherwise, append it to the result
+- Return the joined result string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def makeFancyString(self, s: str) -&gt; str:\n        result = []\n        for c in s:\n            if len(result) &gt;= 2 and result[-1] == c and result[-2] == c:\n                continue\n            result.append(c)\n        return ''.join(result)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String makeFancyString(String s) {\n        StringBuilder result = new StringBuilder();\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            int len = result.length();\n            if (len &gt;= 2 && result.charAt(len - 1) == c && result.charAt(len - 2) == c) {\n                continue;\n            }\n            result.append(c);\n        }\n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string makeFancyString(string s) {\n        string result;\n        for (char c : s) {\n            int len = result.length();\n            if (len &gt;= 2 && result[len - 1] == c && result[len - 2] == c) {\n                continue;\n            }\n            result += c;\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    makeFancyString(s) {\n        let result = [];\n        for (let c of s) {\n            if (result.length &gt;= 2 && result[result.length - 1] === c && result[result.length - 2] === c) {\n                continue;\n            }\n            result.push(c);\n        }\n        return result.join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    makeFancyString(s: string): string {\n        let result: string[] = [];\n        for (let c of s) {\n            if (result.length &gt;= 2 && result[result.length - 1] === c && result[result.length - 2] === c) {\n                continue;\n            }\n            result.push(c);\n        }\n        return result.join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Simple and efficient approach with clear logic
+
+---
+## In-place Modification
+
+**Intuition**
+Modify the string in-place by tracking the write position and checking for three consecutive characters, avoiding extra space for a new string.
+
+**Steps**
+- Handle edge case where string length is less than 3
+- Convert string to a mutable array if needed
+- Use a write pointer starting at index 2
+- For each character from index 2 onwards, check if it differs from either of the previous two written characters
+- If different, write it at the write pointer and increment
+- Return the substring up to the write pointer
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def makeFancyString(self, s: str) -&gt; str:\n        if len(s) &lt; 3:\n            return s\n        result = list(s)\n        write = 2\n        for i in range(2, len(s)):\n            if result[i] != result[write - 1] or result[i] != result[write - 2]:\n                result[write] = result[i]\n                write += 1\n        return ''.join(result[:write])" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String makeFancyString(String s) {\n        if (s.length() &lt; 3) {\n            return s;\n        }\n        char[] result = s.toCharArray();\n        int write = 2;\n        for (int i = 2; i &lt; s.length(); i++) {\n            if (result[i] != result[write - 1] || result[i] != result[write - 2]) {\n                result[write] = result[i];\n                write++;\n            }\n        }\n        return new String(result, 0, write);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string makeFancyString(string s) {\n        if (s.length() &lt; 3) {\n            return s;\n        }\n        int write = 2;\n        for (int i = 2; i &lt; s.length(); i++) {\n            if (s[i] != s[write - 1] || s[i] != s[write - 2]) {\n                s[write] = s[i];\n                write++;\n            }\n        }\n        return s.substr(0, write);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    makeFancyString(s) {\n        if (s.length &lt; 3) {\n            return s;\n        }\n        let result = s.split('');\n        let write = 2;\n        for (let i = 2; i &lt; s.length; i++) {\n            if (result[i] !== result[write - 1] || result[i] !== result[write - 2]) {\n                result[write] = result[i];\n                write++;\n            }\n        }\n        return result.slice(0, write).join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    makeFancyString(s: string): string {\n        if (s.length &lt; 3) {\n            return s;\n        }\n        let result: string[] = s.split('');\n        let write: number = 2;\n        for (let i: number = 2; i &lt; s.length; i++) {\n            if (result[i] !== result[write - 1] || result[i] !== result[write - 2]) {\n                result[write] = result[i];\n                write++;\n            }\n        }\n        return result.slice(0, write).join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array (O(1) extra space in C++ where strings are mutable)
+- Notes: More memory efficient in languages with mutable strings
+
+---
+## Regular Expression
+
+**Intuition**
+Use regex pattern matching to find and replace sequences of three or more consecutive identical characters with just two of them.
+
+**Steps**
+- Define a regex pattern that matches any character followed by itself two or more times
+- Replace each match with just two instances of that character
+- Return the resulting string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def makeFancyString(self, s: str) -&gt; str:\n        return re.sub(r'(.)\\1\\1+', r'\\1\\1', s)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String makeFancyString(String s) {\n        return s.replaceAll(\"(.)\\\\1\\\\1+\", \"$1$1\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    string makeFancyString(string s) {\n        std::regex pattern(\"(.)\\\\1\\\\1+\");\n        return std::regex_replace(s, pattern, \"$1$1\");\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    makeFancyString(s) {\n        return s.replace(/(.)\\1\\1+/g, '$1$1');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    makeFancyString(s: string): string {\n        return s.replace(/(.)\\1\\1+/g, '$1$1');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Very concise one-liner solution but may have higher constant factors due to regex engine overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Delete Characters to Make Fancy String Solutions","datePublished":"2025-05-24","description":"Delete minimum characters from a string so no three consecutive characters are equal.","keywords":"LeetCode, Delete Characters to Make Fancy String, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative String Building approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string, as we iterate through each character exactly once."}},{"@type":"Question","name":"What is the space complexity of the In-place Modification approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the character array in most languages, but O(1) extra space in C++ where strings are mutable."}},{"@type":"Question","name":"How does the Regular Expression approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses regex pattern (.)\\1\\1+ to match any character followed by itself two or more times, then replaces each match with just two instances of that character."}},{"@type":"Question","name":"What is the maximum length of the input string?","acceptedAnswer":{"@type":"Answer","text":"The input string length can be up to 10⁵ characters."}}]}).replace(/</g,'\u003c')}
+</script>

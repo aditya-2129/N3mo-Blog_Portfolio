@@ -1,0 +1,327 @@
+---
+title: "Number of Good Pairs"
+summary: "Count pairs of indices where nums[i] equals nums[j] and i is less than j."
+date: "Apr 29, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Math
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Math, Counting
+
+Given an array of integers nums, a pair (i, j) is called good if nums[i] == nums[j] and i &lt; j.
+
+Return the number of good pairs.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map Counting](#hash-map-counting)
+- [Mathematical Formula](#mathematical-formula)
+
+## Examples
+
+```text
+Input: nums = [1,2,3,1,1,3]
+Output: 4
+Explanation: There are 4 good pairs (0,3), (0,4), (3,4), (2,5) 0-indexed.
+```
+
+```text
+Input: nums = [1,1,1,1]
+Output: 6
+Explanation: Each pair (i,j) with i < j is a good pair.
+```
+
+```text
+Input: nums = [1,2,3]
+Output: 0
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair of indices and count those where values match and the first index is smaller.
+
+**Steps**
+- Initialize count to 0
+- Use nested loops to compare each element with all elements after it
+- Increment count when values match
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        count = 0
+        n = len(nums)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if nums[i] == nums[j]:
+                    count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        int count = 0;
+        int n = nums.length;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[i] == nums[j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        int count = 0;
+        int n = nums.size();
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[i] == nums[j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var numIdenticalPairs = function(nums) {
+    let count = 0;
+    const n = nums.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (nums[i] === nums[j]) {
+                count++;
+            }
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numIdenticalPairs(nums: number[]): number {
+    let count = 0;
+    const n = nums.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (nums[i] === nums[j]) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple but inefficient for large arrays
+
+---
+## Hash Map Counting
+
+**Intuition**
+Track the frequency of each number seen so far. Each time we encounter a number, it forms good pairs with all previous occurrences of that number.
+
+**Steps**
+- Create a hash map to store frequency of each number
+- For each number in the array, add its current frequency to the count
+- Increment the frequency in the map
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        count = 0
+        freq = {}
+        for num in nums:
+            if num in freq:
+                count += freq[num]
+                freq[num] += 1
+            else:
+                freq[num] = 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        int count = 0;
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            if (freq.containsKey(num)) {
+                count += freq.get(num);
+                freq.put(num, freq.get(num) + 1);
+            } else {
+                freq.put(num, 1);
+            }
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        int count = 0;
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            if (freq.find(num) != freq.end()) {
+                count += freq[num];
+                freq[num]++;
+            } else {
+                freq[num] = 1;
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var numIdenticalPairs = function(nums) {
+    let count = 0;
+    const freq = new Map();
+    for (const num of nums) {
+        if (freq.has(num)) {
+            count += freq.get(num);
+            freq.set(num, freq.get(num) + 1);
+        } else {
+            freq.set(num, 1);
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numIdenticalPairs(nums: number[]): number {
+    let count = 0;
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        if (freq.has(num)) {
+            count += freq.get(num)!;
+            freq.set(num, freq.get(num)! + 1);
+        } else {
+            freq.set(num, 1);
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Optimal single-pass solution
+
+---
+## Mathematical Formula
+
+**Intuition**
+If a number appears k times, it contributes k*(k-1)/2 good pairs (combination formula C(k,2)). Sum this for all unique numbers.
+
+**Steps**
+- Count frequency of each number using a hash map
+- For each frequency value, compute pairs using formula k*(k-1)/2
+- Sum all pairs to get the total
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        from collections import Counter
+        freq = Counter(nums)
+        count = 0
+        for v in freq.values():
+            count += v * (v - 1) // 2
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        int count = 0;
+        for (int v : freq.values()) {
+            count += v * (v - 1) / 2;
+        }
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        int count = 0;
+        for (auto& p : freq) {
+            int v = p.second;
+            count += v * (v - 1) / 2;
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var numIdenticalPairs = function(nums) {
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    let count = 0;
+    for (const v of freq.values()) {
+        count += v * (v - 1) / 2;
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numIdenticalPairs(nums: number[]): number {
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    let count = 0;
+    for (const v of freq.values()) {
+        count += v * (v - 1) / 2;
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Elegant mathematical approach, same complexity as hash map counting
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Good Pairs Solutions","datePublished":"2025-04-29","description":"Count pairs of indices where nums[i] equals nums[j] and i is less than j.","keywords":"LeetCode, Number of Good Pairs, Easy, Array, Hash Table, Math, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(n²) time complexity as it checks all possible pairs of elements."}},{"@type":"Question","name":"What is the time complexity of the Hash Map Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map Counting approach has O(n) time complexity as it processes each element exactly once."}},{"@type":"Question","name":"What is the space complexity of the optimal solutions?","acceptedAnswer":{"@type":"Answer","text":"The optimal solutions (Hash Map Counting and Mathematical Formula) have O(n) space complexity to store the frequency of each unique number."}},{"@type":"Question","name":"How does the mathematical formula work?","acceptedAnswer":{"@type":"Answer","text":"If a number appears k times, it forms C(k,2) = k*(k-1)/2 good pairs. We sum this for all unique numbers in the array."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,152 @@
+---
+title: "Minimum Distance Between BST Nodes"
+summary: "Find the minimum absolute difference between values of any two nodes in a Binary Search Tree."
+date: "Jul 16, 2025"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Search Tree
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.30% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Search Tree, Binary Tree
+
+Given the root of a Binary Search Tree (BST), return the minimum difference between the values of any two different nodes in the tree.
+
+## Examples
+
+### Example 1:
+```text
+Input: root = [4,2,6,1,3]
+Output: 1
+Explanation:
+The minimum difference is 1, which is the difference between node 2 and node 3 (or node 3 and node 2).
+```
+
+### Example 2:
+```text
+Input: root = [1,0,48,null,null,12,49]
+Output: 1
+Explanation:
+The minimum difference is 1, which is the difference between node 48 and node 49 (or node 49 and node 48).
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [2, 100].
+0 <= Node.val <= 10^5
+```
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [In-order Traversal with Array](#in-order-traversal-with-array)
+- [In-order Traversal with Previous Node](#in-order-traversal-with-previous-node)
+- [Iterative In-order Traversal](#iterative-in-order-traversal)
+- [Morris Traversal](#morris-traversal)
+
+## In-order Traversal with Array
+
+**Intuition**
+In a BST, an in-order traversal produces values in sorted order. The minimum difference between any two nodes must be between adjacent elements in this sorted sequence.
+
+**Steps**
+- Perform in-order traversal to collect all node values in an array
+- Iterate through the array to find the minimum difference between adjacent elements
+- Return the minimum difference found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\n# class TreeNode:\n#     def __init__(self, val=0, left=None, right=None):\n#         self.val = val\n#         self.left = left\n#         self.right = right\nclass Solution:\n    def minDiffInBST(self, root: Optional[TreeNode]) -> int:\n        values = []\n        \n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            values.append(node.val)\n            inorder(node.right)\n        \n        inorder(root)\n        \n        min_diff = float('inf')\n        for i in range(1, len(values)):\n            min_diff = min(min_diff, values[i] - values[i - 1])\n        \n        return min_diff" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    private List<Integer> values = new ArrayList<>();\n    \n    public int minDiffInBST(TreeNode root) {\n        inorder(root);\n        int minDiff = Integer.MAX_VALUE;\n        for (int i = 1; i < values.size(); i++) {\n            minDiff = Math.min(minDiff, values.get(i) - values.get(i - 1));\n        }\n        return minDiff;\n    }\n    \n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n        values.add(node.val);\n        inorder(node.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    vector<int> values;\n    \n    int minDiffInBST(TreeNode* root) {\n        inorder(root);\n        int minDiff = INT_MAX;\n        for (int i = 1; i < values.size(); i++) {\n            minDiff = min(minDiff, values[i] - values[i - 1]);\n        }\n        return minDiff;\n    }\n    \n    void inorder(TreeNode* node) {\n        if (!node) return;\n        inorder(node->left);\n        values.push_back(node->val);\n        inorder(node->right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar minDiffInBST = function(root) {\n    const values = [];\n    \n    function inorder(node) {\n        if (!node) return;\n        inorder(node.left);\n        values.push(node.val);\n        inorder(node.right);\n    }\n    \n    inorder(root);\n    \n    let minDiff = Infinity;\n    for (let i = 1; i < values.length; i++) {\n        minDiff = Math.min(minDiff, values[i] - values[i - 1]);\n    }\n    \n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction minDiffInBST(root: TreeNode | null): number {\n    const values: number[] = [];\n    \n    function inorder(node: TreeNode | null): void {\n        if (!node) return;\n        inorder(node.left);\n        values.push(node.val);\n        inorder(node.right);\n    }\n    \n    inorder(root);\n    \n    let minDiff = Infinity;\n    for (let i = 1; i < values.length; i++) {\n        minDiff = Math.min(minDiff, values[i] - values[i - 1]);\n    }\n    \n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(n) for storing all values in the array
+- Notes: Simple and intuitive, but uses extra space for the array
+
+## In-order Traversal with Previous Node
+
+**Intuition**
+Instead of storing all values, we can track the previous node during in-order traversal and calculate the difference on the fly, reducing space complexity.
+
+**Steps**
+- Initialize a variable to track the previous node value
+- Perform in-order traversal
+- At each node, calculate the difference with the previous node and update the minimum
+- Update the previous node to the current node
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\n# class TreeNode:\n#     def __init__(self, val=0, left=None, right=None):\n#         self.val = val\n#         self.left = left\n#         self.right = right\nclass Solution:\n    def minDiffInBST(self, root: Optional[TreeNode]) -> int:\n        self.min_diff = float('inf')\n        self.prev = None\n        \n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            if self.prev is not None:\n                self.min_diff = min(self.min_diff, node.val - self.prev)\n            self.prev = node.val\n            inorder(node.right)\n        \n        inorder(root)\n        return self.min_diff" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    private int minDiff = Integer.MAX_VALUE;\n    private Integer prev = null;\n    \n    public int minDiffInBST(TreeNode root) {\n        inorder(root);\n        return minDiff;\n    }\n    \n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n        if (prev != null) {\n            minDiff = Math.min(minDiff, node.val - prev);\n        }\n        prev = node.val;\n        inorder(node.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int minDiff = INT_MAX;\n    int prevVal;\n    bool hasPrev = false;\n    \n    int minDiffInBST(TreeNode* root) {\n        inorder(root);\n        return minDiff;\n    }\n    \n    void inorder(TreeNode* node) {\n        if (!node) return;\n        inorder(node->left);\n        if (hasPrev) {\n            minDiff = min(minDiff, node->val - prevVal);\n        }\n        prevVal = node->val;\n        hasPrev = true;\n        inorder(node->right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar minDiffInBST = function(root) {\n    let minDiff = Infinity;\n    let prev = null;\n    \n    function inorder(node) {\n        if (!node) return;\n        inorder(node.left);\n        if (prev !== null) {\n            minDiff = Math.min(minDiff, node.val - prev);\n        }\n        prev = node.val;\n        inorder(node.right);\n    }\n    \n    inorder(root);\n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction minDiffInBST(root: TreeNode | null): number {\n    let minDiff = Infinity;\n    let prev: number | null = null;\n    \n    function inorder(node: TreeNode | null): void {\n        if (!node) return;\n        inorder(node.left);\n        if (prev !== null) {\n            minDiff = Math.min(minDiff, node.val - prev);\n        }\n        prev = node.val;\n        inorder(node.right);\n    }\n    \n    inorder(root);\n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree (recursion stack)
+- Notes: Optimal space complexity for recursive approach
+
+## Iterative In-order Traversal
+
+**Intuition**
+Use an explicit stack to perform in-order traversal iteratively, avoiding recursion stack overhead.
+
+**Steps**
+- Initialize a stack and current pointer to root
+- While stack is not empty or current is not null:
+  - Push all left children to stack
+  - Pop a node, process it (calculate difference with previous)
+  - Move to right child
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\n# class TreeNode:\n#     def __init__(self, val=0, left=None, right=None):\n#         self.val = val\n#         self.left = left\n#         self.right = right\nclass Solution:\n    def minDiffInBST(self, root: Optional[TreeNode]) -> int:\n        stack = []\n        curr = root\n        prev = None\n        min_diff = float('inf')\n        \n        while stack or curr:\n            while curr:\n                stack.append(curr)\n                curr = curr.left\n            \n            curr = stack.pop()\n            \n            if prev is not None:\n                min_diff = min(min_diff, curr.val - prev)\n            prev = curr.val\n            \n            curr = curr.right\n        \n        return min_diff" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    public int minDiffInBST(TreeNode root) {\n        Stack<TreeNode> stack = new Stack<>();\n        TreeNode curr = root;\n        Integer prev = null;\n        int minDiff = Integer.MAX_VALUE;\n        \n        while (!stack.isEmpty() || curr != null) {\n            while (curr != null) {\n                stack.push(curr);\n                curr = curr.left;\n            }\n            \n            curr = stack.pop();\n            \n            if (prev != null) {\n                minDiff = Math.min(minDiff, curr.val - prev);\n            }\n            prev = curr.val;\n            \n            curr = curr.right;\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int minDiffInBST(TreeNode* root) {\n        stack<TreeNode*> st;\n        TreeNode* curr = root;\n        int prevVal;\n        bool hasPrev = false;\n        int minDiff = INT_MAX;\n        \n        while (!st.empty() || curr != nullptr) {\n            while (curr != nullptr) {\n                st.push(curr);\n                curr = curr->left;\n            }\n            \n            curr = st.top();\n            st.pop();\n            \n            if (hasPrev) {\n                minDiff = min(minDiff, curr->val - prevVal);\n            }\n            prevVal = curr->val;\n            hasPrev = true;\n            \n            curr = curr->right;\n        }\n        \n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar minDiffInBST = function(root) {\n    const stack = [];\n    let curr = root;\n    let prev = null;\n    let minDiff = Infinity;\n    \n    while (stack.length > 0 || curr !== null) {\n        while (curr !== null) {\n            stack.push(curr);\n            curr = curr.left;\n        }\n        \n        curr = stack.pop();\n        \n        if (prev !== null) {\n            minDiff = Math.min(minDiff, curr.val - prev);\n        }\n        prev = curr.val;\n        \n        curr = curr.right;\n    }\n    \n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction minDiffInBST(root: TreeNode | null): number {\n    const stack: TreeNode[] = [];\n    let curr: TreeNode | null = root;\n    let prev: number | null = null;\n    let minDiff = Infinity;\n    \n    while (stack.length > 0 || curr !== null) {\n        while (curr !== null) {\n            stack.push(curr);\n            curr = curr.left;\n        }\n        \n        curr = stack.pop()!;\n        \n        if (prev !== null) {\n            minDiff = Math.min(minDiff, curr.val - prev);\n        }\n        prev = curr.val;\n        \n        curr = curr.right;\n    }\n    \n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree (stack space)
+- Notes: Avoids recursion, useful for very deep trees
+
+## Morris Traversal
+
+**Intuition**
+Morris traversal allows in-order traversal with O(1) extra space by temporarily modifying the tree structure.
+
+**Steps**
+- Initialize current pointer to root
+- While current is not null:
+  - If current has no left child, process current and move to right
+  - Otherwise, find the rightmost node in the left subtree
+  - If this node's right is null, make it point to current and move left
+  - If it already points to current, restore the tree, process current, and move right
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\n# class TreeNode:\n#     def __init__(self, val=0, left=None, right=None):\n#         self.val = val\n#         self.left = left\n#         self.right = right\nclass Solution:\n    def minDiffInBST(self, root: Optional[TreeNode]) -> int:\n        curr = root\n        prev = None\n        min_diff = float('inf')\n        \n        while curr:\n            if not curr.left:\n                if prev is not None:\n                    min_diff = min(min_diff, curr.val - prev)\n                prev = curr.val\n                curr = curr.right\n            else:\n                # Find the rightmost node in left subtree\n                pre = curr.left\n                while pre.right and pre.right != curr:\n                    pre = pre.right\n                \n                if not pre.right:\n                    pre.right = curr\n                    curr = curr.left\n                else:\n                    pre.right = None\n                    if prev is not None:\n                        min_diff = min(min_diff, curr.val - prev)\n                    prev = curr.val\n                    curr = curr.right\n        \n        return min_diff" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    public int minDiffInBST(TreeNode root) {\n        TreeNode curr = root;\n        Integer prev = null;\n        int minDiff = Integer.MAX_VALUE;\n        \n        while (curr != null) {\n            if (curr.left == null) {\n                if (prev != null) {\n                    minDiff = Math.min(minDiff, curr.val - prev);\n                }\n                prev = curr.val;\n                curr = curr.right;\n            } else {\n                TreeNode pre = curr.left;\n                while (pre.right != null && pre.right != curr) {\n                    pre = pre.right;\n                }\n                \n                if (pre.right == null) {\n                    pre.right = curr;\n                    curr = curr.left;\n                } else {\n                    pre.right = null;\n                    if (prev != null) {\n                        minDiff = Math.min(minDiff, curr.val - prev);\n                    }\n                    prev = curr.val;\n                    curr = curr.right;\n                }\n            }\n        }\n        \n        return minDiff;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int minDiffInBST(TreeNode* root) {\n        TreeNode* curr = root;\n        int prevVal;\n        bool hasPrev = false;\n        int minDiff = INT_MAX;\n        \n        while (curr != nullptr) {\n            if (curr->left == nullptr) {\n                if (hasPrev) {\n                    minDiff = min(minDiff, curr->val - prevVal);\n                }\n                prevVal = curr->val;\n                hasPrev = true;\n                curr = curr->right;\n            } else {\n                TreeNode* pre = curr->left;\n                while (pre->right != nullptr && pre->right != curr) {\n                    pre = pre->right;\n                }\n                \n                if (pre->right == nullptr) {\n                    pre->right = curr;\n                    curr = curr->left;\n                } else {\n                    pre->right = nullptr;\n                    if (hasPrev) {\n                        minDiff = min(minDiff, curr->val - prevVal);\n                    }\n                    prevVal = curr->val;\n                    hasPrev = true;\n                    curr = curr->right;\n                }\n            }\n        }\n        \n        return minDiff;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar minDiffInBST = function(root) {\n    let curr = root;\n    let prev = null;\n    let minDiff = Infinity;\n    \n    while (curr !== null) {\n        if (curr.left === null) {\n            if (prev !== null) {\n                minDiff = Math.min(minDiff, curr.val - prev);\n            }\n            prev = curr.val;\n            curr = curr.right;\n        } else {\n            let pre = curr.left;\n            while (pre.right !== null && pre.right !== curr) {\n                pre = pre.right;\n            }\n            \n            if (pre.right === null) {\n                pre.right = curr;\n                curr = curr.left;\n            } else {\n                pre.right = null;\n                if (prev !== null) {\n                    minDiff = Math.min(minDiff, curr.val - prev);\n                }\n                prev = curr.val;\n                curr = curr.right;\n            }\n        }\n    }\n    \n    return minDiff;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction minDiffInBST(root: TreeNode | null): number {\n    let curr: TreeNode | null = root;\n    let prev: number | null = null;\n    let minDiff = Infinity;\n    \n    while (curr !== null) {\n        if (curr.left === null) {\n            if (prev !== null) {\n                minDiff = Math.min(minDiff, curr.val - prev);\n            }\n            prev = curr.val;\n            curr = curr.right;\n        } else {\n            let pre: TreeNode | null = curr.left;\n            while (pre.right !== null && pre.right !== curr) {\n                pre = pre.right;\n            }\n            \n            if (pre.right === null) {\n                pre.right = curr;\n                curr = curr.left;\n            } else {\n                pre.right = null;\n                if (prev !== null) {\n                    minDiff = Math.min(minDiff, curr.val - prev);\n                }\n                prev = curr.val;\n                curr = curr.right;\n            }\n        }\n    }\n    \n    return minDiff;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(1) extra space (modifies tree temporarily)
+- Notes: Most space-efficient but modifies tree structure during traversal
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Distance Between BST Nodes Solutions","datePublished":"2025-07-16","description":"Find the minimum absolute difference between values of any two nodes in a Binary Search Tree.","keywords":"LeetCode, Minimum Distance Between BST Nodes, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Search Tree, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of In-order Traversal with Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of In-order Traversal with Previous Node approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(h) where h is the height of the tree, due to the recursion stack."}},{"@type":"Question","name":"What is the advantage of Morris Traversal?","acceptedAnswer":{"@type":"Answer","text":"Morris Traversal achieves O(1) extra space complexity by temporarily modifying the tree structure during traversal."}},{"@type":"Question","name":"Why does in-order traversal work for this problem?","acceptedAnswer":{"@type":"Answer","text":"In a BST, in-order traversal produces values in sorted order, so the minimum difference must be between adjacent elements in this sequence."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,111 @@
+---
+title: "Number of Students Doing Homework at a Given Time"
+summary: "Given start and end times for students' homework, count how many are working at a specific query time."
+date: "Jul 16, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.90% | **Paid:** No
+> **Topics:** Array
+
+Given two integer arrays startTime and endTime and an integer queryTime. The ith student started doing their homework at the time startTime[i] and finished it at time endTime[i].
+
+Return the number of students doing their homework at time queryTime. More formally, return the number of students where queryTime lays in the interval [startTime[i], endTime[i]] inclusive.
+
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Prefix Sum (Difference Array)](#prefix-sum-difference-array)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: startTime = [1,2,3], endTime = [3,2,7], queryTime = 4
+Output: 1
+Explanation: We have 3 students where:
+The first student started doing homework at time 1 and finished at time 3 and wasn't doing anything at time 4.
+The second student started doing homework at time 2 and finished at time 2 and wasn't doing anything at time 4.
+The third student started doing homework at time 3 and finished at time 7 and was the only student doing homework at time 4.
+```
+
+**Example 2:**
+
+```text
+Input: startTime = [4], endTime = [4], queryTime = 4
+Output: 1
+```
+
+## Constraints
+
+```text
+startTime.length == endTime.length
+1 <= startTime.length <= 100
+1 <= startTime[i] <= endTime[i] <= 1000
+1 <= queryTime <= 1000
+```
+
+---
+## Linear Scan
+
+**Intuition**
+The most straightforward way to solve this problem is to iterate through each student's time interval and check if the `queryTime` falls within that range.
+
+**Steps**
+- Initialize a counter variable to 0.
+- Iterate through the arrays `startTime` and `endTime` simultaneously.
+- For each student, check if `startTime[i] &lt;= queryTime` and `queryTime &lt;= endTime[i]`.
+- If the condition is true, increment the counter.
+- Return the counter after the loop finishes.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def busyStudent(self, startTime: List[int], endTime: List[int], queryTime: int) -> int:\n        count = 0\n        for s, e in zip(startTime, endTime):\n            if s <= queryTime <= e:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int busyStudent(int[] startTime, int[] endTime, int queryTime) {\n        int count = 0;\n        for (int i = 0; i < startTime.length; i++) {\n            if (startTime[i] <= queryTime && queryTime <= endTime[i]) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int busyStudent(vector<int>& startTime, vector<int>& endTime, int queryTime) {\n        int count = 0;\n        for (int i = 0; i < startTime.size(); i++) {\n            if (startTime[i] <= queryTime && queryTime <= endTime[i]) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {number[]} startTime\\n * @param {number[]} endTime\\n * @param {number} queryTime\\n * @return {number}\\n */\\nvar busyStudent = function(startTime, endTime, queryTime) {\\n    let count = 0;\\n    for (let i = 0; i < startTime.length; i++) {\\n        if (startTime[i] <= queryTime && queryTime <= endTime[i]) {\\n            count++;\\n        }\\n    }\\n    return count;\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function busyStudent(startTime: number[], endTime: number[], queryTime: number): number {\\n    let count = 0;\\n    for (let i = 0; i < startTime.length; i++) {\\n        if (startTime[i] <= queryTime && queryTime <= endTime[i]) {\\n            count++;\\n        }\\n    }\\n    return count;\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n), where n is the number of students. We iterate through the list once.
+- Space: O(1), we only use a constant amount of extra space for the counter.
+- Notes: This is the most optimal solution for general cases where time constraints are not bounded to a small range.
+
+---
+## Prefix Sum (Difference Array)
+
+**Intuition**
+Since the constraints specify that `startTime[i]` and `endTime[i]` are bounded by 1000, we can use a difference array (or prefix sum technique) to mark the start and end of each student's homework interval. This allows us to calculate the number of active students at any given time in O(1) lookup after O(n) preprocessing.
+
+**Steps**
+- Initialize an array `diff` of size 1002 (to accommodate `endTime + 1`) with zeros.
+- Iterate through the students. For each student, increment `diff[startTime[i]]` by 1 and decrement `diff[endTime[i] + 1]` by 1.
+- Compute the prefix sum of the `diff` array. The value at index `i` in the resulting array represents the number of students doing homework at time `i`.
+- Return the value at `diff[queryTime]`.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def busyStudent(self, startTime: List[int], endTime: List[int], queryTime: int) -> int:\n        # Constraints say max time is 1000, so we need size 1002 for end+1\n        diff = [0] * 1002\n        \n        for s, e in zip(startTime, endTime):\n            diff[s] += 1\n            diff[e + 1] -= 1\n            \n        # Calculate prefix sum up to queryTime\n        count = 0\n        for i in range(queryTime + 1):\n            count += diff[i]\n            \n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public int busyStudent(int[] startTime, int[] endTime, int queryTime) {\\n        int[] diff = new int[1002];\\n        \\n        for (int i = 0; i < startTime.length; i++) {\\n            diff[startTime[i]]++;\\n            diff[endTime[i] + 1]--;\\n        }\\n        \\n        int count = 0;\\n        for (int i = 0; i <= queryTime; i++) {\\n            count += diff[i];\\n        }\\n        \\n        return count;\\n    }\\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    int busyStudent(vector<int>& startTime, vector<int>& endTime, int queryTime) {\\n        vector<int> diff(1002, 0);\\n        \\n        for (int i = 0; i < startTime.size(); i++) {\\n            diff[startTime[i]]++;\\n            diff[endTime[i] + 1]--;\\n        }\\n        \\n        int count = 0;\\n        for (int i = 0; i <= queryTime; i++) {\\n            count += diff[i];\\n        }\\n        \\n        return count;\\n    }\\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {number[]} startTime\\n * @param {number[]} endTime\\n * @param {number} queryTime\\n * @return {number}\\n */\\nvar busyStudent = function(startTime, endTime, queryTime) {\\n    const diff = new Array(1002).fill(0);\\n    \\n    for (let i = 0; i < startTime.length; i++) {\\n        diff[startTime[i]]++;\\n        diff[endTime[i] + 1]--;\\n    }\\n    \\n    let count = 0;\\n    for (let i = 0; i <= queryTime; i++) {\\n        count += diff[i];\\n    }\\n    \\n    return count;\\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function busyStudent(startTime: number[], endTime: number[], queryTime: number): number {\\n    const diff: number[] = new Array(1002).fill(0);\\n    \\n    for (let i = 0; i < startTime.length; i++) {\\n        diff[startTime[i]]++;\\n        diff[endTime[i] + 1]--;\\n    }\\n    \\n    let count = 0;\\n    for (let i = 0; i <= queryTime; i++) {\\n        count += diff[i];\\n    }\\n    \\n    return count;\\n}" }
+]} />
+
+**Complexity**
+- Time: O(n + T), where n is the number of students and T is the maximum time value (1000). Since T is constant, this is effectively O(n).
+- Space: O(T), to store the difference array.
+- Notes: This approach is efficient if there are multiple queries for different times, as the prefix sum array can be built once and queried in O(1). For a single query, the Linear Scan approach is simpler and uses less memory.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Students Doing Homework at a Given Time Solutions","datePublished":"2025-07-16","description":"Given start and end times for students' homework, count how many are working at a specific query time.","keywords":"LeetCode, Number of Students Doing Homework at a Given Time, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of students."}},{"@type":"Question","name":"What is the space complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as we only use a single counter variable."}},{"@type":"Question","name":"When should you use the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The Prefix Sum approach is useful when the time range is small and bounded, or if you need to answer multiple queries for different times efficiently."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,157 @@
+---
+title: "Combine Two Tables"
+summary: "Write a SQL query to report the first name, last name, city, and state of each person in the Person table."
+date: "Mar 30, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.50% | **Paid:** No
+> **Topics:** Database
+
+Table: Person
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| personId    | int     |
+| lastName    | varchar |
+| firstName   | varchar |
++-------------+---------+
+personId is the primary key column for this table.
+Table: Address
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| addressId   | int     |
+| personId    | int     |
+| city        | varchar |
+| state       | varchar |
++-------------+---------+
+addressId is the primary key column for this table.
+Each row of this table contains information about the address of a person. The personId matches the personId in the Person table.
+
+Write a SQL query to report the first name, last name, city, and state of each person in the Person table. If the address of a personId is not present in the Address table, report null instead.
+
+Return the result table in any order.
+
+- Examples
+- Constraints
+- [Left Join (Standard)](#left-join-standard)
+- [Left Join with USING](#left-join-with-using)
+- [Natural Left Join](#natural-left-join)
+
+## Examples
+
+**Example 1:**
+
+Input:
+Person table:
++----------+----------+-----------+
+| personId | lastName | firstName |
++----------+----------+-----------+
+| 1        | Wang     | Allen     |
+| 2        | Alice    | Bob       |
++----------+----------+-----------+
+Address table:
++-----------+----------+---------------+------------+
+| addressId | personId | city          | state      |
++-----------+----------+---------------+------------+
+| 1         | 2        | New York City | New York   |
+| 2         | 3        | Leetcode      | California |
++-----------+----------+---------------+------------+
+Output:
++-----------+----------+---------------+------------+
+| firstName | lastName | city          | state      |
++-----------+----------+---------------+------------+
+| Allen     | Wang     | Null          | Null       |
+| Bob       | Alice    | New York City | New York   |
++-----------+----------+---------------+------------+
+Explanation:
+There is no address in the Address table for the personId = 1, so we report null for their city and state.
+The address of personId = 2 is present in the Address table, so we report their city and state.
+
+## Constraints
+
+```text
+N/A
+```
+
+---
+## Left Join (Standard)
+
+**Intuition**
+We need to retrieve data from the `Person` table and match it with the `Address` table. Since we must report all persons regardless of whether they have an address, a `LEFT JOIN` is the appropriate operation. This ensures that rows from the left table (`Person`) are preserved even if there is no match in the right table (`Address`).
+
+**Steps**
+- Select the required columns `firstName`, `lastName`, `city`, and `state`.
+- Specify `Person` as the left table.
+- Perform a `LEFT JOIN` with `Address` on the condition `Person.personId = Address.personId`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "select firstName, lastName, city, state from Person left join Address on Person.personId = Address.personId" },
+{ name: "Java", lang: "java", code: "select firstName, lastName, city, state from Person left join Address on Person.personId = Address.personId" },
+{ name: "C++", lang: "cpp", code: "select firstName, lastName, city, state from Person left join Address on Person.personId = Address.personId" },
+{ name: "JavaScript", lang: "javascript", code: "select firstName, lastName, city, state from Person left join Address on Person.personId = Address.personId" },
+{ name: "TypeScript", lang: "typescript", code: "select firstName, lastName, city, state from Person left join Address on Person.personId = Address.personId" },]} />
+
+**Complexity**
+- Time: O(N + M) where N and M are the number of rows in Person and Address respectively, assuming indexed join columns.
+- Space: O(N) for the result set.
+- Notes: This is the standard and most readable approach for this problem.
+
+---
+## Left Join with USING
+
+**Intuition**
+When the join columns in both tables have the same name (`personId`), we can use the `USING` clause for a cleaner syntax. It performs the same `LEFT JOIN` logic but simplifies the join condition declaration.
+
+**Steps**
+- Select `firstName`, `lastName`, `city`, and `state`.
+- From `Person`, perform a `LEFT JOIN` with `Address`.
+- Use `USING (personId)` to specify the join key.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "select firstName, lastName, city, state from Person left join Address using (personId)" },
+{ name: "Java", lang: "java", code: "select firstName, lastName, city, state from Person left join Address using (personId)" },
+{ name: "C++", lang: "cpp", code: "select firstName, lastName, city, state from Person left join Address using (personId)" },
+{ name: "JavaScript", lang: "javascript", code: "select firstName, lastName, city, state from Person left join Address using (personId)" },
+{ name: "TypeScript", lang: "typescript", code: "select firstName, lastName, city, state from Person left join Address using (personId)" },]} />
+
+**Complexity**
+- Time: O(N + M)
+- Space: O(N)
+- Notes: Syntactic sugar for the standard Left Join. Some SQL dialects might handle result column naming slightly differently (e.g., coalesced column names), but for this output requirement, it behaves identically.
+
+---
+## Natural Left Join
+
+**Intuition**
+A `NATURAL LEFT JOIN` implicitly joins tables based on columns with the same name. Since both tables share `personId`, the database automatically identifies and uses it as the join key without an explicit `ON` or `USING` clause.
+
+**Steps**
+- Select `firstName`, `lastName`, `city`, and `state`.
+- Perform a `NATURAL LEFT JOIN` between `Person` and `Address`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "select firstName, lastName, city, state from Person natural left join Address" },
+{ name: "Java", lang: "java", code: "select firstName, lastName, city, state from Person natural left join Address" },
+{ name: "C++", lang: "cpp", code: "select firstName, lastName, city, state from Person natural left join Address" },
+{ name: "JavaScript", lang: "javascript", code: "select firstName, lastName, city, state from Person natural left join Address" },
+{ name: "TypeScript", lang: "typescript", code: "select firstName, lastName, city, state from Person natural left join Address" },]} />
+
+**Complexity**
+- Time: O(N + M)
+- Space: O(N)
+- Notes: While concise, natural joins are often discouraged in production code because schema changes (adding a column with the same name) can silently break the query logic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Combine Two Tables Solutions","datePublished":"2025-03-30","description":"Write a SQL query to report the first name, last name, city, and state of each person in the Person table.","keywords":"LeetCode, Combine Two Tables, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N and M are the number of rows in the Person and Address tables, assuming the join columns are indexed."}},{"@type":"Question","name":"What is the space complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the resulting table, where N is the number of rows in the Person table."}},{"@type":"Question","name":"Why is Left Join preferred over Inner Join for this problem?","acceptedAnswer":{"@type":"Answer","text":"Left Join is required because the problem asks to report all persons, even if they do not have an address. Inner Join would exclude persons without a matching address."}}]}).replace(/</g,'\u003c')}
+</script>

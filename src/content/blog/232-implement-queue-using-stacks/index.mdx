@@ -1,0 +1,120 @@
+---
+title: "Implement Queue using Stacks"
+summary: "Implement a FIFO queue using only two stacks with push, pop, peek, and empty operations."
+date: "Oct 14, 2024"
+tags:
+  - Stack
+  - Design
+  - Queue
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.70% | **Paid:** No
+> **Topics:** Stack, Design, Queue
+
+Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (push, peek, pop, and empty).
+
+Implement the MyQueue class:
+
+- void push(int x) Pushes element x to the back of the queue.
+- int pop() Removes the element from the front of the queue and returns it.
+- int peek() Returns the element at the front of the queue.
+- boolean empty() Returns true if the queue is empty, false otherwise.
+
+Notes:
+
+- You must use only standard operations of a stack, which means only push to top, peek/pop from top, size, and is empty operations are valid.
+- Depending on your language, the stack may not be supported natively. You may simulate a stack using a list or deque (double-ended queue) as long as you use only a stack's standard operations.
+
+- Examples
+- Constraints
+- [Two Stacks - Amortized O(1)](#two-stacks-amortized-o1)
+- [Two Stacks - O(1) Push](#two-stacks-o1-push)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input
+["MyQueue", "push", "push", "peek", "pop", "empty"]
+[[], [1], [2], [], [], []]
+Output
+[null, null, null, 1, 1, false]
+
+Explanation
+MyQueue myQueue = new MyQueue();
+myQueue.push(1); // queue is: [1]
+myQueue.push(2); // queue is: [1, 2] (leftmost is front of the queue)
+myQueue.peek();  // return 1
+myQueue.pop();   // return 1, queue is [2]
+myQueue.empty(); // return false
+```
+
+## Constraints
+
+```text
+1 <= x <= 9
+At most 100 calls will be made to push, pop, peek, and empty.
+All the calls to pop and peek are valid.
+```
+
+---
+
+## Two Stacks - Amortized O(1)
+
+**Intuition**
+Use two stacks where one acts as input and the other as output. Elements are transferred between stacks only when needed, making operations amortized O(1).
+
+**Steps**
+- Maintain two stacks: `inStack` for push operations and `outStack` for pop/peek operations
+- When pushing, simply push to `inStack`
+- When popping or peeking, if `outStack` is empty, transfer all elements from `inStack` to `outStack` (this reverses the order)
+- Then pop or peek from `outStack`
+- Check if both stacks are empty for the `empty` operation
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class MyQueue:\n    def __init__(self):\n        self.in_stack = []\n        self.out_stack = []\n\n    def push(self, x: int) -&gt; None:\n        self.in_stack.append(x)\n\n    def pop(self) -&gt; int:\n        self._transfer()\n        return self.out_stack.pop()\n\n    def peek(self) -&gt; int:\n        self._transfer()\n        return self.out_stack[-1]\n\n    def empty(self) -&gt; bool:\n        return not self.in_stack and not self.out_stack\n\n    def _transfer(self) -&gt; None:\n        if not self.out_stack:\n            while self.in_stack:\n                self.out_stack.append(self.in_stack.pop())" },
+{ name: "Java", lang: "java", code: "class MyQueue {\n    private Deque&lt;Integer&gt; inStack;\n    private Deque&lt;Integer&gt; outStack;\n\n    public MyQueue() {\n        inStack = new ArrayDeque&lt;&gt;();\n        outStack = new ArrayDeque&lt;&gt;();\n    }\n\n    public void push(int x) {\n        inStack.push(x);\n    }\n\n    public int pop() {\n        transfer();\n        return outStack.pop();\n    }\n\n    public int peek() {\n        transfer();\n        return outStack.peek();\n    }\n\n    public boolean empty() {\n        return inStack.isEmpty() && outStack.isEmpty();\n    }\n\n    private void transfer() {\n        if (outStack.isEmpty()) {\n            while (!inStack.isEmpty()) {\n                outStack.push(inStack.pop());\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class MyQueue {\nprivate:\n    stack&lt;int&gt; inStack;\n    stack&lt;int&gt; outStack;\n    \n    void transfer() {\n        if (outStack.empty()) {\n            while (!inStack.empty()) {\n                outStack.push(inStack.top());\n                inStack.pop();\n            }\n        }\n    }\n    \npublic:\n    MyQueue() {}\n    \n    void push(int x) {\n        inStack.push(x);\n    }\n    \n    int pop() {\n        transfer();\n        int val = outStack.top();\n        outStack.pop();\n        return val;\n    }\n    \n    int peek() {\n        transfer();\n        return outStack.top();\n    }\n    \n    bool empty() {\n        return inStack.empty() && outStack.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MyQueue {\n    constructor() {\n        this.inStack = [];\n        this.outStack = [];\n    }\n\n    push(x) {\n        this.inStack.push(x);\n    }\n\n    pop() {\n        this._transfer();\n        return this.outStack.pop();\n    }\n\n    peek() {\n        this._transfer();\n        return this.outStack[this.outStack.length - 1];\n    }\n\n    empty() {\n        return this.inStack.length === 0 && this.outStack.length === 0;\n    }\n\n    _transfer() {\n        if (this.outStack.length === 0) {\n            while (this.inStack.length &gt; 0) {\n                this.outStack.push(this.inStack.pop());\n            }\n        }\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MyQueue {\n    private inStack: number[];\n    private outStack: number[];\n\n    constructor() {\n        this.inStack = [];\n        this.outStack = [];\n    }\n\n    push(x: number): void {\n        this.inStack.push(x);\n    }\n\n    pop(): number {\n        this._transfer();\n        return this.outStack.pop()!;\n    }\n\n    peek(): number {\n        this._transfer();\n        return this.outStack[this.outStack.length - 1];\n    }\n\n    empty(): boolean {\n        return this.inStack.length === 0 && this.outStack.length === 0;\n    }\n\n    private _transfer(): void {\n        if (this.outStack.length === 0) {\n            while (this.inStack.length &gt; 0) {\n                this.outStack.push(this.inStack.pop()!);\n            }\n        }\n    }\n}" },]} />
+
+**Complexity**
+- Time: Amortized O(1) for all operations. Each element is pushed and popped from each stack exactly once.
+- Space: O(n) where n is the number of elements in the queue
+- Notes: This is the optimal solution with amortized constant time complexity for all operations.
+
+---
+
+## Two Stacks - O(1) Push
+
+**Intuition**
+Always keep elements in the correct order by transferring elements during push operations, making push O(n) but pop and peek O(1).
+
+**Steps**
+- Maintain two stacks: `mainStack` and `tempStack`
+- When pushing, transfer all elements from `mainStack` to `tempStack`, push the new element to `mainStack`, then transfer back from `tempStack`
+- When popping or peeking, simply pop or peek from `mainStack`
+- Check if `mainStack` is empty for the `empty` operation
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class MyQueue:\n    def __init__(self):\n        self.main_stack = []\n        self.temp_stack = []\n\n    def push(self, x: int) -&gt; None:\n        while self.main_stack:\n            self.temp_stack.append(self.main_stack.pop())\n        self.main_stack.append(x)\n        while self.temp_stack:\n            self.main_stack.append(self.temp_stack.pop())\n\n    def pop(self) -&gt; int:\n        return self.main_stack.pop()\n\n    def peek(self) -&gt; int:\n        return self.main_stack[-1]\n\n    def empty(self) -&gt; bool:\n        return not self.main_stack" },
+{ name: "Java", lang: "java", code: "class MyQueue {\n    private Deque&lt;Integer&gt; mainStack;\n    private Deque&lt;Integer&gt; tempStack;\n\n    public MyQueue() {\n        mainStack = new ArrayDeque&lt;&gt;();\n        tempStack = new ArrayDeque&lt;&gt;();\n    }\n\n    public void push(int x) {\n        while (!mainStack.isEmpty()) {\n            tempStack.push(mainStack.pop());\n        }\n        mainStack.push(x);\n        while (!tempStack.isEmpty()) {\n            mainStack.push(tempStack.pop());\n        }\n    }\n\n    public int pop() {\n        return mainStack.pop();\n    }\n\n    public int peek() {\n        return mainStack.peek();\n    }\n\n    public boolean empty() {\n        return mainStack.isEmpty();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class MyQueue {\nprivate:\n    stack&lt;int&gt; mainStack;\n    stack&lt;int&gt; tempStack;\n    \npublic:\n    MyQueue() {}\n    \n    void push(int x) {\n        while (!mainStack.empty()) {\n            tempStack.push(mainStack.top());\n            mainStack.pop();\n        }\n        mainStack.push(x);\n        while (!tempStack.empty()) {\n            mainStack.push(tempStack.top());\n            tempStack.pop();\n        }\n    }\n    \n    int pop() {\n        int val = mainStack.top();\n        mainStack.pop();\n        return val;\n    }\n    \n    int peek() {\n        return mainStack.top();\n    }\n    \n    bool empty() {\n        return mainStack.empty();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MyQueue {\n    constructor() {\n        this.mainStack = [];\n        this.tempStack = [];\n    }\n\n    push(x) {\n        while (this.mainStack.length &gt; 0) {\n            this.tempStack.push(this.mainStack.pop());\n        }\n        this.mainStack.push(x);\n        while (this.tempStack.length &gt; 0) {\n            this.mainStack.push(this.tempStack.pop());\n        }\n    }\n\n    pop() {\n        return this.mainStack.pop();\n    }\n\n    peek() {\n        return this.mainStack[this.mainStack.length - 1];\n    }\n\n    empty() {\n        return this.mainStack.length === 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MyQueue {\n    private mainStack: number[];\n    private tempStack: number[];\n\n    constructor() {\n        this.mainStack = [];\n        this.tempStack = [];\n    }\n\n    push(x: number): void {\n        while (this.mainStack.length &gt; 0) {\n            this.tempStack.push(this.mainStack.pop()!);\n        }\n        this.mainStack.push(x);\n        while (this.tempStack.length &gt; 0) {\n            this.mainStack.push(this.tempStack.pop()!);\n        }\n    }\n\n    pop(): number {\n        return this.mainStack.pop()!;\n    }\n\n    peek(): number {\n        return this.mainStack[this.mainStack.length - 1];\n    }\n\n    empty(): boolean {\n        return this.mainStack.length === 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) for push, O(1) for pop, peek, and empty
+- Space: O(n) where n is the number of elements in the queue
+- Notes: This approach makes push expensive but pop and peek constant time. Useful when pop/peek operations are more frequent than push operations.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Implement Queue using Stacks Solutions","datePublished":"2024-10-14","description":"Implement a FIFO queue using only two stacks with push, pop, peek, and empty operations.","keywords":"LeetCode, Implement Queue using Stacks, Easy, Stack, Design, Queue"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the amortized O(1) approach?","acceptedAnswer":{"@type":"Answer","text":"Push is O(1), pop is amortized O(1), peek is amortized O(1), and empty is O(1). Each element is pushed and popped from each stack exactly once."}},{"@type":"Question","name":"What is the time complexity of the O(1) push approach?","acceptedAnswer":{"@type":"Answer","text":"Push is O(n), pop is O(1), peek is O(1), and empty is O(1). This approach is useful when pop/peek operations are more frequent than push operations."}},{"@type":"Question","name":"What is the space complexity for both approaches?","acceptedAnswer":{"@type":"Answer","text":"Both approaches have O(n) space complexity where n is the number of elements in the queue."}}]}).replace(/</g,'\u003c')}
+</script>

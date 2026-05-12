@@ -1,0 +1,135 @@
+---
+title: "Number of Days Between Two Dates"
+summary: "Calculate the absolute difference in days between two given dates in the format YYYY-MM-DD."
+date: "Mar 31, 2026"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 52.70% | **Paid:** No
+> **Topics:** Math, String
+
+Write a program to count the number of days between two dates.
+
+The dates are given as strings, their format is `YYYY-MM-DD` as shown in the example.
+
+Example 1:
+Input: date1 = "2019-06-29", date2 = "2019-06-30"
+Output: 1
+
+Example 2:
+Input: date1 = "2020-01-15", date2 = "2019-12-31"
+Output: 15
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Libraries](#approach-1-built-in-libraries)
+- [Approach 2: Manual Calculation (Julian Day)](#approach-2-manual-calculation-julian-day)
+- [Approach 3: Brute Force Iteration](#approach-3-brute-force-iteration)
+
+## Examples
+
+```text
+Input: date1 = "2019-06-29", date2 = "2019-06-30"
+Output: 1
+```
+
+```text
+Input: date1 = "2020-01-15", date2 = "2019-12-31"
+Output: 15
+```
+
+## Constraints
+
+```text
+- The given dates are valid dates between the years 1971 and 2100.
+```
+
+---
+
+## Approach 1: Built-in Libraries
+
+**Intuition**
+Most modern programming languages provide robust date and time libraries that handle leap years, varying month lengths, and date arithmetic automatically. We can leverage these to parse the strings and calculate the difference directly.
+
+**Steps**
+- Parse the input strings into date objects using the standard library for the language.
+- Calculate the absolute difference between the two dates in days.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def daysBetweenDates(self, date1: str, date2: str) -&gt; int:\n        import datetime\n        d1 = datetime.datetime.strptime(date1, \"%Y-%m-%d\").date()\n        d2 = datetime.datetime.strptime(date2, \"%Y-%m-%d\").date()\n        return abs((d2 - d1).days)" },
+{ name: "Java", lang: "java", code: "import java.time.LocalDate;\nimport java.time.temporal.ChronoUnit;\n\nclass Solution {\n    public int daysBetweenDates(String date1, String date2) {\n        LocalDate d1 = LocalDate.parse(date1);\n        LocalDate d2 = LocalDate.parse(date2);\n        return (int) Math.abs(ChronoUnit.DAYS.between(d1, d2));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;ctime&gt;\n#include &lt;string&gt;\n#include &lt;cmath&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int daysBetweenDates(string date1, string date2) {\n        tm tm1 = {}, tm2 = {};\n        sscanf(date1.c_str(), \"%d-%d-%d\", &tm1.tm_year, &tm1.tm_mon, &tm1.tm_mday);\n        sscanf(date2.c_str(), \"%d-%d-%d\", &tm2.tm_year, &tm2.tm_mon, &tm2.tm_mday);\n        tm1.tm_year -= 1900;\n        tm1.tm_mon -= 1;\n        tm2.tm_year -= 1900;\n        tm2.tm_mon -= 1;\n        time_t time1 = mktime(&tm1);\n        time_t time2 = mktime(&tm2);\n        if (time1 == -1 || time2 == -1) return 0;\n        double diff = difftime(time2, time1);\n        return abs((int)(diff / (60 * 60 * 24)));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var daysBetweenDates = function(date1, date2) {\n    const d1 = new Date(date1);\n    const d2 = new Date(date2);\n    const diffTime = Math.abs(d2 - d1);\n    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));\n    return diffDays;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function daysBetweenDates(date1: string, date2: string): number {\n    const d1 = new Date(date1);\n    const d2 = new Date(date2);\n    const diffTime = Math.abs(d2.getTime() - d1.getTime());\n    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));\n    return diffDays;\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Relies on standard library implementations which are highly optimized.
+
+---
+
+## Approach 2: Manual Calculation (Julian Day)
+
+**Intuition**
+We can convert each date into a "Julian Day Number" (the number of days elapsed since a fixed reference point, like 1971-01-01). The difference between these two numbers is the answer. This requires manually handling leap years and days in months.
+
+**Steps**
+- Define a helper function to check if a year is a leap year.
+- Define a helper function to calculate the total days from 1971-01-01 to the given date.
+  - Sum the days for all years from 1971 to the current year - 1.
+  - Sum the days for all months from January to the current month - 1.
+  - Add the day of the month.
+- Return the absolute difference between the day counts of the two dates.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def daysBetweenDates(self, date1: str, date2: str) -&gt; int:\n        def is_leap(year):\n            return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)\n\n        def days_from_1971(date):\n            y, m, d = map(int, date.split('-'))\n            days = 0\n            for year in range(1971, y):\n                days += 366 if is_leap(year) else 365\n            month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]\n            if is_leap(y):\n                month_days[1] = 29\n            for month in range(1, m):\n                days += month_days[month - 1]\n            days += d\n            return days\n\n        return abs(days_from_1971(date1) - days_from_1971(date2))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int daysBetweenDates(String date1, String date2) {\n        return Math.abs(days(date1) - days(date2));\n    }\n    \n    private int days(String date) {\n        String[] parts = date.split(\"-\");\n        int y = Integer.parseInt(parts[0]);\n        int m = Integer.parseInt(parts[1]);\n        int d = Integer.parseInt(parts[2]);\n        \n        int total = 0;\n        for (int i = 1971; i &lt; y; i++) {\n            total += isLeap(i) ? 366 : 365;\n        }\n        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\n        if (isLeap(y)) daysInMonth[1] = 29;\n        for (int i = 1; i &lt; m; i++) {\n            total += daysInMonth[i - 1];\n        }\n        total += d;\n        return total;\n    }\n    \n    private boolean isLeap(int y) {\n        return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isLeap(int y) {\n        return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);\n    }\n    int daysFromEpoch(string date) {\n        int y, m, d;\n        sscanf(date.c_str(), \"%d-%d-%d\", &y, &m, &d);\n        int days = 0;\n        for (int i = 1971; i &lt; y; ++i) {\n            days += isLeap(i) ? 366 : 365;\n        }\n        int monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};\n        if (isLeap(y)) monthDays[1] = 29;\n        for (int i = 1; i &lt; m; ++i) {\n            days += monthDays[i - 1];\n        }\n        days += d;\n        return days;\n    }\n    int daysBetweenDates(string date1, string date2) {\n        return abs(daysFromEpoch(date1) - daysFromEpoch(date2));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var daysBetweenDates = function(date1, date2) {\n    const isLeap = (y) =&gt; (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);\n    const days = (date) =&gt; {\n        const [y, m, d] = date.split('-').map(Number);\n        let total = 0;\n        for (let i = 1971; i &lt; y; i++) {\n            total += isLeap(i) ? 366 : 365;\n        }\n        const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];\n        if (isLeap(y)) monthDays[1] = 29;\n        for (let i = 1; i &lt; m; i++) {\n            total += monthDays[i - 1];\n        }\n        total += d;\n        return total;\n    };\n    return Math.abs(days(date1) - days(date2));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function daysBetweenDates(date1: string, date2: string): number {\n    const isLeap = (y: number): boolean =&gt; (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);\n    const days = (date: string): number =&gt; {\n        const [y, m, d] = date.split('-').map(Number);\n        let total = 0;\n        for (let i = 1971; i &lt; y; i++) {\n            total += isLeap(i) ? 366 : 365;\n        }\n        const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];\n        if (isLeap(y)) monthDays[1] = 29;\n        for (let i = 1; i &lt; m; i++) {\n            total += monthDays[i - 1];\n        }\n        total += d;\n        return total;\n    };\n    return Math.abs(days(date1) - days(date2));\n}" },]} />
+
+**Complexity**
+- Time: O(1) (The loop iterates over a maximum of ~130 years, which is constant).
+- Space: O(1)
+- Notes: Avoids library overhead, requires careful implementation of leap year logic.
+
+---
+
+## Approach 3: Brute Force Iteration
+
+**Intuition**
+Starting from the earlier date, we can increment the date by one day at a time until we reach the later date, counting the steps. This is simple but less efficient for large gaps.
+
+**Steps**
+- Parse the dates into year, month, and day integers.
+- Determine which date is earlier.
+- While the earlier date is not equal to the later date:
+  - Increment the day.
+  - Handle month and year rollovers (e.g., if day exceeds days in month, reset day to 1 and increment month).
+  - Increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def daysBetweenDates(self, date1: str, date2: str) -&gt; int:\n        import datetime\n        d1 = datetime.datetime.strptime(date1, \"%Y-%m-%d\").date()\n        d2 = datetime.datetime.strptime(date2, \"%Y-%m-%d\").date()\n        if d1 &gt; d2:\n            d1, d2 = d2, d1\n        count = 0\n        while d1 &lt; d2:\n            d1 += datetime.timedelta(days=1)\n            count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.time.LocalDate;\n\nclass Solution {\n    public int daysBetweenDates(String date1, String date2) {\n        LocalDate d1 = LocalDate.parse(date1);\n        LocalDate d2 = LocalDate.parse(date2);\n        if (d1.isAfter(d2)) {\n            LocalDate temp = d1; d1 = d2; d2 = temp;\n        }\n        int count = 0;\n        while (!d1.isEqual(d2)) {\n            d1 = d1.plusDays(1);\n            count++;\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isLeap(int y) { return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0); }\n    int daysInMonth(int y, int m) {\n        if (m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10 || m == 12) return 31;\n        if (m == 4 || m == 6 || m == 9 || m == 11) return 30;\n        return isLeap(y) ? 29 : 28;\n    }\n    void nextDay(int &y, int &m, int &d) {\n        d++;\n        if (d &gt; daysInMonth(y, m)) {\n            d = 1;\n            m++;\n            if (m &gt; 12) {\n                m = 1;\n                y++;\n            }\n        }\n    }\n    int daysBetweenDates(string date1, string date2) {\n        int y1, m1, d1, y2, m2, d2;\n        sscanf(date1.c_str(), \"%d-%d-%d\", &y1, &m1, &d1);\n        sscanf(date2.c_str(), \"%d-%d-%d\", &y2, &m2, &d2);\n        if (y1 &gt; y2 || (y1 == y2 && m1 &gt; m2) || (y1 == y2 && m1 == m2 && d1 &gt; d2)) {\n            swap(y1, y2); swap(m1, m2); swap(d1, d2);\n        }\n        int count = 0;\n        while (y1 != y2 || m1 != m2 || d1 != d2) {\n            nextDay(y1, m1, d1);\n            count++;\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var daysBetweenDates = function(date1, date2) {\n    const d1 = new Date(date1);\n    const d2 = new Date(date2);\n    if (d1 &gt; d2) {\n        let temp = d1; d1 = d2; d2 = temp;\n    }\n    let count = 0;\n    while (d1 &lt; d2) {\n        d1.setDate(d1.getDate() + 1);\n        count++;\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function daysBetweenDates(date1: string, date2: string): number {\n    let d1 = new Date(date1);\n    let d2 = new Date(date2);\n    if (d1.getTime() &gt; d2.getTime()) {\n        [d1, d2] = [d2, d1];\n    }\n    let count = 0;\n    while (d1.getTime() &lt; d2.getTime()) {\n        d1.setDate(d1.getDate() + 1);\n        count++;\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of days between the two dates.
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large date ranges compared to O(1) methods.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Days Between Two Dates Solutions","datePublished":"2026-03-31","description":"Calculate the absolute difference in days between two given dates in the format YYYY-MM-DD.","keywords":"LeetCode, Number of Days Between Two Dates, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Libraries approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) as date operations are constant time."}},{"@type":"Question","name":"What is the time complexity of the Manual Calculation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) as we iterate over a fixed range of years (1971-2100)."}},{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) where N is the number of days between the dates."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,107 @@
+---
+title: "Cells in a Range on an Excel Sheet"
+summary: "Return all cells in the inclusive range of an Excel sheet given a string like 'K1:L2'."
+date: "Jan 28, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.20% | **Paid:** No
+> **Topics:** String
+
+A cell (r, c) of an Excel sheet is represented as a string `"<col><row>"` where `<col>` denotes column number c as alphabet letters and `<row>` is the row number r.
+
+You are given a string s in the format `"<col1><row1>:<col2><row2>"`, where `<col1>` represents the column c1, `<row1>` represents the row r1, etc.
+
+Return a list of all cells (x, y) such that r1 ≤ x ≤ r2 and c1 ≤ y ≤ c2. The cells should be represented as strings in the format mentioned above and be sorted in non-decreasing order first by column and then by row.
+
+- Examples
+- Constraints
+- [Iterative Construction](#iterative-construction)
+- [ASCII Arithmetic](#ascii-arithmetic)
+
+## Examples
+
+### Example 1:
+```text
+Input: s = "K1:L2"
+Output: ["K1","K2","L1","L2"]
+Explanation:
+The above diagram shows the 3 x 3 grid. The cells in the range are highlighted.
+```
+
+### Example 2:
+```text
+Input: s = "A1:A1"
+Output: ["A1"]
+```
+
+## Constraints
+
+```text
+s.length == 5
+'A' <= s[0] <= s[3] <= 'Z'
+'1' <= s[1] <= s[4] <= '9'
+s consists of uppercase English letters, a colon, and digits.
+```
+
+---
+## Iterative Construction
+
+**Intuition**
+Since the input string format is fixed (length 5), we can directly extract the start and end characters for columns and rows. We then iterate through the column range and, for each column, iterate through the row range to construct the cell strings.
+
+**Steps**
+- Extract the start column (s[0]), start row (s[1]), end column (s[3]), and end row (s[4]).
+- Initialize an empty list to store results.
+- Loop from the start column to the end column (inclusive).
+- Inside the column loop, loop from the start row to the end row (inclusive).
+- Concatenate the current column character and row character, then add to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def cellsInRange(self, s: str) -&gt; list[str]:\n        res = []\n        for c in range(ord(s[0]), ord(s[3]) + 1):\n            for r in range(int(s[1]), int(s[4]) + 1):\n                res.append(chr(c) + str(r))\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; cellsInRange(String s) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        char cStart = s.charAt(0);\n        char cEnd = s.charAt(3);\n        char rStart = s.charAt(1);\n        char rEnd = s.charAt(4);\n        for (char c = cStart; c &lt;= cEnd; c++) {\n            for (char r = rStart; r &lt;= rEnd; r++) {\n                res.add(\"\" + c + r);\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; cellsInRange(string s) {\n        vector&lt;string&gt; res;\n        char cStart = s[0];\n        char cEnd = s[3];\n        char rStart = s[1];\n        char rEnd = s[4];\n        for (char c = cStart; c &lt;= cEnd; ++c) {\n            for (char r = rStart; r &lt;= rEnd; ++r) {\n                res.push_back(string(1, c) + r);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var cellsInRange = function(s) {\n    const res = [];\n    const cStart = s.charCodeAt(0);\n    const cEnd = s.charCodeAt(3);\n    const rStart = parseInt(s[1]);\n    const rEnd = parseInt(s[4]);\n    for (let c = cStart; c &lt;= cEnd; c++) {\n        for (let r = rStart; r &lt;= rEnd; r++) {\n            res.push(String.fromCharCode(c) + r);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function cellsInRange(s: string): string[] {\n    const res: string[] = [];\n    const cStart = s.charCodeAt(0);\n    const cEnd = s.charCodeAt(3);\n    const rStart = parseInt(s[1]);\n    const rEnd = parseInt(s[4]);\n    for (let c = cStart; c &lt;= cEnd; c++) {\n        for (let r = rStart; r &lt;= rEnd; r++) {\n            res.push(String.fromCharCode(c) + r);\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of cells in the range (at most 9 * 9 = 81).
+- Space: O(n) to store the result list.
+- Notes: This is the most direct approach given the fixed input format.
+
+---
+## ASCII Arithmetic
+
+**Intuition**
+This approach emphasizes the underlying ASCII values of the characters. By converting characters to their integer ASCII codes, we can perform arithmetic to iterate through the range, then convert back to characters for string construction.
+
+**Steps**
+- Parse the start and end indices for columns and rows from the string.
+- Convert column characters to their ASCII integer values.
+- Iterate using integer arithmetic from the start value to the end value.
+- Convert the integer back to a character during string construction.
+- Repeat the process for rows (which are already digits).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def cellsInRange(self, s: str) -&gt; list[str]:\n        res = []\n        col_start, row_start, _, col_end, row_end = s\n        for col_code in range(ord(col_start), ord(col_end) + 1):\n            col = chr(col_code)\n            for row_code in range(ord(row_start), ord(row_end) + 1):\n                res.append(col + chr(row_code))\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;String&gt; cellsInRange(String s) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int cStart = s.charAt(0);\n        int cEnd = s.charAt(3);\n        int rStart = s.charAt(1);\n        int rEnd = s.charAt(4);\n        for (int c = cStart; c &lt;= cEnd; c++) {\n            for (int r = rStart; r &lt;= rEnd; r++) {\n                res.add(String.valueOf((char)c) + String.valueOf((char)r));\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; cellsInRange(string s) {\n        vector&lt;string&gt; res;\n        int cStart = s[0];\n        int cEnd = s[3];\n        int rStart = s[1];\n        int rEnd = s[4];\n        for (int c = cStart; c &lt;= cEnd; ++c) {\n            for (int r = rStart; r &lt;= rEnd; ++r) {\n                res.push_back(string(1, (char)c) + string(1, (char)r));\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var cellsInRange = function(s) {\n    const res = [];\n    const cStart = s.charCodeAt(0);\n    const cEnd = s.charCodeAt(3);\n    const rStart = s.charCodeAt(1);\n    const rEnd = s.charCodeAt(4);\n    for (let c = cStart; c &lt;= cEnd; c++) {\n        for (let r = rStart; r &lt;= rEnd; r++) {\n            res.push(String.fromCharCode(c) + String.fromCharCode(r));\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function cellsInRange(s: string): string[] {\n    const res: string[] = [];\n    const cStart = s.charCodeAt(0);\n    const cEnd = s.charCodeAt(3);\n    const rStart = s.charCodeAt(1);\n    const rEnd = s.charCodeAt(4);\n    for (let c = cStart; c &lt;= cEnd; c++) {\n        for (let r = rStart; r &lt;= rEnd; r++) {\n            res.push(String.fromCharCode(c) + String.fromCharCode(r));\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of cells in the range.
+- Space: O(n) to store the result list.
+- Notes: Functionally similar to the iterative approach, but highlights character encoding.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Cells in a Range on an Excel Sheet Solutions","datePublished":"2025-01-28","description":"Return all cells in the inclusive range of an Excel sheet given a string like 'K1:L2'.","keywords":"LeetCode, Cells in a Range on an Excel Sheet, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of cells in the range."}},{"@type":"Question","name":"What is the space complexity of the Iterative Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the result list."}},{"@type":"Question","name":"What is the time complexity of the ASCII Arithmetic approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of cells in the range."}},{"@type":"Question","name":"What is the space complexity of the ASCII Arithmetic approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the result list."}}]}).replace(/</g,'\u003c')}
+</script>

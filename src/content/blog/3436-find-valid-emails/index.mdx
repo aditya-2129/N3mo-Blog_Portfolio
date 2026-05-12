@@ -1,0 +1,147 @@
+---
+title: "Find Valid Emails"
+summary: "Filter user emails based on specific prefix, domain, and extension rules using SQL."
+date: "Apr 21, 2026"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 43.90% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| user_id     | int     |
+| name        | varchar |
+| mail        | varchar |
++-------------+---------+
+user_id is the primary key (column with unique values) for this table.
+This table contains information of the users signed up in a website. Some emails are valid, and others are invalid.
+
+Write a solution to find the user_id, name, and mail of all users who have a valid email.
+
+A valid email has a prefix name, domain name, and extension in the following format:
+
+1. The prefix name is a string that may contain letters (a-z, A-Z), digits (0-9), underscores '_', periods '.', and/or dashes '-'.
+2. The prefix name must start with a letter or digit.
+3. The domain name is a string that may contain letters (a-z, A-Z), digits (0-9), and/or dashes '-'.
+4. The domain name must start with a letter or digit.
+5. The extension is a string that may contain letters (a-z, A-Z) and/or digits (0-9).
+6. The extension length must be between 1 and 3 (inclusive).
+7. The email must contain exactly one '@' character.
+8. The email must contain exactly one '.' character after the '@' character.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Regular Expressions](#approach-1-regular-expressions)
+- [Approach 2: String Functions](#approach-2-string-functions)
+
+## Examples
+
+### Example 1:
+Input:
+Users table:
++---------+----------+-------------------------+
+| user_id | name     | mail                    |
++---------+----------+-------------------------+
+| 1       | Winston  | winston@leetcode.com    |
+| 2       | Jonathan | jonathanisgreat         |
+| 3       | Annabelle | bella-@apple.com       |
+| 4       | Sally    | sally.come@leetcode.com |
+| 5       | Marwan   | quarz#2020@leetcode.com |
+| 6       | David    | david69@gmail.com       |
+| 7       | Shannon  | shannon.li@leetcode.com |
++---------+----------+-------------------------+
+Output:
++---------+----------+-------------------------+
+| user_id | name     | mail                    |
++---------+----------+-------------------------+
+| 1       | Winston  | winston@leetcode.com    |
+| 4       | Sally    | sally.come@leetcode.com |
+| 6       | David    | david69@gmail.com       |
+| 7       | Shannon  | shannon.li@leetcode.com |
++---------+----------+-------------------------+
+Explanation:
+- The mail of user 1 is valid because it contains a prefix "winston" that starts with a letter, a domain "leetcode" that starts with a letter, and an extension "com" with length 3.
+- The mail of user 2 is invalid because it does not contain an '@' character.
+- The mail of user 3 is invalid because the prefix "bella-" ends with a dash.
+- The mail of user 4 is valid because it contains a prefix "sally.come" that starts with a letter, a domain "leetcode" that starts with a letter, and an extension "com" with length 3.
+- The mail of user 5 is invalid because it contains a '#' character.
+- The mail of user 6 is valid because it contains a prefix "david69" that starts with a letter, a domain "gmail" that starts with a letter, and an extension "com" with length 3.
+- The mail of user 7 is valid because it contains a prefix "shannon.li" that starts with a letter, a domain "leetcode" that starts with a letter, and an extension "com" with length 3.
+
+## Constraints
+
+```text
+1 <= Users.length <= 1000
+1 <= user_id <= 1000
+1 <= name.length <= 100
+1 <= mail.length <= 100
+```
+
+---
+## Approach 1: Regular Expressions
+
+**Intuition**
+Regular expressions provide a concise and powerful way to match patterns in strings. We can construct a single regex pattern that encapsulates all the validation rules for the prefix, domain, and extension.
+
+**Steps**
+- Construct a regex pattern that matches the entire email string from start to end.
+- The pattern `^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\.[a-zA-Z0-9]{1,3}$` ensures:
+    - Prefix starts with alphanumeric and contains only allowed chars.
+    - Domain starts with alphanumeric and contains only allowed chars.
+    - Extension is 1-3 alphanumeric chars.
+- Use the `REGEXP` operator in SQL to filter rows where the mail matches this pattern.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\\\.[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "Java", lang: "java", code: "// Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\\\.[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "C++", lang: "cpp", code: "// Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\\\.[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "JavaScript", lang: "javascript", code: "/* Write your MySQL query statement below */\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\\\.[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "TypeScript", lang: "typescript", code: "/* Write your MySQL query statement below */\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9][a-zA-Z0-9-]*\\\\.[a-zA-Z0-9]{1,3}$'\n" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of rows and L is the average length of the email string.
+- Space: O(1) auxiliary space.
+- Notes: Regex is generally efficient for this scale but can be slower than manual parsing for very large datasets.
+
+---
+## Approach 2: String Functions
+
+**Intuition**
+We can break down the email into its components (prefix, domain, extension) using string manipulation functions like `SUBSTRING_INDEX` and validate each part individually using simpler logic or regex.
+
+**Steps**
+- Use `SUBSTRING_INDEX` to split the email by '@' to get the prefix and the rest.
+- Split the rest by '.' to get the domain and extension.
+- Validate the prefix: must not be empty, first char must be alphanumeric, and must only contain allowed characters.
+- Validate the domain: must not be empty, first char must be alphanumeric, and must only contain allowed characters.
+- Validate the extension: length must be between 1 and 3, and must only contain alphanumeric characters.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE\n    mail LIKE '%@%.%' AND\n    SUBSTRING_INDEX(mail, '@', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*$' AND\n    SUBSTRING_INDEX(SUBSTRING_INDEX(mail, '@', -1), '.', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9-]*$' AND\n    SUBSTRING_INDEX(mail, '.', -1) REGEXP '^[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "Java", lang: "java", code: "// Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE\n    mail LIKE '%@%.%' AND\n    SUBSTRING_INDEX(mail, '@', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*$' AND\n    SUBSTRING_INDEX(SUBSTRING_INDEX(mail, '@', -1), '.', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9-]*$' AND\n    SUBSTRING_INDEX(mail, '.', -1) REGEXP '^[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "C++", lang: "cpp", code: "// Write your MySQL query statement below\nSELECT user_id, name, mail\nFROM Users\nWHERE\n    mail LIKE '%@%.%' AND\n    SUBSTRING_INDEX(mail, '@', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*$' AND\n    SUBSTRING_INDEX(SUBSTRING_INDEX(mail, '@', -1), '.', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9-]*$' AND\n    SUBSTRING_INDEX(mail, '.', -1) REGEXP '^[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "JavaScript", lang: "javascript", code: "/* Write your MySQL query statement below */\nSELECT user_id, name, mail\nFROM Users\nWHERE\n    mail LIKE '%@%.%' AND\n    SUBSTRING_INDEX(mail, '@', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*$' AND\n    SUBSTRING_INDEX(SUBSTRING_INDEX(mail, '@', -1), '.', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9-]*$' AND\n    SUBSTRING_INDEX(mail, '.', -1) REGEXP '^[a-zA-Z0-9]{1,3}$'\n" },
+{ name: "TypeScript", lang: "typescript", code: "/* Write your MySQL query statement below */\nSELECT user_id, name, mail\nFROM Users\nWHERE\n    mail LIKE '%@%.%' AND\n    SUBSTRING_INDEX(mail, '@', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9._-]*$' AND\n    SUBSTRING_INDEX(SUBSTRING_INDEX(mail, '@', -1), '.', 1) REGEXP '^[a-zA-Z0-9][a-zA-Z0-9-]*$' AND\n    SUBSTRING_INDEX(mail, '.', -1) REGEXP '^[a-zA-Z0-9]{1,3}$'\n" },]} />
+
+**Complexity**
+- Time: O(N * L) due to string scanning operations.
+- Space: O(1) auxiliary space.
+- Notes: This approach is more verbose but can be easier to debug or modify if specific parts of the email need different handling.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Valid Emails Solutions","datePublished":"2026-04-21","description":"Filter user emails based on specific prefix, domain, and extension rules using SQL.","keywords":"LeetCode, Find Valid Emails, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(N * L), where N is the number of rows and L is the average length of the email string."}},{"@type":"Question","name":"What is the space complexity of the String Functions approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) auxiliary space, as we only filter existing rows without creating significant data structures."}}]}).replace(/</g,'\u003c')}
+</script>

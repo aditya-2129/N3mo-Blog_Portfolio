@@ -1,0 +1,113 @@
+---
+title: "Last Stone Weight"
+summary: "We have a collection of stones, each stone has a positive integer weight. Each turn, we choose the two heaviest stones and smash them together."
+date: "Apr 17, 2025"
+tags:
+  - Array
+  - Heap (Priority Queue)
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.50% | **Paid:** No
+> **Topics:** Array, Heap (Priority Queue)
+
+You are given an array of integers stones where stones[i] is the weight of the ith stone.
+
+We are playing a game with the stones. On each turn, we choose the heaviest two stones and smash them together. Suppose the heaviest two stones have weights x and y with x &lt;= y. The result of this smash is:
+
+If x == y, both stones are destroyed, and
+If x != y, the stone of weight x is destroyed, and the stone of weight y has new weight y - x.
+At the end of the game, there is at most one stone left.
+
+Return the weight of the last remaining stone, or 0 if there are no stones left.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting Simulation](#approach-1-sorting-simulation)
+- [Approach 2: Max Heap (Priority Queue)](#approach-2-max-heap-priority-queue)
+
+## Examples
+
+```text
+Input: stones = [2,7,4,1,8,1]
+Output: 1
+Explanation: 
+We combine 7 and 8 to get 1 so the array converts to [2,4,1,1,1] then,
+we combine 2 and 4 to get 2 so the array converts to [2,1,1,1] then,
+we combine 2 and 1 to get 1 so the array converts to [1,1,1] then,
+we combine 1 and 1 to get 0 so the array converts to [1] then that's the value of the last stone.
+```
+
+```text
+Input: stones = [1,3]
+Output: 1
+```
+
+## Constraints
+
+```text
+1 <= stones.length <= 30
+1 <= stones[i] <= 1000
+```
+
+---
+## Approach 1: Sorting Simulation
+
+**Intuition**
+Since we always need the two heaviest stones, we can repeatedly sort the array to access the largest elements at the end. After smashing them, we update the array and sort again.
+
+**Steps**
+- Sort the array in ascending order.
+- While there is more than one stone:
+  - Take the last two elements (y and x).
+  - Remove them from the array.
+  - If x != y, append (y - x) to the array.
+  - Sort the array again.
+- Return the remaining stone or 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def lastStoneWeight(self, stones: List[int]) -&gt; int:\r\n        while len(stones) &gt; 1:\r\n            stones.sort()\r\n            y = stones.pop()\r\n            x = stones.pop()\r\n            if x != y:\r\n                stones.append(y - x)\r\n        return stones[0] if stones else 0\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\r\nimport java.util.Collections;\r\n\r\nclass Solution {\r\n    public int lastStoneWeight(int[] stones) {\r\n        ArrayList&lt;Integer&gt; list = new ArrayList&lt;&gt;();\r\n        for (int s : stones) list.add(s);\r\n        \r\n        while (list.size() &gt; 1) {\r\n            Collections.sort(list);\r\n            int y = list.remove(list.size() - 1);\r\n            int x = list.remove(list.size() - 1);\r\n            if (x != y) {\r\n                list.add(y - x);\r\n            }\r\n        }\r\n        return list.isEmpty() ? 0 : list.get(0);\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int lastStoneWeight(vector&lt;int&gt;& stones) {\r\n        while (stones.size() &gt; 1) {\r\n            sort(stones.begin(), stones.end());\r\n            int y = stones.back();\r\n            stones.pop_back();\r\n            int x = stones.back();\r\n            stones.pop_back();\r\n            if (x != y) {\r\n                stones.push_back(y - x);\r\n            }\r\n        }\r\n        return stones.empty() ? 0 : stones[0];\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} stones\r\n * @return {number}\r\n */\r\nvar lastStoneWeight = function(stones) {\r\n    while (stones.length &gt; 1) {\r\n        stones.sort((a, b) =&gt; a - b);\r\n        let y = stones.pop();\r\n        let x = stones.pop();\r\n        if (x !== y) {\r\n            stones.push(y - x);\r\n        }\r\n    }\r\n    return stones.length === 0 ? 0 : stones[0];\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function lastStoneWeight(stones: number[]): number {\r\n    while (stones.length &gt; 1) {\r\n        stones.sort((a, b) =&gt; a - b);\r\n        let y = stones.pop()!;\r\n        let x = stones.pop()!;\r\n        if (x !== y) {\r\n            stones.push(y - x);\r\n        }\r\n    }\r\n    return stones.length === 0 ? 0 : stones[0];\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N² log N) — We sort up to N times.
+- Space: O(1) or O(N) depending on the sorting algorithm.
+- Notes: Simple to implement but inefficient for large inputs.
+
+---
+## Approach 2: Max Heap (Priority Queue)
+
+**Intuition**
+A Max Heap allows us to efficiently retrieve and remove the largest element in O(log N) time. This is optimal for repeatedly accessing the two heaviest stones.
+
+**Steps**
+- Insert all stones into a Max Heap.
+- While the heap has more than one stone:
+  - Pop the largest stone (y).
+  - Pop the second largest stone (x).
+  - If x != y, push (y - x) back into the heap.
+- Return the remaining stone or 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\r\nfrom typing import List\r\n\r\nclass Solution:\r\n    def lastStoneWeight(self, stones: List[int]) -&gt; int:\r\n        # Python heapq is a min-heap, so we invert values to simulate a max-heap\r\n        stones = [-s for s in stones]\r\n        heapq.heapify(stones)\r\n        \r\n        while len(stones) &gt; 1:\r\n            y = -heapq.heappop(stones)\r\n            x = -heapq.heappop(stones)\r\n            if x != y:\r\n                heapq.heappush(stones, -(y - x))\r\n                \r\n        return -stones[0] if stones else 0\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.Collections;\r\nimport java.util.PriorityQueue;\r\n\r\nclass Solution {\r\n    public int lastStoneWeight(int[] stones) {\r\n        PriorityQueue&lt;Integer&gt; pq = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\r\n        for (int stone : stones) {\r\n            pq.offer(stone);\r\n        }\r\n        \r\n        while (pq.size() &gt; 1) {\r\n            int y = pq.poll();\r\n            int x = pq.poll();\r\n            if (x != y) {\r\n                pq.offer(y - x);\r\n            }\r\n        }\r\n        return pq.isEmpty() ? 0 : pq.peek();\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;queue&gt;\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int lastStoneWeight(vector&lt;int&gt;& stones) {\r\n        priority_queue&lt;int&gt; pq(stones.begin(), stones.end());\r\n        \r\n        while (pq.size() &gt; 1) {\r\n            int y = pq.top(); pq.pop();\r\n            int x = pq.top(); pq.pop();\r\n            if (x != y) {\r\n                pq.push(y - x);\r\n            }\r\n        }\r\n        return pq.empty() ? 0 : pq.top();\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} stones\r\n * @return {number}\r\n */\r\nvar lastStoneWeight = function(stones) {\r\n    class MaxHeap {\r\n        constructor() { this.heap = []; }\r\n        push(val) {\r\n            this.heap.push(val);\r\n            this.bubbleUp(this.heap.length - 1);\r\n        }\r\n        bubbleUp(idx) {\r\n            while (idx &gt; 0) {\r\n                let parent = Math.floor((idx - 1) / 2);\r\n                if (this.heap[parent] &lt; this.heap[idx]) {\r\n                    [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\r\n                    idx = parent;\r\n                } else break;\r\n            }\r\n        }\r\n        pop() {\r\n            if (this.heap.length === 0) return null;\r\n            if (this.heap.length === 1) return this.heap.pop();\r\n            const max = this.heap[0];\r\n            this.heap[0] = this.heap.pop();\r\n            this.sinkDown(0);\r\n            return max;\r\n        }\r\n        sinkDown(idx) {\r\n            while (true) {\r\n                let left = 2 * idx + 1;\r\n                let right = 2 * idx + 2;\r\n                let swapIdx = idx;\r\n                if (left &lt; this.heap.length && this.heap[left] &gt; this.heap[swapIdx]) swapIdx = left;\r\n                if (right &lt; this.heap.length && this.heap[right] &gt; this.heap[swapIdx]) swapIdx = right;\r\n                if (swapIdx !== idx) {\r\n                    [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\r\n                    idx = swapIdx;\r\n                } else break;\r\n            }\r\n        }\r\n        size() { return this.heap.length; }\r\n    }\r\n\r\n    const pq = new MaxHeap();\r\n    for (let s of stones) pq.push(s);\r\n    while (pq.size() &gt; 1) {\r\n        let y = pq.pop();\r\n        let x = pq.pop();\r\n        if (x !== y) pq.push(y - x);\r\n    }\r\n    return pq.size() === 0 ? 0 : pq.pop();\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "class MaxHeap {\r\n    heap: number[] = [];\r\n    push(val: number): void {\r\n        this.heap.push(val);\r\n        this.bubbleUp(this.heap.length - 1);\r\n    }\r\n    bubbleUp(idx: number): void {\r\n        while (idx &gt; 0) {\r\n            let parent = Math.floor((idx - 1) / 2);\r\n            if (this.heap[parent] &lt; this.heap[idx]) {\r\n                [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\r\n                idx = parent;\r\n            } else break;\r\n        }\r\n    }\r\n    pop(): number | null {\r\n        if (this.heap.length === 0) return null;\r\n        if (this.heap.length === 1) return this.heap.pop()!;\r\n        const max = this.heap[0];\r\n        this.heap[0] = this.heap.pop()!;\r\n        this.sinkDown(0);\r\n        return max;\r\n    }\r\n    sinkDown(idx: number): void {\r\n        while (true) {\r\n            let left = 2 * idx + 1;\r\n            let right = 2 * idx + 2;\r\n            let swapIdx = idx;\r\n            if (left &lt; this.heap.length && this.heap[left] &gt; this.heap[swapIdx]) swapIdx = left;\r\n            if (right &lt; this.heap.length && this.heap[right] &gt; this.heap[swapIdx]) swapIdx = right;\r\n            if (swapIdx !== idx) {\r\n                [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\r\n                idx = swapIdx;\r\n            } else break;\r\n        }\r\n    }\r\n    size(): number { return this.heap.length; }\r\n}\r\n\r\nfunction lastStoneWeight(stones: number[]): number {\r\n    const pq = new MaxHeap();\r\n    for (let s of stones) pq.push(s);\r\n    while (pq.size() &gt; 1) {\r\n        let y = pq.pop()!;\r\n        let x = pq.pop()!;\r\n        if (x !== y) pq.push(y - x);\r\n    }\r\n    return pq.size() === 0 ? 0 : pq.pop()!;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N log N) — Each heap operation takes O(log N).
+- Space: O(N) — To store the heap.
+- Notes: The most efficient approach for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Last Stone Weight Solutions","datePublished":"2025-04-17","description":"We have a collection of stones, each stone has a positive integer weight. Each turn, we choose the two heaviest stones and smash them together.","keywords":"LeetCode, Last Stone Weight, Easy, Array, Heap (Priority Queue)"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N² log N) because we sort the array up to N times."}},{"@type":"Question","name":"What is the time complexity of the Max Heap approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) because each insertion and extraction from the heap takes O(log N) time."}},{"@type":"Question","name":"Why use a Max Heap for this problem?","acceptedAnswer":{"@type":"Answer","text":"A Max Heap allows efficient access to the largest elements, which is required for every step of the game."}}]}).replace(/</g,'\u003c')}
+</script>

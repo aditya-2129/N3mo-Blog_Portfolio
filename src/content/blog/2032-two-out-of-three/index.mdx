@@ -1,0 +1,148 @@
+---
+title: "Two Out of Three"
+summary: "Given three integer arrays, return a sorted list of distinct values that appear in at least two of the arrays."
+date: "Apr 27, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.60% | **Paid:** No
+> **Topics:** Array, Hash Table, Bit Manipulation
+
+Given three integer arrays nums1, nums2, and nums3, return a distinct array of all the values that are present in at least two out of the three arrays. You may return the values in any order.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Set Intersection](#set-intersection)
+- [Bit Manipulation / Fixed Array](#bit-manipulation-fixed-array)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums1 = [1,1,3,2], nums2 = [2,3], nums3 = [3]
+Output: [3,2]
+Explanation: The values that are present in at least two arrays are:
+- 3, in all three arrays.
+- 2, in nums1 and nums2.
+```
+
+**Example 2:**
+
+```text
+Input: nums1 = [3,1], nums2 = [2,3], nums3 = [1,2]
+Output: [2,3,1]
+Explanation: The values that are present in at least two arrays are:
+- 2, in nums2 and nums3.
+- 3, in nums1 and nums2.
+- 1, in nums1 and nums3.
+```
+
+**Example 3:**
+
+```text
+Input: nums1 = [1,2,2], nums2 = [4,3,3], nums3 = [5]
+Output: []
+Explanation: No value is present in at least two arrays.
+```
+
+## Constraints
+
+```text
+1 <= nums1.length, nums2.length, nums3.length <= 100
+1 <= nums1[i], nums2[j], nums3[k] <= 100
+```
+
+---
+
+## Hash Map Frequency Count
+
+**Intuition**
+We can iterate through each array and use a hash map to track how many unique arrays each number appears in. If a number appears in at least two distinct arrays, we include it in our result.
+
+**Steps**
+- Initialize a hash map to store the count of distinct arrays a number appears in.
+- Iterate through `nums1`, adding each number to the map with a count of 1 (if not already present).
+- Iterate through `nums2`, incrementing the count for numbers already in the map, or adding them with a count of 1.
+- Iterate through `nums3`, performing the same logic.
+- Collect all keys from the map where the value is 2 or greater.
+- Sort the result and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\nfrom typing import List\n\nclass Solution:\n    def twoOutOfThree(self, nums1: List[int], nums2: List[int], nums3: List[int]) -&gt; List[int]:\n        # Convert lists to sets to remove duplicates within the same array\n        set1 = set(nums1)\n        set2 = set(nums2)\n        set3 = set(nums3)\n        \n        # Count occurrences across the three sets\n        freq = Counter(set1) + Counter(set2) + Counter(set3)\n        \n        # Filter numbers appearing in at least 2 arrays\n        result = [num for num, count in freq.items() if count &gt;= 2]\n        \n        return sorted(result)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; twoOutOfThree(int[] nums1, int[] nums2, int[] nums3) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        \n        // Helper to update frequency\n        updateFreq(freq, nums1);\n        updateFreq(freq, nums2);\n        updateFreq(freq, nums3);\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;Integer, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getValue() &gt;= 2) {\n                result.add(entry.getKey());\n            }\n        }\n        \n        Collections.sort(result);\n        return result;\n    }\n    \n    private void updateFreq(Map&lt;Integer, Integer&gt; freq, int[] nums) {\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        for (int num : nums) {\n            if (seen.add(num)) {\n                freq.put(num, freq.getOrDefault(num, 0) + 1);\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;unordered_set&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; twoOutOfThree(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2, vector&lt;int&gt;& nums3) {\n        unordered_map&lt;int, int&gt; freq;\n        \n        auto update = [&freq](const vector&lt;int&gt;& nums) {\n            unordered_set&lt;int&gt; seen(nums.begin(), nums.end());\n            for (int x : seen) {\n                freq[x]++;\n            }\n        };\n        \n        update(nums1);\n        update(nums2);\n        update(nums3);\n        \n        vector&lt;int&gt; result;\n        for (auto& [num, count] : freq) {\n            if (count &gt;= 2) {\n                result.push_back(num);\n            }\n        }\n        \n        sort(result.begin(), result.end());\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @param {number[]} nums3\n * @return {number[]}\n */\nvar twoOutOfThree = function(nums1, nums2, nums3) {\n    const freq = new Map();\n    \n    const update = (nums) =&gt; {\n        const seen = new Set(nums);\n        for (const num of seen) {\n            freq.set(num, (freq.get(num) || 0) + 1);\n        }\n    };\n    \n    update(nums1);\n    update(nums2);\n    update(nums3);\n    \n    const result = [];\n    for (const [num, count] of freq.entries()) {\n        if (count &gt;= 2) {\n            result.push(num);\n        }\n    }\n    \n    return result.sort((a, b) =&gt; a - b);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function twoOutOfThree(nums1: number[], nums2: number[], nums3: number[]): number[] {\n    const freq = new Map&lt;number, number&gt;();\n    \n    const update = (nums: number[]) =&gt; {\n        const seen = new Set(nums);\n        for (const num of seen) {\n            freq.set(num, (freq.get(num) || 0) + 1);\n        }\n    };\n    \n    update(nums1);\n    update(nums2);\n    update(nums3);\n    \n    const result: number[] = [];\n    for (const [num, count] of freq.entries()) {\n        if (count &gt;= 2) {\n            result.push(num);\n        }\n    }\n    \n    return result.sort((a, b) =&gt; a - b);\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting, where N is the number of unique elements across all arrays.
+- Space: O(N) to store the frequency map and sets.
+- Notes: This approach is general-purpose and works for any range of numbers.
+
+---
+
+## Set Intersection
+
+**Intuition**
+Since we need elements present in at least two arrays, we can find the intersection of every pair of arrays (1&2, 2&3, 1&3) and take the union of these results.
+
+**Steps**
+- Convert `nums1`, `nums2`, and `nums3` into sets to remove duplicates.
+- Calculate the intersection of set1 and set2.
+- Calculate the intersection of set2 and set3.
+- Calculate the intersection of set1 and set3.
+- Combine all three intersection sets into a single result set.
+- Convert the result set to a list, sort it, and return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def twoOutOfThree(self, nums1: List[int], nums2: List[int], nums3: List[int]) -&gt; List[int]:\n        set1 = set(nums1)\n        set2 = set(nums2)\n        set3 = set(nums3)\n        \n        # Union of all pairwise intersections\n        result = set1 & set2 | set2 & set3 | set1 & set3\n        \n        return sorted(list(result))" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; twoOutOfThree(int[] nums1, int[] nums2, int[] nums3) {\n        Set&lt;Integer&gt; set1 = new HashSet&lt;&gt;();\n        for (int x : nums1) set1.add(x);\n        \n        Set&lt;Integer&gt; set2 = new HashSet&lt;&gt;();\n        for (int x : nums2) set2.add(x);\n        \n        Set&lt;Integer&gt; set3 = new HashSet&lt;&gt;();\n        for (int x : nums3) set3.add(x);\n        \n        // Find intersections\n        Set&lt;Integer&gt; result = new HashSet&lt;&gt;(set1);\n        result.retainAll(set2); // result = set1 & set2\n        \n        Set&lt;Integer&gt; temp = new HashSet&lt;&gt;(set2);\n        temp.retainAll(set3); // temp = set2 & set3\n        result.addAll(temp);\n        \n        temp = new HashSet&lt;&gt;(set1);\n        temp.retainAll(set3); // temp = set1 & set3\n        result.addAll(temp);\n        \n        List&lt;Integer&gt; ans = new ArrayList&lt;&gt;(result);\n        Collections.sort(ans);\n        return ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;set&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; twoOutOfThree(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2, vector&lt;int&gt;& nums3) {\n        set&lt;int&gt; set1(nums1.begin(), nums1.end());\n        set&lt;int&gt; set2(nums2.begin(), nums2.end());\n        set&lt;int&gt; set3(nums3.begin(), nums3.end());\n        \n        set&lt;int&gt; result;\n        \n        // set_intersection requires sorted ranges, which std::set provides\n        set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), inserter(result, result.begin()));\n        \n        set&lt;int&gt; temp;\n        set_intersection(set2.begin(), set2.end(), set3.begin(), set3.end(), inserter(temp, temp.begin()));\n        result.insert(temp.begin(), temp.end());\n        \n        temp.clear();\n        set_intersection(set1.begin(), set1.end(), set3.begin(), set3.end(), inserter(temp, temp.begin()));\n        result.insert(temp.begin(), temp.end());\n        \n        return vector&lt;int&gt;(result.begin(), result.end());\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @param {number[]} nums3\n * @return {number[]}\n */\nvar twoOutOfThree = function(nums1, nums2, nums3) {\n    const set1 = new Set(nums1);\n    const set2 = new Set(nums2);\n    const set3 = new Set(nums3);\n    \n    const intersect = (sA, sB) =&gt; {\n        return new Set([...sA].filter(x =&gt; sB.has(x)));\n    };\n    \n    const i12 = intersect(set1, set2);\n    const i23 = intersect(set2, set3);\n    const i13 = intersect(set1, set3);\n    \n    const result = new Set([...i12, ...i23, ...i13]);\n    \n    return [...result].sort((a, b) =&gt; a - b);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function twoOutOfThree(nums1: number[], nums2: number[], nums3: number[]): number[] {\n    const set1 = new Set(nums1);\n    const set2 = new Set(nums2);\n    const set3 = new Set(nums3);\n    \n    const intersect = (sA: Set&lt;number&gt;, sB: Set&lt;number&gt;): Set&lt;number&gt; =&gt; {\n        return new Set([...sA].filter(x =&gt; sB.has(x)));\n    };\n    \n    const i12 = intersect(set1, set2);\n    const i23 = intersect(set2, set3);\n    const i13 = intersect(set1, set3);\n    \n    const result = new Set([...i12, ...i23, ...i13]);\n    \n    return [...result].sort((a, b) =&gt; a - b);\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting.
+- Space: O(N) to store the sets.
+- Notes: Very readable and leverages built-in set operations effectively.
+
+---
+
+## Bit Manipulation / Fixed Array
+
+**Intuition**
+The problem constraints state that values are between 1 and 100. This small range allows us to use a fixed-size array of length 101. We can use bits to represent which array a number belongs to: bit 0 for `nums1`, bit 1 for `nums2`, and bit 2 for `nums3`.
+
+**Steps**
+- Initialize an integer array `seen` of size 101 with zeros.
+- Iterate through `nums1`, setting the 1st bit (value 1) for each number: `seen[x] |= 1`.
+- Iterate through `nums2`, setting the 2nd bit (value 2) for each number: `seen[x] |= 2`.
+- Iterate through `nums3`, setting the 3rd bit (value 4) for each number: `seen[x] |= 4`.
+- Iterate from 1 to 100. If `seen[i]` has at least 2 bits set (e.g., 3, 5, 6, or 7), add `i` to the result.
+- Return the result (which is naturally sorted).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def twoOutOfThree(self, nums1: List[int], nums2: List[int], nums3: List[int]) -&gt; List[int]:\n        seen = [0] * 101\n        \n        for x in nums1:\n            seen[x] |= 1\n        for x in nums2:\n            seen[x] |= 2\n        for x in nums3:\n            seen[x] |= 4\n            \n        result = []\n        for i in range(1, 101):\n            # Check if at least 2 bits are set\n            # Valid combinations: 3 (011), 5 (101), 6 (110), 7 (111)\n            if seen[i] in (3, 5, 6, 7):\n                result.append(i)\n                \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Integer&gt; twoOutOfThree(int[] nums1, int[] nums2, int[] nums3) {\n        int[] seen = new int[101];\n        \n        for (int x : nums1) seen[x] |= 1;\n        for (int x : nums2) seen[x] |= 2;\n        for (int x : nums3) seen[x] |= 4;\n        \n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 1; i &lt;= 100; i++) {\n            // Integer.bitCount counts the number of 1-bits\n            if (Integer.bitCount(seen[i]) &gt;= 2) {\n                result.add(i);\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; twoOutOfThree(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2, vector&lt;int&gt;& nums3) {\n        int seen[101] = {0};\n        \n        for (int x : nums1) seen[x] |= 1;\n        for (int x : nums2) seen[x] |= 2;\n        for (int x : nums3) seen[x] |= 4;\n        \n        vector&lt;int&gt; result;\n        for (int i = 1; i &lt;= 100; ++i) {\n            // __builtin_popcount counts the number of 1-bits\n            if (__builtin_popcount(seen[i]) &gt;= 2) {\n                result.push_back(i);\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @param {number[]} nums3\n * @return {number[]}\n */\nvar twoOutOfThree = function(nums1, nums2, nums3) {\n    const seen = new Array(101).fill(0);\n    \n    for (const x of nums1) seen[x] |= 1;\n    for (const x of nums2) seen[x] |= 2;\n    for (const x of nums3) seen[x] |= 4;\n    \n    const result = [];\n    for (let i = 1; i &lt;= 100; i++) {\n        // Check if value is 3, 5, 6, or 7\n        if (seen[i] === 3 || seen[i] === 5 || seen[i] === 6 || seen[i] === 7) {\n            result.push(i);\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function twoOutOfThree(nums1: number[], nums2: number[], nums3: number[]): number[] {\n    const seen: number[] = new Array(101).fill(0);\n    \n    for (const x of nums1) seen[x] |= 1;\n    for (const x of nums2) seen[x] |= 2;\n    for (const x of nums3) seen[x] |= 4;\n    \n    const result: number[] = [];\n    for (let i = 1; i &lt;= 100; i++) {\n        // Check if value is 3, 5, 6, or 7\n        if (seen[i] === 3 || seen[i] === 5 || seen[i] === 6 || seen[i] === 7) {\n            result.push(i);\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the total number of elements across arrays. The final loop is constant time (100 iterations).
+- Space: O(1) as the array size is fixed at 101 regardless of input size.
+- Notes: This is the most optimal solution for the given constraints, avoiding sorting and hash map overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Two Out of Three Solutions","datePublished":"2026-04-27","description":"Given three integer arrays, return a sorted list of distinct values that appear in at least two of the arrays.","keywords":"LeetCode, Two Out of Three, Easy, Array, Hash Table, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of unique elements, due to the sorting step."}},{"@type":"Question","name":"What is the most space-efficient approach?","acceptedAnswer":{"@type":"Answer","text":"The Bit Manipulation / Fixed Array approach is the most space-efficient with O(1) space complexity because it uses a fixed-size array of 101 integers."}},{"@type":"Question","name":"How does the Bit Manipulation approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses a fixed-size array where the index represents the number value. Bits 0, 1, and 2 of the integer at that index represent presence in nums1, nums2, and nums3 respectively. If at least two bits are set, the number is included in the result."}}]}).replace(/</g,'\u003c')}
+</script>

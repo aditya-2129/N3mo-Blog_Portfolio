@@ -1,0 +1,122 @@
+---
+title: "License Key Formatting"
+summary: "Reformat a license key string so that groups are separated by dashes, each group has exactly k characters, and all letters are uppercase."
+date: "Jun 17, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 46.00% | **Paid:** No
+> **Topics:** String
+
+You are given a license key represented as a string s that consists of alphanumeric characters and dashes. The string is separated into n + 1 groups by n dashes. You are also given an integer k.
+
+We want to reformat the string s such that each group contains exactly k characters, except for the first group, which could be shorter than k but still must contain at least one character. Furthermore, there must be a dash inserted between groups, and you should convert all lowercase letters to uppercase.
+
+Return the reformatted license key.
+
+- Examples
+- Constraints
+- [Approach 1: Reverse Iteration](#approach-1-reverse-iteration)
+- [Approach 2: Clean and Slice](#approach-2-clean-and-slice)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "5F3Z-2e-9-w", k = 4
+```
+
+**Output:**
+```text
+"5F3Z-2E9W"
+```
+
+**Explanation:**
+The string s has been split into two parts, each part has 4 characters.
+Note that the two extra dashes are not needed and can be removed.
+
+### Example 2
+
+**Input:**
+```text
+s = "2-5g-3-J", k = 2
+```
+
+**Output:**
+```text
+"2-5G-3J"
+```
+
+**Explanation:**
+The string s has been split into three parts, each part has 2 characters except the first part as it could be shorter as mentioned above.
+
+## Constraints
+
+```text
+- 1 <= s.length <= 10^5
+- s consists of English letters, digits, and dashes '-'.
+- 1 <= k <= 10^4
+```
+
+---
+## Approach 1: Reverse Iteration
+
+**Intuition**
+It is easiest to build the string from the end because the first group is the only one allowed to have a length different from k. By iterating backwards, we can simply insert a dash after every k characters.
+
+**Steps**
+- Initialize an empty list/array to store characters and a counter for the current group size.
+- Iterate through the string `s` from the last character to the first.
+- If the character is a dash, skip it.
+- Append the uppercase version of the character to the result list.
+- Increment the counter. If the counter reaches `k` and we are not at the start of the original string, append a dash to the result and reset the counter.
+- Reverse the result list and join it into a string to return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def licenseKeyFormatting(self, s: str, k: int) -&gt; str:\n        res = []\n        count = 0\n        for i in range(len(s) - 1, -1, -1):\n            if s[i] == '-':\n                continue\n            res.append(s[i].upper())\n            count += 1\n            if count == k and i != 0:\n                res.append('-')\n                count = 0\n        return ''.join(reversed(res))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String licenseKeyFormatting(String s, int k) {\n        StringBuilder sb = new StringBuilder();\n        int count = 0;\n        for (int i = s.length() - 1; i &gt;= 0; i--) {\n            char c = s.charAt(i);\n            if (c == '-') continue;\n            sb.append(Character.toUpperCase(c));\n            count++;\n            if (count == k && i != 0) {\n                sb.append('-');\n                count = 0;\n            }\n        }\n        return sb.reverse().toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string licenseKeyFormatting(string s, int k) {\n        string res;\n        int count = 0;\n        for (int i = s.size() - 1; i &gt;= 0; --i) {\n            if (s[i] == '-') continue;\n            res.push_back(toupper(s[i]));\n            count++;\n            if (count == k && i != 0) {\n                res.push_back('-');\n                count = 0;\n            }\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var licenseKeyFormatting = function(s, k) {\n    let res = [];\n    let count = 0;\n    for (let i = s.length - 1; i &gt;= 0; i--) {\n        if (s[i] === '-') continue;\n        res.push(s[i].toUpperCase());\n        count++;\n        if (count === k && i !== 0) {\n            res.push('-');\n            count = 0;\n        }\n    }\n    return res.reverse().join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function licenseKeyFormatting(s: string, k: number): string {\n    let res: string[] = [];\n    let count: number = 0;\n    for (let i = s.length - 1; i &gt;= 0; i--) {\n        if (s[i] === '-') continue;\n        res.push(s[i].toUpperCase());\n        count++;\n        if (count === k && i !== 0) {\n            res.push('-');\n            count = 0;\n        }\n    }\n    return res.reverse().join('');\n};" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. We traverse the string once.
+- Space: O(N) to store the result.
+- Notes: This approach is efficient because it handles the "first group shorter" rule naturally by building from the end.
+
+---
+## Approach 2: Clean and Slice
+
+**Intuition**
+First, remove all dashes and convert the string to uppercase. Then, calculate the length of the first group based on the total length modulo k. Finally, construct the new string by slicing the cleaned string and inserting dashes.
+
+**Steps**
+- Iterate through `s` to build a new string containing only alphanumeric characters in uppercase.
+- Calculate the length of the first group: `len(cleaned) % k`. If the remainder is 0, the first group length is `k`.
+- Initialize the result with the first group.
+- Iterate through the rest of the cleaned string in chunks of size `k`, appending a dash followed by the chunk to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def licenseKeyFormatting(self, s: str, k: int) -&gt; str:\n        clean = []\n        for ch in s:\n            if ch != '-':\n                clean.append(ch.upper())\n        n = len(clean)\n        if n == 0:\n            return \"\"\n        first_len = n % k\n        if first_len == 0:\n            first_len = k\n        res = []\n        for i in range(first_len):\n            res.append(clean[i])\n        i = first_len\n        while i &lt; n:\n            res.append('-')\n            for j in range(k):\n                res.append(clean[i])\n                i += 1\n        return \"\".join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String licenseKeyFormatting(String s, int k) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (c != '-') {\n                sb.append(Character.toUpperCase(c));\n            }\n        }\n        int n = sb.length();\n        if (n == 0) return \"\";\n        int firstLen = n % k;\n        if (firstLen == 0) firstLen = k;\n        StringBuilder res = new StringBuilder();\n        for (int i = 0; i &lt; firstLen; i++) {\n            res.append(sb.charAt(i));\n        }\n        for (int i = firstLen; i &lt; n; i++) {\n            if ((i - firstLen) % k == 0) {\n                res.append('-');\n            }\n            res.append(sb.charAt(i));\n        }\n        return res.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string licenseKeyFormatting(string s, int k) {\n        string clean;\n        for (char c : s) {\n            if (c != '-') {\n                clean += toupper(c);\n            }\n        }\n        int n = clean.size();\n        if (n == 0) return \"\";\n        int firstLen = n % k;\n        if (firstLen == 0) firstLen = k;\n        string res;\n        for (int i = 0; i &lt; firstLen; ++i) {\n            res += clean[i];\n        }\n        for (int i = firstLen; i &lt; n; ++i) {\n            if ((i - firstLen) % k == 0) {\n                res += '-';\n            }\n            res += clean[i];\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var licenseKeyFormatting = function(s, k) {\n    let clean = \"\";\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] !== '-') {\n            clean += s[i].toUpperCase();\n        }\n    }\n    let n = clean.length;\n    if (n === 0) return \"\";\n    let firstLen = n % k;\n    if (firstLen === 0) firstLen = k;\n    let res = clean.substring(0, firstLen);\n    for (let i = firstLen; i &lt; n; i++) {\n        if ((i - firstLen) % k === 0) {\n            res += '-';\n        }\n        res += clean[i];\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function licenseKeyFormatting(s: string, k: number): string {\n    let clean: string = \"\";\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] !== '-') {\n            clean += s[i].toUpperCase();\n        }\n    }\n    let n: number = clean.length;\n    if (n === 0) return \"\";\n    let firstLen: number = n % k;\n    if (firstLen === 0) firstLen = k;\n    let res: string = clean.substring(0, firstLen);\n    for (let i = firstLen; i &lt; n; i++) {\n        if ((i - firstLen) % k === 0) {\n            res += '-';\n        }\n        res += clean[i];\n    }\n    return res;\n};" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. We pass through the string to clean it and once more to build the result.
+- Space: O(N) to store the cleaned string and the result.
+- Notes: This approach is intuitive but requires two passes over the data (or one pass to clean and one to build).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode License Key Formatting Solutions","datePublished":"2025-06-17","description":"Reformat a license key string so that groups are separated by dashes, each group has exactly k characters, and all letters are uppercase.","keywords":"LeetCode, License Key Formatting, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Reverse Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"O(N), where N is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Clean and Slice approach?","acceptedAnswer":{"@type":"Answer","text":"O(N) to store the cleaned string and the result."}}]}).replace(/</g,'\u003c')}
+</script>

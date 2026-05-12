@@ -1,0 +1,319 @@
+---
+title: "Can Make Arithmetic Progression From Sequence"
+summary: "Check if an array can be rearranged to form an arithmetic progression."
+date: "Jun 22, 2024"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.00% | **Paid:** No
+> **Topics:** Array, Sorting
+
+A sequence of numbers is called an arithmetic progression if the difference between any two consecutive elements is the same.
+
+Given an array of numbers `arr`, return `true` if the array can be rearranged to form an arithmetic progression. Otherwise, return `false`.
+
+- Examples
+- Constraints
+- [Sorting Approach](#sorting-approach)
+- [Mathematical Set Approach](#mathematical-set-approach)
+
+## Examples
+
+```text
+Input: arr = [3,5,1]
+Output: true
+Explanation: We can reorder the elements as [1,3,5] or [5,3,1] which are arithmetic progressions with difference 2 or -2 respectively.
+```
+
+```text
+Input: arr = [1,2,4]
+Output: false
+Explanation: There is no way to reorder the elements to form an arithmetic progression.
+```
+
+## Constraints
+
+```text
+2 <= arr.length <= 1000
+-10^6 <= arr[i] <= 10^6
+```
+
+---
+## Sorting Approach
+
+**Intuition**
+If we sort the array, an arithmetic progression will naturally appear in order. We can then simply verify that the difference between every consecutive pair of elements is constant.
+
+**Steps**
+- Sort the array in ascending order.
+- Calculate the difference `diff` between the first two elements.
+- Iterate through the array starting from the third element.
+- If the difference between the current element and the previous one is not equal to `diff`, return `false`.
+- If the loop finishes without mismatches, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def canMakeArithmeticProgression(self, arr: list[int]) -> bool:
+        arr.sort()
+        diff = arr[1] - arr[0]
+        for i in range(2, len(arr)):
+            if arr[i] - arr[i - 1] != diff:
+                return False
+        return True
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.Arrays;
+
+class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        Arrays.sort(arr);
+        int diff = arr[1] - arr[0];
+        for (int i = 2; i &lt; arr.length; i++) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canMakeArithmeticProgression(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int diff = arr[1] - arr[0];
+        for (int i = 2; i &lt; arr.size(); i++) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} arr
+ * @return {boolean}
+ */
+var canMakeArithmeticProgression = function(arr) {
+    arr.sort((a, b) =&gt; a - b);
+    const diff = arr[1] - arr[0];
+    for (let i = 2; i &lt; arr.length; i++) {
+        if (arr[i] - arr[i - 1] !== diff) {
+            return false;
+        }
+    }
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function canMakeArithmeticProgression(arr: number[]): boolean {
+    arr.sort((a, b) =&gt; a - b);
+    const diff = arr[1] - arr[0];
+    for (let i = 2; i &lt; arr.length; i++) {
+        if (arr[i] - arr[i - 1] !== diff) {
+            return false;
+        }
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: $O(n \log n)$ due to the sorting step.
+- Space: $O(1)$ or $O(\log n)$ depending on the sorting algorithm's memory usage.
+- Notes: Simple to implement and understand, but not the most time-efficient.
+
+---
+## Mathematical Set Approach
+
+**Intuition**
+In a valid arithmetic progression, the minimum and maximum values are the first and last terms. The common difference `d` must be `(max - min) / (n - 1)`. We can calculate this `d` and verify that every expected term exists in the array using a hash set.
+
+**Steps**
+- Find the minimum (`min_val`) and maximum (`max_val`) in the array.
+- If `min_val` equals `max_val`, return `true` (all elements are the same).
+- Calculate the common difference `d = (max_val - min_val) / (n - 1)`.
+- If `(max_val - min_val)` is not divisible by `(n - 1)`, return `false` (progression impossible).
+- Store all elements of the array in a hash set.
+- Iterate `i` from `0` to `n - 1`. For each `i`, check if `min_val + i * d` exists in the set.
+- If any term is missing, return `false`; otherwise, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def canMakeArithmeticProgression(self, arr: list[int]) -> bool:
+        n = len(arr)
+        if n &lt;= 2:
+            return True
+        
+        min_val = min(arr)
+        max_val = max(arr)
+        
+        if (max_val - min_val) % (n - 1) != 0:
+            return False
+        
+        diff = (max_val - min_val) // (n - 1)
+        if diff == 0:
+            return True
+            
+        s = set(arr)
+        for i in range(n):
+            if (min_val + i * diff) not in s:
+                return False
+        return True
+` },
+{ name: "Java", lang: "java", code: `
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        int n = arr.length;
+        if (n &lt;= 2) return true;
+        
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        
+        for (int num : arr) {
+            min = Math.min(min, num);
+            max = Math.max(max, num);
+        }
+        
+        if ((max - min) % (n - 1) != 0) return false;
+        
+        int diff = (max - min) / (n - 1);
+        if (diff == 0) return true;
+        
+        Set<Integer> set = new HashSet&lt;&gt;();
+        for (int num : arr) {
+            set.add(num);
+        }
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (!set.contains(min + i * diff)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <unordered_set>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canMakeArithmeticProgression(vector<int>& arr) {
+        int n = arr.size();
+        if (n &lt;= 2) return true;
+        
+        int min_val = *min_element(arr.begin(), arr.end());
+        int max_val = *max_element(arr.begin(), arr.end());
+        
+        if ((max_val - min_val) % (n - 1) != 0) return false;
+        
+        int diff = (max_val - min_val) / (n - 1);
+        if (diff == 0) return true;
+        
+        unordered_set<int> s;
+        for (int num : arr) {
+            s.insert(num);
+        }
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (s.find(min_val + i * diff) == s.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * @param {number[]} arr
+ * @return {boolean}
+ */
+var canMakeArithmeticProgression = function(arr) {
+    const n = arr.length;
+    if (n &lt;= 2) return true;
+    
+    let min = Infinity;
+    let max = -Infinity;
+    
+    for (const num of arr) {
+        min = Math.min(min, num);
+        max = Math.max(max, num);
+    }
+    
+    if ((max - min) % (n - 1) !== 0) return false;
+    
+    const diff = (max - min) / (n - 1);
+    if (diff === 0) return true;
+    
+    const set = new Set(arr);
+    for (let i = 0; i &lt; n; i++) {
+        if (!set.has(min + i * diff)) {
+            return false;
+        }
+    }
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function canMakeArithmeticProgression(arr: number[]): boolean {
+    const n = arr.length;
+    if (n &lt;= 2) return true;
+    
+    let min = Infinity;
+    let max = -Infinity;
+    
+    for (const num of arr) {
+        min = Math.min(min, num);
+        max = Math.max(max, num);
+    }
+    
+    if ((max - min) % (n - 1) !== 0) return false;
+    
+    const diff = (max - min) / (n - 1);
+    if (diff === 0) return true;
+    
+    const set = new Set(arr);
+    for (let i = 0; i &lt; n; i++) {
+        if (!set.has(min + i * diff)) {
+            return false;
+        }
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: $O(n)$ since we iterate through the array a constant number of times.
+- Space: $O(n)$ to store the elements in the hash set.
+- Notes: Faster time complexity than sorting, but uses extra memory.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Can Make Arithmetic Progression From Sequence Solutions","datePublished":"2024-06-22","description":"Check if an array can be rearranged to form an arithmetic progression.","keywords":"LeetCode, Can Make Arithmetic Progression From Sequence, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Set Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we traverse the array a constant number of times."}},{"@type":"Question","name":"Why use a Set in the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"A Set allows O(1) average time complexity for checking the existence of the required arithmetic progression terms."}}]}).replace(/</g,'\u003c')}
+</script>

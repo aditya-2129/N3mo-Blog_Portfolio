@@ -1,0 +1,120 @@
+---
+title: "Apple Redistribution into Boxes"
+summary: "Determine the minimum number of boxes needed to redistribute all apples, given the weight of apples and the capacity of boxes."
+date: "Oct 30, 2024"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.50% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting
+
+You are given an array `apple` of size `n` and an array `capacity` of size `m`.
+
+The array `apple` denotes the weight of the `i`-th apple, and the array `capacity` denotes the maximum capacity of the `j`-th box.
+
+You have to redistribute the apples into the boxes such that each box can hold at most one apple (Note: The problem statement implies we are summing weights to fit into boxes, effectively treating apples as divisible weight units for the purpose of capacity calculation in the standard solution, or fitting whole apples if constraints allow. The standard "Easy" solution treats this as a volume fitting problem).
+
+Return the minimum number of boxes required to redistribute all the apples.
+
+- Examples
+- Constraints
+- [Brute Force (Backtracking)](#brute-force-backtracking)
+- [Greedy (Sorting Capacities)](#greedy-sorting-capacities)
+
+## Examples
+
+```text
+Input: apple = [1,3,2], capacity = [4,3,1,5,2]
+Output: 2
+Explanation: 
+We can use the box with capacity 5 and the box with capacity 3.
+Total weight of apples = 1 + 3 + 2 = 6.
+5 + 3 = 8 >= 6. So 2 boxes are enough.
+```
+
+```text
+Input: apple = [5,5,5], capacity = [2,4,2,7]
+Output: 4
+Explanation:
+Total weight of apples = 15.
+We need to use all boxes: 2 + 4 + 2 + 7 = 15.
+```
+
+## Constraints
+
+```text
+1 <= n == apple.length <= 50
+1 <= m == capacity.length <= 50
+1 <= apple[i], capacity[i] <= 50
+The input is generated such that it is possible to redistribute all apples.
+```
+
+---
+## Brute Force (Backtracking)
+
+**Intuition**
+We can try every possible combination of boxes to find the smallest subset whose total capacity is greater than or equal to the total weight of the apples. This checks all subsets of the `capacity` array.
+
+**Steps**
+- Calculate the total weight of all apples.
+- Use recursion/backtracking to explore including or excluding each box in the current subset.
+- Keep track of the minimum number of boxes used that satisfies the total weight requirement.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBoxes(self, apple: list[int], capacity: list[int]) -> int:\n        target = sum(apple)\n        n = len(capacity)\n        self.ans = n  # Worst case: use all boxes\n        \n        def backtrack(idx, current_sum, count):\n            if current_sum >= target:\n                self.ans = min(self.ans, count)\n                return\n            if idx == n:\n                return\n            # Pruning: if we already used more boxes than best found, stop\n            if count >= self.ans:\n                return\n            \n            # Include current box\n            backtrack(idx + 1, current_sum + capacity[idx], count + 1)\n            # Exclude current box\n            backtrack(idx + 1, current_sum, count)\n            \n        backtrack(0, 0, 0)\n        return self.ans"
+},
+{ name: "Java", lang: "java", code: "class Solution {\n    private int ans;\n    private int target;\n    \n    public int minBoxes(int[] apple, int[] capacity) {\n        target = 0;\n        for (int a : apple) target += a;\n        ans = capacity.length;\n        backtrack(capacity, 0, 0, 0);\n        return ans;\n    }\n    \n    private void backtrack(int[] capacity, int idx, int currentSum, int count) {\n        if (currentSum >= target) {\n            ans = Math.min(ans, count);\n            return;\n        }\n        if (idx == capacity.length) return;\n        if (count >= ans) return; // Pruning\n        \n        // Include\n        backtrack(capacity, idx + 1, currentSum + capacity[idx], count + 1);\n        // Exclude\n        backtrack(capacity, idx + 1, currentSum, count);\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int ans;\n    int target;\n    \n    int minBoxes(vector<int>& apple, vector<int>& capacity) {\n        target = accumulate(apple.begin(), apple.end(), 0);\n        ans = capacity.size();\n        backtrack(capacity, 0, 0, 0);\n        return ans;\n    }\n    \n    void backtrack(vector<int>& capacity, int idx, int currentSum, int count) {\n        if (currentSum >= target) {\n            ans = min(ans, count);\n            return;\n        }\n        if (idx == capacity.size()) return;\n        if (count >= ans) return; // Pruning\n        \n        // Include\n        backtrack(capacity, idx + 1, currentSum + capacity[idx], count + 1);\n        // Exclude\n        backtrack(capacity, idx + 1, currentSum, count);\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} apple\n * @param {number[]} capacity\n * @return {number}\n */\nvar minBoxes = function(apple, capacity) {\n    const target = apple.reduce((a, b) => a + b, 0);\n    let ans = capacity.length;\n    const n = capacity.length;\n    \n    const backtrack = (idx, currentSum, count) => {\n        if (currentSum >= target) {\n            ans = Math.min(ans, count);\n            return;\n        }\n        if (idx === n) return;\n        if (count >= ans) return; // Pruning\n        \n        // Include\n        backtrack(idx + 1, currentSum + capacity[idx], count + 1);\n        // Exclude\n        backtrack(idx + 1, currentSum, count);\n    };\n    \n    backtrack(0, 0, 0);\n    return ans;\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function minBoxes(apple: number[], capacity: number[]): number {\n    const target = apple.reduce((a, b) => a + b, 0);\n    let ans = capacity.length;\n    const n = capacity.length;\n    \n    const backtrack = (idx: number, currentSum: number, count: number): void => {\n        if (currentSum >= target) {\n            ans = Math.min(ans, count);\n            return;\n        }\n        if (idx === n) return;\n        if (count >= ans) return; // Pruning\n        \n        // Include\n        backtrack(idx + 1, currentSum + capacity[idx], count + 1);\n        // Exclude\n        backtrack(idx + 1, currentSum, count);\n    };\n    \n    backtrack(0, 0, 0);\n    return ans;\n}"
+}]} />
+
+**Complexity**
+- Time: O(2ᵐ) where m is the number of boxes. We explore all subsets.
+- Space: O(m) for the recursion stack.
+- Notes: This approach is conceptually simple but will Time Limit Exceed (TLE) for larger inputs. It serves as a baseline for understanding the problem.
+
+---
+## Greedy (Sorting Capacities)
+
+**Intuition**
+To minimize the number of boxes, we should prioritize using boxes with the largest capacities first. By sorting the boxes in descending order and accumulating their capacities until the total meets or exceeds the total weight of the apples, we guarantee the minimum number of boxes.
+
+**Steps**
+- Calculate the total weight of the apples.
+- Sort the `capacity` array in descending order.
+- Iterate through the sorted capacities, adding each box's capacity to a running sum.
+- Increment a counter for each box used. Stop when the running sum is greater than or equal to the total apple weight.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minBoxes(self, apple: list[int], capacity: list[int]) -> int:\n        total_apples = sum(apple)\n        capacity.sort(reverse=True)\n        \n        current_capacity = 0\n        boxes_used = 0\n        \n        for cap in capacity:\n            current_capacity += cap\n            boxes_used += 1\n            if current_capacity >= total_apples:\n                return boxes_used\n                \n        return -1 # Should not reach here given problem constraints"
+},
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\nimport java.util.Collections;\n\nclass Solution {\n    public int minBoxes(int[] apple, int[] capacity) {\n        int totalApples = 0;\n        for (int a : apple) {\n            totalApples += a;\n        }\n        \n        // Sort in descending order\n        // Arrays.sort works for primitives in ascending order\n        Arrays.sort(capacity);\n        \n        int currentCap = 0;\n        int boxesUsed = 0;\n        \n        // Iterate from end to start\n        for (int i = capacity.length - 1; i >= 0; i--) {\n            currentCap += capacity[i];\n            boxesUsed++;\n            if (currentCap >= totalApples) {\n                return boxesUsed;\n            }\n        }\n        \n        return -1;\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "#include <vector>\n#include <algorithm>\n#include <numeric>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minBoxes(vector<int>& apple, vector<int>& capacity) {\n        int totalApples = accumulate(apple.begin(), apple.end(), 0);\n        \n        // Sort in descending order\n        sort(capacity.begin(), capacity.end(), greater<int>());\n        \n        int currentCap = 0;\n        int boxesUsed = 0;\n        \n        for (int cap : capacity) {\n            currentCap += cap;\n            boxesUsed++;\n            if (currentCap >= totalApples) {\n                return boxesUsed;\n            }\n        }\n        \n        return -1;\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} apple\n * @param {number[]} capacity\n * @return {number}\n */\nvar minBoxes = function(apple, capacity) {\n    const totalApples = apple.reduce((sum, val) => sum + val, 0);\n    \n    // Sort in descending order\n    capacity.sort((a, b) => b - a);\n    \n    let currentCap = 0;\n    let boxesUsed = 0;\n    \n    for (const cap of capacity) {\n        currentCap += cap;\n        boxesUsed++;\n        if (currentCap >= totalApples) {\n            return boxesUsed;\n        }\n    }\n    \n    return -1;\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function minBoxes(apple: number[], capacity: number[]): number {\n    const totalApples = apple.reduce((sum, val) => sum + val, 0);\n    \n    // Sort in descending order\n    capacity.sort((a, b) => b - a);\n    \n    let currentCap = 0;\n    let boxesUsed = 0;\n    \n    for (const cap of capacity) {\n        currentCap += cap;\n        boxesUsed++;\n        if (currentCap >= totalApples) {\n            return boxesUsed;\n        }\n    }\n    \n    return -1;\n}"
+}]} />
+
+**Complexity**
+- Time: O(n log n + m log m) due to sorting, where n is the number of apples and m is the number of boxes.
+- Space: O(1) or O(m) depending on the sorting implementation (in-place sort usually uses O(log m) stack space).
+- Notes: This is the optimal approach for this problem, efficiently minimizing the number of boxes by leveraging the greedy strategy.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Apple Redistribution into Boxes Solutions","datePublished":"2024-10-30","description":"Determine the minimum number of boxes needed to redistribute all apples, given the weight of apples and the capacity of boxes.","keywords":"LeetCode, Apple Redistribution into Boxes, Easy, Array, Greedy, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(2^m), where m is the number of boxes, as it checks all possible subsets."}},{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n + m log m) due to sorting the arrays."}},{"@type":"Question","name":"Why does sorting capacities in descending order work?","acceptedAnswer":{"@type":"Answer","text":"Sorting in descending order allows us to use the largest available boxes first, ensuring we reach the required total capacity with the fewest number of boxes."}}]}).replace(/</g,'\u003c')}
+</script>

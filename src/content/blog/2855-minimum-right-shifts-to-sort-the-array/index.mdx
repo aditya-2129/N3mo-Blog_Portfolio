@@ -1,0 +1,115 @@
+---
+title: "Minimum Right Shifts to Sort the Array"
+summary: "Find the minimum right shifts to sort a distinct array, or return -1 if impossible."
+date: "Jun 06, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.40% | **Paid:** No
+> **Topics:** Array
+
+You are given a 0-indexed array nums of distinct integers. A right shift moves the last element of the array to the first position and shifts all other elements to the right. Return the minimum number of right shifts required to make nums sorted in strictly increasing order. If it is impossible to sort the array by right shifts, return -1.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Find Minimum Element Index](#find-minimum-element-index)
+
+## Examples
+
+```text
+Input: nums = [3,4,5,1,2]
+Output: 2
+Explanation: 
+1st shift: nums = [2,3,4,5,1]
+2nd shift: nums = [1,2,3,4,5]
+```
+
+```text
+Input: nums = [1,2,3]
+Output: 0
+Explanation: The array is already sorted.
+```
+
+```text
+Input: nums = [2,1,4]
+Output: -1
+Explanation: No matter how many shifts we do, the array cannot be sorted.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+nums contains distinct integers.
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Since the array length is small (up to 100), we can simulate the right shift operation for every possible number of shifts from 0 to n-1. For each shifted configuration, we check if the array is sorted.
+
+**Steps**
+- Iterate `k` from 0 to `n-1`, representing the number of right shifts.
+- For each `k`, check if the array is sorted in strictly increasing order starting from index `k` and wrapping around to the beginning.
+- If a sorted configuration is found, return the number of shifts required to align the start of the sorted sequence to index 0. This is `(n - k) % n`.
+- If no configuration is sorted after checking all `k`, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def minimumRightShifts(self, nums: List[int]) -> int:\n        n = len(nums)\n        for k in range(n):\n            is_sorted = True\n            for i in range(n - 1):\n                curr = nums[(k + i) % n]\n                nxt = nums[(k + i + 1) % n]\n                if curr > nxt:\n                    is_sorted = False\n                    break\n            if is_sorted:\n                return (n - k) % n\n        return -1"
+},
+{ name: "Java", lang: "java", code: "import java.util.List;\n\nclass Solution {\n    public int minimumRightShifts(List<Integer> nums) {\n        int n = nums.size();\n        for (int k = 0; k < n; k++) {\n            boolean isSorted = true;\n            for (int i = 0; i < n - 1; i++) {\n                int curr = nums.get((k + i) % n);\n                int next = nums.get((k + i + 1) % n);\n                if (curr > next) {\n                    isSorted = false;\n                    break;\n                }\n            }\n            if (isSorted) {\n                return (n - k) % n;\n            }\n        }\n        return -1;\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "#include <vector>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minimumRightShifts(vector<int>& nums) {\n        int n = nums.size();\n        for (int k = 0; k < n; k++) {\n            bool isSorted = true;\n            for (int i = 0; i < n - 1; i++) {\n                int curr = nums[(k + i) % n];\n                int next = nums[(k + i + 1) % n];\n                if (curr > next) {\n                    isSorted = false;\n                    break;\n                }\n            }\n            if (isSorted) {\n                return (n - k) % n;\n            }\n        }\n        return -1;\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "var minimumRightShifts = function(nums) {\n    const n = nums.length;\n    for (let k = 0; k < n; k++) {\n        let isSorted = true;\n        for (let i = 0; i < n - 1; i++) {\n            const curr = nums[(k + i) % n];\n            const next = nums[(k + i + 1) % n];\n            if (curr > next) {\n                isSorted = false;\n                break;\n            }\n        }\n        if (isSorted) {\n            return (n - k) % n;\n        }\n    }\n    return -1;\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function minimumRightShifts(nums: number[]): number {\n    const n = nums.length;\n    for (let k = 0; k < n; k++) {\n        let isSorted = true;\n        for (let i = 0; i < n - 1; i++) {\n            const curr = nums[(k + i) % n];\n            const next = nums[(k + i + 1) % n];\n            if (curr > next) {\n                isSorted = false;\n                break;\n            }\n        }\n        if (isSorted) {\n            return (n - k) % n;\n        }\n    }\n    return -1;\n}"
+},]} />
+
+**Complexity**
+- Time: O(n²) - We iterate through n shifts and check n elements for each.
+- Space: O(1) - We only use a few variables for iteration.
+- Notes: Simple to implement but inefficient for very large arrays (though constraints are small here).
+
+---
+## Find Minimum Element Index
+
+**Intuition**
+In a sorted array of distinct integers, the minimum element is at the beginning. If the array is a rotation of a sorted array, the minimum element marks the start of the sorted sequence. We can find the index of the minimum element and verify if the array is sorted starting from that index.
+
+**Steps**
+- Find the index `min_idx` of the smallest element in the array.
+- Iterate through the array starting from `min_idx` and check if the sequence is strictly increasing, wrapping around to the beginning.
+- If the sequence is sorted, the number of right shifts needed is `(n - min_idx) % n` (moving the tail to the front).
+- If the sequence is not sorted, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def minimumRightShifts(self, nums: List[int]) -> int:\n        n = len(nums)\n        min_idx = 0\n        for i in range(n):\n            if nums[i] < nums[min_idx]:\n                min_idx = i\n        \n        for i in range(n - 1):\n            curr = nums[(min_idx + i) % n]\n            nxt = nums[(min_idx + i + 1) % n]\n            if curr > nxt:\n                return -1\n        \n        return (n - min_idx) % n"
+},
+{ name: "Java", lang: "java", code: "import java.util.List;\n\nclass Solution {\n    public int minimumRightShifts(List<Integer> nums) {\n        int n = nums.size();\n        int minIdx = 0;\n        for (int i = 0; i < n; i++) {\n            if (nums.get(i) < nums.get(minIdx)) {\n                minIdx = i;\n            }\n        }\n        \n        for (int i = 0; i < n - 1; i++) {\n            int curr = nums.get((minIdx + i) % n);\n            int next = nums.get((minIdx + i + 1) % n);\n            if (curr > next) {\n                return -1;\n            }\n        }\n        \n        return (n - minIdx) % n;\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "#include <vector>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int minimumRightShifts(vector<int>& nums) {\n        int n = nums.size();\n        int minIdx = 0;\n        for (int i = 0; i < n; ++i) {\n            if (nums[i] < nums[minIdx]) {\n                minIdx = i;\n            }\n        }\n        \n        for (int i = 0; i < n - 1; ++i) {\n            int curr = nums[(minIdx + i) % n];\n            int next = nums[(minIdx + i + 1) % n];\n            if (curr > next) {\n                return -1;\n            }\n        }\n        \n        return (n - minIdx) % n;\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "var minimumRightShifts = function(nums) {\n    const n = nums.length;\n    let minIdx = 0;\n    for (let i = 0; i < n; i++) {\n        if (nums[i] < nums[minIdx]) {\n            minIdx = i;\n        }\n    }\n    \n    for (let i = 0; i < n - 1; i++) {\n        const curr = nums[(minIdx + i) % n];\n        const next = nums[(minIdx + i + 1) % n];\n        if (curr > next) {\n            return -1;\n        }\n    }\n    \n    return (n - minIdx) % n;\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function minimumRightShifts(nums: number[]): number {\n    const n = nums.length;\n    let minIdx = 0;\n    for (let i = 0; i < n; i++) {\n        if (nums[i] < nums[minIdx]) {\n            minIdx = i;\n        }\n    }\n    \n    for (let i = 0; i < n - 1; i++) {\n        const curr = nums[(minIdx + i) % n];\n        const next = nums[(minIdx + i + 1) % n];\n        if (curr > next) {\n            return -1;\n        }\n    }\n    \n    return (n - minIdx) % n;\n}"
+},]} />
+
+**Complexity**
+- Time: O(n) - We pass through the array twice (once to find min, once to verify order).
+- Space: O(1) - Constant extra space used.
+- Notes: This is the optimal approach for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Right Shifts to Sort the Array Solutions","datePublished":"2025-06-06","description":"Find the minimum right shifts to sort a distinct array, or return -1 if impossible.","keywords":"LeetCode, Minimum Right Shifts to Sort the Array, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Find Minimum Element Index approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we traverse the array a constant number of times."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), using only a few extra variables for indices and comparisons."}}]}).replace(/</g,'\u003c')}
+</script>

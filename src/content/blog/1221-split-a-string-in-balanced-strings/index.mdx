@@ -1,0 +1,135 @@
+---
+title: "Split a String in Balanced Strings"
+summary: "Split a balanced string into the maximum number of balanced substrings using greedy counting."
+date: "Mar 01, 2024"
+tags:
+  - String
+  - Greedy
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.40% | **Paid:** No
+> **Topics:** String, Greedy, Counting
+
+Balanced strings are those that have an equal quantity of 'L' and 'R' characters.
+
+Given a balanced string s, split it in the maximum amount of balanced strings.
+
+Return the maximum amount of split balanced strings.
+
+- Examples
+- Constraints
+- [Approach 1: Greedy Counting](#approach-1-greedy-counting)
+- [Approach 2: Stack Simulation](#approach-2-stack-simulation)
+- [Approach 3: Brute Force](#approach-3-brute-force)
+
+## Examples
+
+```text
+Input: s = "RLRRLLRLRL"
+Output: 4
+Explanation: s can be split into "RL", "RRLL", "RL", "RL", each substring is balanced.
+```
+
+```text
+Input: s = "RLLLLRRRLR"
+Output: 3
+Explanation: s can be split into "RL", "LLLRRR", "LR", each substring is balanced.
+```
+
+```text
+Input: s = "LLLLRRRR"
+Output: 1
+Explanation: s can be split into "LLLLRRRR".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s[i] is either 'L' or 'R'
+s is a balanced string.
+```
+
+---
+## Approach 1: Greedy Counting
+
+**Intuition**
+Since the total string is balanced, we can greedily count characters. Whenever the running count of 'L' and 'R' becomes equal (count = 0), we have found a valid balanced substring.
+
+**Steps**
+- Initialize `count` and `result` to 0.
+- Iterate through the string character by character.
+- If the character is 'R', increment `count`. If it is 'L', decrement `count`.
+- If `count` becomes 0, increment `result` as we have found a split point.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def balancedStringSplit(self, s: str) -&gt; int:\n        count = 0\n        res = 0\n        for c in s:\n            if c == 'R':\n                count += 1\n            else:\n                count -= 1\n            if count == 0:\n                res += 1\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int balancedStringSplit(String s) {\n        int count = 0;\n        int res = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            if (s.charAt(i) == 'R') {\n                count++;\n            } else {\n                count--;\n            }\n            if (count == 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int balancedStringSplit(string s) {\n        int count = 0;\n        int res = 0;\n        for (char c : s) {\n            if (c == 'R') {\n                count++;\n            } else {\n                count--;\n            }\n            if (count == 0) {\n                res++;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var balancedStringSplit = function(s) {\n    let count = 0;\n    let res = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === 'R') {\n            count++;\n        } else {\n            count--;\n        }\n        if (count === 0) {\n            res++;\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function balancedStringSplit(s: string): number {\n    let count = 0;\n    let res = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === 'R') {\n            count++;\n        } else {\n            count--;\n        }\n        if (count === 0) {\n            res++;\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string once.
+- Space: O(1), we only use a few integer variables.
+- Notes: This is the most optimal solution for this problem.
+
+---
+## Approach 2: Stack Simulation
+
+**Intuition**
+We can simulate the matching process using a stack. Push 'R' onto the stack and pop for 'L' (or vice versa). When the stack becomes empty, it means we have found a balanced segment.
+
+**Steps**
+- Initialize an empty stack and `result` to 0.
+- Iterate through the string.
+- If the stack is empty or the top of the stack matches the current character, push the character onto the stack.
+- Otherwise, pop the top of the stack.
+- If the stack is empty after processing the current character, increment `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def balancedStringSplit(self, s: str) -&gt; int:\n        stack = []\n        res = 0\n        for c in s:\n            if not stack or stack[-1] == c:\n                stack.append(c)\n            else:\n                stack.pop()\n            if not stack:\n                res += 1\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public int balancedStringSplit(String s) {\n        Stack&lt;Character&gt; stack = new Stack&lt;&gt;();\n        int res = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (stack.isEmpty() || stack.peek() == c) {\n                stack.push(c);\n            } else {\n                stack.pop();\n            }\n            if (stack.isEmpty()) {\n                res++;\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;stack&gt;\n#include &lt;string&gt;\n\nclass Solution {\npublic:\n    int balancedStringSplit(string s) {\n        std::stack&lt;char&gt; st;\n        int res = 0;\n        for (char c : s) {\n            if (st.empty() || st.top() == c) {\n                st.push(c);\n            } else {\n                st.pop();\n            }\n            if (st.empty()) {\n                res++;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var balancedStringSplit = function(s) {\n    let stack = [];\n    let res = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let c = s[i];\n        if (stack.length === 0 || stack[stack.length - 1] === c) {\n            stack.push(c);\n        } else {\n            stack.pop();\n        }\n        if (stack.length === 0) {\n            res++;\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function balancedStringSplit(s: string): number {\n    let stack: string[] = [];\n    let res = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        let c = s[i];\n        if (stack.length === 0 || stack[stack.length - 1] === c) {\n            stack.push(c);\n        } else {\n            stack.pop();\n        }\n        if (stack.length === 0) {\n            res++;\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n), we iterate through the string once.
+- Space: O(n), in the worst case (e.g., "RRRR"), the stack grows to size n.
+- Notes: While conceptually valid for matching problems, it uses extra space compared to the counting approach.
+
+---
+## Approach 3: Brute Force
+
+**Intuition**
+Iterate through the string, checking every possible prefix to see if it is balanced. If it is, cut it and restart the check from the next character.
+
+**Steps**
+- Initialize `result` to 0 and `start` index to 0.
+- Iterate `i` from `start` to the end of the string.
+- Check if the substring `s[start...i]` is balanced by counting 'L' and 'R'.
+- If balanced, increment `result`, set `start` to `i + 1`, and break the inner loop to continue searching.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def balancedStringSplit(self, s: str) -&gt; int:\n        res = 0\n        n = len(s)\n        i = 0\n        while i &lt; n:\n            count = 0\n            for j in range(i, n):\n                if s[j] == 'R':\n                    count += 1\n                else:\n                    count -= 1\n                if count == 0:\n                    res += 1\n                    i = j + 1\n                    break\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int balancedStringSplit(String s) {\n        int res = 0;\n        int n = s.length();\n        int i = 0;\n        while (i &lt; n) {\n            int count = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (s.charAt(j) == 'R') {\n                    count++;\n                } else {\n                    count--;\n                }\n                if (count == 0) {\n                    res++;\n                    i = j + 1;\n                    break;\n                }\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int balancedStringSplit(string s) {\n        int res = 0;\n        int n = s.length();\n        int i = 0;\n        while (i &lt; n) {\n            int count = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (s[j] == 'R') {\n                    count++;\n                } else {\n                    count--;\n                }\n                if (count == 0) {\n                    res++;\n                    i = j + 1;\n                    break;\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var balancedStringSplit = function(s) {\n    let res = 0;\n    let n = s.length;\n    let i = 0;\n    while (i &lt; n) {\n        let count = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === 'R') {\n                count++;\n            } else {\n                count--;\n            }\n            if (count === 0) {\n                res++;\n                i = j + 1;\n                break;\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function balancedStringSplit(s: string): number {\n    let res = 0;\n    let n = s.length;\n    let i = 0;\n    while (i &lt; n) {\n        let count = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === 'R') {\n                count++;\n            } else {\n                count--;\n            }\n            if (count === 0) {\n                res++;\n                i = j + 1;\n                break;\n            }\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n²), in the worst case we might scan the string multiple times.
+- Space: O(1), only a few variables are used.
+- Notes: This approach is less efficient than the greedy approach but demonstrates the brute force logic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Split a String in Balanced Strings Solutions","datePublished":"2024-03-01","description":"Split a balanced string into the maximum number of balanced substrings using greedy counting.","keywords":"LeetCode, Split a String in Balanced Strings, Easy, String, Greedy, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Stack Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case, as the stack may store up to n characters."}},{"@type":"Question","name":"Is the Brute Force approach efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"No, the Brute Force approach has a time complexity of O(n²), which is less efficient than the optimal O(n) greedy approach."}}]}).replace(/</g,'\u003c')}
+</script>

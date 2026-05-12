@@ -1,0 +1,131 @@
+---
+title: "Queries Quality and Percentage"
+summary: "Calculate query quality and percentage from a queries table containing query_name, result, position, and rating."
+date: "Oct 25, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.00% | **Paid:** No
+> **Topics:** Database
+
+Table: Queries
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| query_name  | varchar |
+| result      | varchar |
+| position    | int     |
+| rating      | int     |
++-------------+---------+
+This table may have duplicate rows.
+The query_name is the name of a query.
+The result is the result of the query.
+The position is the position of the result.
+The rating is the rating of the result.
+
+Write a solution to calculate the quality and percentage of each query.
+
+The quality of a query is the average rating of the query's results.
+The percentage of a query is the number of results of the query divided by the total number of results, multiplied by 100.
+
+Return the result table ordered by quality in descending order. In case of a tie, order them by query_name in ascending order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Single-Pass Aggregation](#approach-1)
+- [Approach 2: Two-Phase Aggregation](#approach-2)
+
+## Examples
+
+### Example 1:
+Input:
+Queries table:
++------------+-------------------+----------+--------+
+| query_name | result            | position | rating |
++------------+-------------------+----------+--------+
+| Dog        | Golden Retriever  | 1        | 5      |
+| Dog        | German Shepherd   | 2        | 5      |
+| Dog        | Mule              | 200      | 1      |
+| Cat        | Shirazi           | 5        | 2      |
+| Cat        | Siamese           | 3        | 3      |
+| Cat        | Sphynx            | 7        | 4      |
++------------+-------------------+----------+--------+
+Output:
++------------+---------+----------+
+| query_name | quality | percentage|
++------------+---------+----------+
+| Dog        | 3.66    | 50.00    |
+| Cat        | 3.00    | 50.00    |
++------------+---------+----------+
+Explanation:
+- For query "Dog", the average rating is (5 + 5 + 1) / 3 = 3.66, and the percentage is 3 / 6 * 100 = 50.00.
+- For query "Cat", the average rating is (2 + 3 + 4) / 3 = 3.00, and the percentage is 3 / 6 * 100 = 50.00.
+
+## Constraints
+```text
+1 <= query_name.length <= 20
+result.length <= 20
+1 <= position <= 500
+1 <= rating <= 5
+```
+
+---
+## Approach 1: Single-Pass Aggregation
+
+**Intuition**
+Use a hash map to accumulate the sum of ratings and count for each query_name in a single pass, then compute quality and percentage.
+
+**Steps**
+- Iterate through all queries, accumulating sum and count per query_name
+- Calculate total count during the same pass
+- Compute quality (sum/count) and percentage (count/total * 100) for each query
+- Sort by quality descending, then query_name ascending
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef queries_quality(queries: pd.DataFrame) -&gt; pd.DataFrame:\n    total = len(queries)\n    result = queries.groupby('query_name').agg(\n        quality=('rating', 'mean'),\n        count=('rating', 'count')\n    ).reset_index()\n    result['percentage'] = (result['count'] / total * 100).round(2)\n    result = result.sort_values(by=['quality', 'query_name'], ascending=[False, True])\n    return result[['query_name', 'quality', 'percentage']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; queriesQuality(List&lt;List&lt;String&gt;&gt; queries) {\n        Map&lt;String, double[]&gt; map = new HashMap&lt;&gt;();\n        int total = queries.size();\n        \n        for (List&lt;String&gt; q : queries) {\n            String name = q.get(0);\n            double rating = Double.parseDouble(q.get(3));\n            map.putIfAbsent(name, new double[]{0, 0});\n            double[] data = map.get(name);\n            data[0] += rating;\n            data[1]++;\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, double[]&gt; entry : map.entrySet()) {\n            String name = entry.getKey();\n            double[] data = entry.getValue();\n            double quality = data[0] / data[1];\n            double percentage = data[1] * 100.0 / total;\n            \n            List&lt;String&gt; row = new ArrayList&lt;&gt;();\n            row.add(name);\n            row.add(String.format(\"%.2f\", quality));\n            row.add(String.format(\"%.2f\", percentage));\n            result.add(row);\n        }\n        \n        result.sort((a, b) -&gt; {\n            double qa = Double.parseDouble(a.get(1));\n            double qb = Double.parseDouble(b.get(1));\n            if (Math.abs(qa - qb) &gt; 0.0001) return Double.compare(qb, qa);\n            return a.get(0).compareTo(b.get(0));\n        });\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;algorithm&gt;\n#include &lt;iomanip&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; queriesQuality(vector&lt;vector&lt;string&gt;&gt;& queries) {\n        map&lt;string, pair&lt;double, int&gt;&gt; data;\n        int total = queries.size();\n        \n        for (auto& q : queries) {\n            string name = q[0];\n            double rating = stod(q[3]);\n            data[name].first += rating;\n            data[name].second++;\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; results;\n        for (auto& [name, val] : data) {\n            double quality = val.first / val.second;\n            double percentage = (double)val.second / total * 100.0;\n            \n            ostringstream qs, ps;\n            qs &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; quality;\n            ps &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; percentage;\n            \n            results.push_back({name, qs.str(), ps.str()});\n        }\n        \n        sort(results.begin(), results.end(), [](const vector&lt;string&gt;& a, const vector&lt;string&gt;& b) {\n            double qa = stod(a[1]);\n            double qb = stod(b[1]);\n            if (abs(qa - qb) &gt; 1e-9) return qa &gt; qb;\n            return a[0] &lt; b[0];\n        });\n        \n        return results;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} queries\n * @return {string[][]}\n */\nfunction queriesQuality(queries) {\n    const total = queries.length;\n    const map = new Map();\n    \n    for (const q of queries) {\n        const name = q[0];\n        const rating = parseFloat(q[3]);\n        if (!map.has(name)) {\n            map.set(name, { sum: 0, count: 0 });\n        }\n        const data = map.get(name);\n        data.sum += rating;\n        data.count++;\n    }\n    \n    const results = [];\n    for (const [name, data] of map) {\n        const quality = data.sum / data.count;\n        const percentage = (data.count / total) * 100;\n        results.push([\n            name,\n            quality.toFixed(2),\n            percentage.toFixed(2)\n        ]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        const qa = parseFloat(a[1]);\n        const qb = parseFloat(b[1]);\n        if (Math.abs(qa - qb) &gt; 0.0001) return qb - qa;\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return results;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function queriesQuality(queries: string[][]): string[][] {\n    const total = queries.length;\n    const map = new Map&lt;string, { sum: number; count: number }&gt;();\n    \n    for (const q of queries) {\n        const name = q[0];\n        const rating = parseFloat(q[3]);\n        if (!map.has(name)) {\n            map.set(name, { sum: 0, count: 0 });\n        }\n        const data = map.get(name)!;\n        data.sum += rating;\n        data.count++;\n    }\n    \n    const results: string[][] = [];\n    for (const [name, data] of map) {\n        const quality = data.sum / data.count;\n        const percentage = (data.count / total) * 100;\n        results.push([\n            name,\n            quality.toFixed(2),\n            percentage.toFixed(2)\n        ]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        const qa = parseFloat(a[1]);\n        const qb = parseFloat(b[1]);\n        if (Math.abs(qa - qb) &gt; 0.0001) return qb - qa;\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return results;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Queries table
+- Space: O(k) where k is the number of unique query names
+- Notes: Single pass through data with hash map for aggregation
+
+---
+## Approach 2: Two-Phase Aggregation
+
+**Intuition**
+First aggregate sum and count by query_name, then calculate total count and compute final metrics in a second phase.
+
+**Steps**
+- Phase 1: Group by query_name and aggregate sum and count of ratings
+- Phase 2: Calculate total count from aggregated data
+- Compute quality and percentage for each query
+- Sort by quality descending, then query_name ascending
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef queries_quality(queries: pd.DataFrame) -&gt; pd.DataFrame:\n    grouped = queries.groupby('query_name')['rating'].agg(['sum', 'count']).reset_index()\n    \n    total = grouped['count'].sum()\n    grouped['quality'] = (grouped['sum'] / grouped['count']).round(2)\n    grouped['percentage'] = (grouped['count'] / total * 100).round(2)\n    \n    result = grouped.sort_values(by=['quality', 'query_name'], ascending=[False, True])\n    return result[['query_name', 'quality', 'percentage']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; queriesQuality(List&lt;List&lt;String&gt;&gt; queries) {\n        Map&lt;String, double[]&gt; map = new HashMap&lt;&gt;();\n        \n        for (List&lt;String&gt; q : queries) {\n            String name = q.get(0);\n            double rating = Double.parseDouble(q.get(3));\n            map.putIfAbsent(name, new double[]{0, 0});\n            double[] data = map.get(name);\n            data[0] += rating;\n            data[1]++;\n        }\n        \n        int total = queries.size();\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        \n        for (Map.Entry&lt;String, double[]&gt; entry : map.entrySet()) {\n            String name = entry.getKey();\n            double[] data = entry.getValue();\n            double quality = data[0] / data[1];\n            double percentage = data[1] * 100.0 / total;\n            \n            List&lt;String&gt; row = new ArrayList&lt;&gt;();\n            row.add(name);\n            row.add(String.format(\"%.2f\", quality));\n            row.add(String.format(\"%.2f\", percentage));\n            result.add(row);\n        }\n        \n        result.sort((a, b) -&gt; {\n            double qa = Double.parseDouble(a.get(1));\n            double qb = Double.parseDouble(b.get(1));\n            if (Math.abs(qa - qb) &gt; 0.0001) return Double.compare(qb, qa);\n            return a.get(0).compareTo(b.get(0));\n        });\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;algorithm&gt;\n#include &lt;iomanip&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; queriesQuality(vector&lt;vector&lt;string&gt;&gt;& queries) {\n        map&lt;string, pair&lt;double, int&gt;&gt; data;\n        \n        for (auto& q : queries) {\n            string name = q[0];\n            double rating = stod(q[3]);\n            data[name].first += rating;\n            data[name].second++;\n        }\n        \n        int total = queries.size();\n        vector&lt;vector&lt;string&gt;&gt; results;\n        \n        for (auto& [name, val] : data) {\n            double quality = val.first / val.second;\n            double percentage = (double)val.second / total * 100.0;\n            \n            ostringstream qs, ps;\n            qs &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; quality;\n            ps &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; percentage;\n            \n            results.push_back({name, qs.str(), ps.str()});\n        }\n        \n        sort(results.begin(), results.end(), [](const vector&lt;string&gt;& a, const vector&lt;string&gt;& b) {\n            double qa = stod(a[1]);\n            double qb = stod(b[1]);\n            if (abs(qa - qb) &gt; 1e-9) return qa &gt; qb;\n            return a[0] &lt; b[0];\n        });\n        \n        return results;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} queries\n * @return {string[][]}\n */\nfunction queriesQuality(queries) {\n    const map = new Map();\n    \n    for (const q of queries) {\n        const name = q[0];\n        const rating = parseFloat(q[3]);\n        if (!map.has(name)) {\n            map.set(name, { sum: 0, count: 0 });\n        }\n        const data = map.get(name);\n        data.sum += rating;\n        data.count++;\n    }\n    \n    const total = queries.length;\n    const results = [];\n    \n    for (const [name, data] of map) {\n        const quality = data.sum / data.count;\n        const percentage = (data.count / total) * 100;\n        results.push([\n            name,\n            quality.toFixed(2),\n            percentage.toFixed(2)\n        ]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        const qa = parseFloat(a[1]);\n        const qb = parseFloat(b[1]);\n        if (Math.abs(qa - qb) &gt; 0.0001) return qb - qa;\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return results;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function queriesQuality(queries: string[][]): string[][] {\n    const map = new Map&lt;string, { sum: number; count: number }&gt;();\n    \n    for (const q of queries) {\n        const name = q[0];\n        const rating = parseFloat(q[3]);\n        if (!map.has(name)) {\n            map.set(name, { sum: 0, count: 0 });\n        }\n        const data = map.get(name)!;\n        data.sum += rating;\n        data.count++;\n    }\n    \n    const total = queries.length;\n    const results: string[][] = [];\n    \n    for (const [name, data] of map) {\n        const quality = data.sum / data.count;\n        const percentage = (data.count / total) * 100;\n        results.push([\n            name,\n            quality.toFixed(2),\n            percentage.toFixed(2)\n        ]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        const qa = parseFloat(a[1]);\n        const qb = parseFloat(b[1]);\n        if (Math.abs(qa - qb) &gt; 0.0001) return qb - qa;\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return results;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Queries table
+- Space: O(k) where k is the number of unique query names
+- Notes: Separates aggregation from computation for clearer code structure
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Queries Quality and Percentage Solutions","datePublished":"2024-10-25","description":"Calculate query quality and percentage from a queries table containing query_name, result, position, and rating.","keywords":"LeetCode, Queries Quality and Percentage, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Queries table."}},{"@type":"Question","name":"What is the space complexity of Approach 1?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique query names."}},{"@type":"Question","name":"What is the time complexity of Approach 2?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Queries table."}},{"@type":"Question","name":"What is the space complexity of Approach 2?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique query names."}}]}).replace(/</g,'\u003c')}
+</script>

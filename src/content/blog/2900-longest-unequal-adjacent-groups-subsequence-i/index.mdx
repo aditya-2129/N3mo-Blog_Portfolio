@@ -1,0 +1,116 @@
+---
+title: "Longest Unequal Adjacent Groups Subsequence I"
+summary: "Find the longest subsequence of words where adjacent groups are unequal."
+date: "Mar 28, 2026"
+tags:
+  - Array
+  - String
+  - Dynamic Programming
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.00% | **Paid:** No
+> **Topics:** Array, String, Dynamic Programming, Greedy
+
+You are given a string array words and an integer array groups, both of length n.
+
+The array groups describes the group index that each word belongs to. You need to select the longest subsequence of words such that the indices of the selected words are strictly increasing, and for any two adjacent selected words, their group indices are different.
+
+Return the selected words as a list.
+
+- Examples
+- Constraints
+- [Greedy Approach](#greedy-approach)
+- [Dynamic Programming Approach](#dynamic-programming-approach)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: words = ["e","a","b"], groups = [0,0,1]
+Output: ["e","b"]
+Explanation: A subsequence of length 2 can be selected, e.g., ["e","b"].
+```
+
+**Example 2:**
+
+```text
+Input: words = ["a","b","c","d"], groups = [1,0,1,0]
+Output: ["a","b","c","d"]
+Explanation: A subsequence of length 4 can be selected, e.g., ["a","b","c","d"], because the groups of adjacent words are different.
+```
+
+## Constraints
+
+```text
+1 <= n == words.length == groups.length <= 100
+1 <= words[i].length <= 10
+0 <= groups[i] < 10
+```
+
+---
+
+## Greedy Approach
+
+**Intuition**
+To maximize the length of the subsequence, we should include a word whenever possible. The only restriction is that we cannot include a word if its group is the same as the group of the last word we included. Therefore, we can iterate through the array and greedily select words as long as the current group differs from the last selected group.
+
+**Steps**
+- Initialize an empty list `res` to store the result and a variable `lastGroup` initialized to -1.
+- Iterate through the `words` and `groups` arrays simultaneously.
+- For each index `i`, check if `groups[i]` is different from `lastGroup`.
+- If they are different, append `words[i]` to `res` and update `lastGroup` to `groups[i]`.
+- If they are the same, skip the current word.
+- Return the `res` list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'from typing import List\n\nclass Solution:\n    def getLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:\n        res = []\n        last_group = -1\n        for i in range(len(words)):\n            if groups[i] != last_group:\n                res.append(words[i])\n                last_group = groups[i]\n        return res' },
+{ name: "Java", lang: "java", code: 'import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List<String> getLongestSubsequence(String[] words, int[] groups) {\n        List<String> res = new ArrayList&lt;&gt;();\n        int lastGroup = -1;\n        for (int i = 0; i &lt; words.length; i++) {\n            if (groups[i] != lastGroup) {\n                res.add(words[i]);\n                lastGroup = groups[i];\n            }\n        }\n        return res;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <string>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<string> getLongestSubsequence(vector<string>& words, vector<int>& groups) {\n        vector<string> res;\n        int lastGroup = -1;\n        for (int i = 0; i &lt; words.size(); i++) {\n            if (groups[i] != lastGroup) {\n                res.push_back(words[i]);\n                lastGroup = groups[i];\n            }\n        }\n        return res;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var getLongestSubsequence = function(words, groups) {\n    let res = [];\n    let lastGroup = -1;\n    for (let i = 0; i &lt; words.length; i++) {\n        if (groups[i] !== lastGroup) {\n            res.push(words[i]);\n            lastGroup = groups[i];\n        }\n    }\n    return res;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function getLongestSubsequence(words: string[], groups: number[]): string[] {\n    let res: string[] = [];\n    let lastGroup: number = -1;\n    for (let i = 0; i &lt; words.length; i++) {\n        if (groups[i] !== lastGroup) {\n            res.push(words[i]);\n            lastGroup = groups[i];\n        }\n    }\n    return res;\n};' },]} />
+
+**Complexity**
+- Time: O(n) — We iterate through the array once.
+- Space: O(n) — To store the result list.
+- Notes: This is the optimal solution for this problem.
+
+---
+
+## Dynamic Programming Approach
+
+**Intuition**
+We can model this problem using Dynamic Programming, where `dp[i]` represents the length of the longest valid subsequence ending at index `i`. We also maintain a `prev` array to reconstruct the sequence. For each `i`, we look at all previous indices `j` where `groups[j] != groups[i]` and pick the one that maximizes the length.
+
+**Steps**
+- Initialize `dp` array of size `n` with 1s (each word is a subsequence of length 1).
+- Initialize `prev` array of size `n` with -1s.
+- Iterate `i` from 0 to `n-1`.
+- For each `i`, iterate `j` from 0 to `i-1`.
+- If `groups[i] != groups[j]` and `dp[j] + 1 &gt; dp[i]`, update `dp[i] = dp[j] + 1` and set `prev[i] = j`.
+- Find the index `maxIdx` with the maximum value in `dp`.
+- Reconstruct the sequence by backtracking from `maxIdx` using the `prev` array.
+- Reverse the reconstructed sequence and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'from typing import List\n\nclass Solution:\n    def getLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:\n        n = len(words)\n        dp = [1] * n\n        prev = [-1] * n\n        max_len = 0\n        max_idx = 0\n        \n        for i in range(n):\n            for j in range(i):\n                if groups[i] != groups[j] and dp[j] + 1 > dp[i]:\n                    dp[i] = dp[j] + 1\n                    prev[i] = j\n            if dp[i] > max_len:\n                max_len = dp[i]\n                max_idx = i\n        \n        res = []\n        curr = max_idx\n        while curr != -1:\n            res.append(words[curr])\n            curr = prev[curr]\n        return res[::-1]' },
+{ name: "Java", lang: "java", code: 'import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List<String> getLongestSubsequence(String[] words, int[] groups) {\n        int n = words.length;\n        int[] dp = new int[n];\n        int[] prev = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            dp[i] = 1;\n            prev[i] = -1;\n        }\n        \n        int maxLen = 0;\n        int maxIdx = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; i; j++) {\n                if (groups[i] != groups[j] && dp[j] + 1 &gt; dp[i]) {\n                    dp[i] = dp[j] + 1;\n                    prev[i] = j;\n                }\n            }\n            if (dp[i] &gt; maxLen) {\n                maxLen = dp[i];\n                maxIdx = i;\n            }\n        }\n        \n        List<String> res = new ArrayList&lt;&gt;();\n        int curr = maxIdx;\n        while (curr != -1) {\n            res.add(words[curr]);\n            curr = prev[curr];\n        }\n        \n        // Reverse the list\n        int left = 0, right = res.size() - 1;\n        while (left &lt; right) {\n            String temp = res.get(left);\n            res.set(left, res.get(right));\n            res.set(right, temp);\n            left++;\n            right--;\n        }\n        return res;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<string> getLongestSubsequence(vector<string>& words, vector<int>& groups) {\n        int n = words.size();\n        vector<int> dp(n, 1);\n        vector<int> prev(n, -1);\n        int maxLen = 0, maxIdx = 0;\n        \n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; i; ++j) {\n                if (groups[i] != groups[j] && dp[j] + 1 &gt; dp[i]) {\n                    dp[i] = dp[j] + 1;\n                    prev[i] = j;\n                }\n            }\n            if (dp[i] &gt; maxLen) {\n                maxLen = dp[i];\n                maxIdx = i;\n            }\n        }\n        \n        vector<string> res;\n        int curr = maxIdx;\n        while (curr != -1) {\n            res.push_back(words[curr]);\n            curr = prev[curr];\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: 'var getLongestSubsequence = function(words, groups) {\n    const n = words.length;\n    const dp = new Array(n).fill(1);\n    const prev = new Array(n).fill(-1);\n    let maxLen = 0, maxIdx = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; i; j++) {\n            if (groups[i] !== groups[j] && dp[j] + 1 &gt; dp[i]) {\n                dp[i] = dp[j] + 1;\n                prev[i] = j;\n            }\n        }\n        if (dp[i] &gt; maxLen) {\n            maxLen = dp[i];\n            maxIdx = i;\n        }\n    }\n    \n    const res = [];\n    let curr = maxIdx;\n    while (curr !== -1) {\n        res.push(words[curr]);\n        curr = prev[curr];\n    }\n    return res.reverse();\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function getLongestSubsequence(words: string[], groups: number[]): string[] {\n    const n = words.length;\n    const dp = new Array(n).fill(1);\n    const prev = new Array(n).fill(-1);\n    let maxLen = 0, maxIdx = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; i; j++) {\n            if (groups[i] !== groups[j] && dp[j] + 1 &gt; dp[i]) {\n                dp[i] = dp[j] + 1;\n                prev[i] = j;\n            }\n        }\n        if (dp[i] &gt; maxLen) {\n            maxLen = dp[i];\n            maxIdx = i;\n        }\n    }\n    \n    const res: string[] = [];\n    let curr = maxIdx;\n    while (curr !== -1) {\n        res.push(words[curr]);\n        curr = prev[curr];\n    }\n    return res.reverse();\n};' },]} />
+
+**Complexity**
+- Time: O(n²) — We use two nested loops to fill the DP table.
+- Space: O(n) — To store the `dp` and `prev` arrays.
+- Notes: While this approach is general, it is less efficient than the Greedy approach for this specific problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longest Unequal Adjacent Groups Subsequence I Solutions","datePublished":"2026-03-28","description":"Find the longest subsequence of words where adjacent groups are unequal.","keywords":"LeetCode, Longest Unequal Adjacent Groups Subsequence I, Easy, Array, String, Dynamic Programming, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Greedy approach is O(n), where n is the length of the words array."}},{"@type":"Question","name":"What is the space complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the resulting list of words."}},{"@type":"Question","name":"Why is the Greedy approach optimal for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Greedy approach is optimal because including a word whenever its group differs from the last selected group never prevents us from including future words, thus maximizing the total count."}},{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Dynamic Programming approach is O(n²) due to the nested loops required to compute the longest subsequence ending at each index."}}]}).replace(/</g,'\u003c')}
+</script>

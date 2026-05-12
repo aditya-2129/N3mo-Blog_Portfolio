@@ -1,0 +1,155 @@
+---
+title: "Find the Losers of the Circular Game"
+summary: "Identify friends who never receive the ball in a circular game where the ball is passed with increasing steps."
+date: "Feb 25, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 50.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Simulation
+
+You are given an integer n, the number of friends playing the game, and an integer k. The game is played as follows:
+
+1. The 1st friend receives the ball.
+2. In the ith turn, the friend holding the ball passes it to the friend k * i steps ahead in the circle. The counting wraps around the circle.
+3. The game ends when a friend receives the ball for the second time.
+
+Return an array answer containing the losers of the game in increasing order.
+
+- Examples
+- Constraints
+- [Simulation with Boolean Array](#simulation-with-boolean-array)
+- [Simulation with HashSet](#simulation-with-hashset)
+- [Simulation with Bitmask](#simulation-with-bitmask)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: n = 5, k = 2
+Output: [4,5]
+Explanation:
+The game goes as follows:
+1) Start at friend 1, pass 2*1 = 2 steps to friend 3.
+2) Friend 3 passes 2*2 = 4 steps to friend 5.
+3) Friend 5 passes 2*3 = 6 steps to friend 4.
+4) Friend 4 passes 2*4 = 8 steps to friend 3.
+Friend 3 receives the ball for the second time, so the game ends.
+Friends 4 and 5 never received the ball.
+```
+
+**Example 2:**
+
+```text
+Input: n = 4, k = 4
+Output: [2,3,4]
+Explanation:
+The game goes as follows:
+1) Start at friend 1, pass 4*1 = 4 steps to friend 1.
+Friend 1 receives the ball for the second time, so the game ends.
+Friends 2, 3, and 4 never received the ball.
+```
+
+## Constraints
+
+```text
+2 <= n <= 50
+1 <= k <= 50
+```
+
+---
+## Simulation with Boolean Array
+
+**Intuition**
+We can simulate the game process step-by-step. We maintain a boolean array to track which friends have received the ball. We iterate through the turns, calculating the next friend to receive the ball using the formula `(current + k * i) % n`. If we encounter a friend who has already received the ball, the game ends.
+
+**Steps**
+- Initialize a boolean array `visited` of size `n` with all values set to `false`.
+- Initialize `curr` to 0 (representing friend 1) and `i` to 1.
+- Loop while `visited[curr]` is `false`:
+    - Mark `visited[curr]` as `true`.
+    - Update `curr` to `(curr + k * i) % n`.
+    - Increment `i`.
+- After the loop, iterate through the `visited` array. For every index `j` where `visited[j]` is `false`, add `j + 1` to the result list (converting from 0-based to 1-based indexing).
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def circularGameLosers(self, n: int, k: int) -&gt; List[int]:\n        visited = [False] * n\n        curr = 0\n        i = 1\n        while not visited[curr]:\n            visited[curr] = True\n            curr = (curr + k * i) % n\n            i += 1\n        return [x + 1 for x in range(n) if not visited[x]]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] circularGameLosers(int n, int k) {\n        boolean[] visited = new boolean[n];\n        int curr = 0;\n        int i = 1;\n        while (!visited[curr]) {\n            visited[curr] = true;\n            curr = (curr + k * i) % n;\n            i++;\n        }\n        List&lt;Integer&gt; losers = new ArrayList&lt;&gt;();\n        for (int j = 0; j &lt; n; j++) {\n            if (!visited[j]) {\n                losers.add(j + 1);\n            }\n        }\n        int[] result = new int[losers.size()];\n        for (int j = 0; j &lt; losers.size(); j++) {\n            result[j] = losers.get(j);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; circularGameLosers(int n, int k) {\n        vector&lt;bool&gt; visited(n, false);\n        int curr = 0;\n        int i = 1;\n        while (!visited[curr]) {\n            visited[curr] = true;\n            curr = (curr + k * i) % n;\n            i++;\n        }\n        vector&lt;int&gt; result;\n        for (int j = 0; j &lt; n; j++) {\n            if (!visited[j]) {\n                result.push_back(j + 1);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var circularGameLosers = function(n, k) {\n    let visited = new Array(n).fill(false);\n    let curr = 0;\n    let i = 1;\n    while (!visited[curr]) {\n        visited[curr] = true;\n        curr = (curr + k * i) % n;\n        i++;\n    }\n    let result = [];\n    for (let j = 0; j &lt; n; j++) {\n        if (!visited[j]) {\n            result.push(j + 1);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function circularGameLosers(n: number, k: number): number[] {\n    let visited: boolean[] = new Array(n).fill(false);\n    let curr: number = 0;\n    let i: number = 1;\n    while (!visited[curr]) {\n        visited[curr] = true;\n        curr = (curr + k * i) % n;\n        i++;\n    }\n    let result: number[] = [];\n    for (let j = 0; j &lt; n; j++) {\n        if (!visited[j]) {\n            result.push(j + 1);\n        }\n    }\n    return result;\n};" },]} />
+
+**Complexity**
+- Time: O(n) - In the worst case, we visit every friend once.
+- Space: O(n) - We use an array of size n to track visited friends.
+- Notes: This is the most straightforward approach and is very efficient given the constraints.
+
+---
+## Simulation with HashSet
+
+**Intuition**
+This approach is logically identical to the Boolean Array approach but uses a HashSet data structure to keep track of friends who have touched the ball. This aligns with the "Hash Table" topic tag.
+
+**Steps**
+- Initialize an empty HashSet `seen`.
+- Initialize `curr` to 1 and `i` to 1.
+- Loop while `curr` is not in `seen`:
+    - Add `curr` to `seen`.
+    - Calculate the next friend: `curr = ((curr - 1 + k * i) % n) + 1`. (Adjusting for 1-based indexing).
+    - Increment `i`.
+- Iterate from 1 to `n`. If a number is not in `seen`, add it to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def circularGameLosers(self, n: int, k: int) -&gt; List[int]:\n        seen = set()\n        curr = 1\n        i = 1\n        while curr not in seen:\n            seen.add(curr)\n            curr = (curr - 1 + k * i) % n + 1\n            i += 1\n        return [x for x in range(1, n + 1) if x not in seen]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] circularGameLosers(int n, int k) {\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        int curr = 1;\n        int i = 1;\n        while (!seen.contains(curr)) {\n            seen.add(curr);\n            curr = ((curr - 1 + k * i) % n) + 1;\n            i++;\n        }\n        List&lt;Integer&gt; losers = new ArrayList&lt;&gt;();\n        for (int j = 1; j &lt;= n; j++) {\n            if (!seen.contains(j)) {\n                losers.add(j);\n            }\n        }\n        int[] result = new int[losers.size()];\n        for (int j = 0; j &lt; losers.size(); j++) {\n            result[j] = losers.get(j);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; circularGameLosers(int n, int k) {\n        unordered_set&lt;int&gt; seen;\n        int curr = 1;\n        int i = 1;\n        while (seen.find(curr) == seen.end()) {\n            seen.insert(curr);\n            curr = ((curr - 1 + k * i) % n) + 1;\n            i++;\n        }\n        vector&lt;int&gt; result;\n        for (int j = 1; j &lt;= n; j++) {\n            if (seen.find(j) == seen.end()) {\n                result.push_back(j);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var circularGameLosers = function(n, k) {\n    let seen = new Set();\n    let curr = 1;\n    let i = 1;\n    while (!seen.has(curr)) {\n        seen.add(curr);\n        curr = ((curr - 1 + k * i) % n) + 1;\n        i++;\n    }\n    let result = [];\n    for (let j = 1; j &lt;= n; j++) {\n        if (!seen.has(j)) {\n            result.push(j);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function circularGameLosers(n: number, k: number): number[] {\n    let seen = new Set&lt;number&gt;();\n    let curr = 1;\n    let i = 1;\n    while (!seen.has(curr)) {\n        seen.add(curr);\n        curr = ((curr - 1 + k * i) % n) + 1;\n        i++;\n    }\n    let result: number[] = [];\n    for (let j = 1; j &lt;= n; j++) {\n        if (!seen.has(j)) {\n            result.push(j);\n        }\n    }\n    return result;\n};" },]} />
+
+**Complexity**
+- Time: O(n) - We perform at most n insertions and lookups in the set.
+- Space: O(n) - The set stores at most n integers.
+- Notes: Slightly higher constant factor overhead compared to the boolean array due to hashing, but functionally equivalent.
+
+---
+## Simulation with Bitmask
+
+**Intuition**
+Since the constraint `n` is small (up to 50), we can optimize space by using a single integer as a bitmask to track visited friends. Each bit in the integer represents whether a specific friend has received the ball.
+
+**Steps**
+- Initialize an integer `mask` to 0.
+- Initialize `curr` to 0 (0-based index) and `i` to 1.
+- Loop while the bit at position `curr` is not set in `mask`:
+    - Set the bit at position `curr` in `mask`.
+    - Update `curr` to `(curr + k * i) % n`.
+    - Increment `i`.
+- Iterate from 0 to `n-1`. If the bit at position `j` is not set in `mask`, add `j + 1` to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def circularGameLosers(self, n: int, k: int) -&gt; List[int]:\n        mask = 0\n        curr = 0\n        i = 1\n        while not (mask & (1 &lt;&lt; curr)):\n            mask |= (1 &lt;&lt; curr)\n            curr = (curr + k * i) % n\n            i += 1\n        return [x + 1 for x in range(n) if not (mask & (1 &lt;&lt; x))]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] circularGameLosers(int n, int k) {\n        int mask = 0;\n        int curr = 0;\n        int i = 1;\n        while ((mask & (1 &lt;&lt; curr)) == 0) {\n            mask |= (1 &lt;&lt; curr);\n            curr = (curr + k * i) % n;\n            i++;\n        }\n        List&lt;Integer&gt; losers = new ArrayList&lt;&gt;();\n        for (int j = 0; j &lt; n; j++) {\n            if ((mask & (1 &lt;&lt; j)) == 0) {\n                losers.add(j + 1);\n            }\n        }\n        int[] result = new int[losers.size()];\n        for (int j = 0; j &lt; losers.size(); j++) {\n            result[j] = losers.get(j);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; circularGameLosers(int n, int k) {\n        int mask = 0;\n        int curr = 0;\n        int i = 1;\n        while (!(mask & (1 &lt;&lt; curr))) {\n            mask |= (1 &lt;&lt; curr);\n            curr = (curr + k * i) % n;\n            i++;\n        }\n        vector&lt;int&gt; result;\n        for (int j = 0; j &lt; n; j++) {\n            if (!(mask & (1 &lt;&lt; j))) {\n                result.push_back(j + 1);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var circularGameLosers = function(n, k) {\n    let mask = 0;\n    let curr = 0;\n    let i = 1;\n    while ((mask & (1 &lt;&lt; curr)) === 0) {\n        mask |= (1 &lt;&lt; curr);\n        curr = (curr + k * i) % n;\n        i++;\n    }\n    let result = [];\n    for (let j = 0; j &lt; n; j++) {\n        if ((mask & (1 &lt;&lt; j)) === 0) {\n            result.push(j + 1);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function circularGameLosers(n: number, k: number): number[] {\n    let mask: number = 0;\n    let curr: number = 0;\n    let i: number = 1;\n    while ((mask & (1 &lt;&lt; curr)) === 0) {\n        mask |= (1 &lt;&lt; curr);\n        curr = (curr + k * i) % n;\n        i++;\n    }\n    let result: number[] = [];\n    for (let j = 0; j &lt; n; j++) {\n        if ((mask & (1 &lt;&lt; j)) === 0) {\n            result.push(j + 1);\n        }\n    }\n    return result;\n};" },]} />
+
+**Complexity**
+- Time: O(n) - We iterate at most n times.
+- Space: O(1) - We only use a single integer for storage, regardless of n.
+- Notes: This is the most space-efficient solution, suitable for systems with limited memory, though the boolean array is also perfectly acceptable for n=50.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Losers of the Circular Game Solutions","datePublished":"2024-02-25","description":"Identify friends who never receive the ball in a circular game where the ball is passed with increasing steps.","keywords":"LeetCode, Find the Losers of the Circular Game, Easy, Array, Hash Table, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of friends. In the worst case, we visit every friend once."}},{"@type":"Question","name":"What is the space complexity of the Bitmask approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we use a single integer to track the state of the game, regardless of the input size."}},{"@type":"Question","name":"How do we calculate the next friend to receive the ball?","acceptedAnswer":{"@type":"Answer","text":"The next friend is calculated using the formula (current + k * i) % n, where i is the current turn number. The result is adjusted for 0-based or 1-based indexing as needed."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,128 @@
+---
+title: "Maximum Difference by Remapping a Digit"
+summary: "You are given an integer num. Remap one digit to maximize num1 and remap one digit to minimize num2. Return num1 - num2."
+date: "Apr 20, 2024"
+tags:
+  - Math
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.80% | **Paid:** No
+> **Topics:** Math, Greedy
+
+You are given an integer `num`. You are allowed to remap exactly one digit in `num` to any other digit to create `num1`. You are allowed to remap exactly one digit in `num` to any other digit to create `num2`. Return the maximum difference between `num1` and `num2`.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Greedy String Manipulation](#greedy-string-manipulation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+num = 11891
+```
+
+**Output:**
+```text
+99009
+```
+
+**Explanation:**
+To achieve the maximum value, Bob can remap the digit 1 to the digit 9 to yield 99899.
+To achieve the minimum value, Bob can remap the digit 1 to the digit 0, yielding 890.
+The difference between these two numbers is 99009.
+
+### Example 2
+
+**Input:**
+```text
+num = 90
+```
+
+**Output:**
+```text
+99
+```
+
+**Explanation:**
+The maximum value that can be returned by the function is 99 (if 0 is replaced by 9) and the minimum value that can be returned by the function is 0 (if 9 is replaced by 0).
+Thus, we return 99.
+
+## Constraints
+
+```text
+1 &lt;= num &lt;= 10^8
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+We can simulate the process of remapping every digit to every other possible digit. Since the number of digits is at most 9 (as `num <= 10^8`), and there are only 10 possible digits (0-9) to remap to, the total number of combinations is small. We can generate all possible `num1` and `num2` values and find the maximum difference.
+
+**Steps**
+- Convert the number to a string to easily access digits.
+- Iterate through each digit position.
+- For each position, iterate through all possible target digits (0-9).
+- If the target digit is different from the original digit, create a new number by replacing all occurrences of the original digit with the target digit.
+- Keep track of the maximum value found (`num1`) and the minimum value found (`num2`).
+- Return `num1 - num2`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minMaxDifference(self, num: int) -&gt; int:\n        s = str(num)\n        max_val = -1\n        min_val = float('inf')\n        \n        # Iterate through each unique digit in the number to act as the source\n        # Actually, we should iterate through each position to determine the source digit\n        # But since we remap ALL occurrences of a digit, we just need to try remapping each unique digit present.\n        unique_digits = set(s)\n        \n        for source_d in unique_digits:\n            for target_d in '0123456789':\n                if source_d == target_d:\n                    continue\n                \n                # Remap all occurrences of source_d to target_d\n                new_s = s.replace(source_d, target_d)\n                val = int(new_s)\n                \n                max_val = max(max_val, val)\n                min_val = min(min_val, val)\n                \n        return max_val - min_val\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minMaxDifference(int num) {\n        String s = String.valueOf(num);\n        int max = Integer.MIN_VALUE;\n        int min = Integer.MAX_VALUE;\n        \n        // Get unique digits\n        java.util.Set&lt;Character&gt; uniqueDigits = new java.util.HashSet&lt;&gt;();\n        for (char c : s.toCharArray()) {\n            uniqueDigits.add(c);\n        }\n        \n        for (char sourceD : uniqueDigits) {\n            for (char targetD = '0'; targetD &lt;= '9'; targetD++) {\n                if (sourceD == targetD) continue;\n                \n                String newS = s.replace(sourceD, targetD);\n                int val = Integer.parseInt(newS);\n                \n                max = Math.max(max, val);\n                min = Math.min(min, val);\n            }\n        }\n        return max - min;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minMaxDifference(int num) {\n        string s = to_string(num);\n        int maxVal = INT_MIN;\n        int minVal = INT_MAX;\n        \n        set&lt;char&gt; uniqueDigits(s.begin(), s.end());\n        \n        for (char sourceD : uniqueDigits) {\n            for (char targetD = '0'; targetD &lt;= '9'; targetD++) {\n                if (sourceD == targetD) continue;\n                \n                string newS = s;\n                for (char &c : newS) {\n                    if (c == sourceD) c = targetD;\n                }\n                int val = stoi(newS);\n                \n                maxVal = max(maxVal, val);\n                minVal = min(minVal, val);\n            }\n        }\n        return maxVal - minVal;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar minMaxDifference = function(num) {\n    let s = num.toString();\n    let max = -Infinity;\n    let min = Infinity;\n    \n    let uniqueDigits = new Set(s.split(''));\n    \n    for (let sourceD of uniqueDigits) {\n        for (let targetD = 0; targetD &lt;= 9; targetD++) {\n            if (sourceD === targetD.toString()) continue;\n            \n            let newS = s.split(sourceD).join(targetD.toString());\n            let val = parseInt(newS);\n            \n            max = Math.max(max, val);\n            min = Math.min(min, val);\n        }\n    }\n    return max - min;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minMaxDifference(num: number): number {\n    let s: string = num.toString();\n    let max: number = -Infinity;\n    let min: number = Infinity;\n    \n    let uniqueDigits: Set&lt;string&gt; = new Set(s.split(''));\n    \n    for (let sourceD of uniqueDigits) {\n        for (let targetD = 0; targetD &lt;= 9; targetD++) {\n            if (sourceD === targetD.toString()) continue;\n            \n            let newS: string = s.split(sourceD).join(targetD.toString());\n            let val: number = parseInt(newS);\n            \n            max = Math.max(max, val);\n            min = Math.min(min, val);\n        }\n    }\n    return max - min;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N * 10) where N is the number of digits. Since N is small, this is effectively O(1).
+- Space: O(N) to store the string representation.
+- Notes: Simple to implement and understand, but iterates through all possibilities.
+
+---
+## Greedy String Manipulation
+
+**Intuition**
+To maximize the number, we want the most significant digits to be as large as possible (9). To minimize the number, we want the most significant digits to be as small as possible (0), with the constraint that we cannot have leading zeros (unless the number itself becomes 0).
+
+**Steps**
+- Convert the number to a character array or string.
+- **Maximize**:
+    - Find the first digit that is not 9.
+    - Replace all occurrences of that digit with 9.
+    - If all digits are 9, replace the last digit with 8 (since we must remap to a different digit).
+- **Minimize**:
+    - Find the first digit that is not 0.
+    - If this digit is the first digit (most significant) and the number has more than one digit, we cannot remap it to 0 (as it would create leading zeros).
+        - In this case, look for the next digit that is not 0.
+        - If found, replace all occurrences of that digit with 0.
+        - If not found (all digits are the same, e.g., 555), replace all occurrences of the first digit with 1.
+    - If the first non-0 digit is not the most significant digit (or the number is a single digit), replace all occurrences of that digit with 0.
+- Convert the resulting strings back to integers and return the difference.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minMaxDifference(self, num: int) -&gt; int:\n        s = list(str(num))\n        \n        # Calculate Max\n        max_s = s.copy()\n        target = None\n        for c in max_s:\n            if c != '9':\n                target = c\n                break\n        if target:\n            for i in range(len(max_s)):\n                if max_s[i] == target:\n                    max_s[i] = '9'\n        else:\n            # All 9s, change last to 8\n            max_s[-1] = '8'\n            \n        # Calculate Min\n        min_s = s.copy()\n        target = None\n        # Find first non-0\n        for i, c in enumerate(min_s):\n            if c != '0':\n                target = c\n                target_idx = i\n                break\n        \n        if target:\n            if target_idx == 0 and len(min_s) &gt; 1:\n                # Cannot remap first digit to 0\n                # Find next non-0\n                next_target = None\n                for i in range(1, len(min_s)):\n                    if min_s[i] != '0':\n                        next_target = min_s[i]\n                        break\n                if next_target:\n                    for i in range(len(min_s)):\n                        if min_s[i] == next_target:\n                            min_s[i] = '0'\n                else:\n                    # All digits are same (e.g. 555), remap to 1\n                    for i in range(len(min_s)):\n                        if min_s[i] == target:\n                            min_s[i] = '1'\n            else:\n                # Safe to remap to 0\n                for i in range(len(min_s)):\n                    if min_s[i] == target:\n                        min_s[i] = '0'\n        else:\n            # All 0s (num=0), remap to 1\n            min_s[-1] = '1'\n            \n        return int(''.join(max_s)) - int(''.join(min_s))\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minMaxDifference(int num) {\n        char[] s = Integer.toString(num).toCharArray();\n        \n        // Max\n        char[] maxS = s.clone();\n        char target = 0;\n        for (char c : maxS) {\n            if (c != '9') {\n                target = c;\n                break;\n            }\n        }\n        if (target != 0) {\n            for (int i = 0; i &lt; maxS.length; i++) {\n                if (maxS[i] == target) maxS[i] = '9';\n            }\n        } else {\n            maxS[maxS.length - 1] = '8';\n        }\n        \n        // Min\n        char[] minS = s.clone();\n        target = 0;\n        int targetIdx = -1;\n        for (int i = 0; i &lt; minS.length; i++) {\n            if (minS[i] != '0') {\n                target = minS[i];\n                targetIdx = i;\n                break;\n            }\n        }\n        \n        if (target != 0) {\n            if (targetIdx == 0 && minS.length &gt; 1) {\n                // Find next non-0\n                char nextTarget = 0;\n                int nextTargetIdx = -1;\n                for (int i = 1; i &lt; minS.length; i++) {\n                    if (minS[i] != '0') {\n                        nextTarget = minS[i];\n                        nextTargetIdx = i;\n                        break;\n                    }\n                }\n                if (nextTarget != 0) {\n                    for (int i = 0; i &lt; minS.length; i++) {\n                        if (minS[i] == nextTarget) minS[i] = '0';\n                    }\n                } else {\n                    // All same, remap to 1\n                    for (int i = 0; i &lt; minS.length; i++) {\n                        if (minS[i] == target) minS[i] = '1';\n                    }\n                }\n            } else {\n                for (int i = 0; i &lt; minS.length; i++) {\n                    if (minS[i] == target) minS[i] = '0';\n                }\n            }\n        } else {\n            // All 0s\n            minS[minS.length - 1] = '1';\n        }\n        \n        return Integer.parseInt(new String(maxS)) - Integer.parseInt(new String(minS));\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minMaxDifference(int num) {\n        string s = to_string(num);\n        string maxS = s;\n        string minS = s;\n        \n        // Max\n        char target = 0;\n        for (char c : maxS) {\n            if (c != '9') {\n                target = c;\n                break;\n            }\n        }\n        if (target != 0) {\n            for (char &c : maxS) if (c == target) c = '9';\n        } else {\n            maxS[maxS.length() - 1] = '8';\n        }\n        \n        // Min\n        target = 0;\n        int targetIdx = -1;\n        for (int i = 0; i &lt; minS.length(); i++) {\n            if (minS[i] != '0') {\n                target = minS[i];\n                targetIdx = i;\n                break;\n            }\n        }\n        \n        if (target != 0) {\n            if (targetIdx == 0 && minS.length() &gt; 1) {\n                char nextTarget = 0;\n                for (int i = 1; i &lt; minS.length(); i++) {\n                    if (minS[i] != '0') {\n                        nextTarget = minS[i];\n                        break;\n                    }\n                }\n                if (nextTarget != 0) {\n                    for (char &c : minS) if (c == nextTarget) c = '0';\n                } else {\n                    for (char &c : minS) if (c == target) c = '1';\n                }\n            } else {\n                for (char &c : minS) if (c == target) c = '0';\n            }\n        } else {\n            minS[minS.length() - 1] = '1';\n        }\n        \n        return stoi(maxS) - stoi(minS);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar minMaxDifference = function(num) {\n    let s = num.toString().split('');\n    \n    // Max\n    let maxS = [...s];\n    let target = null;\n    for (let c of maxS) {\n        if (c !== '9') {\n            target = c;\n            break;\n        }\n    }\n    if (target) {\n        for (let i = 0; i &lt; maxS.length; i++) {\n            if (maxS[i] === target) maxS[i] = '9';\n        }\n    } else {\n        maxS[maxS.length - 1] = '8';\n    }\n    \n    // Min\n    let minS = [...s];\n    target = null;\n    let targetIdx = -1;\n    for (let i = 0; i &lt; minS.length; i++) {\n        if (minS[i] !== '0') {\n            target = minS[i];\n            targetIdx = i;\n            break;\n        }\n    }\n    \n    if (target) {\n        if (targetIdx === 0 && minS.length &gt; 1) {\n            let nextTarget = null;\n            for (let i = 1; i &lt; minS.length; i++) {\n                if (minS[i] !== '0') {\n                    nextTarget = minS[i];\n                    break;\n                }\n            }\n            if (nextTarget) {\n                for (let i = 0; i &lt; minS.length; i++) {\n                    if (minS[i] === nextTarget) minS[i] = '0';\n                }\n            } else {\n                for (let i = 0; i &lt; minS.length; i++) {\n                    if (minS[i] === target) minS[i] = '1';\n                }\n            }\n        } else {\n            for (let i = 0; i &lt; minS.length; i++) {\n                if (minS[i] === target) minS[i] = '0';\n            }\n        }\n    } else {\n        minS[minS.length - 1] = '1';\n    }\n    \n    return parseInt(maxS.join('')) - parseInt(minS.join(''));\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minMaxDifference(num: number): number {\n    let s: string[] = num.toString().split('');\n    \n    // Max\n    let maxS: string[] = [...s];\n    let target: string | null = null;\n    for (let c of maxS) {\n        if (c !== '9') {\n            target = c;\n            break;\n        }\n    }\n    if (target) {\n        for (let i = 0; i &lt; maxS.length; i++) {\n            if (maxS[i] === target) maxS[i] = '9';\n        }\n    } else {\n        maxS[maxS.length - 1] = '8';\n    }\n    \n    // Min\n    let minS: string[] = [...s];\n    target = null;\n    let targetIdx: number = -1;\n    for (let i = 0; i &lt; minS.length; i++) {\n        if (minS[i] !== '0') {\n            target = minS[i];\n            targetIdx = i;\n            break;\n        }\n    }\n    \n    if (target) {\n        if (targetIdx === 0 && minS.length &gt; 1) {\n            let nextTarget: string | null = null;\n            for (let i = 1; i &lt; minS.length; i++) {\n                if (minS[i] !== '0') {\n                    nextTarget = minS[i];\n                    break;\n                }\n            }\n            if (nextTarget) {\n                for (let i = 0; i &lt; minS.length; i++) {\n                    if (minS[i] === nextTarget) minS[i] = '0';\n                }\n            } else {\n                for (let i = 0; i &lt; minS.length; i++) {\n                    if (minS[i] === target) minS[i] = '1';\n                }\n            }\n        } else {\n            for (let i = 0; i &lt; minS.length; i++) {\n                if (minS[i] === target) minS[i] = '0';\n            }\n        }\n    } else {\n        minS[minS.length - 1] = '1';\n    }\n    \n    return parseInt(maxS.join('')) - parseInt(minS.join(''));\n}\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of digits. We iterate through the string a constant number of times.
+- Space: O(N) to store the character arrays.
+- Notes: Optimal solution with linear time complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Difference by Remapping a Digit Solutions","datePublished":"2024-04-20","description":"You are given an integer num. Remap one digit to maximize num1 and remap one digit to minimize num2. Return num1 - num2.","keywords":"LeetCode, Maximum Difference by Remapping a Digit, Easy, Math, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * 10), where N is the number of digits. Since N is at most 9, this is effectively O(1)."}},{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of digits, as we scan the string a constant number of times."}},{"@type":"Question","name":"Why can't we always remap the first digit to 0 to minimize the number?","acceptedAnswer":{"@type":"Answer","text":"Remapping the first digit to 0 would create leading zeros (e.g., 123 -> 023), which effectively reduces the number of digits. The problem implies we should avoid leading zeros unless the result is 0 itself."}}]}).replace(/</g,'\u003c')}
+</script>

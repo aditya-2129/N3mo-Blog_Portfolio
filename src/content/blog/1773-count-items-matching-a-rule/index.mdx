@@ -1,0 +1,128 @@
+---
+title: "Count Items Matching a Rule"
+summary: "Count items in a list that match a given rule based on type, color, or name attributes."
+date: "Mar 02, 2025"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.30% | **Paid:** No
+> **Topics:** Array, String
+
+You are given an array items, where each items[i] = [typei, colori, namei] describes the type, color, and name of the ith item. You are also given a string ruleKey and a string ruleValue.
+
+The ith item is said to match the rule if one of the following is true:
+
+ruleKey == "type" and ruleValue == typei.
+ruleKey == "color" and ruleValue == colori.
+ruleKey == "name" and ruleValue == namei.
+
+Return the number of items that match the given rule.
+
+- Examples
+- Constraints
+- [Linear Scan with Index Mapping](#linear-scan-with-index-mapping)
+- [Functional Programming Approach](#functional-programming-approach)
+- [Counter/HashMap Approach](#counterhashmap-approach)
+
+## Examples
+
+```text
+Input: items = [["phone","blue","pixel"],["computer","silver","lenovo"],["phone","gold","iphone"]], ruleKey = "color", ruleValue = "silver"
+Output: 1
+Explanation: Only the second item matches the rule.
+```
+
+```text
+Input: items = [["phone","blue","pixel"],["computer","silver","phone"],["phone","gold","iphone"]], ruleKey = "type", ruleValue = "phone"
+Output: 2
+Explanation: The first and third items match the rule.
+```
+
+## Constraints
+
+```text
+1 <= items.length <= 10⁴
+1 <= typei.length, colori.length, namei.length <= 10
+ruleKey is equal to "type", "color", or "name".
+All strings consist only of lowercase letters.
+```
+
+---
+## Linear Scan with Index Mapping
+
+**Intuition**
+Map each ruleKey to its corresponding index (type→0, color→1, name→2) and iterate through items counting matches.
+
+**Steps**
+- Create a mapping from ruleKey to index position
+- Iterate through each item and check if the value at the mapped index equals ruleValue
+- Increment counter for each match and return total
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countMatches(self, items: List[List[str]], ruleKey: str, ruleValue: str) -&gt; int:\n        index_map = {\"type\": 0, \"color\": 1, \"name\": 2}\n        index = index_map[ruleKey]\n        count = 0\n        for item in items:\n            if item[index] == ruleValue:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countMatches(List&lt;List&lt;String&gt;&gt; items, String ruleKey, String ruleValue) {\n        int index;\n        if (ruleKey.equals(\"type\")) {\n            index = 0;\n        } else if (ruleKey.equals(\"color\")) {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        int count = 0;\n        for (List&lt;String&gt; item : items) {\n            if (item.get(index).equals(ruleValue)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countMatches(vector&lt;vector&lt;string&gt;&gt;& items, string ruleKey, string ruleValue) {\n        int index;\n        if (ruleKey == \"type\") {\n            index = 0;\n        } else if (ruleKey == \"color\") {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        int count = 0;\n        for (const auto& item : items) {\n            if (item[index] == ruleValue) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} items\n * @param {string} ruleKey\n * @param {string} ruleValue\n * @return {number}\n */\nvar countMatches = function(items, ruleKey, ruleValue) {\n    const indexMap = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    let count = 0;\n    for (const item of items) {\n        if (item[index] === ruleValue) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countMatches(items: string[][], ruleKey: string, ruleValue: string): number {\n    const indexMap: { [key: string]: number } = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    let count = 0;\n    for (const item of items) {\n        if (item[index] === ruleValue) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of items
+- Space: O(1)
+- Notes: Most efficient for single query scenarios
+
+---
+## Functional Programming Approach
+
+**Intuition**
+Use built-in functional programming constructs like filter, map, and reduce to declaratively count matching items.
+
+**Steps**
+- Map ruleKey to its corresponding index
+- Apply filter function to keep only matching items
+- Return the count of filtered items
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countMatches(self, items: List[List[str]], ruleKey: str, ruleValue: str) -&gt; int:\n        index_map = {\"type\": 0, \"color\": 1, \"name\": 2}\n        index = index_map[ruleKey]\n        return sum(1 for item in items if item[index] == ruleValue)" },
+{ name: "Java", lang: "java", code: "import java.util.stream.Collectors;\n\nclass Solution {\n    public int countMatches(List&lt;List&lt;String&gt;&gt; items, String ruleKey, String ruleValue) {\n        int index;\n        if (ruleKey.equals(\"type\")) {\n            index = 0;\n        } else if (ruleKey.equals(\"color\")) {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        return (int) items.stream()\n            .filter(item -&gt; item.get(index).equals(ruleValue))\n            .count();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int countMatches(vector&lt;vector&lt;string&gt;&gt;& items, string ruleKey, string ruleValue) {\n        int index;\n        if (ruleKey == \"type\") {\n            index = 0;\n        } else if (ruleKey == \"color\") {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        return count_if(items.begin(), items.end(), \n            [index, &ruleValue](const vector&lt;string&gt;& item) {\n                return item[index] == ruleValue;\n            });\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} items\n * @param {string} ruleKey\n * @param {string} ruleValue\n * @return {number}\n */\nvar countMatches = function(items, ruleKey, ruleValue) {\n    const indexMap = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    return items.filter(item =&gt; item[index] === ruleValue).length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countMatches(items: string[][], ruleKey: string, ruleValue: string): number {\n    const indexMap: { [key: string]: number } = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    return items.filter(item =&gt; item[index] === ruleValue).length;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of items
+- Space: O(1) or O(n) depending on language implementation
+- Notes: More readable but may have slight overhead compared to imperative approach
+
+---
+## Counter/HashMap Approach
+
+**Intuition**
+Build a frequency map of all values at the specified position, then lookup the count for ruleValue.
+
+**Steps**
+- Map ruleKey to its corresponding index
+- Create a counter/hashmap counting occurrences of each value at that index
+- Return the count for ruleValue from the map
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import Counter\n\nclass Solution:\n    def countMatches(self, items: List[List[str]], ruleKey: str, ruleValue: str) -&gt; int:\n        index_map = {\"type\": 0, \"color\": 1, \"name\": 2}\n        index = index_map[ruleKey]\n        counter = Counter(item[index] for item in items)\n        return counter.get(ruleValue, 0)" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int countMatches(List&lt;List&lt;String&gt;&gt; items, String ruleKey, String ruleValue) {\n        int index;\n        if (ruleKey.equals(\"type\")) {\n            index = 0;\n        } else if (ruleKey.equals(\"color\")) {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        Map&lt;String, Integer&gt; counter = new HashMap&lt;&gt;();\n        for (List&lt;String&gt; item : items) {\n            String value = item.get(index);\n            counter.put(value, counter.getOrDefault(value, 0) + 1);\n        }\n        return counter.getOrDefault(ruleValue, 0);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n\nclass Solution {\npublic:\n    int countMatches(vector&lt;vector&lt;string&gt;&gt;& items, string ruleKey, string ruleValue) {\n        int index;\n        if (ruleKey == \"type\") {\n            index = 0;\n        } else if (ruleKey == \"color\") {\n            index = 1;\n        } else {\n            index = 2;\n        }\n        unordered_map&lt;string, int&gt; counter;\n        for (const auto& item : items) {\n            counter[item[index]]++;\n        }\n        return counter[ruleValue];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} items\n * @param {string} ruleKey\n * @param {string} ruleValue\n * @return {number}\n */\nvar countMatches = function(items, ruleKey, ruleValue) {\n    const indexMap = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    const counter = {};\n    for (const item of items) {\n        const value = item[index];\n        counter[value] = (counter[value] || 0) + 1;\n    }\n    return counter[ruleValue] || 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countMatches(items: string[][], ruleKey: string, ruleValue: string): number {\n    const indexMap: { [key: string]: number } = { \"type\": 0, \"color\": 1, \"name\": 2 };\n    const index = indexMap[ruleKey];\n    const counter: { [key: string]: number } = {};\n    for (const item of items) {\n        const value = item[index];\n        counter[value] = (counter[value] || 0) + 1;\n    }\n    return counter[ruleValue] || 0;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of items
+- Space: O(k) where k is the number of unique values at the specified position
+- Notes: Useful if multiple queries on same data are expected
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Items Matching a Rule Solutions","datePublished":"2025-03-02","description":"Count items in a list that match a given rule based on type, color, or name attributes.","keywords":"LeetCode, Count Items Matching a Rule, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Linear Scan with Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of items. We iterate through each item exactly once."}},{"@type":"Question","name":"What is the space complexity of Linear Scan with Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"O(1). We only use a constant amount of extra space for the index mapping and counter."}},{"@type":"Question","name":"What is the time complexity of Functional Programming approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of items. The filter operation processes each item once."}},{"@type":"Question","name":"What is the space complexity of Counter/HashMap approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique values at the specified position. We store all unique values in a hashmap."}}]}).replace(/</g,'\u003c')}
+</script>

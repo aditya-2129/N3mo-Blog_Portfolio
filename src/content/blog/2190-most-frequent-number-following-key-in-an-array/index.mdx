@@ -1,0 +1,140 @@
+---
+title: "Most Frequent Number Following Key In an Array"
+summary: "Find the number that appears most frequently immediately after a given key in an array."
+date: "Aug 18, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+You are given a 0-indexed integer array nums. You are also given an integer key, which is present in nums.
+
+For every unique integer target in nums, count the number of times target follows key in the array. In other words, count the number of indices i such that:
+
+0 &lt;= i &lt;= n - 2,
+nums[i] == key and,
+nums[i + 1] == target.
+
+Return the target with the maximum count. The test cases will be generated such that the target with maximum count is unique.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Fixed Array Counting](#fixed-array-counting)
+- [Brute Force Scanning](#brute-force-scanning)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [1,100,200,1,100], key = 1
+Output: 100
+Explanation: For target = 100, there are 2 occurrences at indices 1 and 4 which follow key = 1.
+All other numbers follow key = 1 only once.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [2,2,2,2,3], key = 2
+Output: 2
+Explanation: For target = 2, there are 3 occurrences at indices 1, 2, and 3 which follow key = 2.
+All other numbers follow key = 2 only once.
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 1000
+1 <= nums[i] <= 1000
+key is an element of nums.
+```
+
+---
+## Hash Map Frequency Count
+
+**Intuition**
+We can iterate through the array once. Whenever we encounter the `key`, we look at the next number (the target) and increment its count in a hash map. Finally, we find the target with the highest count.
+
+**Steps**
+- Initialize an empty hash map to store the frequency of targets.
+- Iterate through the array from index `0` to `n - 2`.
+- If `nums[i]` equals `key`, increment the count for `nums[i + 1]` in the hash map.
+- Iterate through the hash map entries to find the number with the maximum frequency. If there is a tie, the problem guarantees a unique maximum, but we typically prefer the larger number if logic requires it (though the problem statement says the max count target is unique).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\nfrom collections import defaultdict\r\n\r\nclass Solution:\r\n    def mostFrequent(self, nums: List[int], key: int) -&gt; int:\r\n        counts = defaultdict(int)\r\n        for i in range(len(nums) - 1):\r\n            if nums[i] == key:\r\n                target = nums[i + 1]\r\n                counts[target] += 1\r\n        \r\n        max_count = -1\r\n        result = -1\r\n        for num, count in counts.items():\r\n            if count &gt; max_count:\r\n                max_count = count\r\n                result = num\r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\r\nimport java.util.Map;\r\n\r\nclass Solution {\r\n    public int mostFrequent(int[] nums, int key) {\r\n        Map&lt;Integer, Integer&gt; counts = new HashMap&lt;&gt;();\r\n        for (int i = 0; i &lt; nums.length - 1; i++) {\r\n            if (nums[i] == key) {\r\n                int target = nums[i + 1];\r\n                counts.put(target, counts.getOrDefault(target, 0) + 1);\r\n            }\r\n        }\r\n        \r\n        int maxCount = -1;\r\n        int result = -1;\r\n        for (Map.Entry&lt;Integer, Integer&gt; entry : counts.entrySet()) {\r\n            if (entry.getValue() &gt; maxCount) {\r\n                maxCount = entry.getValue();\r\n                result = entry.getKey();\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;unordered_map&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int mostFrequent(vector&lt;int&gt;& nums, int key) {\r\n        unordered_map&lt;int, int&gt; counts;\r\n        for (int i = 0; i &lt; nums.size() - 1; ++i) {\r\n            if (nums[i] == key) {\r\n                counts[nums[i + 1]]++;\r\n            }\r\n        }\r\n        \r\n        int maxCount = -1;\r\n        int result = -1;\r\n        for (const auto& pair : counts) {\r\n            if (pair.second &gt; maxCount) {\r\n                maxCount = pair.second;\r\n                result = pair.first;\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums\r\n * @param {number} key\r\n * @return {number}\r\n */\r\nvar mostFrequent = function(nums, key) {\r\n    const counts = new Map();\r\n    for (let i = 0; i &lt; nums.length - 1; i++) {\r\n        if (nums[i] === key) {\r\n            const target = nums[i + 1];\r\n            counts.set(target, (counts.get(target) || 0) + 1);\r\n        }\r\n    }\r\n    \r\n    let maxCount = -1;\r\n    let result = -1;\r\n    for (const [num, count] of counts) {\r\n        if (count &gt; maxCount) {\r\n            maxCount = count;\r\n            result = num;\r\n        }\r\n    }\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequent(nums: number[], key: number): number {\r\n    const counts = new Map&lt;number, number&gt;();\r\n    for (let i = 0; i &lt; nums.length - 1; i++) {\r\n        if (nums[i] === key) {\r\n            const target = nums[i + 1];\r\n            counts.set(target, (counts.get(target) || 0) + 1);\r\n        }\r\n    }\r\n    \r\n    let maxCount = -1;\r\n    let result = -1;\r\n    for (const [num, count] of counts) {\r\n        if (count &gt; maxCount) {\r\n            maxCount = count;\r\n            result = num;\r\n        }\r\n    }\r\n    return result;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array.
+- Space: O(n) in the worst case to store the frequency map.
+- Notes: This is the standard approach for frequency counting problems.
+
+---
+## Fixed Array Counting
+
+**Intuition**
+The problem constraints state that `1 &lt;= nums[i] &lt;= 1000`. Since the range of possible values is small and fixed, we can use an array of size 1001 (or 1002) instead of a hash map. This avoids the overhead of hashing and is slightly faster.
+
+**Steps**
+- Initialize an integer array `counts` of size 1001 with all zeros.
+- Iterate through the array from index `0` to `n - 2`.
+- If `nums[i]` equals `key`, increment `counts[nums[i + 1]]`.
+- Iterate through the `counts` array to find the index with the maximum value.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def mostFrequent(self, nums: List[int], key: int) -&gt; int:\r\n        counts = [0] * 1001\r\n        for i in range(len(nums) - 1):\r\n            if nums[i] == key:\r\n                target = nums[i + 1]\r\n                counts[target] += 1\r\n        \r\n        max_count = -1\r\n        result = -1\r\n        for i in range(len(counts)):\r\n            if counts[i] &gt; max_count:\r\n                max_count = counts[i]\r\n                result = i\r\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int mostFrequent(int[] nums, int key) {\r\n        int[] counts = new int[1001];\r\n        for (int i = 0; i &lt; nums.length - 1; i++) {\r\n            if (nums[i] == key) {\r\n                counts[nums[i + 1]]++;\r\n            }\r\n        }\r\n        \r\n        int maxCount = -1;\r\n        int result = -1;\r\n        for (int i = 0; i &lt; counts.length; i++) {\r\n            if (counts[i] &gt; maxCount) {\r\n                maxCount = counts[i];\r\n                result = i;\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;array&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int mostFrequent(vector&lt;int&gt;& nums, int key) {\r\n        int counts[1001] = {0};\r\n        for (int i = 0; i &lt; nums.size() - 1; ++i) {\r\n            if (nums[i] == key) {\r\n                counts[nums[i + 1]]++;\r\n            }\r\n        }\r\n        \r\n        int maxCount = -1;\r\n        int result = -1;\r\n        for (int i = 0; i &lt; 1001; ++i) {\r\n            if (counts[i] &gt; maxCount) {\r\n                maxCount = counts[i];\r\n                result = i;\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums\r\n * @param {number} key\r\n * @return {number}\r\n */\r\nvar mostFrequent = function(nums, key) {\r\n    const counts = new Array(1001).fill(0);\r\n    for (let i = 0; i &lt; nums.length - 1; i++) {\r\n        if (nums[i] === key) {\r\n            counts[nums[i + 1]]++;\r\n        }\r\n    }\r\n    \r\n    let maxCount = -1;\r\n    let result = -1;\r\n    for (let i = 0; i &lt; counts.length; i++) {\r\n        if (counts[i] &gt; maxCount) {\r\n            maxCount = counts[i];\r\n            result = i;\r\n        }\r\n    }\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequent(nums: number[], key: number): number {\r\n    const counts: number[] = new Array(1001).fill(0);\r\n    for (let i = 0; i &lt; nums.length - 1; i++) {\r\n        if (nums[i] === key) {\r\n            counts[nums[i + 1]]++;\r\n        }\r\n    }\r\n    \r\n    let maxCount = -1;\r\n    let result = -1;\r\n    for (let i = 0; i &lt; counts.length; i++) {\r\n        if (counts[i] &gt; maxCount) {\r\n            maxCount = counts[i];\r\n            result = i;\r\n        }\r\n    }\r\n    return result;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array.
+- Space: O(1) because the array size is constant (1001) regardless of input size.
+- Notes: This is the most optimal approach for this specific problem due to constraints.
+
+---
+## Brute Force Scanning
+
+**Intuition**
+For every unique number in the array, we can scan the entire array to count how many times it appears immediately after the key. This is inefficient but conceptually simple.
+
+**Steps**
+- Identify all unique numbers in the array.
+- Initialize a variable `maxCount` to 0 and `result` to 0.
+- For each unique number `target`:
+    - Initialize `currentCount` to 0.
+    - Iterate through the array. If `nums[i] == key` and `nums[i+1] == target`, increment `currentCount`.
+    - If `currentCount` is greater than `maxCount`, update `maxCount` and `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def mostFrequent(self, nums: List[int], key: int) -&gt; int:\r\n        unique_nums = set(nums)\r\n        max_count = 0\r\n        result = 0\r\n        \r\n        for target in unique_nums:\r\n            count = 0\r\n            for i in range(len(nums) - 1):\r\n                if nums[i] == key and nums[i + 1] == target:\r\n                    count += 1\r\n            if count &gt; max_count:\r\n                max_count = count\r\n                result = target\r\n                \r\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\r\nimport java.util.Set;\r\n\r\nclass Solution {\r\n    public int mostFrequent(int[] nums, int key) {\r\n        Set&lt;Integer&gt; uniqueNums = new HashSet&lt;&gt;();\r\n        for (int num : nums) {\r\n            uniqueNums.add(num);\r\n        }\r\n        \r\n        int maxCount = 0;\r\n        int result = 0;\r\n        \r\n        for (int target : uniqueNums) {\r\n            int count = 0;\r\n            for (int i = 0; i &lt; nums.length - 1; i++) {\r\n                if (nums[i] == key && nums[i + 1] == target) {\r\n                    count++;\r\n                }\r\n            }\r\n            if (count &gt; maxCount) {\r\n                maxCount = count;\r\n                result = target;\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;unordered_set&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    int mostFrequent(vector&lt;int&gt;& nums, int key) {\r\n        unordered_set&lt;int&gt; uniqueNums(nums.begin(), nums.end());\r\n        int maxCount = 0;\r\n        int result = 0;\r\n        \r\n        for (int target : uniqueNums) {\r\n            int count = 0;\r\n            for (int i = 0; i &lt; nums.size() - 1; ++i) {\r\n                if (nums[i] == key && nums[i + 1] == target) {\r\n                    count++;\r\n                }\r\n            }\r\n            if (count &gt; maxCount) {\r\n                maxCount = count;\r\n                result = target;\r\n            }\r\n        }\r\n        return result;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums\r\n * @param {number} key\r\n * @return {number}\r\n */\r\nvar mostFrequent = function(nums, key) {\r\n    const uniqueNums = new Set(nums);\r\n    let maxCount = 0;\r\n    let result = 0;\r\n    \r\n    for (const target of uniqueNums) {\r\n        let count = 0;\r\n        for (let i = 0; i &lt; nums.length - 1; i++) {\r\n            if (nums[i] === key && nums[i + 1] === target) {\r\n                count++;\r\n            }\r\n        }\r\n        if (count &gt; maxCount) {\r\n            maxCount = count;\r\n            result = target;\r\n        }\r\n    }\r\n    return result;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequent(nums: number[], key: number): number {\r\n    const uniqueNums = new Set(nums);\r\n    let maxCount = 0;\r\n    let result = 0;\r\n    \r\n    for (const target of uniqueNums) {\r\n        let count = 0;\r\n        for (let i = 0; i &lt; nums.length - 1; i++) {\r\n            if (nums[i] === key && nums[i + 1] === target) {\r\n                count++;\r\n            }\r\n        }\r\n        if (count &gt; maxCount) {\r\n            maxCount = count;\r\n            result = target;\r\n        }\r\n    }\r\n    return result;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the array. In the worst case, we iterate through the array for every unique number.
+- Space: O(n) to store the set of unique numbers.
+- Notes: This approach is not recommended for large inputs but demonstrates a straightforward brute-force logic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Most Frequent Number Following Key In an Array Solutions","datePublished":"2025-08-18","description":"Find the number that appears most frequently immediately after a given key in an array.","keywords":"LeetCode, Most Frequent Number Following Key In an Array, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array, as we traverse the array once to count frequencies and once more to find the maximum."}},{"@type":"Question","name":"What is the space complexity of the Fixed Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the counting array has a fixed size of 1001, regardless of the input size."}},{"@type":"Question","name":"Why is the Fixed Array approach preferred here?","acceptedAnswer":{"@type":"Answer","text":"It is preferred because the problem constraints limit values to 1000, allowing us to use direct indexing which is faster and uses less memory overhead than a hash map."}}]}).replace(/</g,'\u003c')}
+</script>

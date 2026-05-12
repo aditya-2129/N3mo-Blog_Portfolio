@@ -1,0 +1,366 @@
+---
+title: "Find Users with High Token Usage"
+summary: "Find users whose total token usage exceeds a given threshold using aggregation."
+date: "Sep 03, 2025"
+tags:
+  - SQL
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.80% | **Paid:** No
+> **Topics:** N/A
+
+## Problem Description
+
+Table: `Tokens`
+
+| Column Name | Type |
+|-------------|------|
+| user_id     | int  |
+| tokens_used | int  |
+
+There is no primary key for this table. It may contain duplicates.
+
+Write a SQL query to find the `user_id` of users who have used more than 1000 tokens in total.
+
+Return the result table in any order.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Group By with Having](#group-by-with-having)
+- [Subquery Approach](#subquery-approach)
+- [Window Function Approach](#window-function-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+Tokens table:
++---------+------------+
+| user_id | tokens_used|
++---------+------------+
+| 1       | 500        |
+| 1       | 600        |
+| 2       | 300        |
+| 3       | 1200       |
++---------+------------+
+```
+
+**Output:**
+```text
++---------+
+| user_id |
++---------+
+| 1       |
+| 3       |
++---------+
+```
+
+**Explanation:**
+- User 1 has used 500 + 600 = 1100 tokens, which is more than 1000.
+- User 2 has used 300 tokens, which is not more than 1000.
+- User 3 has used 1200 tokens, which is more than 1000.
+
+### Example 2
+
+**Input:**
+```text
+Tokens table:
++---------+------------+
+| user_id | tokens_used|
++---------+------------+
+| 1       | 1000       |
+| 2       | 2000       |
++---------+------------+
+```
+
+**Output:**
+```text
++---------+
+| user_id |
++---------+
+| 2       |
++---------+
+```
+
+**Explanation:**
+- User 1 has used exactly 1000 tokens, which is not more than 1000.
+- User 2 has used 2000 tokens, which is more than 1000.
+
+## Constraints
+
+```text
+- 1 <= tokens_used <= 10^4
+- The number of rows in Tokens is at most 10^4
+```
+
+## Group By with Having
+
+**Intuition**
+Group the records by user_id, sum the tokens for each user, and filter using the HAVING clause to find users exceeding the threshold.
+
+**Steps**
+- Group the table by user_id
+- Calculate the sum of tokens_used for each group
+- Filter groups where the sum is greater than 1000
+- Select the user_id from the filtered groups
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_users(tokens: pd.DataFrame) -> pd.DataFrame:
+    result = tokens.groupby('user_id')['tokens_used'].sum().reset_index()
+    result = result[result['tokens_used'] &gt; 1000]
+    return result[['user_id']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<Integer> findUsers(Connection conn) throws SQLException {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        String query = "SELECT user_id FROM Tokens GROUP BY user_id HAVING SUM(tokens_used) &gt; 1000";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            result.add(rs.getInt("user_id"));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findUsers(vector<vector<int>&gt;& tokens) {
+        unordered_map<int, long long> tokenSum;
+        for (auto& row : tokens) {
+            tokenSum[row[0]] += row[1];
+        }
+        vector<int> result;
+        for (auto& [user_id, sum] : tokenSum) {
+            if (sum &gt; 1000) {
+                result.push_back(user_id);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function findUsers(tokens) {
+    const tokenMap = new Map();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function findUsers(tokens: number[][]): number[] {
+    const tokenMap = new Map<number, number>();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result: number[] = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Tokens table
+- Space: O(k) where k is the number of unique users
+- Notes: This is the most straightforward and efficient approach for this problem.
+
+## Subquery Approach
+
+**Intuition**
+First calculate the total tokens for each user in a subquery, then filter the results in the outer query.
+
+**Steps**
+- Create a subquery that groups by user_id and sums tokens_used
+- In the outer query, select user_id where the sum is greater than 1000
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_users(tokens: pd.DataFrame) -> pd.DataFrame:
+    aggregated = tokens.groupby('user_id', as_index=False)['tokens_used'].sum()
+    result = aggregated[aggregated['tokens_used'] &gt; 1000]
+    return result[['user_id']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<Integer> findUsers(Connection conn) throws SQLException {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        String query = "SELECT user_id FROM (SELECT user_id, SUM(tokens_used) as total FROM Tokens GROUP BY user_id) AS t WHERE total &gt; 1000";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            result.add(rs.getInt("user_id"));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findUsers(vector<vector<int>&gt;& tokens) {
+        unordered_map<int, long long> tokenSum;
+        for (auto& row : tokens) {
+            tokenSum[row[0]] += row[1];
+        }
+        vector<int> result;
+        for (auto& [user_id, sum] : tokenSum) {
+            if (sum &gt; 1000) {
+                result.push_back(user_id);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function findUsers(tokens) {
+    const tokenMap = new Map();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function findUsers(tokens: number[][]): number[] {
+    const tokenMap = new Map<number, number>();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result: number[] = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Tokens table
+- Space: O(k) where k is the number of unique users
+- Notes: Similar to the GROUP BY approach but uses a subquery for filtering.
+
+## Window Function Approach
+
+**Intuition**
+Use window functions to calculate running totals and then filter for users exceeding the threshold.
+
+**Steps**
+- Use SUM() as a window function partitioned by user_id
+- Filter rows where the total sum exceeds 1000
+- Select distinct user_ids
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_users(tokens: pd.DataFrame) -> pd.DataFrame:
+    tokens['total'] = tokens.groupby('user_id')['tokens_used'].transform('sum')
+    result = tokens[tokens['total'] &gt; 1000][['user_id']].drop_duplicates()
+    return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<Integer> findUsers(Connection conn) throws SQLException {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        String query = "SELECT DISTINCT user_id FROM (SELECT user_id, SUM(tokens_used) OVER (PARTITION BY user_id) as total FROM Tokens) AS t WHERE total &gt; 1000";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            result.add(rs.getInt("user_id"));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findUsers(vector<vector<int>&gt;& tokens) {
+        unordered_map<int, long long> tokenSum;
+        for (auto& row : tokens) {
+            tokenSum[row[0]] += row[1];
+        }
+        vector<int> result;
+        for (auto& [user_id, sum] : tokenSum) {
+            if (sum &gt; 1000) {
+                result.push_back(user_id);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function findUsers(tokens) {
+    const tokenMap = new Map();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function findUsers(tokens: number[][]): number[] {
+    const tokenMap = new Map<number, number>();
+    for (const [userId, tokensUsed] of tokens) {
+        tokenMap.set(userId, (tokenMap.get(userId) || 0) + tokensUsed);
+    }
+    const result: number[] = [];
+    for (const [userId, sum] of tokenMap.entries()) {
+        if (sum &gt; 1000) {
+            result.push(userId);
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Tokens table
+- Space: O(n) for the window function results
+- Notes: Less efficient than GROUP BY approach but demonstrates window function usage.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Users with High Token Usage Solutions","datePublished":"2025-09-03","description":"Find users whose total token usage exceeds a given threshold using aggregation.","keywords":"LeetCode, Find Users with High Token Usage, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Group By with Having approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Tokens table."}},{"@type":"Question","name":"What is the space complexity of the Group By with Having approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique users."}},{"@type":"Question","name":"What is the time complexity of the Subquery Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Tokens table."}},{"@type":"Question","name":"What is the space complexity of the Subquery Approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique users."}},{"@type":"Question","name":"What is the time complexity of the Window Function Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Tokens table."}},{"@type":"Question","name":"What is the space complexity of the Window Function Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the window function results."}}]}).replace(/</g,'\u003c')}
+</script>

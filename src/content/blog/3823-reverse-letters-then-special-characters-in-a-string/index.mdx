@@ -1,0 +1,462 @@
+---
+title: "Reverse Letters Then Special Characters in a String"
+summary: "Reverse only the letters in a string while keeping special characters in their original positions."
+date: "Jan 01, 2024"
+tags:
+  - Two Pointers
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.00% | **Paid:** No
+> **Topics:** Two Pointers, String, Simulation
+
+You are given a string s that contains English letters and special characters. Your task is to reverse only the letters in the string while keeping all special characters in their original positions.
+
+A letter is defined as an English alphabet character (a-z, A-Z). All other characters are considered special characters.
+
+Return the resulting string after reversing the letters.
+
+## Examples
+
+### Example 1
+```text
+Input: s = "ab-cd"
+Output: "dc-ba"
+Explanation: The letters 'a' and 'b' are swapped with 'd' and 'c', while '-' stays in place.
+```
+
+### Example 2
+```text
+Input: s = "a-bC-dEf-ghIj"
+Output: "j-Ih-gfE-dCba"
+Explanation: All letters are reversed while '-' stays in place.
+```
+
+### Example 3
+```text
+Input: s = "Test1ng-Leet=code-Q!"
+Output: "Qedo1ct-eeLg=ntse-T!"
+Explanation: Letters are reversed while '1', '-', '=', and '!' stay in place.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of English letters and special characters.
+```
+
+## Table of Contents
+
+- [Examples](#examples)
+- [Constraints](#constraints)
+- [Two Pointers Approach](#two-pointers-approach)
+- [Extract and Reverse Approach](#extract-and-reverse-approach)
+- [Stack Approach](#stack-approach)
+
+---
+## Two Pointers Approach
+
+**Intuition**
+Use two pointers starting from both ends of the string. Move them towards each other, swapping letters when both pointers point to letters, and skipping special characters.
+
+**Steps**
+- Convert the string to a mutable character array.
+- Initialize left pointer at 0 and right pointer at the end.
+- While left &lt; right:
+  - If s[left] is not a letter, increment left.
+  - If s[right] is not a letter, decrement right.
+  - If both are letters, swap them and move both pointers.
+- Convert the character array back to a string and return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseOnlyLetters(self, s: str) -> str:
+        s_list = list(s)
+        left, right = 0, len(s) - 1
+        
+        while left &lt; right:
+            if not s_list[left].isalpha():
+                left += 1
+            elif not s_list[right].isalpha():
+                right -= 1
+            else:
+                s_list[left], s_list[right] = s_list[right], s_list[left]
+                left += 1
+                right -= 1
+        
+        return ''.join(s_list)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseOnlyLetters(String s) {
+        char[] chars = s.toCharArray();
+        int left = 0, right = chars.length - 1;
+        
+        while (left &lt; right) {
+            if (!Character.isLetter(chars[left])) {
+                left++;
+            } else if (!Character.isLetter(chars[right])) {
+                right--;
+            } else {
+                char temp = chars[left];
+                chars[left] = chars[right];
+                chars[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        
+        return new String(chars);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseOnlyLetters(string s) {
+        int left = 0, right = s.length() - 1;
+        
+        while (left &lt; right) {
+            if (!isalpha(s[left])) {
+                left++;
+            } else if (!isalpha(s[right])) {
+                right--;
+            } else {
+                swap(s[left], s[right]);
+                left++;
+                right--;
+            }
+        }
+        
+        return s;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseOnlyLetters = function(s) {
+    let chars = s.split('');
+    let left = 0, right = chars.length - 1;
+    
+    while (left &lt; right) {
+        if (!isLetter(chars[left])) {
+            left++;
+        } else if (!isLetter(chars[right])) {
+            right--;
+        } else {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+    
+    return chars.join('');
+};
+
+function isLetter(c) {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseOnlyLetters(s: string): string {
+    let chars = s.split('');
+    let left = 0, right = chars.length - 1;
+    
+    while (left &lt; right) {
+        if (!isLetter(chars[left])) {
+            left++;
+        } else if (!isLetter(chars[right])) {
+            right--;
+        } else {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+    
+    return chars.join('');
+}
+
+function isLetter(c: string): boolean {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the character array (or O(1) if we consider the output as required space)
+- Notes: This is the most space-efficient approach for in-place modification.
+
+---
+## Extract and Reverse Approach
+
+**Intuition**
+Extract all letters from the string, reverse them, and then place them back into the original positions where letters were located.
+
+**Steps**
+- Iterate through the string and collect all letters in a list.
+- Reverse the list of letters.
+- Iterate through the string again, replacing each letter position with the next letter from the reversed list.
+- Return the resulting string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseOnlyLetters(self, s: str) -> str:
+        letters = [c for c in s if c.isalpha()]
+        letters.reverse()
+        
+        result = []
+        letter_index = 0
+        for c in s:
+            if c.isalpha():
+                result.append(letters[letter_index])
+                letter_index += 1
+            else:
+                result.append(c)
+        
+        return ''.join(result)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String reverseOnlyLetters(String s) {
+        StringBuilder letters = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c)) {
+                letters.append(c);
+            }
+        }
+        
+        letters.reverse();
+        
+        StringBuilder result = new StringBuilder();
+        int letterIndex = 0;
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c)) {
+                result.append(letters.charAt(letterIndex++));
+            } else {
+                result.append(c);
+            }
+        }
+        
+        return result.toString();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseOnlyLetters(string s) {
+        string letters;
+        for (char c : s) {
+            if (isalpha(c)) {
+                letters += c;
+            }
+        }
+        
+        reverse(letters.begin(), letters.end());
+        
+        string result;
+        int letterIndex = 0;
+        for (char c : s) {
+            if (isalpha(c)) {
+                result += letters[letterIndex++];
+            } else {
+                result += c;
+            }
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseOnlyLetters = function(s) {
+    let letters = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            letters.push(c);
+        }
+    }
+    
+    letters.reverse();
+    
+    let result = [];
+    let letterIndex = 0;
+    for (let c of s) {
+        if (isLetter(c)) {
+            result.push(letters[letterIndex++]);
+        } else {
+            result.push(c);
+        }
+    }
+    
+    return result.join('');
+};
+
+function isLetter(c) {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseOnlyLetters(s: string): string {
+    let letters: string[] = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            letters.push(c);
+        }
+    }
+    
+    letters.reverse();
+    
+    let result: string[] = [];
+    let letterIndex = 0;
+    for (let c of s) {
+        if (isLetter(c)) {
+            result.push(letters[letterIndex++]);
+        } else {
+            result.push(c);
+        }
+    }
+    
+    return result.join('');
+}
+
+function isLetter(c: string): boolean {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing the letters and the result
+- Notes: This approach is straightforward but uses more space than the two pointers approach.
+
+---
+## Stack Approach
+
+**Intuition**
+Use a stack to store all letters in the string. Then iterate through the string again, popping letters from the stack to fill letter positions, which naturally reverses them.
+
+**Steps**
+- Push all letters from the string onto a stack.
+- Create a result string by iterating through the original string.
+- For each character, if it's a letter, pop from the stack; otherwise, keep the original character.
+- Return the result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def reverseOnlyLetters(self, s: str) -> str:
+        stack = [c for c in s if c.isalpha()]
+        
+        result = []
+        for c in s:
+            if c.isalpha():
+                result.append(stack.pop())
+            else:
+                result.append(c)
+        
+        return ''.join(result)
+` },
+{ name: "Java", lang: "java", code: `import java.util.Stack;
+
+class Solution {
+    public String reverseOnlyLetters(String s) {
+        Stack<Character> stack = new Stack&lt;&gt;();
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c)) {
+                stack.push(c);
+            }
+        }
+        
+        StringBuilder result = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c)) {
+                result.append(stack.pop());
+            } else {
+                result.append(c);
+            }
+        }
+        
+        return result.toString();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string reverseOnlyLetters(string s) {
+        vector<char> stack;
+        for (char c : s) {
+            if (isalpha(c)) {
+                stack.push_back(c);
+            }
+        }
+        
+        string result;
+        for (char c : s) {
+            if (isalpha(c)) {
+                result += stack.back();
+                stack.pop_back();
+            } else {
+                result += c;
+            }
+        }
+        
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var reverseOnlyLetters = function(s) {
+    let stack = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            stack.push(c);
+        }
+    }
+    
+    let result = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            result.push(stack.pop());
+        } else {
+            result.push(c);
+        }
+    }
+    
+    return result.join('');
+};
+
+function isLetter(c) {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `function reverseOnlyLetters(s: string): string {
+    let stack: string[] = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            stack.push(c);
+        }
+    }
+    
+    let result: string[] = [];
+    for (let c of s) {
+        if (isLetter(c)) {
+            result.push(stack.pop()!);
+        } else {
+            result.push(c);
+        }
+    }
+    
+    return result.join('');
+}
+
+function isLetter(c: string): boolean {
+    return (c &gt;= 'a' && c &lt;= 'z') || (c &gt;= 'A' && c &lt;= 'Z');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the stack and result
+- Notes: The stack naturally reverses the order of letters, making this approach intuitive.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Letters Then Special Characters in a String Solutions","datePublished":"2024-01-01","description":"Reverse only the letters in a string while keeping special characters in their original positions.","keywords":"LeetCode, Reverse Letters Then Special Characters in a String, Easy, Two Pointers, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we traverse the string once with two pointers."}},{"@type":"Question","name":"What is the space complexity of the Stack Approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing all letters in the stack and the result string."}},{"@type":"Question","name":"Which approach is most space-efficient?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers Approach is most space-efficient as it only requires O(n) space for the character array (or O(1) if we consider the output as required space), while other approaches need additional space for storing letters separately."}}]}).replace(/</g,'\u003c')}
+</script>

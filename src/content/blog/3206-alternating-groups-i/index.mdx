@@ -1,0 +1,126 @@
+---
+title: "Alternating Groups I"
+summary: "Count the number of alternating groups of three colors in a circular array where the first and third colors are the same."
+date: "Jun 20, 2025"
+tags:
+  - Array
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.00% | **Paid:** No
+> **Topics:** Array, Sliding Window
+
+There is a circle of n colors. You are given an array colors of size n where colors[i] represents the color of the ith color in the circle.
+
+An alternating group is a group of 3 consecutive colors in the circle such that:
+
+The first and third colors are the same.
+The first and third colors are different from the second color.
+More formally, a group of 3 colors colors[i], colors[j], colors[k] is an alternating group if:
+
+i &lt; j &lt; k
+colors[i] == colors[k]
+colors[i] != colors[j]
+Return the number of alternating groups in the circle.
+
+- Examples
+- Constraints
+- [Approach 1: Iteration with Modulo](#approach-1-iteration-with-modulo)
+- [Approach 2: Array Concatenation](#approach-2-array-concatenation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+colors = [1,1,1]
+```
+
+**Output:**
+```text
+0
+```
+
+### Example 2
+
+**Input:**
+```text
+colors = [0,1,0,0,1]
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+Alternating groups:
+
+## Constraints
+
+```text
+- 3 <= colors.length <= 100
+- 0 <= colors[i] <= 1
+```
+
+---
+## Approach 1: Iteration with Modulo
+
+**Intuition**
+Since the colors are arranged in a circle, we can iterate through the array and treat each index as the start of a potential group of three. We use the modulo operator to handle the wrap-around from the end of the array back to the beginning.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through the array from index 0 to n-1.
+- For each index i, identify the three colors of the group: colors[i], colors[(i+1)%n], and colors[(i+2)%n].
+- Check if the first and third colors are the same and different from the second color.
+- If the condition is met, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def numberOfAlternatingGroups(self, colors: List[int]) -&gt; int:\r\n        n = len(colors)\r\n        count = 0\r\n        for i in range(n):\r\n            first = colors[i]\r\n            second = colors[(i + 1) % n]\r\n            third = colors[(i + 2) % n]\r\n            if first == third and first != second:\r\n                count += 1\r\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int numberOfAlternatingGroups(int[] colors) {\r\n        int n = colors.length;\r\n        int count = 0;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            int first = colors[i];\r\n            int second = colors[(i + 1) % n];\r\n            int third = colors[(i + 2) % n];\r\n            if (first == third && first != second) {\r\n                count++;\r\n            }\r\n        }\r\n        return count;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    int numberOfAlternatingGroups(std::vector&lt;int&gt;& colors) {\r\n        int n = colors.size();\r\n        int count = 0;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            int first = colors[i];\r\n            int second = colors[(i + 1) % n];\r\n            int third = colors[(i + 2) % n];\r\n            if (first == third && first != second) {\r\n                count++;\r\n            }\r\n        }\r\n        return count;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} colors\r\n * @return {number}\r\n */\r\nvar numberOfAlternatingGroups = function(colors) {\r\n    const n = colors.length;\r\n    let count = 0;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        const first = colors[i];\r\n        const second = colors[(i + 1) % n];\r\n        const third = colors[(i + 2) % n];\r\n        if (first === third && first !== second) {\r\n            count++;\r\n        }\r\n    }\r\n    return count;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numberOfAlternatingGroups(colors: number[]): number {\r\n    const n = colors.length;\r\n    let count = 0;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        const first = colors[i];\r\n        const second = colors[(i + 1) % n];\r\n        const third = colors[(i + 2) % n];\r\n        if (first === third && first !== second) {\r\n            count++;\r\n        }\r\n    }\r\n    return count;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: This is the most space-efficient approach as it only requires a few variables for iteration and comparison.
+
+---
+## Approach 2: Array Concatenation
+
+**Intuition**
+To avoid the complexity of modulo arithmetic, we can conceptually "unroll" the circle by concatenating the array with itself. This allows us to check groups of three linearly from index 0 to n-1 without worrying about wrapping around the array bounds.
+
+**Steps**
+- Create a new array `extended` by appending the original `colors` array to itself.
+- Iterate through the first n elements of the `extended` array.
+- For each index i, check the triplet `extended[i]`, `extended[i+1]`, and `extended[i+2]`.
+- If the first and third elements are equal and different from the second, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def numberOfAlternatingGroups(self, colors: List[int]) -&gt; int:\r\n        n = len(colors)\r\n        extended = colors + colors\r\n        count = 0\r\n        for i in range(n):\r\n            if extended[i] == extended[i + 2] and extended[i] != extended[i + 1]:\r\n                count += 1\r\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public int numberOfAlternatingGroups(int[] colors) {\r\n        int n = colors.length;\r\n        int[] extended = new int[n * 2];\r\n        for (int i = 0; i &lt; n * 2; i++) {\r\n            extended[i] = colors[i % n];\r\n        }\r\n        int count = 0;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            if (extended[i] == extended[i + 2] && extended[i] != extended[i + 1]) {\r\n                count++;\r\n            }\r\n        }\r\n        return count;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    int numberOfAlternatingGroups(std::vector&lt;int&gt;& colors) {\r\n        int n = colors.size();\r\n        std::vector&lt;int&gt; extended;\r\n        extended.reserve(n * 2);\r\n        extended.insert(extended.end(), colors.begin(), colors.end());\r\n        extended.insert(extended.end(), colors.begin(), colors.end());\r\n        int count = 0;\r\n        for (int i = 0; i &lt; n; i++) {\r\n            if (extended[i] == extended[i + 2] && extended[i] != extended[i + 1]) {\r\n                count++;\r\n            }\r\n        }\r\n        return count;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} colors\r\n * @return {number}\r\n */\r\nvar numberOfAlternatingGroups = function(colors) {\r\n    const n = colors.length;\r\n    const extended = [...colors, ...colors];\r\n    let count = 0;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        if (extended[i] === extended[i + 2] && extended[i] !== extended[i + 1]) {\r\n            count++;\r\n        }\r\n    }\r\n    return count;\r\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numberOfAlternatingGroups(colors: number[]): number {\r\n    const n = colors.length;\r\n    const extended = [...colors, ...colors];\r\n    let count = 0;\r\n    for (let i = 0; i &lt; n; i++) {\r\n        if (extended[i] === extended[i + 2] && extended[i] !== extended[i + 1]) {\r\n            count++;\r\n        }\r\n    }\r\n    return count;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: This approach trades space for simplicity in logic, avoiding the modulo operator.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Alternating Groups I Solutions","datePublished":"2025-06-20","description":"Count the number of alternating groups of three colors in a circular array where the first and third colors are the same.","keywords":"LeetCode, Alternating Groups I, Easy, Array, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iteration with Modulo approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of colors, as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Array Concatenation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) because we create a new array that is double the size of the input array."}},{"@type":"Question","name":"Why do we need to handle the array as a circle?","acceptedAnswer":{"@type":"Answer","text":"The problem states the colors are in a circle, meaning the last element is adjacent to the first. This requires checking groups that wrap around the end of the array."}}]}).replace(/</g,'\u003c')}
+</script>

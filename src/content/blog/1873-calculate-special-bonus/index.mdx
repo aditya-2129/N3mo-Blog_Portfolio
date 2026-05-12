@@ -1,0 +1,132 @@
+---
+title: "Calculate Special Bonus"
+summary: "Calculate the bonus for employees based on their ID and name, excluding those with odd IDs or names starting with 'M'."
+date: "Mar 13, 2026"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.00% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| name        | varchar |
+| salary      | int     |
++-------------+---------+
+employee_id is the primary key for this table.
+Each row of this table indicates the employee_id, name, and salary of an employee.
+
+Write an SQL query to calculate the bonus of each employee. The bonus of an employee is 100% of their salary if the employee_id is an odd number and the name does not start with the character 'M'. The bonus is 0 otherwise.
+
+Return the result table ordered by employee_id.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Check](#iterative-check)
+- [Approach 2: Functional Mapping](#functional-mapping)
+
+## Examples
+
+### Example 1:
+Input:
+Employees table:
++-------------+----------+--------+
+| employee_id | name     | salary |
++-------------+----------+--------+
+| 2           | Meir     | 3000   |
+| 3           | Michael  | 4500   |
+| 7           | Addilyn  | 2740   |
+| 8           | Juan     | 6900   |
+| 9           | Kannon   | 7000   |
++-------------+----------+--------+
+Output:
++-------------+-------+
+| employee_id | bonus |
++-------------+-------+
+| 2           | 0     |
+| 3           | 0     |
+| 7           | 0     |
+| 8           | 6900  |
+| 9           | 0     |
++-------------+-------+
+Explanation:
+The employees with IDs 2 and 3 get 0 bonus because their name starts with 'M'.
+The employee with ID 7 gets 0 bonus because their employee_id is odd.
+The employee with ID 8 gets 6900 bonus because their employee_id is even and the name does not start with 'M'.
+The employee with ID 9 gets 0 bonus because their employee_id is odd.
+
+## Constraints
+
+```text
+1 <= employee_id <= 100
+0 <= salary <= 100000
+name consists only of lowercase and uppercase English letters.
+```
+
+---
+## Iterative Check
+
+**Intuition**
+We iterate through the list of employees and check the conditions for each one individually. If the ID is odd or the name starts with 'M', the bonus is 0; otherwise, the bonus equals the salary.
+
+**Steps**
+- Initialize an empty list for the results.
+- Loop through each employee in the input list.
+- Check if `employee_id % 2 != 0` or if the name starts with 'M'.
+- If either condition is true, append `[employee_id, 0]` to the results.
+- Otherwise, append `[employee_id, salary]` to the results.
+- Return the results list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def calculateSpecialBonus(self, employees: list) -&gt; list:\n        result = []\n        for emp in employees:\n            eid, name, salary = emp[0], emp[1], emp[2]\n            if eid % 2 != 0 or name.startswith('M'):\n                result.append([eid, 0])\n            else:\n                result.append([eid, salary])\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;Integer&gt;&gt; calculateSpecialBonus(List&lt;List&lt;Object&gt;&gt; employees) {\n        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();\n        for (List&lt;Object&gt; emp : employees) {\n            int id = (int) emp.get(0);\n            String name = (String) emp.get(1);\n            int salary = (int) emp.get(2);\n            int bonus = (id % 2 != 0 || name.startsWith(\"M\")) ? 0 : salary;\n            res.add(Arrays.asList(id, bonus));\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; calculateSpecialBonus(vector&lt;vector&lt;string&gt;&gt;& employees) {\n        vector&lt;vector&lt;int&gt;&gt; res;\n        for (auto& emp : employees) {\n            int id = stoi(emp[0]);\n            string name = emp[1];\n            int salary = stoi(emp[2]);\n            int bonus = (id % 2 != 0 || (!name.empty() && name[0] == 'M')) ? 0 : salary;\n            res.push_back({id, bonus});\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&gt;} employees\n * @return {Array&lt;Array&gt;}\n */\nvar calculateSpecialBonus = function(employees) {\n    let result = [];\n    for (let i = 0; i &lt; employees.length; i++) {\n        let emp = employees[i];\n        let id = emp[0];\n        let name = emp[1];\n        let salary = emp[2];\n        let bonus = (id % 2 !== 0 || name.indexOf('M') === 0) ? 0 : salary;\n        result.push([id, bonus]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function calculateSpecialBonus(employees: [number, string, number][]): [number, number][] {\n    const result: [number, number][] = [];\n    for (const emp of employees) {\n        const [id, name, salary] = emp;\n        const bonus = (id % 2 !== 0 || name.startsWith('M')) ? 0 : salary;\n        result.push([id, bonus]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of employees.
+- Space: O(N) to store the result list.
+- Notes: This approach is straightforward and easy to understand.
+
+---
+## Functional Mapping
+
+**Intuition**
+We use functional programming constructs like `map`, `stream`, or list comprehensions to transform the input list into the output list in a declarative way, applying the conditional logic inline.
+
+**Steps**
+- Use a map function to iterate over the employees.
+- For each employee, apply the conditional logic: `bonus = (id % 2 == 0 && name[0] != 'M') ? salary : 0`.
+- Collect the transformed pairs into a new list.
+- Return the new list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def calculateSpecialBonus(self, employees: list) -&gt; list:\n        return [[eid, 0 if eid % 2 != 0 or name.startswith('M') else salary] \n                for eid, name, salary in employees]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public List&lt;List&lt;Integer&gt;&gt; calculateSpecialBonus(List&lt;List&lt;Object&gt;&gt; employees) {\n        return employees.stream()\n            .map(emp -&gt; {\n                int id = (int) emp.get(0);\n                String name = (String) emp.get(1);\n                int salary = (int) emp.get(2);\n                int bonus = (id % 2 != 0 || name.startsWith(\"M\")) ? 0 : salary;\n                return Arrays.asList(id, bonus);\n            })\n            .collect(Collectors.toList());\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; calculateSpecialBonus(vector&lt;vector&lt;string&gt;&gt;& employees) {\n        vector&lt;vector&lt;int&gt;&gt; res;\n        res.reserve(employees.size());\n        transform(employees.begin(), employees.end(), back_inserter(res), [](const vector&lt;string&gt;& emp) {\n            int id = stoi(emp[0]);\n            string name = emp[1];\n            int salary = stoi(emp[2]);\n            int bonus = (id % 2 != 0 || (!name.empty() && name[0] == 'M')) ? 0 : salary;\n            return vector&lt;int&gt;{id, bonus};\n        });\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&gt;} employees\n * @return {Array&lt;Array&gt;}\n */\nvar calculateSpecialBonus = function(employees) {\n    return employees.map(emp =&gt; {\n        const [id, name, salary] = emp;\n        const bonus = (id % 2 !== 0 || name.indexOf('M') === 0) ? 0 : salary;\n        return [id, bonus];\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function calculateSpecialBonus(employees: [number, string, number][]): [number, number][] {\n    return employees.map(([id, name, salary]): [number, number] =&gt; {\n        const bonus = (id % 2 !== 0 || name.startsWith('M')) ? 0 : salary;\n        return [id, bonus];\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of employees.
+- Space: O(N) to store the result list.
+- Notes: This approach is more concise and often preferred in modern codebases for simple transformations.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Calculate Special Bonus Solutions","datePublished":"2026-03-13","description":"Calculate the bonus for employees based on their ID and name, excluding those with odd IDs or names starting with 'M'.","keywords":"LeetCode, Calculate Special Bonus, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Check approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of employees, as we process each employee exactly once."}},{"@type":"Question","name":"What is the space complexity of the Functional Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the resulting list of employee IDs and bonuses."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,136 @@
+---
+title: "Find the Difference of Two Arrays"
+summary: "Given two integer arrays, return distinct integers present in one but not the other."
+date: "Aug 13, 2024"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.40% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+Given two 0-indexed integer arrays nums1 and nums2, return a list answer of size 2 where:
+
+answer[0] is a list of all distinct integers in nums1 which are not present in nums2.
+answer[1] is a list of all distinct integers in nums2 which are not present in nums1.
+Note that the integers in the lists may be returned in any order.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sorting and Two Pointers](#approach-2-sorting-and-two-pointers)
+- [Approach 3: Hash Set](#approach-3-hash-set)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums1 = [1,2,3], nums2 = [2,4,6]
+Output: [[1,3],[4,6]]
+Explanation:
+For nums1, nums1[0]=1 and nums1[2]=3 are not present in nums2.
+For nums2, nums2[1]=4 and nums2[2]=6 are not present in nums1.
+```
+
+**Example 2:**
+
+```text
+Input: nums1 = [1,2,3,3], nums2 = [1,1,2,2]
+Output: [[3],[]]
+Explanation:
+For nums1, nums1[2]=3 and nums1[3]=3 are not present in nums2.
+For nums2, there are no integers that are not present in nums1.
+```
+
+## Constraints
+
+```text
+1 <= nums1.length, nums2.length <= 1000
+-1000 <= nums1[i], nums2[i] <= 1000
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Iterate through each element of the first array and check if it exists in the second array. Repeat the process for the second array against the first.
+
+**Steps**
+- Initialize two empty lists, `diff1` and `diff2`.
+- Loop through each number `x` in `nums1`. If `x` is not found in `nums2` and not already in `diff1`, add it to `diff1`.
+- Loop through each number `x` in `nums2`. If `x` is not found in `nums1` and not already in `diff2`, add it to `diff2`.
+- Return `[diff1, diff2]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDifference(self, nums1: List[int], nums2: List[int]) -&gt; List[List[int]]:\n        res1, res2 = [], []\n        for x in nums1:\n            if x not in nums2 and x not in res1:\n                res1.append(x)\n        for x in nums2:\n            if x not in nums1 and x not in res2:\n                res2.append(x)\n        return [res1, res2]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; findDifference(int[] nums1, int[] nums2) {\n        List&lt;Integer&gt; list1 = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;();\n        for (int i : nums1) {\n            boolean found = false;\n            for (int j : nums2) {\n                if (i == j) { found = true; break; }\n            }\n            if (!found && !list1.contains(i)) list1.add(i);\n        }\n        for (int i : nums2) {\n            boolean found = false;\n            for (int j : nums1) {\n                if (i == j) { found = true; break; }\n            }\n            if (!found && !list2.contains(i)) list2.add(i);\n        }\n        return Arrays.asList(list1, list2);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; findDifference(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        vector&lt;int&gt; v1, v2;\n        for (int x : nums1) {\n            bool found = false;\n            for (int y : nums2) if (x == y) { found = true; break; }\n            if (!found && find(v1.begin(), v1.end(), x) == v1.end()) v1.push_back(x);\n        }\n        for (int x : nums2) {\n            bool found = false;\n            for (int y : nums1) if (x == y) { found = true; break; }\n            if (!found && find(v2.begin(), v2.end(), x) == v2.end()) v2.push_back(x);\n        }\n        return {v1, v2};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findDifference = function(nums1, nums2) {\n    const diff1 = [];\n    const diff2 = [];\n    for (const x of nums1) {\n        if (!nums2.includes(x) && !diff1.includes(x)) diff1.push(x);\n    }\n    for (const x of nums2) {\n        if (!nums1.includes(x) && !diff2.includes(x)) diff2.push(x);\n    }\n    return [diff1, diff2];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDifference(nums1: number[], nums2: number[]): number[][] {\n    const diff1: number[] = [];\n    const diff2: number[] = [];\n    for (const x of nums1) {\n        if (!nums2.includes(x) && !diff1.includes(x)) diff1.push(x);\n    }\n    for (const x of nums2) {\n        if (!nums1.includes(x) && !diff2.includes(x)) diff2.push(x);\n    }\n    return [diff1, diff2];\n}" },]} />
+
+**Complexity**
+- Time: O(n * m), where n and m are the lengths of the arrays.
+- Space: O(n + m) to store the result lists.
+- Notes: Simple to implement but inefficient for large inputs.
+
+---
+## Approach 2: Sorting and Two Pointers
+
+**Intuition**
+Sort both arrays to easily identify unique elements and skip duplicates using two pointers.
+
+**Steps**
+- Sort `nums1` and `nums2`.
+- Initialize two pointers `i` and `j` to 0, and result lists `diff1`, `diff2`.
+- While both pointers are within bounds:
+  - If `nums1[i] == nums2[j]`, advance both pointers to skip all duplicates of this value.
+  - If `nums1[i] &lt; nums2[j]`, `nums1[i]` is unique to `nums1`. Add it to `diff1` and advance `i` skipping duplicates.
+  - If `nums1[i] &gt; nums2[j]`, `nums2[j]` is unique to `nums2`. Add it to `diff2` and advance `j` skipping duplicates.
+- Process remaining elements in either array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDifference(self, nums1: List[int], nums2: List[int]) -&gt; List[List[int]]:\n        nums1.sort()\n        nums2.sort()\n        i, j = 0, 0\n        res1, res2 = [], []\n        n, m = len(nums1), len(nums2)\n        while i &lt; n and j &lt; m:\n            if nums1[i] == nums2[j]:\n                val = nums1[i]\n                while i &lt; n and nums1[i] == val: i += 1\n                while j &lt; m and nums2[j] == val: j += 1\n            elif nums1[i] &lt; nums2[j]:\n                val = nums1[i]\n                res1.append(val)\n                while i &lt; n and nums1[i] == val: i += 1\n            else:\n                val = nums2[j]\n                res2.append(val)\n                while j &lt; m and nums2[j] == val: j += 1\n        while i &lt; n:\n            val = nums1[i]\n            res1.append(val)\n            while i &lt; n and nums1[i] == val: i += 1\n        while j &lt; m:\n            val = nums2[j]\n            res2.append(val)\n            while j &lt; m and nums2[j] == val: j += 1\n        return [res1, res2]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; findDifference(int[] nums1, int[] nums2) {\n        Arrays.sort(nums1);\n        Arrays.sort(nums2);\n        List&lt;Integer&gt; diff1 = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; diff2 = new ArrayList&lt;&gt;();\n        int i = 0, j = 0;\n        while (i &lt; nums1.length && j &lt; nums2.length) {\n            if (nums1[i] == nums2[j]) {\n                int val = nums1[i];\n                while (i &lt; nums1.length && nums1[i] == val) i++;\n                while (j &lt; nums2.length && nums2[j] == val) j++;\n            } else if (nums1[i] &lt; nums2[j]) {\n                int val = nums1[i];\n                diff1.add(val);\n                while (i &lt; nums1.length && nums1[i] == val) i++;\n            } else {\n                int val = nums2[j];\n                diff2.add(val);\n                while (j &lt; nums2.length && nums2[j] == val) j++;\n            }\n        }\n        while (i &lt; nums1.length) {\n            int val = nums1[i];\n            diff1.add(val);\n            while (i &lt; nums1.length && nums1[i] == val) i++;\n        }\n        while (j &lt; nums2.length) {\n            int val = nums2[j];\n            diff2.add(val);\n            while (j &lt; nums2.length && nums2[j] == val) j++;\n        }\n        return Arrays.asList(diff1, diff2);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; findDifference(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        sort(nums1.begin(), nums1.end());\n        sort(nums2.begin(), nums2.end());\n        vector&lt;int&gt; diff1, diff2;\n        int i = 0, j = 0;\n        int n = nums1.size(), m = nums2.size();\n        while (i &lt; n && j &lt; m) {\n            if (nums1[i] == nums2[j]) {\n                int val = nums1[i];\n                while (i &lt; n && nums1[i] == val) i++;\n                while (j &lt; m && nums2[j] == val) j++;\n            } else if (nums1[i] &lt; nums2[j]) {\n                int val = nums1[i];\n                diff1.push_back(val);\n                while (i &lt; n && nums1[i] == val) i++;\n            } else {\n                int val = nums2[j];\n                diff2.push_back(val);\n                while (j &lt; m && nums2[j] == val) j++;\n            }\n        }\n        while (i &lt; n) {\n            int val = nums1[i];\n            diff1.push_back(val);\n            while (i &lt; n && nums1[i] == val) i++;\n        }\n        while (j &lt; m) {\n            int val = nums2[j];\n            diff2.push_back(val);\n            while (j &lt; m && nums2[j] == val) j++;\n        }\n        return {diff1, diff2};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findDifference = function(nums1, nums2) {\n    nums1.sort((a, b) =&gt; a - b);\n    nums2.sort((a, b) =&gt; a - b);\n    const diff1 = [];\n    const diff2 = [];\n    let i = 0, j = 0;\n    while (i &lt; nums1.length && j &lt; nums2.length) {\n        if (nums1[i] === nums2[j]) {\n            const val = nums1[i];\n            while (i &lt; nums1.length && nums1[i] === val) i++;\n            while (j &lt; nums2.length && nums2[j] === val) j++;\n        } else if (nums1[i] &lt; nums2[j]) {\n            const val = nums1[i];\n            diff1.push(val);\n            while (i &lt; nums1.length && nums1[i] === val) i++;\n        } else {\n            const val = nums2[j];\n            diff2.push(val);\n            while (j &lt; nums2.length && nums2[j] === val) j++;\n        }\n    }\n    while (i &lt; nums1.length) {\n        const val = nums1[i];\n        diff1.push(val);\n        while (i &lt; nums1.length && nums1[i] === val) i++;\n    }\n    while (j &lt; nums2.length) {\n        const val = nums2[j];\n        diff2.push(val);\n        while (j &lt; nums2.length && nums2[j] === val) j++;\n    }\n    return [diff1, diff2];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDifference(nums1: number[], nums2: number[]): number[][] {\n    nums1.sort((a, b) =&gt; a - b);\n    nums2.sort((a, b) =&gt; a - b);\n    const diff1: number[] = [];\n    const diff2: number[] = [];\n    let i = 0, j = 0;\n    while (i &lt; nums1.length && j &lt; nums2.length) {\n        if (nums1[i] === nums2[j]) {\n            const val = nums1[i];\n            while (i &lt; nums1.length && nums1[i] === val) i++;\n            while (j &lt; nums2.length && nums2[j] === val) j++;\n        } else if (nums1[i] &lt; nums2[j]) {\n            const val = nums1[i];\n            diff1.push(val);\n            while (i &lt; nums1.length && nums1[i] === val) i++;\n        } else {\n            const val = nums2[j];\n            diff2.push(val);\n            while (j &lt; nums2.length && nums2[j] === val) j++;\n        }\n    }\n    while (i &lt; nums1.length) {\n        const val = nums1[i];\n        diff1.push(val);\n        while (i &lt; nums1.length && nums1[i] === val) i++;\n    }\n    while (j &lt; nums2.length) {\n        const val = nums2[j];\n        diff2.push(val);\n        while (j &lt; nums2.length && nums2[j] === val) j++;\n    }\n    return [diff1, diff2];\n}" },]} />
+
+**Complexity**
+- Time: O(n log n + m log m) due to sorting.
+- Space: O(1) auxiliary space (excluding output and sorting stack).
+- Notes: Better time complexity than brute force but modifies input or requires copies.
+
+---
+## Approach 3: Hash Set
+
+**Intuition**
+Use Hash Sets to store elements of both arrays. Set difference operations efficiently find elements present in one set but not the other.
+
+**Steps**
+- Convert `nums1` to a set `set1` and `nums2` to a set `set2`.
+- Compute the difference `set1 - set2` to find elements unique to `nums1`.
+- Compute the difference `set2 - set1` to find elements unique to `nums2`.
+- Convert the resulting sets back to lists and return them.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDifference(self, nums1: List[int], nums2: List[int]) -&gt; List[List[int]]:\n        set1 = set(nums1)\n        set2 = set(nums2)\n        return [list(set1 - set2), list(set2 - set1)]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; findDifference(int[] nums1, int[] nums2) {\n        Set&lt;Integer&gt; set1 = new HashSet&lt;&gt;();\n        Set&lt;Integer&gt; set2 = new HashSet&lt;&gt;();\n        for (int num : nums1) set1.add(num);\n        for (int num : nums2) set2.add(num);\n        List&lt;Integer&gt; diff1 = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; diff2 = new ArrayList&lt;&gt;();\n        for (int num : set1) if (!set2.contains(num)) diff1.add(num);\n        for (int num : set2) if (!set1.contains(num)) diff2.add(num);\n        return Arrays.asList(diff1, diff2);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; findDifference(vector&lt;int&gt;& nums1, vector&lt;int&gt;& nums2) {\n        unordered_set&lt;int&gt; set1(nums1.begin(), nums1.end());\n        unordered_set&lt;int&gt; set2(nums2.begin(), nums2.end());\n        vector&lt;int&gt; diff1, diff2;\n        for (int num : set1) if (set2.find(num) == set2.end()) diff1.push_back(num);\n        for (int num : set2) if (set1.find(num) == set1.end()) diff2.push_back(num);\n        return {diff1, diff2};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findDifference = function(nums1, nums2) {\n    const set1 = new Set(nums1);\n    const set2 = new Set(nums2);\n    const diff1 = [...set1].filter(x =&gt; !set2.has(x));\n    const diff2 = [...set2].filter(x =&gt; !set1.has(x));\n    return [diff1, diff2];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDifference(nums1: number[], nums2: number[]): number[][] {\n    const set1 = new Set(nums1);\n    const set2 = new Set(nums2);\n    const diff1 = [...set1].filter(x =&gt; !set2.has(x));\n    const diff2 = [...set2].filter(x =&gt; !set1.has(x));\n    return [diff1, diff2];\n}" },]} />
+
+**Complexity**
+- Time: O(n + m), where n and m are the lengths of the arrays.
+- Space: O(n + m) to store the sets.
+- Notes: Most optimal time complexity for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Difference of Two Arrays Solutions","datePublished":"2024-08-13","description":"Given two integer arrays, return distinct integers present in one but not the other.","keywords":"LeetCode, Find the Difference of Two Arrays, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n*m), where n and m are the lengths of the two arrays."}},{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), as set operations are O(1) on average."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the sets."}}]}).replace(/</g,'\u003c')}
+</script>

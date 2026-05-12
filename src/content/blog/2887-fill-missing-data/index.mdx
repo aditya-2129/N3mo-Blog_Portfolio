@@ -1,0 +1,129 @@
+---
+title: "Fill Missing Data"
+summary: "Replace missing quantity values in a DataFrame with the median of existing quantities, rounding to the nearest integer."
+date: "Sep 28, 2025"
+tags:
+  - Pandas
+  - Data Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.50% | **Paid:** No
+> **Topics:** N/A
+
+Table: Products
+
+| Column Name | Type |
+|-------------|------|
+| name        | varchar |
+| quantity    | int |
+| price       | int |
+
+In SQL, name is the primary key for this table.
+This table contains the inventory of a store.
+quantity is the number of units sold. If quantity is null, it means the product has not been sold yet.
+
+Write a solution to update the quantity for the missing values as the median of all the existing quantity values.
+The median is the middle value in a sorted list of numbers. If the list has an even number of elements, the median is the average of the two middle values.
+Round the median to the nearest integer. If the median is x.5, round it up to x + 1.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Pandas Built-in Methods](#pandas-built-in-methods)
+- [Manual Iteration and Replacement](#manual-iteration-and-replacement)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
++-----------------+----------+-------+
+| name            | quantity | price |
++-----------------+----------+-------+
+| Wristwatch      | None     | 135   |
+| WirelessEarbuds | None     | 821   |
+| GolfClubs       | 779      | 9319  |
+| Printer         | 849      | 3051  |
++-----------------+----------+-------+
+```
+
+**Output:**
+```text
++-----------------+----------+-------+
+| name            | quantity | price |
++-----------------+----------+-------+
+| Wristwatch      | 0        | 135   |
+| WirelessEarbuds | 0        | 821   |
+| GolfClubs       | 779      | 9319  |
+| Printer         | 849      | 3051  |
++-----------------+----------+-------+
+```
+
+**Explanation:**
+The quantity for Wristwatch and WirelessEarbuds are filled by 0.
+
+## Constraints
+
+```text
+0 <= products.length <= 1000
+```
+
+---
+## Pandas Built-in Methods
+
+**Intuition**
+Use the built-in Pandas functions to calculate the median and fill missing values efficiently without explicit loops.
+
+**Steps**
+- Calculate the median of the quantity column using the median() method.
+- Round the median to the nearest integer, ensuring 0.5 rounds up.
+- Use the fillna() method to replace all NaN values in the quantity column with the calculated median.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\nimport numpy as np\r\n\r\ndef fillMissingData(products: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Calculate median of the quantity column, ignoring NaNs\r\n    median_val = products['quantity'].median()\r\n    \r\n    # Round the median to the nearest integer (0.5 rounds up)\r\n    # Python's round() uses bankers rounding, so we add 0.5 and floor\r\n    rounded_median = int(median_val + 0.5)\r\n    \r\n    # Fill missing values with the rounded median\r\n    products['quantity'] = products['quantity'].fillna(rounded_median)\r\n    \r\n    return products" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Product {\r\n    String name;\r\n    Integer quantity;\r\n    int price;\r\n\r\n    public Product(String name, Integer quantity, int price) {\r\n        this.name = name;\r\n        this.quantity = quantity;\r\n        this.price = price;\r\n    }\r\n}\r\n\r\nclass Solution {\r\n    public List&lt;Product&gt; fillMissingData(List&lt;Product&gt; products) {\r\n        List&lt;Integer&gt; validQuantities = new ArrayList&lt;&gt;();\r\n        for (Product p : products) {\r\n            if (p.quantity != null) {\r\n                validQuantities.add(p.quantity);\r\n            }\r\n        }\r\n        Collections.sort(validQuantities);\r\n        \r\n        int n = validQuantities.size();\r\n        double median = 0;\r\n        if (n &gt; 0) {\r\n            if (n % 2 == 0) {\r\n                median = (validQuantities.get(n / 2 - 1) + validQuantities.get(n / 2)) / 2.0;\r\n            } else {\r\n                median = validQuantities.get(n / 2);\r\n            }\r\n        }\r\n        \r\n        int roundedMedian = (int) Math.floor(median + 0.5);\r\n        \r\n        for (Product p : products) {\r\n            if (p.quantity == null) {\r\n                p.quantity = roundedMedian;\r\n            }\r\n        }\r\n        return products;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\n#include &lt;cmath&gt;\r\n#include &lt;climits&gt;\r\n\r\nusing namespace std;\r\n\r\nstruct Product {\r\n    string name;\r\n    int quantity; // Using INT_MIN to represent null for this example\r\n    int price;\r\n};\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;Product&gt; fillMissingData(vector&lt;Product&gt;& products) {\r\n        vector&lt;int&gt; valid;\r\n        for (const auto& p : products) {\r\n            if (p.quantity != INT_MIN) {\r\n                valid.push_back(p.quantity);\r\n            }\r\n        }\r\n        sort(valid.begin(), valid.end());\r\n        \r\n        int n = valid.size();\r\n        double median = 0;\r\n        if (n &gt; 0) {\r\n            if (n % 2 == 0) {\r\n                median = (valid[n / 2 - 1] + valid[n / 2]) / 2.0;\r\n            } else {\r\n                median = valid[n / 2];\r\n            }\r\n        }\r\n        \r\n        int roundedMedian = (int)floor(median + 0.5);\r\n        \r\n        for (auto& p : products) {\r\n            if (p.quantity == INT_MIN) {\r\n                p.quantity = roundedMedian;\r\n            }\r\n        }\r\n        return products;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Array&lt;Object&gt;} products\r\n * @return {Array&lt;Object&gt;}\r\n */\r\nfunction fillMissingData(products) {\r\n    const valid = products\r\n        .filter(p =&gt; p.quantity !== null)\r\n        .map(p =&gt; p.quantity)\r\n        .sort((a, b) =&gt; a - b);\r\n\r\n    let median = 0;\r\n    const n = valid.length;\r\n    if (n &gt; 0) {\r\n        if (n % 2 === 0) {\r\n            median = (valid[n / 2 - 1] + valid[n / 2]) / 2;\r\n        } else {\r\n            median = valid[Math.floor(n / 2)];\r\n        }\r\n    }\r\n    const roundedMedian = Math.floor(median + 0.5);\r\n\r\n    return products.map(p =&gt; {\r\n        if (p.quantity === null) {\r\n            return { ...p, quantity: roundedMedian };\r\n        }\r\n        return p;\r\n    });\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Product {\r\n    name: string;\r\n    quantity: number | null;\r\n    price: number;\r\n}\r\n\r\nfunction fillMissingData(products: Product[]): Product[] {\r\n    const valid = products\r\n        .filter(p =&gt; p.quantity !== null)\r\n        .map(p =&gt; p.quantity!)\r\n        .sort((a, b) =&gt; a - b);\r\n\r\n    let median = 0;\r\n    const n = valid.length;\r\n    if (n &gt; 0) {\r\n        if (n % 2 === 0) {\r\n            median = (valid[n / 2 - 1] + valid[n / 2]) / 2;\r\n        } else {\r\n            median = valid[Math.floor(n / 2)];\r\n        }\r\n    }\r\n    const roundedMedian = Math.floor(median + 0.5);\r\n\r\n    return products.map(p =&gt; {\r\n        if (p.quantity === null) {\r\n            return { ...p, quantity: roundedMedian };\r\n        }\r\n        return p;\r\n    });\r\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting.
+- Space: O(n) to store valid quantities.
+- Notes: Pandas implementation is highly optimized C under the hood, making it very fast for large datasets.
+
+---
+## Manual Iteration and Replacement
+
+**Intuition**
+Manually iterate through the data to collect valid values, sort them to find the median, and then iterate again to replace null values.
+
+**Steps**
+- Iterate through the list of products to collect all non-null quantity values.
+- Sort the collected values.
+- Calculate the median based on the sorted list (average of two middle elements if even length, middle element if odd).
+- Round the median up if the decimal part is 0.5 or greater.
+- Iterate through the original list again, replacing any null quantity with the calculated median.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\nimport numpy as np\r\n\r\ndef fillMissingData(products: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Extract valid quantities manually\r\n    valid_quantities = []\r\n    for index, row in products.iterrows():\r\n        if pd.notna(row['quantity']):\n            valid_quantities.append(row['quantity'])\r\n    \r\n    # Sort manually\r\n    valid_quantities.sort()\r\n    \r\n    # Calculate median\r\n    n = len(valid_quantities)\r\n    median = 0\r\n    if n &gt; 0:\r\n        if n % 2 == 0:\r\n            median = (valid_quantities[n//2 - 1] + valid_quantities[n//2]) / 2\r\n        else:\r\n            median = valid_quantities[n//2]\r\n    \r\n    # Round 0.5 up\r\n    rounded_median = int(median + 0.5)\r\n    \r\n    # Replace NaNs manually\r\n    for index, row in products.iterrows():\r\n        if pd.isna(row['quantity']):\n            products.at[index, 'quantity'] = rounded_median\n            \r\n    return products" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Product {\r\n    String name;\r\n    Integer quantity;\r\n    int price;\r\n\r\n    public Product(String name, Integer quantity, int price) {\r\n        this.name = name;\r\n        this.quantity = quantity;\r\n        this.price = price;\r\n    }\r\n}\r\n\r\nclass Solution {\r\n    public List&lt;Product&gt; fillMissingData(List&lt;Product&gt; products) {\r\n        List&lt;Integer&gt; valid = new ArrayList&lt;&gt;();\r\n        \r\n        // Step 1: Collect valid quantities\r\n        for (Product p : products) {\r\n            if (p.quantity != null) {\r\n                valid.add(p.quantity);\r\n            }\r\n        }\r\n        \r\n        // Step 2: Sort\r\n        Collections.sort(valid);\r\n        \r\n        // Step 3: Calculate Median\r\n        int n = valid.size();\r\n        double median = 0;\r\n        if (n &gt; 0) {\r\n            if (n % 2 == 0) {\r\n                median = (valid.get(n / 2 - 1) + valid.get(n / 2)) / 2.0;\r\n            } else {\r\n                median = valid.get(n / 2);\r\n            }\r\n        }\r\n        \r\n        int roundedMedian = (int) Math.floor(median + 0.5);\r\n        \r\n        // Step 4: Replace nulls\r\n        for (Product p : products) {\r\n            if (p.quantity == null) {\r\n                p.quantity = roundedMedian;\r\n            }\r\n        }\r\n        return products;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\n#include &lt;cmath&gt;\r\n#include &lt;climits&gt;\r\n\r\nusing namespace std;\r\n\r\nstruct Product {\r\n    string name;\r\n    int quantity;\r\n    int price;\r\n};\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;Product&gt; fillMissingData(vector&lt;Product&gt;& products) {\r\n        vector&lt;int&gt; valid;\r\n        \r\n        // Collect valid quantities\r\n        for (const auto& p : products) {\r\n            if (p.quantity != INT_MIN) {\r\n                valid.push_back(p.quantity);\r\n            }\r\n        }\r\n        \r\n        // Sort\r\n        sort(valid.begin(), valid.end());\r\n        \r\n        // Calculate Median\r\n        int n = valid.size();\r\n        double median = 0;\r\n        if (n &gt; 0) {\r\n            if (n % 2 == 0) {\r\n                median = (valid[n / 2 - 1] + valid[n / 2]) / 2.0;\r\n            } else {\r\n                median = valid[n / 2];\r\n            }\r\n        }\r\n        \r\n        int roundedMedian = (int)floor(median + 0.5);\r\n        \r\n        // Replace nulls\r\n        for (auto& p : products) {\r\n            if (p.quantity == INT_MIN) {\r\n                p.quantity = roundedMedian;\r\n            }\r\n        }\r\n        return products;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {Array&lt;Object&gt;} products\r\n * @return {Array&lt;Object&gt;}\r\n */\r\nfunction fillMissingData(products) {\r\n    const valid = [];\r\n    \r\n    // Collect valid quantities\r\n    for (let i = 0; i &lt; products.length; i++) {\r\n        if (products[i].quantity !== null) {\r\n            valid.push(products[i].quantity);\r\n        }\r\n    }\r\n    \r\n    // Sort\r\n    valid.sort((a, b) =&gt; a - b);\r\n    \r\n    // Calculate Median\r\n    const n = valid.length;\r\n    let median = 0;\r\n    if (n &gt; 0) {\r\n        if (n % 2 === 0) {\r\n            median = (valid[n / 2 - 1] + valid[n / 2]) / 2;\r\n        } else {\r\n            median = valid[Math.floor(n / 2)];\r\n        }\r\n    }\r\n    \r\n    const roundedMedian = Math.floor(median + 0.5);\r\n    \r\n    // Replace nulls\r\n    for (let i = 0; i &lt; products.length; i++) {\r\n        if (products[i].quantity === null) {\r\n            products[i].quantity = roundedMedian;\r\n        }\r\n    }\r\n    \r\n    return products;\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Product {\r\n    name: string;\r\n    quantity: number | null;\r\n    price: number;\r\n}\r\n\r\nfunction fillMissingData(products: Product[]): Product[] {\r\n    const valid: number[] = [];\r\n    \r\n    // Collect valid quantities\r\n    for (let i = 0; i &lt; products.length; i++) {\r\n        if (products[i].quantity !== null) {\r\n            valid.push(products[i].quantity);\r\n        }\r\n    }\r\n    \r\n    // Sort\r\n    valid.sort((a, b) =&gt; a - b);\r\n    \r\n    // Calculate Median\r\n    const n = valid.length;\r\n    let median = 0;\r\n    if (n &gt; 0) {\r\n        if (n % 2 === 0) {\r\n            median = (valid[n / 2 - 1] + valid[n / 2]) / 2;\r\n        } else {\r\n            median = valid[Math.floor(n / 2)];\r\n        }\r\n    }\r\n    \r\n    const roundedMedian = Math.floor(median + 0.5);\r\n    \r\n    // Replace nulls\r\n    for (let i = 0; i &lt; products.length; i++) {\r\n        if (products[i].quantity === null) {\r\n            products[i].quantity = roundedMedian;\r\n        }\r\n    }\r\n    \r\n    return products;\r\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting the valid values.
+- Space: O(n) to store the list of valid quantities.
+- Notes: This approach demonstrates the underlying logic of data manipulation without relying on high-level library abstractions.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Fill Missing Data Solutions","datePublished":"2025-09-28","description":"Replace missing quantity values in a DataFrame with the median of existing quantities, rounding to the nearest integer.","keywords":"LeetCode, Fill Missing Data, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Pandas Built-in Methods approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting required to calculate the median."}},{"@type":"Question","name":"What is the space complexity of the Manual Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the valid quantity values before calculating the median."}}]}).replace(/</g,'\u003c')}
+</script>

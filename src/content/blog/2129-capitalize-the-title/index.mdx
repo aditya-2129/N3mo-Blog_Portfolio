@@ -1,0 +1,430 @@
+---
+title: "Capitalize the Title"
+summary: "Capitalize words in a title: words longer than 2 characters have first letter uppercase, rest lowercase; words of 1-2 characters are all lowercase."
+date: "Jun 07, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.00% | **Paid:** No
+> **Topics:** String
+
+You are given a string title consisting of one or more words separated by a single space, where each word consists of English letters. Capitalize the string by changing the capitalization of each word such that:
+
+If the length of the word is 1 or 2 letters, change all letters to lowercase.
+Otherwise, change the first letter to uppercase and the rest to lowercase.
+
+Return the capitalized title.
+
+- Examples
+- Constraints
+- [Approach 1: Split and Process](#split-and-process)
+- [Approach 2: Two Pointers](#two-pointers)
+- [Approach 3: Regular Expression](#regular-expression)
+
+## Examples
+
+```text
+Input: title = "capiTalIze tHe titLe"
+Output: "Capitalize The Title"
+Explanation:
+- "capiTalIze" has length 8, so it becomes "Capitalize".
+- "tHe" has length 2, so it becomes "the".
+- "titLe" has length 5, so it becomes "Title".
+```
+
+```text
+Input: title = "First leTTeR of EACH Word"
+Output: "First Letter of Each Word"
+Explanation:
+- "First" has length 5, so it becomes "First".
+- "leTTeR" has length 6, so it becomes "Letter".
+- "of" has length 2, so it becomes "of".
+- "EACH" has length 4, so it becomes "Each".
+- "Word" has length 4, so it becomes "Word".
+```
+
+```text
+Input: title = "i lOve leetcode"
+Output: "i Love Leetcode"
+Explanation:
+- "i" has length 1, so it becomes "i".
+- "lOve" has length 4, so it becomes "Love".
+- "leetcode" has length 8, so it becomes "Leetcode".
+```
+
+## Constraints
+
+```text
+1 <= title.length <= 100
+title consists of words separated by a single space, without leading or trailing spaces.
+All the letters of title are English uppercase and lowercase letters.
+```
+
+---
+## Split and Process
+
+**Intuition**
+Split the title into individual words, process each word based on its length, then join them back together.
+
+**Steps**
+- Split the string by spaces to get an array of words
+- For each word, check if its length is 2 or less
+- If length &lt;= 2, convert the entire word to lowercase
+- Otherwise, capitalize the first letter and lowercase the rest
+- Join all processed words with spaces
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def capitalizeTitle(self, title: str) -> str:
+        words = title.split()
+        result = []
+        for word in words:
+            if len(word) &lt;= 2:
+                result.append(word.lower())
+            else:
+                result.append(word[0].upper() + word[1:].lower())
+        return ' '.join(result)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String capitalizeTitle(String title) {
+        String[] words = title.split(" ");
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i &lt; words.length; i++) {
+            String word = words[i];
+            if (word.length() &lt;= 2) {
+                result.append(word.toLowerCase());
+            } else {
+                result.append(Character.toUpperCase(word.charAt(0)));
+                result.append(word.substring(1).toLowerCase());
+            }
+            if (i &lt; words.length - 1) {
+                result.append(" ");
+            }
+        }
+        return result.toString();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string capitalizeTitle(string title) {
+        vector<string> words;
+        string word;
+        stringstream ss(title);
+        while (ss &gt;&gt; word) {
+            words.push_back(word);
+        }
+        string result;
+        for (int i = 0; i &lt; words.size(); i++) {
+            string w = words[i];
+            if (w.length() &lt;= 2) {
+                for (char& c : w) {
+                    c = tolower(c);
+                }
+            } else {
+                w[0] = toupper(w[0]);
+                for (int j = 1; j &lt; w.length(); j++) {
+                    w[j] = tolower(w[j]);
+                }
+            }
+            result += w;
+            if (i &lt; words.size() - 1) {
+                result += " ";
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} title
+ * @return {string}
+ */
+var capitalizeTitle = function(title) {
+    const words = title.split(' ');
+    const result = [];
+    for (const word of words) {
+        if (word.length &lt;= 2) {
+            result.push(word.toLowerCase());
+        } else {
+            result.push(word[0].toUpperCase() + word.slice(1).toLowerCase());
+        }
+    }
+    return result.join(' ');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function capitalizeTitle(title: string): string {
+    const words = title.split(' ');
+    const result: string[] = [];
+    for (const word of words) {
+        if (word.length &lt;= 2) {
+            result.push(word.toLowerCase());
+        } else {
+            result.push(word[0].toUpperCase() + word.slice(1).toLowerCase());
+        }
+    }
+    return result.join(' ');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the title
+- Space: O(n) for storing the result array
+- Notes: Simple and readable approach with built-in string methods
+
+---
+## Two Pointers
+
+**Intuition**
+Use two pointers to identify word boundaries in the original string and modify characters in place, avoiding extra space for word arrays.
+
+**Steps**
+- Convert string to character array for in-place modification
+- Use two pointers: start marks word beginning, i scans forward
+- When a space or end is found, calculate word length
+- Apply capitalization rules based on word length
+- Move to next word and repeat
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def capitalizeTitle(self, title: str) -> str:
+        title = list(title)
+        n = len(title)
+        i = 0
+        while i &lt; n:
+            start = i
+            while i &lt; n and title[i] != ' ':
+                i += 1
+            word_len = i - start
+            if word_len &lt;= 2:
+                for j in range(start, i):
+                    title[j] = title[j].lower()
+            else:
+                title[start] = title[start].upper()
+                for j in range(start + 1, i):
+                    title[j] = title[j].lower()
+            i += 1
+        return ''.join(title)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String capitalizeTitle(String title) {
+        char[] chars = title.toCharArray();
+        int n = chars.length;
+        int i = 0;
+        while (i &lt; n) {
+            int start = i;
+            while (i &lt; n && chars[i] != ' ') {
+                i++;
+            }
+            int wordLen = i - start;
+            if (wordLen &lt;= 2) {
+                for (int j = start; j &lt; i; j++) {
+                    chars[j] = Character.toLowerCase(chars[j]);
+                }
+            } else {
+                chars[start] = Character.toUpperCase(chars[start]);
+                for (int j = start + 1; j &lt; i; j++) {
+                    chars[j] = Character.toLowerCase(chars[j]);
+                }
+            }
+            i++;
+        }
+        return new String(chars);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string capitalizeTitle(string title) {
+        int n = title.length();
+        int i = 0;
+        while (i &lt; n) {
+            int start = i;
+            while (i &lt; n && title[i] != ' ') {
+                i++;
+            }
+            int wordLen = i - start;
+            if (wordLen &lt;= 2) {
+                for (int j = start; j &lt; i; j++) {
+                    title[j] = tolower(title[j]);
+                }
+            } else {
+                title[start] = toupper(title[start]);
+                for (int j = start + 1; j &lt; i; j++) {
+                    title[j] = tolower(title[j]);
+                }
+            }
+            i++;
+        }
+        return title;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} title
+ * @return {string}
+ */
+var capitalizeTitle = function(title) {
+    const chars = title.split('');
+    const n = chars.length;
+    let i = 0;
+    while (i &lt; n) {
+        const start = i;
+        while (i &lt; n && chars[i] !== ' ') {
+            i++;
+        }
+        const wordLen = i - start;
+        if (wordLen &lt;= 2) {
+            for (let j = start; j &lt; i; j++) {
+                chars[j] = chars[j].toLowerCase();
+            }
+        } else {
+            chars[start] = chars[start].toUpperCase();
+            for (let j = start + 1; j &lt; i; j++) {
+                chars[j] = chars[j].toLowerCase();
+            }
+        }
+        i++;
+    }
+    return chars.join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function capitalizeTitle(title: string): string {
+    const chars = title.split('');
+    const n = chars.length;
+    let i = 0;
+    while (i &lt; n) {
+        const start = i;
+        while (i &lt; n && chars[i] !== ' ') {
+            i++;
+        }
+        const wordLen = i - start;
+        if (wordLen &lt;= 2) {
+            for (let j = start; j &lt; i; j++) {
+                chars[j] = chars[j].toLowerCase();
+            }
+        } else {
+            chars[start] = chars[start].toUpperCase();
+            for (let j = start + 1; j &lt; i; j++) {
+                chars[j] = chars[j].toLowerCase();
+            }
+        }
+        i++;
+    }
+    return chars.join('');
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the title
+- Space: O(n) for character array (O(1) extra space in C++)
+- Notes: More efficient memory usage, especially in C++ with string modification
+
+---
+## Regular Expression
+
+**Intuition**
+Use regex pattern matching to find all words and apply a replacement function that handles the capitalization rules.
+
+**Steps**
+- Define a regex pattern to match non-space characters (words)
+- Use a callback/replacement function for each match
+- In the callback, check word length and apply appropriate transformation
+- Return the modified string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+
+class Solution:
+    def capitalizeTitle(self, title: str) -> str:
+        def replace_word(match):
+            word = match.group()
+            if len(word) &lt;= 2:
+                return word.lower()
+            return word[0].upper() + word[1:].lower()
+        
+        return re.sub(r'\S+', replace_word, title)` },
+{ name: "Java", lang: "java", code: `import java.util.regex.*;
+
+class Solution {
+    public String capitalizeTitle(String title) {
+        Pattern pattern = Pattern.compile("\\S+");
+        Matcher matcher = pattern.matcher(title);
+        StringBuffer result = new StringBuffer();
+        
+        while (matcher.find()) {
+            String word = matcher.group();
+            if (word.length() &lt;= 2) {
+                matcher.appendReplacement(result, word.toLowerCase());
+            } else {
+                String capitalized = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+                matcher.appendReplacement(result, capitalized);
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <regex>
+#include <string>
+
+class Solution {
+public:
+    string capitalizeTitle(string title) {
+        regex word_regex("\\S+");
+        string result;
+        
+        auto words_begin = sregex_iterator(title.begin(), title.end(), word_regex);
+        auto words_end = sregex_iterator();
+        
+        int last_pos = 0;
+        for (sregex_iterator i = words_begin; i != words_end; ++i) {
+            smatch match = *i;
+            string word = match.str();
+            int pos = match.position();
+            
+            result += title.substr(last_pos, pos - last_pos);
+            
+            if (word.length() &lt;= 2) {
+                for (char c : word) {
+                    result += tolower(c);
+                }
+            } else {
+                result += toupper(word[0]);
+                for (int j = 1; j &lt; word.length(); j++) {
+                    result += tolower(word[j]);
+                }
+            }
+            
+            last_pos = pos + word.length();
+        }
+        
+        result += title.substr(last_pos);
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} title
+ * @return {string}
+ */
+var capitalizeTitle = function(title) {
+    return title.replace(/\S+/g, function(word) {
+        if (word.length &lt;= 2) {
+            return word.toLowerCase();
+        }
+        return word[0].toUpperCase() + word.slice(1).toLowerCase();
+    });
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function capitalizeTitle(title: string): string {
+    return title.replace(/\S+/g, (word: string) =&gt; {
+        if (word.length &lt;= 2) {
+            return word.toLowerCase();
+        }
+        return word[0].toUpperCase() + word.slice(1).toLowerCase();
+    });
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the title
+- Space: O(n) for the result string
+- Notes: Concise solution but may have overhead from regex engine
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Capitalize the Title Solutions","datePublished":"2024-06-07","description":"Capitalize words in a title: words longer than 2 characters have first letter uppercase, rest lowercase; words of 1-2 characters are all lowercase.","keywords":"LeetCode, Capitalize the Title, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Split and Process approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the title, as we process each character once when splitting and once when joining."}},{"@type":"Question","name":"What is the space complexity of Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the character array in most languages, but O(1) extra space in C++ since strings are mutable."}},{"@type":"Question","name":"Which approach is most memory efficient?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers approach is most memory efficient, especially in C++ where it modifies the string in place with O(1) extra space."}},{"@type":"Question","name":"What is the time complexity of Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the title, though regex matching may have some constant overhead."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,170 @@
+---
+title: "Find the Degree of Each Vertex"
+summary: "Calculate the degree of every vertex in an undirected graph given its number of vertices and edge list."
+date: "Jun 16, 2025"
+tags:
+  - Graph
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 92.70% | **Paid:** No
+> **Topics:** N/A
+
+You are given an undirected graph with `n` vertices labeled from `0` to `n - 1`. The graph is represented by a 2D integer array `edges` where `edges[i] = [ui, vi]` denotes an edge between vertex `ui` and vertex `vi`.
+
+Return an array `answer` of size `n` where `answer[i]` is the degree of the `i-th` vertex. The degree of a vertex is the number of edges connected to it.
+
+- Examples
+- Constraints
+- [Approach 1: Counting Array](#approach-1-counting-array)
+- [Approach 2: Adjacency List](#approach-2-adjacency-list)
+- [Approach 3: Brute Force Matrix](#approach-3-brute-force-matrix)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+matrix = [[0,1,1],[1,0,1],[1,1,0]]
+```
+
+**Output:**
+```text
+[2,2,2]
+```
+
+**Explanation:**
+Vertex 0 is connected to vertices 1 and 2, so its degree is 2.
+
+Vertex 1 is connected to vertices 0 and 2, so its degree is 2.
+
+Vertex 2 is connected to vertices 0 and 1, so its degree is 2.
+
+Thus, the answer is [2, 2, 2].
+
+### Example 2
+
+**Input:**
+```text
+matrix = [[0,1,0],[1,0,0],[0,0,0]]
+```
+
+**Output:**
+```text
+[1,1,0]
+```
+
+**Explanation:**
+Vertex 0 is connected to vertex 1, so its degree is 1.
+
+Vertex 1 is connected to vertex 0, so its degree is 1.
+
+Vertex 2 is not connected to any vertex, so its degree is 0.
+
+Thus, the answer is [1, 1, 0].
+
+### Example 3
+
+**Input:**
+```text
+matrix = [[0]]
+```
+
+**Output:**
+```text
+[0]
+```
+
+**Explanation:**
+There is only one vertex and it has no edges connected to it. Thus, the answer is [0].
+
+## Constraints
+
+```text
+- 1 <= n == matrix.length == matrix[i].length <= 100​​​​​​​
+- ​​​​​​​matrix[i][i] == 0
+- matrix[i][j] is either 0 or 1
+- matrix[i][j] == matrix[j][i]
+```
+
+---
+## Approach 1: Counting Array
+
+**Intuition**
+Since the vertices are labeled from `0` to `n-1`, we can use a simple array of size `n` to store the degree of each vertex. We iterate through the edge list and increment the count for both vertices involved in each edge.
+
+**Steps**
+- Initialize an array `degree` of size `n` with all zeros.
+- Iterate through each edge `[u, v]` in the `edges` list.
+- Increment `degree[u]` by 1.
+- Increment `degree[v]` by 1.
+- Return the `degree` array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDegree(self, n: int, edges: list[list[int]]) -&gt; list[int]:\n        degree = [0] * n\n        for u, v in edges:\n            degree[u] += 1\n            degree[v] += 1\n        return degree" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findDegree(int n, int[][] edges) {\n        int[] degree = new int[n];\n        for (int[] edge : edges) {\n            degree[edge[0]]++;\n            degree[edge[1]]++;\n        }\n        return degree;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findDegree(int n, vector&lt;vector&lt;int&gt;&gt;& edges) {\n        vector&lt;int&gt; degree(n, 0);\n        for (const auto& edge : edges) {\n            degree[edge[0]]++;\n            degree[edge[1]]++;\n        }\n        return degree;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number[][]} edges\n * @return {number[]}\n */\nvar findDegree = function(n, edges) {\n    const degree = new Array(n).fill(0);\n    for (const [u, v] of edges) {\n        degree[u]++;\n        degree[v]++;\n    }\n    return degree;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDegree(n: number, edges: number[][]): number[] {\n    const degree: number[] = new Array(n).fill(0);\n    for (const [u, v] of edges) {\n        degree[u]++;\n        degree[v]++;\n    }\n    return degree;\n}" },]} />
+
+**Complexity**
+- Time: O(E), where E is the number of edges. We iterate through the edge list once.
+- Space: O(N), to store the `degree` array.
+- Notes: This is the most optimal approach for this problem.
+
+---
+## Approach 2: Adjacency List
+
+**Intuition**
+We can construct the graph using an adjacency list. For each vertex, we store a list of its neighbors. The degree of a vertex is simply the length of its adjacency list.
+
+**Steps**
+- Initialize an adjacency list `adj` as a list of `n` empty lists.
+- Iterate through each edge `[u, v]`.
+- Append `v` to `adj[u]` and `u` to `adj[v]`.
+- Create a result array and map the length of each list in `adj` to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDegree(self, n: int, edges: list[list[int]]) -&gt; list[int]:\n        adj = [[] for _ in range(n)]\n        for u, v in edges:\n            adj[u].append(v)\n            adj[v].append(u)\n        return [len(neighbors) for neighbors in adj]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] findDegree(int n, int[][] edges) {\n        List&lt;List&lt;Integer&gt;&gt; adj = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) {\n            adj.add(new ArrayList&lt;&gt;());\n        }\n        for (int[] edge : edges) {\n            adj.get(edge[0]).add(edge[1]);\n            adj.get(edge[1]).add(edge[0]);\n        }\n        int[] degree = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            degree[i] = adj.get(i).size();\n        }\n        return degree;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findDegree(int n, vector&lt;vector&lt;int&gt;&gt;& edges) {\n        vector&lt;vector&lt;int&gt;&gt; adj(n);\n        for (const auto& edge : edges) {\n            adj[edge[0]].push_back(edge[1]);\n            adj[edge[1]].push_back(edge[0]);\n        }\n        vector&lt;int&gt; degree;\n        for (const auto& neighbors : adj) {\n            degree.push_back(neighbors.size());\n        }\n        return degree;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number[][]} edges\n * @return {number[]}\n */\nvar findDegree = function(n, edges) {\n    const adj = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        adj[u].push(v);\n        adj[v].push(u);\n    }\n    return adj.map(list =&gt; list.length);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDegree(n: number, edges: number[][]): number[] {\n    const adj: number[][] = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        adj[u].push(v);\n        adj[v].push(u);\n    }\n    return adj.map(list =&gt; list.length);\n}" },]} />
+
+**Complexity**
+- Time: O(N + E), to initialize the lists and process edges.
+- Space: O(N + E), to store the adjacency list (2E integers total).
+- Notes: This approach is useful if you need to traverse the graph later, but it uses more memory than Approach 1 if you only need degrees.
+
+---
+## Approach 3: Brute Force Matrix
+
+**Intuition**
+We can represent the graph using an adjacency matrix `mat` of size `n x n`. If an edge exists between `u` and `v`, we set `mat[u][v]` and `mat[v][u]` to 1. The degree of vertex `i` is the sum of the `i-th` row.
+
+**Steps**
+- Initialize an `n x n` matrix with zeros.
+- Iterate through edges and mark the corresponding cells in the matrix.
+- Iterate through each row of the matrix and sum the values to get the degree.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findDegree(self, n: int, edges: list[list[int]]) -&gt; list[int]:\n        mat = [[0] * n for _ in range(n)]\n        for u, v in edges:\n            mat[u][v] = 1\n            mat[v][u] = 1\n        return [sum(row) for row in mat]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] findDegree(int n, int[][] edges) {\n        int[][] mat = new int[n][n];\n        for (int[] edge : edges) {\n            mat[edge[0]][edge[1]] = 1;\n            mat[edge[1]][edge[0]] = 1;\n        }\n        int[] degree = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            int sum = 0;\n            for (int j = 0; j &lt; n; j++) {\n                sum += mat[i][j];\n            }\n            degree[i] = sum;\n        }\n        return degree;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; findDegree(int n, vector&lt;vector&lt;int&gt;&gt;& edges) {\n        vector&lt;vector&lt;int&gt;&gt; mat(n, vector&lt;int&gt;(n, 0));\n        for (const auto& edge : edges) {\n            mat[edge[0]][edge[1]] = 1;\n            mat[edge[1]][edge[0]] = 1;\n        }\n        vector&lt;int&gt; degree;\n        for (int i = 0; i &lt; n; i++) {\n            int sum = 0;\n            for (int j = 0; j &lt; n; j++) {\n                sum += mat[i][j];\n            }\n            degree.push_back(sum);\n        }\n        return degree;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @param {number[][]} edges\n * @return {number[]}\n */\nvar findDegree = function(n, edges) {\n    const mat = Array.from({ length: n }, () =&gt; new Array(n).fill(0));\n    for (const [u, v] of edges) {\n        mat[u][v] = 1;\n        mat[v][u] = 1;\n    }\n    const degree = [];\n    for (let i = 0; i &lt; n; i++) {\n        let sum = 0;\n        for (let j = 0; j &lt; n; j++) {\n            sum += mat[i][j];\n        }\n        degree.push(sum);\n    }\n    return degree;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findDegree(n: number, edges: number[][]): number[] {\n    const mat: number[][] = Array.from({ length: n }, () =&gt; new Array(n).fill(0));\n    for (const [u, v] of edges) {\n        mat[u][v] = 1;\n        mat[v][u] = 1;\n    }\n    const degree: number[] = [];\n    for (let i = 0; i &lt; n; i++) {\n        let sum = 0;\n        for (let j = 0; j &lt; n; j++) {\n            sum += mat[i][j];\n        }\n        degree.push(sum);\n    }\n    return degree;\n}" },]} />
+
+**Complexity**
+- Time: O(N² + E), iterating through the matrix to sum rows dominates.
+- Space: O(N²), to store the matrix.
+- Notes: This approach is highly inefficient for large `n` (e.g., n = 10⁵) as it requires allocating 10¹⁰ integers, which will cause a Memory Limit Exceeded error. It is only suitable for very small graphs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Degree of Each Vertex Solutions","datePublished":"2025-06-16","description":"Calculate the degree of every vertex in an undirected graph given its number of vertices and edge list.","keywords":"LeetCode, Find the Degree of Each Vertex, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Counting Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(E), where E is the number of edges, as we iterate through the edge list once."}},{"@type":"Question","name":"What is the space complexity of the Counting Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the degree array, where N is the number of vertices."}},{"@type":"Question","name":"Why is the Brute Force Matrix approach inefficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force Matrix approach uses O(N²) space. For large N (e.g., 10^5), this results in 10^10 memory units, which exceeds typical memory limits."}}]}).replace(/</g,'\u003c')}
+</script>

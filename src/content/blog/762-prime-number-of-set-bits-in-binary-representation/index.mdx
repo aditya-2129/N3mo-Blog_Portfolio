@@ -1,0 +1,510 @@
+---
+title: "Prime Number of Set Bits in Binary Representation"
+summary: "Count numbers in range [left, right] with prime number of 1s in binary representation."
+date: "Oct 12, 2025"
+tags:
+  - Math
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.80% | **Paid:** No
+> **Topics:** Math, Bit Manipulation
+
+Given two integers left and right, find the count of numbers in the inclusive range [left, right] having a prime number of set bits in their binary representation.
+
+Recall that the number of set bits an integer has is the number of 1's present in its binary representation.
+
+For example, 21 written in binary is 10101, which has 3 set bits.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force with Prime Check](#approach-1-brute-force-with-prime-check)
+- [Approach 2: Precompute Primes](#approach-2-precompute-primes)
+- [Approach 3: Brian Kernighan's Algorithm](#approach-3-brian-kernighans-algorithm)
+- [Approach 4: Lookup Table](#approach-4-lookup-table)
+
+## Examples
+
+```text
+Input: left = 6, right = 10
+Output: 4
+Explanation:
+6 -> 110 (2 set bits, 2 is prime)
+7 -> 111 (3 set bits, 3 is prime)
+8 -> 1000 (1 set bit, 1 is not prime)
+9 -> 1001 (2 set bits, 2 is prime)
+10 -> 1010 (2 set bits, 2 is prime)
+4 numbers have a prime number of set bits.
+```
+
+```text
+Input: left = 10, right = 15
+Output: 5
+Explanation:
+10 -> 1010 (2 set bits, 2 is prime)
+11 -> 1011 (3 set bits, 3 is prime)
+12 -> 1100 (2 set bits, 2 is prime)
+13 -> 1101 (3 set bits, 3 is prime)
+14 -> 1110 (3 set bits, 3 is prime)
+15 -> 1111 (4 set bits, 4 is not prime)
+5 numbers have a prime number of set bits.
+```
+
+## Constraints
+
+```text
+1 <= left <= right <= 10^6
+```
+
+---
+## Approach 1: Brute Force with Prime Check
+
+**Intuition**
+Iterate through each number in the range, count its set bits, and check if that count is prime using a simple primality test.
+
+**Steps**
+- Initialize count to 0
+- For each number from left to right:
+  - Count set bits using built-in function or manual counting
+  - Check if the count is prime
+  - If prime, increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        def is_prime(n):
+            if n &lt; 2:
+                return False
+            for i in range(2, int(n ** 0.5) + 1):
+                if n % i == 0:
+                    return False
+            return True
+        
+        count = 0
+        for num in range(left, right + 1):
+            set_bits = bin(num).count('1')
+            if is_prime(set_bits):
+                count += 1
+        return count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countPrimeSetBits(int left, int right) {
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            int setBits = Integer.bitCount(num);
+            if (isPrime(setBits)) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    private boolean isPrime(int n) {
+        if (n &lt; 2) return false;
+        for (int i = 2; i &lt;= Math.sqrt(n); i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            int setBits = __builtin_popcount(num);
+            if (isPrime(setBits)) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+private:
+    bool isPrime(int n) {
+        if (n &lt; 2) return false;
+        for (int i = 2; i * i &lt;= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} left
+ * @param {number} right
+ * @return {number}
+ */
+var countPrimeSetBits = function(left, right) {
+    const isPrime = (n) =&gt; {
+        if (n &lt; 2) return false;
+        for (let i = 2; i &lt;= Math.sqrt(n); i++) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        const setBits = num.toString(2).split('1').length - 1;
+        if (isPrime(setBits)) {
+            count++;
+        }
+    }
+    return count;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countPrimeSetBits(left: number, right: number): number {
+    const isPrime = (n: number): boolean =&gt; {
+        if (n &lt; 2) return false;
+        for (let i = 2; i &lt;= Math.sqrt(n); i++) {
+            if (n % i === 0) return false;
+        }
+        return true;
+    };
+    
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        const setBits = num.toString(2).split('1').length - 1;
+        if (isPrime(setBits)) {
+            count++;
+        }
+    }
+    return count;
+}` },]} />
+
+**Complexity**
+- Time: O((right - left + 1) × log(right) × √(log(right)))
+- Space: O(1)
+- Notes: Simple but not optimal due to repeated prime checks
+
+---
+## Approach 2: Precompute Primes
+
+**Intuition**
+Since the maximum value is 10⁶, the maximum number of set bits is 20 (2²⁰ = 1,048,576). We can precompute all primes up to 20 and use a set for O(1) lookup.
+
+**Steps**
+- Create a set of primes up to 20: {2, 3, 5, 7, 11, 13, 17, 19}
+- For each number from left to right:
+  - Count set bits
+  - Check if count is in the prime set
+  - If yes, increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        primes = {2, 3, 5, 7, 11, 13, 17, 19}
+        count = 0
+        for num in range(left, right + 1):
+            set_bits = bin(num).count('1')
+            if set_bits in primes:
+                count += 1
+        return count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countPrimeSetBits(int left, int right) {
+        Set<Integer> primes = new HashSet&lt;&gt;(Arrays.asList(2, 3, 5, 7, 11, 13, 17, 19));
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            int setBits = Integer.bitCount(num);
+            if (primes.contains(setBits)) {
+                count++;
+            }
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19};
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            int setBits = __builtin_popcount(num);
+            if (primes.count(setBits)) {
+                count++;
+            }
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} left
+ * @param {number} right
+ * @return {number}
+ */
+var countPrimeSetBits = function(left, right) {
+    const primes = new Set([2, 3, 5, 7, 11, 13, 17, 19]);
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        const setBits = num.toString(2).split('1').length - 1;
+        if (primes.has(setBits)) {
+            count++;
+        }
+    }
+    return count;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countPrimeSetBits(left: number, right: number): number {
+    const primes = new Set<number>([2, 3, 5, 7, 11, 13, 17, 19]);
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        const setBits = num.toString(2).split('1').length - 1;
+        if (primes.has(setBits)) {
+            count++;
+        }
+    }
+    return count;
+}` },]} />
+
+**Complexity**
+- Time: O((right - left + 1) × log(right))
+- Space: O(1)
+- Notes: Much faster than brute force due to O(1) prime lookup
+
+---
+## Approach 3: Brian Kernighan's Algorithm
+
+**Intuition**
+Use Brian Kernighan's algorithm to efficiently count set bits by repeatedly clearing the lowest set bit, combined with precomputed primes.
+
+**Steps**
+- Create a set of primes up to 20
+- For each number from left to right:
+  - Count set bits using Brian Kernighan's algorithm (n & (n-1) clears lowest set bit)
+  - Check if count is in prime set
+  - If yes, increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        primes = {2, 3, 5, 7, 11, 13, 17, 19}
+        
+        def count_set_bits(n):
+            count = 0
+            while n:
+                n &= n - 1
+                count += 1
+            return count
+        
+        result = 0
+        for num in range(left, right + 1):
+            if count_set_bits(num) in primes:
+                result += 1
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countPrimeSetBits(int left, int right) {
+        Set<Integer> primes = new HashSet&lt;&gt;(Arrays.asList(2, 3, 5, 7, 11, 13, 17, 19));
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            if (primes.contains(countSetBits(num))) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    private int countSetBits(int n) {
+        int count = 0;
+        while (n != 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19};
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            if (primes.count(countSetBits(num))) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+private:
+    int countSetBits(int n) {
+        int count = 0;
+        while (n) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} left
+ * @param {number} right
+ * @return {number}
+ */
+var countPrimeSetBits = function(left, right) {
+    const primes = new Set([2, 3, 5, 7, 11, 13, 17, 19]);
+    
+    const countSetBits = (n) =&gt; {
+        let count = 0;
+        while (n &gt; 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    };
+    
+    let result = 0;
+    for (let num = left; num &lt;= right; num++) {
+        if (primes.has(countSetBits(num))) {
+            result++;
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countPrimeSetBits(left: number, right: number): number {
+    const primes = new Set<number>([2, 3, 5, 7, 11, 13, 17, 19]);
+    
+    const countSetBits = (n: number): number =&gt; {
+        let count = 0;
+        while (n &gt; 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    };
+    
+    let result = 0;
+    for (let num = left; num &lt;= right; num++) {
+        if (primes.has(countSetBits(num))) {
+            result++;
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O((right - left + 1) × k) where k is the number of set bits
+- Space: O(1)
+- Notes: Brian Kernighan's algorithm is efficient for sparse bit patterns
+
+---
+## Approach 4: Lookup Table
+
+**Intuition**
+Precompute the number of set bits for all numbers up to 10⁶ using dynamic programming, then simply lookup and check if prime.
+
+**Steps**
+- Create a lookup table where table[i] = number of set bits in i
+- Use the relation: table[i] = table[i &gt;&gt; 1] + (i & 1)
+- Create a set of primes up to 20
+- For each number from left to right:
+  - Get set bits from lookup table
+  - Check if in prime set
+  - If yes, increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        primes = {2, 3, 5, 7, 11, 13, 17, 19}
+        
+        max_n = 10**6
+        set_bits = [0] * (max_n + 1)
+        for i in range(1, max_n + 1):
+            set_bits[i] = set_bits[i &gt;&gt; 1] + (i & 1)
+        
+        count = 0
+        for num in range(left, right + 1):
+            if set_bits[num] in primes:
+                count += 1
+        return count` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countPrimeSetBits(int left, int right) {
+        Set<Integer> primes = new HashSet&lt;&gt;(Arrays.asList(2, 3, 5, 7, 11, 13, 17, 19));
+        
+        int maxN = 1000000;
+        int[] setBits = new int[maxN + 1];
+        for (int i = 1; i &lt;= maxN; i++) {
+            setBits[i] = setBits[i &gt;&gt; 1] + (i & 1);
+        }
+        
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            if (primes.contains(setBits[num])) {
+                count++;
+            }
+        }
+        return count;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int countPrimeSetBits(int left, int right) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19};
+        
+        int maxN = 1000000;
+        vector<int> setBits(maxN + 1, 0);
+        for (int i = 1; i &lt;= maxN; i++) {
+            setBits[i] = setBits[i &gt;&gt; 1] + (i & 1);
+        }
+        
+        int count = 0;
+        for (int num = left; num &lt;= right; num++) {
+            if (primes.count(setBits[num])) {
+                count++;
+            }
+        }
+        return count;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} left
+ * @param {number} right
+ * @return {number}
+ */
+var countPrimeSetBits = function(left, right) {
+    const primes = new Set([2, 3, 5, 7, 11, 13, 17, 19]);
+    
+    const maxN = 1000000;
+    const setBits = new Array(maxN + 1).fill(0);
+    for (let i = 1; i &lt;= maxN; i++) {
+        setBits[i] = setBits[i &gt;&gt; 1] + (i & 1);
+    }
+    
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        if (primes.has(setBits[num])) {
+            count++;
+        }
+    }
+    return count;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function countPrimeSetBits(left: number, right: number): number {
+    const primes = new Set<number>([2, 3, 5, 7, 11, 13, 17, 19]);
+    
+    const maxN = 1000000;
+    const setBits = new Array(maxN + 1).fill(0);
+    for (let i = 1; i &lt;= maxN; i++) {
+        setBits[i] = setBits[i &gt;&gt; 1] + (i & 1);
+    }
+    
+    let count = 0;
+    for (let num = left; num &lt;= right; num++) {
+        if (primes.has(setBits[num])) {
+            count++;
+        }
+    }
+    return count;
+}` },]} />
+
+**Complexity**
+- Time: O(maxN) for precomputation + O(right - left + 1) for query
+- Space: O(maxN)
+- Notes: Best for multiple queries, but uses extra space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Prime Number of Set Bits in Binary Representation Solutions","datePublished":"2025-10-12","description":"Count numbers in range [left, right] with prime number of 1s in binary representation.","keywords":"LeetCode, Prime Number of Set Bits in Binary Representation, Easy, Math, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O((right - left + 1) × log(right) × √(log(right)))"}},{"@type":"Question","name":"What is the time complexity of the Precompute Primes approach?","acceptedAnswer":{"@type":"Answer","text":"O((right - left + 1) × log(right))"}},{"@type":"Question","name":"What is the time complexity of Brian Kernighan's Algorithm approach?","acceptedAnswer":{"@type":"Answer","text":"O((right - left + 1) × k) where k is the number of set bits"}},{"@type":"Question","name":"What is the time complexity of the Lookup Table approach?","acceptedAnswer":{"@type":"Answer","text":"O(maxN) for precomputation + O(right - left + 1) for query"}},{"@type":"Question","name":"What is the space complexity of the Lookup Table approach?","acceptedAnswer":{"@type":"Answer","text":"O(maxN) where maxN is 10^6"}}]}).replace(/</g,'\u003c')}
+</script>

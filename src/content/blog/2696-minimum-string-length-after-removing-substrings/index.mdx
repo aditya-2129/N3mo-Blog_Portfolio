@@ -1,0 +1,131 @@
+---
+title: "Minimum String Length After Removing Substrings"
+summary: "Remove 'AB' and 'CD' substrings repeatedly from a string and return the minimum possible length."
+date: "Oct 01, 2025"
+tags:
+  - String
+  - Stack
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.20% | **Paid:** No
+> **Topics:** String, Stack, Simulation
+
+You are given a string s consisting only of uppercase English letters.
+
+You can apply the following operation on s any number of times:
+
+Select a substring that is equal to "AB" or "CD", and remove it from s.
+
+Return the minimum possible length of s after performing the above operation any number of times.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Stack-based Approach](#stack-based-approach)
+- [Two-pointer In-place](#two-pointer-in-place)
+
+## Examples
+
+```text
+Input: s = "ABFCACDB"
+Output: 2
+Explanation: We can do the following operations:
+- Remove the substring "AB" (s = "FCACDB")
+- Remove the substring "CD" (s = "FCAB")
+- Remove the substring "AB" (s = "FC")
+The length of the final string is 2.
+```
+
+```text
+Input: s = "ACBBD"
+Output: 5
+Explanation: We cannot do any operations on the string, so the length remains 5.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists only of uppercase English letters.
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Repeatedly scan the string and remove all occurrences of "AB" and "CD" until no more such substrings exist.
+
+**Steps**
+- While "AB" or "CD" exists in the string, replace all occurrences with empty string
+- Return the final length
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minLength(self, s: str) -&gt; int:\n        while \"AB\" in s or \"CD\" in s:\n            s = s.replace(\"AB\", \"\")\n            s = s.replace(\"CD\", \"\")\n        return len(s)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minLength(String s) {\n        while (s.contains(\"AB\") || s.contains(\"CD\")) {\n            s = s.replace(\"AB\", \"\");\n            s = s.replace(\"CD\", \"\");\n        }\n        return s.length();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minLength(string s) {\n        while (s.find(\"AB\") != string::npos || s.find(\"CD\") != string::npos) {\n            size_t pos;\n            while ((pos = s.find(\"AB\")) != string::npos) {\n                s.erase(pos, 2);\n            }\n            while ((pos = s.find(\"CD\")) != string::npos) {\n                s.erase(pos, 2);\n            }\n        }\n        return s.length();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar minLength = function(s) {\n    while (s.includes(\"AB\") || s.includes(\"CD\")) {\n        s = s.replace(/AB/g, \"\");\n        s = s.replace(/CD/g, \"\");\n    }\n    return s.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minLength(s: string): number {\n    while (s.includes(\"AB\") || s.includes(\"CD\")) {\n        s = s.replace(/AB/g, \"\");\n        s = s.replace(/CD/g, \"\");\n    }\n    return s.length;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In worst case, each pass removes only one pair
+- Space: O(n) - For string manipulation
+- Notes: Simple but inefficient for large inputs
+
+---
+## Stack-based Approach
+
+**Intuition**
+Use a stack to simulate the removal process. For each character, check if it forms "AB" or "CD" with the top of the stack.
+
+**Steps**
+- Iterate through each character in the string
+- If stack is not empty and top character with current character forms "AB" or "CD", pop from stack
+- Otherwise, push current character onto stack
+- Return the final stack size
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minLength(self, s: str) -&gt; int:\n        stack = []\n        for c in s:\n            if stack and ((stack[-1] == 'A' and c == 'B') or (stack[-1] == 'C' and c == 'D')):\n                stack.pop()\n            else:\n                stack.append(c)\n        return len(stack)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minLength(String s) {\n        StringBuilder stack = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            int len = stack.length();\n            if (len &gt; 0) {\n                char top = stack.charAt(len - 1);\n                if ((top == 'A' && c == 'B') || (top == 'C' && c == 'D')) {\n                    stack.deleteCharAt(len - 1);\n                    continue;\n                }\n            }\n            stack.append(c);\n        }\n        return stack.length();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minLength(string s) {\n        string stack;\n        for (char c : s) {\n            if (!stack.empty()) {\n                char top = stack.back();\n                if ((top == 'A' && c == 'B') || (top == 'C' && c == 'D')) {\n                    stack.pop_back();\n                    continue;\n                }\n            }\n            stack.push_back(c);\n        }\n        return stack.length();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar minLength = function(s) {\n    const stack = [];\n    for (const c of s) {\n        if (stack.length &gt; 0) {\n            const top = stack[stack.length - 1];\n            if ((top === 'A' && c === 'B') || (top === 'C' && c === 'D')) {\n                stack.pop();\n                continue;\n            }\n        }\n        stack.push(c);\n    }\n    return stack.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minLength(s: string): number {\n    const stack: string[] = [];\n    for (const c of s) {\n        if (stack.length &gt; 0) {\n            const top = stack[stack.length - 1];\n            if ((top === 'A' && c === 'B') || (top === 'C' && c === 'D')) {\n                stack.pop();\n                continue;\n            }\n        }\n        stack.push(c);\n    }\n    return stack.length;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the string
+- Space: O(n) - Stack can hold up to n characters
+- Notes: Optimal time complexity with clear logic
+
+---
+## Two-pointer In-place
+
+**Intuition**
+Use the input string itself as a stack with a write pointer, achieving O(1) extra space.
+
+**Steps**
+- Convert string to mutable array
+- Use write pointer to track current stack position
+- For each character, place it at write position and check if it forms "AB" or "CD" with previous character
+- If so, decrement write pointer (simulating pop); otherwise, increment it
+- Return write pointer value as final length
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minLength(self, s: str) -&gt; int:\n        s = list(s)\n        write = 0\n        for read in range(len(s)):\n            s[write] = s[read]\n            if write &gt; 0 and ((s[write-1] == 'A' and s[write] == 'B') or (s[write-1] == 'C' and s[write] == 'D')):\n                write -= 1\n            else:\n                write += 1\n        return write" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minLength(String s) {\n        char[] arr = s.toCharArray();\n        int write = 0;\n        for (int read = 0; read &lt; arr.length; read++) {\n            arr[write] = arr[read];\n            if (write &gt; 0 && ((arr[write-1] == 'A' && arr[write] == 'B') || (arr[write-1] == 'C' && arr[write] == 'D'))) {\n                write--;\n            } else {\n                write++;\n            }\n        }\n        return write;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minLength(string s) {\n        int write = 0;\n        for (int read = 0; read &lt; s.length(); read++) {\n            s[write] = s[read];\n            if (write &gt; 0 && ((s[write-1] == 'A' && s[write] == 'B') || (s[write-1] == 'C' && s[write] == 'D'))) {\n                write--;\n            } else {\n                write++;\n            }\n        }\n        return write;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number}\n */\nvar minLength = function(s) {\n    const arr = s.split('');\n    let write = 0;\n    for (let read = 0; read &lt; arr.length; read++) {\n        arr[write] = arr[read];\n        if (write &gt; 0 && ((arr[write-1] === 'A' && arr[write] === 'B') || (arr[write-1] === 'C' && arr[write] === 'D'))) {\n            write--;\n        } else {\n            write++;\n        }\n    }\n    return write;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minLength(s: string): number {\n    const arr: string[] = s.split('');\n    let write = 0;\n    for (let read = 0; read &lt; arr.length; read++) {\n        arr[write] = arr[read];\n        if (write &gt; 0 && ((arr[write-1] === 'A' && arr[write] === 'B') || (arr[write-1] === 'C' && arr[write] === 'D'))) {\n            write--;\n        } else {\n            write++;\n        }\n    }\n    return write;\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the string
+- Space: O(1) - Only using pointers, no extra data structures
+- Notes: Most space-efficient solution
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum String Length After Removing Substrings Solutions","datePublished":"2025-10-01","description":"Remove 'AB' and 'CD' substrings repeatedly from a string and return the minimum possible length.","keywords":"LeetCode, Minimum String Length After Removing Substrings, Easy, String, Stack, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) - In the worst case, each pass removes only one pair, requiring multiple scans through the string."}},{"@type":"Question","name":"What is the time complexity of the Stack-based approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) - We make a single pass through the string, with each character being pushed and popped at most once."}},{"@type":"Question","name":"What is the space complexity of the Two-pointer In-place approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - We only use pointers and modify the input string in place, without any additional data structures."}},{"@type":"Question","name":"Which approach is the most optimal for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Two-pointer In-place approach is optimal with O(n) time and O(1) space complexity, though the Stack-based approach is also O(n) time and is often more readable."}}]}).replace(/</g,'\u003c')}
+</script>

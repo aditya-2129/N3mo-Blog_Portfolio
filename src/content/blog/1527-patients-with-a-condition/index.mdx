@@ -1,0 +1,261 @@
+---
+title: "Patients With a Condition"
+summary: "Find patients with Type I Diabetes condition codes starting with DIAB1"
+date: "Sep 29, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 38.90% | **Paid:** No
+> **Topics:** Database
+
+Table: Patients
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| patient_id   | int     |
+| patient_name | varchar |
+| conditions   | varchar |
++--------------+---------+
+patient_id is the primary key for this table.
+'conditions' contains 0 or more code(s) separated by spaces. 
+For example, the code "DIAB100" is a code for Type I Diabetes, while "DIAB200" is a code for Type II Diabetes.
+
+Write an SQL query to report the patient_id, patient_name, and conditions of the patients who have Type I Diabetes. 
+Type I Diabetes has a code that always starts with "DIAB1". It can be in any position in the conditions list.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Using LIKE Operator](#approach-1-using-like-operator)
+- [Approach 2: Using REGEXP](#approach-2-using-regexp)
+- [Approach 3: Using String Position Functions](#approach-3-using-string-position-functions)
+
+## Examples
+
+Example 1:
+```text
+Input:
+Patients table:
++------------+--------------+--------------+
+| patient_id | patient_name | conditions   |
++------------+--------------+--------------+
+| 1          | Daniel       | DIAB100 MYOP |
+| 2          | Alice        |              |
+| 3          | Bob          | DIAB100      |
+| 4          | George       | ACNE DIAB100 |
+| 5          | Alain        | DIAB201      |
++------------+--------------+--------------+
+
+Output:
++------------+--------------+--------------+
+| patient_id | patient_name | conditions   |
++------------+--------------+--------------+
+| 1          | Daniel       | DIAB100 MYOP |
+| 3          | Bob          | DIAB100      |
+| 4          | George       | ACNE DIAB100 |
++------------+--------------+--------------+
+
+Explanation: Daniel, Bob, and George have Type I Diabetes because their conditions contain "DIAB1" (DIAB100).
+```
+
+## Constraints
+```text
+1 <= patient_id <= 1000
+patient_name consists of lowercase and uppercase English letters.
+conditions consists of uppercase English letters, spaces, and digits.
+0 <= conditions.length <= 100
+```
+
+---
+## Approach 1: Using LIKE Operator
+
+**Intuition**
+Use pattern matching with the LIKE operator to find rows where the conditions column contains "DIAB1" anywhere in the string.
+
+**Steps**
+- Use SELECT * to get all columns
+- Use WHERE conditions LIKE '%DIAB1%' to match any string containing "DIAB1"
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_patients(patients: pd.DataFrame) -> pd.DataFrame:
+    return patients[patients['conditions'].str.contains('DIAB1', na=False)]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.stream.Collectors;
+
+class Solution {
+    public List<List<String>&gt; findPatients(List<List<String>&gt; patients) {
+        return patients.stream()
+            .filter(row -> row.get(2).contains("DIAB1"))
+            .collect(Collectors.toList());
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findPatients(vector<vector<string>&gt;& patients) {
+        vector<vector<string>&gt; result;
+        for (const auto& patient : patients) {
+            if (patient[2].find("DIAB1") != string::npos) {
+                result.push_back(patient);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} patients
+ * @return {string[][]}
+ */
+var findPatients = function(patients) {
+    return patients.filter(patient =&gt; patient[2].includes('DIAB1'));
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findPatients(patients: string[][]): string[][] {
+    return patients.filter(patient =&gt; patient[2].includes('DIAB1'));
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(1) for the query, O(k) for result storage where k is the number of matching rows
+- Notes: Simple and readable, but may be slower for large datasets
+
+---
+## Approach 2: Using REGEXP
+
+**Intuition**
+Use regular expressions to match the pattern "DIAB1" in the conditions column.
+
+**Steps**
+- Use SELECT * to get all columns
+- Use WHERE conditions REGEXP 'DIAB1' to match using regular expression
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+import re
+
+def find_patients(patients: pd.DataFrame) -> pd.DataFrame:
+    pattern = re.compile(r'DIAB1')
+    return patients[patients['conditions'].str.contains(pattern, na=False)]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.regex.*;
+import java.util.stream.Collectors;
+
+class Solution {
+    public List<List<String>&gt; findPatients(List<List<String>&gt; patients) {
+        Pattern pattern = Pattern.compile("DIAB1");
+        return patients.stream()
+            .filter(row -> pattern.matcher(row.get(2)).find())
+            .collect(Collectors.toList());
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <regex>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findPatients(vector<vector<string>&gt;& patients) {
+        vector<vector<string>&gt; result;
+        regex pattern("DIAB1");
+        for (const auto& patient : patients) {
+            if (regex_search(patient[2], pattern)) {
+                result.push_back(patient);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} patients
+ * @return {string[][]}
+ */
+var findPatients = function(patients) {
+    const pattern = /DIAB1/;
+    return patients.filter(patient =&gt; pattern.test(patient[2]));
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findPatients(patients: string[][]): string[][] {
+    const pattern = /DIAB1/;
+    return patients.filter(patient =&gt; pattern.test(patient[2]));
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(1) for the query, O(k) for result storage where k is the number of matching rows
+- Notes: More flexible for complex patterns, but may have overhead for simple patterns
+
+---
+## Approach 3: Using String Position Functions
+
+**Intuition**
+Use string position functions to check if "DIAB1" exists in the conditions column.
+
+**Steps**
+- Use SELECT * to get all columns
+- Use WHERE LOCATE('DIAB1', conditions) &gt; 0 or similar position function
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_patients(patients: pd.DataFrame) -> pd.DataFrame:
+    return patients[patients['conditions'].str.find('DIAB1') &gt;= 0]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.stream.Collectors;
+
+class Solution {
+    public List<List<String>&gt; findPatients(List<List<String>&gt; patients) {
+        return patients.stream()
+            .filter(row -> row.get(2).indexOf("DIAB1") &gt;= 0)
+            .collect(Collectors.toList());
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; findPatients(vector<vector<string>&gt;& patients) {
+        vector<vector<string>&gt; result;
+        for (const auto& patient : patients) {
+            if (patient[2].find("DIAB1") != string::npos) {
+                result.push_back(patient);
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[][]} patients
+ * @return {string[][]}
+ */
+var findPatients = function(patients) {
+    return patients.filter(patient =&gt; patient[2].indexOf('DIAB1') !== -1);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function findPatients(patients: string[][]): string[][] {
+    return patients.filter(patient =&gt; patient[2].indexOf('DIAB1') !== -1);
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(1) for the query, O(k) for result storage where k is the number of matching rows
+- Notes: Similar to LIKE, but may be more efficient in some database engines
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Patients With a Condition Solutions","datePublished":"2025-09-29","description":"Find patients with Type I Diabetes condition codes starting with DIAB1","keywords":"LeetCode, Patients With a Condition, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the LIKE operator approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Patients table."}},{"@type":"Question","name":"What is the time complexity of the REGEXP approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Patients table."}},{"@type":"Question","name":"What is the time complexity of the string position approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of rows in the Patients table."}}]}).replace(/</g,'\u003c')}
+</script>

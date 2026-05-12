@@ -1,0 +1,366 @@
+---
+title: "Remove Linked List Elements"
+summary: "Given the head of a linked list and an integer val, remove all nodes with Node.val == val and return the new head."
+date: "Apr 02, 2024"
+tags:
+  - Linked List
+  - Recursion
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.40% | **Paid:** No
+> **Topics:** Linked List, Recursion
+
+Given the head of a linked list and an integer val, remove all the nodes of the linked list that has Node.val == val, and return the new head.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Iterative with Dummy Node](#iterative-with-dummy-node)
+- [Recursive](#recursive)
+
+## Examples
+
+```text
+Input: head = [1,2,6,3,4,5,6], val = 6
+Output: [1,2,3,4,5]
+```
+
+```text
+Input: head = [], val = 1
+Output: []
+```
+
+```text
+Input: head = [7,7,7,7], val = 7
+Output: []
+```
+
+## Constraints
+
+```text
+The number of nodes in the list is in the range [0, 10⁴].
+1 <= Node.val <= 50
+0 <= val <= 50
+```
+
+---
+## Iterative with Dummy Node
+
+**Intuition**
+Use a dummy node that points to the head of the list. This simplifies edge cases where the head itself needs to be removed. Iterate through the list, adjusting pointers to skip nodes matching the value.
+
+**Steps**
+- Create a dummy node pointing to head.
+- Initialize a `prev` pointer at dummy and `curr` at head.
+- Traverse the list while `curr` is not null.
+- If `curr.val` equals `val`, link `prev.next` to `curr.next` (removing `curr`).
+- Otherwise, move `prev` to `curr`.
+- Move `curr` to `curr.next`.
+- Return `dummy.next`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def removeElements(self, head: ListNode, val: int) -> ListNode:
+        dummy = ListNode(0)
+        dummy.next = head
+        prev = dummy
+        curr = head
+        
+        while curr:
+            if curr.val == val:
+                prev.next = curr.next
+            else:
+                prev = curr
+            curr = curr.next
+            
+        return dummy.next
+`
+},
+{ name: "Java", lang: "java", code: `
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode prev = dummy;
+        ListNode curr = head;
+        
+        while (curr != null) {
+            if (curr.val == val) {
+                prev.next = curr.next;
+            } else {
+                prev = curr;
+            }
+            curr = curr.next;
+        }
+        
+        return dummy.next;
+    }
+}
+`
+},
+{ name: "C++", lang: "cpp", code: `
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        ListNode* dummy = new ListNode(0);
+        dummy->next = head;
+        ListNode* prev = dummy;
+        ListNode* curr = head;
+        
+        while (curr != nullptr) {
+            if (curr->val == val) {
+                prev->next = curr->next;
+            } else {
+                prev = curr;
+            }
+            curr = curr->next;
+        }
+        
+        return dummy->next;
+    }
+};
+`
+},
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} val
+ * @return {ListNode}
+ */
+var removeElements = function(head, val) {
+    let dummy = new ListNode(0);
+    dummy.next = head;
+    let prev = dummy;
+    let curr = head;
+    
+    while (curr !== null) {
+        if (curr.val === val) {
+            prev.next = curr.next;
+        } else {
+            prev = curr;
+        }
+        curr = curr.next;
+    }
+    
+    return dummy.next;
+};
+`
+},
+{ name: "TypeScript", lang: "typescript", code: `
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number, next?: ListNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (next===undefined ? null : next)
+ *     }
+ * }
+ */
+
+function removeElements(head: ListNode | null, val: number): ListNode | null {
+    let dummy = new ListNode(0);
+    dummy.next = head;
+    let prev = dummy;
+    let curr = head;
+    
+    while (curr !== null) {
+        if (curr.val === val) {
+            prev.next = curr.next;
+        } else {
+            prev = curr;
+        }
+        curr = curr.next;
+    }
+    
+    return dummy.next;
+};
+`
+},]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes in the linked list.
+- Space: O(1) as we only use a constant amount of extra space.
+- Notes: The dummy node approach handles the head removal edge case elegantly without extra checks.
+
+---
+## Recursive
+
+**Intuition**
+Recursively process the rest of the list. If the current node's value matches the target, return the result of the recursive call on the next node (effectively skipping the current node). Otherwise, keep the current node and link it to the processed rest of the list.
+
+**Steps**
+- Base case: If head is null, return null.
+- Recursively call `removeElements` on `head.next`.
+- If `head.val` equals `val`, return the result of the recursive call (head.next).
+- Otherwise, set `head.next` to the result of the recursive call and return head.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def removeElements(self, head: ListNode, val: int) -> ListNode:
+        if not head:
+            return None
+        
+        head.next = self.removeElements(head.next, val)
+        
+        if head.val == val:
+            return head.next
+        else:
+            return head
+`
+},
+{ name: "Java", lang: "java", code: `
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        if (head == null) return null;
+        
+        head.next = removeElements(head.next, val);
+        
+        return head.val == val ? head.next : head;
+    }
+}
+`
+},
+{ name: "C++", lang: "cpp", code: `
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        if (head == nullptr) return nullptr;
+        
+        head->next = removeElements(head->next, val);
+        
+        return head->val == val ? head->next : head;
+    }
+};
+`
+},
+{ name: "JavaScript", lang: "javascript", code: `
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} val
+ * @return {ListNode}
+ */
+var removeElements = function(head, val) {
+    if (head === null) return null;
+    
+    head.next = removeElements(head.next, val);
+    
+    if (head.val === val) {
+        return head.next;
+    } else {
+        return head;
+    }
+};
+`
+},
+{ name: "TypeScript", lang: "typescript", code: `
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     val: number
+ *     next: ListNode | null
+ *     constructor(val?: number, next?: ListNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.next = (next===undefined ? null : next)
+ *     }
+ * }
+ */
+
+function removeElements(head: ListNode | null, val: number): ListNode | null {
+    if (head === null) return null;
+    
+    head.next = removeElements(head.next, val);
+    
+    if (head.val === val) {
+        return head.next;
+    } else {
+        return head;
+    }
+};
+`
+},]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes in the linked list.
+- Space: O(n) due to the recursion stack depth.
+- Notes: While elegant, the recursive approach uses stack space proportional to the list length, which could lead to a stack overflow for very large lists.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Remove Linked List Elements Solutions","datePublished":"2024-04-02","description":"Given the head of a linked list and an integer val, remove all nodes with Node.val == val and return the new head.","keywords":"LeetCode, Remove Linked List Elements, Easy, Linked List, Recursion"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of nodes in the linked list."}},{"@type":"Question","name":"What is the space complexity of the Recursive approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) due to the recursion stack depth."}}]}).replace(/</g,'\u003c')}
+</script>

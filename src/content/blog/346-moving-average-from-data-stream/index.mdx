@@ -1,0 +1,465 @@
+---
+title: "Moving Average from Data Stream"
+summary: "Calculate the moving average of the last size integers in a data stream."
+date: "Jul 27, 2025"
+tags:
+  - Array
+  - Design
+  - Queue
+  - Data Stream
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Array, Design, Queue, Data Stream
+
+Given a stream of integers and a window size, calculate the moving average of all integers in the sliding window.
+
+Implement the MovingAverage class:
+
+MovingAverage(int size) Initializes the object with the size of the window size.
+double next(int val) Returns the moving average of the last size values of the stream.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Queue with Running Sum](#queue-with-running-sum)
+- [Circular Buffer](#circular-buffer)
+
+## Examples
+
+Example 1:
+Input:
+["MovingAverage", "next", "next", "next", "next"]
+[[3], [1], [10], [3], [5]]
+
+Output:
+[null, 1.0, 5.5, 4.66667, 6.0]
+
+Explanation:
+MovingAverage m = new MovingAverage(3);
+m.next(1); // return 1.0 = 1 / 1
+m.next(10); // return 5.5 = (1 + 10) / 2
+m.next(3); // return 4.66667 = (1 + 10 + 3) / 3
+m.next(5); // return 6.0 = (10 + 3 + 5) / 3
+
+## Constraints
+```
+1 <= size <= 1000
+-10⁵ <= val <= 10⁵
+At most 10⁵ calls will be made to next.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Store all incoming values in a list and calculate the sum of the last size elements for each call to next().
+
+**Steps**
+- Store all values in a list/array
+- For each next() call, sum the last min(size, total_count) elements
+- Return the average
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MovingAverage:
+
+    def __init__(self, size: int):
+        self.size = size
+        self.values = []
+
+    def next(self, val: int) -> float:
+        self.values.append(val)
+        window = self.values[-self.size:] if len(self.values) &gt;= self.size else self.values
+        return sum(window) / len(window)
+` },
+{ name: "Java", lang: "java", code: `import java.util.ArrayList;
+import java.util.List;
+
+class MovingAverage {
+    private int size;
+    private List<Integer> values;
+
+    public MovingAverage(int size) {
+        this.size = size;
+        this.values = new ArrayList&lt;&gt;();
+    }
+    
+    public double next(int val) {
+        values.add(val);
+        int start = Math.max(0, values.size() - size);
+        double sum = 0;
+        for (int i = start; i &lt; values.size(); i++) {
+            sum += values.get(i);
+        }
+        return sum / (values.size() - start);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+using namespace std;
+
+class MovingAverage {
+private:
+    int size;
+    vector<int> values;
+
+public:
+    MovingAverage(int size) {
+        this->size = size;
+    }
+    
+    double next(int val) {
+        values.push_back(val);
+        int start = max(0, (int)values.size() - size);
+        double sum = 0;
+        for (int i = start; i &lt; values.size(); i++) {
+            sum += values[i];
+        }
+        return sum / (values.size() - start);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MovingAverage {
+    constructor(size) {
+        this.size = size;
+        this.values = [];
+    }
+    
+    next(val) {
+        this.values.push(val);
+        const start = Math.max(0, this.values.length - this.size);
+        let sum = 0;
+        for (let i = start; i &lt; this.values.length; i++) {
+            sum += this.values[i];
+        }
+        return sum / (this.values.length - start);
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MovingAverage {
+    private size: number;
+    private values: number[];
+
+    constructor(size: number) {
+        this.size = size;
+        this.values = [];
+    }
+    
+    next(val: number): number {
+        this.values.push(val);
+        const start = Math.max(0, this.values.length - this.size);
+        let sum = 0;
+        for (let i = start; i &lt; this.values.length; i++) {
+            sum += this.values[i];
+        }
+        return sum / (this.values.length - start);
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) for each next() call where n is the window size
+- Space: O(n) to store all values
+- Notes: Simple but inefficient for large windows
+
+---
+## Queue with Running Sum
+
+**Intuition**
+Use a queue to maintain the sliding window and track the running sum to avoid recalculating it each time.
+
+**Steps**
+- Maintain a queue and a running sum
+- When adding a new value, add it to the queue and sum
+- If queue exceeds size, remove the oldest element and subtract from sum
+- Return sum / queue size
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from collections import deque
+
+class MovingAverage:
+
+    def __init__(self, size: int):
+        self.size = size
+        self.queue = deque()
+        self.window_sum = 0
+
+    def next(self, val: int) -> float:
+        self.queue.append(val)
+        self.window_sum += val
+        
+        if len(self.queue) &gt; self.size:
+            self.window_sum -= self.queue.popleft()
+        
+        return self.window_sum / len(self.queue)
+` },
+{ name: "Java", lang: "java", code: `import java.util.LinkedList;
+import java.util.Queue;
+
+class MovingAverage {
+    private int size;
+    private Queue<Integer> queue;
+    private double windowSum;
+
+    public MovingAverage(int size) {
+        this.size = size;
+        this.queue = new LinkedList&lt;&gt;();
+        this.windowSum = 0;
+    }
+    
+    public double next(int val) {
+        queue.offer(val);
+        windowSum += val;
+        
+        if (queue.size() &gt; size) {
+            windowSum -= queue.poll();
+        }
+        
+        return windowSum / queue.size();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <queue>
+using namespace std;
+
+class MovingAverage {
+private:
+    int size;
+    queue<int> q;
+    double windowSum;
+
+public:
+    MovingAverage(int size) {
+        this->size = size;
+        this.windowSum = 0;
+    }
+    
+    double next(int val) {
+        q.push(val);
+        windowSum += val;
+        
+        if (q.size() &gt; size) {
+            windowSum -= q.front();
+            q.pop();
+        }
+        
+        return windowSum / q.size();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MovingAverage {
+    constructor(size) {
+        this.size = size;
+        this.queue = [];
+        this.windowSum = 0;
+    }
+    
+    next(val) {
+        this.queue.push(val);
+        this.windowSum += val;
+        
+        if (this.queue.length &gt; this.size) {
+            this.windowSum -= this.queue.shift();
+        }
+        
+        return this.windowSum / this.queue.length;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MovingAverage {
+    private size: number;
+    private queue: number[];
+    private windowSum: number;
+
+    constructor(size: number) {
+        this.size = size;
+        this.queue = [];
+        this.windowSum = 0;
+    }
+    
+    next(val: number): number {
+        this.queue.push(val);
+        this.windowSum += val;
+        
+        if (this.queue.length &gt; this.size) {
+            this.windowSum -= this.queue.shift();
+        }
+        
+        return this.windowSum / this.queue.length;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each next() call
+- Space: O(n) where n is the window size
+- Notes: Optimal solution with constant time operations
+
+---
+## Circular Buffer
+
+**Intuition**
+Use a fixed-size array with circular indexing to avoid dynamic memory allocation and maintain O(1) operations.
+
+**Steps**
+- Initialize a fixed-size array and track the current index and count
+- Store values at the current index and update the running sum
+- If buffer is full, subtract the value being overwritten
+- Update index circularly and return average
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class MovingAverage:
+
+    def __init__(self, size: int):
+        self.size = size
+        self.buffer = [0] * size
+        self.idx = 0
+        self.count = 0
+        self.window_sum = 0
+
+    def next(self, val: int) -> float:
+        if self.count &lt; self.size:
+            self.count += 1
+            self.window_sum += val
+        else:
+            self.window_sum += val - self.buffer[self.idx]
+        
+        self.buffer[self.idx] = val
+        self.idx = (self.idx + 1) % self.size
+        
+        return self.window_sum / self.count
+` },
+{ name: "Java", lang: "java", code: `class MovingAverage {
+    private int size;
+    private int[] buffer;
+    private int idx;
+    private int count;
+    private double windowSum;
+
+    public MovingAverage(int size) {
+        this.size = size;
+        this.buffer = new int[size];
+        this.idx = 0;
+        this.count = 0;
+        this.windowSum = 0;
+    }
+    
+    public double next(int val) {
+        if (count &lt; size) {
+            count++;
+            windowSum += val;
+        } else {
+            windowSum += val - buffer[idx];
+        }
+        
+        buffer[idx] = val;
+        idx = (idx + 1) % size;
+        
+        return windowSum / count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class MovingAverage {
+private:
+    int size;
+    int* buffer;
+    int idx;
+    int count;
+    double windowSum;
+
+public:
+    MovingAverage(int size) {
+        this->size = size;
+        this->buffer = new int[size];
+        this->idx = 0;
+        this->count = 0;
+        this->windowSum = 0;
+    }
+    
+    ~MovingAverage() {
+        delete[] buffer;
+    }
+    
+    double next(int val) {
+        if (count &lt; size) {
+            count++;
+            windowSum += val;
+        } else {
+            windowSum += val - buffer[idx];
+        }
+        
+        buffer[idx] = val;
+        idx = (idx + 1) % size;
+        
+        return windowSum / count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class MovingAverage {
+    constructor(size) {
+        this.size = size;
+        this.buffer = new Array(size).fill(0);
+        this.idx = 0;
+        this.count = 0;
+        this.windowSum = 0;
+    }
+    
+    next(val) {
+        if (this.count &lt; this.size) {
+            this.count++;
+            this.windowSum += val;
+        } else {
+            this.windowSum += val - this.buffer[this.idx];
+        }
+        
+        this.buffer[this.idx] = val;
+        this.idx = (this.idx + 1) % this.size;
+        
+        return this.windowSum / this.count;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class MovingAverage {
+    private size: number;
+    private buffer: number[];
+    private idx: number;
+    private count: number;
+    private windowSum: number;
+
+    constructor(size: number) {
+        this.size = size;
+        this.buffer = new Array(size).fill(0);
+        this.idx = 0;
+        this.count = 0;
+        this.windowSum = 0;
+    }
+    
+    next(val: number): number {
+        if (this.count &lt; this.size) {
+            this.count++;
+            this.windowSum += val;
+        } else {
+            this.windowSum += val - this.buffer[this.idx];
+        }
+        
+        this.buffer[this.idx] = val;
+        this.idx = (this.idx + 1) % this.size;
+        
+        return this.windowSum / this.count;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each next() call
+- Space: O(n) where n is the window size
+- Notes: Memory efficient with pre-allocated buffer, no dynamic allocation overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Moving Average from Data Stream Solutions","datePublished":"2025-07-27","description":"Calculate the moving average of the last size integers in a data stream.","keywords":"LeetCode, Moving Average from Data Stream, Easy, Array, Design, Queue, Data Stream"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for each next() call where n is the window size."}},{"@type":"Question","name":"What is the time complexity of the Queue with Running Sum approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each next() call."}},{"@type":"Question","name":"What is the time complexity of the Circular Buffer approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each next() call."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the window size."}}]}).replace(/</g,'\u003c')}
+</script>

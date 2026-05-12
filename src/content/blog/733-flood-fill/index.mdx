@@ -1,0 +1,585 @@
+---
+title: "Flood Fill"
+summary: "Change the color of a connected region in an image starting from a given pixel using flood fill algorithm."
+date: "Mar 02, 2025"
+tags:
+  - Array
+  - Depth-First Search
+  - Breadth-First Search
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.20% | **Paid:** No
+> **Topics:** Array, Depth-First Search, Breadth-First Search, Matrix
+
+An image is represented by an m x n integer grid image where image[i][j] represents the pixel value of the image.
+
+You are given three integers sr, sc, and color. You should perform a flood fill on the image starting from the pixel image[sr][sc].
+
+To perform a flood fill, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color), and so on. Replace the color of all of the aforementioned pixels with color.
+
+Return the modified image after performing the flood fill.
+
+- Examples
+- Constraints
+- [DFS (Recursive)](#dfs-recursive)
+- [BFS (Iterative)](#bfs-iterative)
+- [DFS (Iterative with Stack)](#dfs-iterative-with-stack)
+
+## Examples
+
+### Example 1
+
+```text
+Input: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2
+Output: [[2,2,2],[2,2,0],[2,0,1]]
+Explanation: From the center of the image with position (sr, sc) = (1, 1) (i.e., the red pixel), all pixels connected by a path of the same color as the starting pixel (i.e., the blue pixels) are colored with the new color.
+Note the bottom corner is not colored 2, because it is not 4-directionally connected to the starting pixel.
+```
+
+### Example 2
+
+```text
+Input: image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0
+Output: [[0,0,0],[0,0,0]]
+Explanation: The starting pixel is already colored 0, so no changes are made to the image.
+```
+
+## Constraints
+
+```text
+m == image.length
+n == image[i].length
+1 <= m, n <= 50
+0 <= image[i][j], color < 2¹⁶
+0 <= sr < m
+0 <= sc < n
+```
+
+---
+## DFS (Recursive)
+
+**Intuition**
+Use recursion to explore all 4-directionally connected pixels that have the same color as the starting pixel, and change them to the new color.
+
+**Steps**
+- Check if the starting pixel's color is already the target color to avoid infinite recursion
+- Define a recursive function that takes row and column as parameters
+- Base case: if out of bounds or pixel color doesn't match original color, return
+- Change the current pixel's color to the new color
+- Recursively call the function on all 4 neighbors
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        original = image[sr][sc]
+        if original == color:
+            return image
+        
+        m, n = len(image), len(image[0])
+        
+        def dfs(r, c):
+            if r &lt; 0 or r &gt;= m or c &lt; 0 or c &gt;= n or image[r][c] != original:
+                return
+            image[r][c] = color
+            dfs(r + 1, c)
+            dfs(r - 1, c)
+            dfs(r, c + 1)
+            dfs(r, c - 1)
+        
+        dfs(sr, sc)
+        return image` },
+{ name: "Java", lang: "java", code: `class Solution {
+    private int[][] image;
+    private int m, n;
+    private int original, newColor;
+    
+    public int[][] floodFill(int[][] image, int sr, int sc, int color) {
+        this.image = image;
+        this.m = image.length;
+        this.n = image[0].length;
+        this.original = image[sr][sc];
+        this.newColor = color;
+        
+        if (original == newColor) {
+            return image;
+        }
+        
+        dfs(sr, sc);
+        return image;
+    }
+    
+    private void dfs(int r, int c) {
+        if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] != original) {
+            return;
+        }
+        image[r][c] = newColor;
+        dfs(r + 1, c);
+        dfs(r - 1, c);
+        dfs(r, c + 1);
+        dfs(r, c - 1);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; floodFill(vector<vector<int>&gt;& image, int sr, int sc, int color) {
+        int original = image[sr][sc];
+        if (original == color) {
+            return image;
+        }
+        
+        int m = image.size();
+        int n = image[0].size();
+        
+        function<void(int, int)&gt; dfs = [&](int r, int c) {
+            if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] != original) {
+                return;
+            }
+            image[r][c] = color;
+            dfs(r + 1, c);
+            dfs(r - 1, c);
+            dfs(r, c + 1);
+            dfs(r, c - 1);
+        };
+        
+        dfs(sr, sc);
+        return image;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} image
+ * @param {number} sr
+ * @param {number} sc
+ * @param {number} color
+ * @return {number[][]}
+ */
+var floodFill = function(image, sr, sc, color) {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    
+    const dfs = (r, c) =&gt; {
+        if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] !== original) {
+            return;
+        }
+        image[r][c] = color;
+        dfs(r + 1, c);
+        dfs(r - 1, c);
+        dfs(r, c + 1);
+        dfs(r, c - 1);
+    };
+    
+    dfs(sr, sc);
+    return image;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function floodFill(image: number[][], sr: number, sc: number, color: number): number[][] {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    
+    const dfs = (r: number, c: number): void =&gt; {
+        if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] !== original) {
+            return;
+        }
+        image[r][c] = color;
+        dfs(r + 1, c);
+        dfs(r - 1, c);
+        dfs(r, c + 1);
+        dfs(r, c - 1);
+    };
+    
+    dfs(sr, sc);
+    return image;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n) where m is the number of rows and n is the number of columns
+- Space: O(m × n) in the worst case due to recursion stack depth
+- Notes: Simple and elegant, but may cause stack overflow for very large images
+
+---
+## BFS (Iterative)
+
+**Intuition**
+Use a queue to explore pixels level by level, starting from the given pixel and expanding to all 4-directionally connected neighbors with the same color.
+
+**Steps**
+- Check if the starting pixel's color is already the target color
+- Initialize a queue with the starting position
+- While the queue is not empty, dequeue a position
+- Change the pixel's color and add all valid 4-directional neighbors with the original color to the queue
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import deque
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        original = image[sr][sc]
+        if original == color:
+            return image
+        
+        m, n = len(image), len(image[0])
+        queue = deque([(sr, sc)])
+        
+        while queue:
+            r, c = queue.popleft()
+            if image[r][c] != original:
+                continue
+            image[r][c] = color
+            if r + 1 &lt; m:
+                queue.append((r + 1, c))
+            if r - 1 &gt;= 0:
+                queue.append((r - 1, c))
+            if c + 1 &lt; n:
+                queue.append((r, c + 1))
+            if c - 1 &gt;= 0:
+                queue.append((r, c - 1))
+        
+        return image` },
+{ name: "Java", lang: "java", code: `import java.util.LinkedList;
+import java.util.Queue;
+
+class Solution {
+    public int[][] floodFill(int[][] image, int sr, int sc, int color) {
+        int original = image[sr][sc];
+        if (original == color) {
+            return image;
+        }
+        
+        int m = image.length;
+        int n = image[0].length;
+        Queue<int[]&gt; queue = new LinkedList&lt;&gt;();
+        queue.offer(new int[]{sr, sc});
+        
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        
+        while (!queue.isEmpty()) {
+            int[] cell = queue.poll();
+            int r = cell[0], c = cell[1];
+            
+            if (image[r][c] != original) {
+                continue;
+            }
+            
+            image[r][c] = color;
+            
+            for (int[] dir : directions) {
+                int nr = r + dir[0];
+                int nc = c + dir[1];
+                if (nr &gt;= 0 && nr &lt; m && nc &gt;= 0 && nc &lt; n) {
+                    queue.offer(new int[]{nr, nc});
+                }
+            }
+        }
+        
+        return image;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; floodFill(vector<vector<int>&gt;& image, int sr, int sc, int color) {
+        int original = image[sr][sc];
+        if (original == color) {
+            return image;
+        }
+        
+        int m = image.size();
+        int n = image[0].size();
+        queue<pair<int, int>&gt; q;
+        q.push({sr, sc});
+        
+        int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
+            
+            if (image[r][c] != original) {
+                continue;
+            }
+            
+            image[r][c] = color;
+            
+            for (auto& dir : directions) {
+                int nr = r + dir[0];
+                int nc = c + dir[1];
+                if (nr &gt;= 0 && nr &lt; m && nc &gt;= 0 && nc &lt; n) {
+                    q.push({nr, nc});
+                }
+            }
+        }
+        
+        return image;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} image
+ * @param {number} sr
+ * @param {number} sc
+ * @param {number} color
+ * @return {number[][]}
+ */
+var floodFill = function(image, sr, sc, color) {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    const queue = [[sr, sc]];
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    
+    while (queue.length &gt; 0) {
+        const [r, c] = queue.shift();
+        
+        if (image[r][c] !== original) {
+            continue;
+        }
+        
+        image[r][c] = color;
+        
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr &gt;= 0 && nr &lt; m && nc &gt;= 0 && nc &lt; n) {
+                queue.push([nr, nc]);
+            }
+        }
+    }
+    
+    return image;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function floodFill(image: number[][], sr: number, sc: number, color: number): number[][] {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    const queue: [number, number][] = [[sr, sc]];
+    const directions: [number, number][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    
+    while (queue.length &gt; 0) {
+        const [r, c] = queue.shift()!;
+        
+        if (image[r][c] !== original) {
+            continue;
+        }
+        
+        image[r][c] = color;
+        
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr &gt;= 0 && nr &lt; m && nc &gt;= 0 && nc &lt; n) {
+                queue.push([nr, nc]);
+            }
+        }
+    }
+    
+    return image;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n) where m is the number of rows and n is the number of columns
+- Space: O(m × n) in the worst case for the queue
+- Notes: Avoids stack overflow issues of recursive DFS, but uses more memory for the queue
+
+---
+## DFS (Iterative with Stack)
+
+**Intuition**
+Simulate the recursive DFS using an explicit stack data structure to avoid potential stack overflow while maintaining the depth-first exploration pattern.
+
+**Steps**
+- Check if the starting pixel's color is already the target color
+- Initialize a stack with the starting position
+- While the stack is not empty, pop a position
+- Change the pixel's color and push all valid 4-directional neighbors with the original color to the stack
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -> List[List[int]]:
+        original = image[sr][sc]
+        if original == color:
+            return image
+        
+        m, n = len(image), len(image[0])
+        stack = [(sr, sc)]
+        
+        while stack:
+            r, c = stack.pop()
+            if r &lt; 0 or r &gt;= m or c &lt; 0 or c &gt;= n or image[r][c] != original:
+                continue
+            image[r][c] = color
+            stack.append((r + 1, c))
+            stack.append((r - 1, c))
+            stack.append((r, c + 1))
+            stack.append((r, c - 1))
+        
+        return image` },
+{ name: "Java", lang: "java", code: `import java.util.Stack;
+
+class Solution {
+    public int[][] floodFill(int[][] image, int sr, int sc, int color) {
+        int original = image[sr][sc];
+        if (original == color) {
+            return image;
+        }
+        
+        int m = image.length;
+        int n = image[0].length;
+        Stack<int[]&gt; stack = new Stack&lt;&gt;();
+        stack.push(new int[]{sr, sc});
+        
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        
+        while (!stack.isEmpty()) {
+            int[] cell = stack.pop();
+            int r = cell[0], c = cell[1];
+            
+            if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] != original) {
+                continue;
+            }
+            
+            image[r][c] = color;
+            
+            for (int[] dir : directions) {
+                int nr = r + dir[0];
+                int nc = c + dir[1];
+                stack.push(new int[]{nr, nc});
+            }
+        }
+        
+        return image;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; floodFill(vector<vector<int>&gt;& image, int sr, int sc, int color) {
+        int original = image[sr][sc];
+        if (original == color) {
+            return image;
+        }
+        
+        int m = image.size();
+        int n = image[0].size();
+        stack<pair<int, int>&gt; st;
+        st.push({sr, sc});
+        
+        int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        
+        while (!st.empty()) {
+            auto [r, c] = st.top();
+            st.pop();
+            
+            if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] != original) {
+                continue;
+            }
+            
+            image[r][c] = color;
+            
+            for (auto& dir : directions) {
+                int nr = r + dir[0];
+                int nc = c + dir[1];
+                st.push({nr, nc});
+            }
+        }
+        
+        return image;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} image
+ * @param {number} sr
+ * @param {number} sc
+ * @param {number} color
+ * @return {number[][]}
+ */
+var floodFill = function(image, sr, sc, color) {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    const stack = [[sr, sc]];
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    
+    while (stack.length &gt; 0) {
+        const [r, c] = stack.pop();
+        
+        if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] !== original) {
+            continue;
+        }
+        
+        image[r][c] = color;
+        
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+            stack.push([nr, nc]);
+        }
+    }
+    
+    return image;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function floodFill(image: number[][], sr: number, sc: number, color: number): number[][] {
+    const original = image[sr][sc];
+    if (original === color) {
+        return image;
+    }
+    
+    const m = image.length;
+    const n = image[0].length;
+    const stack: [number, number][] = [[sr, sc]];
+    const directions: [number, number][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    
+    while (stack.length &gt; 0) {
+        const [r, c] = stack.pop()!;
+        
+        if (r &lt; 0 || r &gt;= m || c &lt; 0 || c &gt;= n || image[r][c] !== original) {
+            continue;
+        }
+        
+        image[r][c] = color;
+        
+        for (const [dr, dc] of directions) {
+            const nr = r + dr;
+            const nc = c + dc;
+            stack.push([nr, nc]);
+        }
+    }
+    
+    return image;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n) where m is the number of rows and n is the number of columns
+- Space: O(m × n) in the worst case for the stack
+- Notes: Avoids recursion stack overflow while maintaining DFS behavior
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Flood Fill Solutions","datePublished":"2025-03-02","description":"Change the color of a connected region in an image starting from a given pixel using flood fill algorithm.","keywords":"LeetCode, Flood Fill, Easy, Array, Depth-First Search, Breadth-First Search, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of DFS (Recursive) approach for Flood Fill?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m × n) where m is the number of rows and n is the number of columns, as we may visit each pixel at most once."}},{"@type":"Question","name":"What is the space complexity of BFS (Iterative) approach for Flood Fill?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m × n) in the worst case for the queue, which could potentially hold all pixels in the image."}},{"@type":"Question","name":"What is the space complexity of DFS (Iterative with Stack) approach for Flood Fill?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m × n) in the worst case for the stack, which could potentially hold all pixels in the image."}}]}).replace(/</g,'\u003c')}
+</script>

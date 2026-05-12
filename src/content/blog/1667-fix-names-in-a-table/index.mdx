@@ -1,0 +1,130 @@
+---
+title: "Fix Names in a Table"
+summary: "Write a solution to fix user names in a table so that only the first character is uppercase and the rest are lowercase."
+date: "May 25, 2025"
+tags:
+  - Database
+  - String Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.60% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
+
++----------------+---------+
+| Column Name   | Type    |
++----------------+---------+
+| user_id        | int     |
+| name           | varchar |
++----------------+---------+
+user_id is the primary key (column with unique values) for this table.
+This table contains the ID and the name of the user. The name consists of only lowercase and uppercase English letters and spaces.
+
+Write a solution to fix the names so that only the first character is uppercase and the rest are lowercase.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Character Processing](#approach-1-iterative-character-processing)
+- [Approach 2: Split, Transform, and Join](#approach-2-split-transform-and-join)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input:
+Users table:
++---------+-------+
+| user_id | name  |
++---------+-------+
+| 1       | Linda |
+| 2       | John  |
+| 3       | alice |
+| 4       | bOB   |
+| 5       | susan lauren |
++---------+-------+
+Output:
++---------+-------+
+| user_id | name  |
++---------+-------+
+| 1       | Linda |
+| 2       | John  |
+| 3       | Alice |
+| 4       | Bob   |
+| 5       | Susan Lauren |
++---------+-------+
+```
+
+## Constraints
+
+```text
+1 <= user_id <= 100
+1 <= name.length <= 100
+name consists of only English letters and spaces.
+```
+
+---
+## Approach 1: Iterative Character Processing
+
+**Intuition**
+We iterate through each character of the name string. We maintain a flag to track if the current character is the start of a word (either the first character of the string or follows a space). If it is the start of a word, we convert it to uppercase; otherwise, we convert it to lowercase.
+
+**Steps**
+- Iterate through each row in the input data.
+- For each name, initialize an empty result string and a `capitalizeNext` flag set to true.
+- Loop through each character in the name:
+  - If the character is a space, append it to the result and set `capitalizeNext` to true.
+  - Otherwise, if `capitalizeNext` is true, append the uppercase version of the character and set the flag to false.
+  - If `capitalizeNext` is false, append the lowercase version of the character.
+- Return the processed data.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def fixNames(self, users: List[List[str]]) -&gt; List[List[str]]:\r\n        result = []\r\n        for row in users:\r\n            user_id = row[0]\r\n            name = row[1]\r\n            fixed_name = []\r\n            capitalize_next = True\r\n            \r\n            for char in name:\r\n                if char == ' ':\r\n                    fixed_name.append(' ')\r\n                    capitalize_next = True\r\n                else:\r\n                    if capitalize_next:\r\n                        fixed_name.append(char.upper())\r\n                        capitalize_next = False\r\n                    else:\r\n                        fixed_name.append(char.lower())\r\n            \r\n            result.append([user_id, ''.join(fixed_name)])\r\n        return result\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nclass Solution {\r\n    public List&lt;List&lt;String&gt;&gt; fixNames(List&lt;List&lt;String&gt;&gt; users) {\r\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\r\n        for (List&lt;String&gt; row : users) {\r\n            String userId = row.get(0);\r\n            String name = row.get(1);\r\n            StringBuilder sb = new StringBuilder();\r\n            boolean capitalizeNext = true;\r\n            \r\n            for (int i = 0; i &lt; name.length(); i++) {\r\n                char c = name.charAt(i);\r\n                if (c == ' ') {\r\n                    sb.append(' ');\r\n                    capitalizeNext = true;\r\n                } else {\r\n                    if (capitalizeNext) {\r\n                        sb.append(Character.toUpperCase(c));\r\n                        capitalizeNext = false;\r\n                    } else {\r\n                        sb.append(Character.toLowerCase(c));\r\n                    }\r\n                }\r\n            }\r\n            \r\n            List&lt;String&gt; newRow = new ArrayList&lt;&gt;();\r\n            newRow.add(userId);\r\n            newRow.add(sb.toString());\r\n            result.add(newRow);\r\n        }\r\n        return result;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;cctype&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;vector&lt;string&gt;&gt; fixNames(vector&lt;vector&lt;string&gt;&gt;& users) {\r\n        vector&lt;vector&lt;string&gt;&gt; result;\r\n        for (auto& row : users) {\r\n            string userId = row[0];\r\n            string name = row[1];\r\n            string fixedName = \"\";\r\n            bool capitalizeNext = true;\r\n            \r\n            for (char c : name) {\r\n                if (c == ' ') {\r\n                    fixedName += c;\r\n                    capitalizeNext = true;\r\n                } else {\r\n                    if (capitalizeNext) {\r\n                        fixedName += toupper(c);\r\n                        capitalizeNext = false;\r\n                    } else {\r\n                        fixedName += tolower(c);\r\n                    }\r\n                }\r\n            }\r\n            result.push_back({userId, fixedName});\r\n        }\r\n        return result;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {string[][]} users\r\n * @return {string[][]}\r\n */\r\nfunction fixNames(users) {\r\n    return users.map(row =&gt; {\r\n        const userId = row[0];\r\n        const name = row[1];\r\n        let fixedName = '';\r\n        let capitalizeNext = true;\r\n        \r\n        for (let i = 0; i &lt; name.length; i++) {\r\n            const char = name[i];\r\n            if (char === ' ') {\r\n                fixedName += ' ';\r\n                capitalizeNext = true;\r\n            } else {\r\n                if (capitalizeNext) {\r\n                    fixedName += char.toUpperCase();\r\n                    capitalizeNext = false;\r\n                } else {\r\n                    fixedName += char.toLowerCase();\r\n                }\r\n            }\r\n        }\r\n        return [userId, fixedName];\r\n    });\r\n}\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function fixNames(users: string[][]): string[][] {\r\n    return users.map(row =&gt; {\r\n        const userId = row[0];\r\n        const name = row[1];\r\n        let fixedName = '';\r\n        let capitalizeNext = true;\r\n        \r\n        for (let i = 0; i &lt; name.length; i++) {\r\n            const char = name[i];\r\n            if (char === ' ') {\r\n                fixedName += ' ';\r\n                capitalizeNext = true;\r\n            } else {\r\n                if (capitalizeNext) {\r\n                    fixedName += char.toUpperCase();\r\n                    capitalizeNext = false;\r\n                } else {\r\n                    fixedName += char.toLowerCase();\r\n                }\r\n            }\r\n        }\r\n        return [userId, fixedName];\r\n    });\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of users and L is the max length of a name.
+- Space: O(N * L) to store the result.
+- Notes: This approach handles multiple spaces correctly by preserving them.
+
+---
+## Approach 2: Split, Transform, and Join
+
+**Intuition**
+We split the name string into an array of words based on spaces. We then iterate through each word, capitalizing the first character and lowercasing the rest. Finally, we join the words back into a single string with spaces.
+
+**Steps**
+- Iterate through each row in the input data.
+- Split the name string by spaces.
+- For each word in the split array:
+  - If the word is not empty, convert the first character to uppercase and the remaining characters to lowercase.
+- Join the processed words back into a string with a space separator.
+- Return the processed data.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def fixNames(self, users: List[List[str]]) -&gt; List[List[str]]:\r\n        result = []\r\n        for row in users:\r\n            user_id = row[0]\r\n            name = row[1]\r\n            # Split, capitalize each part, and join\r\n            # Note: str.capitalize() lowercases the rest, but makes the rest lowercase.\r\n            # However, standard str.capitalize() also lowercases the rest of the string.\r\n            # We need to ensure only the first letter is upper, rest lower.\r\n            # Python's str.title() works well for letters and spaces.\r\n            fixed_name = name.title()\r\n            result.append([user_id, fixed_name])\r\n        return result\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nclass Solution {\r\n    public List&lt;List&lt;String&gt;&gt; fixNames(List&lt;List&lt;String&gt;&gt; users) {\r\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\r\n        for (List&lt;String&gt; row : users) {\r\n            String userId = row.get(0);\r\n            String name = row.get(1);\r\n            String[] words = name.split(\" \");\r\n            StringBuilder sb = new StringBuilder();\r\n            \r\n            for (int i = 0; i &lt; words.length; i++) {\r\n                String w = words[i];\r\n                if (w.length() &gt; 0) {\r\n                    sb.append(Character.toUpperCase(w.charAt(0)));\r\n                    if (w.length() &gt; 1) {\r\n                        sb.append(w.substring(1).toLowerCase());\r\n                    }\r\n                }\r\n                if (i &lt; words.length - 1) {\r\n                    sb.append(\" \");\r\n                }\r\n            }\r\n            \r\n            List&lt;String&gt; newRow = new ArrayList&lt;&gt;();\r\n            newRow.add(userId);\r\n            newRow.add(sb.toString());\r\n            result.add(newRow);\r\n        }\r\n        return result;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;string&gt;\r\n#include &lt;sstream&gt;\r\n#include &lt;algorithm&gt;\r\n#include &lt;cctype&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;vector&lt;string&gt;&gt; fixNames(vector&lt;vector&lt;string&gt;&gt;& users) {\r\n        vector&lt;vector&lt;string&gt;&gt; result;\r\n        for (auto& row : users) {\r\n            string userId = row[0];\r\n            string name = row[1];\r\n            string fixedName = \"\";\r\n            stringstream ss(name);\r\n            string word;\r\n            bool firstWord = true;\r\n            \r\n            while (getline(ss, word, ' ')) {\r\n                if (!word.empty()) {\r\n                    if (!firstWord) fixedName += \" \";\r\n                    word[0] = toupper(word[0]);\r\n                    for (int i = 1; i &lt; word.length(); i++) {\r\n                        word[i] = tolower(word[i]);\r\n                    }\r\n                    fixedName += word;\r\n                    firstWord = false;\r\n                } else {\r\n                     // Handle multiple spaces by adding a space if needed\r\n                     // This simple split/join logic collapses multiple spaces.\r\n                     // To preserve spaces exactly, Approach 1 is better.\r\n                     if (!firstWord) fixedName += \" \";\r\n                }\r\n            }\r\n            result.push_back({userId, fixedName});\r\n        }\r\n        return result;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {string[][]} users\r\n * @return {string[][]}\r\n */\r\nfunction fixNames(users) {\r\n    return users.map(row =&gt; {\r\n        const userId = row[0];\r\n        const name = row[1];\r\n        const fixedName = name.split(' ').map(word =&gt; {\r\n            if (word.length === 0) return '';\r\n            return word[0].toUpperCase() + word.slice(1).toLowerCase();\r\n        }).join(' ');\r\n        return [userId, fixedName];\r\n    });\r\n}\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function fixNames(users: string[][]): string[][] {\r\n    return users.map(row =&gt; {\r\n        const userId = row[0];\r\n        const name = row[1];\r\n        const fixedName = name.split(' ').map(word =&gt; {\r\n            if (word.length === 0) return '';\r\n            return word[0].toUpperCase() + word.slice(1).toLowerCase();\r\n        }).join(' ');\r\n        return [userId, fixedName];\r\n    });\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of users and L is the max length of a name.
+- Space: O(N * L) to store the result and the split words array.
+- Notes: This approach is concise and leverages built-in string manipulation functions. Note that simple split/join implementations may collapse multiple consecutive spaces.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Fix Names in a Table Solutions","datePublished":"2025-05-25","description":"Write a solution to fix user names in a table so that only the first character is uppercase and the rest are lowercase.","keywords":"LeetCode, Fix Names in a Table, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Iterative Character Processing?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of users and L is the maximum length of a name string. We iterate through each character exactly once."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Split, Transform, and Join?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N * L) to store the resulting list of users and the temporary array created during the split operation."}},{"@type":"Question","name":"Which approach handles multiple spaces better?","acceptedAnswer":{"@type":"Answer","text":"Approach 1 (Iterative Character Processing) handles multiple spaces better because it processes the string character by character, preserving the original spacing structure. Approach 2 (Split and Join) typically collapses multiple spaces into one unless specifically handled."}}]}).replace(/</g,'\u003c')}
+</script>

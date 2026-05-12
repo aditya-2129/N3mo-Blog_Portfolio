@@ -1,0 +1,139 @@
+---
+title: "Allow One Function Call"
+summary: "Create a function that allows another function to be called only once, returning the cached result on subsequent calls."
+date: "Apr 11, 2026"
+tags:
+  - JavaScript
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.60% | **Paid:** No
+> **Topics:** N/A
+
+Given a function fn, return a new function that allows fn to be called only once. The first call to the returned function should return the result of calling fn with the provided arguments. Any subsequent calls to the returned function should return the result of the first call without calling fn again.
+
+- Examples
+- Constraints
+- [Using Closure](#using-closure)
+- [Using Function Property](#using-function-property)
+- [Using Wrapper Object](#using-wrapper-object)
+
+## Examples
+
+```text
+Input: 
+fn = (a,b,c) => (a + b + c), calls = [[1,2,3],[2,3,6]]
+Output: 
+[{"calls":1,"value":6}]
+Explanation:
+const onceFn = once(fn)
+onceFn(1,2,3) // 6
+onceFn(2,3,6) // 6 (returns cached result)
+```
+
+```text
+Input: 
+fn = (a,b,c) => (a * b * c), calls = [[5,7,4],[2,3,6],[4,6,8]]
+Output: 
+[{"calls":1,"value":140},{"calls":1,"value":140},{"calls":1,"value":140}]
+Explanation:
+const onceFn = once(fn)
+onceFn(5,7,4) // 140
+onceFn(2,3,6) // 140 (returns cached result)
+onceFn(4,6,8) // 140 (returns cached result)
+```
+
+## Constraints
+
+```text
+- calls is a valid JSON array
+- 1 <= calls.length <= 10
+- 1 <= calls[i].length <= 100
+- 2 <= JSON.stringify(calls).length <= 1000
+```
+
+---
+
+## Using Closure
+
+**Intuition**
+Use a closure to store the result of the first call and a flag to track if the function has been called before.
+
+**Steps**
+- Create a variable `called` initialized to false
+- Create a variable `result` to store the first call's result
+- Return a function that checks if `called` is false
+- If not called, execute `fn`, store result, set `called` to true
+- Return the stored result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def once(fn):\n    called = False\n    result = None\n    \n    def inner(*args):\n        nonlocal called, result\n        if not called:\n            result = fn(*args)\n            called = True\n        return result\n    \n    return inner" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\n\npublic class Solution {\n    public static Function&lt;Object[], Object&gt; once(Function&lt;Object[], Object&gt; fn) {\n        boolean[] called = {false};\n        Object[] result = {null};\n        \n        return args -&gt; {\n            if (!called[0]) {\n                result[0] = fn.apply(args);\n                called[0] = true;\n            }\n            return result[0];\n        };\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;memory&gt;\n\nclass Solution {\npublic:\n    template&lt;typename F&gt;\n    static auto once(F fn) {\n        auto called = std::make_shared&lt;bool&gt;(false);\n        auto result = std::make_shared&lt;std::invoke_result_t&lt;F, int, int&gt;&gt;();\n        \n        return [called, result, fn](auto... args) mutable {\n            if (!*called) {\n                *result = fn(args...);\n                *called = true;\n            }\n            return *result;\n        };\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function once(fn) {\n    let called = false;\n    let result;\n    \n    return function(...args) {\n        if (!called) {\n            result = fn(...args);\n            called = true;\n        }\n        return result;\n    };\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (...args: any[]) =&gt; any;\n\nfunction once(fn: Fn): Fn {\n    let called = false;\n    let result: any;\n    \n    return function(...args: any[]): any {\n        if (!called) {\n            result = fn(...args);\n            called = true;\n        }\n        return result;\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(1) for first call, O(1) for subsequent calls
+- Space: O(1) for storing called flag and result
+- Notes: Clean and idiomatic approach using closure scope
+
+---
+
+## Using Function Property
+
+**Intuition**
+Attach a property directly to the returned function to track if it has been called and store the result.
+
+**Steps**
+- Create a new function that wraps `fn`
+- Attach `hasCalled` property initialized to false
+- Attach `cachedResult` property initialized to undefined
+- On call, check `hasCalled` property
+- If not called, execute `fn`, store in `cachedResult`, set `hasCalled` to true
+- Return `cachedResult`
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def once(fn):\n    def inner(*args):\n        if not hasattr(inner, 'has_called'):\n            inner.result = fn(*args)\n            inner.has_called = True\n        return inner.result\n    \n    return inner" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\n\npublic class Solution {\n    public static Function&lt;Object[], Object&gt; once(Function&lt;Object[], Object&gt; fn) {\n        return new Function&lt;Object[], Object&gt;() {\n            private boolean called = false;\n            private Object result = null;\n            \n            @Override\n            public Object apply(Object[] args) {\n                if (!called) {\n                    result = fn.apply(args);\n                    called = true;\n                }\n                return result;\n            }\n        };\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;memory&gt;\n\nclass Solution {\npublic:\n    template&lt;typename F&gt;\n    static auto once(F fn) {\n        struct OnceWrapper {\n            F fn;\n            mutable bool called = false;\n            mutable std::invoke_result_t&lt;F, int, int&gt; result;\n            \n            template&lt;typename... Args&gt;\n            auto operator()(Args... args) const {\n                if (!called) {\n                    result = fn(args...);\n                    called = true;\n                }\n                return result;\n            }\n        };\n        return OnceWrapper{fn};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function once(fn) {\n    const wrapper = function(...args) {\n        if (!wrapper.hasCalled) {\n            wrapper.cachedResult = fn(...args);\n            wrapper.hasCalled = true;\n        }\n        return wrapper.cachedResult;\n    };\n    wrapper.hasCalled = false;\n    wrapper.cachedResult = undefined;\n    return wrapper;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (...args: any[]) =&gt; any;\n\ninterface OnceFunction extends Fn {\n    hasCalled?: boolean;\n    cachedResult?: any;\n}\n\nfunction once(fn: Fn): Fn {\n    const wrapper = function(...args: any[]): any {\n        if (!(wrapper as OnceFunction).hasCalled) {\n            (wrapper as OnceFunction).cachedResult = fn(...args);\n            (wrapper as OnceFunction).hasCalled = true;\n        }\n        return (wrapper as OnceFunction).cachedResult;\n    } as OnceFunction;\n    \n    wrapper.hasCalled = false;\n    wrapper.cachedResult = undefined;\n    return wrapper;\n}" },]} />
+
+**Complexity**
+- Time: O(1) for first call, O(1) for subsequent calls
+- Space: O(1) for storing properties on function
+- Notes: Uses function as an object, slightly more verbose than closure
+
+---
+
+## Using Wrapper Object
+
+**Intuition**
+Use a wrapper object with internal state to manage the one-time call behavior.
+
+**Steps**
+- Create an object with `called` flag and `result` storage
+- Implement a callable method that checks state
+- On first call, execute `fn` and cache result
+- Return cached result on all calls
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "def once(fn):\n    class OnceWrapper:\n        def __init__(self, fn):\n            self.fn = fn\n            self.called = False\n            self.result = None\n        \n        def __call__(self, *args):\n            if not self.called:\n                self.result = self.fn(*args)\n                self.called = True\n            return self.result\n    \n    return OnceWrapper(fn)" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\n\npublic class Solution {\n    public static Function&lt;Object[], Object&gt; once(Function&lt;Object[], Object&gt; fn) {\n        return new OnceFunction(fn);\n    }\n    \n    static class OnceFunction implements Function&lt;Object[], Object&gt; {\n        private final Function&lt;Object[], Object&gt; fn;\n        private boolean called = false;\n        private Object result = null;\n        \n        OnceFunction(Function&lt;Object[], Object&gt; fn) {\n            this.fn = fn;\n        }\n        \n        @Override\n        public Object apply(Object[] args) {\n            if (!called) {\n                result = fn.apply(args);\n                called = true;\n            }\n            return result;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;optional&gt;\n\nclass Solution {\npublic:\n    template&lt;typename F&gt;\n    static auto once(F fn) {\n        struct OnceWrapper {\n            F fn;\n            std::optional&lt;std::invoke_result_t&lt;F, int, int&gt;&gt; result;\n            \n            template&lt;typename... Args&gt;\n            auto operator()(Args... args) {\n                if (!result.has_value()) {\n                    result = fn(args...);\n                }\n                return result.value();\n            }\n        };\n        return OnceWrapper{fn};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function once(fn) {\n    const wrapper = {\n        called: false,\n        result: undefined,\n        execute(...args) {\n            if (!this.called) {\n                this.result = fn(...args);\n                this.called = true;\n            }\n            return this.result;\n        }\n    };\n    \n    return wrapper.execute.bind(wrapper);\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (...args: any[]) =&gt; any;\n\nclass OnceWrapper {\n    called = false;\n    result: any;\n    \n    constructor(private fn: Fn) {}\n    \n    execute(...args: any[]): any {\n        if (!this.called) {\n            this.result = this.fn(...args);\n            this.called = true;\n        }\n        return this.result;\n    }\n}\n\nfunction once(fn: Fn): Fn {\n    const wrapper = new OnceWrapper(fn);\n    return wrapper.execute.bind(wrapper);\n}" },]} />
+
+**Complexity**
+- Time: O(1) for first call, O(1) for subsequent calls
+- Space: O(1) for wrapper object state
+- Notes: More object-oriented approach, useful for extending functionality
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Allow One Function Call Solutions","datePublished":"2026-04-11","description":"Create a function that allows another function to be called only once, returning the cached result on subsequent calls.","keywords":"LeetCode, Allow One Function Call, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the closure approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for both the first call and subsequent calls. The first call executes the function once, while subsequent calls just return the cached result."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) for all approaches. We only store a boolean flag and the result of the first function call."}},{"@type":"Question","name":"Which approach is most idiomatic in JavaScript?","acceptedAnswer":{"@type":"Answer","text":"The closure approach is most idiomatic in JavaScript as it leverages the language's native closure support and is the most concise."}}]}).replace(/</g,'\u003c')}
+</script>

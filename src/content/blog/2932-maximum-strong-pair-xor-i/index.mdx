@@ -1,0 +1,172 @@
+---
+title: "Maximum Strong Pair XOR I"
+summary: "Find the maximum XOR value of a strong pair (i, j) where nums[i] &lt;= nums[j]."
+date: "Apr 06, 2026"
+tags:
+  - Array
+  - Bit Manipulation
+  - Trie
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.00% | **Paid:** No
+> **Topics:** Array, Hash Table, Bit Manipulation, Trie, Sliding Window
+
+You are given a 0-indexed integer array `nums`. A pair of indices `(i, j)` is called strong if `0 &lt;= i &lt;= j &lt; nums.length` and `nums[i] &lt;= nums[j]`.
+
+The XOR value of a pair `(i, j)` is equal to `nums[i] XOR nums[j]`.
+
+Return the maximum XOR value of a strong pair in the array `nums`.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Set + Value Iteration](#hash-set--value-iteration)
+- [Trie with Min-Value Constraint](#trie-with-min-value-constraint)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,3,4,5]
+```
+
+**Output:**
+```text
+7
+```
+
+**Explanation:**
+There are 11 strong pairs in the array nums: (1, 1), (1, 2), (2, 2), (2, 3), (2, 4), (3, 3), (3, 4), (3, 5), (4, 4), (4, 5) and (5, 5).
+The maximum XOR possible from these pairs is 3 XOR 4 = 7.
+
+### Example 2
+
+**Input:**
+```text
+nums = [10,100]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+There are 2 strong pairs in the array nums: (10, 10) and (100, 100).
+The maximum XOR possible from these pairs is 10 XOR 10 = 0 since the pair (100, 100) also gives 100 XOR 100 = 0.
+
+### Example 3
+
+**Input:**
+```text
+nums = [5,6,25,30]
+```
+
+**Output:**
+```text
+7
+```
+
+**Explanation:**
+There are 6 strong pairs in the array nums: (5, 5), (5, 6), (6, 6), (25, 25), (25, 30) and (30, 30).
+The maximum XOR possible from these pairs is 25 XOR 30 = 7 since the only other non-zero XOR value is 5 XOR 6 = 3.
+
+## Constraints
+
+```text
+1 <= nums.length <= 50
+1 <= nums[i] <= 100
+```
+
+---
+## Brute Force
+
+**Intuition**
+Since the constraint `nums.length &lt;= 50` is very small, we can simply check every possible pair `(i, j)` to see if it is a strong pair and calculate the XOR.
+
+**Steps**
+- Initialize `max_xor` to 0.
+- Iterate `i` from 0 to `n - 1`.
+- Iterate `j` from `i` to `n - 1`.
+- Check if `nums[i] &lt;= nums[j]`.
+- If true, update `max_xor` with `max(max_xor, nums[i] ^ nums[j])`.
+- Return `max_xor`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumStrongPairXor(self, nums: list[int]) -&gt; int:\n        max_xor = 0\n        n = len(nums)\n        for i in range(n):\n            for j in range(i, n):\n                if nums[i] &lt;= nums[j]:\n                    max_xor = max(max_xor, nums[i] ^ nums[j])\n        return max_xor" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumStrongPairXor(int[] nums) {\n        int max = 0;\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                if (nums[i] &lt;= nums[j]) {\n                    max = Math.max(max, nums[i] ^ nums[j]);\n                }\n            }\n        }\n        return max;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumStrongPairXor(vector&lt;int&gt;& nums) {\n        int maxVal = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                if (nums[i] &lt;= nums[j]) {\n                    maxVal = max(maxVal, nums[i] ^ nums[j]);\n                }\n            }\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximumStrongPairXor(nums) {\n        let max = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i; j &lt; n; j++) {\n                if (nums[i] &lt;= nums[j]) {\n                    max = Math.max(max, nums[i] ^ nums[j]);\n                }\n            }\n        }\n        return max;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximumStrongPairXor(nums: number[]): number {\n        let max = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i; j &lt; n; j++) {\n                if (nums[i] &lt;= nums[j]) {\n                    max = Math.max(max, nums[i] ^ nums[j]);\n                }\n            }\n        }\n        return max;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Efficient enough for the given constraints.
+
+---
+## Hash Set + Value Iteration
+
+**Intuition**
+The constraint `nums[i] &lt;= 100` allows us to iterate through possible values instead of indices. For each number `nums[j]`, we only care about previous numbers `x` such that `x &lt;= nums[j]`. We can iterate `x` from 0 to `nums[j]` and check if `x` exists in our set of seen numbers.
+
+**Steps**
+- Initialize a set `seen` and `max_xor` to 0.
+- Iterate through each number `num` in `nums`.
+- Iterate `x` from 0 to `num`.
+- If `x` is in `seen`, update `max_xor` with `max(max_xor, x ^ num)`.
+- Add `num` to `seen`.
+- Return `max_xor`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumStrongPairXor(self, nums: list[int]) -&gt; int:\n        seen = set()\n        max_xor = 0\n        for num in nums:\n            for x in range(num + 1):\n                if x in seen:\n                    max_xor = max(max_xor, x ^ num)\n            seen.add(num)\n        return max_xor" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int maximumStrongPairXor(int[] nums) {\n        Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();\n        int max = 0;\n        for (int num : nums) {\n            for (int x = 0; x &lt;= num; x++) {\n                if (seen.contains(x)) {\n                    max = Math.max(max, x ^ num);\n                }\n            }\n            seen.add(num);\n        }\n        return max;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int maximumStrongPairXor(vector&lt;int&gt;& nums) {\n        unordered_set&lt;int&gt; seen;\n        int maxVal = 0;\n        for (int num : nums) {\n            for (int x = 0; x &lt;= num; x++) {\n                if (seen.count(x)) {\n                    maxVal = max(maxVal, x ^ num);\n                }\n            }\n            seen.insert(num);\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximumStrongPairXor(nums) {\n        const seen = new Set();\n        let max = 0;\n        for (const num of nums) {\n            for (let x = 0; x &lt;= num; x++) {\n                if (seen.has(x)) {\n                    max = Math.max(max, x ^ num);\n                }\n            }\n            seen.add(num);\n        }\n        return max;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximumStrongPairXor(nums: number[]): number {\n        const seen = new Set&lt;number&gt;();\n        let max = 0;\n        for (const num of nums) {\n            for (let x = 0; x &lt;= num; x++) {\n                if (seen.has(x)) {\n                    max = Math.max(max, x ^ num);\n                }\n            }\n            seen.add(num);\n        }\n        return max;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n * C), where C is the maximum value in nums (100).
+- Space: O(n)
+- Notes: Efficient due to the small value constraint.
+
+---
+## Trie with Min-Value Constraint
+
+**Intuition**
+To find the maximum XOR efficiently, we use a Trie. However, we must respect the `nums[i] &lt;= nums[j]` constraint. We augment the Trie to store the minimum value in each subtree. When querying for `nums[j]`, we only traverse to a child if that child's subtree contains a value `&lt;= nums[j]`.
+
+**Steps**
+- Define a `TrieNode` with children and a `min_val` field.
+- Initialize a Trie.
+- Iterate through `nums`.
+- For each `num`, query the Trie to find the maximum XOR with any previously seen number `x` where `x &lt;= num`.
+  - Traverse bits from MSB to LSB.
+  - Prefer the bit that flips the current bit of `num` to maximize XOR.
+  - Check if the preferred child exists and if its `min_val &lt;= num`.
+  - If not, take the other child (if valid).
+- Update the global maximum.
+- Insert `num` into the Trie, updating `min_val` along the path.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class TrieNode:\n    def __init__(self):\n        self.children = [None, None]\n        self.min_val = float('inf')\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, num):\n        node = self.root\n        node.min_val = min(node.min_val, num)\n        for i in range(30, -1, -1):\n            bit = (num &gt;&gt; i) & 1\n            if not node.children[bit]:\n                node.children[bit] = TrieNode()\n            node = node.children[bit]\n            node.min_val = min(node.min_val, num)\n\n    def find_max_xor(self, num):\n        node = self.root\n        max_xor = 0\n        for i in range(30, -1, -1):\n            bit = (num &gt;&gt; i) & 1\n            toggled = 1 - bit\n            if node.children[toggled] and node.children[toggled].min_val &lt;= num:\n                max_xor |= (1 &lt;&lt; i)\n                node = node.children[toggled]\n            elif node.children[bit] and node.children[bit].min_val &lt;= num:\n                node = node.children[bit]\n            else:\n                return 0\n        return max_xor\n\nclass Solution:\n    def maximumStrongPairXor(self, nums: list[int]) -&gt; int:\n        trie = Trie()\n        max_xor = 0\n        for num in nums:\n            if trie.root.min_val != float('inf'):\n                max_xor = max(max_xor, trie.find_max_xor(num))\n            trie.insert(num)\n        return max_xor" },
+{ name: "Java", lang: "java", code: "class TrieNode {\n    TrieNode[] children;\n    int minVal;\n    public TrieNode() {\n        children = new TrieNode[2];\n        minVal = Integer.MAX_VALUE;\n    }\n}\n\nclass Trie {\n    TrieNode root;\n    public Trie() {\n        root = new TrieNode();\n    }\n\n    public void insert(int num) {\n        TrieNode node = root;\n        node.minVal = Math.min(node.minVal, num);\n        for (int i = 30; i &gt;= 0; i--) {\n            int bit = (num &gt;&gt; i) & 1;\n            if (node.children[bit] == null) {\n                node.children[bit] = new TrieNode();\n            }\n            node = node.children[bit];\n            node.minVal = Math.min(node.minVal, num);\n        }\n    }\n\n    public int findMaxXor(int num) {\n        TrieNode node = root;\n        int maxXor = 0;\n        for (int i = 30; i &gt;= 0; i--) {\n            int bit = (num &gt;&gt; i) & 1;\n            int toggled = 1 - bit;\n            if (node.children[toggled] != null && node.children[toggled].minVal &lt;= num) {\n                maxXor |= (1 &lt;&lt; i);\n                node = node.children[toggled];\n            } else if (node.children[bit] != null && node.children[bit].minVal &lt;= num) {\n                node = node.children[bit];\n            } else {\n                return 0;\n            }\n        }\n        return maxXor;\n    }\n}\n\nclass Solution {\n    public int maximumStrongPairXor(int[] nums) {\n        Trie trie = new Trie();\n        int max = 0;\n        for (int num : nums) {\n            if (trie.root.minVal != Integer.MAX_VALUE) {\n                max = Math.max(max, trie.findMaxXor(num));\n            }\n            trie.insert(num);\n        }\n        return max;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "struct TrieNode {\n    TrieNode* children[2];\n    int minVal;\n    TrieNode() {\n        children[0] = nullptr;\n        children[1] = nullptr;\n        minVal = INT_MAX;\n    }\n};\n\nclass Trie {\npublic:\n    TrieNode* root;\n    Trie() {\n        root = new TrieNode();\n    }\n\n    void insert(int num) {\n        TrieNode* node = root;\n        node-&gt;minVal = min(node-&gt;minVal, num);\n        for (int i = 30; i &gt;= 0; i--) {\n            int bit = (num &gt;&gt; i) & 1;\n            if (node-&gt;children[bit] == nullptr) {\n                node-&gt;children[bit] = new TrieNode();\n            }\n            node = node-&gt;children[bit];\n            node-&gt;minVal = min(node-&gt;minVal, num);\n        }\n    }\n\n    int findMaxXor(int num) {\n        TrieNode* node = root;\n        int maxXor = 0;\n        for (int i = 30; i &gt;= 0; i--) {\n            int bit = (num &gt;&gt; i) & 1;\n            int toggled = 1 - bit;\n            if (node-&gt;children[toggled] != nullptr && node-&gt;children[toggled]-&gt;minVal &lt;= num) {\n                maxXor |= (1 &lt;&lt; i);\n                node = node-&gt;children[toggled];\n            } else if (node-&gt;children[bit] != nullptr && node-&gt;children[bit]-&gt;minVal &lt;= num) {\n                node = node-&gt;children[bit];\n            } else {\n                return 0;\n            }\n        }\n        return maxXor;\n    }\n};\n\nclass Solution {\npublic:\n    int maximumStrongPairXor(vector&lt;int&gt;& nums) {\n        Trie trie;\n        int maxVal = 0;\n        for (int num : nums) {\n            if (trie.root-&gt;minVal != INT_MAX) {\n                maxVal = max(maxVal, trie.findMaxXor(num));\n            }\n            trie.insert(num);\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class TrieNode {\n    constructor() {\n        this.children = new Array(2).fill(null);\n        this.minVal = Infinity;\n    }\n}\n\nclass Trie {\n    constructor() {\n        this.root = new TrieNode();\n    }\n\n    insert(num) {\n        let node = this.root;\n        node.minVal = Math.min(node.minVal, num);\n        for (let i = 30; i &gt;= 0; i--) {\n            const bit = (num &gt;&gt; i) & 1;\n            if (node.children[bit] === null) {\n                node.children[bit] = new TrieNode();\n            }\n            node = node.children[bit];\n            node.minVal = Math.min(node.minVal, num);\n        }\n    }\n\n    findMaxXor(num) {\n        let node = this.root;\n        let maxXor = 0;\n        for (let i = 30; i &gt;= 0; i--) {\n            const bit = (num &gt;&gt; i) & 1;\n            const toggled = 1 - bit;\n            if (node.children[toggled] !== null && node.children[toggled].minVal &lt;= num) {\n                maxXor |= (1 &lt;&lt; i);\n                node = node.children[toggled];\n            } else if (node.children[bit] !== null && node.children[bit].minVal &lt;= num) {\n                node = node.children[bit];\n            } else {\n                return 0;\n            }\n        }\n        return maxXor;\n    }\n}\n\nclass Solution {\n    maximumStrongPairXor(nums) {\n        const trie = new Trie();\n        let max = 0;\n        for (const num of nums) {\n            if (trie.root.minVal !== Infinity) {\n                max = Math.max(max, trie.findMaxXor(num));\n            }\n            trie.insert(num);\n        }\n        return max;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class TrieNode {\n    children: (TrieNode | null)[];\n    minVal: number;\n    constructor() {\n        this.children = new Array(2).fill(null);\n        this.minVal = Infinity;\n    }\n}\n\nclass Trie {\n    root: TrieNode;\n    constructor() {\n        this.root = new TrieNode();\n    }\n\n    insert(num: number): void {\n        let node = this.root;\n        node.minVal = Math.min(node.minVal, num);\n        for (let i = 30; i &gt;= 0; i--) {\n            const bit = (num &gt;&gt; i) & 1;\n            if (node.children[bit] === null) {\n                node.children[bit] = new TrieNode();\n            }\n            node = node.children[bit];\n            node.minVal = Math.min(node.minVal, num);\n        }\n    }\n\n    findMaxXor(num: number): number {\n        let node = this.root;\n        let maxXor = 0;\n        for (let i = 30; i &gt;= 0; i--) {\n            const bit = (num &gt;&gt; i) & 1;\n            const toggled = 1 - bit;\n            if (node.children[toggled] !== null && node.children[toggled].minVal &lt;= num) {\n                maxXor |= (1 &lt;&lt; i);\n                node = node.children[toggled];\n            } else if (node.children[bit] !== null && node.children[bit].minVal &lt;= num) {\n                node = node.children[bit];\n            } else {\n                return 0;\n            }\n        }\n        return maxXor;\n    }\n}\n\nclass Solution {\n    maximumStrongPairXor(nums: number[]): number {\n        const trie = new Trie();\n        let max = 0;\n        for (const num of nums) {\n            if (trie.root.minVal !== Infinity) {\n                max = Math.max(max, trie.findMaxXor(num));\n            }\n            trie.insert(num);\n        }\n        return max;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n * 31)
+- Space: O(n * 31)
+- Notes: Optimal for larger inputs, handles the constraint via subtree min-values.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Strong Pair XOR I Solutions","datePublished":"2026-04-06","description":"Find the maximum XOR value of a strong pair (i, j) where nums[i] &lt;= nums[j].","keywords":"LeetCode, Maximum Strong Pair XOR I, Easy, Array, Hash Table, Bit Manipulation, Trie, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Trie approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * 31), which simplifies to O(n)."}},{"@type":"Question","name":"Why can we not simply sort the array?","acceptedAnswer":{"@type":"Answer","text":"Sorting the array would change the indices, and the problem requires the pair (i, j) to satisfy 0 &lt;= i &lt;= j &lt; nums.length in the original array."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,412 @@
+---
+title: "Determine if String Halves Are Alike"
+summary: "Check if two halves of a string have the same number of vowels by splitting and counting."
+date: "Jun 22, 2025"
+tags:
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.80% | **Paid:** No
+> **Topics:** String, Counting
+
+You are given a string s of even length. Split this string into two halves of equal lengths, and let a be the first half and b be the second half.
+
+Two strings are alike if they have the same number of vowels ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'). Notice that s contains uppercase and lowercase letters.
+
+Return true if a and b are alike. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Two Pass Counting](#two-pass-counting)
+- [Single Pass with Counter](#single-pass-with-counter)
+- [Simultaneous Half Comparison](#simultaneous-half-comparison)
+
+## Examples
+
+```text
+Input: s = "book"
+Output: true
+Explanation: a = "bo" and b = "ok". a has 1 vowel and b has 1 vowel. Therefore, they are alike.
+```
+
+```text
+Input: s = "textbook"
+Output: false
+Explanation: a = "tex" and b = "tbook". a has 1 vowel and b has 2 vowels. Therefore, they are not alike.
+```
+
+## Constraints
+
+```text
+2 <= s.length <= 1000
+s.length is even.
+s consists of uppercase and lowercase letters.
+```
+
+---
+## Two Pass Counting
+
+**Intuition**
+Split the string into two halves and count vowels in each half separately, then compare the counts.
+
+**Steps**
+- Calculate the midpoint of the string
+- Count vowels in the first half
+- Count vowels in the second half
+- Return true if counts are equal
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def halvesAreAlike(self, s: str) -> bool:
+        vowels = set('aeiouAEIOU')
+        n = len(s)
+        half = n // 2
+        
+        count1 = sum(1 for c in s[:half] if c in vowels)
+        count2 = sum(1 for c in s[half:] if c in vowels)
+        
+        return count1 == count2` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean halvesAreAlike(String s) {
+        String vowels = "aeiouAEIOU";
+        int n = s.length();
+        int half = n / 2;
+        
+        int count1 = 0, count2 = 0;
+        
+        for (int i = 0; i &lt; half; i++) {
+            if (vowels.indexOf(s.charAt(i)) != -1) {
+                count1++;
+            }
+        }
+        
+        for (int i = half; i &lt; n; i++) {
+            if (vowels.indexOf(s.charAt(i)) != -1) {
+                count2++;
+            }
+        }
+        
+        return count1 == count2;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool halvesAreAlike(string s) {
+        string vowels = "aeiouAEIOU";
+        int n = s.length();
+        int half = n / 2;
+        
+        int count1 = 0, count2 = 0;
+        
+        for (int i = 0; i &lt; half; i++) {
+            if (vowels.find(s[i]) != string::npos) {
+                count1++;
+            }
+        }
+        
+        for (int i = half; i &lt; n; i++) {
+            if (vowels.find(s[i]) != string::npos) {
+                count2++;
+            }
+        }
+        
+        return count1 == count2;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var halvesAreAlike = function(s) {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    
+    let count1 = 0, count2 = 0;
+    
+    for (let i = 0; i &lt; half; i++) {
+        if (vowels.has(s[i])) {
+            count1++;
+        }
+    }
+    
+    for (let i = half; i &lt; n; i++) {
+        if (vowels.has(s[i])) {
+            count2++;
+        }
+    }
+    
+    return count1 === count2;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function halvesAreAlike(s: string): boolean {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    
+    let count1 = 0, count2 = 0;
+    
+    for (let i = 0; i &lt; half; i++) {
+        if (vowels.has(s[i])) {
+            count1++;
+        }
+    }
+    
+    for (let i = half; i &lt; n; i++) {
+        if (vowels.has(s[i])) {
+            count2++;
+        }
+    }
+    
+    return count1 === count2;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) for the vowel set/string
+- Notes: Simple and readable approach with two separate loops
+
+---
+## Single Pass with Counter
+
+**Intuition**
+Use a single counter that increments for vowels in the first half and decrements for vowels in the second half. If the counter is zero at the end, both halves have equal vowels.
+
+**Steps**
+- Initialize a counter to zero
+- Iterate through the entire string
+- Increment counter for vowels in first half, decrement for vowels in second half
+- Return true if counter equals zero
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def halvesAreAlike(self, s: str) -> bool:
+        vowels = set('aeiouAEIOU')
+        n = len(s)
+        half = n // 2
+        count = 0
+        
+        for i in range(n):
+            if s[i] in vowels:
+                if i &lt; half:
+                    count += 1
+                else:
+                    count -= 1
+        
+        return count == 0` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean halvesAreAlike(String s) {
+        String vowels = "aeiouAEIOU";
+        int n = s.length();
+        int half = n / 2;
+        int count = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (vowels.indexOf(s.charAt(i)) != -1) {
+                if (i &lt; half) {
+                    count++;
+                } else {
+                    count--;
+                }
+            }
+        }
+        
+        return count == 0;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool halvesAreAlike(string s) {
+        string vowels = "aeiouAEIOU";
+        int n = s.length();
+        int half = n / 2;
+        int count = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            if (vowels.find(s[i]) != string::npos) {
+                if (i &lt; half) {
+                    count++;
+                } else {
+                    count--;
+                }
+            }
+        }
+        
+        return count == 0;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var halvesAreAlike = function(s) {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    let count = 0;
+    
+    for (let i = 0; i &lt; n; i++) {
+        if (vowels.has(s[i])) {
+            if (i &lt; half) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+    }
+    
+    return count === 0;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function halvesAreAlike(s: string): boolean {
+    const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']);
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    let count = 0;
+    
+    for (let i = 0; i &lt; n; i++) {
+        if (vowels.has(s[i])) {
+            if (i &lt; half) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+    }
+    
+    return count === 0;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) for the vowel set/string
+- Notes: Single loop but requires conditional check for half position
+
+---
+## Simultaneous Half Comparison
+
+**Intuition**
+Iterate only through the first half and simultaneously check corresponding characters from both halves, counting vowels in each.
+
+**Steps**
+- Calculate the midpoint
+- Iterate from 0 to midpoint
+- Check character at position i (first half) and i + midpoint (second half)
+- Count vowels in both halves
+- Compare counts at the end
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def halvesAreAlike(self, s: str) -> bool:
+        vowels = set('aeiouAEIOU')
+        n = len(s)
+        half = n // 2
+        count1, count2 = 0, 0
+        
+        for i in range(half):
+            if s[i] in vowels:
+                count1 += 1
+            if s[i + half] in vowels:
+                count2 += 1
+        
+        return count1 == count2` },
+{ name: "Java", lang: "java", code: `import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public boolean halvesAreAlike(String s) {
+        Set<Character> vowels = new HashSet&lt;&gt;();
+        for (char c : "aeiouAEIOU".toCharArray()) {
+            vowels.add(c);
+        }
+        
+        int n = s.length();
+        int half = n / 2;
+        int count1 = 0, count2 = 0;
+        
+        for (int i = 0; i &lt; half; i++) {
+            if (vowels.contains(s.charAt(i))) {
+                count1++;
+            }
+            if (vowels.contains(s.charAt(i + half))) {
+                count2++;
+            }
+        }
+        
+        return count1 == count2;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <unordered_set>
+
+class Solution {
+public:
+    bool halvesAreAlike(string s) {
+        unordered_set<char> vowels = {'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'};
+        
+        int n = s.length();
+        int half = n / 2;
+        int count1 = 0, count2 = 0;
+        
+        for (int i = 0; i &lt; half; i++) {
+            if (vowels.count(s[i])) {
+                count1++;
+            }
+            if (vowels.count(s[i + half])) {
+                count2++;
+            }
+        }
+        
+        return count1 == count2;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var halvesAreAlike = function(s) {
+    const vowels = "aeiouAEIOU";
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    let count1 = 0, count2 = 0;
+    
+    for (let i = 0; i &lt; half; i++) {
+        if (vowels.includes(s[i])) {
+            count1++;
+        }
+        if (vowels.includes(s[i + half])) {
+            count2++;
+        }
+    }
+    
+    return count1 === count2;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function halvesAreAlike(s: string): boolean {
+    const vowels = "aeiouAEIOU";
+    const n = s.length;
+    const half = Math.floor(n / 2);
+    let count1 = 0, count2 = 0;
+    
+    for (let i = 0; i &lt; half; i++) {
+        if (vowels.includes(s[i])) {
+            count1++;
+        }
+        if (vowels.includes(s[i + half])) {
+            count2++;
+        }
+    }
+    
+    return count1 === count2;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) for the vowel set/string
+- Notes: Most efficient - only iterates through half the string length
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Determine if String Halves Are Alike Solutions","datePublished":"2025-06-22","description":"Check if two halves of a string have the same number of vowels by splitting and counting.","keywords":"LeetCode, Determine if String Halves Are Alike, Easy, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Two Pass Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string. We iterate through each half separately."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) for all approaches since we only use a fixed-size vowel set/string and a few counters."}},{"@type":"Question","name":"Which approach is most efficient?","acceptedAnswer":{"@type":"Answer","text":"Simultaneous Half Comparison is most efficient as it only iterates through half the string length while processing both halves."}},{"@type":"Question","name":"How do we handle case sensitivity?","acceptedAnswer":{"@type":"Answer","text":"We include both uppercase and lowercase vowels in our vowel set/string to handle case sensitivity."}}]}).replace(/</g,'\u003c')}
+</script>

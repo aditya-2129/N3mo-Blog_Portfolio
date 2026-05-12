@@ -1,0 +1,464 @@
+---
+title: "Check if Array Is Sorted and Rotated"
+summary: "Given an array nums, return true if the array was originally sorted in non-decreasing order and then rotated some number of positions."
+date: "Aug 09, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.00% | **Paid:** No
+> **Topics:** Array
+
+Given an array nums, return true if the array was originally sorted in non-decreasing order and then rotated some number of positions (including zero). Otherwise, return false.
+
+There may be duplicates in the original array.
+
+Note: An array A rotated by x positions results in an array B of the same length such that A[i] == B[(i + x) % A.length] for every valid index i.
+
+- Examples
+- Constraints
+- [Approach 1: Count Drops](#approach-1-count-drops)
+- [Approach 2: Find Rotation Point](#approach-2-find-rotation-point)
+- [Approach 3: Brute Force Check](#approach-3-brute-force-check)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [3,4,5,1,2]
+Output: true
+Explanation: [1,2,3,4,5] is the original sorted array rotated 3 positions.
+```
+
+Example 2:
+```text
+Input: nums = [2,1,3,4]
+Output: false
+Explanation: There is no way to rotate a sorted array to get [2,1,3,4].
+```
+
+Example 3:
+```text
+Input: nums = [1,2,3]
+Output: true
+Explanation: The array is already sorted (rotated 0 positions).
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+## Approach 1: Count Drops
+
+**Intuition**
+In a sorted non-decreasing array, each element is less than or equal to the next element. When we rotate such an array, there will be exactly one position where an element is greater than the next element (the rotation point). We can count these "drops" to determine if the array is sorted and rotated.
+
+**Steps**
+- Initialize a counter for drops to 0
+- Iterate through the array and count how many times nums[i] &gt; nums[(i+1) % n]
+- If the count is 0 (already sorted) or 1 (sorted and rotated), return true
+- Otherwise return false
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def check(self, nums: List[int]) -> bool:
+        n = len(nums)
+        drops = 0
+        for i in range(n):
+            if nums[i] &gt; nums[(i + 1) % n]:
+                drops += 1
+        return drops &lt;= 1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean check(int[] nums) {
+        int n = nums.length;
+        int drops = 0;
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; nums[(i + 1) % n]) {
+                drops++;
+            }
+        }
+        return drops &lt;= 1;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool check(vector<int>& nums) {
+        int n = nums.size();
+        int drops = 0;
+        for (int i = 0; i &lt; n; i++) {
+            if (nums[i] &gt; nums[(i + 1) % n]) {
+                drops++;
+            }
+        }
+        return drops &lt;= 1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var check = function(nums) {
+    const n = nums.length;
+    let drops = 0;
+    for (let i = 0; i &lt; n; i++) {
+        if (nums[i] &gt; nums[(i + 1) % n]) {
+            drops++;
+        }
+    }
+    return drops &lt;= 1;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function check(nums: number[]): boolean {
+    const n = nums.length;
+    let drops = 0;
+    for (let i = 0; i &lt; n; i++) {
+        if (nums[i] &gt; nums[(i + 1) % n]) {
+            drops++;
+        }
+    }
+    return drops &lt;= 1;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - single pass through the array
+- Space: O(1) - only using a counter variable
+- Notes: This is the most elegant and efficient solution
+
+## Approach 2: Find Rotation Point
+
+**Intuition**
+Find the rotation point where the array "breaks" the sorted order, then verify that both segments are sorted and the last element is not greater than the first element.
+
+**Steps**
+- Find the index where nums[i] &gt; nums[i+1] (the rotation point)
+- If no such index exists, the array is already sorted, return true
+- Check if the array is sorted from rotation point to end and from start to rotation point
+- Also verify that the last element is &lt;= first element
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def check(self, nums: List[int]) -> bool:
+        n = len(nums)
+        rotation_point = -1
+        
+        # Find the rotation point
+        for i in range(n - 1):
+            if nums[i] &gt; nums[i + 1]:
+                rotation_point = i + 1
+                break
+        
+        # If no rotation point found, array is already sorted
+        if rotation_point == -1:
+            return True
+        
+        # Check if both segments are sorted
+        for i in range(rotation_point, n - 1):
+            if nums[i] &gt; nums[i + 1]:
+                return False
+        
+        for i in range(rotation_point - 1):
+            if nums[i] &gt; nums[i + 1]:
+                return False
+        
+        # Check if last element &lt;= first element
+        return nums[-1] &lt;= nums[0]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean check(int[] nums) {
+        int n = nums.length;
+        int rotationPoint = -1;
+        
+        // Find the rotation point
+        for (int i = 0; i &lt; n - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                rotationPoint = i + 1;
+                break;
+            }
+        }
+        
+        // If no rotation point found, array is already sorted
+        if (rotationPoint == -1) {
+            return true;
+        }
+        
+        // Check if both segments are sorted
+        for (int i = rotationPoint; i &lt; n - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                return false;
+            }
+        }
+        
+        for (int i = 0; i &lt; rotationPoint - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                return false;
+            }
+        }
+        
+        // Check if last element &lt;= first element
+        return nums[n - 1] &lt;= nums[0];
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool check(vector<int>& nums) {
+        int n = nums.size();
+        int rotationPoint = -1;
+        
+        // Find the rotation point
+        for (int i = 0; i &lt; n - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                rotationPoint = i + 1;
+                break;
+            }
+        }
+        
+        // If no rotation point found, array is already sorted
+        if (rotationPoint == -1) {
+            return true;
+        }
+        
+        // Check if both segments are sorted
+        for (int i = rotationPoint; i &lt; n - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                return false;
+            }
+        }
+        
+        for (int i = 0; i &lt; rotationPoint - 1; i++) {
+            if (nums[i] &gt; nums[i + 1]) {
+                return false;
+            }
+        }
+        
+        // Check if last element &lt;= first element
+        return nums[n - 1] &lt;= nums[0];
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var check = function(nums) {
+    const n = nums.length;
+    let rotationPoint = -1;
+    
+    // Find the rotation point
+    for (let i = 0; i &lt; n - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            rotationPoint = i + 1;
+            break;
+        }
+    }
+    
+    // If no rotation point found, array is already sorted
+    if (rotationPoint === -1) {
+        return true;
+    }
+    
+    // Check if both segments are sorted
+    for (let i = rotationPoint; i &lt; n - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            return false;
+        }
+    }
+    
+    for (let i = 0; i &lt; rotationPoint - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            return false;
+        }
+    }
+    
+    // Check if last element &lt;= first element
+    return nums[n - 1] &lt;= nums[0];
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function check(nums: number[]): boolean {
+    const n = nums.length;
+    let rotationPoint = -1;
+    
+    // Find the rotation point
+    for (let i = 0; i &lt; n - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            rotationPoint = i + 1;
+            break;
+        }
+    }
+    
+    // If no rotation point found, array is already sorted
+    if (rotationPoint === -1) {
+        return true;
+    }
+    
+    // Check if both segments are sorted
+    for (let i = rotationPoint; i &lt; n - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            return false;
+        }
+    }
+    
+    for (let i = 0; i &lt; rotationPoint - 1; i++) {
+        if (nums[i] &gt; nums[i + 1]) {
+            return false;
+        }
+    }
+    
+    // Check if last element &lt;= first element
+    return nums[n - 1] &lt;= nums[0];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - single pass to find rotation point, then verification
+- Space: O(1) - only using a few variables
+- Notes: More verbose than Approach 1 but conceptually clear
+
+## Approach 3: Brute Force Check
+
+**Intuition**
+For each possible rotation point, simulate the rotation and check if the resulting array is sorted. This is the most straightforward but least efficient approach.
+
+**Steps**
+- For each possible rotation point from 0 to n-1
+- Check if the array would be sorted when rotated at that point
+- If any rotation results in a sorted array, return true
+- Otherwise return false
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def check(self, nums: List[int]) -> bool:
+        n = len(nums)
+        
+        # Try each possible rotation point
+        for rotation in range(n):
+            is_sorted = True
+            for i in range(n - 1):
+                curr = nums[(rotation + i) % n]
+                next_val = nums[(rotation + i + 1) % n]
+                if curr &gt; next_val:
+                    is_sorted = False
+                    break
+            if is_sorted:
+                return True
+        
+        return False
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean check(int[] nums) {
+        int n = nums.length;
+        
+        // Try each possible rotation point
+        for (int rotation = 0; rotation &lt; n; rotation++) {
+            boolean isSorted = true;
+            for (int i = 0; i &lt; n - 1; i++) {
+                int curr = nums[(rotation + i) % n];
+                int next = nums[(rotation + i + 1) % n];
+                if (curr &gt; next) {
+                    isSorted = false;
+                    break;
+                }
+            }
+            if (isSorted) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool check(vector<int>& nums) {
+        int n = nums.size();
+        
+        // Try each possible rotation point
+        for (int rotation = 0; rotation &lt; n; rotation++) {
+            bool isSorted = true;
+            for (int i = 0; i &lt; n - 1; i++) {
+                int curr = nums[(rotation + i) % n];
+                int next = nums[(rotation + i + 1) % n];
+                if (curr &gt; next) {
+                    isSorted = false;
+                    break;
+                }
+            }
+            if (isSorted) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var check = function(nums) {
+    const n = nums.length;
+    
+    // Try each possible rotation point
+    for (let rotation = 0; rotation &lt; n; rotation++) {
+        let isSorted = true;
+        for (let i = 0; i &lt; n - 1; i++) {
+            const curr = nums[(rotation + i) % n];
+            const next = nums[(rotation + i + 1) % n];
+            if (curr &gt; next) {
+                isSorted = false;
+                break;
+            }
+        }
+        if (isSorted) {
+            return true;
+        }
+    }
+    
+    return false;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function check(nums: number[]): boolean {
+    const n = nums.length;
+    
+    // Try each possible rotation point
+    for (let rotation = 0; rotation &lt; n; rotation++) {
+        let isSorted = true;
+        for (let i = 0; i &lt; n - 1; i++) {
+            const curr = nums[(rotation + i) % n];
+            const next = nums[(rotation + i + 1) % n];
+            if (curr &gt; next) {
+                isSorted = false;
+                break;
+            }
+        }
+        if (isSorted) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²) - trying n rotations, each requiring O(n) verification
+- Space: O(1) - only using loop variables
+- Notes: Not efficient for large inputs but conceptually simple
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Array Is Sorted and Rotated Solutions","datePublished":"2024-08-09","description":"Given an array nums, return true if the array was originally sorted in non-decreasing order and then rotated some number of positions.","keywords":"LeetCode, Check if Array Is Sorted and Rotated, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The optimal solution (Count Drops approach) has O(n) time complexity."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"The optimal solution uses O(1) extra space."}},{"@type":"Question","name":"How do we identify if an array is sorted and rotated?","acceptedAnswer":{"@type":"Answer","text":"A sorted and rotated array will have at most one position where an element is greater than the next element (the rotation point)."}}]}).replace(/</g,'\u003c')}
+</script>

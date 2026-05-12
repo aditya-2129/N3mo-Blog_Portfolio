@@ -1,0 +1,129 @@
+---
+title: "Add Two Promises"
+summary: "Given two promises that resolve to numbers, return a promise that resolves to their sum."
+date: "Nov 22, 2025"
+tags:
+  - Promise
+  - Async
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 91.70% | **Paid:** No
+> **Topics:** N/A
+
+Given two promises promise1 and promise2, return a new promise. promise1 and promise2 will both resolve with a number. The returned promise should resolve with the sum of the two numbers.
+
+- Examples
+- Constraints
+- [Approach 1: Using Promise.all](#approach-1-using-promiseall)
+- [Approach 2: Using async/await](#approach-2-using-asyncawait)
+- [Approach 3: Chaining Promises](#approach-3-chaining-promises)
+
+## Examples
+
+```text
+Example 1:
+
+Input: 
+promise1 = new Promise(resolve => setTimeout(() => resolve(2), 20)), 
+promise2 = new Promise(resolve => setTimeout(() => resolve(5), 60))
+
+Output: 7
+
+Explanation: The two input promises resolve with the values of 2 and 5 respectively. The returned promise should resolve with the value of 2 + 5 = 7. The time the returned promise resolves is not judged for this problem.
+```
+
+```text
+Example 2:
+
+Input: 
+promise1 = new Promise(resolve => setTimeout(() => resolve(10), 50)), 
+promise2 = new Promise(resolve => setTimeout(() => resolve(-12), 30))
+
+Output: -2
+
+Explanation: The two input promises resolve with the values of 10 and -12 respectively. The returned promise should resolve with the value of 10 + (-12) = -2.
+```
+
+## Constraints
+
+```text
+promise1 and promise2 are promises that resolve with a number
+```
+
+---
+## Approach 1: Using Promise.all
+
+**Intuition**
+Promise.all allows us to wait for multiple promises to resolve simultaneously and returns an array of their results, which we can then sum.
+
+**Steps**
+- Use Promise.all to wait for both promises to resolve
+- Extract the values from the resolved array
+- Return the sum of the two values
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import asyncio\n\nclass Solution:\n    async def addTwoPromises(self, promise1: asyncio.Future, promise2: asyncio.Future) -&gt; asyncio.Future:\n        result1 = await promise1\n        result2 = await promise2\n        return result1 + result2" },
+{ name: "Java", lang: "java", code: "import java.util.concurrent.CompletableFuture;\n\nclass Solution {\n    public CompletableFuture&lt;Integer&gt; addTwoPromises(CompletableFuture&lt;Integer&gt; promise1, CompletableFuture&lt;Integer&gt; promise2) {\n        return promise1.thenCombine(promise2, Integer::sum);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;future&gt;\n#include &lt;functional&gt;\n\nclass Solution {\npublic:\n    std::future&lt;int&gt; addTwoPromises(std::future&lt;int&gt; promise1, std::future&lt;int&gt; promise2) {\n        auto p1 = std::move(promise1);\n        auto p2 = std::move(promise2);\n        \n        auto result = std::async(std::launch::async, [p1 = std::move(p1), p2 = std::move(p2)]() mutable {\n            int val1 = p1.get();\n            int val2 = p2.get();\n            return val1 + val2;\n        });\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Promise} promise1\n * @param {Promise} promise2\n * @return {Promise}\n */\nvar addTwoPromises = async function(promise1, promise2) {\n    const [value1, value2] = await Promise.all([promise1, promise2]);\n    return value1 + value2;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type PromiseType = Promise&lt;number&gt;;\n\nasync function addTwoPromises(promise1: PromiseType, promise2: PromiseType): Promise&lt;number&gt; {\n    const [value1, value2] = await Promise.all([promise1, promise2]);\n    return value1 + value2;\n}\n\nexport { addTwoPromises };" },]} />
+
+**Complexity**
+- Time: O(1) - Just waiting for promises and adding two numbers
+- Space: O(1) - Only storing the two resolved values
+- Notes: Most efficient for concurrent promise resolution
+
+---
+## Approach 2: Using async/await
+
+**Intuition**
+Using async/await syntax, we can sequentially wait for each promise to resolve and then return their sum in a clean, readable manner.
+
+**Steps**
+- Await the first promise to get its resolved value
+- Await the second promise to get its resolved value
+- Return the sum of both values
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import asyncio\n\nclass Solution:\n    async def addTwoPromises(self, promise1: asyncio.Future, promise2: asyncio.Future) -&gt; asyncio.Future:\n        val1 = await promise1\n        val2 = await promise2\n        return val1 + val2" },
+{ name: "Java", lang: "java", code: "import java.util.concurrent.CompletableFuture;\n\nclass Solution {\n    public CompletableFuture&lt;Integer&gt; addTwoPromises(CompletableFuture&lt;Integer&gt; promise1, CompletableFuture&lt;Integer&gt; promise2) {\n        return CompletableFuture.supplyAsync(() -&gt; {\n            try {\n                int val1 = promise1.get();\n                int val2 = promise2.get();\n                return val1 + val2;\n            } catch (Exception e) {\n                throw new RuntimeException(e);\n            }\n        });\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;future&gt;\n\nclass Solution {\npublic:\n    std::future&lt;int&gt; addTwoPromises(std::future&lt;int&gt; promise1, std::future&lt;int&gt; promise2) {\n        return std::async(std::launch::async, [p1 = std::move(promise1), p2 = std::move(promise2)]() mutable {\n            int val1 = p1.get();\n            int val2 = p2.get();\n            return val1 + val2;\n        });\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Promise} promise1\n * @param {Promise} promise2\n * @return {Promise}\n */\nvar addTwoPromises = async function(promise1, promise2) {\n    const value1 = await promise1;\n    const value2 = await promise2;\n    return value1 + value2;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type PromiseType = Promise&lt;number&gt;;\n\nasync function addTwoPromises(promise1: PromiseType, promise2: PromiseType): Promise&lt;number&gt; {\n    const value1 = await promise1;\n    const value2 = await promise2;\n    return value1 + value2;\n}\n\nexport { addTwoPromises };" },]} />
+
+**Complexity**
+- Time: O(1) - Sequential waiting and addition
+- Space: O(1) - Only storing two values
+- Notes: More readable but waits sequentially rather than concurrently
+
+---
+## Approach 3: Chaining Promises
+
+**Intuition**
+Chain promises using .then() to handle the results sequentially, where we first resolve one promise, then use its value to resolve the second and sum them.
+
+**Steps**
+- Use .then() on the first promise to get its resolved value
+- Inside the callback, use .then() on the second promise
+- Return the sum of both values in the final callback
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import asyncio\n\nclass Solution:\n    async def addTwoPromises(self, promise1: asyncio.Future, promise2: asyncio.Future) -&gt; asyncio.Future:\n        async def sum_values():\n            val1 = await promise1\n            val2 = await promise2\n            return val1 + val2\n        return asyncio.create_task(sum_values())" },
+{ name: "Java", lang: "java", code: "import java.util.concurrent.CompletableFuture;\n\nclass Solution {\n    public CompletableFuture&lt;Integer&gt; addTwoPromises(CompletableFuture&lt;Integer&gt; promise1, CompletableFuture&lt;Integer&gt; promise2) {\n        return promise1.thenCompose(val1 -&gt; \n            promise2.thenApply(val2 -&gt; val1 + val2)\n        );\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;future&gt;\n#include &lt;functional&gt;\n\nclass Solution {\npublic:\n    std::future&lt;int&gt; addTwoPromises(std::future&lt;int&gt; promise1, std::future&lt;int&gt; promise2) {\n        auto p1 = std::move(promise1);\n        auto p2 = std::move(promise2);\n        \n        auto result = std::async(std::launch::async, [p1 = std::move(p1), p2 = std::move(p2)]() mutable {\n            int val1 = p1.get();\n            int val2 = p2.get();\n            return val1 + val2;\n        });\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Promise} promise1\n * @param {Promise} promise2\n * @return {Promise}\n */\nvar addTwoPromises = function(promise1, promise2) {\n    return promise1.then((value1) =&gt; {\n        return promise2.then((value2) =&gt; {\n            return value1 + value2;\n        });\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type PromiseType = Promise&lt;number&gt;;\n\nfunction addTwoPromises(promise1: PromiseType, promise2: PromiseType): Promise&lt;number&gt; {\n    return promise1.then((value1: number) =&gt; {\n        return promise2.then((value2: number) =&gt; {\n            return value1 + value2;\n        });\n    });\n}\n\nexport { addTwoPromises };" },]} />
+
+**Complexity**
+- Time: O(1) - Sequential promise resolution and addition
+- Space: O(1) - Only storing intermediate values
+- Notes: Traditional promise chaining approach, more verbose but demonstrates understanding of promise mechanics
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Add Two Promises Solutions","datePublished":"2025-11-22","description":"Given two promises that resolve to numbers, return a promise that resolves to their sum.","keywords":"LeetCode, Add Two Promises, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of using Promise.all approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Just waiting for promises and adding two numbers"}},{"@type":"Question","name":"What is the space complexity of async/await approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Only storing the two resolved values"}},{"@type":"Question","name":"Which approach is most efficient for concurrent promise resolution?","acceptedAnswer":{"@type":"Answer","text":"Promise.all approach is most efficient as it waits for both promises concurrently rather than sequentially"}}]}).replace(/</g,'\u003c')}
+</script>

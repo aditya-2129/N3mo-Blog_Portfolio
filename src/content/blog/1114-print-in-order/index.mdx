@@ -1,0 +1,1104 @@
+---
+title: "Print in Order"
+summary: "Synchronize three threads to print methods in order: first, second, third."
+date: "Jun 26, 2025"
+tags:
+  - Concurrency
+  - Multithreading
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.90% | **Paid:** No
+> **Topics:** Concurrency
+
+Suppose we have a class:
+
+```java
+public class Foo {
+  public void first() { print("first"); }
+  public void second() { print("second"); }
+  public void third() { print("third"); }
+}
+```
+
+The same instance of Foo will be passed to three different threads. Thread A will call first(), thread B will call second(), and thread C will call third(). Design a mechanism to ensure that first() is called before second(), and second() is called before third().
+
+- Examples
+- Constraints
+- [Approach 1: Using Semaphore](#using-semaphore)
+- [Approach 2: Using Condition Variable](#using-condition-variable)
+- [Approach 3: Using Mutex with Busy Waiting](#using-mutex-with-busy-waiting)
+- [Approach 4: Using Atomic Operations](#using-atomic-operations)
+- [Approach 5: Using CountDownLatch](#using-countdownlatch)
+
+## Examples
+
+### Example 1
+Input: [1,2,3]
+Output: "firstsecondthird"
+Explanation: The input [1,2,3] means thread A calls first(), thread B calls second(), and thread C calls third(). "firstsecondthird" is the output of the correct execution.
+
+### Example 2
+Input: [1,3,2]
+Output: "firstsecondthird"
+Explanation: The input [1,3,2] means thread A calls first(), thread B calls third(), and thread C calls second(). "firstsecondthird" is the output of the correct execution.
+
+## Constraints
+
+```text
+The input to the three threads will be a random permutation of [1, 2, 3].
+```
+
+---
+## Using Semaphore
+
+**Intuition**
+Use semaphores to control the order of execution. Initialize semaphores such that only the first method can execute initially, then release permits for subsequent methods.
+
+**Steps**
+- Initialize semaphore1 with 1 permit (for first)
+- Initialize semaphore2 and semaphore3 with 0 permits
+- After first() completes, release semaphore2
+- After second() completes, release semaphore3
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from threading import Semaphore
+
+class Foo:
+    def __init__(self):
+        self.sem1 = Semaphore(1)
+        self.sem2 = Semaphore(0)
+        self.sem3 = Semaphore(0)
+
+    def first(self, printFirst: 'Callable[[], None]') -> None:
+        self.sem1.acquire()
+        printFirst()
+        self.sem2.release()
+
+    def second(self, printSecond: 'Callable[[], None]') -> None:
+        self.sem2.acquire()
+        printSecond()
+        self.sem3.release()
+
+    def third(self, printThird: 'Callable[[], None]') -> None:
+        self.sem3.acquire()
+        printThird()
+` },
+{ name: "Java", lang: "java", code: `import java.util.concurrent.Semaphore;
+
+class Foo {
+    private Semaphore sem1 = new Semaphore(1);
+    private Semaphore sem2 = new Semaphore(0);
+    private Semaphore sem3 = new Semaphore(0);
+
+    public Foo() {}
+
+    public void first(Runnable printFirst) throws InterruptedException {
+        sem1.acquire();
+        printFirst.run();
+        sem2.release();
+    }
+
+    public void second(Runnable printSecond) throws InterruptedException {
+        sem2.acquire();
+        printSecond.run();
+        sem3.release();
+    }
+
+    public void third(Runnable printThird) throws InterruptedException {
+        sem3.acquire();
+        printThird.run();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <semaphore>
+#include <functional>
+using namespace std;
+
+class Foo {
+private:
+    counting_semaphore&lt;1&gt; sem1{1};
+    counting_semaphore&lt;1&gt; sem2{0};
+    counting_semaphore&lt;1&gt; sem3{0};
+
+public:
+    Foo() {}
+
+    void first(function<void()&gt; printFirst) {
+        sem1.acquire();
+        printFirst();
+        sem2.release();
+    }
+
+    void second(function<void()&gt; printSecond) {
+        sem2.acquire();
+        printSecond();
+        sem3.release();
+    }
+
+    void third(function<void()&gt; printThird) {
+        sem3.acquire();
+        printThird();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Foo {
+    constructor() {
+        this.sem1 = 1;
+        this.sem2 = 0;
+        this.sem3 = 0;
+        this.queue = [];
+    }
+
+    first(printFirst) {
+        return this.acquire(this.sem1).then(() =&gt; {
+            printFirst();
+            this.release(this.sem2);
+        });
+    }
+
+    second(printSecond) {
+        return this.acquire(this.sem2).then(() =&gt; {
+            printSecond();
+            this.release(this.sem3);
+        });
+    }
+
+    third(printThird) {
+        return this.acquire(this.sem3).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    acquire(sem) {
+        return new Promise(resolve =&gt; {
+            if (sem &gt; 0) {
+                sem--;
+                resolve();
+            } else {
+                this.queue.push({ sem, resolve });
+            }
+        });
+    }
+
+    release(sem) {
+        sem++;
+        if (this.queue.length &gt; 0) {
+            const next = this.queue.shift();
+            next.sem--;
+            next.resolve();
+        }
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `interface QueueItem {
+    sem: number;
+    resolve: () =&gt; void;
+}
+
+class Foo {
+    private sem1: number = 1;
+    private sem2: number = 0;
+    private sem3: number = 0;
+    private queue: QueueItem[] = [];
+
+    constructor() {}
+
+    first(printFirst: () =&gt; void): Promise<void> {
+        return this.acquire(this.sem1).then(() =&gt; {
+            printFirst();
+            this.release(this.sem2);
+        });
+    }
+
+    second(printSecond: () =&gt; void): Promise<void> {
+        return this.acquire(this.sem2).then(() =&gt; {
+            printSecond();
+            this.release(this.sem3);
+        });
+    }
+
+    third(printThird: () =&gt; void): Promise<void> {
+        return this.acquire(this.sem3).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    private acquire(sem: number): Promise<void> {
+        return new Promise(resolve =&gt; {
+            if (sem &gt; 0) {
+                sem--;
+                resolve();
+            } else {
+                this.queue.push({ sem, resolve });
+            }
+        });
+    }
+
+    private release(sem: number): void {
+        sem++;
+        if (this.queue.length &gt; 0) {
+            const next = this.queue.shift();
+            if (next) {
+                next.sem--;
+                next.resolve();
+            }
+        }
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each method call
+- Space: O(1)
+- Notes: Clean and efficient, uses blocking wait instead of busy waiting
+
+---
+## Using Condition Variable
+
+**Intuition**
+Use condition variables to wait for specific conditions (counter value) before executing. Threads sleep until notified, avoiding CPU waste.
+
+**Steps**
+- Initialize a mutex and condition variable
+- Use a counter to track which method should execute next
+- Each method waits for its turn using the condition variable
+- After printing, increment counter and notify all waiting threads
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from threading import Condition
+
+class Foo:
+    def __init__(self):
+        self.cond = Condition()
+        self.counter = 1
+
+    def first(self, printFirst: 'Callable[[], None]') -> None:
+        with self.cond:
+            printFirst()
+            self.counter = 2
+            self.cond.notify_all()
+
+    def second(self, printSecond: 'Callable[[], None]') -> None:
+        with self.cond:
+            while self.counter != 2:
+                self.cond.wait()
+            printSecond()
+            self.counter = 3
+            self.cond.notify_all()
+
+    def third(self, printThird: 'Callable[[], None]') -> None:
+        with self.cond:
+            while self.counter != 3:
+                self.cond.wait()
+            printThird()
+` },
+{ name: "Java", lang: "java", code: `import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class Foo {
+    private Lock lock = new ReentrantLock();
+    private Condition cond = lock.newCondition();
+    private int counter = 1;
+
+    public Foo() {}
+
+    public void first(Runnable printFirst) throws InterruptedException {
+        lock.lock();
+        try {
+            printFirst.run();
+            counter = 2;
+            cond.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void second(Runnable printSecond) throws InterruptedException {
+        lock.lock();
+        try {
+            while (counter != 2) {
+                cond.await();
+            }
+            printSecond.run();
+            counter = 3;
+            cond.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void third(Runnable printThird) throws InterruptedException {
+        lock.lock();
+        try {
+            while (counter != 3) {
+                cond.await();
+            }
+            printThird.run();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mutex>
+#include <condition_variable>
+#include <functional>
+using namespace std;
+
+class Foo {
+private:
+    mutex mtx;
+    condition_variable cv;
+    int counter = 1;
+
+public:
+    Foo() {}
+
+    void first(function<void()&gt; printFirst) {
+        unique_lock<mutex> lock(mtx);
+        printFirst();
+        counter = 2;
+        cv.notify_all();
+    }
+
+    void second(function<void()&gt; printSecond) {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [this] { return counter == 2; });
+        printSecond();
+        counter = 3;
+        cv.notify_all();
+    }
+
+    void third(function<void()&gt; printThird) {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [this] { return counter == 3; });
+        printThird();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Foo {
+    constructor() {
+        this.counter = 1;
+        this.resolvers = [];
+    }
+
+    first(printFirst) {
+        printFirst();
+        this.counter = 2;
+        this.notify();
+    }
+
+    second(printSecond) {
+        return this.wait(() =&gt; this.counter === 2).then(() =&gt; {
+            printSecond();
+            this.counter = 3;
+            this.notify();
+        });
+    }
+
+    third(printThird) {
+        return this.wait(() =&gt; this.counter === 3).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    wait(condition) {
+        return new Promise(resolve =&gt; {
+            if (condition()) {
+                resolve();
+            } else {
+                this.resolvers.push({ condition, resolve });
+            }
+        });
+    }
+
+    notify() {
+        this.resolvers = this.resolvers.filter(r =&gt; {
+            if (r.condition()) {
+                r.resolve();
+                return false;
+            }
+            return true;
+        });
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `interface Resolver {
+    condition: () =&gt; boolean;
+    resolve: () =&gt; void;
+}
+
+class Foo {
+    private counter: number = 1;
+    private resolvers: Resolver[] = [];
+
+    constructor() {}
+
+    first(printFirst: () =&gt; void): void {
+        printFirst();
+        this.counter = 2;
+        this.notify();
+    }
+
+    second(printSecond: () =&gt; void): Promise<void> {
+        return this.wait(() =&gt; this.counter === 2).then(() =&gt; {
+            printSecond();
+            this.counter = 3;
+            this.notify();
+        });
+    }
+
+    third(printThird: () =&gt; void): Promise<void> {
+        return this.wait(() =&gt; this.counter === 3).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    private wait(condition: () =&gt; boolean): Promise<void> {
+        return new Promise(resolve =&gt; {
+            if (condition()) {
+                resolve();
+            } else {
+                this.resolvers.push({ condition, resolve });
+            }
+        });
+    }
+
+    private notify(): void {
+        this.resolvers = this.resolvers.filter(r =&gt; {
+            if (r.condition()) {
+                r.resolve();
+                return false;
+            }
+            return true;
+        });
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each method call
+- Space: O(1)
+- Notes: Efficient blocking wait, threads sleep instead of spinning
+
+---
+## Using Mutex with Busy Waiting
+
+**Intuition**
+Use a simple mutex to protect a counter. Threads busy-wait (spin) until it's their turn. Simple but wastes CPU cycles.
+
+**Steps**
+- Initialize a mutex and counter
+- Each method acquires the lock, checks if it's its turn
+- If not its turn, release lock and retry
+- If it's its turn, print and increment counter
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from threading import Lock
+
+class Foo:
+    def __init__(self):
+        self.lock = Lock()
+        self.counter = 1
+
+    def first(self, printFirst: 'Callable[[], None]') -> None:
+        with self.lock:
+            printFirst()
+            self.counter = 2
+
+    def second(self, printSecond: 'Callable[[], None]') -> None:
+        while True:
+            with self.lock:
+                if self.counter == 2:
+                    printSecond()
+                    self.counter = 3
+                    return
+
+    def third(self, printThird: 'Callable[[], None]') -> None:
+        while True:
+            with self.lock:
+                if self.counter == 3:
+                    printThird()
+                    return
+` },
+{ name: "Java", lang: "java", code: `import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class Foo {
+    private Lock lock = new ReentrantLock();
+    private int counter = 1;
+
+    public Foo() {}
+
+    public void first(Runnable printFirst) {
+        lock.lock();
+        try {
+            printFirst.run();
+            counter = 2;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void second(Runnable printSecond) {
+        while (true) {
+            lock.lock();
+            try {
+                if (counter == 2) {
+                    printSecond.run();
+                    counter = 3;
+                    return;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    public void third(Runnable printThird) {
+        while (true) {
+            lock.lock();
+            try {
+                if (counter == 3) {
+                    printThird.run();
+                    return;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mutex>
+#include <functional>
+using namespace std;
+
+class Foo {
+private:
+    mutex mtx;
+    int counter = 1;
+
+public:
+    Foo() {}
+
+    void first(function<void()&gt; printFirst) {
+        lock_guard<mutex> lock(mtx);
+        printFirst();
+        counter = 2;
+    }
+
+    void second(function<void()&gt; printSecond) {
+        while (true) {
+            lock_guard<mutex> lock(mtx);
+            if (counter == 2) {
+                printSecond();
+                counter = 3;
+                return;
+            }
+        }
+    }
+
+    void third(function<void()&gt; printThird) {
+        while (true) {
+            lock_guard<mutex> lock(mtx);
+            if (counter == 3) {
+                printThird();
+                return;
+            }
+        }
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Foo {
+    constructor() {
+        this.counter = 1;
+    }
+
+    first(printFirst) {
+        printFirst();
+        this.counter = 2;
+    }
+
+    second(printSecond) {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 2) {
+                    printSecond();
+                    this.counter = 3;
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+
+    third(printThird) {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 3) {
+                    printThird();
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Foo {
+    private counter: number = 1;
+
+    constructor() {}
+
+    first(printFirst: () =&gt; void): void {
+        printFirst();
+        this.counter = 2;
+    }
+
+    second(printSecond: () =&gt; void): Promise<void> {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 2) {
+                    printSecond();
+                    this.counter = 3;
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+
+    third(printThird: () =&gt; void): Promise<void> {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 3) {
+                    printThird();
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is wait time (busy waiting)
+- Space: O(1)
+- Notes: Simple but inefficient - wastes CPU cycles during waiting
+
+---
+## Using Atomic Operations
+
+**Intuition**
+Use atomic variables to track the state without explicit locks. Threads spin-wait on the atomic value using lock-free operations.
+
+**Steps**
+- Initialize an atomic counter
+- Each method spins until the counter reaches its expected value
+- After printing, increment the counter atomically
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from threading import Lock
+
+class Foo:
+    def __init__(self):
+        self.counter = 1
+        self.lock = Lock()
+
+    def first(self, printFirst: 'Callable[[], None]') -> None:
+        printFirst()
+        with self.lock:
+            self.counter = 2
+
+    def second(self, printSecond: 'Callable[[], None]') -> None:
+        while True:
+            with self.lock:
+                if self.counter == 2:
+                    printSecond()
+                    self.counter = 3
+                    return
+
+    def third(self, printThird: 'Callable[[], None]') -> None:
+        while True:
+            with self.lock:
+                if self.counter == 3:
+                    printThird()
+                    return
+` },
+{ name: "Java", lang: "java", code: `import java.util.concurrent.atomic.AtomicInteger;
+
+class Foo {
+    private AtomicInteger counter = new AtomicInteger(1);
+
+    public Foo() {}
+
+    public void first(Runnable printFirst) {
+        printFirst.run();
+        counter.set(2);
+    }
+
+    public void second(Runnable printSecond) {
+        while (counter.get() != 2) {
+            Thread.yield();
+        }
+        printSecond.run();
+        counter.set(3);
+    }
+
+    public void third(Runnable printThird) {
+        while (counter.get() != 3) {
+            Thread.yield();
+        }
+        printThird.run();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <atomic>
+#include <functional>
+using namespace std;
+
+class Foo {
+private:
+    atomic<int> counter{1};
+
+public:
+    Foo() {}
+
+    void first(function<void()&gt; printFirst) {
+        printFirst();
+        counter.store(2, memory_order_release);
+    }
+
+    void second(function<void()&gt; printSecond) {
+        while (counter.load(memory_order_acquire) != 2) {
+            this_thread::yield();
+        }
+        printSecond();
+        counter.store(3, memory_order_release);
+    }
+
+    void third(function<void()&gt; printThird) {
+        while (counter.load(memory_order_acquire) != 3) {
+            this_thread::yield();
+        }
+        printThird();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Foo {
+    constructor() {
+        this.counter = 1;
+    }
+
+    first(printFirst) {
+        printFirst();
+        this.counter = 2;
+    }
+
+    second(printSecond) {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 2) {
+                    printSecond();
+                    this.counter = 3;
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+
+    third(printThird) {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 3) {
+                    printThird();
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class Foo {
+    private counter: number = 1;
+
+    constructor() {}
+
+    first(printFirst: () =&gt; void): void {
+        printFirst();
+        this.counter = 2;
+    }
+
+    second(printSecond: () =&gt; void): Promise<void> {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 2) {
+                    printSecond();
+                    this.counter = 3;
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+
+    third(printThird: () =&gt; void): Promise<void> {
+        return new Promise(resolve =&gt; {
+            const check = () =&gt; {
+                if (this.counter === 3) {
+                    printThird();
+                    resolve();
+                } else {
+                    setTimeout(check, 0);
+                }
+            };
+            check();
+        });
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is wait time (busy waiting)
+- Space: O(1)
+- Notes: Lock-free but still busy-waits; good for very short wait times
+
+---
+## Using CountDownLatch
+
+**Intuition**
+Use countdown latches to signal completion of previous methods. Each latch waits for the previous method to complete before proceeding.
+
+**Steps**
+- Initialize two countdown latches
+- first() counts down the first latch after printing
+- second() waits for first latch, then prints and counts down second latch
+- third() waits for second latch, then prints
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from threading import Lock, Condition
+
+class Foo:
+    def __init__(self):
+        self.cond = Condition()
+        self.first_done = False
+        self.second_done = False
+
+    def first(self, printFirst: 'Callable[[], None]') -> None:
+        printFirst()
+        with self.cond:
+            self.first_done = True
+            self.cond.notify_all()
+
+    def second(self, printSecond: 'Callable[[], None]') -> None:
+        with self.cond:
+            while not self.first_done:
+                self.cond.wait()
+        printSecond()
+        with self.cond:
+            self.second_done = True
+            self.cond.notify_all()
+
+    def third(self, printThird: 'Callable[[], None]') -> None:
+        with self.cond:
+            while not self.second_done:
+                self.cond.wait()
+        printThird()
+` },
+{ name: "Java", lang: "java", code: `import java.util.concurrent.CountDownLatch;
+
+class Foo {
+    private CountDownLatch latch1 = new CountDownLatch(1);
+    private CountDownLatch latch2 = new CountDownLatch(1);
+
+    public Foo() {}
+
+    public void first(Runnable printFirst) throws InterruptedException {
+        printFirst.run();
+        latch1.countDown();
+    }
+
+    public void second(Runnable printSecond) throws InterruptedException {
+        latch1.await();
+        printSecond.run();
+        latch2.countDown();
+    }
+
+    public void third(Runnable printThird) throws InterruptedException {
+        latch2.await();
+        printThird.run();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <mutex>
+#include <condition_variable>
+#include <functional>
+using namespace std;
+
+class Foo {
+private:
+    mutex mtx;
+    condition_variable cv;
+    bool first_done = false;
+    bool second_done = false;
+
+public:
+    Foo() {}
+
+    void first(function<void()&gt; printFirst) {
+        printFirst();
+        {
+            lock_guard<mutex> lock(mtx);
+            first_done = true;
+        }
+        cv.notify_all();
+    }
+
+    void second(function<void()&gt; printSecond) {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [this] { return first_done; });
+        printSecond();
+        second_done = true;
+        lock.unlock();
+        cv.notify_all();
+    }
+
+    void third(function<void()&gt; printThird) {
+        unique_lock<mutex> lock(mtx);
+        cv.wait(lock, [this] { return second_done; });
+        printThird();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class Foo {
+    constructor() {
+        this.firstDone = false;
+        this.secondDone = false;
+        this.waiters = [];
+    }
+
+    first(printFirst) {
+        printFirst();
+        this.firstDone = true;
+        this.notify();
+    }
+
+    second(printSecond) {
+        return this.waitFor(() =&gt; this.firstDone).then(() =&gt; {
+            printSecond();
+            this.secondDone = true;
+            this.notify();
+        });
+    }
+
+    third(printThird) {
+        return this.waitFor(() =&gt; this.secondDone).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    waitFor(condition) {
+        return new Promise(resolve =&gt; {
+            if (condition()) {
+                resolve();
+            } else {
+                this.waiters.push({ condition, resolve });
+            }
+        });
+    }
+
+    notify() {
+        this.waiters = this.waiters.filter(w =&gt; {
+            if (w.condition()) {
+                w.resolve();
+                return false;
+            }
+            return true;
+        });
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `interface Waiter {
+    condition: () =&gt; boolean;
+    resolve: () =&gt; void;
+}
+
+class Foo {
+    private firstDone: boolean = false;
+    private secondDone: boolean = false;
+    private waiters: Waiter[] = [];
+
+    constructor() {}
+
+    first(printFirst: () =&gt; void): void {
+        printFirst();
+        this.firstDone = true;
+        this.notify();
+    }
+
+    second(printSecond: () =&gt; void): Promise<void> {
+        return this.waitFor(() =&gt; this.firstDone).then(() =&gt; {
+            printSecond();
+            this.secondDone = true;
+            this.notify();
+        });
+    }
+
+    third(printThird: () =&gt; void): Promise<void> {
+        return this.waitFor(() =&gt; this.secondDone).then(() =&gt; {
+            printThird();
+        });
+    }
+
+    private waitFor(condition: () =&gt; boolean): Promise<void> {
+        return new Promise(resolve =&gt; {
+            if (condition()) {
+                resolve();
+            } else {
+                this.waiters.push({ condition, resolve });
+            }
+        });
+    }
+
+    private notify(): void {
+        this.waiters = this.waiters.filter(w =&gt; {
+            if (w.condition()) {
+                w.resolve();
+                return false;
+            }
+            return true;
+        });
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) for each method call
+- Space: O(1)
+- Notes: Clean one-way synchronization pattern, easy to understand
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Print in Order Solutions","datePublished":"2025-06-26","description":"Synchronize three threads to print methods in order: first, second, third.","keywords":"LeetCode, Print in Order, Easy, Concurrency"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Semaphore approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each method call. The semaphore approach uses blocking wait which is efficient."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) for all approaches. We only use a constant amount of extra space for synchronization primitives."}},{"@type":"Question","name":"Which approach is most efficient?","acceptedAnswer":{"@type":"Answer","text":"The Semaphore and Condition Variable approaches are most efficient as they use blocking wait instead of busy waiting, avoiding CPU waste."}},{"@type":"Question","name":"What is the downside of busy waiting approaches?","acceptedAnswer":{"@type":"Answer","text":"Busy waiting wastes CPU cycles by continuously checking the condition instead of sleeping, which is inefficient for longer wait times."}}]}).replace(/</g,'\u003c')}
+</script>

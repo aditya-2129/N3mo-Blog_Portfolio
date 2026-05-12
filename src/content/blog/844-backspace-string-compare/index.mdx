@@ -1,0 +1,112 @@
+---
+title: "Backspace String Compare"
+summary: "Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character."
+date: "Oct 22, 2025"
+tags:
+  - Two Pointers
+  - String
+  - Stack
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 49.90% | **Paid:** No
+> **Topics:** Two Pointers, String, Stack, Simulation
+
+Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.
+
+Note that after backspacing an empty text editor, the text will continue empty.
+
+- Examples
+- Constraints
+- [Approach 1: Stack Simulation](#approach-1-stack-simulation)
+- [Approach 2: Two Pointers](#approach-2-two-pointers)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "ab#c", t = "ad#c"
+Output: true
+Explanation: Both s and t become "ac".
+```
+
+Example 2:
+```text
+Input: s = "ab##", t = "c#d#"
+Output: true
+Explanation: Both s and t become "".
+```
+
+Example 3:
+```text
+Input: s = "a#c", t = "b"
+Output: false
+Explanation: s becomes "c" while t becomes "b".
+```
+
+## Constraints
+
+```text
+1 <= s.length, t.length <= 200
+s and t only contain lowercase letters and '#' characters.
+```
+
+---
+## Approach 1: Stack Simulation
+
+**Intuition**
+Simulate the typing process by iterating through each string and using a stack to handle characters and backspaces.
+
+**Steps**
+- Iterate through each character of the string.
+- If the character is not '#', push it onto the stack.
+- If the character is '#', pop from the stack if it is not empty.
+- After processing both strings, compare the resulting stacks.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def backspaceCompare(self, s: str, t: str) -&gt; bool:\n        def build(string):\n            stack = []\n            for char in string:\n                if char != '#':\n                    stack.append(char)\n                elif stack:\n                    stack.pop()\n            return \"\".join(stack)\n        return build(s) == build(t)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean backspaceCompare(String s, String t) {\n        return build(s).equals(build(t));\n    }\n    private String build(String str) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : str.toCharArray()) {\n            if (c != '#') {\n                sb.append(c);\n            } else if (sb.length() &gt; 0) {\n                sb.deleteCharAt(sb.length() - 1);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool backspaceCompare(string s, string t) {\n        return build(s) == build(t);\n    }\nprivate:\n    string build(string str) {\n        string res;\n        for (char c : str) {\n            if (c != '#') {\n                res.push_back(c);\n            } else if (!res.empty()) {\n                res.pop_back();\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var backspaceCompare = function(s, t) {\n    const build = (str) =&gt; {\n        const stack = [];\n        for (const char of str) {\n            if (char !== '#') {\n                stack.push(char);\n            } else if (stack.length &gt; 0) {\n                stack.pop();\n            }\n        }\n        return stack.join('');\n    };\n    return build(s) === build(t);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function backspaceCompare(s: string, t: string): boolean {\n    const build = (str: string): string =&gt; {\n        const stack: string[] = [];\n        for (const char of str) {\n            if (char !== '#') {\n                stack.push(char);\n            } else if (stack.length &gt; 0) {\n                stack.pop();\n            }\n        }\n        return stack.join('');\n    };\n    return build(s) === build(t);\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of s and t.
+- Space: O(N + M) to store the processed strings.
+- Notes: Simple to implement, but uses extra space proportional to the input size.
+
+---
+## Approach 2: Two Pointers
+
+**Intuition**
+Process the strings from the end to the beginning, skipping characters that are deleted by backspaces, and compare the next valid characters.
+
+**Steps**
+- Initialize two pointers at the end of s and t.
+- While pointers are within bounds:
+  - Find the next valid character in s by skipping backspaces and the characters they delete.
+  - Find the next valid character in t using the same logic.
+  - Compare the valid characters. If they differ, return false.
+  - If both strings are exhausted, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def backspaceCompare(self, s: str, t: str) -&gt; bool:\n        i, j = len(s) - 1, len(t) - 1\n        while i &gt;= 0 or j &gt;= 0:\n            i = self.get_next_valid_index(s, i)\n            j = self.get_next_valid_index(t, j)\n            if i &lt; 0 and j &lt; 0:\n                return True\n            if i &lt; 0 or j &lt; 0:\n                return False\n            if s[i] != t[j]:\n                return False\n            i -= 1\n            j -= 1\n        return True\n\n    def get_next_valid_index(self, str, index):\n        backspace_count = 0\n        while index &gt;= 0:\n            if str[index] == '#':\n                backspace_count += 1\n            elif backspace_count &gt; 0:\n                backspace_count -= 1\n            else:\n                break\n            index -= 1\n        return index" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean backspaceCompare(String s, String t) {\n        int i = s.length() - 1, j = t.length() - 1;\n        while (i &gt;= 0 || j &gt;= 0) {\n            i = getNextValidIndex(s, i);\n            j = getNextValidIndex(t, j);\n            if (i &lt; 0 && j &lt; 0) return true;\n            if (i &lt; 0 || j &lt; 0) return false;\n            if (s.charAt(i) != t.charAt(j)) return false;\n            i--;\n            j--;\n        }\n        return true;\n    }\n    private int getNextValidIndex(String str, int index) {\n        int backspaceCount = 0;\n        while (index &gt;= 0) {\n            if (str.charAt(index) == '#') {\n                backspaceCount++;\n            } else if (backspaceCount &gt; 0) {\n                backspaceCount--;\n            } else {\n                break;\n            }\n            index--;\n        }\n        return index;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool backspaceCompare(string s, string t) {\n        int i = s.size() - 1, j = t.size() - 1;\n        while (i &gt;= 0 || j &gt;= 0) {\n            i = getNextValidIndex(s, i);\n            j = getNextValidIndex(t, j);\n            if (i &lt; 0 && j &lt; 0) return true;\n            if (i &lt; 0 || j &lt; 0) return false;\n            if (s[i] != t[j]) return false;\n            i--;\n            j--;\n        }\n        return true;\n    }\nprivate:\n    int getNextValidIndex(const string& str, int index) {\n        int backspaceCount = 0;\n        while (index &gt;= 0) {\n            if (str[index] == '#') {\n                backspaceCount++;\n            } else if (backspaceCount &gt; 0) {\n                backspaceCount--;\n            } else {\n                break;\n            }\n            index--;\n        }\n        return index;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var backspaceCompare = function(s, t) {\n    let i = s.length - 1, j = t.length - 1;\n    while (i &gt;= 0 || j &gt;= 0) {\n        i = getNextValidIndex(s, i);\n        j = getNextValidIndex(t, j);\n        if (i &lt; 0 && j &lt; 0) return true;\n        if (i &lt; 0 || j &lt; 0) return false;\n        if (s[i] !== t[j]) return false;\n        i--;\n        j--;\n    }\n    return true;\n};\nfunction getNextValidIndex(str, index) {\n    let backspaceCount = 0;\n    while (index &gt;= 0) {\n        if (str[index] === '#') {\n            backspaceCount++;\n        } else if (backspaceCount &gt; 0) {\n            backspaceCount--;\n        } else {\n            break;\n        }\n        index--;\n    }\n    return index;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function backspaceCompare(s: string, t: string): boolean {\n    let i: number = s.length - 1, j: number = t.length - 1;\n    while (i &gt;= 0 || j &gt;= 0) {\n        i = getNextValidIndex(s, i);\n        j = getNextValidIndex(t, j);\n        if (i &lt; 0 && j &lt; 0) return true;\n        if (i &lt; 0 || j &lt; 0) return false;\n        if (s[i] !== t[j]) return false;\n        i--;\n        j--;\n    }\n    return true;\n}\nfunction getNextValidIndex(str: string, index: number): number {\n    let backspaceCount: number = 0;\n    while (index &gt;= 0) {\n        if (str[index] === '#') {\n            backspaceCount++;\n        } else if (backspaceCount &gt; 0) {\n            backspaceCount--;\n        } else {\n            break;\n        }\n        index--;\n    }\n    return index;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of s and t.
+- Space: O(1), as we only use pointers and counters.
+- Notes: Optimal space complexity, though slightly more complex logic than the stack approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Backspace String Compare Solutions","datePublished":"2025-10-22","description":"Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.","keywords":"LeetCode, Backspace String Compare, Easy, Two Pointers, String, Stack, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Stack Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N and M are the lengths of strings s and t."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use pointers and counters, processing the strings in place."}},{"@type":"Question","name":"Why is the Two Pointers approach considered optimal?","acceptedAnswer":{"@type":"Answer","text":"It achieves O(N + M) time complexity and O(1) space complexity by processing the strings from the end and skipping deleted characters."}}]}).replace(/</g,'\u003c')}
+</script>

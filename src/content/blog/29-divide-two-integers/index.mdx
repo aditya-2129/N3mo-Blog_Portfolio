@@ -1,0 +1,666 @@
+---
+title: "Divide Two Integers"
+summary: "Given two integers 'dividend' and 'divisor', divide two integers without using multiplication, division, and mod operator."
+date: "May 11, 2026"
+tags:
+  - Math
+  - Bit Manipulation
+draft: false
+difficulty: "Medium"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Medium | **Acceptance:** 19.70% | **Paid:** No
+
+> **Topics:** Math, Bit Manipulation
+
+Given two integers 'dividend' and 'divisor', divide two integers without using multiplication, division, and mod operator. The integer division should truncate toward zero, which means losing its fractional part. For example, '8.345' would be truncated to '8', and '-2.7335' would be truncated to '-2'. Return the quotient after dividing 'dividend' by 'divisor'. Note: Assume we are dealing with an environment that could only store integers within the 32-bit signed integer range: [−2³¹, 2³¹ − 1]. For this problem, if the quotient is strictly greater than 2³¹ − 1, return 2³¹ − 1, and if the quotient is strictly less than −2³¹, return −2³¹.
+
+- Examples
+- Constraints
+- [Brute Force (Linear Subtraction)](#brute-force-linear-subtraction)
+- [Exponential Search (Doubling)](#exponential-search-doubling)
+- [Bitwise Long Division](#bitwise-long-division)
+
+## Examples
+
+**Input**
+
+```text
+dividend = 10, divisor = 3
+```
+
+**Output**
+
+```text
+3
+```
+
+**Explanation**
+
+10/3 = 3.33333... which is truncated to 3.
+
+**Input**
+
+```text
+dividend = 7, divisor = -3
+```
+
+**Output**
+
+```text
+-2
+```
+
+**Explanation**
+
+7/-3 = -2.33333... which is truncated to -2.
+
+## Constraints
+
+```text
+- -2³¹ <= dividend, divisor <= 2³¹ - 1
+- divisor != 0
+```
+---
+
+---
+
+## Brute Force (Linear Subtraction)
+
+**Intuition**
+
+The most basic way to divide is to repeatedly subtract the divisor from the dividend until the remainder is less than the divisor.
+
+**Steps**
+
+- Handle the edge case where dividend is -2³¹ and divisor is -1, which would result in 2³¹ (overflow).
+- Determine the sign of the quotient based on whether the signs of the dividend and divisor match.
+- Convert both numbers to their absolute values. To avoid overflow with -2³¹, work with negative numbers or 64-bit integers.
+- Subtract the divisor from the dividend repeatedly, incrementing a counter each time.
+- Apply the sign to the counter and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python", lang: "python", code: `class Solution:
+    def divide(self, dividend, divisor):
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        dividend, divisor = abs(dividend), abs(divisor)
+        
+        quotient = 0
+        while dividend &gt;= divisor:
+            dividend -= divisor
+            quotient += 1
+            
+        return -quotient if negative else quotient` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int divide(int dividend, int divisor) {
+        if (dividend == Integer.MIN_VALUE && divisor == -1) return Integer.MAX_VALUE;
+        
+        boolean negative = (dividend &lt; 0) != (divisor &lt; 0);
+        long a = Math.abs((long) dividend);
+        long b = Math.abs((long) divisor);
+        
+        int quotient = 0;
+        while (a &gt;= b) {
+            a -= b;
+            quotient++;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+}` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} dividend
+ * @param {number} divisor
+ * @return {number}
+ */
+var divide = function(dividend, divisor) {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    let negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = Math.abs(dividend);
+    let b = Math.abs(divisor);
+    
+    let quotient = 0;
+    while (a &gt;= b) {
+        a -= b;
+        quotient++;
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if (dividend == INT_MIN && divisor == -1) return INT_MAX;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        long long a = abs((long long)dividend);
+        long long b = abs((long long)divisor);
+        
+        int quotient = 0;
+        while (a &gt;= b) {
+            a -= b;
+            quotient++;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+};` },
+{ name: "Python3", lang: "python", code: `class Solution:
+    def divide(self, dividend: int, divisor: int) -> int:
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a, b = abs(dividend), abs(divisor)
+        
+        quotient = 0
+        while a &gt;= b:
+            a -= b;
+            quotient += 1
+            
+        return -quotient if negative else quotient` },
+{ name: "C", lang: "c", code: `int divide(int dividend, int divisor){
+    if (dividend == -2147483648 && divisor == -1) return 2147483647;
+    
+    int negative = (dividend &lt; 0) != (divisor &lt; 0);
+    long long a = llabs((long long)dividend);
+    long long b = llabs((long long)divisor);
+    
+    int quotient = 0;
+    while (a &gt;= b) {
+        a -= b;
+        quotient++;
+    }
+    
+    return negative ? -quotient : quotient;
+}` },
+{ name: "C#", lang: "csharp", code: `public class Solution {
+    public int Divide(int dividend, int divisor) {
+        if (dividend == int.MinValue && divisor == -1) return int.MaxValue;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        long a = Math.Abs((long)dividend);
+        long b = Math.Abs((long)divisor);
+        
+        int quotient = 0;
+        while (a &gt;= b) {
+            a -= b;
+            quotient++;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function divide(dividend: number, divisor: number): number {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    const negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = Math.abs(dividend);
+    let b = Math.abs(divisor);
+    
+    let quotient = 0;
+    while (a &gt;= b) {
+        a -= b;
+        quotient++;
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "Swift", lang: "swift", code: `class Solution {
+    func divide(_ dividend: Int, _ divisor: Int) -> Int {
+        if dividend == -2147483648 && divisor == -1 { return 2147483647 }
+        
+        let negative = (dividend &lt; 0) != (divisor &lt; 0)
+        var a = abs(dividend)
+        let b = abs(divisor)
+        
+        var quotient = 0
+        while a &gt;= b {
+            a -= b
+            quotient += 1
+        }
+        
+        return negative ? -quotient : quotient
+    }
+}` }]} />
+
+**Complexity**
+
+- Time: O(N) where N is the dividend. In the worst case (e.g., 2³¹ / 1), this will perform over 2 billion subtractions, leading to Time Limit Exceeded.
+- Space: O(1) as we only use a few variables.
+- Notes: This approach is too slow for the given constraints but serves as a baseline.
+
+---
+
+## Exponential Search (Doubling)
+
+**Intuition**
+
+Instead of subtracting the divisor once, we can subtract multiples of the divisor (divisor * 2, divisor * 4, divisor * 8...) to reach the quotient faster.
+
+**Steps**
+
+- Handle the overflow case: dividend = -2³¹, divisor = -1.
+- Determine the sign of the result.
+- Convert both dividend and divisor to negative numbers. We use negative numbers because the range of negative integers [-2³¹] is larger than positive integers [2³¹-1].
+- While the dividend is less than or equal to the divisor (both are negative):
+- Find the largest power of 2 multiple of the divisor such that (divisor * 2ᵏ) &gt;= dividend.
+- Subtract this multiple from the dividend and add 2ᵏ to the quotient.
+- Repeat until the dividend is greater than the divisor.
+
+<CodeTabs client:load tabs={[{ name: "Python", lang: "python", code: `class Solution:
+    def divide(self, dividend, divisor):
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        dividend = -abs(dividend)
+        divisor = -abs(divisor)
+        
+        quotient = 0
+        while dividend &lt;= divisor:
+            temp = divisor
+            multiple = 1
+            while temp &gt;= -1073741824 and dividend &lt;= (temp + temp):
+                temp += temp
+                multiple += multiple
+            
+            dividend -= temp
+            quotient += multiple
+            
+        return -quotient if negative else quotient` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int divide(int dividend, int divisor) {
+        if (dividend == Integer.MIN_VALUE && divisor == -1) return Integer.MAX_VALUE;
+        
+        boolean negative = (dividend &lt; 0) != (divisor &lt; 0);
+        int a = dividend &lt; 0 ? dividend : -dividend;
+        int b = divisor &lt; 0 ? divisor : -divisor;
+        
+        int quotient = 0;
+        while (a &lt;= b) {
+            int temp = b;
+            int multiple = 1;
+            // Check temp &gt;= -1073741824 to prevent overflow when doubling
+            while (temp &gt;= -1073741824 && a &lt;= (temp + temp)) {
+                temp += temp;
+                multiple += multiple;
+            }
+            a -= temp;
+            quotient += multiple;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+}` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} dividend
+ * @param {number} divisor
+ * @return {number}
+ */
+var divide = function(dividend, divisor) {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    let negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = dividend &lt; 0 ? dividend : -dividend;
+    let b = divisor &lt; 0 ? divisor : -divisor;
+    
+    let quotient = 0;
+    while (a &lt;= b) {
+        let temp = b;
+        let multiple = 1;
+        while (temp &gt;= -1073741824 && a &lt;= (temp + temp)) {
+            temp += temp;
+            multiple += multiple;
+        }
+        a -= temp;
+        quotient += multiple;
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if (dividend == INT_MIN && divisor == -1) return INT_MAX;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        int a = dividend &lt; 0 ? dividend : -dividend;
+        int b = divisor &lt; 0 ? divisor : -divisor;
+        
+        int quotient = 0;
+        while (a &lt;= b) {
+            int temp = b;
+            int multiple = 1;
+            while (temp &gt;= -1073741824 && a &lt;= temp + temp) {
+                temp += temp;
+                multiple += multiple;
+            }
+            a -= temp;
+            quotient += multiple;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+};` },
+{ name: "Python3", lang: "python", code: `class Solution:
+    def divide(self, dividend: int, divisor: int) -> int:
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a = dividend if dividend &lt; 0 else -dividend
+        b = divisor if divisor &lt; 0 else -divisor
+        
+        quotient = 0
+        while a &lt;= b:
+            temp = b
+            multiple = 1
+            while temp &gt;= -1073741824 and a &lt;= (temp + temp):
+                temp += temp
+                multiple += multiple
+            
+            a -= temp
+            quotient += multiple
+            
+        return -quotient if negative else quotient` },
+{ name: "C", lang: "c", code: `int divide(int dividend, int divisor){
+    if (dividend == -2147483648 && divisor == -1) return 2147483647;
+    
+    int negative = (dividend &lt; 0) != (divisor &lt; 0);
+    int a = dividend &lt; 0 ? dividend : -dividend;
+    int b = divisor &lt; 0 ? divisor : -divisor;
+    
+    int quotient = 0;
+    while (a &lt;= b) {
+        int temp = b;
+        int multiple = 1;
+        while (temp &gt;= -1073741824 && a &lt;= temp + temp) {
+            temp += temp;
+            multiple += multiple;
+        }
+        a -= temp;
+        quotient += multiple;
+    }
+    
+    return negative ? -quotient : quotient;
+}` },
+{ name: "C#", lang: "csharp", code: `public class Solution {
+    public int Divide(int dividend, int divisor) {
+        if (dividend == int.MinValue && divisor == -1) return int.MaxValue;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        int a = dividend &lt; 0 ? dividend : -dividend;
+        int b = divisor &lt; 0 ? divisor : -divisor;
+        
+        int quotient = 0;
+        while (a &lt;= b) {
+            int temp = b;
+            int multiple = 1;
+            while (temp &gt;= -1073741824 && a &lt;= (temp + temp)) {
+                temp += temp;
+                multiple += multiple;
+            }
+            a -= temp;
+            quotient += multiple;
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function divide(dividend: number, divisor: number): number {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    const negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = dividend &lt; 0 ? dividend : -dividend;
+    let b = divisor &lt; 0 ? divisor : -divisor;
+    
+    let quotient = 0;
+    while (a &lt;= b) {
+        let temp = b;
+        let multiple = 1;
+        while (temp &gt;= -1073741824 && a &lt;= (temp + temp)) {
+            temp += temp;
+            multiple += multiple;
+        }
+        a -= temp;
+        quotient += multiple;
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "Swift", lang: "swift", code: `class Solution {
+    func divide(_ dividend: Int, _ divisor: Int) -> Int {
+        if dividend == -2147483648 && divisor == -1 { return 2147483647 }
+        
+        let negative = (dividend &lt; 0) != (divisor &lt; 0)
+        var a = dividend &lt; 0 ? dividend : -dividend
+        let b = divisor &lt; 0 ? divisor : -divisor
+        
+        var quotient = 0
+        while a &lt;= b {
+            var temp = b
+            var multiple = 1
+            while temp &gt;= -1073741824 && a &lt;= (temp + temp) {
+                temp += temp
+                multiple += multiple
+            }
+            a -= temp
+            quotient += multiple
+        }
+        
+        return negative ? -quotient : quotient
+    }
+}` }]} />
+
+**Complexity**
+
+- Time: O(log² N) where N is the dividend. The outer loop runs until the dividend is exhausted, and the inner loop doubles the divisor until it exceeds the current dividend. Each inner loop reduces the dividend by at least half of the remaining amount.
+- Space: O(1) as we only use a constant amount of extra space.
+- Notes: This is a significant improvement over linear subtraction and fits within the time limits.
+
+---
+
+## Bitwise Long Division
+
+**Intuition**
+
+This approach mimics the manual long division process but in binary. We iterate through the bits of the dividend from most significant to least significant.
+
+**Steps**
+
+- Handle the overflow case: dividend = -2³¹, divisor = -1.
+- Determine the sign of the result.
+- Convert both numbers to positive 64-bit integers (long) to simplify bit shifting and avoid overflow issues with -2³¹.
+- Iterate from bit 31 down to 0.
+- Check if (divisor &lt;&lt; i) is less than or equal to the current dividend.
+- If it is, subtract (divisor &lt;&lt; i) from the dividend and set the i-th bit of the quotient.
+- Return the quotient with the correct sign, ensuring it stays within the 32-bit signed integer range.
+
+<CodeTabs client:load tabs={[{ name: "Python", lang: "python", code: `class Solution:
+    def divide(self, dividend, divisor):
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a, b = abs(dividend), abs(divisor)
+        
+        quotient = 0
+        for i in range(31, -1, -1):
+            if (a &gt;&gt; i) &gt;= b:
+                quotient += (1 &lt;&lt; i)
+                a -= (b &lt;&lt; i)
+        
+        return -quotient if negative else quotient` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int divide(int dividend, int divisor) {
+        if (dividend == Integer.MIN_VALUE && divisor == -1) return Integer.MAX_VALUE;
+        
+        boolean negative = (dividend &lt; 0) != (divisor &lt; 0);
+        long a = Math.abs((long) dividend);
+        long b = Math.abs((long) divisor);
+        
+        long quotient = 0;
+        for (int i = 31; i &gt;= 0; i--) {
+            if ((a &gt;&gt; i) &gt;= b) {
+                quotient |= (1L &lt;&lt; i);
+                a -= (b &lt;&lt; i);
+            }
+        }
+        
+        return negative ? (int) -quotient : (int) quotient;
+    }
+}` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} dividend
+ * @param {number} divisor
+ * @return {number}
+ */
+var divide = function(dividend, divisor) {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    let negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = Math.abs(dividend);
+    let b = Math.abs(divisor);
+    
+    let quotient = 0;
+    // In JS, bitwise ops work on 32-bit ints. Use BigInt for safety or division logic.
+    for (let i = 31; i &gt;= 0; i--) {
+        // Use Math.pow or bit shift carefully as JS numbers are 64-bit floats
+        if ((a / Math.pow(2, i)) &gt;= b) {
+            quotient += Math.pow(2, i);
+            a -= b * Math.pow(2, i);
+        }
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if (dividend == INT_MIN && divisor == -1) return INT_MAX;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        unsigned int a = abs(dividend);
+        unsigned int b = abs(divisor);
+        
+        unsigned int quotient = 0;
+        for (int i = 31; i &gt;= 0; i--) {
+            if ((a &gt;&gt; i) &gt;= b) {
+                quotient += (1 &lt;&lt; i);
+                a -= (b &lt;&lt; i);
+            }
+        }
+        
+        return negative ? -quotient : quotient;
+    }
+};` },
+{ name: "Python3", lang: "python", code: `class Solution:
+    def divide(self, dividend: int, divisor: int) -> int:
+        if dividend == -2147483648 and divisor == -1:
+            return 2147483647
+        
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a, b = abs(dividend), abs(divisor)
+        
+        quotient = 0
+        for i in range(31, -1, -1):
+            if (a &gt;&gt; i) &gt;= b:
+                quotient += (1 &lt;&lt; i)
+                a -= (b &lt;&lt; i)
+        
+        return -quotient if negative else quotient` },
+{ name: "C", lang: "c", code: `int divide(int dividend, int divisor){
+    if (dividend == -2147483648 && divisor == -1) return 2147483647;
+    
+    int negative = (dividend &lt; 0) != (divisor &lt; 0);
+    unsigned int a = (dividend == -2147483648) ? 2147483648U : abs(dividend);
+    unsigned int b = (divisor == -2147483648) ? 2147483648U : abs(divisor);
+    
+    unsigned int quotient = 0;
+    for (int i = 31; i &gt;= 0; i--) {
+        if ((a &gt;&gt; i) &gt;= b) {
+            quotient += (1U &lt;&lt; i);
+            a -= (b &lt;&lt; i);
+        }
+    }
+    
+    return negative ? -(int)quotient : (int)quotient;
+}` },
+{ name: "C#", lang: "csharp", code: `public class Solution {
+    public int Divide(int dividend, int divisor) {
+        if (dividend == int.MinValue && divisor == -1) return int.MaxValue;
+        
+        bool negative = (dividend &lt; 0) != (divisor &lt; 0);
+        long a = Math.Abs((long)dividend);
+        long b = Math.Abs((long)divisor);
+        
+        long quotient = 0;
+        for (int i = 31; i &gt;= 0; i--) {
+            if ((a &gt;&gt; i) &gt;= b) {
+                quotient |= (1L &lt;&lt; i);
+                a -= (b &lt;&lt; i);
+            }
+        }
+        
+        return negative ? (int)-quotient : (int)quotient;
+    }
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function divide(dividend: number, divisor: number): number {
+    if (dividend === -2147483648 && divisor === -1) return 2147483647;
+    
+    const negative = (dividend &lt; 0) !== (divisor &lt; 0);
+    let a = Math.abs(dividend);
+    let b = Math.abs(divisor);
+    
+    let quotient = 0;
+    for (let i = 31; i &gt;= 0; i--) {
+        // Use division instead of shift to avoid 32-bit signed integer wrapping in JS
+        if ((a / Math.pow(2, i)) &gt;= b) {
+            quotient += Math.pow(2, i);
+            a -= b * Math.pow(2, i);
+        }
+    }
+    
+    return negative ? -quotient : quotient;
+};` },
+{ name: "Swift", lang: "swift", code: `class Solution {
+    func divide(_ dividend: Int, _ divisor: Int) -> Int {
+        if dividend == -2147483648 && divisor == -1 { return 2147483647 }
+        
+        let negative = (dividend &lt; 0) != (divisor &lt; 0)
+        var a = UInt32(abs(dividend))
+        let b = UInt32(abs(divisor))
+        
+        var quotient: UInt32 = 0
+        for i in stride(from: 31, through: 0, by: -1) {
+            if (a &gt;&gt; i) &gt;= b {
+                quotient += (1 &lt;&lt; i)
+                a -= (b &lt;&lt; i)
+            }
+        }
+        
+        let result = Int(quotient)
+        return negative ? -result : result
+    }
+}` }]} />
+
+**Complexity**
+
+- Time: O(log N) where N is the dividend. Specifically, it is O(W) where W is the number of bits in the integer (32 in this case).
+- Space: O(1) as we only use a few variables.
+- Notes: This is the most efficient approach and is essentially how hardware-level division is often implemented.
+
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Divide Two Integers Solutions","datePublished":"2026-05-11T22:30:08.141262","description":"Given two integers 'dividend' and 'divisor', divide two integers without using multiplication, division, and mod operator.","keywords":"LeetCode, Divide Two Integers, Medium, Math, Bit Manipulation, Hash Map, Brute Force, Array"}).replace(/</g,'\\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Brute Force (Linear Subtraction) complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(N) where N is the dividend. In the worst case (e.g., 2\u00b3\u00b9 / 1), this will perform over 2 billion subtractions, leading to Time Limit Exceeded.; Space: O(1) as we only use a few variables.. This approach is too slow for the given constraints but serves as a baseline."}},{"@type":"Question","name":"Exponential Search (Doubling) complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(log\u00b2 N) where N is the dividend. The outer loop runs until the dividend is exhausted, and the inner loop doubles the divisor until it exceeds the current dividend. Each inner loop reduces the dividend by at least half of the remaining amount.; Space: O(1) as we only use a constant amount of extra space.. This is a significant improvement over linear subtraction and fits within the time limits."}},{"@type":"Question","name":"Bitwise Long Division complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(log N) where N is the dividend. Specifically, it is O(W) where W is the number of bits in the integer (32 in this case).; Space: O(1) as we only use a few variables.. This is the most efficient approach and is essentially how hardware-level division is often implemented."}}]}).replace(/</g,'\\u003c')}
+</script>

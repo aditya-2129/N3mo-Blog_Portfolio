@@ -1,0 +1,298 @@
+---
+title: "Customer Who Visited but Did Not Make Any Transactions"
+summary: "Find customers who visited the mall but did not make any transactions using SQL queries."
+date: "Nov 06, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.70% | **Paid:** No
+> **Topics:** Database
+
+Table: Visits
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| visit_id    | int     |
+| customer_id | int     |
++-------------+---------+
+visit_id is the column with unique values for this table.
+This table contains information about the customers who visited the mall.
+
+Table: Transactions
+
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| transaction_id | int     |
+| visit_id       | int     |
+| amount         | int     |
++----------------+---------+
+transaction_id is the column with unique values for this table.
+This table contains information about the transactions made at the mall.
+
+Write a solution to find the customers who visited the mall but did not make any transactions.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Left Join with NULL Check](#left-join-with-null-check)
+- [NOT EXISTS Subquery](#not-exists-subquery)
+- [NOT IN Subquery](#not-in-subquery)
+
+## Examples
+
+### Example 1
+
+Input:
+Visits table:
++----------+-------------+
+| visit_id | customer_id |
++----------+-------------+
+| 1        | 23          |
+| 2        | 9           |
+| 4        | 30          |
+| 5        | 54          |
+| 6        | 96          |
+| 7        | 54          |
+| 8        | 54          |
++----------+-------------+
+Transactions table:
++----------------+----------+--------+
+| transaction_id | visit_id | amount |
++----------------+----------+--------+
+| 2              | 5        | 310    |
+| 3              | 5        | 300    |
+| 9              | 5        | 200    |
+| 12             | 1        | 910    |
+| 13             | 2        | 970    |
++----------------+----------+--------+
+Output:
++-------------+
+| customer_id |
++-------------+
+| 54          |
+| 30          |
+| 96          |
++-------------+
+Explanation:
+- Customer 54 visited the mall 3 times but did not make any transactions.
+- Customer 30 visited the mall 1 time and did not make any transactions.
+- Customer 96 visited the mall 1 time and did not make any transactions.
+- The other customers visited the mall and made at least one transaction.
+
+## Constraints
+
+```text
+Visits table:
+- visit_id is the primary key (column with unique values).
+- customer_id is a foreign key (column with unique values) referencing the customer_id column in the Customers table (not shown in the schema).
+
+Transactions table:
+- transaction_id is the primary key (column with unique values).
+- visit_id is a foreign key (column with unique values) referencing the visit_id column in the Visits table.
+```
+
+---
+## Left Join with NULL Check
+
+**Intuition**
+Use a LEFT JOIN to combine Visits with Transactions, then filter for rows where the transaction_id is NULL, indicating no matching transaction exists.
+
+**Steps**
+- Perform a LEFT JOIN between Visits and Transactions on visit_id
+- Filter where transaction_id is NULL
+- Select distinct customer_id from the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL solution for LeetCode Database problem
+# In LeetCode, submit this as SQL query
+
+sql = \"\"\"
+SELECT DISTINCT v.customer_id
+FROM Visits v
+LEFT JOIN Transactions t ON v.visit_id = t.visit_id
+WHERE t.transaction_id IS NULL
+\"\"\"` },
+{ name: "Java", lang: "java", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+String sql = "SELECT DISTINCT v.customer_id " +
+             "FROM Visits v " +
+             "LEFT JOIN Transactions t ON v.visit_id = t.visit_id " +
+             "WHERE t.transaction_id IS NULL";` },
+{ name: "C++", lang: "cpp", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const char* sql = "SELECT DISTINCT v.customer_id "
+                  "FROM Visits v "
+                  "LEFT JOIN Transactions t ON v.visit_id = t.visit_id "
+                  "WHERE t.transaction_id IS NULL";` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql = "SELECT DISTINCT v.customer_id " +
+            "FROM Visits v " +
+            "LEFT JOIN Transactions t ON v.visit_id = t.visit_id " +
+            "WHERE t.transaction_id IS NULL";` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql: string = "SELECT DISTINCT v.customer_id " +
+                    "FROM Visits v " +
+                    "LEFT JOIN Transactions t ON v.visit_id = t.visit_id " +
+                    "WHERE t.transaction_id IS NULL";` },]} />
+
+**Complexity**
+- Time: O(V + T) where V is the number of visits and T is the number of transactions
+- Space: O(V) for storing the result
+- Notes: LEFT JOIN is efficient and widely supported across SQL databases
+
+---
+## NOT EXISTS Subquery
+
+**Intuition**
+Use a correlated subquery with NOT EXISTS to find visits where no corresponding transaction exists.
+
+**Steps**
+- Select customer_id from Visits
+- Use NOT EXISTS to check if no transaction exists for the current visit_id
+- Return the matching customers
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL solution for LeetCode Database problem
+# In LeetCode, submit this as SQL query
+
+sql = \"\"\"
+SELECT DISTINCT customer_id
+FROM Visits v
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Transactions t
+    WHERE t.visit_id = v.visit_id
+)
+\"\"\"` },
+{ name: "Java", lang: "java", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+String sql = "SELECT DISTINCT customer_id " +
+             "FROM Visits v " +
+             "WHERE NOT EXISTS ( " +
+             "    SELECT 1 " +
+             "    FROM Transactions t " +
+             "    WHERE t.visit_id = v.visit_id " +
+             ")";` },
+{ name: "C++", lang: "cpp", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const char* sql = "SELECT DISTINCT customer_id "
+                  "FROM Visits v "
+                  "WHERE NOT EXISTS ( "
+                  "    SELECT 1 "
+                  "    FROM Transactions t "
+                  "    WHERE t.visit_id = v.visit_id "
+                  ")";` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql = "SELECT DISTINCT customer_id " +
+            "FROM Visits v " +
+            "WHERE NOT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM Transactions t " +
+            "    WHERE t.visit_id = v.visit_id " +
+            ")";` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql: string = "SELECT DISTINCT customer_id " +
+                    "FROM Visits v " +
+                    "WHERE NOT EXISTS ( " +
+                    "    SELECT 1 " +
+                    "    FROM Transactions t " +
+                    "    WHERE t.visit_id = v.visit_id " +
+                    ")";` },]} />
+
+**Complexity**
+- Time: O(V × T) in worst case for correlated subquery
+- Space: O(V) for storing the result
+- Notes: NOT EXISTS can be slower than LEFT JOIN but is semantically clear
+
+---
+## NOT IN Subquery
+
+**Intuition**
+Use a NOT IN subquery to find visits whose visit_id is not present in the Transactions table.
+
+**Steps**
+- Select customer_id from Visits
+- Filter where visit_id is NOT IN the list of visit_ids from Transactions
+- Return the matching customers
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# SQL solution for LeetCode Database problem
+# In LeetCode, submit this as SQL query
+
+sql = \"\"\"
+SELECT DISTINCT customer_id
+FROM Visits
+WHERE visit_id NOT IN (
+    SELECT visit_id
+    FROM Transactions
+)
+\"\"\"` },
+{ name: "Java", lang: "java", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+String sql = "SELECT DISTINCT customer_id " +
+             "FROM Visits " +
+             "WHERE visit_id NOT IN ( " +
+             "    SELECT visit_id " +
+             "    FROM Transactions " +
+             ")";` },
+{ name: "C++", lang: "cpp", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const char* sql = "SELECT DISTINCT customer_id "
+                  "FROM Visits "
+                  "WHERE visit_id NOT IN ( "
+                  "    SELECT visit_id "
+                  "    FROM Transactions "
+                  ")";` },
+{ name: "JavaScript", lang: "javascript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql = "SELECT DISTINCT customer_id " +
+            "FROM Visits " +
+            "WHERE visit_id NOT IN ( " +
+            "    SELECT visit_id " +
+            "    FROM Transactions " +
+            ")";` },
+{ name: "TypeScript", lang: "typescript", code: `// SQL solution for LeetCode Database problem
+// In LeetCode, submit this as SQL query
+
+const sql: string = "SELECT DISTINCT customer_id " +
+                    "FROM Visits " +
+                    "WHERE visit_id NOT IN ( " +
+                    "    SELECT visit_id " +
+                    "    FROM Transactions " +
+                    ")";` },]} />
+
+**Complexity**
+- Time: O(V + T) for subquery execution
+- Space: O(T) for storing the subquery result
+- Notes: NOT IN handles NULL values differently than NOT EXISTS; be careful with NULLs
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Customer Who Visited but Did Not Make Any Transactions Solutions","datePublished":"2025-11-06","description":"Find customers who visited the mall but did not make any transactions using SQL queries.","keywords":"LeetCode, Customer Who Visited but Did Not Make Any Transactions, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"O(V + T) where V is the number of visits and T is the number of transactions."}},{"@type":"Question","name":"What is the time complexity of the NOT EXISTS approach?","acceptedAnswer":{"@type":"Answer","text":"O(V × T) in worst case for correlated subquery."}},{"@type":"Question","name":"What is the time complexity of the NOT IN approach?","acceptedAnswer":{"@type":"Answer","text":"O(V + T) for subquery execution."}}]}).replace(/</g,'\u003c')}
+</script>

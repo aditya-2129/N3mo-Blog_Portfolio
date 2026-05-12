@@ -1,0 +1,159 @@
+---
+title: "Array Reduce Transformation"
+summary: "Implement a reduce function that applies a given function cumulatively to array elements starting from an initial value."
+date: "Apr 05, 2026"
+tags:
+  - Array
+  - Functional Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.50% | **Paid:** No
+> **Topics:** N/A
+
+Given an array of integers nums, an integer initialValue, and a function fn, return the result of reducing nums using fn.
+
+The reduce function should apply fn cumulatively to the elements of nums, from left to right, starting with initialValue as the first argument.
+
+In other words, the result is defined as follows:
+- If nums is empty, return initialValue.
+- Otherwise, let result = initialValue.
+- For each element num in nums (in order):
+  - result = fn(result, num)
+- Return result.
+
+- Examples
+- Constraints
+- [Iterative Approach](#iterative-approach)
+- [Recursive Approach](#recursive-approach)
+- [Built-in Reduce](#built-in-reduce)
+
+## Examples
+
+```text
+Input: 
+  nums = [1,2,3,4]
+  fn = function sum(accum, curr) { return accum + curr; }
+  init = 0
+Output: 10
+Explanation:
+  initially, the value is init=0.
+  - 0 = fn(0, 1) = 1
+  - 1 = fn(1, 2) = 3
+  - 3 = fn(3, 3) = 6
+  - 6 = fn(6, 4) = 10
+  The final answer is 10.
+```
+
+```text
+Input:
+  nums = [1,2,3,4]
+  fn = function sum(accum, curr) { return accum + curr * curr; }
+  init = 100
+Output: 130
+Explanation:
+  initially, the value is init=100.
+  - 100 = fn(100, 1) = 101
+  - 101 = fn(101, 2) = 105
+  - 105 = fn(105, 3) = 114
+  - 114 = fn(114, 4) = 130
+  The final answer is 130.
+```
+
+```text
+Input:
+  nums = []
+  fn = function sum(accum, curr) { return 0; }
+  init = 25
+Output: 25
+Explanation:
+  For empty arrays, the answer is always init.
+```
+
+## Constraints
+
+```text
+- 0 <= nums.length <= 1000
+- 0 <= nums[i] <= 1000
+- 0 <= init <= 1000
+```
+
+---
+
+## Iterative Approach
+
+**Intuition**
+Use a simple loop to iterate through the array, applying the function to the accumulator and each element sequentially.
+
+**Steps**
+- Initialize result with initialValue
+- Iterate through each element in nums
+- Apply fn to result and current element, storing back in result
+- Return final result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\n\ndef reduce(nums: List[int], fn: Callable[[int, int], int], init: int) -&gt; int:\n    result = init\n    for num in nums:\n        result = fn(result, num)\n    return result" },
+{ name: "Java", lang: "java", code: "interface Function {\n    int apply(int a, int b);\n}\n\nclass Solution {\n    public int reduce(int[] nums, Function fn, int init) {\n        int result = init;\n        for (int num : nums) {\n            result = fn.apply(result, num);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int reduce(vector&lt;int&gt;& nums, function&lt;int(int, int)&gt; fn, int init) {\n        int result = init;\n        for (int num : nums) {\n            result = fn(result, num);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {Function} fn\n * @param {number} init\n * @return {number}\n */\nvar reduce = function(nums, fn, init) {\n    let result = init;\n    for (let i = 0; i &lt; nums.length; i++) {\n        result = fn(result, nums[i]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (accum: number, curr: number) =&gt; number\n\nfunction reduce(nums: number[], fn: Fn, init: number): number {\n    let result = init;\n    for (let i = 0; i &lt; nums.length; i++) {\n        result = fn(result, nums[i]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of nums
+- Space: O(1) only using constant extra space
+- Notes: Most straightforward and efficient approach
+
+---
+
+## Recursive Approach
+
+**Intuition**
+Process the array recursively by applying the function to the accumulator and first element, then recursively handle the rest of the array.
+
+**Steps**
+- Base case: if array is empty, return init
+- Apply fn to init and first element
+- Recursively call reduce on remaining elements with new accumulator
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\n\ndef reduce(nums: List[int], fn: Callable[[int, int], int], init: int) -&gt; int:\n    if not nums:\n        return init\n    return reduce(nums[1:], fn, fn(init, nums[0]))" },
+{ name: "Java", lang: "java", code: "interface Function {\n    int apply(int a, int b);\n}\n\nclass Solution {\n    public int reduce(int[] nums, Function fn, int init) {\n        return reduceHelper(nums, fn, init, 0);\n    }\n    \n    private int reduceHelper(int[] nums, Function fn, int acc, int index) {\n        if (index &gt;= nums.length) {\n            return acc;\n        }\n        return reduceHelper(nums, fn, fn.apply(acc, nums[index]), index + 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int reduce(vector&lt;int&gt;& nums, function&lt;int(int, int)&gt; fn, int init) {\n        return reduceHelper(nums, fn, init, 0);\n    }\n    \nprivate:\n    int reduceHelper(vector&lt;int&gt;& nums, function&lt;int(int, int)&gt; fn, int acc, int index) {\n        if (index &gt;= nums.size()) {\n            return acc;\n        }\n        return reduceHelper(nums, fn, fn(acc, nums[index]), index + 1);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {Function} fn\n * @param {number} init\n * @return {number}\n */\nvar reduce = function(nums, fn, init) {\n    if (nums.length === 0) {\n        return init;\n    }\n    const [first, ...rest] = nums;\n    return reduce(rest, fn, fn(init, first));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (accum: number, curr: number) =&gt; number\n\nfunction reduce(nums: number[], fn: Fn, init: number): number {\n    if (nums.length === 0) {\n        return init;\n    }\n    const [first, ...rest] = nums;\n    return reduce(rest, fn, fn(init, first));\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of nums
+- Space: O(n) due to recursion stack
+- Notes: Elegant but less efficient due to stack overhead
+
+---
+
+## Built-in Reduce
+
+**Intuition**
+Leverage the language's native reduce/accumulate function to handle the transformation automatically.
+
+**Steps**
+- Call the built-in reduce function with fn, nums, and init
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\nfrom functools import reduce as builtin_reduce\n\ndef reduce(nums: List[int], fn: Callable[[int, int], int], init: int) -&gt; int:\n    return builtin_reduce(fn, nums, init)" },
+{ name: "Java", lang: "java", code: "import java.util.stream.IntStream;\n\ninterface Function {\n    int apply(int a, int b);\n}\n\nclass Solution {\n    public int reduce(int[] nums, Function fn, int init) {\n        return IntStream.of(nums).reduce(init, (a, b) -&gt; fn.apply(a, b));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;functional&gt;\n#include &lt;numeric&gt;\n#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int reduce(vector&lt;int&gt;& nums, function&lt;int(int, int)&gt; fn, int init) {\n        return std::accumulate(nums.begin(), nums.end(), init, fn);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {Function} fn\n * @param {number} init\n * @return {number}\n */\nvar reduce = function(nums, fn, init) {\n    return nums.reduce(fn, init);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type Fn = (accum: number, curr: number) =&gt; number\n\nfunction reduce(nums: number[], fn: Fn, init: number): number {\n    return nums.reduce(fn, init);\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of nums
+- Space: O(1) for most implementations
+- Notes: Most concise and idiomatic, uses optimized built-in functions
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Array Reduce Transformation Solutions","datePublished":"2026-04-05","description":"Implement a reduce function that applies a given function cumulatively to array elements starting from an initial value.","keywords":"LeetCode, Array Reduce Transformation, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of nums"}},{"@type":"Question","name":"What is the space complexity of the Recursive Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) due to recursion stack space"}},{"@type":"Question","name":"What is the most efficient approach?","acceptedAnswer":{"@type":"Answer","text":"The Iterative and Built-in Reduce approaches both have O(n) time and O(1) space complexity, making them the most efficient."}}]}).replace(/</g,'\u003c')}
+</script>

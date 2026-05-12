@@ -1,0 +1,304 @@
+---
+title: "Shuffle String"
+summary: "Given a string s and an integer array indices, shuffle the string so that the character at the ith position moves to indices[i] in the shuffled string."
+date: "Dec 26, 2024"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.40% | **Paid:** No
+> **Topics:** Array, String
+
+You are given a string s and an integer array indices of the same length. The string s will be shuffled such that the character at the ith position moves to indices[i] in the shuffled string.
+
+Return the shuffled string.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Direct Array Placement](#direct-array-placement)
+- [Sorting with Pairs](#sorting-with-pairs)
+- [Using a Map](#using-a-map)
+
+## Examples
+
+### Example 1
+
+```text
+Input: s = "codeleet", indices = [4,5,6,7,0,2,1,3]
+Output: "leetcode"
+Explanation: As shown, "codeleet" becomes "leetcode" after shuffling.
+```
+
+### Example 2
+
+```text
+Input: s = "abc", indices = [0,1,2]
+Output: "abc"
+Explanation: After shuffling, each character remains in its position.
+```
+
+## Constraints
+
+```text
+s.length == indices.length == n
+1 <= n <= 100
+s consists of only lowercase English letters.
+0 <= indices[i] < n
+All values of indices are unique.
+```
+
+## Direct Array Placement
+
+**Intuition**
+Create a result array and place each character directly at its target position based on the indices array.
+
+**Steps**
+- Create a character array of the same length as s
+- Iterate through each index i, placing s[i] at result[indices[i]]
+- Convert the character array to a string and return
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def restoreString(self, s: str, indices: list[int]) -> str:
+        n = len(s)
+        result = [''] * n
+        for i in range(n):
+            result[indices[i]] = s[i]
+        return ''.join(result)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String restoreString(String s, int[] indices) {
+        int n = s.length();
+        char[] result = new char[n];
+        for (int i = 0; i &lt; n; i++) {
+            result[indices[i]] = s.charAt(i);
+        }
+        return new String(result);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string restoreString(string s, vector<int>& indices) {
+        int n = s.size();
+        string result(n, ' ');
+        for (int i = 0; i &lt; n; i++) {
+            result[indices[i]] = s[i];
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {number[]} indices
+ * @return {string}
+ */
+var restoreString = function(s, indices) {
+    const n = s.length;
+    const result = new Array(n);
+    for (let i = 0; i &lt; n; i++) {
+        result[indices[i]] = s[i];
+    }
+    return result.join('');
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function restoreString(s: string, indices: number[]): string {
+    const n = s.length;
+    const result: string[] = new Array(n);
+    for (let i = 0; i &lt; n; i++) {
+        result[indices[i]] = s[i];
+    }
+    return result.join('');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the string
+- Space: O(n) - Result array of size n
+- Notes: Most efficient approach for this problem
+
+## Sorting with Pairs
+
+**Intuition**
+Create pairs of (index, character) and sort them by index to get the correct order.
+
+**Steps**
+- Create an array of pairs containing (indices[i], s[i])
+- Sort the pairs based on the index value
+- Extract characters in order to form the result string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def restoreString(self, s: str, indices: list[int]) -> str:
+        pairs = list(zip(indices, s))
+        pairs.sort()
+        return ''.join(char for _, char in pairs)
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public String restoreString(String s, int[] indices) {
+        int n = s.length();
+        int[][] pairs = new int[n][2];
+        for (int i = 0; i &lt; n; i++) {
+            pairs[i][0] = indices[i];
+            pairs[i][1] = s.charAt(i);
+        }
+        Arrays.sort(pairs, (a, b) -> a[0] - b[0]);
+        StringBuilder result = new StringBuilder();
+        for (int[] pair : pairs) {
+            result.append((char) pair[1]);
+        }
+        return result.toString();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string restoreString(string s, vector<int>& indices) {
+        int n = s.size();
+        vector<pair<int, char>&gt; pairs(n);
+        for (int i = 0; i &lt; n; i++) {
+            pairs[i] = {indices[i], s[i]};
+        }
+        sort(pairs.begin(), pairs.end());
+        string result;
+        for (auto& p : pairs) {
+            result += p.second;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {number[]} indices
+ * @return {string}
+ */
+var restoreString = function(s, indices) {
+    const n = s.length;
+    const pairs = [];
+    for (let i = 0; i &lt; n; i++) {
+        pairs.push([indices[i], s[i]]);
+    }
+    pairs.sort((a, b) =&gt; a[0] - b[0]);
+    return pairs.map(p =&gt; p[1]).join('');
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function restoreString(s: string, indices: number[]): string {
+    const n = s.length;
+    const pairs: [number, string][] = [];
+    for (let i = 0; i &lt; n; i++) {
+        pairs.push([indices[i], s[i]]);
+    }
+    pairs.sort((a, b) =&gt; a[0] - b[0]);
+    return pairs.map(p =&gt; p[1]).join('');
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) - Due to sorting
+- Space: O(n) - For storing pairs
+- Notes: Less efficient than direct placement but demonstrates sorting technique
+
+## Using a Map
+
+**Intuition**
+Use a hash map to store the mapping from target index to character, then build the result by iterating through indices in order.
+
+**Steps**
+- Create a map/dictionary with indices[i] as key and s[i] as value
+- Iterate from 0 to n-1, fetching characters from the map
+- Build and return the result string
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def restoreString(self, s: str, indices: list[int]) -> str:
+        index_map = {}
+        for i, char in enumerate(s):
+            index_map[indices[i]] = char
+        return ''.join(index_map[i] for i in range(len(s)))
+` },
+{ name: "Java", lang: "java", code: `import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public String restoreString(String s, int[] indices) {
+        int n = s.length();
+        Map<Integer, Character> indexMap = new HashMap&lt;&gt;();
+        for (int i = 0; i &lt; n; i++) {
+            indexMap.put(indices[i], s.charAt(i));
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i &lt; n; i++) {
+            result.append(indexMap.get(i));
+        }
+        return result.toString();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string restoreString(string s, vector<int>& indices) {
+        int n = s.size();
+        unordered_map<int, char> indexMap;
+        for (int i = 0; i &lt; n; i++) {
+            indexMap[indices[i]] = s[i];
+        }
+        string result;
+        for (int i = 0; i &lt; n; i++) {
+            result += indexMap[i];
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @param {number[]} indices
+ * @return {string}
+ */
+var restoreString = function(s, indices) {
+    const n = s.length;
+    const indexMap = new Map();
+    for (let i = 0; i &lt; n; i++) {
+        indexMap.set(indices[i], s[i]);
+    }
+    let result = '';
+    for (let i = 0; i &lt; n; i++) {
+        result += indexMap.get(i);
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function restoreString(s: string, indices: number[]): string {
+    const n = s.length;
+    const indexMap = new Map<number, string>();
+    for (let i = 0; i &lt; n; i++) {
+        indexMap.set(indices[i], s[i]);
+    }
+    let result = '';
+    for (let i = 0; i &lt; n; i++) {
+        result += indexMap.get(i);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Two passes through the data
+- Space: O(n) - For the hash map
+- Notes: Similar efficiency to direct placement but with more overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Shuffle String Solutions","datePublished":"2024-12-26","description":"Given a string s and an integer array indices, shuffle the string so that the character at the ith position moves to indices[i] in the shuffled string.","keywords":"LeetCode, Shuffle String, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direct Array Placement approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the string, as we make a single pass through the string."}},{"@type":"Question","name":"What is the space complexity of Sorting with Pairs approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the pairs array before sorting."}},{"@type":"Question","name":"Which approach is most efficient for Shuffle String?","acceptedAnswer":{"@type":"Answer","text":"The Direct Array Placement approach is most efficient with O(n) time and O(n) space complexity."}},{"@type":"Question","name":"What is the time complexity of Using a Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as we make two passes through the data - one to build the map and one to construct the result."}}]}).replace(/</g,'\u003c')}
+</script>

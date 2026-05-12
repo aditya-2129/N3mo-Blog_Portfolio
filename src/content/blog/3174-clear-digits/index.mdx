@@ -1,0 +1,115 @@
+---
+title: "Clear Digits"
+summary: "Remove digits and their immediate left non-digit neighbors from a string until no digits remain."
+date: "Feb 19, 2024"
+tags:
+  - String
+  - Stack
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.70% | **Paid:** No
+> **Topics:** String, Stack, Simulation
+
+You are given a string s.
+
+You repeatedly perform the following operation on s:
+
+1. Find the leftmost digit in s.
+2. If there is a non-digit character immediately to the left of this digit, delete both the digit and the non-digit character.
+
+Return the resulting string after all operations are performed.
+
+- Examples
+- Constraints
+- [Stack Simulation](#stack-simulation)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "abc"
+Output: "abc"
+Explanation:
+There is no digit in the string.
+```
+
+**Example 2:**
+
+```text
+Input: s = "cb34"
+Output: ""
+Explanation:
+First operation: Remove '3' and 'b' -> "c4".
+Second operation: Remove '4' and 'c' -> "".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists only of lowercase English letters and digits.
+```
+
+---
+
+## Stack Simulation
+
+**Intuition**
+The problem requires removing a digit and the character immediately to its left. This "last in, first out" behavior (where the most recent non-digit character is removed by a new digit) maps perfectly to a stack data structure.
+
+**Steps**
+- Initialize an empty stack.
+- Iterate through each character in the string `s`.
+- If the character is a digit, pop the top element from the stack (removing the non-digit to the left).
+- If the character is not a digit, push it onto the stack.
+- After processing all characters, join the elements remaining in the stack to form the result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def clearDigits(self, s: str) -&gt; str:\n        stack = []\n        for char in s:\n            if char.isdigit():\n                if stack:\n                    stack.pop()\n            else:\n                stack.append(char)\n        return \"\".join(stack)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String clearDigits(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (Character.isDigit(c)) {\n                if (sb.length() &gt; 0) {\n                    sb.deleteCharAt(sb.length() - 1);\n                }\n            } else {\n                sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string clearDigits(string s) {\n        string res;\n        for (char c : s) {\n            if (isdigit(c)) {\n                if (!res.empty()) {\n                    res.pop_back();\n                }\n            } else {\n                res.push_back(c);\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    clearDigits(s) {\n        let stack = [];\n        for (let char of s) {\n            if (/\\d/.test(char)) {\n                if (stack.length &gt; 0) {\n                    stack.pop();\n                }\n            } else {\n                stack.push(char);\n            }\n        }\n        return stack.join(\"\");\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "function clearDigits(s: string): string {\n    let stack: string[] = [];\n    for (let char of s) {\n        if (/\\d/.test(char)) {\n            if (stack.length &gt; 0) {\n                stack.pop();\n            }\n        } else {\n            stack.push(char);\n        }\n    }\n    return stack.join(\"\");\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string once.
+- Space: O(n), to store the stack. In the worst case (no digits), the stack stores all characters.
+- Notes: Using a StringBuilder (Java) or string (C++) as a stack is more efficient than a generic Stack class.
+
+## Two Pointers
+
+**Intuition**
+We can simulate the stack behavior in-place using two pointers to avoid the extra space overhead of a separate stack structure. One pointer acts as the "write" head (top of the stack), and the other iterates through the input.
+
+**Steps**
+- Convert the string to a character array (if necessary for the language).
+- Initialize a pointer `write` to 0.
+- Iterate through the string with a pointer `read`.
+- If `s[read]` is a digit, decrement `write` (effectively popping the last valid character).
+- If `s[read]` is not a digit, assign `s[write] = s[read]` and increment `write`.
+- The result consists of characters from index 0 to `write - 1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def clearDigits(self, s: str) -&gt; str:\n        res = list(s)\n        write = 0\n        for read in range(len(s)):\n            if s[read].isdigit():\n                if write &gt; 0:\n                    write -= 1\n            else:\n                res[write] = s[read]\n                write += 1\n        return \"\".join(res[:write])\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String clearDigits(String s) {\n        char[] chars = s.toCharArray();\n        int write = 0;\n        for (int read = 0; read &lt; s.length(); read++) {\n            if (Character.isDigit(s.charAt(read))) {\n                if (write &gt; 0) {\n                    write--;\n                }\n            } else {\n                chars[write++] = s.charAt(read);\n            }\n        }\n        return new String(chars, 0, write);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string clearDigits(string s) {\n        int write = 0;\n        for (int read = 0; read &lt; s.size(); ++read) {\n            if (isdigit(s[read])) {\n                if (write &gt; 0) {\n                    write--;\n                }\n            } else {\n                s[write++] = s[read];\n            }\n        }\n        return s.substr(0, write);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    clearDigits(s) {\n        let res = s.split(\"\");\n        let write = 0;\n        for (let read = 0; read &lt; s.length; read++) {\n            if (/\\d/.test(s[read])) {\n                if (write &gt; 0) {\n                    write--;\n                }\n            } else {\n                res[write++] = s[read];\n            }\n        }\n        return res.slice(0, write).join(\"\");\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "function clearDigits(s: string): string {\n    let res = s.split(\"\");\n    let write = 0;\n    for (let read = 0; read &lt; s.length; read++) {\n        if (/\\d/.test(s[read])) {\n            if (write &gt; 0) {\n                write--;\n            }\n        } else {\n            res[write++] = s[read];\n        }\n    }\n    return res.slice(0, write).join(\"\");\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We pass through the string once.
+- Space: O(1) auxiliary space (excluding the input array storage), as we modify the array in-place.
+- Notes: This is the most space-efficient approach for mutable string types.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Clear Digits Solutions","datePublished":"2024-02-19","description":"Remove digits and their immediate left non-digit neighbors from a string until no digits remain.","keywords":"LeetCode, Clear Digits, Easy, String, Stack, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Stack Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we iterate through the string once."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, as we modify the character array in-place without using extra data structures proportional to the input size."}},{"@type":"Question","name":"Why is a stack suitable for this problem?","acceptedAnswer":{"@type":"Answer","text":"A stack is suitable because the operation requires removing the most recently added non-digit character when a digit is encountered, which follows the Last-In-First-Out (LIFO) principle."}}]}).replace(/</g,'\u003c')}
+</script>

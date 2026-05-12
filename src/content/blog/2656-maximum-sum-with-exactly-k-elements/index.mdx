@@ -1,0 +1,156 @@
+---
+title: "Maximum Sum With Exactly K Elements"
+summary: "Pick exactly K elements from an array, incrementing each by 1 after selection, to maximize the total sum."
+date: "May 09, 2024"
+tags:
+  - Array
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.60% | **Paid:** No
+> **Topics:** Array, Greedy
+
+You are given a 0-indexed integer array nums and an integer k. Your task is to perform the following operation exactly k times in order to maximize your score:
+
+1. Select an index i and add nums[i] to your score.
+2. Increment nums[i] by 1.
+
+Return the maximum score you can achieve.
+
+- Examples
+- Constraints
+- [Sorting and Greedy](#sorting-and-greedy)
+- [Max Heap (Priority Queue)](#max-heap-priority-queue)
+- [Mathematical Formula](#mathematical-formula)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,3,4,5], k = 3
+```
+
+**Output:**
+```text
+18
+```
+
+**Explanation:**
+We need to choose exactly 3 elements from nums to maximize the sum.
+For the first iteration, we choose 5. Then sum is 5 and nums = [1,2,3,4,6]
+For the second iteration, we choose 6. Then sum is 5 + 6 and nums = [1,2,3,4,7]
+For the third iteration, we choose 7. Then sum is 5 + 6 + 7 = 18 and nums = [1,2,3,4,8]
+So, we will return 18.
+It can be proven, that 18 is the maximum answer that we can achieve.
+
+### Example 2
+
+**Input:**
+```text
+nums = [5,5,5], k = 2
+```
+
+**Output:**
+```text
+11
+```
+
+**Explanation:**
+We need to choose exactly 2 elements from nums to maximize the sum.
+For the first iteration, we choose 5. Then sum is 5 and nums = [5,5,6]
+For the second iteration, we choose 6. Then sum is 5 + 6 = 11 and nums = [5,5,7]
+So, we will return 11.
+It can be proven, that 11 is the maximum answer that we can achieve.
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+1 <= k <= 100
+```
+
+---
+
+## Sorting and Greedy
+
+**Intuition**
+To maximize the sum, we should always pick the largest available element. After picking, we increment it by 1, which keeps it as a strong candidate for the next pick.
+
+**Steps**
+- Sort the array in ascending order
+- For each of k operations, pick the last (largest) element
+- Add it to the score and increment it by 1
+- The array remains sorted since we only increase the largest element
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximizeSum(self, nums: list[int], k: int) -&gt; int:\n        nums.sort()\n        score = 0\n        for _ in range(k):\n            score += nums[-1]\n            nums[-1] += 1\n        return score" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximizeSum(int[] nums, int k) {\n        Arrays.sort(nums);\n        int score = 0;\n        for (int i = 0; i &lt; k; i++) {\n            int n = nums.length;\n            score += nums[n - 1];\n            nums[n - 1]++;\n        }\n        return score;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximizeSum(vector&lt;int&gt;& nums, int k) {\n        sort(nums.begin(), nums.end());\n        int score = 0;\n        for (int i = 0; i &lt; k; i++) {\n            score += nums.back();\n            nums.back()++;\n        }\n        return score;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximizeSum(nums, k) {\n        nums.sort((a, b) =&gt; a - b);\n        let score = 0;\n        for (let i = 0; i &lt; k; i++) {\n            score += nums[nums.length - 1];\n            nums[nums.length - 1]++;\n        }\n        return score;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximizeSum(nums: number[], k: number): number {\n        nums.sort((a, b) =&gt; a - b);\n        let score = 0;\n        for (let i = 0; i &lt; k; i++) {\n            score += nums[nums.length - 1];\n            nums[nums.length - 1]++;\n        }\n        return score;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n + k) for sorting and k operations
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Simple and intuitive, but sorting is unnecessary overhead
+
+---
+
+## Max Heap (Priority Queue)
+
+**Intuition**
+Use a max heap to efficiently retrieve and update the maximum element in each operation without sorting the entire array.
+
+**Steps**
+- Build a max heap from all elements
+- For each of k operations, extract the maximum element
+- Add it to the score, increment by 1, and push back to heap
+- The heap maintains the maximum element at the top
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def maximizeSum(self, nums: list[int], k: int) -&gt; int:\n        # Python has min-heap, so negate values for max-heap\n        max_heap = [-x for x in nums]\n        heapq.heapify(max_heap)\n        score = 0\n        for _ in range(k):\n            val = -heapq.heappop(max_heap)\n            score += val\n            heapq.heappush(max_heap, -(val + 1))\n        return score" },
+{ name: "Java", lang: "java", code: "import java.util.PriorityQueue;\n\nclass Solution {\n    public int maximizeSum(int[] nums, int k) {\n        PriorityQueue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; b - a);\n        for (int num : nums) {\n            maxHeap.offer(num);\n        }\n        int score = 0;\n        for (int i = 0; i &lt; k; i++) {\n            int val = maxHeap.poll();\n            score += val;\n            maxHeap.offer(val + 1);\n        }\n        return score;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass Solution {\npublic:\n    int maximizeSum(vector&lt;int&gt;& nums, int k) {\n        priority_queue&lt;int&gt; maxHeap(nums.begin(), nums.end());\n        int score = 0;\n        for (int i = 0; i &lt; k; i++) {\n            int val = maxHeap.top();\n            maxHeap.pop();\n            score += val;\n            maxHeap.push(val + 1);\n        }\n        return score;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximizeSum(nums, k) {\n        // JavaScript doesn't have built-in heap, using array with sort\n        let maxHeap = [...nums];\n        maxHeap.sort((a, b) =&gt; b - a);\n        let score = 0;\n        for (let i = 0; i &lt; k; i++) {\n            let val = maxHeap.shift();\n            score += val;\n            // Insert back in sorted position\n            let inserted = false;\n            for (let j = 0; j &lt; maxHeap.length; j++) {\n                if (val + 1 &gt;= maxHeap[j]) {\n                    maxHeap.splice(j, 0, val + 1);\n                    inserted = true;\n                    break;\n                }\n            }\n            if (!inserted) maxHeap.push(val + 1);\n        }\n        return score;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximizeSum(nums: number[], k: number): number {\n        // TypeScript doesn't have built-in heap, using array with sort\n        let maxHeap = [...nums];\n        maxHeap.sort((a, b) =&gt; b - a);\n        let score = 0;\n        for (let i = 0; i &lt; k; i++) {\n            let val = maxHeap.shift()!;\n            score += val;\n            // Insert back in sorted position\n            let inserted = false;\n            for (let j = 0; j &lt; maxHeap.length; j++) {\n                if (val + 1 &gt;= maxHeap[j]) {\n                    maxHeap.splice(j, 0, val + 1);\n                    inserted = true;\n                    break;\n                }\n            }\n            if (!inserted) maxHeap.push(val + 1);\n        }\n        return score;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n + k log n) for heap construction and k operations
+- Space: O(n) for the heap
+- Notes: More efficient than sorting for large arrays with small k
+
+---
+
+## Mathematical Formula
+
+**Intuition**
+Since we always pick the maximum element and increment it, the sequence of picked values forms an arithmetic progression starting from the maximum element.
+
+**Steps**
+- Find the maximum element in the array
+- The k picked values will be: max, max+1, max+2, ..., max+k-1
+- Use arithmetic series formula: k × max + k × (k-1) / 2
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximizeSum(self, nums: list[int], k: int) -&gt; int:\n        max_val = max(nums)\n        return k * max_val + k * (k - 1) // 2" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximizeSum(int[] nums, int k) {\n        int maxVal = 0;\n        for (int num : nums) {\n            maxVal = Math.max(maxVal, num);\n        }\n        return k * maxVal + k * (k - 1) / 2;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximizeSum(vector&lt;int&gt;& nums, int k) {\n        int maxVal = *max_element(nums.begin(), nums.end());\n        return k * maxVal + k * (k - 1) / 2;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maximizeSum(nums, k) {\n        let maxVal = Math.max(...nums);\n        return k * maxVal + k * (k - 1) / 2;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maximizeSum(nums: number[], k: number): number {\n        let maxVal = Math.max(...nums);\n        return k * maxVal + k * (k - 1) / 2;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) to find the maximum element
+- Space: O(1) constant extra space
+- Notes: Optimal solution with minimal time and space complexity
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Sum With Exactly K Elements  Solutions","datePublished":"2024-05-09","description":"Pick exactly K elements from an array, incrementing each by 1 after selection, to maximize the total sum.","keywords":"LeetCode, Maximum Sum With Exactly K Elements , Easy, Array, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting and Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n + k) where n is the array length and k is the number of operations."}},{"@type":"Question","name":"What is the time complexity of the Max Heap approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + k log n) for heap construction and k extract/insert operations."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Formula approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) to find the maximum element, then O(1) to calculate the result using the arithmetic series formula."}},{"@type":"Question","name":"Which approach is the most optimal?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical Formula approach is optimal with O(n) time and O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

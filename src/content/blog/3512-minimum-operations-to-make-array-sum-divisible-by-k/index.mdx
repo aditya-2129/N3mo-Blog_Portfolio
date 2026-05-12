@@ -1,0 +1,142 @@
+---
+title: "Minimum Operations to Make Array Sum Divisible by K"
+summary: "Find the minimum number of elements to remove from an array so that the sum of the remaining elements is divisible by k."
+date: "Mar 01, 2025"
+tags:
+  - Array
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 92.30% | **Paid:** No
+> **Topics:** Array, Math
+
+You are given an array `nums` and an integer `k`. You can perform the following operation any number of times: Choose an element from `nums` and remove it. Return the minimum number of operations to make the sum of the remaining elements divisible by `k`.
+
+It is guaranteed that it is always possible to make the sum of the remaining elements divisible by `k`.
+
+- Examples
+- Constraints
+- [Dynamic Programming](#dynamic-programming)
+- [Brute Force](#brute-force)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [3,9,7], k = 5
+```
+
+**Output:**
+```text
+4
+```
+
+**Explanation:**
+Perform 4 operations on nums[1] = 9. Now, nums = [3, 5, 7].
+
+The sum is 15, which is divisible by 5.
+
+### Example 2
+
+**Input:**
+```text
+nums = [4,1,3], k = 4
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+The sum is 8, which is already divisible by 4. Hence, no operations are needed.
+
+### Example 3
+
+**Input:**
+```text
+nums = [3,2], k = 6
+```
+
+**Output:**
+```text
+5
+```
+
+**Explanation:**
+Perform 3 operations on nums[0] = 3 and 2 operations on nums[1] = 2. Now, nums = [0, 0].
+
+The sum is 0, which is divisible by 6.
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 1000
+- 1 <= nums[i] <= 1000
+- 1 <= k <= 100
+```
+
+---
+## Dynamic Programming
+
+**Intuition**
+We need to find the smallest subset of elements to remove such that the sum of the removed elements has a remainder equal to the total sum's remainder when divided by `k`. This is a variation of the 0/1 Knapsack problem where we minimize the count of items to achieve a specific remainder.
+
+**Steps**
+- Calculate the total sum of `nums` and the target remainder `target = total % k`.
+- If `target` is 0, return 0.
+- Initialize a DP array `dp` of size `k` with infinity, where `dp[r]` represents the minimum number of elements needed to achieve a sum with remainder `r`. Set `dp[0] = 0`.
+- Iterate through each number in `nums`. For each number, calculate its remainder `rem`.
+- Update the `dp` array in reverse order (from `k-1` down to `0`) to ensure each number is only used once. For each remainder `j`, update `dp[(j + rem) % k]` with `min(dp[(j + rem) % k], dp[j] + 1)`.
+- The answer will be `dp[target]`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minOperations(self, nums: list[int], k: int) -&gt; int:\n        total = sum(nums)\n        target = total % k\n        if target == 0:\n            return 0\n        \n        # dp[r] = min elements to achieve remainder r\n        dp = [float('inf')] * k\n        dp[0] = 0\n        \n        for num in nums:\n            rem = num % k\n            # Iterate backwards to avoid using the same element multiple times\n            for j in range(k - 1, -1, -1):\n                if dp[j] != float('inf'):\n                    new_rem = (j + rem) % k\n                    dp[new_rem] = min(dp[new_rem], dp[j] + 1)\n        \n        return dp[target]\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minOperations(int[] nums, int k) {\n        long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        int target = (int)(total % k);\n        if (target == 0) {\n            return 0;\n        }\n\n        // dp[r] = min elements to achieve remainder r\n        int[] dp = new int[k];\n        java.util.Arrays.fill(dp, Integer.MAX_VALUE);\n        dp[0] = 0;\n\n        for (int num : nums) {\n            int rem = num % k;\n            // Iterate backwards to avoid using the same element multiple times\n            for (int j = k - 1; j &gt;= 0; j--) {\n                if (dp[j] != Integer.MAX_VALUE) {\n                    int newRem = (j + rem) % k;\n                    dp[newRem] = Math.min(dp[newRem], dp[j] + 1);\n                }\n            }\n        }\n\n        return dp[target];\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minOperations(vector&lt;int&gt;& nums, int k) {\n        long long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        int target = total % k;\n        if (target == 0) {\n            return 0;\n        }\n\n        // dp[r] = min elements to achieve remainder r\n        vector&lt;int&gt; dp(k, INT_MAX);\n        dp[0] = 0;\n\n        for (int num : nums) {\n            int rem = num % k;\n            // Iterate backwards to avoid using the same element multiple times\n            for (int j = k - 1; j &gt;= 0; j--) {\n                if (dp[j] != INT_MAX) {\n                    int newRem = (j + rem) % k;\n                    dp[newRem] = min(dp[newRem], dp[j] + 1);\n                }\n            }\n        }\n\n        return dp[target];\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minOperations = function(nums, k) {\n    let total = 0;\n    for (let num of nums) {\n        total += num;\n    }\n    let target = total % k;\n    if (target === 0) {\n        return 0;\n    }\n\n    // dp[r] = min elements to achieve remainder r\n    let dp = new Array(k).fill(Infinity);\n    dp[0] = 0;\n\n    for (let num of nums) {\n        let rem = num % k;\n        // Iterate backwards to avoid using the same element multiple times\n        for (let j = k - 1; j &gt;= 0; j--) {\n            if (dp[j] !== Infinity) {\n                let newRem = (j + rem) % k;\n                dp[newRem] = Math.min(dp[newRem], dp[j] + 1);\n            }\n        }\n    }\n\n    return dp[target];\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minOperations(nums: number[], k: number): number {\n    let total = 0;\n    for (let num of nums) {\n        total += num;\n    }\n    let target = total % k;\n    if (target === 0) {\n        return 0;\n    }\n\n    // dp[r] = min elements to achieve remainder r\n    let dp = new Array(k).fill(Infinity);\n    dp[0] = 0;\n\n    for (let num of nums) {\n        let rem = num % k;\n        // Iterate backwards to avoid using the same element multiple times\n        for (let j = k - 1; j &gt;= 0; j--) {\n            if (dp[j] !== Infinity) {\n                let newRem = (j + rem) % k;\n                dp[newRem] = Math.min(dp[newRem], dp[j] + 1);\n            }\n        }\n    }\n\n    return dp[target];\n}\n" },]} />
+
+**Complexity**
+- Time: O(n * k)
+- Space: O(k)
+- Notes: Efficient for small values of k.
+
+---
+## Brute Force
+
+**Intuition**
+Since the constraints on the array length are small (n &lt;= 50), we can check every possible subset of elements to see if removing that subset results in a sum divisible by `k`. We iterate through all possible non-empty subsets using bitmasking.
+
+**Steps**
+- Calculate the total sum of `nums` and the target remainder `target = total % k`.
+- If `target` is 0, return 0.
+- Initialize `min_ops` to `n` (maximum possible operations).
+- Iterate through all bitmasks from `1` to `2ⁿ - 1`. Each bit in the mask represents whether an element is included in the subset to be removed.
+- For each mask, calculate the sum of the selected elements and the count of elements (number of set bits).
+- If `sum % k == target`, update `min_ops` with the minimum count found.
+- Return `min_ops`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minOperations(self, nums: list[int], k: int) -&gt; int:\n        total = sum(nums)\n        target = total % k\n        if target == 0:\n            return 0\n        \n        n = len(nums)\n        min_ops = n\n        \n        # Iterate through all possible non-empty subsets\n        for mask in range(1, 1 &lt;&lt; n):\n            current_sum = 0\n            count = 0\n            for i in range(n):\n                if mask & (1 &lt;&lt; i):\n                    current_sum += nums[i]\n                    count += 1\n            \n            if current_sum % k == target:\n                min_ops = min(min_ops, count)\n                \n        return min_ops\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minOperations(int[] nums, int k) {\n        long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        int target = (int)(total % k);\n        if (target == 0) {\n            return 0;\n        }\n\n        int n = nums.length;\n        int minOps = n;\n\n        // Iterate through all possible non-empty subsets\n        for (int mask = 1; mask &lt; (1 &lt;&lt; n); mask++) {\n            long currentSum = 0;\n            int count = 0;\n            for (int i = 0; i &lt; n; i++) {\n                if ((mask & (1 &lt;&lt; i)) != 0) {\n                    currentSum += nums[i];\n                    count++;\n                }\n            }\n\n            if (currentSum % k == target) {\n                minOps = Math.min(minOps, count);\n            }\n        }\n\n        return minOps;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minOperations(vector&lt;int&gt;& nums, int k) {\n        long long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        int target = total % k;\n        if (target == 0) {\n            return 0;\n        }\n\n        int n = nums.size();\n        int minOps = n;\n\n        // Iterate through all possible non-empty subsets\n        for (int mask = 1; mask &lt; (1 &lt;&lt; n); mask++) {\n            long long currentSum = 0;\n            int count = 0;\n            for (int i = 0; i &lt; n; i++) {\n                if ((mask & (1 &lt;&lt; i)) != 0) {\n                    currentSum += nums[i];\n                    count++;\n                }\n            }\n\n            if (currentSum % k == target) {\n                minOps = min(minOps, count);\n            }\n        }\n\n        return minOps;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var minOperations = function(nums, k) {\n    let total = 0;\n    for (let num of nums) {\n        total += num;\n    }\n    let target = total % k;\n    if (target === 0) {\n        return 0;\n    }\n\n    let n = nums.length;\n    let minOps = n;\n\n    // Iterate through all possible non-empty subsets\n    for (let mask = 1; mask &lt; (1 &lt;&lt; n); mask++) {\n        let currentSum = 0;\n        let count = 0;\n        for (let i = 0; i &lt; n; i++) {\n            if ((mask & (1 &lt;&lt; i)) !== 0) {\n                currentSum += nums[i];\n                count++;\n            }\n        }\n\n        if (currentSum % k === target) {\n            minOps = Math.min(minOps, count);\n        }\n    }\n\n    return minOps;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minOperations(nums: number[], k: number): number {\n    let total = 0;\n    for (let num of nums) {\n        total += num;\n    }\n    let target = total % k;\n    if (target === 0) {\n        return 0;\n    }\n\n    let n = nums.length;\n    let minOps = n;\n\n    // Iterate through all possible non-empty subsets\n    for (let mask = 1; mask &lt; (1 &lt;&lt; n); mask++) {\n        let currentSum = 0;\n        let count = 0;\n        for (let i = 0; i &lt; n; i++) {\n            if ((mask & (1 &lt;&lt; i)) !== 0) {\n                currentSum += nums[i];\n                count++;\n            }\n        }\n\n        if (currentSum % k === target) {\n            minOps = Math.min(minOps, count);\n        }\n    }\n\n    return minOps;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n * 2ⁿ)
+- Space: O(1)
+- Notes: Simple to implement but exponential time complexity. Only suitable for very small n.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Operations to Make Array Sum Divisible by K Solutions","datePublished":"2025-03-01","description":"Find the minimum number of elements to remove from an array so that the sum of the remaining elements is divisible by k.","keywords":"LeetCode, Minimum Operations to Make Array Sum Divisible by K, Easy, Array, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * k), where n is the number of elements in the array and k is the divisor."}},{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * 2^n), as we check all possible subsets of the array."}},{"@type":"Question","name":"Why do we iterate backwards in the DP array?","acceptedAnswer":{"@type":"Answer","text":"Iterating backwards ensures that each element is only used once (0/1 Knapsack property), preventing us from using the same element multiple times in the same subset calculation."}}]}).replace(/</g,'\u003c')}
+</script>

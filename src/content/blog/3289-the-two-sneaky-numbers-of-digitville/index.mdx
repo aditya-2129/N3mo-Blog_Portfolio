@@ -1,0 +1,611 @@
+---
+title: "The Two Sneaky Numbers of Digitville"
+summary: "Find the two numbers that appear twice in an array where all other numbers appear exactly once."
+date: "Nov 20, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Math
+
+In Digitville, there was a list of numbers from 0 to n - 1 where each number appeared exactly once. The whole list was then shuffled and two numbers were accidentally added twice, making the list length n + 1. Your task is to find and return the two numbers that appear twice in the list.
+
+Given an integer array nums of length n + 1 where 0 &lt;= nums[i] &lt; n, return the two numbers that appear twice in nums. You may return the answer in any order.
+
+- Examples
+- Constraints
+- [Hash Set Approach](#hash-set-approach)
+- [Sorting Approach](#sorting-approach)
+- [Mathematical Approach](#mathematical-approach)
+- [Bit Manipulation Approach](#bit-manipulation-approach)
+
+## Examples
+
+### Example 1:
+Input: nums = [0,1,1,0]
+Output: [0,1]
+
+### Example 2:
+Input: nums = [0,3,2,1,3,2]
+Output: [2,3]
+
+### Example 3:
+Input: nums = [7,1,5,4,3,6,0,2,2,7]
+Output: [2,7]
+
+## Constraints
+```text
+2 <= n <= 100
+nums.length == n + 1
+0 <= nums[i] < n
+The input is generated such that exactly two numbers appear twice and all other numbers appear exactly once.
+```
+
+---
+## Hash Set Approach
+
+**Intuition**
+Use a hash set to track numbers we've seen. When we encounter a number already in the set, it's a duplicate.
+
+**Steps**
+- Initialize an empty set and an empty result list
+- Iterate through each number in the array
+- If the number is already in the set, add it to the result
+- Otherwise, add the number to the set
+- Return the result when it has two elements
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        seen = set()
+        result = []
+        for num in nums:
+            if num in seen:
+                result.append(num)
+                if len(result) == 2:
+                    return result
+            seen.add(num)
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] getSneakyNumbers(int[] nums) {
+        Set<Integer> seen = new HashSet&lt;&gt;();
+        int[] result = new int[2];
+        int index = 0;
+        for (int num : nums) {
+            if (seen.contains(num)) {
+                result[index++] = num;
+                if (index == 2) {
+                    return result;
+                }
+            }
+            seen.add(num);
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> getSneakyNumbers(vector<int>& nums) {
+        unordered_set<int> seen;
+        vector<int> result;
+        for (int num : nums) {
+            if (seen.count(num)) {
+                result.push_back(num);
+                if (result.size() == 2) {
+                    return result;
+                }
+            }
+            seen.insert(num);
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var getSneakyNumbers = function(nums) {
+    const seen = new Set();
+    const result = [];
+    for (const num of nums) {
+        if (seen.has(num)) {
+            result.push(num);
+            if (result.length === 2) {
+                return result;
+            }
+        }
+        seen.add(num);
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function getSneakyNumbers(nums: number[]): number[] {
+    const seen = new Set<number>();
+    const result: number[] = [];
+    for (const num of nums) {
+        if (seen.has(num)) {
+            result.push(num);
+            if (result.length === 2) {
+                return result;
+            }
+        }
+        seen.add(num);
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Simple and intuitive, but uses extra space for the set.
+
+---
+## Sorting Approach
+
+**Intuition**
+Sort the array so that duplicates become adjacent. Then scan to find adjacent equal elements.
+
+**Steps**
+- Sort the array
+- Iterate through the array
+- If the current element equals the previous element, it's a duplicate
+- Add duplicates to the result
+- Return the result when it has two elements
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        nums.sort()
+        result = []
+        for i in range(1, len(nums)):
+            if nums[i] == nums[i-1]:
+                result.append(nums[i])
+                if len(result) == 2:
+                    return result
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int[] getSneakyNumbers(int[] nums) {
+        Arrays.sort(nums);
+        int[] result = new int[2];
+        int index = 0;
+        for (int i = 1; i &lt; nums.length; i++) {
+            if (nums[i] == nums[i-1]) {
+                result[index++] = nums[i];
+                if (index == 2) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    vector<int> getSneakyNumbers(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<int> result;
+        for (int i = 1; i &lt; nums.size(); i++) {
+            if (nums[i] == nums[i-1]) {
+                result.push_back(nums[i]);
+                if (result.size() == 2) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var getSneakyNumbers = function(nums) {
+    nums.sort((a, b) =&gt; a - b);
+    const result = [];
+    for (let i = 1; i &lt; nums.length; i++) {
+        if (nums[i] === nums[i-1]) {
+            result.push(nums[i]);
+            if (result.length === 2) {
+                return result;
+            }
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function getSneakyNumbers(nums: number[]): number[] {
+    nums.sort((a, b) =&gt; a - b);
+    const result: number[] = [];
+    for (let i = 1; i &lt; nums.length; i++) {
+        if (nums[i] === nums[i-1]) {
+            result.push(nums[i]);
+            if (result.length === 2) {
+                return result;
+            }
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting algorithm
+- Notes: No extra space needed (aside from sorting), but slower due to sorting.
+
+---
+## Mathematical Approach
+
+**Intuition**
+Use the sum and sum of squares to form equations and solve for the two duplicate numbers.
+
+**Steps**
+- Calculate the sum of all elements and the sum of squares of all elements
+- Calculate the expected sum and sum of squares for numbers 0 to n-2
+- Compute the differences to get a + b and a² + b²
+- Use these to find ab
+- Solve the quadratic equation to find a and b
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        n = len(nums) - 1
+        total = sum(nums)
+        total_sq = sum(x * x for x in nums)
+        
+        expected = (n - 2) * (n - 1) // 2
+        expected_sq = (n - 2) * (n - 1) * (2 * n - 3) // 6
+        
+        sum_diff = total - expected
+        sum_sq_diff = total_sq - expected_sq
+        
+        ab = (sum_diff * sum_diff - sum_sq_diff) // 2
+        
+        discriminant = sum_diff * sum_diff - 4 * ab
+        sqrt_discriminant = int(discriminant ** 0.5)
+        
+        a = (sum_diff + sqrt_discriminant) // 2
+        b = (sum_diff - sqrt_discriminant) // 2
+        
+        return [a, b]` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] getSneakyNumbers(int[] nums) {
+        int n = nums.length - 1;
+        long total = 0;
+        long totalSq = 0;
+        for (int num : nums) {
+            total += num;
+            totalSq += (long) num * num;
+        }
+        
+        long expected = (long) (n - 2) * (n - 1) / 2;
+        long expectedSq = (long) (n - 2) * (n - 1) * (2 * n - 3) / 6;
+        
+        long sumDiff = total - expected;
+        long sumSqDiff = totalSq - expectedSq;
+        
+        long ab = (sumDiff * sumDiff - sumSqDiff) / 2;
+        
+        long discriminant = sumDiff * sumDiff - 4 * ab;
+        long sqrtDiscriminant = (long) Math.sqrt(discriminant);
+        
+        int a = (int) ((sumDiff + sqrtDiscriminant) / 2);
+        int b = (int) ((sumDiff - sqrtDiscriminant) / 2);
+        
+        return new int[]{a, b};
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <cmath>
+
+class Solution {
+public:
+    vector<int> getSneakyNumbers(vector<int>& nums) {
+        int n = nums.size() - 1;
+        long long total = 0;
+        long long totalSq = 0;
+        for (int num : nums) {
+            total += num;
+            totalSq += (long long) num * num;
+        }
+        
+        long long expected = (long long) (n - 2) * (n - 1) / 2;
+        long long expectedSq = (long long) (n - 2) * (n - 1) * (2 * n - 3) / 6;
+        
+        long long sumDiff = total - expected;
+        long long sumSqDiff = totalSq - expectedSq;
+        
+        long long ab = (sumDiff * sumDiff - sumSqDiff) / 2;
+        
+        long long discriminant = sumDiff * sumDiff - 4 * ab;
+        long long sqrtDiscriminant = (long long) sqrt(discriminant);
+        
+        int a = (int) ((sumDiff + sqrtDiscriminant) / 2);
+        int b = (int) ((sumDiff - sqrtDiscriminant) / 2);
+        
+        return {a, b};
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var getSneakyNumbers = function(nums) {
+    const n = nums.length - 1;
+    let total = 0;
+    let totalSq = 0;
+    for (const num of nums) {
+        total += num;
+        totalSq += num * num;
+    }
+    
+    const expected = (n - 2) * (n - 1) / 2;
+    const expectedSq = (n - 2) * (n - 1) * (2 * n - 3) / 6;
+    
+    const sumDiff = total - expected;
+    const sumSqDiff = totalSq - expectedSq;
+    
+    const ab = (sumDiff * sumDiff - sumSqDiff) / 2;
+    
+    const discriminant = sumDiff * sumDiff - 4 * ab;
+    const sqrtDiscriminant = Math.sqrt(discriminant);
+    
+    const a = (sumDiff + sqrtDiscriminant) / 2;
+    const b = (sumDiff - sqrtDiscriminant) / 2;
+    
+    return [a, b];
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function getSneakyNumbers(nums: number[]): number[] {
+    const n = nums.length - 1;
+    let total = 0;
+    let totalSq = 0;
+    for (const num of nums) {
+        total += num;
+        totalSq += num * num;
+    }
+    
+    const expected = (n - 2) * (n - 1) / 2;
+    const expectedSq = (n - 2) * (n - 1) * (2 * n - 3) / 6;
+    
+    const sumDiff = total - expected;
+    const sumSqDiff = totalSq - expectedSq;
+    
+    const ab = (sumDiff * sumDiff - sumSqDiff) / 2;
+    
+    const discriminant = sumDiff * sumDiff - 4 * ab;
+    const sqrtDiscriminant = Math.sqrt(discriminant);
+    
+    const a = (sumDiff + sqrtDiscriminant) / 2;
+    const b = (sumDiff - sqrtDiscriminant) / 2;
+    
+    return [a, b];
+}` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Constant space, but requires careful handling of large numbers to avoid overflow.
+
+---
+## Bit Manipulation Approach
+
+**Intuition**
+Use XOR properties to find the two duplicate numbers without extra space.
+
+**Steps**
+- XOR all elements in the array to get XOR of (0 to n-2) except a and b
+- XOR this with XOR of 0 to n-2 to get a XOR b
+- Find a set bit in a XOR b
+- Compute XOR of all numbers from 0 to n-2 with that bit set
+- Compute XOR of all elements in the array with that bit set
+- XOR these two results to get one of the duplicate numbers
+- XOR with a XOR b to get the other duplicate number
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        n = len(nums) - 1
+        
+        xor_array = 0
+        for num in nums:
+            xor_array ^= num
+        
+        xor_range = 0
+        for i in range(n - 1):
+            xor_range ^= i
+        
+        xor_ab = xor_array ^ xor_range
+        
+        rightmost_bit = xor_ab & -xor_ab
+        
+        xor_range_bit = 0
+        for i in range(n - 1):
+            if i & rightmost_bit:
+                xor_range_bit ^= i
+        
+        xor_array_bit = 0
+        for num in nums:
+            if num & rightmost_bit:
+                xor_array_bit ^= num
+        
+        a = xor_range_bit ^ xor_array_bit
+        b = a ^ xor_ab
+        
+        return [a, b]` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] getSneakyNumbers(int[] nums) {
+        int n = nums.length - 1;
+        
+        int xorArray = 0;
+        for (int num : nums) {
+            xorArray ^= num;
+        }
+        
+        int xorRange = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            xorRange ^= i;
+        }
+        
+        int xorAb = xorArray ^ xorRange;
+        
+        int rightmostBit = xorAb & -xorAb;
+        
+        int xorRangeBit = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            if ((i & rightmostBit) != 0) {
+                xorRangeBit ^= i;
+            }
+        }
+        
+        int xorArrayBit = 0;
+        for (int num : nums) {
+            if ((num & rightmostBit) != 0) {
+                xorArrayBit ^= num;
+            }
+        }
+        
+        int a = xorRangeBit ^ xorArrayBit;
+        int b = a ^ xorAb;
+        
+        return new int[]{a, b};
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> getSneakyNumbers(vector<int>& nums) {
+        int n = nums.size() - 1;
+        
+        int xorArray = 0;
+        for (int num : nums) {
+            xorArray ^= num;
+        }
+        
+        int xorRange = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            xorRange ^= i;
+        }
+        
+        int xorAb = xorArray ^ xorRange;
+        
+        int rightmostBit = xorAb & -xorAb;
+        
+        int xorRangeBit = 0;
+        for (int i = 0; i &lt; n - 1; i++) {
+            if (i & rightmostBit) {
+                xorRangeBit ^= i;
+            }
+        }
+        
+        int xorArrayBit = 0;
+        for (int num : nums) {
+            if (num & rightmostBit) {
+                xorArrayBit ^= num;
+            }
+        }
+        
+        int a = xorRangeBit ^ xorArrayBit;
+        int b = a ^ xorAb;
+        
+        return {a, b};
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var getSneakyNumbers = function(nums) {
+    const n = nums.length - 1;
+    
+    let xorArray = 0;
+    for (const num of nums) {
+        xorArray ^= num;
+    }
+    
+    let xorRange = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        xorRange ^= i;
+    }
+    
+    const xorAb = xorArray ^ xorRange;
+    
+    const rightmostBit = xorAb & -xorAb;
+    
+    let xorRangeBit = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        if (i & rightmostBit) {
+            xorRangeBit ^= i;
+        }
+    }
+    
+    let xorArrayBit = 0;
+    for (const num of nums) {
+        if (num & rightmostBit) {
+            xorArrayBit ^= num;
+        }
+    }
+    
+    const a = xorRangeBit ^ xorArrayBit;
+    const b = a ^ xorAb;
+    
+    return [a, b];
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function getSneakyNumbers(nums: number[]): number[] {
+    const n = nums.length - 1;
+    
+    let xorArray = 0;
+    for (const num of nums) {
+        xorArray ^= num;
+    }
+    
+    let xorRange = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        xorRange ^= i;
+    }
+    
+    const xorAb = xorArray ^ xorRange;
+    
+    const rightmostBit = xorAb & -xorAb;
+    
+    let xorRangeBit = 0;
+    for (let i = 0; i &lt; n - 1; i++) {
+        if (i & rightmostBit) {
+            xorRangeBit ^= i;
+        }
+    }
+    
+    let xorArrayBit = 0;
+    for (const num of nums) {
+        if (num & rightmostBit) {
+            xorArrayBit ^= num;
+        }
+    }
+    
+    const a = xorRangeBit ^ xorArrayBit;
+    const b = a ^ xorAb;
+    
+    return [a, b];
+}` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Constant space and efficient, but more complex to understand and implement.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode The Two Sneaky Numbers of Digitville Solutions","datePublished":"2024-11-20","description":"Find the two numbers that appear twice in an array where all other numbers appear exactly once.","keywords":"LeetCode, The Two Sneaky Numbers of Digitville, Easy, Array, Hash Table, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach has O(n) time complexity and O(n) space complexity."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting approach has O(n log n) time complexity and O(1) or O(n) space complexity depending on the sorting algorithm."}},{"@type":"Question","name":"What is the time complexity of the Mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical approach has O(n) time complexity and O(1) space complexity."}},{"@type":"Question","name":"What is the time complexity of the Bit Manipulation approach?","acceptedAnswer":{"@type":"Answer","text":"The Bit Manipulation approach has O(n) time complexity and O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

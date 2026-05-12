@@ -1,0 +1,143 @@
+---
+title: "Check if Number Has Equal Digit Count and Digit Value"
+summary: "Determine if a string of digits is valid where the digit at index i equals the count of digit i in the string."
+date: "Mar 17, 2024"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.20% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+You are given a 0-indexed string num of length n consisting of digits.
+
+Return true if for every index i, the digit at index i of num (i.e., num[i]) equals the count of occurrences of digit i in num.
+
+Otherwise return false.
+
+- Examples
+- Constraints
+- [Approach 1: Frequency Array](#approach-1-frequency-array)
+- [Approach 2: Hash Map](#approach-2-hash-map)
+- [Approach 3: Brute Force](#approach-3-brute-force)
+
+## Examples
+
+Example 1:
+```text
+Input: num = "1210"
+Output: true
+Explanation:
+num[0] = '1'. The digit 0 occurs 1 time in num.
+num[1] = '2'. The digit 1 occurs 2 times in num.
+num[2] = '1'. The digit 2 occurs 1 time in num.
+num[3] = '0'. The digit 3 occurs 0 times in num.
+The condition holds true for every index in "1210", so return true.
+```
+
+Example 2:
+```text
+Input: num = "030"
+Output: false
+Explanation:
+num[0] = '0'. The digit 0 occurs 2 times in num.
+num[1] = '3'. The digit 1 occurs 0 times in num.
+num[2] = '0'. The digit 2 occurs 0 times in num.
+The indices 1 and 2 do not hold the condition, so return false.
+```
+
+## Constraints
+
+```text
+n == num.length
+1 <= n <= 10
+num consists of digits.
+```
+
+---
+## Approach 1: Frequency Array
+
+**Intuition**
+Since the input string consists only of digits (0-9), we can use a fixed-size array of length 10 to count the frequency of each digit. We then iterate through the string to verify if the count matches the digit at each index.
+
+**Steps**
+- Initialize an integer array count of size 10 with all zeros.
+- Iterate through the string num. For each character, convert it to an integer and increment the corresponding index in the count array.
+- Iterate through the string num again using an index i. Convert the character at i to an integer val.
+- Check if count[i] is equal to val. If not, return false.
+- If the loop completes without returning false, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def digitCount(self, num: str) -&gt; bool:\n        count = [0] * 10\n        for c in num:\n            count[int(c)] += 1\n        for i, c in enumerate(num):\n            if count[i] != int(c):\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean digitCount(String num) {\n        int[] count = new int[10];\n        for (int i = 0; i &lt; num.length(); i++) {\n            int digit = num.charAt(i) - '0';\n            count[digit]++;\n        }\n        for (int i = 0; i &lt; num.length(); i++) {\n            int digit = num.charAt(i) - '0';\n            if (count[i] != digit) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool digitCount(string num) {\n        int count[10] = {0};\n        for (char c : num) {\n            count[c - '0']++;\n        }\n        for (int i = 0; i &lt; num.size(); i++) {\n            if (count[i] != num[i] - '0') {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} num\n * @return {boolean}\n */\nvar digitCount = function(num) {\n    let count = new Array(10).fill(0);\n    for (let i = 0; i &lt; num.length; i++) {\n        let digit = parseInt(num[i]);\n        count[digit]++;\n    }\n    for (let i = 0; i &lt; num.length; i++) {\n        let digit = parseInt(num[i]);\n        if (count[i] !== digit) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function digitCount(num: string): boolean {\n    let count: number[] = new Array(10).fill(0);\n    for (let i = 0; i &lt; num.length; i++) {\n        let digit = parseInt(num[i]);\n        count[digit]++;\n    }\n    for (let i = 0; i &lt; num.length; i++) {\n        let digit = parseInt(num[i]);\n        if (count[i] !== digit) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string twice.
+- Space: O(1), as the count array size is fixed at 10 regardless of input size.
+- Notes: This is the most efficient approach for this specific problem due to the limited range of digits.
+
+---
+## Approach 2: Hash Map
+
+**Intuition**
+We can use a hash map (or dictionary) to store the frequency of each digit found in the string. This is functionally similar to the frequency array but uses a dynamic data structure.
+
+**Steps**
+- Create an empty hash map.
+- Iterate through the string num. For each character, update its count in the hash map.
+- Iterate through the string num again with index i. Convert the character at i to an integer val.
+- Check if the hash map contains key i and if its value equals val. If i is not in the map, the count is implicitly 0.
+- If any check fails, return false. Otherwise, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def digitCount(self, num: str) -&gt; bool:\n        freq = {}\n        for c in num:\n            freq[c] = freq.get(c, 0) + 1\n        for i, c in enumerate(num):\n            if freq.get(str(i), 0) != int(c):\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean digitCount(String num) {\n        Map&lt;Character, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; num.length(); i++) {\n            char c = num.charAt(i);\n            freq.put(c, freq.getOrDefault(c, 0) + 1);\n        }\n        for (int i = 0; i &lt; num.length(); i++) {\n            char key = (char) ('0' + i);\n            int count = freq.getOrDefault(key, 0);\n            int val = num.charAt(i) - '0';\n            if (count != val) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool digitCount(string num) {\n        unordered_map&lt;char, int&gt; freq;\n        for (char c : num) {\n            freq[c]++;\n        }\n        for (int i = 0; i &lt; num.size(); i++) {\n            char key = '0' + i;\n            if (freq[key] != num[i] - '0') {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} num\n * @return {boolean}\n */\nvar digitCount = function(num) {\n    let freq = new Map();\n    for (let i = 0; i &lt; num.length; i++) {\n        let c = num[i];\n        freq.set(c, (freq.get(c) || 0) + 1);\n    }\n    for (let i = 0; i &lt; num.length; i++) {\n        let key = i.toString();\n        let count = freq.get(key) || 0;\n        let val = parseInt(num[i]);\n        if (count !== val) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function digitCount(num: string): boolean {\n    let freq = new Map&lt;string, number&gt;();\n    for (let i = 0; i &lt; num.length; i++) {\n        let c = num[i];\n        freq.set(c, (freq.get(c) || 0) + 1);\n    }\n    for (let i = 0; i &lt; num.length; i++) {\n        let key = i.toString();\n        let count = freq.get(key) || 0;\n        let val = parseInt(num[i]);\n        if (count !== val) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string.
+- Space: O(1), because the map will store at most 10 entries (digits 0-9).
+- Notes: Slightly higher constant overhead than the array approach due to hashing, but logically equivalent.
+
+---
+## Approach 3: Brute Force
+
+**Intuition**
+For each index i in the string, we can manually count how many times the digit i appears in the entire string and compare it with the value at num[i].
+
+**Steps**
+- Iterate through the string num with index i.
+- Initialize a counter to 0.
+- Iterate through the string num again with an inner loop.
+- If the character in the inner loop equals the string representation of i, increment the counter.
+- After the inner loop, compare the counter with the integer value of num[i].
+- If they are not equal, return false.
+- If the outer loop finishes, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def digitCount(self, num: str) -&gt; bool:\n        n = len(num)\n        for i in range(n):\n            count = 0\n            target = str(i)\n            for c in num:\n                if c == target:\n                    count += 1\n            if count != int(num[i]):\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean digitCount(String num) {\n        int n = num.length();\n        for (int i = 0; i &lt; n; i++) {\n            int count = 0;\n            char target = (char) ('0' + i);\n            for (int j = 0; j &lt; n; j++) {\n                if (num.charAt(j) == target) {\n                    count++;\n                }\n            }\n            if (count != num.charAt(i) - '0') {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool digitCount(string num) {\n        int n = num.size();\n        for (int i = 0; i &lt; n; i++) {\n            int count = 0;\n            char target = '0' + i;\n            for (char c : num) {\n                if (c == target) {\n                    count++;\n                }\n            }\n            if (count != num[i] - '0') {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} num\n * @return {boolean}\n */\nvar digitCount = function(num) {\n    let n = num.length;\n    for (let i = 0; i &lt; n; i++) {\n        let count = 0;\n        let target = i.toString();\n        for (let j = 0; j &lt; n; j++) {\n            if (num[j] === target) {\n                count++;\n            }\n        }\n        if (count !== parseInt(num[i])) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function digitCount(num: string): boolean {\n    let n = num.length;\n    for (let i = 0; i &lt; n; i++) {\n        let count = 0;\n        let target = i.toString();\n        for (let j = 0; j &lt; n; j++) {\n            if (num[j] === target) {\n                count++;\n            }\n        }\n        if (count !== parseInt(num[i])) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(n²), where n is the length of the string. For each index, we traverse the whole string.
+- Space: O(1), no extra space is used apart from variables.
+- Notes: Given the constraint n &lt;= 10, this approach is perfectly acceptable and runs very fast in practice, though it scales poorly for larger n.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Number Has Equal Digit Count and Digit Value Solutions","datePublished":"2024-03-17","description":"Determine if a string of digits is valid where the digit at index i equals the count of digit i in the string.","keywords":"LeetCode, Check if Number Has Equal Digit Count and Digit Value, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Frequency Array approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as the map stores at most 10 entries for digits 0-9."}},{"@type":"Question","name":"Is the Brute Force approach efficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²). While inefficient for large inputs, it is acceptable here because the constraint n &lt;= 10 is very small."}}]}).replace(/</g,'\u003c')}
+</script>

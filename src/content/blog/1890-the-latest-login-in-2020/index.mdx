@@ -1,0 +1,153 @@
+---
+title: "The Latest Login in 2020"
+summary: "Find the latest login timestamp for each user in the year 2020 from the Logins table."
+date: "Jan 24, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.00% | **Paid:** No
+> **Topics:** Database
+
+Table: Logins
+
++----------------+----------+
+| Column Name    | Type     |
++----------------+----------+
+| user_id        | int      |
+| time_stamp     | datetime |
++----------------+----------+
+(user_id, time_stamp) is the primary key for this table.
+Each row contains information about the login time for a user with ID user_id.
+
+Write an SQL query to report the latest login for each user in the year 2020. Do not return the user who has not logged in 2020.
+
+The result can be returned in any order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Using MAX and GROUP BY](#approach-1-using-max-and-group-by)
+- [Approach 2: Using Window Functions](#approach-2-using-window-functions)
+- [Approach 3: Using Subquery](#approach-3-using-subquery)
+
+## Examples
+
+Example 1:
+
+Input:
+Logins table:
++---------+---------------------+
+| user_id | time_stamp          |
++---------+---------------------+
+| 6       | 2020-06-30 15:06:07 |
+| 6       | 2021-04-21 14:06:06 |
+| 6       | 2019-03-07 00:18:15 |
+| 8       | 2020-02-01 01:19:47 |
+| 8       | 2020-12-30 15:04:50 |
+| 2       | 2020-01-16 02:08:24 |
+| 2       | 2020-12-09 11:52:24 |
+| 14      | 2019-07-14 23:59:59 |
+| 14      | 2020-07-14 23:59:59 |
++---------+---------------------+
+
+Output:
++---------+---------------------+
+| user_id | last_stamp          |
++---------+---------------------+
+| 6       | 2020-06-30 15:06:07 |
+| 8       | 2020-12-30 15:04:50 |
+| 2       | 2020-12-09 11:52:24 |
+| 14      | 2020-07-14 23:59:59 |
++---------+---------------------+
+
+Explanation:
+- User 6 logged in at 2020-06-30 15:06:07, which is the only login in 2020.
+- User 8 logged in at 2020-02-01 01:19:47 and 2020-12-30 15:04:50. The latest login is at 2020-12-30 15:04:50.
+- User 2 logged in at 2020-01-16 02:08:24 and 2020-12-09 11:52:24. The latest login is at 2020-12-09 11:52:24.
+- User 14 logged in at 2020-07-14 23:59:59, which is the only login in 2020.
+
+## Constraints
+
+```text
+1 <= user_id <= 1000
+```
+
+---
+## Approach 1: Using MAX and GROUP BY
+
+**Intuition**
+Group the logins by user and find the maximum timestamp for each user in 2020 using aggregation.
+
+**Steps**
+- Filter logins for the year 2020 using WHERE clause
+- Group by user_id using GROUP BY
+- Find the maximum time_stamp for each group using MAX function
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef latest_logins(logins: pd.DataFrame) -&gt; pd.DataFrame:\n    logins['year'] = pd.to_datetime(logins['time_stamp']).dt.year\n    result = logins[logins['year'] == 2020].groupby('user_id')['time_stamp'].max().reset_index()\n    result = result.rename(columns={'time_stamp': 'last_stamp'})\n    return result[['user_id', 'last_stamp']]" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public List&lt;List&lt;String&gt;&gt; latestLogins(Connection conn) throws SQLException {\n        String sql = \"SELECT user_id, MAX(time_stamp) AS last_stamp \" +\n                     \"FROM Logins \" +\n                     \"WHERE YEAR(time_stamp) = '2020' \" +\n                     \"GROUP BY user_id\";\n        \n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(sql);\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        while (rs.next()) {\n            List&lt;String&gt; row = new ArrayList&lt;&gt;();\n            row.add(String.valueOf(rs.getInt(\"user_id\")));\n            row.add(rs.getString(\"last_stamp\"));\n            result.add(row);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; latestLogins(vector&lt;vector&lt;string&gt;&gt;& logins) {\n        map&lt;int, string&gt; latest;\n        \n        for (auto& row : logins) {\n            int userId = stoi(row[0]);\n            string timestamp = row[1];\n            \n            int year = stoi(timestamp.substr(0, 4));\n            \n            if (year == 2020) {\n                if (latest.find(userId) == latest.end() || timestamp &gt; latest[userId]) {\n                    latest[userId] = timestamp;\n                }\n            }\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (auto& [userId, timestamp] : latest) {\n            result.push_back({to_string(userId), timestamp});\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array<Array<string>&gt;} logins\n * @return {Array<Array<string>&gt;}\n */\nfunction latestLogins(logins) {\n    const latest = new Map();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!latest.has(userId) || timestamp &gt; latest.get(userId)) {\n                latest.set(userId, timestamp);\n            }\n        }\n    }\n    \n    const result = [];\n    for (const [userId, timestamp] of latest) {\n        result.push([userId, timestamp]);\n    }\n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Login = [string, string];\n\nfunction latestLogins(logins: Login[][]): Login[] {\n    const latest = new Map&lt;string, string&gt;();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!latest.has(userId) || timestamp &gt; latest.get(userId)!) {\n                latest.set(userId, timestamp);\n            }\n        }\n    }\n    \n    const result: Login[] = [];\n    for (const [userId, timestamp] of latest) {\n        result.push([userId, timestamp]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of login records
+- Space: O(k) where k is the number of unique users who logged in 2020
+- Notes: Simple and efficient approach using aggregation
+
+---
+## Approach 2: Using Window Functions
+
+**Intuition**
+Use window functions to rank logins by timestamp for each user and select the latest one.
+
+**Steps**
+- Filter logins for the year 2020
+- Use ROW_NUMBER() to rank logins by timestamp in descending order for each user
+- Select only the rows with rank 1 (latest login)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef latest_logins(logins: pd.DataFrame) -&gt; pd.DataFrame:\n    logins['year'] = pd.to_datetime(logins['time_stamp']).dt.year\n    logins_2020 = logins[logins['year'] == 2020].copy()\n    logins_2020['rank'] = logins_2020.groupby('user_id')['time_stamp'].rank(method='first', ascending=False)\n    result = logins_2020[logins_2020['rank'] == 1][['user_id', 'time_stamp']]\n    result = result.rename(columns={'time_stamp': 'last_stamp'})\n    return result.reset_index(drop=True)" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public List&lt;List&lt;String&gt;&gt; latestLogins(Connection conn) throws SQLException {\n        String sql = \"SELECT user_id, time_stamp AS last_stamp \" +\n                     \"FROM (\" +\n                     \"  SELECT user_id, time_stamp, \" +\n                     \"         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY time_stamp DESC) AS rn \" +\n                     \"  FROM Logins \" +\n                     \"  WHERE YEAR(time_stamp) = '2020'\" +\n                     \") ranked \" +\n                     \"WHERE rn = 1\";\n        \n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(sql);\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        while (rs.next()) {\n            List&lt;String&gt; row = new ArrayList&lt;&gt;();\n            row.add(String.valueOf(rs.getInt(\"user_id\")));\n            row.add(rs.getString(\"last_stamp\"));\n            result.add(row);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; latestLogins(vector&lt;vector&lt;string&gt;&gt;& logins) {\n        map&lt;int, vector&lt;string&gt;&gt; userLogins;\n        \n        for (auto& row : logins) {\n            int userId = stoi(row[0]);\n            string timestamp = row[1];\n            \n            int year = stoi(timestamp.substr(0, 4));\n            \n            if (year == 2020) {\n                userLogins[userId].push_back(timestamp);\n            }\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (auto& [userId, timestamps] : userLogins) {\n            auto it = max_element(timestamps.begin(), timestamps.end());\n            result.push_back({to_string(userId), *it});\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&lt;string&gt;&gt;} logins\n * @return {Array&lt;Array&lt;string&gt;&gt;}\n */\nfunction latestLogins(logins) {\n    const userLogins = new Map();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!userLogins.has(userId)) {\n                userLogins.set(userId, []);\n            }\n            userLogins.get(userId).push(timestamp);\n        }\n    }\n    \n    const result = [];\n    for (const [userId, timestamps] of userLogins) {\n        const latest = timestamps.reduce((a, b) =&gt; a &gt; b ? a : b);\n        result.push([userId, latest]);\n    }\n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Login = [string, string];\n\nfunction latestLogins(logins: Login[][]): Login[] {\n    const userLogins = new Map&lt;string, string[]&gt;();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!userLogins.has(userId)) {\n                userLogins.set(userId, []);\n            }\n            userLogins.get(userId)!.push(timestamp);\n        }\n    }\n    \n    const result: Login[] = [];\n    for (const [userId, timestamps] of userLogins) {\n        const latest = timestamps.reduce((a, b) =&gt; a &gt; b ? a : b);\n        result.push([userId, latest]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting within each partition
+- Space: O(n) for storing ranked results
+- Notes: Window functions provide flexibility for more complex ranking requirements
+
+---
+## Approach 3: Using Subquery
+
+**Intuition**
+Find the latest login for each user by comparing each login with the maximum timestamp for that user in 2020.
+
+**Steps**
+- Filter logins for the year 2020
+- For each login, check if its timestamp equals the maximum timestamp for that user
+- Return only the matching records
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef latest_logins(logins: pd.DataFrame) -&gt; pd.DataFrame:\n    logins['year'] = pd.to_datetime(logins['time_stamp']).dt.year\n    logins_2020 = logins[logins['year'] == 2020].copy()\n    \n    max_timestamps = logins_2020.groupby('user_id')['time_stamp'].max().reset_index()\n    max_timestamps.columns = ['user_id', 'max_stamp']\n    \n    result = pd.merge(logins_2020, max_timestamps, on='user_id')\n    result = result[result['time_stamp'] == result['max_stamp']][['user_id', 'time_stamp']]\n    result = result.rename(columns={'time_stamp': 'last_stamp'})\n    return result.reset_index(drop=True)" },
+{ name: "Java", lang: "java", code: "import java.sql.*;\nimport java.util.*;\n\npublic class Solution {\n    public List&lt;List&lt;String&gt;&gt; latestLogins(Connection conn) throws SQLException {\n        String sql = \"SELECT user_id, time_stamp AS last_stamp \" +\n                     \"FROM Logins l1 \" +\n                     \"WHERE YEAR(time_stamp) = '2020' \" +\n                     \"AND time_stamp = (\" +\n                     \"  SELECT MAX(time_stamp) \" +\n                     \"  FROM Logins l2 \" +\n                     \"  WHERE l2.user_id = l1.user_id \" +\n                     \"  AND YEAR(l2.time_stamp) = '2020'\" +\n                     \")\";\n        \n        Statement stmt = conn.createStatement();\n        ResultSet rs = stmt.executeQuery(sql);\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        while (rs.next()) {\n            List&lt;String&gt; row = new ArrayList&lt;&gt;();\n            row.add(String.valueOf(rs.getInt(\"user_id\")));\n            row.add(rs.getString(\"last_stamp\"));\n            result.add(row);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; latestLogins(vector&lt;vector&lt;string&gt;&gt;& logins) {\n        unordered_map&lt;int, string&gt; maxTimestamp;\n        \n        for (auto& row : logins) {\n            int userId = stoi(row[0]);\n            string timestamp = row[1];\n            \n            int year = stoi(timestamp.substr(0, 4));\n            \n            if (year == 2020) {\n                if (maxTimestamp.find(userId) == maxTimestamp.end() || timestamp &gt; maxTimestamp[userId]) {\n                    maxTimestamp[userId] = timestamp;\n                }\n            }\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (auto& [userId, timestamp] : maxTimestamp) {\n            result.push_back({to_string(userId), timestamp});\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&lt;string&gt;&gt;} logins\n * @return {Array&lt;Array&lt;string&gt;&gt;}\n */\nfunction latestLogins(logins) {\n    const maxTimestamp = new Map();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!maxTimestamp.has(userId) || timestamp &gt; maxTimestamp.get(userId)) {\n                maxTimestamp.set(userId, timestamp);\n            }\n        }\n    }\n    \n    const result = [];\n    for (const [userId, timestamp] of maxTimestamp) {\n        result.push([userId, timestamp]);\n    }\n    return result;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "type Login = [string, string];\n\nfunction latestLogins(logins: Login[][]): Login[] {\n    const maxTimestamp = new Map&lt;string, string&gt;();\n    \n    for (const [userId, timestamp] of logins) {\n        const year = parseInt(timestamp.substring(0, 4));\n        \n        if (year === 2020) {\n            if (!maxTimestamp.has(userId) || timestamp &gt; maxTimestamp.get(userId)!) {\n                maxTimestamp.set(userId, timestamp);\n            }\n        }\n    }\n    \n    const result: Login[] = [];\n    for (const [userId, timestamp] of maxTimestamp) {\n        result.push([userId, timestamp]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) for two passes through the data
+- Space: O(k) where k is the number of unique users who logged in 2020
+- Notes: More verbose but demonstrates the subquery pattern useful for complex conditions
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode The Latest Login in 2020 Solutions","datePublished":"2025-01-24","description":"Find the latest login timestamp for each user in the year 2020 from the Logins table.","keywords":"LeetCode, The Latest Login in 2020, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1 (Using MAX and GROUP BY)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of login records, as we need to scan through all records once to group and find the maximum."}},{"@type":"Question","name":"What is the time complexity of Approach 2 (Using Window Functions)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting operation within each partition when ranking the logins by timestamp."}},{"@type":"Question","name":"What is the time complexity of Approach 3 (Using Subquery)?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) for two passes through the data - one to find maximum timestamps and another to collect matching results."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Approach 1 (Using MAX and GROUP BY) is the most efficient with O(n) time complexity and simple implementation. It directly aggregates the data to find the latest login for each user."}}]}).replace(/</g,'\u003c')}
+</script>

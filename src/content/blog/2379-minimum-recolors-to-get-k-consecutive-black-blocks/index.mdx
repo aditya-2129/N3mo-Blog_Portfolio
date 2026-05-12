@@ -1,0 +1,128 @@
+---
+title: "Minimum Recolors to Get K Consecutive Black Blocks"
+summary: "Find the minimum number of 'W' to 'B' changes needed to create a segment of k consecutive 'B' blocks."
+date: "Jul 22, 2024"
+tags:
+  - String
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.70% | **Paid:** No
+> **Topics:** String, Sliding Window
+
+You are given a string blocks consisting only of 'W' and 'B' where 'W' represents white and 'B' represents black. You are also given an integer k, which represents the number of consecutive black blocks we want to have.
+
+In one operation, you can change a 'W' to a 'B'.
+
+Return the minimum number of operations needed so that there is at least one occurrence of k consecutive black blocks.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force](#approach-1-brute-force)
+- [Approach 2: Sliding Window](#approach-2-sliding-window)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+blocks = "WBBWWBBWBW", k = 7
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+One way to achieve 7 consecutive black blocks is to recolor the 0th, 3rd, and 4th blocks
+so that blocks = "BBBBBBBWBW".
+It can be shown that there is no way to achieve 7 consecutive black blocks in less than 3 operations.
+Therefore, we return 3.
+
+### Example 2
+
+**Input:**
+```text
+blocks = "WBWBBBW", k = 2
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+No changes need to be made, since 2 consecutive black blocks already exist.
+Therefore, we return 0.
+
+## Constraints
+
+```text
+n == blocks.length
+1 <= n <= 100
+blocks[i] is either 'W' or 'B'.
+1 <= k <= n
+```
+
+---
+## Approach 1: Brute Force
+
+**Intuition**
+Iterate through every possible window of size `k` in the string. For each window, count how many 'W' characters are present, as these represent the operations needed to turn that window entirely into 'B's. Track the minimum count found.
+
+**Steps**
+- Initialize `min_ops` to a large value (e.g., infinity or `n`).
+- Iterate `i` from `0` to `n - k` (inclusive).
+- For each `i`, iterate `j` from `i` to `i + k - 1` to count 'W's in the current window.
+- Update `min_ops` with the minimum value found.
+- Return `min_ops`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumRecolors(self, blocks: str, k: int) -&gt; int:\n        n = len(blocks)\n        min_ops = float('inf')\n        for i in range(n - k + 1):\n            count = 0\n            for j in range(i, i + k):\n                if blocks[j] == 'W':\n                    count += 1\n            min_ops = min(min_ops, count)\n        return min_ops\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumRecolors(String blocks, int k) {\n        int n = blocks.length();\n        int minOps = Integer.MAX_VALUE;\n        for (int i = 0; i &lt;= n - k; i++) {\n            int count = 0;\n            for (int j = i; j &lt; i + k; j++) {\n                if (blocks.charAt(j) == 'W') {\n                    count++;\n                }\n            }\n            minOps = Math.min(minOps, count);\n        }\n        return minOps;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumRecolors(string blocks, int k) {\n        int n = blocks.size();\n        int minOps = INT_MAX;\n        for (int i = 0; i &lt;= n - k; i++) {\n            int count = 0;\n            for (int j = i; j &lt; i + k; j++) {\n                if (blocks[j] == 'W') {\n                    count++;\n                }\n            }\n            minOps = min(minOps, count);\n        }\n        return minOps;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} blocks\n * @param {number} k\n * @return {number}\n */\nvar minimumRecolors = function(blocks, k) {\n    let n = blocks.length;\n    let minOps = Infinity;\n    for (let i = 0; i &lt;= n - k; i++) {\n        let count = 0;\n        for (let j = i; j &lt; i + k; j++) {\n            if (blocks[j] === 'W') {\n                count++;\n            }\n        }\n        minOps = Math.min(minOps, count);\n    }\n    return minOps;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumRecolors(blocks: string, k: number): number {\n    let n = blocks.length;\n    let minOps = Infinity;\n    for (let i = 0; i &lt;= n - k; i++) {\n        let count = 0;\n        for (let j = i; j &lt; i + k; j++) {\n            if (blocks[j] === 'W') {\n                count++;\n            }\n        }\n        minOps = Math.min(minOps, count);\n    }\n    return minOps;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n * k), where n is the length of the string. We iterate through n-k+1 windows, and for each, we scan k elements.
+- Space: O(1), we only use a few variables for counting.
+- Notes: Simple to implement but inefficient for very large k relative to n.
+
+---
+## Approach 2: Sliding Window
+
+**Intuition**
+Instead of recounting the 'W's for every new window from scratch, we can reuse the count from the previous window. When the window slides one step to the right, we remove the leftmost character and add the new rightmost character. We adjust the count of 'W's based on these two characters only.
+
+**Steps**
+- Calculate the number of 'W's in the first window (indices `0` to `k-1`). Store this as `count` and `min_ops`.
+- Iterate `i` from `k` to `n-1` (the index of the new character entering the window).
+- If the character leaving the window (`blocks[i-k]`) is 'W', decrement `count`.
+- If the character entering the window (`blocks[i]`) is 'W', increment `count`.
+- Update `min_ops` with the minimum value between current `min_ops` and `count`.
+- Return `min_ops`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumRecolors(self, blocks: str, k: int) -&gt; int:\n        count = 0\n        for i in range(k):\n            if blocks[i] == 'W':\n                count += 1\n        min_ops = count\n        for i in range(k, len(blocks)):\n            if blocks[i - k] == 'W':\n                count -= 1\n            if blocks[i] == 'W':\n                count += 1\n            min_ops = min(min_ops, count)\n        return min_ops\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumRecolors(String blocks, int k) {\n        int count = 0;\n        for (int i = 0; i &lt; k; i++) {\n            if (blocks.charAt(i) == 'W') {\n                count++;\n            }\n        }\n        int minOps = count;\n        for (int i = k; i &lt; blocks.length(); i++) {\n            if (blocks.charAt(i - k) == 'W') {\n                count--;\n            }\n            if (blocks.charAt(i) == 'W') {\n                count++;\n            }\n            minOps = Math.min(minOps, count);\n        }\n        return minOps;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumRecolors(string blocks, int k) {\n        int count = 0;\n        for (int i = 0; i &lt; k; i++) {\n            if (blocks[i] == 'W') {\n                count++;\n            }\n        }\n        int minOps = count;\n        for (int i = k; i &lt; blocks.size(); i++) {\n            if (blocks[i - k] == 'W') {\n                count--;\n            }\n            if (blocks[i] == 'W') {\n                count++;\n            }\n            minOps = min(minOps, count);\n        }\n        return minOps;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} blocks\n * @param {number} k\n * @return {number}\n */\nvar minimumRecolors = function(blocks, k) {\n    let count = 0;\n    for (let i = 0; i &lt; k; i++) {\n        if (blocks[i] === 'W') {\n            count++;\n        }\n    }\n    let minOps = count;\n    for (let i = k; i &lt; blocks.length; i++) {\n        if (blocks[i - k] === 'W') {\n            count--;\n        }\n        if (blocks[i] === 'W') {\n            count++;\n        }\n        minOps = Math.min(minOps, count);\n    }\n    return minOps;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumRecolors(blocks: string, k: number): number {\n    let count = 0;\n    for (let i = 0; i &lt; k; i++) {\n        if (blocks[i] === 'W') {\n            count++;\n        }\n    }\n    let minOps = count;\n    for (let i = k; i &lt; blocks.length; i++) {\n        if (blocks[i - k] === 'W') {\n            count--;\n        }\n        if (blocks[i] === 'W') {\n            count++;\n        }\n        minOps = Math.min(minOps, count);\n    }\n    return minOps;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), we traverse the string once to initialize the window and once to slide it.
+- Space: O(1), only a few integer variables are used.
+- Notes: This is the optimal approach for this problem, significantly faster than brute force for larger inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Recolors to Get K Consecutive Black Blocks Solutions","datePublished":"2024-07-22","description":"Find the minimum number of 'W' to 'B' changes needed to create a segment of k consecutive 'B' blocks.","keywords":"LeetCode, Minimum Recolors to Get K Consecutive Black Blocks, Easy, String, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n * k), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sliding Window approach is O(n), as we traverse the string only once."}},{"@type":"Question","name":"What is the space complexity of these approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for both approaches, as we only use a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

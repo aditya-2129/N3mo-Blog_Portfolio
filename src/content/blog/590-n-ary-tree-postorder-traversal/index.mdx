@@ -1,0 +1,116 @@
+---
+title: "N-ary Tree Postorder Traversal"
+summary: "Given the root of an n-ary tree, return the postorder traversal of its nodes' values."
+date: "Jan 26, 2024"
+tags:
+  - Stack
+  - Tree
+  - Depth-First Search
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.10% | **Paid:** No
+> **Topics:** Stack, Tree, Depth-First Search
+
+Given the root of an n-ary tree, return the postorder traversal of its nodes' values.
+
+Nary-Tree input serialization is represented in their level order traversal where each group of children is separated by the null value (See examples).
+
+## Examples
+
+### Example 1:
+
+```text
+Input: root = [1,null,3,2,4,null,5,6]
+Output: [5,6,3,2,4,1]
+```
+
+### Example 2:
+
+```text
+Input: root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
+Output: [2,6,14,11,7,3,12,8,4,13,9,10,5,1]
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 10⁴].
+0 <= Node.val <= 10⁴
+The height of the n-ary tree is less than or equal to 1000.
+```
+
+---
+
+## Recursive Depth-First Search
+
+**Intuition**
+Postorder traversal visits all children nodes before the current node. We can recursively traverse the list of children and append the current node's value to the result list after the recursive calls return.
+
+**Steps**
+- If the root is null, return an empty list.
+- Initialize an empty list to store the result.
+- Iterate through each child of the current node.
+- Recursively call the postorder function on each child and extend the result list.
+- Append the current node's value to the result list.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def postorder(self, root: 'Node') -> list[int]:\n        result = []\n        self._helper(root, result)\n        return result\n\n    def _helper(self, node: 'Node', result: list[int]) -> None:\n        if not node:\n            return\n        for child in node.children:\n            self._helper(child, result)\n        result.append(node.val)"
+},
+{ name: "Java", lang: "java", code: "class Solution {\n    public List<Integer> postorder(Node root) {\n        List<Integer> result = new ArrayList<>();\n        helper(root, result);\n        return result;\n    }\n\n    private void helper(Node node, List<Integer> result) {\n        if (node == null) return;\n        for (Node child : node.children) {\n            helper(child, result);\n        }\n        result.add(node.val);\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector<int> postorder(Node* root) {\n        vector<int> result;\n        helper(root, result);\n        return result;\n    }\n\nprivate:\n    void helper(Node* node, vector<int>& result) {\n        if (!node) return;\n        for (Node* child : node->children) {\n            helper(child, result);\n        }\n        result.push_back(node->val);\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "var postorder = function(root) {\n    const result = [];\n    \n    function traverse(node) {\n        if (!node) return;\n        for (const child of node.children) {\n            traverse(child);\n        }\n        result.push(node.val);\n    }\n    \n    traverse(root);\n    return result;\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function postorder(root: Node | null): number[] {\n    const result: number[] = [];\n    \n    function traverse(node: Node | null): void {\n        if (!node) return;\n        for (const child of node.children) {\n            traverse(child);\n        }\n        result.push(node.val);\n    }\n    \n    traverse(root);\n    return result;\n}"
+},]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes in the tree. We visit every node exactly once.
+- Space: O(N), in the worst case (unbalanced tree), the recursion stack can grow as deep as the number of nodes.
+- Notes: This is the most intuitive approach but may cause a stack overflow for extremely deep trees.
+
+---
+
+## Iterative Depth-First Search using Stack
+
+**Intuition**
+To simulate recursion iteratively, we use a stack. A common trick for postorder is to perform a "modified preorder" traversal (Root -> Right -> Left) and then reverse the result. This yields the correct Left -> Right -> Root order required for postorder.
+
+**Steps**
+- Initialize a stack and push the root node onto it.
+- Initialize an empty list to store the result.
+- While the stack is not empty:
+    - Pop the top node from the stack.
+    - Append the node's value to the result list.
+    - Push all of the node's children onto the stack in their original order (left to right). Since the stack is LIFO, pushing left-to-right ensures the rightmost child is processed next (Root -> Right -> Left).
+- After the loop, reverse the result list.
+- Return the reversed list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def postorder(self, root: 'Node') -> list[int]:\n        if not root:\n            return []\n        \n        stack = [root]\n        result = []\n        \n        while stack:\n            node = stack.pop()\n            result.append(node.val)\n            # Push children in original order so rightmost is processed first\n            for child in node.children:\n                stack.append(child)\n                \n        return result[::-1]"
+},
+{ name: "Java", lang: "java", code: "class Solution {\n    public List<Integer> postorder(Node root) {\n        LinkedList<Integer> result = new LinkedList<>();\n        if (root == null) return result;\n\n        LinkedList<Node> stack = new LinkedList<>();\n        stack.add(root);\n\n        while (!stack.isEmpty()) {\n            Node node = stack.pollLast();\n            result.addFirst(node.val);\n            for (Node child : node.children) {\n                stack.add(child);\n            }\n        }\n        return result;\n    }\n}"
+},
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector<int> postorder(Node* root) {\n        if (!root) return {};\n        \n        vector<int> result;\n        stack<Node*> st;\n        st.push(root);\n        \n        while (!st.empty()) {\n            Node* node = st.top();\n            st.pop();\n            result.push_back(node->val);\n            \n            // Push children in original order\n            for (Node* child : node->children) {\n                st.push(child);\n            }\n        }\n        \n        reverse(result.begin(), result.end());\n        return result;\n    }\n};"
+},
+{ name: "JavaScript", lang: "javascript", code: "var postorder = function(root) {\n    if (!root) return [];\n    \n    const stack = [root];\n    const result = [];\n    \n    while (stack.length > 0) {\n        const node = stack.pop();\n        result.push(node.val);\n        \n        // Push children in original order\n        for (const child of node.children) {\n            stack.push(child);\n        }\n    }\n    \n    return result.reverse();\n};"
+},
+{ name: "TypeScript", lang: "typescript", code: "function postorder(root: Node | null): number[] {\n    if (!root) return [];\n    \n    const stack: Node[] = [root];\n    const result: number[] = [];\n    \n    while (stack.length > 0) {\n        const node = stack.pop()!;\n        result.push(node.val);\n        \n        // Push children in original order\n        for (const child of node.children) {\n            stack.push(child);\n        }\n    }\n    \n    return result.reverse();\n}"
+},]} />
+
+**Complexity**
+- Time: O(N), we visit each node once.
+- Space: O(N), to store the stack and the result list.
+- Notes: This approach avoids recursion depth limits. The Java example uses `LinkedList.addFirst` to effectively reverse the list during insertion, saving a separate reversal pass.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode N-ary Tree Postorder Traversal Solutions","datePublished":"2024-01-26","description":"Given the root of an n-ary tree, return the postorder traversal of its nodes' values.","keywords":"LeetCode, N-ary Tree Postorder Traversal, Easy, Stack, Tree, Depth-First Search"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of nodes, as each node is visited exactly once."}},{"@type":"Question","name":"What is the space complexity of the Iterative DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the stack and the result list."}},{"@type":"Question","name":"Why do we reverse the result in the Iterative approach?","acceptedAnswer":{"@type":"Answer","text":"We perform a modified preorder (Root, Right, Left) using the stack. Reversing this result converts it to the correct postorder (Left, Right, Root)."}}]}).replace(/</g,'\u003c')}
+</script>

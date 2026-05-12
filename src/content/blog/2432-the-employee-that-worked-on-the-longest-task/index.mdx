@@ -1,0 +1,393 @@
+---
+title: "The Employee That Worked on the Longest Task"
+summary: "Find the employee who worked on the longest single task given logs of task completion times."
+date: "Oct 28, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.70% | **Paid:** No
+> **Topics:** Array
+
+There are n employees, each with a unique ID from 0 to n - 1.
+
+You are given a 2D integer array logs where logs[i] = [IDi, leaveTimei] indicates that the employee with IDi finished a task at leaveTimei. All values of leaveTimei are unique.
+
+Tasks are assigned in chronological order, meaning the leaveTimei values are strictly increasing.
+
+The time it takes to complete a task is the difference between the leaveTime of the current task and the leaveTime of the previous task. For the first task, the time is leaveTimei.
+
+Return the ID of the employee that worked the task with the longest time. If there is a tie, return the smallest ID among them.
+
+- Examples
+- Constraints
+- [Single Pass](#single-pass)
+- [Using Map](#using-map)
+
+## Examples
+
+Example 1:
+
+```text
+Input: n = 10, logs = [[0,3],[2,5],[0,9],[1,15]]
+Output: 1
+Explanation: 
+Task 0: Started at time 0, ended at time 3. Duration = 3 - 0 = 3. Employee 0 worked on this task.
+Task 1: Started at time 3, ended at time 5. Duration = 5 - 3 = 2. Employee 2 worked on this task.
+Task 2: Started at time 5, ended at time 9. Duration = 9 - 5 = 4. Employee 0 worked on this task.
+Task 3: Started at time 9, ended at time 15. Duration = 15 - 9 = 6. Employee 1 worked on this task.
+The task with the longest duration is task 3, and the employee who worked on it is 1. So the answer is 1.
+```
+
+Example 2:
+
+```text
+Input: n = 26, logs = [[1,1],[3,7],[2,12],[7,17]]
+Output: 3
+Explanation:
+Task 0: Started at time 0, ended at time 1. Duration = 1 - 0 = 1. Employee 1 worked on this task.
+Task 1: Started at time 1, ended at time 7. Duration = 7 - 1 = 6. Employee 3 worked on this task.
+Task 2: Started at time 7, ended at time 12. Duration = 12 - 7 = 5. Employee 2 worked on this task.
+Task 3: Started at time 12, ended at time 17. Duration = 17 - 12 = 5. Employee 7 worked on this task.
+The task with the longest duration is task 1, and the employee who worked on it is 3. So the answer is 3.
+```
+
+Example 3:
+
+```text
+Input: n = 2, logs = [[0,3],[1,7]]
+Output: 1
+Explanation:
+Task 0: Started at time 0, ended at time 3. Duration = 3 - 0 = 3. Employee 0 worked on this task.
+Task 1: Started at time 3, ended at time 7. Duration = 7 - 3 = 4. Employee 1 worked on this task.
+The task with the longest duration is task 1, and the employee who worked on it is 1. So the answer is 1.
+```
+
+## Constraints
+
+```text
+2 <= n <= 500
+1 <= logs.length <= 500
+logs[i].length == 2
+0 <= IDi <= n - 1
+1 <= leaveTimei <= 500
+IDi != IDi+1 for all valid i
+The values of leaveTimei are strictly increasing.
+```
+
+## Single Pass
+
+**Intuition**
+Iterate through the logs once, calculating the duration for each task and tracking the maximum duration and corresponding employee ID.
+
+**Steps**
+- Initialize maxDuration to 0 and resultEmployee to 0
+- Initialize previousTime to 0
+- For each log entry [id, leaveTime]:
+  - Calculate duration as leaveTime - previousTime
+  - If duration &gt; maxDuration, update maxDuration and resultEmployee
+  - If duration == maxDuration and id &lt; resultEmployee, update resultEmployee
+  - Update previousTime to leaveTime
+- Return resultEmployee
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def hardestWorker(self, n: int, logs: List[List[int]]) -> int:
+        max_duration = 0
+        result_employee = 0
+        previous_time = 0
+        
+        for employee_id, leave_time in logs:
+            duration = leave_time - previous_time
+            if duration &gt; max_duration or (duration == max_duration and employee_id &lt; result_employee):
+                max_duration = duration
+                result_employee = employee_id
+            previous_time = leave_time
+        
+        return result_employee
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int hardestWorker(int n, int[][] logs) {
+        int maxDuration = 0;
+        int resultEmployee = 0;
+        int previousTime = 0;
+        
+        for (int[] log : logs) {
+            int employeeId = log[0];
+            int leaveTime = log[1];
+            int duration = leaveTime - previousTime;
+            
+            if (duration &gt; maxDuration || (duration == maxDuration && employeeId &lt; resultEmployee)) {
+                maxDuration = duration;
+                resultEmployee = employeeId;
+            }
+            previousTime = leaveTime;
+        }
+        
+        return resultEmployee;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int hardestWorker(int n, vector<vector<int>&gt;& logs) {
+        int maxDuration = 0;
+        int resultEmployee = 0;
+        int previousTime = 0;
+        
+        for (const auto& log : logs) {
+            int employeeId = log[0];
+            int leaveTime = log[1];
+            int duration = leaveTime - previousTime;
+            
+            if (duration &gt; maxDuration || (duration == maxDuration && employeeId &lt; resultEmployee)) {
+                maxDuration = duration;
+                resultEmployee = employeeId;
+            }
+            previousTime = leaveTime;
+        }
+        
+        return resultEmployee;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @param {number[][]} logs
+ * @return {number}
+ */
+var hardestWorker = function(n, logs) {
+    let maxDuration = 0;
+    let resultEmployee = 0;
+    let previousTime = 0;
+    
+    for (const [employeeId, leaveTime] of logs) {
+        const duration = leaveTime - previousTime;
+        
+        if (duration &gt; maxDuration || (duration === maxDuration && employeeId &lt; resultEmployee)) {
+            maxDuration = duration;
+            resultEmployee = employeeId;
+        }
+        previousTime = leaveTime;
+    }
+    
+    return resultEmployee;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function hardestWorker(n: number, logs: number[][]): number {
+    let maxDuration: number = 0;
+    let resultEmployee: number = 0;
+    let previousTime: number = 0;
+    
+    for (const [employeeId, leaveTime] of logs) {
+        const duration: number = leaveTime - previousTime;
+        
+        if (duration &gt; maxDuration || (duration === maxDuration && employeeId &lt; resultEmployee)) {
+            maxDuration = duration;
+            resultEmployee = employeeId;
+        }
+        previousTime = leaveTime;
+    }
+    
+    return resultEmployee;
+}
+` },]} />
+
+**Complexity**
+- Time: O(m) where m is the number of logs
+- Space: O(1)
+- Notes: This is the optimal solution with constant space and linear time complexity.
+
+## Using Map
+
+**Intuition**
+Store the maximum duration for each employee in a map, then find the employee with the maximum duration.
+
+**Steps**
+- Initialize a map to store max duration per employee
+- Initialize previousTime to 0
+- For each log entry [id, leaveTime]:
+  - Calculate duration as leaveTime - previousTime
+  - Update the map with the maximum duration for this employee
+  - Update previousTime to leaveTime
+- Find the employee with the maximum duration (smallest ID in case of tie)
+- Return that employee ID
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def hardestWorker(self, n: int, logs: List[List[int]]) -> int:
+        max_duration_per_employee = {}
+        previous_time = 0
+        
+        for employee_id, leave_time in logs:
+            duration = leave_time - previous_time
+            if employee_id not in max_duration_per_employee or duration &gt; max_duration_per_employee[employee_id]:
+                max_duration_per_employee[employee_id] = duration
+            previous_time = leave_time
+        
+        max_duration = 0
+        result_employee = 0
+        for employee_id, duration in max_duration_per_employee.items():
+            if duration &gt; max_duration or (duration == max_duration and employee_id &lt; result_employee):
+                max_duration = duration
+                result_employee = employee_id
+        
+        return result_employee
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int hardestWorker(int n, int[][] logs) {
+        Map<Integer, Integer> maxDurationPerEmployee = new HashMap&lt;&gt;();
+        int previousTime = 0;
+        
+        for (int[] log : logs) {
+            int employeeId = log[0];
+            int leaveTime = log[1];
+            int duration = leaveTime - previousTime;
+            
+            maxDurationPerEmployee.put(employeeId, 
+                Math.max(maxDurationPerEmployee.getOrDefault(employeeId, 0), duration));
+            
+            previousTime = leaveTime;
+        }
+        
+        int maxDuration = 0;
+        int resultEmployee = 0;
+        for (Map.Entry<Integer, Integer> entry : maxDurationPerEmployee.entrySet()) {
+            int employeeId = entry.getKey();
+            int duration = entry.getValue();
+            
+            if (duration &gt; maxDuration || (duration == maxDuration && employeeId &lt; resultEmployee)) {
+                maxDuration = duration;
+                resultEmployee = employeeId;
+            }
+        }
+        
+        return resultEmployee;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int hardestWorker(int n, vector<vector<int>&gt;& logs) {
+        unordered_map<int, int> maxDurationPerEmployee;
+        int previousTime = 0;
+        
+        for (const auto& log : logs) {
+            int employeeId = log[0];
+            int leaveTime = log[1];
+            int duration = leaveTime - previousTime;
+            
+            if (maxDurationPerEmployee.find(employeeId) == maxDurationPerEmployee.end()) {
+                maxDurationPerEmployee[employeeId] = duration;
+            } else {
+                maxDurationPerEmployee[employeeId] = max(maxDurationPerEmployee[employeeId], duration);
+            }
+            
+            previousTime = leaveTime;
+        }
+        
+        int maxDuration = 0;
+        int resultEmployee = 0;
+        for (const auto& entry : maxDurationPerEmployee) {
+            int employeeId = entry.first;
+            int duration = entry.second;
+            
+            if (duration &gt; maxDuration || (duration == maxDuration && employeeId &lt; resultEmployee)) {
+                maxDuration = duration;
+                resultEmployee = employeeId;
+            }
+        }
+        
+        return resultEmployee;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} n
+ * @param {number[][]} logs
+ * @return {number}
+ */
+var hardestWorker = function(n, logs) {
+    const maxDurationPerEmployee = new Map();
+    let previousTime = 0;
+    
+    for (const [employeeId, leaveTime] of logs) {
+        const duration = leaveTime - previousTime;
+        
+        if (!maxDurationPerEmployee.has(employeeId) || duration &gt; maxDurationPerEmployee.get(employeeId)) {
+            maxDurationPerEmployee.set(employeeId, duration);
+        }
+        
+        previousTime = leaveTime;
+    }
+    
+    let maxDuration = 0;
+    let resultEmployee = 0;
+    for (const [employeeId, duration] of maxDurationPerEmployee) {
+        if (duration &gt; maxDuration || (duration === maxDuration && employeeId &lt; resultEmployee)) {
+            maxDuration = duration;
+            resultEmployee = employeeId;
+        }
+    }
+    
+    return resultEmployee;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function hardestWorker(n: number, logs: number[][]): number {
+    const maxDurationPerEmployee: Map<number, number> = new Map();
+    let previousTime: number = 0;
+    
+    for (const [employeeId, leaveTime] of logs) {
+        const duration: number = leaveTime - previousTime;
+        
+        if (!maxDurationPerEmployee.has(employeeId) || duration &gt; maxDurationPerEmployee.get(employeeId)!) {
+            maxDurationPerEmployee.set(employeeId, duration);
+        }
+        
+        previousTime = leaveTime;
+    }
+    
+    let maxDuration: number = 0;
+    let resultEmployee: number = 0;
+    for (const [employeeId, duration] of maxDurationPerEmployee) {
+        if (duration &gt; maxDuration || (duration === maxDuration && employeeId &lt; resultEmployee)) {
+            maxDuration = duration;
+            resultEmployee = employeeId;
+        }
+    }
+    
+    return resultEmployee;
+}
+` },]} />
+
+**Complexity**
+- Time: O(m) where m is the number of logs
+- Space: O(n) where n is the number of unique employees
+- Notes: This approach uses extra space to store durations per employee, which is not necessary for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode The Employee That Worked on the Longest Task Solutions","datePublished":"2025-10-28","description":"Find the employee who worked on the longest single task given logs of task completion times.","keywords":"LeetCode, The Employee That Worked on the Longest Task, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m) where m is the number of logs, as we iterate through the logs once."}},{"@type":"Question","name":"What is the space complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space."}},{"@type":"Question","name":"How do we handle ties in duration?","acceptedAnswer":{"@type":"Answer","text":"When there is a tie in duration, we return the employee with the smaller ID."}},{"@type":"Question","name":"What is the time complexity of the Using Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m) where m is the number of logs, as we iterate through the logs once and then through the map."}},{"@type":"Question","name":"What is the space complexity of the Using Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) where n is the number of unique employees, as we store the maximum duration for each employee."}}]}).replace(/</g,'\u003c')}
+</script>

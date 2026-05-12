@@ -1,0 +1,141 @@
+---
+title: "Create a DataFrame from List"
+summary: "Create a pandas DataFrame from a given 2D list with specified column names."
+date: "Jan 25, 2025"
+tags:
+  - Pandas
+  - DataFrame
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.00% | **Paid:** No
+> **Topics:** N/A
+
+You are given a 2D integer array `student_data` where `student_data[i]` represents the data for the ith student. The data for each student is represented as `[student_id, age]`.
+
+Return a pandas DataFrame with columns `student_id` and `age` containing the data from `student_data`.
+
+- Table of Contents
+- Examples
+- Constraints
+- [Direct DataFrame Construction](#direct-dataframe-construction)
+- [Dictionary Conversion Approach](#dictionary-conversion-approach)
+- [List of Dictionaries Approach](#list-of-dictionaries-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+student_data:
+[
+  [1, 15],
+  [2, 11],
+  [3, 11],
+  [4, 20]
+]
+```
+
+**Output:**
+```text
++------------+-----+
+| student_id | age |
++------------+-----+
+| 1          | 15  |
+| 2          | 11  |
+| 3          | 11  |
+| 4          | 20  |
++------------+-----+
+```
+
+**Explanation:**
+A DataFrame was created on top of student_data, with two columns named student_id and age.
+
+## Constraints
+
+```text
+1 <= student_data.length <= 10⁵
+student_data[i].length == 2
+1 <= student_data[i][0] <= 10⁹
+1 <= student_data[i][1] <= 100
+```
+
+---
+## Direct DataFrame Construction
+
+**Intuition**
+Use pandas DataFrame constructor directly by passing the 2D list as data and specifying column names.
+
+**Steps**
+- Import pandas library
+- Create DataFrame using pd.DataFrame() with student_data and columns parameter
+- Return the DataFrame
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef createDataFrame(student_data):\n    return pd.DataFrame(student_data, columns=['student_id', 'age'])" },
+{ name: "Java", lang: "java", code: "import org.apache.spark.sql.*;\nimport org.apache.spark.sql.types.*;\nimport java.util.*;\n\npublic class Solution {\n    public Dataset&lt;Row&gt; createDataFrame(List&lt;List&lt;Integer&gt;&gt; studentData, SparkSession spark) {\n        List&lt;Row&gt; rows = new ArrayList&lt;&gt;();\n        for (List&lt;Integer&gt; data : studentData) {\n            rows.add(RowFactory.create(data.get(0), data.get(1)));\n        }\n        StructType schema = new StructType(new StructField[]{\n            new StructField(\"student_id\", DataTypes.IntegerType, false, Metadata.empty()),\n            new StructField(\"age\", DataTypes.IntegerType, false, Metadata.empty())\n        });\n        return spark.createDataFrame(rows, schema);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n\nusing namespace std;\n\nclass DataFrame {\npublic:\n    vector&lt;int&gt; student_id;\n    vector&lt;int&gt; age;\n    \n    void addRow(int id, int a) {\n        student_id.push_back(id);\n        age.push_back(a);\n    }\n};\n\nclass Solution {\npublic:\n    DataFrame createDataFrame(vector&lt;vector&lt;int&gt;&gt;& student_data) {\n        DataFrame df;\n        for (const auto& row : student_data) {\n            df.addRow(row[0], row[1]);\n        }\n        return df;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} student_data\n * @return {Object}\n */\nfunction createDataFrame(student_data) {\n    return {\n        student_id: student_data.map(row =&gt; row[0]),\n        age: student_data.map(row =&gt; row[1])\n    };\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataFrame {\n    student_id: number[];\n    age: number[];\n}\n\nfunction createDataFrame(student_data: number[][]): DataFrame {\n    return {\n        student_id: student_data.map(row =&gt; row[0]),\n        age: student_data.map(row =&gt; row[1])\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing the DataFrame
+- Notes: Most efficient and idiomatic pandas approach
+
+---
+## Dictionary Conversion Approach
+
+**Intuition**
+Convert the 2D list into a dictionary format where keys are column names and values are lists of data for each column.
+
+**Steps**
+- Extract student_id values from each row into a list
+- Extract age values from each row into a list
+- Create a dictionary with column names as keys
+- Pass dictionary to pd.DataFrame()
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef createDataFrame(student_data):\n    student_ids = [row[0] for row in student_data]\n    ages = [row[1] for row in student_data]\n    data_dict = {'student_id': student_ids, 'age': ages}\n    return pd.DataFrame(data_dict)" },
+{ name: "Java", lang: "java", code: "import org.apache.spark.sql.*;\nimport org.apache.spark.sql.types.*;\nimport java.util.*;\nimport java.util.stream.*;\n\npublic class Solution {\n    public Dataset&lt;Row&gt; createDataFrame(List&lt;List&lt;Integer&gt;&gt; studentData, SparkSession spark) {\n        List&lt;Integer&gt; studentIds = studentData.stream()\n            .map(row -&gt; row.get(0))\n            .collect(Collectors.toList());\n        List&lt;Integer&gt; ages = studentData.stream()\n            .map(row -&gt; row.get(1))\n            .collect(Collectors.toList());\n        \n        Map&lt;String, Object&gt; dataMap = new HashMap&lt;&gt;();\n        dataMap.put(\"student_id\", studentIds);\n        dataMap.put(\"age\", ages);\n        \n        List&lt;Row&gt; rows = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; studentIds.size(); i++) {\n            rows.add(RowFactory.create(studentIds.get(i), ages.get(i)));\n        }\n        \n        StructType schema = new StructType(new StructField[]{\n            new StructField(\"student_id\", DataTypes.IntegerType, false, Metadata.empty()),\n            new StructField(\"age\", DataTypes.IntegerType, false, Metadata.empty())\n        });\n        return spark.createDataFrame(rows, schema);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n\nusing namespace std;\n\nclass DataFrame {\npublic:\n    map&lt;string, vector&lt;int&gt;&gt; data;\n    \n    DataFrame() {\n        data[\"student_id\"] = vector&lt;int&gt;();\n        data[\"age\"] = vector&lt;int&gt;();\n    }\n    \n    void addRow(int id, int a) {\n        data[\"student_id\"].push_back(id);\n        data[\"age\"].push_back(a);\n    }\n};\n\nclass Solution {\npublic:\n    DataFrame createDataFrame(vector&lt;vector&lt;int&gt;&gt;& student_data) {\n        DataFrame df;\n        for (const auto& row : student_data) {\n            df.addRow(row[0], row[1]);\n        }\n        return df;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} student_data\n * @return {Object}\n */\nfunction createDataFrame(student_data) {\n    const studentIds = [];\n    const ages = [];\n    \n    for (const row of student_data) {\n        studentIds.push(row[0]);\n        ages.push(row[1]);\n    }\n    \n    return {\n        student_id: studentIds,\n        age: ages\n    };\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface DataFrame {\n    student_id: number[];\n    age: number[];\n}\n\nfunction createDataFrame(student_data: number[][]): DataFrame {\n    const studentIds: number[] = [];\n    const ages: number[] = [];\n    \n    for (const row of student_data) {\n        studentIds.push(row[0]);\n        ages.push(row[1]);\n    }\n    \n    return {\n        student_id: studentIds,\n        age: ages\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing intermediate lists and DataFrame
+- Notes: More verbose but useful when data comes from different sources
+
+---
+## List of Dictionaries Approach
+
+**Intuition**
+Convert each row into a dictionary with column names as keys, then create DataFrame from list of dictionaries.
+
+**Steps**
+- Iterate through each row in student_data
+- Create a dictionary for each row mapping column names to values
+- Collect all dictionaries into a list
+- Pass list of dictionaries to pd.DataFrame()
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef createDataFrame(student_data):\n    data = [{'student_id': row[0], 'age': row[1]} for row in student_data]\n    return pd.DataFrame(data)" },
+{ name: "Java", lang: "java", code: "import org.apache.spark.sql.*;\nimport org.apache.spark.sql.types.*;\nimport java.util.*;\n\npublic class Solution {\n    public Dataset&lt;Row&gt; createDataFrame(List&lt;List&lt;Integer&gt;&gt; studentData, SparkSession spark) {\n        List&lt;Row&gt; rows = new ArrayList&lt;&gt;();\n        for (List&lt;Integer&gt; row : studentData) {\n            Map&lt;String, Object&gt; rowData = new HashMap&lt;&gt;();\n            rowData.put(\"student_id\", row.get(0));\n            rowData.put(\"age\", row.get(1));\n            rows.add(RowFactory.create(row.get(0), row.get(1)));\n        }\n        \n        StructType schema = new StructType(new StructField[]{\n            new StructField(\"student_id\", DataTypes.IntegerType, false, Metadata.empty()),\n            new StructField(\"age\", DataTypes.IntegerType, false, Metadata.empty())\n        });\n        return spark.createDataFrame(rows, schema);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n\nusing namespace std;\n\nclass DataFrame {\npublic:\n    vector&lt;map&lt;string, int&gt;&gt; rows;\n    \n    void addRow(int id, int a) {\n        map&lt;string, int&gt; row;\n        row[\"student_id\"] = id;\n        row[\"age\"] = a;\n        rows.push_back(row);\n    }\n};\n\nclass Solution {\npublic:\n    DataFrame createDataFrame(vector&lt;vector&lt;int&gt;&gt;& student_data) {\n        DataFrame df;\n        for (const auto& row : student_data) {\n            df.addRow(row[0], row[1]);\n        }\n        return df;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} student_data\n * @return {Object[]}\n */\nfunction createDataFrame(student_data) {\n    const data = student_data.map(row =&gt; ({\n        student_id: row[0],\n        age: row[1]\n    }));\n    return data;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "interface Row {\n    student_id: number;\n    age: number;\n}\n\nfunction createDataFrame(student_data: number[][]): Row[] {\n    return student_data.map(row =&gt; ({\n        student_id: row[0],\n        age: row[1]\n    }));\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows
+- Space: O(n) for storing list of dictionaries and DataFrame
+- Notes: Useful when dealing with JSON-like data structures
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Create a DataFrame from List Solutions","datePublished":"2025-01-25","description":"Create a pandas DataFrame from a given 2D list with specified column names.","keywords":"LeetCode, Create a DataFrame from List, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Direct DataFrame Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the student_data array."}},{"@type":"Question","name":"What is the space complexity of Dictionary Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing intermediate lists and the resulting DataFrame."}},{"@type":"Question","name":"What is the time complexity of List of Dictionaries approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows, as we iterate through each row once to create dictionaries."}}]}).replace(/</g,'\u003c')}
+</script>

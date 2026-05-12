@@ -1,0 +1,103 @@
+---
+title: "Two Furthest Houses With Different Colors"
+summary: "Find the maximum distance between two houses with different colors in a street represented by an array."
+date: "Feb 11, 2024"
+tags:
+  - Array
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.80% | **Paid:** No
+> **Topics:** Array, Greedy
+
+There is a street of n houses represented by an array colors where colors[i] represents the color of the ith house.
+
+Return the maximum distance between two houses with different colors.
+
+The distance between the ith and jth houses is abs(i - j).
+
+## Examples
+
+### Example 1:
+Input: colors = [1,1,1,6,1,1,1]
+Output: 3
+Explanation: The house at index 0 has color 1, and the house at index 3 has color 6. The distance between them is abs(0 - 3) = 3. Note that houses 3 and 6 can also produce the maximum distance.
+
+### Example 2:
+Input: colors = [1,8,3,8,3]
+Output: 4
+Explanation: The house at index 0 has color 1, and the house at index 4 has color 3. The distance between them is abs(0 - 4) = 4.
+
+### Example 3:
+Input: colors = [0,0,0,0,0]
+Output: 0
+Explanation: Since all houses have the same color, no two houses with different colors can be chosen. Thus, the maximum distance is 0.
+
+## Constraints
+
+```text
+n == colors.length
+2 <= n <= 100
+0 <= colors[i] <= 100
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+Check every possible pair of houses to see if they have different colors and keep track of the maximum distance found.
+
+**Steps**
+- Initialize a variable `maxDist` to 0.
+- Iterate through the array with index `i` from 0 to n-1.
+- Iterate through the array with index `j` from i+1 to n-1.
+- If `colors[i]` is not equal to `colors[j]`, update `maxDist` with the maximum of `maxDist` and `j - i`.
+- Return `maxDist`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDistance(self, colors: list[int]) -&gt; int:\n        n = len(colors)\n        max_dist = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                if colors[i] != colors[j]:\n                    max_dist = max(max_dist, j - i)\n        return max_dist" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxDistance(int[] colors) {\n        int n = colors.length;\n        int maxDist = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (colors[i] != colors[j]) {\n                    maxDist = Math.max(maxDist, j - i);\n                }\n            }\n        }\n        return maxDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxDistance(vector&lt;int&gt;& colors) {\n        int n = colors.size();\n        int maxDist = 0;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i + 1; j &lt; n; ++j) {\n                if (colors[i] != colors[j]) {\n                    maxDist = max(maxDist, j - i);\n                }\n            }\n        }\n        return maxDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} colors\n * @return {number}\n */\nvar maxDistance = function(colors) {\n    const n = colors.length;\n    let maxDist = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if (colors[i] !== colors[j]) {\n                maxDist = Math.max(maxDist, j - i);\n            }\n        }\n    }\n    return maxDist;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDistance(colors: number[]): number {\n    const n = colors.length;\n    let maxDist = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if (colors[i] !== colors[j]) {\n                maxDist = Math.max(maxDist, j - i);\n            }\n        }\n    }\n    return maxDist;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the array.
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+
+## Greedy Linear Scan
+
+**Intuition**
+The maximum distance must involve either the first house or the last house. If the first house has a different color than the last house, the distance is n-1. If not, the furthest house from the first house with a different color, or the furthest house from the last house with a different color, will yield the maximum distance.
+
+**Steps**
+- Initialize `maxDist` to 0.
+- Iterate from the start of the array to the end. If the current house color is different from the first house color, update `maxDist` with the current index.
+- Iterate from the end of the array to the start. If the current house color is different from the last house color, update `maxDist` with the distance from the end (n - 1 - current index).
+- Return `maxDist`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDistance(self, colors: list[int]) -&gt; int:\n        n = len(colors)\n        max_dist = 0\n        \n        # Compare with the first house\n        for i in range(n):\n            if colors[i] != colors[0]:\n                max_dist = max(max_dist, i)\n                \n        # Compare with the last house\n        for i in range(n - 1, -1, -1):\n            if colors[i] != colors[-1]:\n                max_dist = max(max_dist, n - 1 - i)\n                \n        return max_dist" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxDistance(int[] colors) {\n        int n = colors.length;\n        int maxDist = 0;\n        \n        // Compare with the first house\n        for (int i = 0; i &lt; n; i++) {\n            if (colors[i] != colors[0]) {\n                maxDist = Math.max(maxDist, i);\n            }\n        }\n        \n        // Compare with the last house\n        for (int i = n - 1; i &gt;= 0; i--) {\n            if (colors[i] != colors[n - 1]) {\n                maxDist = Math.max(maxDist, n - 1 - i);\n            }\n        }\n        \n        return maxDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxDistance(vector&lt;int&gt;& colors) {\n        int n = colors.size();\n        int maxDist = 0;\n        \n        // Compare with the first house\n        for (int i = 0; i &lt; n; ++i) {\n            if (colors[i] != colors[0]) {\n                maxDist = max(maxDist, i);\n            }\n        }\n        \n        // Compare with the last house\n        for (int i = n - 1; i &gt;= 0; --i) {\n            if (colors[i] != colors[n - 1]) {\n                maxDist = max(maxDist, n - 1 - i);\n            }\n        }\n        \n        return maxDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} colors\n * @return {number}\n */\nvar maxDistance = function(colors) {\n    const n = colors.length;\n    let maxDist = 0;\n    \n    // Compare with the first house\n    for (let i = 0; i &lt; n; i++) {\n        if (colors[i] !== colors[0]) {\n            maxDist = Math.max(maxDist, i);\n        }\n    }\n    \n    // Compare with the last house\n    for (let i = n - 1; i &gt;= 0; i--) {\n        if (colors[i] !== colors[n - 1]) {\n            maxDist = Math.max(maxDist, n - 1 - i);\n        }\n    }\n    \n    return maxDist;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDistance(colors: number[]): number {\n    const n = colors.length;\n    let maxDist = 0;\n    \n    // Compare with the first house\n    for (let i = 0; i &lt; n; i++) {\n        if (colors[i] !== colors[0]) {\n            maxDist = Math.max(maxDist, i);\n        }\n    }\n    \n    // Compare with the last house\n    for (let i = n - 1; i &gt;= 0; i--) {\n        if (colors[i] !== colors[n - 1]) {\n            maxDist = Math.max(maxDist, n - 1 - i);\n        }\n    }\n    \n    return maxDist;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the array.
+- Space: O(1)
+- Notes: Optimal solution with linear time complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Two Furthest Houses With Different Colors Solutions","datePublished":"2024-02-11","description":"Find the maximum distance between two houses with different colors in a street represented by an array.","keywords":"LeetCode, Two Furthest Houses With Different Colors, Easy, Array, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the number of houses."}},{"@type":"Question","name":"What is the time complexity of the Greedy Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Greedy Linear Scan approach is O(n), where n is the number of houses."}},{"@type":"Question","name":"What is the space complexity of the Greedy Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity of the Greedy Linear Scan approach is O(1), as it uses a constant amount of extra space."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,142 @@
+---
+title: "Function Composition"
+summary: "Given an array of functions, return a new function that represents the composition of all functions."
+date: "Jan 27, 2025"
+tags:
+  - Functions
+  - Composition
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.80% | **Paid:** No
+> **Topics:** N/A
+
+Given an array of functions [f1, f2, ..., fn], return a new function fn that is the function composition of the array of functions.
+
+The function composition of [f(x), g(x), h(x)] is fn(x) = f(g(h(x))).
+
+The function composition of an empty list of functions is the identity function f(x) = x.
+
+- Examples
+- Constraints
+- [Iterative Approach](#iterative-approach)
+- [Recursive Approach](#recursive-approach)
+- [Reduce Approach](#reduce-approach)
+
+## Examples
+
+```text
+Input: functions = [x => x + 1, x => x * x, x => 2 * x], x = 4
+Output: 65
+Explanation:
+Evaluating from right to left ...
+Starting with x = 4.
+2 * (4) = 8
+(8) * (8) = 64
+(64) + 1 = 65
+```
+
+```text
+Input: functions = [x => 10 * x, x => 10 * x, x => 10 * x], x = 1
+Output: 1000
+Explanation:
+Evaluating from right to left ...
+10 * (1) = 10
+10 * (10) = 100
+10 * (100) = 1000
+```
+
+```text
+Input: functions = [], x = 42
+Output: 42
+Explanation:
+The composition of zero functions is the identity function.
+```
+
+## Constraints
+
+```text
+- 0 <= functions.length <= 1000
+- All functions accept and return a single integer
+- The number of function calls will not exceed 1000
+```
+
+---
+## Iterative Approach
+
+**Intuition**
+Start with the input value and apply each function from right to left, updating the result at each step.
+
+**Steps**
+- Initialize result with the input value x
+- Iterate through functions array from right to left
+- Apply each function to the current result
+- Return the final result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\n\ndef compose(functions: List[Callable[[int], int]]) -&gt; Callable[[int], int]:\n    def fn(x: int) -&gt; int:\n        result = x\n        for f in reversed(functions):\n            result = f(result)\n        return result\n    return fn" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\n\nclass Solution {\n    public Function&lt;Integer, Integer&gt; compose(Function&lt;Integer, Integer&gt;[] functions) {\n        return x -&gt; {\n            int result = x;\n            for (int i = functions.length - 1; i &gt;= 0; i--) {\n                result = functions[i].apply(result);\n            }\n            return result;\n        };\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;functional&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    function&lt;int(int)&gt; compose(vector&lt;function&lt;int(int)&gt;&gt;& functions) {\n        return [functions](int x) {\n            int result = x;\n            for (int i = functions.size() - 1; i &gt;= 0; i--) {\n                result = functions[i](result);\n            }\n            return result;\n        };\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Function[]} functions\n * @return {Function}\n */\nvar compose = function(functions) {\n    return function(x) {\n        let result = x;\n        for (let i = functions.length - 1; i &gt;= 0; i--) {\n            result = functions[i](result);\n        }\n        return result;\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type F = (x: number) =&gt; number;\n\nfunction compose(functions: F[]): F {\n    return function(x) {\n        let result = x;\n        for (let i = functions.length - 1; i &gt;= 0; i--) {\n            result = functions[i](result);\n        }\n        return result;\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of functions
+- Space: O(1) excluding the output function
+- Notes: Simple and straightforward approach with clear logic
+
+---
+## Recursive Approach
+
+**Intuition**
+Use recursion to apply functions from right to left, with the base case being when all functions have been applied.
+
+**Steps**
+- Define a helper function that takes current value and index
+- Base case: if index is negative, return the current value
+- Recursive case: apply function at current index and recurse with index - 1
+- Return a closure that calls the helper with the last index
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\n\ndef compose(functions: List[Callable[[int], int]]) -&gt; Callable[[int], int]:\n    def helper(x: int, index: int) -&gt; int:\n        if index &lt; 0:\n            return x\n        return helper(functions[index](x), index - 1)\n    \n    return lambda x: helper(x, len(functions) - 1)" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\n\nclass Solution {\n    private Function&lt;Integer, Integer&gt;[] functions;\n    \n    public Function&lt;Integer, Integer&gt; compose(Function&lt;Integer, Integer&gt;[] functions) {\n        this.functions = functions;\n        return x -&gt; helper(x, functions.length - 1);\n    }\n    \n    private int helper(int x, int index) {\n        if (index &lt; 0) {\n            return x;\n        }\n        return helper(functions[index].apply(x), index - 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;functional&gt;\n\nusing namespace std;\n\nclass Solution {\nprivate:\n    vector&lt;function&lt;int(int)&gt;&gt; functions;\n    \n    int helper(int x, int index) {\n        if (index &lt; 0) {\n            return x;\n        }\n        return helper(functions[index](x), index - 1);\n    }\n    \npublic:\n    function&lt;int(int)&gt; compose(vector&lt;function&lt;int(int)&gt;&gt;& functions) {\n        this-&gt;functions = functions;\n        return [this](int x) {\n            return helper(x, functions.size() - 1);\n        };\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Function[]} functions\n * @return {Function}\n */\nvar compose = function(functions) {\n    const helper = (x, index) =&gt; {\n        if (index &lt; 0) {\n            return x;\n        }\n        return helper(functions[index](x), index - 1);\n    };\n    \n    return function(x) {\n        return helper(x, functions.length - 1);\n    };\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type F = (x: number) =&gt; number;\n\nfunction compose(functions: F[]): F {\n    const helper = (x: number, index: number): number =&gt; {\n        if (index &lt; 0) {\n            return x;\n        }\n        return helper(functions[index](x), index - 1);\n    };\n    \n    return function(x) {\n        return helper(x, functions.length - 1);\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of functions
+- Space: O(n) for the recursion stack
+- Notes: Elegant but may cause stack overflow for very large function arrays
+
+---
+## Reduce Approach
+
+**Intuition**
+Use the reduce pattern to accumulate the result by applying each function from right to left.
+
+**Steps**
+- Use reduceRight (or reverse + reduce) to apply functions
+- Start with the initial value x
+- Each step applies the current function to the accumulated result
+- Return the final composed function
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Callable\nfrom functools import reduce\n\ndef compose(functions: List[Callable[[int], int]]) -&gt; Callable[[int], int]:\n    return lambda x: reduce(lambda acc, f: f(acc), reversed(functions), x)" },
+{ name: "Java", lang: "java", code: "import java.util.function.Function;\nimport java.util.List;\nimport java.util.Collections;\n\nclass Solution {\n    public Function&lt;Integer, Integer&gt; compose(List&lt;Function&lt;Integer, Integer&gt;&gt; functions) {\n        return x -&gt; {\n            int result = x;\n            for (int i = functions.size() - 1; i &gt;= 0; i--) {\n                result = functions.get(i).apply(result);\n            }\n            return result;\n        };\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;functional&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    function&lt;int(int)&gt; compose(vector&lt;function&lt;int(int)&gt;&gt;& functions) {\n        return [functions](int x) {\n            int result = x;\n            for (int i = functions.size() - 1; i &gt;= 0; i--) {\n                result = functions[i](result);\n            }\n            return result;\n        };\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Function[]} functions\n * @return {Function}\n */\nvar compose = function(functions) {\n    return function(x) {\n        return functions.reduceRight((acc, f) =&gt; f(acc), x);\n    };\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type F = (x: number) =&gt; number;\n\nfunction compose(functions: F[]): F {\n    return function(x) {\n        return functions.reduceRight((acc, f) =&gt; f(acc), x);\n    };\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of functions
+- Space: O(1) excluding the output function
+- Notes: Most idiomatic functional programming approach, concise and readable
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Function Composition Solutions","datePublished":"2025-01-27","description":"Given an array of functions, return a new function that represents the composition of all functions.","keywords":"LeetCode, Function Composition, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of functions"}},{"@type":"Question","name":"What is the space complexity of the Recursive Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the recursion stack"}},{"@type":"Question","name":"What is the most idiomatic approach for function composition?","acceptedAnswer":{"@type":"Answer","text":"The Reduce Approach using reduceRight is the most idiomatic functional programming approach"}}]}).replace(/</g,'\u003c')}
+</script>

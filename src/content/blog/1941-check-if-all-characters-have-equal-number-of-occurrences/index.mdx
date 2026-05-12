@@ -1,0 +1,127 @@
+---
+title: "Check if All Characters Have Equal Number of Occurrences"
+summary: "Given a string s, determine if all characters appear the same number of times."
+date: "May 17, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.50% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+Given a string s, return true if all characters that appear in s appear the same number of times, or false otherwise.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [Fixed Array Counting](#fixed-array-counting)
+- [Sorting](#sorting)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "abacbc"
+Output: true
+Explanation: All characters appear 2 times.
+```
+
+Example 2:
+```text
+Input: s = "aaabb"
+Output: false
+Explanation: 'a' appears 3 times, 'b' appears 2 times.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s[i] is a lowercase English letter.
+```
+
+---
+## Hash Map Frequency Count
+
+**Intuition**
+We can iterate through the string and store the frequency of each character in a hash map. After counting, we simply check if all the frequency values in the map are identical.
+
+**Steps**
+- Initialize an empty hash map.
+- Iterate through the string `s`, incrementing the count for each character in the map.
+- Extract the first frequency value from the map to use as a reference.
+- Iterate through all frequency values in the map. If any value differs from the reference, return `false`.
+- If the loop completes without finding a difference, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def areOccurrencesEqual(self, s: str) -&gt; bool:\n        counts = {}\n        for char in s:\n            counts[char] = counts.get(char, 0) + 1\n        values = list(counts.values())\n        return len(set(values)) == 1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean areOccurrencesEqual(String s) {\n        Map&lt;Character, Integer&gt; map = new HashMap&lt;&gt;();\n        for (char c : s.toCharArray()) {\n            map.put(c, map.getOrDefault(c, 0) + 1);\n        }\n        int freq = -1;\n        for (int count : map.values()) {\n            if (freq == -1) {\n                freq = count;\n            } else if (count != freq) {\n                return false;\n            }\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool areOccurrencesEqual(string s) {\n        unordered_map&lt;char, int&gt; counts;\n        for (char c : s) {\n            counts[c]++;\n        }\n        int freq = -1;\n        for (auto& p : counts) {\n            if (freq == -1) {\n                freq = p.second;\n            } else if (p.second != freq) {\n                return false;\n            }\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var areOccurrencesEqual = function(s) {\n    const map = new Map();\n    for (const char of s) {\n        map.set(char, (map.get(char) || 0) + 1);\n    }\n    let freq = -1;\n    for (const count of map.values()) {\n        if (freq === -1) {\n            freq = count;\n        } else if (count !== freq) {\n            return false;\n        }\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function areOccurrencesEqual(s: string): boolean {\n    const map = new Map&lt;string, number&gt;();\n    for (const char of s) {\n        map.set(char, (map.get(char) || 0) + 1);\n    }\n    let freq = -1;\n    for (const count of map.values()) {\n        if (freq === -1) {\n            freq = count;\n        } else if (count !== freq) {\n            return false;\n        }\n    }\n    return true;\n};\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string once and the map once.
+- Space: O(1), because the hash map will store at most 26 keys (lowercase English letters).
+- Notes: Using a set to check uniqueness of values is a concise way to verify equality in Python.
+
+---
+## Fixed Array Counting
+
+**Intuition**
+Since the input string consists only of lowercase English letters, we can optimize space and speed by using a fixed-size integer array of length 26 instead of a hash map. This avoids the overhead of hashing.
+
+**Steps**
+- Initialize an integer array `counts` of size 26 with zeros.
+- Iterate through the string `s`. For each character, calculate its index (e.g., `char - 'a'`) and increment the corresponding value in `counts`.
+- Iterate through the `counts` array to find the first non-zero value to set as the target frequency.
+- Continue iterating through the array. If any non-zero value differs from the target, return `false`.
+- Return `true` if all non-zero counts match.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def areOccurrencesEqual(self, s: str) -&gt; bool:\n        counts = [0] * 26\n        for char in s:\n            counts[ord(char) - ord('a')] += 1\n        target = -1\n        for count in counts:\n            if count == 0:\n                continue\n            if target == -1:\n                target = count\n            elif count != target:\n                return False\n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean areOccurrencesEqual(String s) {\n        int[] counts = new int[26];\n        for (char c : s.toCharArray()) {\n            counts[c - 'a']++;\n        }\n        int target = -1;\n        for (int count : counts) {\n            if (count == 0) continue;\n            if (target == -1) {\n                target = count;\n            } else if (count != target) {\n                return false;\n            }\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool areOccurrencesEqual(string s) {\n        int counts[26] = {0};\n        for (char c : s) {\n            counts[c - 'a']++;\n        }\n        int target = -1;\n        for (int count : counts) {\n            if (count == 0) continue;\n            if (target == -1) {\n                target = count;\n            } else if (count != target) {\n                return false;\n            }\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var areOccurrencesEqual = function(s) {\n    const counts = new Array(26).fill(0);\n    for (let i = 0; i &lt; s.length; i++) {\n        counts[s.charCodeAt(i) - 97]++;\n    }\n    let target = -1;\n    for (let i = 0; i &lt; 26; i++) {\n        if (counts[i] === 0) continue;\n        if (target === -1) {\n            target = counts[i];\n        } else if (counts[i] !== target) {\n            return false;\n        }\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function areOccurrencesEqual(s: string): boolean {\n    const counts: number[] = new Array(26).fill(0);\n    for (let i = 0; i &lt; s.length; i++) {\n        counts[s.charCodeAt(i) - 97]++;\n    }\n    let target = -1;\n    for (let i = 0; i &lt; 26; i++) {\n        if (counts[i] === 0) continue;\n        if (target === -1) {\n            target = counts[i];\n        } else if (counts[i] !== target) {\n            return false;\n        }\n    }\n    return true;\n};\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string.
+- Space: O(1), as the array size is fixed at 26 regardless of input size.
+- Notes: This is generally the fastest approach for this specific problem due to cache locality and lack of hashing overhead.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the string, all identical characters will be adjacent. We can then iterate through the sorted string, counting the length of each "run" of identical characters and comparing these lengths.
+
+**Steps**
+- Convert the string to a character array (or equivalent) and sort it.
+- Initialize a counter for the current character frequency.
+- Iterate through the sorted string. If the current character matches the previous one, increment the counter.
+- If the current character is different, compare the completed counter with the target frequency. If they differ, return `false`. Otherwise, reset the counter.
+- After the loop, perform a final check for the last group of characters.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def areOccurrencesEqual(self, s: str) -&gt; bool:\n        s = sorted(s)\n        target = 1\n        count = 1\n        for i in range(1, len(s)):\n            if s[i] == s[i-1]:\n                count += 1\n            else:\n                if target == 1:\n                    target = count\n                elif count != target:\n                    return False\n                count = 1\n        return count == target or target == 1\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public boolean areOccurrencesEqual(String s) {\n        char[] arr = s.toCharArray();\n        Arrays.sort(arr);\n        int target = -1;\n        int count = 1;\n        for (int i = 1; i &lt; arr.length; i++) {\n            if (arr[i] == arr[i-1]) {\n                count++;\n            } else {\n                if (target == -1) {\n                    target = count;\n                } else if (count != target) {\n                    return false;\n                }\n                count = 1;\n            }\n        }\n        if (target == -1) return true;\n        return count == target;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    bool areOccurrencesEqual(string s) {\n        sort(s.begin(), s.end());\n        int target = -1;\n        int count = 1;\n        for (int i = 1; i &lt; s.size(); i++) {\n            if (s[i] == s[i-1]) {\n                count++;\n            } else {\n                if (target == -1) {\n                    target = count;\n                } else if (count != target) {\n                    return false;\n                }\n                count = 1;\n            }\n        }\n        if (target == -1) return true;\n        return count == target;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var areOccurrencesEqual = function(s) {\n    const arr = s.split('').sort();\n    let target = -1;\n    let count = 1;\n    for (let i = 1; i &lt; arr.length; i++) {\n        if (arr[i] === arr[i-1]) {\n            count++;\n        } else {\n            if (target === -1) {\n                target = count;\n            } else if (count !== target) {\n                return false;\n            }\n            count = 1;\n        }\n    }\n    if (target === -1) return true;\n    return count === target;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function areOccurrencesEqual(s: string): boolean {\n    const arr = s.split('').sort();\n    let target = -1;\n    let count = 1;\n    for (let i = 1; i &lt; arr.length; i++) {\n        if (arr[i] === arr[i-1]) {\n            count++;\n        } else {\n            if (target === -1) {\n                target = count;\n            } else if (count !== target) {\n                return false;\n            }\n            count = 1;\n        }\n    }\n    if (target === -1) return true;\n    return count === target;\n};\n" },]} />
+
+**Complexity**
+- Time: O(n log n), due to the sorting step.
+- Space: O(n) or O(log n), depending on the sorting algorithm's implementation (e.g., Java's `Arrays.sort` uses O(n) space for objects, O(log n) for primitives).
+- Notes: This approach is less efficient than counting but demonstrates a valid alternative using sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if All Characters Have Equal Number of Occurrences Solutions","datePublished":"2025-05-17","description":"Given a string s, determine if all characters appear the same number of times.","keywords":"LeetCode, Check if All Characters Have Equal Number of Occurrences, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Fixed Array approach?","acceptedAnswer":{"@type":"Answer","text":"O(1), because the array size is fixed at 26."}},{"@type":"Question","name":"Why is the Fixed Array approach often preferred for this problem?","acceptedAnswer":{"@type":"Answer","text":"It avoids the overhead of hash computations and uses less memory than a hash map since the character set is limited."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,116 @@
+---
+title: "Make a Square with the Same Color"
+summary: "Determine if you can change one cell in a 3x3 grid to form a 2x2 square of uniform color."
+date: "Nov 15, 2025"
+tags:
+  - Array
+  - Matrix
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.20% | **Paid:** No
+> **Topics:** Array, Matrix, Enumeration
+
+You are given a 3x3 grid, represented as a 2D array of characters. Each cell in the grid contains either 'B' (Black) or 'W' (White).
+
+In one operation, you can change the color of any cell to either 'B' or 'W'.
+
+Return true if it is possible to make a 2x2 square within the grid where all 4 cells have the same color. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Direct Enumeration](#direct-enumeration)
+- [2D Prefix Sum](#2d-prefix-sum)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: grid = [["B","W","B"],["B","W","B"],["B","W","B"]]
+Output: true
+Explanation: We can change the color of the cell at (1, 1) to 'B' to make the top-left 2x2 square all 'B's.
+```
+
+**Example 2:**
+
+```text
+Input: grid = [["B","W","B"],["W","B","W"],["B","W","B"]]
+Output: false
+Explanation: No matter which cell we change, we cannot form a 2x2 square with all cells having the same color.
+```
+
+**Example 3:**
+
+```text
+Input: grid = [["B","B","B"],["B","B","B"],["B","B","B"]]
+Output: true
+Explanation: The grid is already all 'B's, so any 2x2 square is valid.
+```
+
+## Constraints
+
+```text
+grid.length == 3
+grid[i].length == 3
+grid[i][j] is either 'W' or 'B'.
+```
+
+---
+## Direct Enumeration
+
+**Intuition**
+Since the grid is fixed at 3x3, there are only 4 possible 2x2 squares (top-left, top-right, bottom-left, bottom-right). We can simply check each of these 4 squares. If any square contains at least 3 cells of the same color, we can change the remaining cell to match, making a valid square.
+
+**Steps**
+- Iterate through the top-left corners of the 4 possible 2x2 squares (i from 0 to 1, j from 0 to 1).
+- For each square, count the number of 'B' and 'W' cells.
+- If the count of 'B' is 3 or more, or the count of 'W' is 3 or more, return true.
+- If none of the squares satisfy the condition after checking all, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canMakeSquare(self, grid: List[List[str]]) -&gt; bool:\n        for i in range(2):\n            for j in range(2):\n                b = 0\n                w = 0\n                for x in range(2):\n                    for y in range(2):\n                        if grid[i+x][j+y] == 'B':\n                            b += 1\n                        else:\n                            w += 1\n                if b &gt;= 3 or w &gt;= 3:\n                    return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canMakeSquare(char[][] grid) {\n        for (int i = 0; i &lt; 2; i++) {\n            for (int j = 0; j &lt; 2; j++) {\n                int b = 0, w = 0;\n                for (int x = 0; x &lt; 2; x++) {\n                    for (int y = 0; y &lt; 2; y++) {\n                        if (grid[i+x][j+y] == 'B') b++;\n                        else w++;\n                    }\n                }\n                if (b &gt;= 3 || w &gt;= 3) return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canMakeSquare(vector&lt;vector&lt;char&gt;&gt;& grid) {\n        for (int i = 0; i &lt; 2; ++i) {\n            for (int j = 0; j &lt; 2; ++j) {\n                int b = 0, w = 0;\n                for (int x = 0; x &lt; 2; ++x) {\n                    for (int y = 0; y &lt; 2; ++y) {\n                        if (grid[i+x][j+y] == 'B') b++;\n                        else w++;\n                    }\n                }\n                if (b &gt;= 3 || w &gt;= 3) return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canMakeSquare = function(grid) {\n    for (let i = 0; i &lt; 2; i++) {\n        for (let j = 0; j &lt; 2; j++) {\n            let b = 0, w = 0;\n            for (let x = 0; x &lt; 2; x++) {\n                for (let y = 0; y &lt; 2; y++) {\n                    if (grid[i+x][j+y] === 'B') b++;\n                    else w++;\n                }\n            }\n            if (b &gt;= 3 || w &gt;= 3) return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canMakeSquare(grid: string[][]): boolean {\n    for (let i = 0; i &lt; 2; i++) {\n        for (let j = 0; j &lt; 2; j++) {\n            let b = 0, w = 0;\n            for (let x = 0; x &lt; 2; x++) {\n                for (let y = 0; y &lt; 2; y++) {\n                    if (grid[i+x][j+y] === 'B') b++;\n                    else w++;\n                }\n            }\n            if (b &gt;= 3 || w &gt;= 3) return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(1) - The grid size is constant (3x3), so we perform a constant number of operations.
+- Space: O(1) - We only use a few integer variables for counting.
+- Notes: This is the most optimal approach for the given constraints.
+
+---
+## 2D Prefix Sum
+
+**Intuition**
+We can use a 2D prefix sum array to efficiently calculate the sum of values in any sub-rectangle. Here, we can map 'B' to 1 and 'W' to 0. By building a prefix sum array, we can query the number of 'B's in any 2x2 square in O(1) time. This approach is overkill for a 3x3 grid but demonstrates a scalable technique for larger matrices.
+
+**Steps**
+- Initialize a 4x4 prefix sum array with zeros.
+- Iterate through the 3x3 grid to populate the prefix sum array. `prefix[i+1][j+1]` stores the sum of the rectangle from (0,0) to (i,j).
+- Iterate through the 4 possible 2x2 squares. For each square defined by top-left corner (i, j), calculate the sum of 'B's using the inclusion-exclusion principle on the prefix sum array.
+- If the count of 'B's is &gt;= 3 or the count of 'W's (which is 4 - count of 'B's) is &gt;= 3, return true.
+- If no square satisfies the condition, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canMakeSquare(self, grid: List[List[str]]) -&gt; bool:\n        n = 3\n        prefix = [[0] * (n + 1) for _ in range(n + 1)]\n        for i in range(n):\n            for j in range(n):\n                val = 1 if grid[i][j] == 'B' else 0\n                prefix[i+1][j+1] = val + prefix[i][j+1] + prefix[i+1][j] - prefix[i][j]\n        \n        for i in range(2):\n            for j in range(2):\n                b_count = prefix[i+2][j+2] - prefix[i][j+2] - prefix[i+2][j] + prefix[i][j]\n                w_count = 4 - b_count\n                if b_count &gt;= 3 or w_count &gt;= 3:\n                    return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canMakeSquare(char[][] grid) {\n        int n = 3;\n        int[][] prefix = new int[n + 1][n + 1];\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                int val = grid[i][j] == 'B' ? 1 : 0;\n                prefix[i+1][j+1] = val + prefix[i][j+1] + prefix[i+1][j] - prefix[i][j];\n            }\n        }\n        for (int i = 0; i &lt; 2; i++) {\n            for (int j = 0; j &lt; 2; j++) {\n                int bCount = prefix[i+2][j+2] - prefix[i][j+2] - prefix[i+2][j] + prefix[i][j];\n                int wCount = 4 - bCount;\n                if (bCount &gt;= 3 || wCount &gt;= 3) return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canMakeSquare(vector&lt;vector&lt;char&gt;&gt;& grid) {\n        int n = 3;\n        vector&lt;vector&lt;int&gt;&gt; prefix(n + 1, vector&lt;int&gt;(n + 1, 0));\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = 0; j &lt; n; ++j) {\n                int val = grid[i][j] == 'B' ? 1 : 0;\n                prefix[i+1][j+1] = val + prefix[i][j+1] + prefix[i+1][j] - prefix[i][j];\n            }\n        }\n        for (int i = 0; i &lt; 2; ++i) {\n            for (int j = 0; j &lt; 2; ++j) {\n                int bCount = prefix[i+2][j+2] - prefix[i][j+2] - prefix[i+2][j] + prefix[i][j];\n                int wCount = 4 - bCount;\n                if (bCount &gt;= 3 || wCount &gt;= 3) return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var canMakeSquare = function(grid) {\n    const n = 3;\n    const prefix = Array.from({ length: n + 1 }, () =&gt; Array(n + 1).fill(0));\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const val = grid[i][j] === 'B' ? 1 : 0;\n            prefix[i+1][j+1] = val + prefix[i][j+1] + prefix[i+1][j] - prefix[i][j];\n        }\n    }\n    for (let i = 0; i &lt; 2; i++) {\n        for (let j = 0; j &lt; 2; j++) {\n            const bCount = prefix[i+2][j+2] - prefix[i][j+2] - prefix[i+2][j] + prefix[i][j];\n            const wCount = 4 - bCount;\n            if (bCount &gt;= 3 || wCount &gt;= 3) return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function canMakeSquare(grid: string[][]): boolean {\n    const n = 3;\n    const prefix: number[][] = Array.from({ length: n + 1 }, () =&gt; Array(n + 1).fill(0));\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            const val = grid[i][j] === 'B' ? 1 : 0;\n            prefix[i+1][j+1] = val + prefix[i][j+1] + prefix[i+1][j] - prefix[i][j];\n        }\n    }\n    for (let i = 0; i &lt; 2; i++) {\n        for (let j = 0; j &lt; 2; j++) {\n            const bCount = prefix[i+2][j+2] - prefix[i][j+2] - prefix[i+2][j] + prefix[i][j];\n            const wCount = 4 - bCount;\n            if (bCount &gt;= 3 || wCount &gt;= 3) return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) to build the prefix sum, where n is the grid dimension. For this problem, n=3, so it is effectively O(1).
+- Space: O(n²) to store the prefix sum array.
+- Notes: While this approach is generalizable to much larger grids and range queries, it uses more memory than the direct enumeration method for this specific problem size.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Make a Square with the Same Color Solutions","datePublished":"2025-11-15","description":"Determine if you can change one cell in a 3x3 grid to form a 2x2 square of uniform color.","keywords":"LeetCode, Make a Square with the Same Color, Easy, Array, Matrix, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Enumeration approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) since the grid size is fixed at 3x3."}},{"@type":"Question","name":"What is the space complexity of the Direct Enumeration approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) as no extra space is used."}},{"@type":"Question","name":"What is the time complexity of the 2D Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) for building the prefix sum, but O(1) for the fixed 3x3 grid."}},{"@type":"Question","name":"What is the space complexity of the 2D Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) to store the prefix sum array."}}]}).replace(/</g,'\u003c')}
+</script>

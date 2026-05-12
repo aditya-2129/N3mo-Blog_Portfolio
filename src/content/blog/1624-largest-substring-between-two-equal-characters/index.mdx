@@ -1,0 +1,249 @@
+---
+title: "Largest Substring Between Two Equal Characters"
+summary: "Given a string s, find the maximum length of a substring between two equal characters."
+date: "Sep 10, 2024"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.30% | **Paid:** No
+> **Topics:** Hash Table, String
+
+Given a string s, return the length of the longest substring between two equal characters, excluding the two characters. If no such substring exists, return -1.
+
+A substring is a contiguous sequence of characters within a string.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [First and Last Occurrence](#first-and-last-occurrence)
+
+## Examples
+
+```text
+Input: s = "aa"
+Output: 0
+Explanation: The optimal substring is the empty string between the two 'a' characters.
+```
+
+```text
+Input: s = "abca"
+Output: 2
+Explanation: The optimal substring is "bc".
+```
+
+```text
+Input: s = "cbzxy"
+Output: -1
+Explanation: There are no characters that appear twice in s.
+```
+
+## Constraints
+
+```text
+- 1 <= s.length <= 300
+- s contains only lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair of indices in the string. If the characters at those indices are equal, calculate the distance between them and keep track of the maximum distance found.
+
+**Steps**
+- Initialize a variable `max_len` to -1.
+- Use two nested loops to iterate through the string. The outer loop runs from index `i` to the end, and the inner loop runs from index `j = i + 1` to the end.
+- If `s[i]` is equal to `s[j]`, update `max_len` with the maximum of its current value and `j - i - 1`.
+- Return `max_len`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def maxLengthBetweenEqualCharacters(self, s: str) -> int:
+        max_len = -1
+        n = len(s)
+        for i in range(n):
+            for j in range(i + 1, n):
+                if s[i] == s[j]:
+                    max_len = max(max_len, j - i - 1)
+        return max_len
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int maxLengthBetweenEqualCharacters(String s) {
+        int maxLen = -1;
+        int n = s.length();
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    maxLen = Math.max(maxLen, j - i - 1);
+                }
+            }
+        }
+        return maxLen;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int maxLengthBetweenEqualCharacters(string s) {
+        int maxLen = -1;
+        int n = s.length();
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (s[i] == s[j]) {
+                    maxLen = max(maxLen, j - i - 1);
+                }
+            }
+        }
+        return maxLen;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var maxLengthBetweenEqualCharacters = function(s) {
+    let maxLen = -1;
+    const n = s.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (s[i] === s[j]) {
+                maxLen = Math.max(maxLen, j - i - 1);
+            }
+        }
+    }
+    return maxLen;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function maxLengthBetweenEqualCharacters(s: string): number {
+    let maxLen = -1;
+    const n = s.length;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (s[i] === s[j]) {
+                maxLen = Math.max(maxLen, j - i - 1);
+            }
+        }
+    }
+    return maxLen;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple to implement but inefficient for very long strings (though constraints are small here).
+
+---
+## First and Last Occurrence
+
+**Intuition**
+The longest substring for a specific character will always be between its first occurrence and its last occurrence in the string. We can store the first index where each character appears and then calculate the distance to the current index as we iterate.
+
+**Steps**
+- Create a data structure (like an array of size 26 or a hash map) to store the first occurrence index of each character. Initialize all values to -1.
+- Iterate through the string. If the current character's first occurrence is -1, record the current index as its first occurrence.
+- Iterate through the string again. For each character, calculate the distance between the current index and its first occurrence index. Update the maximum length found.
+- Return the maximum length.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def maxLengthBetweenEqualCharacters(self, s: str) -> int:
+        first_occurrence = {}
+        for i, char in enumerate(s):
+            if char not in first_occurrence:
+                first_occurrence[char] = i
+        
+        max_len = -1
+        for i, char in enumerate(s):
+            if char in first_occurrence:
+                max_len = max(max_len, i - first_occurrence[char] - 1)
+        return max_len
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int maxLengthBetweenEqualCharacters(String s) {
+        int[] first = new int[26];
+        Arrays.fill(first, -1);
+        for (int i = 0; i &lt; s.length(); i++) {
+            char c = s.charAt(i);
+            if (first[c - 'a'] == -1) {
+                first[c - 'a'] = i;
+            }
+        }
+        
+        int maxLen = -1;
+        for (int i = 0; i &lt; s.length(); i++) {
+            char c = s.charAt(i);
+            maxLen = Math.max(maxLen, i - first[c - 'a'] - 1);
+        }
+        return maxLen;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int maxLengthBetweenEqualCharacters(string s) {
+        vector<int> first(26, -1);
+        for (int i = 0; i &lt; s.size(); i++) {
+            int idx = s[i] - 'a';
+            if (first[idx] == -1) {
+                first[idx] = i;
+            }
+        }
+        
+        int maxLen = -1;
+        for (int i = 0; i &lt; s.size(); i++) {
+            int idx = s[i] - 'a';
+            maxLen = max(maxLen, i - first[idx] - 1);
+        }
+        return maxLen;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var maxLengthBetweenEqualCharacters = function(s) {
+    const first = new Array(26).fill(-1);
+    for (let i = 0; i &lt; s.length; i++) {
+        const idx = s.charCodeAt(i) - 97;
+        if (first[idx] === -1) {
+            first[idx] = i;
+        }
+    }
+    
+    let maxLen = -1;
+    for (let i = 0; i &lt; s.length; i++) {
+        const idx = s.charCodeAt(i) - 97;
+        maxLen = Math.max(maxLen, i - first[idx] - 1);
+    }
+    return maxLen;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function maxLengthBetweenEqualCharacters(s: string): number {
+    const first: number[] = new Array(26).fill(-1);
+    for (let i = 0; i &lt; s.length; i++) {
+        const idx = s.charCodeAt(i) - 97;
+        if (first[idx] === -1) {
+            first[idx] = i;
+        }
+    }
+    
+    let maxLen = -1;
+    for (let i = 0; i &lt; s.length; i++) {
+        const idx = s.charCodeAt(i) - 97;
+        maxLen = Math.max(maxLen, i - first[idx] - 1);
+    }
+    return maxLen;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: We use a fixed-size array of 26 integers regardless of the input size, so space complexity is constant.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Substring Between Two Equal Characters Solutions","datePublished":"2024-09-10","description":"Given a string s, find the maximum length of a substring between two equal characters.","keywords":"LeetCode, Largest Substring Between Two Equal Characters, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the length of the string, as we check every pair of indices."}},{"@type":"Question","name":"What is the space complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few variables for iteration and storing the result."}},{"@type":"Question","name":"What is the time complexity of the First and Last Occurrence approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) because we iterate through the string twice to find first and last indices."}},{"@type":"Question","name":"What is the space complexity of the First and Last Occurrence approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the storage used for indices is fixed at 26 for the English alphabet."}}]}).replace(/</g,'\u003c')}
+</script>

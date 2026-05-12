@@ -1,0 +1,161 @@
+---
+title: "Top Travellers"
+summary: "Write a SQL query to report the distance travelled by each user, handling users with no rides."
+date: "Apr 01, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 57.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| id           | int     |
+| name         | varchar |
++--------------+---------+
+id is the primary key (column with unique values) for this table.
+name is the name of the user.
+
+Table: Rides
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| ride_id      | int     |
+| user_id      | int     |
+| distance     | int     |
++--------------+---------+
+ride_id is the primary key (column with unique values) for this table.
+user_id is the id of the user who traveled the distance "distance".
+
+Write a solution to report the distance traveled by each user.
+Return the result table ordered by travelled_distance in descending order, and if two or more users traveled the same distance, order them by their name in ascending order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Left Join with Aggregation](#approach-1-left-join-with-aggregation)
+- [Approach 2: Pre-aggregation then Join](#approach-2-pre-aggregation-then-join)
+
+## Examples
+
+### Example 1
+**Input:**
+Users table:
++------+-----------+
+| id   | name      |
++------+-----------+
+| 1    | Alice     |
+| 2    | Bob       |
+| 3    | Alex      |
+| 4    | Donald    |
+| 7    | Lee       |
+| 13   | Jonathan  |
+| 19   | Elvis     |
++------+-----------+
+Rides table:
++------+----------+----------+
+| ride_id | user_id | distance |
++------+----------+----------+
+| 1    | 1        | 120      |
+| 2    | 2        | 317      |
+| 3    | 3        | 222      |
+| 4    | 7        | 100      |
+| 5    | 13       | 40       |
+| 6    | 19       | 80       |
+| 7    | 7        | 60       |
+| 8    | 19       | 100      |
+| 9    | 7        | 90       |
+| 10   | 1        | 60       |
++------+----------+----------+
+
+**Output:**
++----------+--------------------+
+| name     | travelled_distance |
++----------+--------------------+
+| Elvis    | 180                |
+| Lee      | 250                |
+| Bob      | 317                |
+| Jonathan | 40                 |
+| Alex     | 222                |
+| Alice    | 180                |
+| Donald   | 0                  |
++----------+--------------------+
+
+**Explanation:**
+- Elvis and Alice traveled 180 units, Elvis is listed before Alice because "Elvis" &lt; "Alice" in alphabetical order.
+- Lee, Bob, Alex, and Jonathan traveled 250, 317, 222, and 40 units respectively.
+- Donald traveled 0 units.
+
+## Constraints
+
+```text
+0 <= Users.id <= 10⁵
+0 <= Rides.ride_id <= 10⁵
+0 <= Rides.distance <= 10⁵
+```
+
+---
+
+## Approach 1: Left Join with Aggregation
+
+**Intuition**
+We need to combine the `Users` table with the `Rides` table. A `LEFT JOIN` ensures that users who have not taken any rides are still included in the result. We then group by the user and sum the distances, handling `NULL` values (which occur when a user has no rides) by converting them to 0.
+
+**Steps**
+- Perform a `LEFT JOIN` between `Users` and `Rides` on the `user_id`.
+- Group the results by the user's `id` and `name`.
+- Use `SUM()` to calculate the total distance.
+- Use `COALESCE()` (or `IFNULL`) to replace `NULL` sums with 0.
+- Order the results by `travelled_distance` descending, then by `name` ascending.
+
+<CodeTabs client:load tabs={[{ name: "SQL", lang: "sql", code: "SELECT u.name, COALESCE(SUM(r.distance), 0) AS travelled_distance\nFROM Users u\nLEFT JOIN Rides r ON u.id = r.user_id\nGROUP BY u.id, u.name\nORDER BY travelled_distance DESC, u.name ASC" },
+{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef top_travellers(users: pd.DataFrame, rides: pd.DataFrame) -&gt; pd.DataFrame:\n    # Perform a left merge (equivalent to LEFT JOIN)\n    merged = users.merge(rides, left_on='id', right_on='user_id', how='left')\n    \n    # Group by name and sum distances\n    result = merged.groupby('name')['distance'].sum().reset_index()\n    \n    # Fill NaN with 0 (equivalent to COALESCE)\n    result['distance'] = result['distance'].fillna(0)\n    \n    # Rename column to match expected output\n    result = result.rename(columns={'distance': 'travelled_distance'})\n    \n    # Sort by travelled_distance DESC, then name ASC\n    result = result.sort_values(by=['travelled_distance', 'name'], ascending=[False, True])\n    \n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\npublic class Solution {\n    public List&lt;List&lt;String&gt;&gt; topTravellers(List&lt;List&lt;String&gt;&gt; users, List&lt;List&lt;String&gt;&gt; rides) {\n        // Map to store user_id -&gt; total distance\n        Map&lt;Integer, Long&gt; distanceMap = new HashMap&lt;&gt;();\n        \n        // Aggregate distances from rides\n        for (List&lt;String&gt; ride : rides) {\n            int userId = Integer.parseInt(ride.get(1));\n            int dist = Integer.parseInt(ride.get(2));\n            distanceMap.put(userId, distanceMap.getOrDefault(userId, 0L) + dist);\n        }\n        \n        // Prepare result list\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        \n        for (List&lt;String&gt; user : users) {\n            int id = Integer.parseInt(user.get(0));\n            String name = user.get(1);\n            // Get distance or 0 if not present (COALESCE logic)\n            long travelled = distanceMap.getOrDefault(id, 0L);\n            result.add(Arrays.asList(name, String.valueOf(travelled)));\n        }\n        \n        // Sort: distance DESC, then name ASC\n        result.sort((a, b) -&gt; {\n            long d1 = Long.parseLong(a.get(1));\n            long d2 = Long.parseLong(b.get(1));\n            if (d1 != d2) {\n                return Long.compare(d2, d1); // Descending\n            }\n            return a.get(0).compareTo(b.get(0)); // Ascending\n        });\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; topTravellers(vector&lt;vector&lt;string&gt;&gt;& users, vector&lt;vector&lt;string&gt;&gt;& rides) {\n        // Map to store user_id -&gt; total distance\n        unordered_map&lt;int, long long&gt; distMap;\n        \n        // Aggregate distances\n        for (const auto& ride : rides) {\n            int uid = stoi(ride[1]);\n            long long d = stoll(ride[2]);\n            distMap[uid] += d;\n        }\n        \n        // Vector to hold results for sorting\n        vector&lt;pair&lt;string, long long&gt;&gt; res;\n        \n        for (const auto& user : users) {\n            int uid = stoi(user[0]);\n            string name = user[1];\n            // Get distance or 0 if not found\n            long long d = distMap.count(uid) ? distMap[uid] : 0;\n            res.emplace_back(name, d);\n        }\n        \n        // Custom sort: distance DESC, name ASC\n        sort(res.begin(), res.end(), [](const auto& a, const auto& b) {\n            if (a.second != b.second) {\n                return a.second &gt; b.second; // Descending\n            }\n            return a.first &lt; b.first; // Ascending\n        });\n        \n        // Convert to required output format\n        vector&lt;vector&lt;string&gt;&gt; output;\n        for (const auto& p : res) {\n            output.push_back({p.first, to_string(p.second)});\n        }\n        \n        return output;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&gt;} users\n * @param {Array&lt;Array&gt;} rides\n * @return {Array&lt;Array&gt;}\n */\nvar topTravellers = function(users, rides) {\n    // Map to store user_id -&gt; total distance\n    const map = new Map();\n    \n    // Aggregate distances\n    for (const [_, uid, dist] of rides) {\n        const id = parseInt(uid);\n        const d = parseInt(dist);\n        map.set(id, (map.get(id) || 0) + d);\n    }\n    \n    // Build result array\n    const result = users.map(([id, name]) =&gt; {\n        const userId = parseInt(id);\n        return [name, map.get(userId) || 0];\n    });\n    \n    // Sort: distance DESC, name ASC\n    result.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) {\n            return b[1] - a[1]; // Descending\n        }\n        return a[0].localeCompare(b[0]); // Ascending\n    });\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function topTravellers(users: [number, string][], rides: [number, number, number][]): [string, number][] {\n    // Map to store user_id -&gt; total distance\n    const map = new Map&lt;number, number&gt;();\n    \n    // Aggregate distances\n    for (const [_, uid, dist] of rides) {\n        map.set(uid, (map.get(uid) || 0) + dist);\n    }\n    \n    // Build result array\n    const result: [string, number][] = users.map(([id, name]) =&gt; {\n        return [name, map.get(id) || 0];\n    });\n    \n    // Sort: distance DESC, name ASC\n    result.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) {\n            return b[1] - a[1]; // Descending\n        }\n        return a[0].localeCompare(b[0]); // Ascending\n    });\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M log M) where N is the total number of rows in the joined table (or sum of rows in both tables for the algorithmic approach) and M is the number of unique users. Sorting dominates the complexity.
+- Space: O(M) to store the aggregated distances for each user.
+- Notes: The `LEFT JOIN` is crucial here; an `INNER JOIN` would exclude users with 0 distance.
+
+## Approach 2: Pre-aggregation then Join
+
+**Intuition**
+Instead of joining the raw tables and then aggregating, we can first aggregate the `Rides` table to calculate the total distance per user. Then, we perform a `LEFT JOIN` of this aggregated result with the `Users` table. This can sometimes be more efficient as it reduces the number of rows involved in the join operation.
+
+**Steps**
+- Create a subquery (or CTE) that selects `user_id` and the sum of `distance` from the `Rides` table, grouping by `user_id`.
+- Perform a `LEFT JOIN` of the `Users` table with this subquery on `user_id`.
+- Use `COALESCE` on the summed distance to handle users with no rides.
+- Order the final result by `travelled_distance` descending and `name` ascending.
+
+<CodeTabs client:load tabs={[{ name: "SQL", lang: "sql", code: "SELECT u.name, COALESCE(r.total_distance, 0) AS travelled_distance\nFROM Users u\nLEFT JOIN (\n    SELECT user_id, SUM(distance) AS total_distance\n    FROM Rides\n    GROUP BY user_id\n) r ON u.id = r.user_id\nORDER BY travelled_distance DESC, u.name ASC" },
+{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef top_travellers(users: pd.DataFrame, rides: pd.DataFrame) -&gt; pd.DataFrame:\n    # Pre-aggregate rides: group by user_id and sum distance\n    ride_totals = rides.groupby('user_id')['distance'].sum().reset_index()\n    \n    # Left join users with the aggregated ride totals\n    result = users.merge(ride_totals, left_on='id', right_on='user_id', how='left')\n    \n    # Fill NaN with 0 for users with no rides\n    result['distance'] = result['distance'].fillna(0)\n    \n    # Select and rename columns\n    result = result[['name', 'distance']]\n    result.columns = ['name', 'travelled_distance']\n    \n    # Sort by travelled_distance DESC, then name ASC\n    result = result.sort_values(by=['travelled_distance', 'name'], ascending=[False, True])\n    \n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.stream.*;\n\npublic class Solution {\n    public List&lt;List&lt;String&gt;&gt; topTravellers(List&lt;List&lt;String&gt;&gt; users, List&lt;List&lt;String&gt;&gt; rides) {\n        // Step 1: Pre-aggregation - Create a map of user_id -&gt; total distance\n        Map&lt;Integer, Long&gt; rideTotals = rides.stream()\n            .collect(Collectors.groupingBy(\n                ride -&gt; Integer.parseInt(ride.get(1)), // user_id key\n                Collectors.summingLong(ride -&gt; Long.parseLong(ride.get(2))) // sum distance\n            ));\n        \n        // Step 2: Left Join logic - Iterate users and lookup in map\n        List&lt;List&lt;String&gt;&gt; result = users.stream()\n            .map(user -&gt; {\n                int id = Integer.parseInt(user.get(0));\n                String name = user.get(1);\n                // COALESCE equivalent: get value or 0\n                long travelled = rideTotals.getOrDefault(id, 0L);\n                return Arrays.asList(name, String.valueOf(travelled));\n            })\n            .collect(Collectors.toList());\n            \n        // Step 3: Sort\n        result.sort((a, b) -&gt; {\n            long d1 = Long.parseLong(a.get(1));\n            long d2 = Long.parseLong(b.get(1));\n            if (d1 != d2) return Long.compare(d2, d1);\n            return a.get(0).compareTo(b.get(0));\n        });\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; topTravellers(vector&lt;vector&lt;string&gt;&gt;& users, vector&lt;vector&lt;string&gt;&gt;& rides) {\n        // Step 1: Pre-aggregation\n        unordered_map&lt;int, long long&gt; rideTotals;\n        for (const auto& ride : rides) {\n            int uid = stoi(ride[1]);\n            long long d = stoll(ride[2]);\n            rideTotals[uid] += d;\n        }\n        \n        // Step 2: Left Join logic\n        vector&lt;pair&lt;string, long long&gt;&gt; res;\n        for (const auto& user : users) {\n            int uid = stoi(user[0]);\n            string name = user[1];\n            long long travelled = rideTotals.count(uid) ? rideTotals[uid] : 0;\n            res.emplace_back(name, travelled);\n        }\n        \n        // Step 3: Sort\n        sort(res.begin(), res.end(), [](const auto& a, const auto& b) {\n            if (a.second != b.second) return a.second &gt; b.second;\n            return a.first &lt; b.first;\n        });\n        \n        vector&lt;vector&lt;string&gt;&gt; output;\n        for (const auto& p : res) {\n            output.push_back({p.first, to_string(p.second)});\n        }\n        return output;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&gt;} users\n * @param {Array&lt;Array&gt;} rides\n * @return {Array&lt;Array&gt;}\n */\nvar topTravellers = function(users, rides) {\n    // Step 1: Pre-aggregation using reduce\n    const rideTotals = rides.reduce((acc, [_, uid, dist]) =&gt; {\n        const id = parseInt(uid);\n        acc[id] = (acc[id] || 0) + parseInt(dist);\n        return acc;\n    }, {});\n    \n    // Step 2: Left Join logic using map\n    const result = users.map(([id, name]) =&gt; {\n        const userId = parseInt(id);\n        return [name, rideTotals[userId] || 0];\n    });\n    \n    // Step 3: Sort\n    result.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function topTravellers(users: [number, string][], rides: [number, number, number][]): [string, number][] {\n    // Step 1: Pre-aggregation using reduce\n    const rideTotals: Record&lt;number, number&gt; = rides.reduce((acc, [_, uid, dist]) =&gt; {\n        acc[uid] = (acc[uid] || 0) + dist;\n        return acc;\n    }, {});\n    \n    // Step 2: Left Join logic using map\n    const result: [string, number][] = users.map(([id, name]) =&gt; {\n        return [name, rideTotals[id] || 0];\n    });\n    \n    // Step 3: Sort\n    result.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0].localeCompare(b[0]);\n    });\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M log M). We iterate through `Rides` once to aggregate (O(N)) and `Users` once to join (O(M)). Sorting takes O(M log M).
+- Space: O(K) where K is the number of unique users in `Rides` (for the hash map) plus O(M) for the result list.
+- Notes: This approach is logically equivalent to the first but can perform better on large datasets where the `Rides` table is significantly larger than the `Users` table, as the join operation works on fewer rows.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Top Travellers Solutions","datePublished":"2024-04-01","description":"Write a SQL query to report the distance travelled by each user, handling users with no rides.","keywords":"LeetCode, Top Travellers, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Left Join approach?","acceptedAnswer":{"@type":"Answer","text":"O(N + M log M), where N is the number of rows in the joined table and M is the number of unique users. Sorting is the dominant factor."}},{"@type":"Question","name":"Why use LEFT JOIN instead of INNER JOIN?","acceptedAnswer":{"@type":"Answer","text":"LEFT JOIN ensures that users who have not taken any rides are included in the result with a distance of 0. INNER JOIN would exclude them."}},{"@type":"Question","name":"How do we handle NULL values in the distance sum?","acceptedAnswer":{"@type":"Answer","text":"We use COALESCE(SUM(r.distance), 0) in SQL or equivalent logic (getOrDefault) in programming languages to convert NULL sums to 0."}}]}).replace(/</g,'\u003c')}
+</script>

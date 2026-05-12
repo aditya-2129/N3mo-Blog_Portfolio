@@ -1,0 +1,199 @@
+---
+title: "Stone Removal Game"
+summary: "Alice and Bob take turns removing stones — Alice starts with 10, then 9, 8, … decreasing each turn. The player who cannot remove the required stones loses."
+date: "Jul 30, 2025"
+tags:
+  - Math
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 42.50% | **Paid:** No
+
+> **Topics:** Math, Simulation
+
+Alice and Bob are playing a game. They start with `n` stones. Alice goes first. On each turn, a player must remove a specific number of stones: Alice removes 10 on her first turn, Bob removes 9 on his first turn, Alice removes 8 on her second turn, Bob removes 7 on his second turn, and so on (decreasing by 1 each turn). If a player cannot remove the required number of stones (i.e. fewer stones remain than required), that player loses. Return `true` if Alice wins, `false` otherwise.
+
+- Examples
+- Constraints
+- [Simulation](#simulation)
+- [Mathematical (Win Ranges)](#mathematical-win-ranges)
+
+## Examples
+
+**Input**
+
+```text
+n = 12
+```
+
+**Output**
+
+```text
+true
+```
+
+**Explanation**
+
+Alice removes 10 stones (12 - 10 = 2 remain). Bob needs to remove 9 but only 2 remain, so Bob cannot move. Alice wins.
+
+**Input**
+
+```text
+n = 1
+```
+
+**Output**
+
+```text
+false
+```
+
+**Explanation**
+
+Alice needs to remove 10 stones but only 1 remains. Alice cannot move on her first turn, so Alice loses.
+
+## Constraints
+
+```text
+- 1 <= n <= 50
+```
+---
+
+## Simulation
+
+**Intuition**
+
+Since the removal amounts strictly decrease (10, 9, 8, …, 1), there are at most 10 turns in the entire game. We can simply simulate each turn: if the current player has enough stones to remove, they do so; otherwise they lose. This is O(1) in time since the loop runs at most 10 iterations.
+
+**Steps**
+
+- Start with `removal = 10` and `aliceTurn = true`.
+- While `n >= removal`: subtract `removal` from `n`, decrement `removal`, flip `aliceTurn`.
+- When the loop exits, the current player (tracked by `aliceTurn`) cannot move and loses.
+- Return `!aliceTurn` — if it's Alice's turn when she can't move, Bob wins (return false); if Bob's turn, Alice wins (return true).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def canAliceWin(self, n: int) -> bool:
+        removal = 10
+        alice_turn = True
+        while n >= removal:
+            n -= removal
+            removal -= 1
+            alice_turn = not alice_turn
+        return not alice_turn` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean canAliceWin(int n) {
+        int removal = 10;
+        boolean aliceTurn = true;
+        while (n >= removal) {
+            n -= removal;
+            removal--;
+            aliceTurn = !aliceTurn;
+        }
+        return !aliceTurn;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool canAliceWin(int n) {
+        int removal = 10;
+        bool aliceTurn = true;
+        while (n >= removal) {
+            n -= removal;
+            removal--;
+            aliceTurn = !aliceTurn;
+        }
+        return !aliceTurn;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var canAliceWin = function(n) {
+    let removal = 10;
+    let aliceTurn = true;
+    while (n >= removal) {
+        n -= removal;
+        removal--;
+        aliceTurn = !aliceTurn;
+    }
+    return !aliceTurn;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function canAliceWin(n: number): boolean {
+    let removal = 10;
+    let aliceTurn = true;
+    while (n >= removal) {
+        n -= removal;
+        removal--;
+        aliceTurn = !aliceTurn;
+    }
+    return !aliceTurn;
+}` }]} />
+
+**Complexity**
+
+- Time: O(1)
+- Space: O(1)
+- Notes: At most 10 iterations since removal decrements from 10 to 1.
+
+---
+
+## Mathematical (Win Ranges)
+
+**Intuition**
+
+Since n &lt;= 50 and the game has at most 10 turns, we can precompute exactly which values of n are wins for Alice. The cumulative stones removed after each turn are: 10, 19, 27, 34, 40, 45, 49, 52, 54, 55. Alice wins when Bob is the one who cannot move — i.e. Alice has just completed her turn but Bob cannot complete his. This gives Alice's winning ranges: [10,18], [27,33], [40,44], [49,51], [54,54].
+
+**Steps**
+
+- Precompute cumulative removal sums after each turn (Alice: odd turns, Bob: even turns).
+- Alice wins if `n` falls in a range where Alice finished her turn but Bob cannot start his.
+- Check n against the five winning intervals.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def canAliceWin(self, n: int) -> bool:
+        # Alice wins if n is in: [10,18],[27,33],[40,44],[49,51],[54,54]
+        win_ranges = [(10,18),(27,33),(40,44),(49,51),(54,54)]
+        return any(lo <= n <= hi for lo, hi in win_ranges)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean canAliceWin(int n) {
+        int[][] winRanges = {{10,18},{27,33},{40,44},{49,51},{54,54}};
+        for (int[] r : winRanges) {
+            if (n >= r[0] && n <= r[1]) return true;
+        }
+        return false;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool canAliceWin(int n) {
+        int winRanges[][2] = {{10,18},{27,33},{40,44},{49,51},{54,54}};
+        for (auto& r : winRanges) {
+            if (n >= r[0] && n <= r[1]) return true;
+        }
+        return false;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var canAliceWin = function(n) {
+    const winRanges = [[10,18],[27,33],[40,44],[49,51],[54,54]];
+    return winRanges.some(([lo, hi]) => n >= lo && n <= hi);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function canAliceWin(n: number): boolean {
+    const winRanges: [number, number][] = [[10,18],[27,33],[40,44],[49,51],[54,54]];
+    return winRanges.some(([lo, hi]) => n >= lo && n <= hi);
+}` }]} />
+
+**Complexity**
+
+- Time: O(1)
+- Space: O(1)
+- Notes: Five range checks, each O(1). The win ranges are derived by tracing cumulative removal sums for all 10 possible turns.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Stone Removal Game Solutions","datePublished":"2025-07-30","description":"Alice and Bob take turns removing stones — Alice starts with 10, then 9, 8, decreasing each turn. Includes Simulation and Mathematical approaches in Python3, Java, C++, JavaScript, TypeScript.","keywords":"LeetCode, Stone Removal Game, Easy, Math, Simulation"}).replace(/</g,'\\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Simulation complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(1); Space: O(1). At most 10 iterations since removal decrements from 10 to 1."}},{"@type":"Question","name":"Mathematical (Win Ranges) complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(1); Space: O(1). Five constant range checks derived from precomputed cumulative removal sums."}}]}).replace(/</g,'\\u003c')}
+</script>

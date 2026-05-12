@@ -1,0 +1,674 @@
+---
+title: "Binary Tree Preorder Traversal"
+summary: "Return the preorder traversal of a binary tree's node values."
+date: "Apr 04, 2025"
+tags:
+  - Stack
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.70% | **Paid:** No
+> **Topics:** Stack, Tree, Depth-First Search, Binary Tree
+
+Given the root of a binary tree, return the preorder traversal of its nodes' values.
+
+- Examples
+- Constraints
+- [Recursive Approach](#recursive-approach)
+- [Iterative Approach with Stack](#iterative-approach-with-stack)
+- [Morris Traversal](#morris-traversal)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+root = [1,null,2,3]
+```
+
+**Output:**
+```text
+[1,2,3]
+```
+
+### Example 2
+
+**Input:**
+```text
+root = [1,2,3,4,5,null,8,null,null,6,7,9]
+```
+
+**Output:**
+```text
+[1,2,4,5,6,7,3,8,9]
+```
+
+### Example 3
+
+**Input:**
+```text
+root = []
+```
+
+**Output:**
+```text
+[]
+```
+
+### Example 4
+
+**Input:**
+```text
+root = [1]
+```
+
+**Output:**
+```text
+[1]
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 100].
+-100 <= Node.val <= 100
+```
+
+---
+## Recursive Approach
+
+**Intuition**
+Preorder traversal visits nodes in the order: root, left subtree, right subtree. We can naturally implement this using recursion.
+
+**Steps**
+- If the current node is null, return
+- Add the current node's value to the result
+- Recursively traverse the left subtree
+- Recursively traverse the right subtree
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        result = []
+        
+        def preorder(node):
+            if not node:
+                return
+            result.append(node.val)
+            preorder(node.left)
+            preorder(node.right)
+        
+        preorder(root)
+        return result` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    private List<Integer> result = new ArrayList&lt;&gt;();
+    
+    public List<Integer> preorderTraversal(TreeNode root) {
+        preorder(root);
+        return result;
+    }
+    
+    private void preorder(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        result.add(node.val);
+        preorder(node.left);
+        preorder(node.right);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        preorder(root, result);
+        return result;
+    }
+    
+private:
+    void preorder(TreeNode* node, vector<int>& result) {
+        if (node == nullptr) {
+            return;
+        }
+        result.push_back(node->val);
+        preorder(node->left, result);
+        preorder(node->right, result);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+var preorderTraversal = function(root) {
+    const result = [];
+    
+    function preorder(node) {
+        if (!node) {
+            return;
+        }
+        result.push(node.val);
+        preorder(node.left);
+        preorder(node.right);
+    }
+    
+    preorder(root);
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function preorderTraversal(root: TreeNode | null): number[] {
+    const result: number[] = [];
+    
+    function preorder(node: TreeNode | null): void {
+        if (!node) {
+            return;
+        }
+        result.push(node.val);
+        preorder(node.left);
+        preorder(node.right);
+    }
+    
+    preorder(root);
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree (recursion stack)
+- Notes: Simple and intuitive, but uses recursion stack space
+
+---
+## Iterative Approach with Stack
+
+**Intuition**
+We can simulate the recursive approach using an explicit stack. The key insight is to push right child first, then left child, so that left is processed first (LIFO).
+
+**Steps**
+- Initialize an empty stack and result list
+- Push the root node onto the stack
+- While the stack is not empty:
+  - Pop a node from the stack
+  - Add its value to the result
+  - Push right child (if exists) to stack
+  - Push left child (if exists) to stack
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        if not root:
+            return []
+        
+        result = []
+        stack = [root]
+        
+        while stack:
+            node = stack.pop()
+            result.append(node.val)
+            
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+        
+        return result` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        if (root == null) {
+            return result;
+        }
+        
+        java.util.Stack<TreeNode> stack = new java.util.Stack&lt;&gt;();
+        stack.push(root);
+        
+        while (!stack.isEmpty()) {
+            TreeNode node = stack.pop();
+            result.add(node.val);
+            
+            if (node.right != null) {
+                stack.push(node.right);
+            }
+            if (node.left != null) {
+                stack.push(node.left);
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        if (root == nullptr) {
+            return result;
+        }
+        
+        stack<TreeNode*&gt; st;
+        st.push(root);
+        
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+            result.push_back(node->val);
+            
+            if (node->right != nullptr) {
+                st.push(node->right);
+            }
+            if (node->left != nullptr) {
+                st.push(node->left);
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+var preorderTraversal = function(root) {
+    if (!root) {
+        return [];
+    }
+    
+    const result = [];
+    const stack = [root];
+    
+    while (stack.length &gt; 0) {
+        const node = stack.pop();
+        result.push(node.val);
+        
+        if (node.right) {
+            stack.push(node.right);
+        }
+        if (node.left) {
+            stack.push(node.left);
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function preorderTraversal(root: TreeNode | null): number[] {
+    if (!root) {
+        return [];
+    }
+    
+    const result: number[] = [];
+    const stack: TreeNode[] = [root];
+    
+    while (stack.length &gt; 0) {
+        const node = stack.pop()!;
+        result.push(node.val);
+        
+        if (node.right) {
+            stack.push(node.right);
+        }
+        if (node.left) {
+            stack.push(node.left);
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree (stack space)
+- Notes: Avoids recursion, useful when recursion depth could cause stack overflow
+
+---
+## Morris Traversal
+
+**Intuition**
+Morris traversal achieves O(1) extra space by temporarily modifying the tree structure. We create temporary links from the rightmost node of the left subtree back to the current node.
+
+**Steps**
+- Initialize current pointer to root
+- While current is not null:
+  - If current has no left child:
+    - Add current's value to result
+    - Move to right child
+  - Else:
+    - Find the rightmost node in current's left subtree
+    - If rightmost node's right is null:
+      - Add current's value to result
+      - Link rightmost's right to current
+      - Move to left child
+    - Else (rightmost's right points to current):
+      - Remove the temporary link
+      - Move to right child
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        result = []
+        current = root
+        
+        while current:
+            if not current.left:
+                result.append(current.val)
+                current = current.right
+            else:
+                # Find the rightmost node in left subtree
+                predecessor = current.left
+                while predecessor.right and predecessor.right != current:
+                    predecessor = predecessor.right
+                
+                if not predecessor.right:
+                    # Create temporary link
+                    result.append(current.val)
+                    predecessor.right = current
+                    current = current.left
+                else:
+                    # Remove temporary link
+                    predecessor.right = None
+                    current = current.right
+        
+        return result` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        TreeNode current = root;
+        
+        while (current != null) {
+            if (current.left == null) {
+                result.add(current.val);
+                current = current.right;
+            } else {
+                // Find the rightmost node in left subtree
+                TreeNode predecessor = current.left;
+                while (predecessor.right != null && predecessor.right != current) {
+                    predecessor = predecessor.right;
+                }
+                
+                if (predecessor.right == null) {
+                    // Create temporary link
+                    result.add(current.val);
+                    predecessor.right = current;
+                    current = current.left;
+                } else {
+                    // Remove temporary link
+                    predecessor.right = null;
+                    current = current.right;
+                }
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        TreeNode* current = root;
+        
+        while (current != nullptr) {
+            if (current->left == nullptr) {
+                result.push_back(current->val);
+                current = current->right;
+            } else {
+                // Find the rightmost node in left subtree
+                TreeNode* predecessor = current->left;
+                while (predecessor->right != nullptr && predecessor->right != current) {
+                    predecessor = predecessor->right;
+                }
+                
+                if (predecessor->right == nullptr) {
+                    // Create temporary link
+                    result.push_back(current->val);
+                    predecessor->right = current;
+                    current = current->left;
+                } else {
+                    // Remove temporary link
+                    predecessor->right = nullptr;
+                    current = current->right;
+                }
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+var preorderTraversal = function(root) {
+    const result = [];
+    let current = root;
+    
+    while (current) {
+        if (!current.left) {
+            result.push(current.val);
+            current = current.right;
+        } else {
+            // Find the rightmost node in left subtree
+            let predecessor = current.left;
+            while (predecessor.right && predecessor.right !== current) {
+                predecessor = predecessor.right;
+            }
+            
+            if (!predecessor.right) {
+                // Create temporary link
+                result.push(current.val);
+                predecessor.right = current;
+                current = current.left;
+            } else {
+                // Remove temporary link
+                predecessor.right = null;
+                current = current.right;
+            }
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function preorderTraversal(root: TreeNode | null): number[] {
+    const result: number[] = [];
+    let current: TreeNode | null = root;
+    
+    while (current) {
+        if (!current.left) {
+            result.push(current.val);
+            current = current.right;
+        } else {
+            // Find the rightmost node in left subtree
+            let predecessor: TreeNode | null = current.left;
+            while (predecessor.right && predecessor.right !== current) {
+                predecessor = predecessor.right;
+            }
+            
+            if (!predecessor.right) {
+                // Create temporary link
+                result.push(current.val);
+                predecessor.right = current;
+                current = current.left;
+            } else {
+                // Remove temporary link
+                predecessor.right = null;
+                current = current.right;
+            }
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(1) extra space (modifies tree temporarily)
+- Notes: Most space-efficient but modifies tree structure during traversal
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Binary Tree Preorder Traversal Solutions","datePublished":"2025-04-04","description":"Return the preorder traversal of a binary tree's node values.","keywords":"LeetCode, Binary Tree Preorder Traversal, Easy, Stack, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the recursive approach for Binary Tree Preorder Traversal?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of nodes in the tree, as we visit each node exactly once."}},{"@type":"Question","name":"What is the space complexity of the iterative approach with stack?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(h) where h is the height of the tree. In the worst case (skewed tree), this becomes O(n)."}},{"@type":"Question","name":"How does Morris Traversal achieve O(1) space complexity?","acceptedAnswer":{"@type":"Answer","text":"Morris Traversal achieves O(1) space by temporarily modifying the tree structure, creating links from the rightmost node of the left subtree back to the current node, eliminating the need for a stack or recursion."}}]}).replace(/</g,'\u003c')}
+</script>

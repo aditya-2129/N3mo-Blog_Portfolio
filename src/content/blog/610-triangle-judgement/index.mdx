@@ -1,0 +1,118 @@
+---
+title: "Triangle Judgement"
+summary: "Determine if three given side lengths can form a valid triangle for each row in the table."
+date: "Mar 31, 2025"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.70% | **Paid:** No
+> **Topics:** Database
+
+Table: Triangle
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| x           | int  |
+| y           | int  |
+| z           | int  |
++-------------+------+
+In SQL, (x, y, z) is the primary key column for this table.
+Each row of this table contains the lengths of three line segments.
+
+Report for every three line segments whether they can form a triangle.
+Return the result table in any order.
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Direct Conditional Check](#approach-1-direct-conditional-check)
+- [Approach 2: Sorting Optimization](#approach-2-sorting-optimization)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input:
+Triangle table:
++----+----+----+
+| x  | y  | z  |
++----+----+----+
+| 13 | 15 | 30 |
+| 10 | 20 | 15 |
++----+----+----+
+
+Output:
++----+----+----+----------+
+| x  | y  | z  | triangle |
++----+----+----+----------+
+| 13 | 15 | 30 | No       |
+| 10 | 20 | 15 | Yes      |
++----+----+----+----------+
+```
+
+## Constraints
+
+```text
+The input table will have at least 1 row.
+x, y, z are positive integers.
+```
+
+---
+## Approach 1: Direct Conditional Check
+
+**Intuition**
+For three lengths to form a triangle, the sum of any two sides must be strictly greater than the third side. We can check all three conditions directly.
+
+**Steps**
+- Iterate through each row of the input data.
+- Extract the three side lengths x, y, and z.
+- Check if x + y &gt; z, x + z &gt; y, and y + z &gt; x.
+- If all conditions are met, the result is "Yes", otherwise "No".
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def triangleJudgement(self, triangle: List[List[int]]) -&gt; List[List[str]]:\n        res = []\n        for x, y, z in triangle:\n            if x + y &gt; z and x + z &gt; y and y + z &gt; x:\n                res.append([str(x), str(y), str(z), \"Yes\"])\n            else:\n                res.append([str(x), str(y), str(z), \"No\"])\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; triangleJudgement(List&lt;List&lt;Integer&gt;&gt; triangle) {\n        List&lt;List&lt;String&gt;&gt; res = new ArrayList&lt;&gt;();\n        for (List&lt;Integer&gt; row : triangle) {\n            int x = row.get(0), y = row.get(1), z = row.get(2);\n            String val = (x + y &gt; z && x + z &gt; y && y + z &gt; x) ? \"Yes\" : \"No\";\n            res.add(Arrays.asList(String.valueOf(x), String.valueOf(y), String.valueOf(z), val));\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; triangleJudgement(vector&lt;vector&lt;int&gt;&gt;& triangle) {\n        vector&lt;vector&lt;string&gt;&gt; res;\n        for (auto& row : triangle) {\n            int x = row[0], y = row[1], z = row[2];\n            string val = (x + y &gt; z && x + z &gt; y && y + z &gt; x) ? \"Yes\" : \"No\";\n            res.push_back({to_string(x), to_string(y), to_string(z), val});\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} triangle\n * @return {string[][]}\n */\nvar triangleJudgement = function(triangle) {\n    return triangle.map(([x, y, z]) =&gt; {\n        const isValid = x + y &gt; z && x + z &gt; y && y + z &gt; x;\n        return [String(x), String(y), String(z), isValid ? \"Yes\" : \"No\"];\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function triangleJudgement(triangle: number[][]): string[][] {\n    return triangle.map(([x, y, z]) =&gt; {\n        const isValid = x + y &gt; z && x + z &gt; y && y + z &gt; x;\n        return [String(x), String(y), String(z), isValid ? \"Yes\" : \"No\"];\n    });\n}" }]} />
+
+**Complexity**
+- Time: O(N), where N is the number of rows. We perform a constant amount of work for each row.
+- Space: O(N) to store the result list.
+- Notes: This is the most straightforward approach and is highly efficient for this problem.
+
+---
+## Approach 2: Sorting Optimization
+
+**Intuition**
+If we sort the three side lengths such that a ≤ b ≤ c, the triangle inequality theorem simplifies. We only need to check if a + b &gt; c, because a + c &gt; b and b + c &gt; a will always be true if c is the largest side.
+
+**Steps**
+- Iterate through each row.
+- Sort the three values x, y, and z.
+- Check if the sum of the two smallest numbers is greater than the largest number.
+- Return "Yes" or "No" accordingly.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def triangleJudgement(self, triangle: List[List[int]]) -&gt; List[List[str]]:\n        res = []\n        for x, y, z in triangle:\n            sides = sorted([x, y, z])\n            if sides[0] + sides[1] &gt; sides[2]:\n                res.append([str(x), str(y), str(z), \"Yes\"])\n            else:\n                res.append([str(x), str(y), str(z), \"No\"])\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; triangleJudgement(List&lt;List&lt;Integer&gt;&gt; triangle) {\n        List&lt;List&lt;String&gt;&gt; res = new ArrayList&lt;&gt;();\n        for (List&lt;Integer&gt; row : triangle) {\n            int x = row.get(0), y = row.get(1), z = row.get(2);\n            int[] sides = {x, y, z};\n            Arrays.sort(sides);\n            String val = (sides[0] + sides[1] &gt; sides[2]) ? \"Yes\" : \"No\";\n            res.add(Arrays.asList(String.valueOf(x), String.valueOf(y), String.valueOf(z), val));\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; triangleJudgement(vector&lt;vector&lt;int&gt;&gt;& triangle) {\n        vector&lt;vector&lt;string&gt;&gt; res;\n        for (auto& row : triangle) {\n            int x = row[0], y = row[1], z = row[2];\n            vector&lt;int&gt; sides = {x, y, z};\n            sort(sides.begin(), sides.end());\n            string val = (sides[0] + sides[1] &gt; sides[2]) ? \"Yes\" : \"No\";\n            res.push_back({to_string(x), to_string(y), to_string(z), val});\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} triangle\n * @return {string[][]}\n */\nvar triangleJudgement = function(triangle) {\n    return triangle.map(([x, y, z]) =&gt; {\n        const sides = [x, y, z].sort((a, b) =&gt; a - b);\n        const isValid = sides[0] + sides[1] &gt; sides[2];\n        return [String(x), String(y), String(z), isValid ? \"Yes\" : \"No\"];\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function triangleJudgement(triangle: number[][]): string[][] {\n    return triangle.map(([x, y, z]) =&gt; {\n        const sides = [x, y, z].sort((a, b) =&gt; a - b);\n        const isValid = sides[0] + sides[1] &gt; sides[2];\n        return [String(x), String(y), String(z), isValid ? \"Yes\" : \"No\"];\n    });\n}" }]} />
+
+**Complexity**
+- Time: O(N * 3 log 3) which simplifies to O(N). Sorting 3 elements is a constant time operation.
+- Space: O(N) for the result, plus O(1) auxiliary space for sorting (since the array size is fixed at 3).
+- Notes: While theoretically the same asymptotic complexity, the constant factor is slightly higher due to sorting, but it offers a cleaner logical check.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Triangle Judgement Solutions","datePublished":"2025-03-31","description":"Determine if three given side lengths can form a valid triangle for each row in the table.","keywords":"LeetCode, Triangle Judgement, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Conditional Check approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of rows in the table."}},{"@type":"Question","name":"What is the time complexity of the Sorting Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), as sorting a fixed number of elements (3) is considered an O(1) operation."}}]}).replace(/</g,'\u003c')}
+</script>

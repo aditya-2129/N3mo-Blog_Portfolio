@@ -1,0 +1,297 @@
+---
+title: "Distribute Elements Into Two Arrays I"
+summary: "Distribute elements into two arrays based on the comparison of their last elements and return the concatenation."
+date: "Jul 07, 2024"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.00% | **Paid:** No
+> **Topics:** Array, Simulation
+
+You are given a 1-indexed integer array nums of length n.
+
+You are given a 1-indexed integer array nums of length n.
+
+We distribute the elements of nums into two arrays arr1 and arr2 using n operations, where the ith operation starts from the ith element in nums.
+
+The rules for the ith operation (1-indexed) are:
+
+- If the last element of arr1 is greater than the last element of arr2, append nums[i] to arr1. Otherwise, append nums[i] to arr2.
+- The first two elements are assigned to arr1 and arr2 respectively before the loop starts.
+
+The result array is formed by concatenating arr1 followed by arr2.
+
+Return the result array.
+
+- Examples
+- Constraints
+- [Direct Simulation](#direct-simulation)
+- [Two-Pointer Construction](#two-pointer-construction)
+
+## Examples
+
+```text
+Input: nums = [2,1,3]
+Output: [2,3,1]
+Explanation: 
+- Operation 1: nums[0] is 2. arr1 = [2], arr2 = [].
+- Operation 2: nums[1] is 1. arr1 = [2], arr2 = [1].
+- Operation 3: nums[2] is 3. Since 2 > 1, append to arr1. arr1 = [2,3], arr2 = [1].
+- Result: [2,3,1].
+```
+
+```text
+Input: nums = [5,4,3,3]
+Output: [5,3,4,3]
+Explanation:
+- Operation 1: nums[0] is 5. arr1 = [5], arr2 = [].
+- Operation 2: nums[1] is 4. arr1 = [5], arr2 = [4].
+- Operation 3: nums[2] is 3. Since 5 > 4, append to arr1. arr1 = [5,3], arr2 = [4].
+- Operation 4: nums[3] is 3. Since 3 is not greater than 3, append to arr2. arr1 = [5,3], arr2 = [4,3].
+- Result: [5,3,4,3].
+```
+
+## Constraints
+
+```text
+3 <= nums.length <= 50
+1 <= nums[i] <= 100
+```
+
+---
+
+## Direct Simulation
+
+**Intuition**
+We can strictly follow the problem's rules by iterating through the input array and maintaining two separate lists for the results.
+
+**Steps**
+- Initialize `arr1` with the first element and `arr2` with the second element of `nums`.
+- Iterate through the rest of the elements starting from index 2.
+- Compare the last elements of `arr1` and `arr2`.
+- Append the current element to the array with the larger last element.
+- Concatenate `arr1` and `arr2` and return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def resultArray(self, nums: list[int]) -> list[int]:
+        arr1 = [nums[0]]
+        arr2 = [nums[1]]
+        for i in range(2, len(nums)):
+            if arr1[-1] &gt; arr2[-1]:
+                arr1.append(nums[i])
+            else:
+                arr2.append(nums[i])
+        return arr1 + arr2
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] resultArray(int[] nums) {
+        java.util.ArrayList<Integer> arr1 = new java.util.ArrayList&lt;&gt;();
+        java.util.ArrayList<Integer> arr2 = new java.util.ArrayList&lt;&gt;();
+        arr1.add(nums[0]);
+        arr2.add(nums[1]);
+        for (int i = 2; i &lt; nums.length; i++) {
+            if (arr1.get(arr1.size() - 1) &gt; arr2.get(arr2.size() - 1)) {
+                arr1.add(nums[i]);
+            } else {
+                arr2.add(nums[i]);
+            }
+        }
+        int[] result = new int[nums.length];
+        int idx = 0;
+        for (int num : arr1) result[idx++] = num;
+        for (int num : arr2) result[idx++] = num;
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums) {
+        vector<int> arr1, arr2;
+        arr1.push_back(nums[0]);
+        arr2.push_back(nums[1]);
+        for (int i = 2; i &lt; nums.size(); ++i) {
+            if (arr1.back() &gt; arr2.back()) {
+                arr1.push_back(nums[i]);
+            } else {
+                arr2.push_back(nums[i]);
+            }
+        }
+        arr1.insert(arr1.end(), arr2.begin(), arr2.end());
+        return arr1;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var resultArray = function(nums) {
+    let arr1 = [nums[0]];
+    let arr2 = [nums[1]];
+    for (let i = 2; i &lt; nums.length; i++) {
+        if (arr1[arr1.length - 1] &gt; arr2[arr2.length - 1]) {
+            arr1.push(nums[i]);
+        } else {
+            arr2.push(nums[i]);
+        }
+    }
+    return arr1.concat(arr2);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function resultArray(nums: number[]): number[] {
+    let arr1: number[] = [nums[0]];
+    let arr2: number[] = [nums[1]];
+    for (let i = 2; i &lt; nums.length; i++) {
+        if (arr1[arr1.length - 1] &gt; arr2[arr2.length - 1]) {
+            arr1.push(nums[i]);
+        } else {
+            arr2.push(nums[i]);
+        }
+    }
+    return [...arr1, ...arr2];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - We iterate through the array once.
+- Space: O(n) - We store the elements in two auxiliary arrays.
+- Notes: This is the most straightforward approach and is efficient enough given the constraints.
+
+---
+
+## Two-Pointer Construction
+
+**Intuition**
+We can optimize space usage by pre-allocating a single result array and filling it from both ends using two pointers, then merging the two parts.
+
+**Steps**
+- Create a result array of size `n`.
+- Place the first element at index 0 and the second at index 1.
+- Initialize pointers `l = 1` (end of arr1) and `r = n - 1` (start of arr2 from the end).
+- Iterate through the remaining elements.
+- If the element at `l` is greater than the element at `r`, increment `l` and place the current element there.
+- Otherwise, decrement `r` and place the current element there.
+- Return the concatenation of the segment `0` to `l` and `r` to `n-1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def resultArray(self, nums: list[int]) -> list[int]:
+        n = len(nums)
+        res = [0] * n
+        res[0] = nums[0]
+        res[1] = nums[1]
+        l, r = 1, n - 1
+        for i in range(2, n):
+            if res[l] &gt; res[r]:
+                l += 1
+                res[l] = nums[i]
+            else:
+                r -= 1
+                res[r] = nums[i]
+        return res[:l+1] + res[r:]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[] resultArray(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        res[0] = nums[0];
+        res[1] = nums[1];
+        int l = 1, r = n - 1;
+        for (int i = 2; i &lt; n; i++) {
+            if (res[l] &gt; res[r]) {
+                l++;
+                res[l] = nums[i];
+            } else {
+                r--;
+                res[r] = nums[i];
+            }
+        }
+        int[] ans = new int[n];
+        int idx = 0;
+        for (int i = 0; i &lt;= l; i++) ans[idx++] = res[i];
+        for (int i = r; i &lt; n; i++) ans[idx++] = res[i];
+        return ans;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> res(n);
+        res[0] = nums[0];
+        res[1] = nums[1];
+        int l = 1, r = n - 1;
+        for (int i = 2; i &lt; n; ++i) {
+            if (res[l] &gt; res[r]) {
+                res[++l] = nums[i];
+            } else {
+                res[--r] = nums[i];
+            }
+        }
+        vector<int> ans;
+        ans.insert(ans.end(), res.begin(), res.begin() + l + 1);
+        ans.insert(ans.end(), res.begin() + r, res.end());
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var resultArray = function(nums) {
+    const n = nums.length;
+    const res = new Array(n);
+    res[0] = nums[0];
+    res[1] = nums[1];
+    let l = 1, r = n - 1;
+    for (let i = 2; i &lt; n; i++) {
+        if (res[l] &gt; res[r]) {
+            l++;
+            res[l] = nums[i];
+        } else {
+            r--;
+            res[r] = nums[i];
+        }
+    }
+    return res.slice(0, l + 1).concat(res.slice(r));
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function resultArray(nums: number[]): number[] {
+    const n = nums.length;
+    const res: number[] = new Array(n);
+    res[0] = nums[0];
+    res[1] = nums[1];
+    let l = 1, r = n - 1;
+    for (let i = 2; i &lt; n; i++) {
+        if (res[l] &gt; res[r]) {
+            l++;
+            res[l] = nums[i];
+        } else {
+            r--;
+            res[r] = nums[i];
+        }
+    }
+    return [...res.slice(0, l + 1), ...res.slice(r)];
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Single pass to fill the array and O(n) to construct the final result.
+- Space: O(n) - For the result array.
+- Notes: This approach avoids using dynamic list resizing operations (like `push_back` or `append`) repeatedly, though the overall complexity remains linear.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Distribute Elements Into Two Arrays I Solutions","datePublished":"2024-07-07","description":"Distribute elements into two arrays based on the comparison of their last elements and return the concatenation.","keywords":"LeetCode, Distribute Elements Into Two Arrays I, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the input array, as we iterate through the array once."}},{"@type":"Question","name":"How does the Two-Pointer Construction approach optimize space?","acceptedAnswer":{"@type":"Answer","text":"It uses a single pre-allocated array to store elements from both ends, reducing the overhead of managing multiple dynamic arrays, though the overall space complexity remains O(n)."}}]}).replace(/</g,'\u003c')}
+</script>

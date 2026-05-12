@@ -1,0 +1,178 @@
+---
+title: "Sales Analysis III"
+summary: "Report products sold only in 2019 and not in 2020."
+date: "Oct 22, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 47.60% | **Paid:** No
+> **Topics:** Database
+
+Table: Sales
+
++-------------+-------+
+| Column Name | Type  |
++-------------+-------+
+| sale_id     | int   |
+| product_id  | int   |
+| year        | int   |
+| quantity    | int   |
+| price       | int   |
++-------------+-------+
+(sale_id, year) is the primary key of this table.
+product_id is a foreign key to Product table.
+Each row of this table shows a sale on the product product_id in a certain year.
+Note that the price is per unit.
+
+Table: Product
+
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| product_id   | int     |
+| product_name | varchar |
++--------------+---------+
+product_id is the primary key of this table.
+Each row of this table indicates the product name of a product.
+
+Write an SQL query to report the products that were only sold in the first year of sales (2019).
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Grouping](#approach-1-hash-map-grouping)
+- [Approach 2: Set Difference](#approach-2-set-difference)
+
+## Examples
+
+### Example 1:
+**Input:**
+
+Sales table:
++-----------+------------+----------+-------+-------+
+| sale_id   | product_id | year     | quantity | price |
++-----------+------------+----------+-------+-------+
+| 1         | 100        | 2008     | 10    | 5000  |
+| 2         | 100        | 2009     | 12    | 5000  |
+| 7         | 200        | 2011     | 15    | 9000  |
++-----------+------------+----------+-------+-------+
+
+Product table:
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 100        | Nokia        |
+| 200        | Apple        |
+| 300        | Samsung      |
++------------+--------------+
+
+**Output:**
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 100        | Nokia        |
++------------+--------------+
+
+**Explanation:**
+The product with id 100 was only sold in the first year (2008), while the product with id 200 was sold in years 2009 and 2011. The product with id 300 was not sold at all.
+
+### Example 2:
+**Input:**
+
+Sales table:
++-----------+------------+----------+-------+-------+
+| sale_id   | product_id | year     | quantity | price |
++-----------+------------+----------+-------+-------+
+| 1         | 100        | 2019     | 10    | 5000  |
+| 2         | 100        | 2020     | 12    | 5000  |
+| 3         | 200        | 2019     | 15    | 9000  |
++-----------+------------+----------+-------+-------+
+
+Product table:
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 100        | Nokia        |
+| 200        | Apple        |
++------------+--------------+
+
+**Output:**
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 200        | Apple        |
++------------+--------------+
+
+**Explanation:**
+The product with id 100 was sold in both 2019 and 2020. The product with id 200 was sold only in 2019.
+
+## Constraints
+
+```text
+There are no specific constraints provided for this problem other than the table structures.
+```
+
+---
+## Approach 1: Hash Map Grouping
+
+**Intuition**
+We can iterate through the sales records and maintain a map (dictionary) where the key is the product_id and the value is a set of years in which that product was sold. After processing all sales, we filter the map to find products where the set of years contains 2019 but does not contain 2020. Finally, we join this result with the Product table to get the product names.
+
+**Steps**
+- Create a map to store product_id -> set of years.
+- Iterate through the Sales list. For each record, add the year to the set corresponding to the product_id.
+- Create a map for product_id -> product_name from the Product list.
+- Iterate through the sales map. If a product's year set contains 2019 and not 2020, add it to the result.
+- Return the result list containing product_id and product_name.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def salesAnalysis(self, sales: List[List[int]], products: List[List[str]]) -&gt; List[List[str]]:\n        # Map product_id to set of years sold\n        sales_map = {}\n        for s in sales:\n            pid = s[1]\n            year = s[2]\n            if pid not in sales_map:\n                sales_map[pid] = set()\n            sales_map[pid].add(year)\n        \n        # Map product_id to product_name\n        product_map = {}\n        for p in products:\n            pid = int(p[0])\n            name = p[1]\n            product_map[pid] = name\n        \n        result = []\n        for pid, years in sales_map.items():\n            if 2019 in years and 2020 not in years:\n                result.append([str(pid), product_map[pid]])\n        \n        return result\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; salesAnalysis(List&lt;List&lt;Integer&gt;&gt; sales, List&lt;List&lt;String&gt;&gt; products) {\n        // Map product_id to set of years sold\n        Map&lt;Integer, Set&lt;Integer&gt;&gt; salesMap = new HashMap&lt;&gt;();\n        for (List&lt;Integer&gt; s : sales) {\n            int pid = s.get(1);\n            int year = s.get(2);\n            salesMap.computeIfAbsent(pid, k -&gt; new HashSet&lt;&gt;()).add(year);\n        }\n        \n        // Map product_id to product_name\n        Map&lt;Integer, String&gt; productMap = new HashMap&lt;&gt;();\n        for (List&lt;String&gt; p : products) {\n            int pid = Integer.parseInt(p.get(0));\n            String name = p.get(1);\n            productMap.put(pid, name);\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;Integer, Set&lt;Integer&gt;&gt; entry : salesMap.entrySet()) {\n            int pid = entry.getKey();\n            Set&lt;Integer&gt; years = entry.getValue();\n            if (years.contains(2019) && !years.contains(2020)) {\n                List&lt;String&gt; row = new ArrayList&lt;&gt;();\n                row.add(String.valueOf(pid));\n                row.add(productMap.get(pid));\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;unordered_set&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; salesAnalysis(vector&lt;vector&lt;int&gt;&gt;& sales, vector&lt;vector&lt;string&gt;&gt;& products) {\n        // Map product_id to set of years sold\n        unordered_map&lt;int, unordered_set&lt;int&gt;&gt; salesMap;\n        for (const auto& s : sales) {\n            int pid = s[1];\n            int year = s[2];\n            salesMap[pid].insert(year);\n        }\n        \n        // Map product_id to product_name\n        unordered_map&lt;int, string&gt; productMap;\n        for (const auto& p : products) {\n            int pid = stoi(p[0]);\n            string name = p[1];\n            productMap[pid] = name;\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (const auto& entry : salesMap) {\n            int pid = entry.first;\n            const unordered_set&lt;int&gt;& years = entry.second;\n            if (years.count(2019) && !years.count(2020)) {\n                result.push_back({to_string(pid), productMap[pid]});\n            }\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} sales\n * @param {string[][]} products\n * @return {string[][]}\n */\nvar salesAnalysis = function(sales, products) {\n    // Map product_id to set of years sold\n    let salesMap = new Map();\n    for (let s of sales) {\n        let pid = s[1];\n        let year = s[2];\n        if (!salesMap.has(pid)) {\n            salesMap.set(pid, new Set());\n        }\n        salesMap.get(pid).add(year);\n    }\n    \n    // Map product_id to product_name\n    let productMap = new Map();\n    for (let p of products) {\n        let pid = parseInt(p[0]);\n        let name = p[1];\n        productMap.set(pid, name);\n    }\n    \n    let result = [];\n    for (let [pid, years] of salesMap) {\n        if (years.has(2019) && !years.has(2020)) {\n            result.push([String(pid), productMap.get(pid)]);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function salesAnalysis(sales: number[][], products: string[][]): string[][] {\n    // Map product_id to set of years sold\n    let salesMap = new Map&lt;number, Set&lt;number&gt;&gt;();\n    for (let s of sales) {\n        let pid = s[1];\n        let year = s[2];\n        if (!salesMap.has(pid)) {\n            salesMap.set(pid, new Set&lt;number&gt;());\n        }\n        salesMap.get(pid)!.add(year);\n    }\n    \n    // Map product_id to product_name\n    let productMap = new Map&lt;number, string&gt;();\n    for (let p of products) {\n        let pid = parseInt(p[0]);\n        let name = p[1];\n        productMap.set(pid, name);\n    }\n    \n    let result: string[][] = [];\n    for (let [pid, years] of salesMap) {\n        if (years.has(2019) && !years.has(2020)) {\n            result.push([String(pid), productMap.get(pid)!]);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M) where N is the number of sales and M is the number of products.
+- Space: O(N + M) to store the maps.
+- Notes: This approach is efficient and straightforward, mimicking the SQL GROUP BY and HAVING logic.
+
+---
+## Approach 2: Set Difference
+
+**Intuition**
+We can separate the products sold in 2019 and those sold in 2020 into two distinct sets. The answer is the set difference: products sold in 2019 minus products sold in 2020. This corresponds to the SQL logic of `WHERE year = 2019 AND product_id NOT IN (SELECT product_id FROM Sales WHERE year = 2020)`.
+
+**Steps**
+- Create a set for products sold in 2019.
+- Create a set for products sold in 2020.
+- Iterate through the Sales list and populate these sets based on the year.
+- Iterate through the 2019 set. If a product ID is not in the 2020 set, add it to the result.
+- Join with the Product table to get names.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def salesAnalysis(self, sales: List[List[int]], products: List[List[str]]) -&gt; List[List[str]]:\n        sold_2019 = set()\n        sold_2020 = set()\n        \n        for s in sales:\n            pid = s[1]\n            year = s[2]\n            if year == 2019:\n                sold_2019.add(pid)\n            elif year == 2020:\n                sold_2020.add(pid)\n                \n        product_map = {int(p[0]): p[1] for p in products}\n        \n        result = []\n        for pid in sold_2019:\n            if pid not in sold_2020:\n                result.append([str(pid), product_map[pid]])\n                \n        return result\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; salesAnalysis(List&lt;List&lt;Integer&gt;&gt; sales, List&lt;List&lt;String&gt;&gt; products) {\n        Set&lt;Integer&gt; sold2019 = new HashSet&lt;&gt;();\n        Set&lt;Integer&gt; sold2020 = new HashSet&lt;&gt;();\n        \n        for (List&lt;Integer&gt; s : sales) {\n            int pid = s.get(1);\n            int year = s.get(2);\n            if (year == 2019) {\n                sold2019.add(pid);\n            } else if (year == 2020) {\n                sold2020.add(pid);\n            }\n        }\n        \n        Map&lt;Integer, String&gt; productMap = new HashMap&lt;&gt;();\n        for (List&lt;String&gt; p : products) {\n            int pid = Integer.parseInt(p.get(0));\n            productMap.put(pid, p.get(1));\n        }\n        \n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (int pid : sold2019) {\n            if (!sold2020.contains(pid)) {\n                List&lt;String&gt; row = new ArrayList&lt;&gt;();\n                row.add(String.valueOf(pid));\n                row.add(productMap.get(pid));\n                result.add(row);\n            }\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; salesAnalysis(vector&lt;vector&lt;int&gt;&gt;& sales, vector&lt;vector&lt;string&gt;&gt;& products) {\n        unordered_set&lt;int&gt; sold2019;\n        unordered_set&lt;int&gt; sold2020;\n        \n        for (const auto& s : sales) {\n            int pid = s[1];\n            int year = s[2];\n            if (year == 2019) {\n                sold2019.insert(pid);\n            } else if (year == 2020) {\n                sold2020.insert(pid);\n            }\n        }\n        \n        unordered_map&lt;int, string&gt; productMap;\n        for (const auto& p : products) {\n            int pid = stoi(p[0]);\n            productMap[pid] = p[1];\n        }\n        \n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (int pid : sold2019) {\n            if (sold2020.find(pid) == sold2020.end()) {\n                result.push_back({to_string(pid), productMap[pid]});\n            }\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} sales\n * @param {string[][]} products\n * @return {string[][]}\n */\nvar salesAnalysis = function(sales, products) {\n    let sold2019 = new Set();\n    let sold2020 = new Set();\n    \n    for (let s of sales) {\n        let pid = s[1];\n        let year = s[2];\n        if (year === 2019) {\n            sold2019.add(pid);\n        } else if (year === 2020) {\n            sold2020.add(pid);\n        }\n    }\n    \n    let productMap = new Map();\n    for (let p of products) {\n        let pid = parseInt(p[0]);\n        productMap.set(pid, p[1]);\n    }\n    \n    let result = [];\n    for (let pid of sold2019) {\n        if (!sold2020.has(pid)) {\n            result.push([String(pid), productMap.get(pid)]);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function salesAnalysis(sales: number[][], products: string[][]): string[][] {\n    let sold2019 = new Set&lt;number&gt;();\n    let sold2020 = new Set&lt;number&gt;();\n    \n    for (let s of sales) {\n        let pid = s[1];\n        let year = s[2];\n        if (year === 2019) {\n            sold2019.add(pid);\n        } else if (year === 2020) {\n            sold2020.add(pid);\n        }\n    }\n    \n    let productMap = new Map&lt;number, string&gt;();\n    for (let p of products) {\n        let pid = parseInt(p[0]);\n        productMap.set(pid, p[1]);\n    }\n    \n    let result: string[][] = [];\n    for (let pid of sold2019) {\n        if (!sold2020.has(pid)) {\n            result.push([String(pid), productMap.get(pid)!]);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M) where N is the number of sales and M is the number of products.
+- Space: O(N + M) to store the sets and map.
+- Notes: This approach is slightly more memory efficient if we only care about 2019 and 2020, as we don't store years for other products.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sales Analysis III Solutions","datePublished":"2025-10-22","description":"Report products sold only in 2019 and not in 2020.","keywords":"LeetCode, Sales Analysis III, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Grouping approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N is the number of sales records and M is the number of products, as we iterate through both lists once."}},{"@type":"Question","name":"What is the space complexity of the Set Difference approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N + M) to store the sets of product IDs sold in 2019 and 2020, and the product name map."}}]}).replace(/</g,'\u003c')}
+</script>

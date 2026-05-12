@@ -1,0 +1,134 @@
+---
+title: "Most Common Word"
+summary: "Find the most frequent word in a paragraph that is not in the banned list."
+date: "Jan 07, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 45.10% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Counting
+
+Given a string paragraph and a string array banned, return the most frequent word that is not banned. It is guaranteed there is at least one answer. Words in the paragraph are case-insensitive and the answer should be returned in lowercase.
+
+A word is defined as:
+- A maximal sequence of characters consisting of non-space characters only.
+- The characters can include letters, digits, or punctuation symbols like "!?',;.".
+- Some words may contain punctuation symbols attached to them.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map with String Processing](#approach-1-hash-map-with-string-processing)
+- [Approach 2: Regular Expression](#approach-2-regular-expression)
+- [Approach 3: Two Pass with Set](#approach-3-two-pass-with-set)
+
+## Examples
+
+### Example 1:
+```text
+Input: paragraph = "Bob hit a ball, the hit BALL flew far after it was hit.", banned = ["hit"]
+Output: "ball"
+Explanation: "hit" occurs 3 times, but it is a banned word. "ball" occurs twice (and is not banned). No other word occurs more than once.
+```
+
+### Example 2:
+```text
+Input: paragraph = "a.", banned = []
+Output: "a"
+```
+
+## Constraints
+
+```text
+1 <= paragraph.length <= 1000
+paragraph consists of English letters, space ' ', or one of the symbols: "!?',;."
+0 <= banned.length <= 100
+banned[i] consists of only lowercase English letters.
+```
+
+---
+## Approach 1: Hash Map with String Processing
+
+**Intuition**
+Parse the paragraph character by character, building words by accumulating letters while ignoring punctuation. Use a hash map to count word frequencies and skip banned words.
+
+**Steps**
+- Convert banned array to a set for O(1) lookup
+- Iterate through each character in the paragraph
+- Build words by accumulating lowercase letters
+- When a non-letter is encountered, process the completed word
+- Count frequencies using a hash map, skipping banned words
+- Find and return the word with maximum frequency
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostCommonWord(self, paragraph: str, banned: list[str]) -&gt; str:\n        banned_set = set(banned)\n        word_count = {}\n        word = []\n        \n        for char in paragraph + ' ':\n            if char.isalpha():\n                word.append(char.lower())\n            else:\n                if word:\n                    w = ''.join(word)\n                    if w not in banned_set:\n                        word_count[w] = word_count.get(w, 0) + 1\n                    word = []\n        \n        max_count = 0\n        result = \"\"\n        for w, count in word_count.items():\n            if count &gt; max_count:\n                max_count = count\n                result = w\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String mostCommonWord(String paragraph, String[] banned) {\n        Set&lt;String&gt; bannedSet = new HashSet&lt;&gt;();\n        for (String word : banned) {\n            bannedSet.add(word);\n        }\n        \n        Map&lt;String, Integer&gt; wordCount = new HashMap&lt;&gt;();\n        StringBuilder word = new StringBuilder();\n        \n        for (int i = 0; i &lt;= paragraph.length(); i++) {\n            char c = i &lt; paragraph.length() ? paragraph.charAt(i) : ' ';\n            if (Character.isLetter(c)) {\n                word.append(Character.toLowerCase(c));\n            } else {\n                if (word.length() &gt; 0) {\n                    String w = word.toString();\n                    if (!bannedSet.contains(w)) {\n                        wordCount.put(w, wordCount.getOrDefault(w, 0) + 1);\n                    }\n                    word = new StringBuilder();\n                }\n            }\n        }\n        \n        int maxCount = 0;\n        String result = \"\";\n        for (Map.Entry&lt;String, Integer&gt; entry : wordCount.entrySet()) {\n            if (entry.getValue() &gt; maxCount) {\n                maxCount = entry.getValue();\n                result = entry.getKey();\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string mostCommonWord(string paragraph, vector&lt;string&gt;& banned) {\n        unordered_set&lt;string&gt; bannedSet(banned.begin(), banned.end());\n        unordered_map&lt;string, int&gt; wordCount;\n        string word;\n        \n        for (int i = 0; i &lt;= paragraph.size(); i++) {\n            char c = i &lt; paragraph.size() ? paragraph[i] : ' ';\n            if (isalpha(c)) {\n                word += tolower(c);\n            } else {\n                if (!word.empty()) {\n                    if (bannedSet.find(word) == bannedSet.end()) {\n                        wordCount[word]++;\n                    }\n                    word.clear();\n                }\n            }\n        }\n        \n        int maxCount = 0;\n        string result;\n        for (auto& [w, count] : wordCount) {\n            if (count &gt; maxCount) {\n                maxCount = count;\n                result = w;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} paragraph\n * @param {string[]} banned\n * @return {string}\n */\nvar mostCommonWord = function(paragraph, banned) {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map();\n    let word = [];\n    \n    for (let i = 0; i &lt;= paragraph.length; i++) {\n        const c = i &lt; paragraph.length ? paragraph[i] : ' ';\n        if (/[a-zA-Z]/.test(c)) {\n            word.push(c.toLowerCase());\n        } else {\n            if (word.length &gt; 0) {\n                const w = word.join('');\n                if (!bannedSet.has(w)) {\n                    wordCount.set(w, (wordCount.get(w) || 0) + 1);\n                }\n                word = [];\n            }\n        }\n    }\n    \n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostCommonWord(paragraph: string, banned: string[]): string {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map&lt;string, number&gt;();\n    let word: string[] = [];\n    \n    for (let i = 0; i &lt;= paragraph.length; i++) {\n        const c = i &lt; paragraph.length ? paragraph[i] : ' ';\n        if (/[a-zA-Z]/.test(c)) {\n            word.push(c.toLowerCase());\n        } else {\n            if (word.length &gt; 0) {\n                const w = word.join('');\n                if (!bannedSet.has(w)) {\n                    wordCount.set(w, (wordCount.get(w) || 0) + 1);\n                }\n                word = [];\n            }\n        }\n    }\n    \n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is paragraph length and m is total banned words length
+- Space: O(n) for the hash map storing word counts
+- Notes: Single pass through paragraph with efficient set lookup for banned words
+
+---
+## Approach 2: Regular Expression
+
+**Intuition**
+Use regular expressions to extract all words from the paragraph in one operation, then count frequencies while filtering out banned words.
+
+**Steps**
+- Convert banned array to a set for O(1) lookup
+- Use regex to find all word sequences in the paragraph
+- Convert all words to lowercase
+- Count frequencies using a hash map, skipping banned words
+- Find and return the word with maximum frequency
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\nfrom collections import Counter\n\nclass Solution:\n    def mostCommonWord(self, paragraph: str, banned: list[str]) -&gt; str:\n        banned_set = set(banned)\n        words = re.findall(r'\\w+', paragraph.lower())\n        \n        word_count = Counter()\n        for word in words:\n            if word not in banned_set:\n                word_count[word] += 1\n        \n        return word_count.most_common(1)[0][0]" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public String mostCommonWord(String paragraph, String[] banned) {\n        Set&lt;String&gt; bannedSet = new HashSet&lt;&gt;();\n        for (String word : banned) {\n            bannedSet.add(word);\n        }\n        \n        Map&lt;String, Integer&gt; wordCount = new HashMap&lt;&gt;();\n        Pattern pattern = Pattern.compile(\"[a-zA-Z]+\");\n        Matcher matcher = pattern.matcher(paragraph.toLowerCase());\n        \n        while (matcher.find()) {\n            String word = matcher.group();\n            if (!bannedSet.contains(word)) {\n                wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);\n            }\n        }\n        \n        int maxCount = 0;\n        String result = \"\";\n        for (Map.Entry&lt;String, Integer&gt; entry : wordCount.entrySet()) {\n            if (entry.getValue() &gt; maxCount) {\n                maxCount = entry.getValue();\n                result = entry.getKey();\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    string mostCommonWord(string paragraph, vector&lt;string&gt;& banned) {\n        unordered_set&lt;string&gt; bannedSet(banned.begin(), banned.end());\n        unordered_map&lt;string, int&gt; wordCount;\n        \n        regex word_regex(\"[a-zA-Z]+\");\n        string lower_paragraph = paragraph;\n        transform(lower_paragraph.begin(), lower_paragraph.end(), lower_paragraph.begin(), ::tolower);\n        \n        for (sregex_iterator it = sregex_iterator(lower_paragraph.begin(), lower_paragraph.end(), word_regex);\n             it != sregex_iterator(); ++it) {\n            smatch match = *it;\n            string word = match.str();\n            if (bannedSet.find(word) == bannedSet.end()) {\n                wordCount[word]++;\n            }\n        }\n        \n        int maxCount = 0;\n        string result;\n        for (auto& [w, count] : wordCount) {\n            if (count &gt; maxCount) {\n                maxCount = count;\n                result = w;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} paragraph\n * @param {string[]} banned\n * @return {string}\n */\nvar mostCommonWord = function(paragraph, banned) {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map();\n    \n    const words = paragraph.toLowerCase().match(/[a-z]+/g) || [];\n    \n    for (const word of words) {\n        if (!bannedSet.has(word)) {\n            wordCount.set(word, (wordCount.get(word) || 0) + 1);\n        }\n    }\n    \n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostCommonWord(paragraph: string, banned: string[]): string {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map&lt;string, number&gt;();\n    \n    const words = paragraph.toLowerCase().match(/[a-z]+/g) || [];\n    \n    for (const word of words) {\n        if (!bannedSet.has(word)) {\n            wordCount.set(word, (wordCount.get(word) || 0) + 1);\n        }\n    }\n    \n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is paragraph length and m is total banned words length
+- Space: O(n) for the hash map storing word counts
+- Notes: Cleaner code with regex but may have slightly higher constant overhead
+
+---
+## Approach 3: Two Pass with Set
+
+**Intuition**
+Separate the counting and filtering phases: first count all word frequencies, then find the most frequent word that is not banned.
+
+**Steps**
+- Convert banned array to a set for O(1) lookup
+- First pass: extract all words and count their frequencies
+- Second pass: iterate through counted words and find the most frequent non-banned word
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostCommonWord(self, paragraph: str, banned: list[str]) -&gt; str:\n        banned_set = set(banned)\n        word_count = {}\n        \n        # First pass: extract and count words\n        word = []\n        for char in paragraph + ' ':\n            if char.isalpha():\n                word.append(char.lower())\n            else:\n                if word:\n                    w = ''.join(word)\n                    word_count[w] = word_count.get(w, 0) + 1\n                    word = []\n        \n        # Second pass: find most frequent non-banned word\n        max_count = 0\n        result = \"\"\n        for w, count in word_count.items():\n            if w not in banned_set and count &gt; max_count:\n                max_count = count\n                result = w\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String mostCommonWord(String paragraph, String[] banned) {\n        Set&lt;String&gt; bannedSet = new HashSet&lt;&gt;();\n        for (String word : banned) {\n            bannedSet.add(word);\n        }\n        \n        Map&lt;String, Integer&gt; wordCount = new HashMap&lt;&gt;();\n        StringBuilder word = new StringBuilder();\n        \n        // First pass: extract and count words\n        for (int i = 0; i &lt;= paragraph.length(); i++) {\n            char c = i &lt; paragraph.length() ? paragraph.charAt(i) : ' ';\n            if (Character.isLetter(c)) {\n                word.append(Character.toLowerCase(c));\n            } else {\n                if (word.length() &gt; 0) {\n                    String w = word.toString();\n                    wordCount.put(w, wordCount.getOrDefault(w, 0) + 1);\n                    word = new StringBuilder();\n                }\n            }\n        }\n        \n        // Second pass: find most frequent non-banned word\n        int maxCount = 0;\n        String result = \"\";\n        for (Map.Entry&lt;String, Integer&gt; entry : wordCount.entrySet()) {\n            if (!bannedSet.contains(entry.getKey()) && entry.getValue() &gt; maxCount) {\n                maxCount = entry.getValue();\n                result = entry.getKey();\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string mostCommonWord(string paragraph, vector&lt;string&gt;& banned) {\n        unordered_set&lt;string&gt; bannedSet(banned.begin(), banned.end());\n        unordered_map&lt;string, int&gt; wordCount;\n        string word;\n        \n        // First pass: extract and count words\n        for (int i = 0; i &lt;= paragraph.size(); i++) {\n            char c = i &lt; paragraph.size() ? paragraph[i] : ' ';\n            if (isalpha(c)) {\n                word += tolower(c);\n            } else {\n                if (!word.empty()) {\n                    wordCount[word]++;\n                    word.clear();\n                }\n            }\n        }\n        \n        // Second pass: find most frequent non-banned word\n        int maxCount = 0;\n        string result;\n        for (auto& [w, count] : wordCount) {\n            if (bannedSet.find(w) == bannedSet.end() && count &gt; maxCount) {\n                maxCount = count;\n                result = w;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} paragraph\n * @param {string[]} banned\n * @return {string}\n */\nvar mostCommonWord = function(paragraph, banned) {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map();\n    let word = [];\n    \n    // First pass: extract and count words\n    for (let i = 0; i &lt;= paragraph.length; i++) {\n        const c = i &lt; paragraph.length ? paragraph[i] : ' ';\n        if (/[a-zA-Z]/.test(c)) {\n            word.push(c.toLowerCase());\n        } else {\n            if (word.length &gt; 0) {\n                const w = word.join('');\n                wordCount.set(w, (wordCount.get(w) || 0) + 1);\n                word = [];\n            }\n        }\n    }\n    \n    // Second pass: find most frequent non-banned word\n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (!bannedSet.has(w) && count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostCommonWord(paragraph: string, banned: string[]): string {\n    const bannedSet = new Set(banned);\n    const wordCount = new Map&lt;string, number&gt;();\n    let word: string[] = [];\n    \n    // First pass: extract and count words\n    for (let i = 0; i &lt;= paragraph.length; i++) {\n        const c = i &lt; paragraph.length ? paragraph[i] : ' ';\n        if (/[a-zA-Z]/.test(c)) {\n            word.push(c.toLowerCase());\n        } else {\n            if (word.length &gt; 0) {\n                const w = word.join('');\n                wordCount.set(w, (wordCount.get(w) || 0) + 1);\n                word = [];\n            }\n        }\n    }\n    \n    // Second pass: find most frequent non-banned word\n    let maxCount = 0;\n    let result = '';\n    for (const [w, count] of wordCount) {\n        if (!bannedSet.has(w) && count &gt; maxCount) {\n            maxCount = count;\n            result = w;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is paragraph length and m is total banned words length
+- Space: O(n) for the hash map storing word counts
+- Notes: Clear separation of concerns but requires storing all word counts including banned ones
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Most Common Word Solutions","datePublished":"2025-01-07","description":"Find the most frequent word in a paragraph that is not in the banned list.","keywords":"LeetCode, Most Common Word, Easy, Array, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map with String Processing approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n is paragraph length and m is total banned words length"}},{"@type":"Question","name":"What is the space complexity of Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the hash map storing word counts"}},{"@type":"Question","name":"What is the time complexity of Two Pass with Set approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n is paragraph length and m is total banned words length"}}]}).replace(/</g,'\u003c')}
+</script>

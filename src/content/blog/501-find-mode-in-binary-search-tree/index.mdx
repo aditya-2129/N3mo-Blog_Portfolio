@@ -1,0 +1,144 @@
+---
+title: "Find Mode in Binary Search Tree"
+summary: "Given the root of a BST with duplicates, return the mode(s) (most frequently occurring elements) in the tree."
+date: "Oct 16, 2025"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Search Tree
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 58.90% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Search Tree, Binary Tree
+
+Given the root of a binary search tree (BST) with duplicates, return all the mode(s) (i.e., the most frequently occurring element) in it.
+
+If the tree has more than one mode, return them in any order.
+
+Assume a BST is defined as follows:
+
+*   The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+*   The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+*   Both the left and right subtrees must also be binary search trees.
+
+- Examples
+- Constraints
+- [Hash Map Frequency Count](#hash-map-frequency-count)
+- [In-Order Traversal (BST Property)](#in-order-traversal-bst-property)
+- [Morris Traversal](#morris-traversal)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [1,null,2,2]
+Output: [2]
+```
+
+**Example 2:**
+
+```text
+Input: root = [0]
+Output: [0]
+```
+
+## Constraints
+
+```text
+- The number of nodes in the tree is in the range [1, 10^4].
+- -10^5 <= Node.val <= 10^5
+```
+
+---
+
+## Hash Map Frequency Count
+
+**Intuition**
+Traverse the entire tree and count the frequency of every value using a hash map, then find the value(s) with the maximum frequency.
+
+**Steps**
+- Initialize a hash map to store value counts.
+- Perform a traversal (DFS or BFS) of the tree.
+- For each node visited, increment its count in the map.
+- Iterate through the map to find the maximum frequency.
+- Collect all values that match this maximum frequency into a result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def findMode(self, root: Optional[TreeNode]) -&gt; List[int]:\n        if not root:\n            return []\n        \n        count_map = {}\n        \n        def dfs(node):\n            if not node:\n                return\n            count_map[node.val] = count_map.get(node.val, 0) + 1\n            dfs(node.left)\n            dfs(node.right)\n        \n        dfs(root)\n        \n        max_freq = max(count_map.values())\n        return [k for k, v in count_map.items() if v == max_freq]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\nclass Solution {\n    public int[] findMode(TreeNode root) {\n        Map&lt;Integer, Integer&gt; countMap = new HashMap&lt;&gt;();\n        dfs(root, countMap);\n        \n        int maxFreq = 0;\n        for (int freq : countMap.values()) {\n            maxFreq = Math.max(maxFreq, freq);\n        }\n        \n        List&lt;Integer&gt; resultList = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;Integer, Integer&gt; entry : countMap.entrySet()) {\n            if (entry.getValue() == maxFreq) {\n                resultList.add(entry.getKey());\n            }\n        }\n        \n        int[] result = new int[resultList.size()];\n        for (int i = 0; i &lt; resultList.size(); i++) {\n            result[i] = resultList.get(i);\n        }\n        return result;\n    }\n    \n    private void dfs(TreeNode node, Map&lt;Integer, Integer&gt; countMap) {\n        if (node == null) return;\n        countMap.put(node.val, countMap.getOrDefault(node.val, 0) + 1);\n        dfs(node.left, countMap);\n        dfs(node.right, countMap);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findMode(TreeNode* root) {\n        unordered_map&lt;int, int&gt; countMap;\n        dfs(root, countMap);\n        \n        int maxFreq = 0;\n        for (const auto& pair : countMap) {\n            maxFreq = max(maxFreq, pair.second);\n        }\n        \n        vector&lt;int&gt; result;\n        for (const auto& pair : countMap) {\n            if (pair.second == maxFreq) {\n                result.push_back(pair.first);\n            }\n        }\n        return result;\n    }\n    \nprivate:\n    void dfs(TreeNode* node, unordered_map&lt;int, int&gt;& countMap) {\n        if (!node) return;\n        countMap[node.val]++;\n        dfs(node-&gt;left, countMap);\n        dfs(node-&gt;right, countMap);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "function findMode(root) {\n    const countMap = new Map();\n    \n    function dfs(node) {\n        if (!node) return;\n        countMap.set(node.val, (countMap.get(node.val) || 0) + 1);\n        dfs(node.left);\n        dfs(node.right);\n    }\n    \n    dfs(root);\n    \n    let maxFreq = 0;\n    for (const freq of countMap.values()) {\n        maxFreq = Math.max(maxFreq, freq);\n    }\n    \n    const result = [];\n    for (const [key, val] of countMap.entries()) {\n        if (val === maxFreq) {\n            result.push(key);\n        }\n    }\n    return result;\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n        this.val = (val === undefined ? 0 : val);\n        this.left = (left === undefined ? null : left);\n        this.right = (right === undefined ? null : right);\n    }\n}\n\nfunction findMode(root: TreeNode | null): number[] {\n    const countMap = new Map&lt;number, number&gt;();\n    \n    function dfs(node: TreeNode | null): void {\n        if (!node) return;\n        countMap.set(node.val, (countMap.get(node.val) || 0) + 1);\n        dfs(node.left);\n        dfs(node.right);\n    }\n    \n    dfs(root);\n    \n    let maxFreq = 0;\n    for (const freq of countMap.values()) {\n        maxFreq = Math.max(maxFreq, freq);\n    }\n    \n    const result: number[] = [];\n    for (const [key, val] of countMap.entries()) {\n        if (val === maxFreq) {\n            result.push(key);\n        }\n    }\n    return result;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N)
+- Space: O(N)
+- Notes: Uses extra space proportional to the number of unique values.
+
+## In-Order Traversal (BST Property)
+
+**Intuition**
+An in-order traversal of a BST yields a sorted sequence of values. This means duplicate values will be adjacent. We can traverse the tree and count consecutive runs of identical values to find the mode without a hash map.
+
+**Steps**
+- Initialize variables to track the current value, current count, maximum count found so far, and the result list.
+- Perform a recursive in-order traversal.
+- If the current node's value equals the previous value, increment the current count. Otherwise, reset the current count to 1.
+- If the current count exceeds the maximum count, update the maximum count and reset the result list with the current value.
+- If the current count equals the maximum count, append the current value to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def findMode(self, root: Optional[TreeNode]) -&gt; List[int]:\n        self.result = []\n        self.current_count = 0\n        self.max_count = 0\n        self.prev_val = None\n\n        def inorder(node):\n            if not node:\n                return\n            inorder(node.left)\n            \n            if self.prev_val is None or node.val != self.prev_val:\n                self.current_count = 1\n            else:\n                self.current_count += 1\n            \n            if self.current_count &gt; self.max_count:\n                self.max_count = self.current_count\n                self.result = [node.val]\n            elif self.current_count == self.max_count:\n                self.result.append(node.val)\n            \n            self.prev_val = node.val\n            inorder(node.right)\n\n        inorder(root)\n        return self.result\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\nclass Solution {\n    private List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n    private int currentCount = 0;\n    private int maxCount = 0;\n    private Integer prevVal = null;\n\n    public int[] findMode(TreeNode root) {\n        inorder(root);\n        int[] res = new int[result.size()];\n        for (int i = 0; i &lt; result.size(); i++) {\n            res[i] = result.get(i);\n        }\n        return res;\n    }\n\n    private void inorder(TreeNode node) {\n        if (node == null) return;\n        inorder(node.left);\n\n        if (prevVal == null || node.val != prevVal) {\n            currentCount = 1;\n        } else {\n            currentCount++;\n        }\n\n        if (currentCount &gt; maxCount) {\n            maxCount = currentCount;\n            result.clear();\n            result.add(node.val);\n        } else if (currentCount == maxCount) {\n            result.add(node.val);\n        }\n\n        prevVal = node.val;\n        inorder(node.right);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; result;\n    int currentCount = 0;\n    int maxCount = 0;\n    int prevVal = INT_MIN;\n    bool isFirst = true;\n\n    vector&lt;int&gt; findMode(TreeNode* root) {\n        inorder(root);\n        return result;\n    }\n\n    void inorder(TreeNode* node) {\n        if (!node) return;\n        inorder(node-&gt;left);\n\n        if (isFirst || node-&gt;val != prevVal) {\n            currentCount = 1;\n            isFirst = false;\n        } else {\n            currentCount++;\n        }\n\n        if (currentCount &gt; maxCount) {\n            maxCount = currentCount;\n            result.clear();\n            result.push_back(node-&gt;val);\n        } else if (currentCount == maxCount) {\n            result.push_back(node-&gt;val);\n        }\n\n        prevVal = node-&gt;val;\n        inorder(node-&gt;right);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findMode = function(root) {\n    let result = [];\n    let currentCount = 0;\n    let maxCount = 0;\n    let prevVal = null;\n\n    function inorder(node) {\n        if (!node) return;\n        inorder(node.left);\n\n        if (prevVal === null || node.val !== prevVal) {\n            currentCount = 1;\n        } else {\n            currentCount++;\n        }\n\n        if (currentCount &gt; maxCount) {\n            maxCount = currentCount;\n            result = [node.val];\n        } else if (currentCount === maxCount) {\n            result.push(node.val);\n        }\n\n        prevVal = node.val;\n        inorder(node.right);\n    }\n\n    inorder(root);\n    return result;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n        this.val = (val === undefined ? 0 : val);\n        this.left = (left === undefined ? null : left);\n        this.right = (right === undefined ? null : right);\n    }\n}\n\nfunction findMode(root: TreeNode | null): number[] {\n    let result: number[] = [];\n    let currentCount: number = 0;\n    let maxCount: number = 0;\n    let prevVal: number | null = null;\n\n    function inorder(node: TreeNode | null): void {\n        if (!node) return;\n        inorder(node.left);\n\n        if (prevVal === null || node.val !== prevVal) {\n            currentCount = 1;\n        } else {\n            currentCount++;\n        }\n\n        if (currentCount &gt; maxCount) {\n            maxCount = currentCount;\n            result = [node.val];\n        } else if (currentCount === maxCount) {\n            result.push(node.val);\n        }\n\n        prevVal = node.val;\n        inorder(node.right);\n    }\n\n    inorder(root);\n    return result;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N)
+- Space: O(H) where H is the height of the tree (recursion stack).
+- Notes: Optimizes space by utilizing the BST property, but still uses stack space for recursion.
+
+## Morris Traversal
+
+**Intuition**
+We can achieve O(1) extra space (excluding the output) by using Morris Traversal. This allows us to perform an in-order traversal by temporarily modifying the tree structure (creating threads to predecessors) and then restoring it.
+
+**Steps**
+- Initialize current pointer to root.
+- While current is not null:
+    - If current has no left child:
+        - Process current node (update counts and result list logic).
+        - Move to right child.
+    - Else:
+        - Find the inorder predecessor (rightmost node in left subtree).
+        - If predecessor's right child is null:
+            - Link predecessor's right to current (create thread).
+            - Move to left child.
+        - Else (predecessor's right is current):
+            - Revert the link (predecessor's right = null).
+            - Process current node.
+            - Move to right child.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def findMode(self, root: Optional[TreeNode]) -&gt; List[int]:\n        if not root:\n            return []\n        \n        result = []\n        current_count = 0\n        max_count = 0\n        prev_val = None\n        \n        current = root\n        \n        while current:\n            if not current.left:\n                # Process current\n                if prev_val is None or current.val != prev_val:\n                    current_count = 1\n                else:\n                    current_count += 1\n                \n                if current_count &gt; max_count:\n                    max_count = current_count\n                    result = [current.val]\n                elif current_count == max_count:\n                    result.append(current.val)\n                \n                prev_val = current.val\n                current = current.right\n            else:\n                # Find predecessor\n                predecessor = current.left\n                while predecessor.right and predecessor.right != current:\n                    predecessor = predecessor.right\n                \n                if not predecessor.right:\n                    predecessor.right = current\n                    current = current.left\n                else:\n                    predecessor.right = None\n                    # Process current\n                    if prev_val is None or current.val != prev_val:\n                        current_count = 1\n                    else:\n                        current_count += 1\n                    \n                    if current_count &gt; max_count:\n                        max_count = current_count\n                        result = [current.val]\n                    elif current_count == max_count:\n                        result.append(current.val)\n                    \n                    prev_val = current.val\n                    current = current.right\n        \n        return result\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\nclass Solution {\n    public int[] findMode(TreeNode root) {\n        List&lt;Integer&gt; resultList = new ArrayList&lt;&gt;();\n        int currentCount = 0;\n        int maxCount = 0;\n        Integer prevVal = null;\n        \n        TreeNode current = root;\n        \n        while (current != null) {\n            if (current.left == null) {\n                // Process current\n                if (prevVal == null || current.val != prevVal) {\n                    currentCount = 1;\n                } else {\n                    currentCount++;\n                }\n                \n                if (currentCount &gt; maxCount) {\n                    maxCount = currentCount;\n                    resultList.clear();\n                    resultList.add(current.val);\n                } else if (currentCount == maxCount) {\n                    resultList.add(current.val);\n                }\n                \n                prevVal = current.val;\n                current = current.right;\n            } else {\n                TreeNode predecessor = current.left;\n                while (predecessor.right != null && predecessor.right != current) {\n                    predecessor = predecessor.right;\n                }\n                \n                if (predecessor.right == null) {\n                    predecessor.right = current;\n                    current = current.left;\n                } else {\n                    predecessor.right = null;\n                    // Process current\n                    if (prevVal == null || current.val != prevVal) {\n                        currentCount = 1;\n                    } else {\n                        currentCount++;\n                    }\n                    \n                    if (currentCount &gt; maxCount) {\n                        maxCount = currentCount;\n                        resultList.clear();\n                        resultList.add(current.val);\n                    } else if (currentCount == maxCount) {\n                        resultList.add(current.val);\n                    }\n                    \n                    prevVal = current.val;\n                    current = current.right;\n                }\n            }\n        }\n        \n        int[] result = new int[resultList.size()];\n        for (int i = 0; i &lt; resultList.size(); i++) {\n            result[i] = resultList.get(i);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findMode(TreeNode* root) {\n        vector&lt;int&gt; result;\n        int currentCount = 0;\n        int maxCount = 0;\n        int prevVal = INT_MIN;\n        bool isFirst = true;\n        \n        TreeNode* current = root;\n        \n        while (current != nullptr) {\n            if (current-&gt;left == nullptr) {\n                // Process current\n                if (isFirst || current-&gt;val != prevVal) {\n                    currentCount = 1;\n                    isFirst = false;\n                } else {\n                    currentCount++;\n                }\n                \n                if (currentCount &gt; maxCount) {\n                    maxCount = currentCount;\n                    result.clear();\n                    result.push_back(current-&gt;val);\n                } else if (currentCount == maxCount) {\n                    result.push_back(current-&gt;val);\n                }\n                \n                prevVal = current-&gt;val;\n                current = current-&gt;right;\n            } else {\n                TreeNode* predecessor = current-&gt;left;\n                while (predecessor-&gt;right != nullptr && predecessor-&gt;right != current) {\n                    predecessor = predecessor-&gt;right;\n                }\n                \n                if (predecessor-&gt;right == nullptr) {\n                    predecessor-&gt;right = current;\n                    current = current-&gt;left;\n                } else {\n                    predecessor-&gt;right = nullptr;\n                    // Process current\n                    if (isFirst || current-&gt;val != prevVal) {\n                        currentCount = 1;\n                        isFirst = false;\n                    } else {\n                        currentCount++;\n                    }\n                    \n                    if (currentCount &gt; maxCount) {\n                        maxCount = currentCount;\n                        result.clear();\n                        result.push_back(current-&gt;val);\n                    } else if (currentCount == maxCount) {\n                        result.push_back(current-&gt;val);\n                    }\n                    \n                    prevVal = current-&gt;val;\n                    current = current-&gt;right;\n                }\n            }\n        }\n        return result;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findMode = function(root) {\n    let result = [];\n    let currentCount = 0;\n    let maxCount = 0;\n    let prevVal = null;\n    \n    let current = root;\n    \n    while (current !== null) {\n        if (current.left === null) {\n            // Process current\n            if (prevVal === null || current.val !== prevVal) {\n                currentCount = 1;\n            } else {\n                currentCount++;\n            }\n            \n            if (currentCount &gt; maxCount) {\n                maxCount = currentCount;\n                result = [current.val];\n            } else if (currentCount === maxCount) {\n                result.push(current.val);\n            }\n            \n            prevVal = current.val;\n            current = current.right;\n        } else {\n            let predecessor = current.left;\n            while (predecessor.right !== null && predecessor.right !== current) {\n                predecessor = predecessor.right;\n            }\n            \n            if (predecessor.right === null) {\n                predecessor.right = current;\n                current = current.left;\n            } else {\n                predecessor.right = null;\n                // Process current\n                if (prevVal === null || current.val !== prevVal) {\n                    currentCount = 1;\n                } else {\n                    currentCount++;\n                }\n                \n                if (currentCount &gt; maxCount) {\n                    maxCount = currentCount;\n                    result = [current.val];\n                } else if (currentCount === maxCount) {\n                    result.push(current.val);\n                }\n                \n                prevVal = current.val;\n                current = current.right;\n            }\n        }\n    }\n    return result;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n        this.val = (val === undefined ? 0 : val);\n        this.left = (left === undefined ? null : left);\n        this.right = (right === undefined ? null : right);\n    }\n}\n\nfunction findMode(root: TreeNode | null): number[] {\n    let result: number[] = [];\n    let currentCount: number = 0;\n    let maxCount: number = 0;\n    let prevVal: number | null = null;\n    \n    let current: TreeNode | null = root;\n    \n    while (current !== null) {\n        if (current.left === null) {\n            // Process current\n            if (prevVal === null || current.val !== prevVal) {\n                currentCount = 1;\n            } else {\n                currentCount++;\n            }\n            \n            if (currentCount &gt; maxCount) {\n                maxCount = currentCount;\n                result = [current.val];\n            } else if (currentCount === maxCount) {\n                result.push(current.val);\n            }\n            \n            prevVal = current.val;\n            current = current.right;\n        } else {\n            let predecessor: TreeNode | null = current.left;\n            while (predecessor.right !== null && predecessor.right !== current) {\n                predecessor = predecessor.right;\n            }\n            \n            if (predecessor.right === null) {\n                predecessor.right = current;\n                current = current.left;\n            } else {\n                predecessor.right = null;\n                // Process current\n                if (prevVal === null || current.val !== prevVal) {\n                    currentCount = 1;\n                } else {\n                    currentCount++;\n                }\n                \n                if (currentCount &gt; maxCount) {\n                    maxCount = currentCount;\n                    result = [current.val];\n                } else if (currentCount === maxCount) {\n                    result.push(current.val);\n                }\n                \n                prevVal = current.val;\n                current = current.right;\n            }\n        }\n    }\n    return result;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N)
+- Space: O(1)
+- Notes: Uses constant extra space by modifying the tree pointers temporarily, avoiding recursion stack overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Mode in Binary Search Tree Solutions","datePublished":"2025-10-16","description":"Given the root of a BST with duplicates, return the mode(s) (most frequently occurring elements) in the tree.","keywords":"LeetCode, Find Mode in Binary Search Tree, Easy, Tree, Depth-First Search, Binary Search Tree, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of nodes in the tree, as we visit each node exactly once."}},{"@type":"Question","name":"What is the space complexity of the In-Order Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(H), where H is the height of the tree, due to the recursion stack. In the worst case (skewed tree), this is O(N)."}},{"@type":"Question","name":"How does Morris Traversal optimize space?","acceptedAnswer":{"@type":"Answer","text":"Morris Traversal optimizes space to O(1) by using the right pointers of leaf nodes (threads) to traverse back to ancestors, eliminating the need for a recursion stack or an explicit stack data structure."}}]}).replace(/</g,'\u003c')}
+</script>

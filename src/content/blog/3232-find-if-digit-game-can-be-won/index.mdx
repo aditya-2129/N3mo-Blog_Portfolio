@@ -1,0 +1,148 @@
+---
+title: "Find if Digit Game Can Be Won"
+summary: "Determine the winner of a turn-based game where Alice picks from even indices and Bob from odd indices based on digit parity."
+date: "Mar 27, 2024"
+tags:
+  - Array
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.60% | **Paid:** No
+> **Topics:** Array, Math
+
+You are given a 0-indexed integer array nums. Alice and Bob are playing a game. In each turn, a player picks a digit from the array and removes it.
+
+Alice starts the game. In her turn, she must pick a digit from an even index. If the picked digit is even, she wins the game.
+
+In Bob's turn, he must pick a digit from an odd index. If the picked digit is odd, he wins the game.
+
+The game ends when a player cannot pick a digit that satisfies the condition.
+
+Return true if Alice will win the game, otherwise return false.
+
+- Examples
+- Constraints
+- [Optimal Single Pass](#optimal-single-pass)
+- [Brute Force Simulation](#brute-force-simulation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,2,3,4,10]
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+Alice cannot win by choosing either single-digit or double-digit numbers.
+
+### Example 2
+
+**Input:**
+```text
+nums = [1,2,3,4,5,14]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Alice can win by choosing single-digit numbers which have a sum equal to 15.
+
+### Example 3
+
+**Input:**
+```text
+nums = [5,5,5,25]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+Alice can win by choosing double-digit numbers which have a sum equal to 25.
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+0 <= nums[i] <= 9
+```
+
+---
+
+## Optimal Single Pass
+
+**Intuition**
+The game can be simulated by iterating through the array with a specific index pattern. Alice checks indices 0, 1, 3, 5..., while Bob checks indices 2, 4, 6... based on how elements shift after removals. We can use a pointer to jump between these indices without modifying the array.
+
+**Steps**
+- Initialize a pointer `i = 0` and a `turn` flag (0 for Alice, 1 for Bob).
+- Loop while `i` is within bounds.
+- If it's Alice's turn:
+  - Check if `nums[i]` is even. If yes, return `true`.
+  - Move pointer `i += 2` (skip the next element Bob will check).
+- If it's Bob's turn:
+  - Check if `nums[i]` is odd. If yes, return `false`.
+  - Move pointer `i -= 1` (move back to the element Alice needs to check next).
+- Toggle turn.
+- If the loop completes, Alice wins because Bob ran out of moves.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canAliceWin(self, nums: list[int]) -&gt; bool:\n        n = len(nums)\n        i = 0\n        turn = 0  # 0 for Alice, 1 for Bob\n        while i &lt; n:\n            if turn == 0:\n                if nums[i] % 2 == 0:\n                    return True\n                i += 2\n            else:\n                if nums[i] % 2 == 1:\n                    return False\n                i -= 1\n            turn ^= 1\n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean canAliceWin(int[] nums) {\n        int n = nums.length;\n        int i = 0;\n        int turn = 0; // 0 for Alice, 1 for Bob\n        while (i &lt; n) {\n            if (turn == 0) {\n                if (nums[i] % 2 == 0) return true;\n                i += 2;\n            } else {\n                if (nums[i] % 2 == 1) return false;\n                i -= 1;\n            }\n            turn ^= 1;\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool canAliceWin(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int i = 0;\n        int turn = 0; // 0 for Alice, 1 for Bob\n        while (i &lt; n) {\n            if (turn == 0) {\n                if (nums[i] % 2 == 0) return true;\n                i += 2;\n            } else {\n                if (nums[i] % 2 == 1) return false;\n                i -= 1;\n            }\n            turn ^= 1;\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var canAliceWin = function(nums) {\n    const n = nums.length;\n    let i = 0;\n    let turn = 0; // 0 for Alice, 1 for Bob\n    while (i &lt; n) {\n        if (turn === 0) {\n            if (nums[i] % 2 === 0) return true;\n            i += 2;\n        } else {\n            if (nums[i] % 2 === 1) return false;\n            i -= 1;\n        }\n        turn ^= 1;\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function canAliceWin(nums: number[]): boolean {\n    const n = nums.length;\n    let i = 0;\n    let turn = 0; // 0 for Alice, 1 for Bob\n    while (i &lt; n) {\n        if (turn === 0) {\n            if (nums[i] % 2 === 0) return true;\n            i += 2;\n        } else {\n            if (nums[i] % 2 === 1) return false;\n            i -= 1;\n        }\n        turn ^= 1;\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Most efficient solution, avoids extra memory allocation.
+
+---
+
+## Brute Force Simulation
+
+**Intuition**
+Simulate the game exactly as described by physically removing elements from a list structure. This approach directly models the game state changes.
+
+**Steps**
+- Create a mutable copy of the array (e.g., a list or deque).
+- Loop while the list is not empty.
+- Alice's turn: Check the first element (index 0). If even, return `true`. Otherwise, remove it.
+- If the list becomes empty after Alice's move, Bob cannot move, so return `true`.
+- Bob's turn: Check the second element (index 1). If odd, return `false`. Otherwise, remove it.
+- If the list becomes empty after Bob's move, Alice cannot move, so return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def canAliceWin(self, nums: list[int]) -&gt; bool:\n        arr = nums[:]\n        while arr:\n            # Alice's turn\n            if arr[0] % 2 == 0:\n                return True\n            arr.pop(0)\n            if not arr:\n                return True # Bob cannot move\n            # Bob's turn\n            if arr[1] % 2 == 1:\n                return False\n            arr.pop(1)\n        return False\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public boolean canAliceWin(int[] nums) {\n        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();\n        for (int num : nums) {\n            list.add(num);\n        }\n        while (!list.isEmpty()) {\n            // Alice's turn\n            if (list.get(0) % 2 == 0) return true;\n            list.remove(0);\n            if (list.isEmpty()) return true;\n            // Bob's turn\n            if (list.get(1) % 2 == 1) return false;\n            list.remove(1);\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    bool canAliceWin(vector&lt;int&gt;& nums) {\n        std::vector&lt;int&gt; arr = nums;\n        while (!arr.empty()) {\n            // Alice's turn\n            if (arr[0] % 2 == 0) return true;\n            arr.erase(arr.begin());\n            if (arr.empty()) return true;\n            // Bob's turn\n            if (arr[1] % 2 == 1) return false;\n            arr.erase(arr.begin() + 1);\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var canAliceWin = function(nums) {\n    let arr = [...nums];\n    while (arr.length &gt; 0) {\n        // Alice's turn\n        if (arr[0] % 2 === 0) return true;\n        arr.shift();\n        if (arr.length === 0) return true;\n        // Bob's turn\n        if (arr[1] % 2 === 1) return false;\n        arr.splice(1, 1);\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function canAliceWin(nums: number[]): boolean {\n    let arr = [...nums];\n    while (arr.length &gt; 0) {\n        // Alice's turn\n        if (arr[0] % 2 === 0) return true;\n        arr.shift();\n        if (arr.length === 0) return true;\n        // Bob's turn\n        if (arr[1] % 2 === 1) return false;\n        arr.splice(1, 1);\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Removing elements from the front of an array/list is O(n), leading to quadratic time complexity. Less efficient but conceptually simple.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find if Digit Game Can Be Won Solutions","datePublished":"2024-03-27","description":"Determine the winner of a turn-based game where Alice picks from even indices and Bob from odd indices based on digit parity.","keywords":"LeetCode, Find if Digit Game Can Be Won, Easy, Array, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Optimal Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the array. We traverse the array once with a pointer."}},{"@type":"Question","name":"What is the space complexity of the Brute Force Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) because we create a copy of the array to simulate removals."}},{"@type":"Question","name":"Why does the pointer logic in the optimal solution work?","acceptedAnswer":{"@type":"Answer","text":"The pointer logic mimics the shifting of elements. When Alice removes an element, Bob's target shifts left, effectively skipping indices. The pointer jumps (i+=2 for Alice, i-=1 for Bob) to track the next relevant element in the original array structure."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,134 @@
+---
+title: "Valid Boomerang"
+summary: "Determine if three points are distinct and non-collinear to form a boomerang."
+date: "Mar 27, 2024"
+tags:
+  - Array
+  - Math
+  - Geometry
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 39.50% | **Paid:** No
+> **Topics:** Array, Math, Geometry
+
+Given an array points where points[i] = [xi, yi] represents a point on the X-Y plane, return true if these points are a boomerang.
+
+A boomerang is a set of three points that are all distinct and not in a straight line.
+
+- Examples
+- Constraints
+- [Approach 1: Slope Comparison](#approach-1-slope-comparison)
+- [Approach 2: Triangle Area](#approach-2-triangle-area)
+- [Approach 3: Vector Cross Product](#approach-3-vector-cross-product)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+points = [[1,1],[2,3],[3,2]]
+```
+
+**Output:**
+```text
+true
+```
+
+### Example 2
+
+**Input:**
+```text
+points = [[1,1],[2,2],[3,3]]
+```
+
+**Output:**
+```text
+false
+```
+
+## Constraints
+```text
+points.length == 3
+points[i].length == 2
+0 <= xi, yi <= 100
+```
+
+---
+## Approach 1: Slope Comparison
+
+**Intuition**
+Three points are collinear if the slope between the first two points is equal to the slope between the last two points. To avoid division by zero (vertical lines), we compare the cross products of the differences.
+
+**Steps**
+- Extract coordinates for the three points.
+- Calculate the slope difference using cross-multiplication: `(y2 - y1) * (x3 - x2)` vs `(y3 - y2) * (x2 - x1)`.
+- If they are not equal, the points are not collinear (and implicitly distinct if the math holds, though identical points result in 0=0 which correctly returns false).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def isBoomerang(self, points: List[List[int]]) -&gt; bool:\r\n        x1, y1 = points[0]\r\n        x2, y2 = points[1]\r\n        x3, y3 = points[2]\r\n        # Compare slopes (y2-y1)/(x2-x1) != (y3-y2)/(x3-x2)\r\n        # Cross multiply to avoid division by zero\r\n        return (y2 - y1) * (x3 - x2) != (y3 - y2) * (x2 - x1)" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public boolean isBoomerang(int[][] points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // (y2 - y1) * (x3 - x2) != (y3 - y2) * (x2 - x1)\r\n        return (y2 - y1) * (x3 - x2) != (y3 - y2) * (x2 - x1);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    bool isBoomerang(vector&lt;vector&lt;int&gt;&gt;& points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // (y2 - y1) * (x3 - x2) != (y3 - y2) * (x2 - x1)\r\n        return (y2 - y1) * (x3 - x2) != (y3 - y2) * (x2 - x1);\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    isBoomerang(points) {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // (y2 - y1) * (x3 - x2) !== (y3 - y2) * (x2 - x1)\r\n        return (y2 - y1) * (x3 - x2) !== (y3 - y2) * (x2 - x1);\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    isBoomerang(points: number[][]): boolean {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // (y2 - y1) * (x3 - x2) !== (y3 - y2) * (x2 - x1)\r\n        return (y2 - y1) * (x3 - x2) !== (y3 - y2) * (x2 - x1);\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Constant time arithmetic operations.
+
+---
+## Approach 2: Triangle Area
+
+**Intuition**
+Three points form a triangle with a non-zero area if and only if they are not collinear. We can calculate the area using the determinant formula (shoelace formula).
+
+**Steps**
+- Extract coordinates.
+- Calculate the area using the formula: `0.5 * |x1(y2 - y3) + x2(y3 - y1) + x3(y1 - y2)|`.
+- Return true if the area is not zero.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def isBoomerang(self, points: List[List[int]]) -&gt; bool:\r\n        x1, y1 = points[0]\r\n        x2, y2 = points[1]\r\n        x3, y3 = points[2]\r\n        # Calculate 2 * Area to avoid floating point numbers\r\n        # Area = 0.5 * |x1(y2 - y3) + x2(y3 - y1) + x3(y1 - y2)|\r\n        area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)\r\n        return area != 0" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public boolean isBoomerang(int[][] points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Calculate 2 * Area\r\n        int area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);\r\n        return area != 0;\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    bool isBoomerang(vector&lt;vector&lt;int&gt;&gt;& points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Calculate 2 * Area\r\n        int area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);\r\n        return area != 0;\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    isBoomerang(points) {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Calculate 2 * Area\r\n        const area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);\r\n        return area !== 0;\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    isBoomerang(points: number[][]): boolean {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Calculate 2 * Area\r\n        const area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);\r\n        return area !== 0;\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Using integer arithmetic (2*Area) avoids precision issues with floating point numbers.
+
+---
+## Approach 3: Vector Cross Product
+
+**Intuition**
+If we create two vectors from the three points (e.g., vector AB and vector AC), the points are collinear if the cross product of these two vectors is zero.
+
+**Steps**
+- Calculate vector 1: `(x2 - x1, y2 - y1)`.
+- Calculate vector 2: `(x3 - x1, y3 - y1)`.
+- Compute the cross product: `v1.x * v2.y - v1.y * v2.x`.
+- Return true if the result is not zero.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def isBoomerang(self, points: List[List[int]]) -&gt; bool:\r\n        x1, y1 = points[0]\r\n        x2, y2 = points[1]\r\n        x3, y3 = points[2]\r\n        \r\n        # Vector 1: (x2 - x1, y2 - y1)\r\n        # Vector 2: (x3 - x1, y3 - y1)\r\n        # Cross product: v1.x * v2.y - v1.y * v2.x\r\n        return (x2 - x1) * (y3 - y1) != (y2 - y1) * (x3 - x1)" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public boolean isBoomerang(int[][] points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Cross product of vectors (x2-x1, y2-y1) and (x3-x1, y3-y1)\r\n        return (x2 - x1) * (y3 - y1) != (y2 - y1) * (x3 - x1);\r\n    }\r\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    bool isBoomerang(vector&lt;vector&lt;int&gt;&gt;& points) {\r\n        int x1 = points[0][0], y1 = points[0][1];\r\n        int x2 = points[1][0], y2 = points[1][1];\r\n        int x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Cross product of vectors (x2-x1, y2-y1) and (x3-x1, y3-y1)\r\n        return (x2 - x1) * (y3 - y1) != (y2 - y1) * (x3 - x1);\r\n    }\r\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\r\n    isBoomerang(points) {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Cross product of vectors (x2-x1, y2-y1) and (x3-x1, y3-y1)\r\n        return (x2 - x1) * (y3 - y1) !== (y2 - y1) * (x3 - x1);\r\n    }\r\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\r\n    isBoomerang(points: number[][]): boolean {\r\n        const x1 = points[0][0], y1 = points[0][1];\r\n        const x2 = points[1][0], y2 = points[1][1];\r\n        const x3 = points[2][0], y3 = points[2][1];\r\n        \r\n        // Cross product of vectors (x2-x1, y2-y1) and (x3-x1, y3-y1)\r\n        return (x2 - x1) * (y3 - y1) !== (y2 - y1) * (x3 - x1);\r\n    }\r\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Geometrically intuitive approach using vector algebra.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Valid Boomerang Solutions","datePublished":"2024-03-27","description":"Determine if three points are distinct and non-collinear to form a boomerang.","keywords":"LeetCode, Valid Boomerang, Easy, Array, Math, Geometry"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Slope Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a constant number of arithmetic operations regardless of input size."}},{"@type":"Question","name":"How does the Triangle Area approach avoid floating point errors?","acceptedAnswer":{"@type":"Answer","text":"Instead of calculating the actual area (which involves 0.5), we calculate twice the area using the determinant formula. This keeps the calculation in the integer domain."}},{"@type":"Question","name":"Why is the Vector Cross Product method effective?","acceptedAnswer":{"@type":"Answer","text":"The cross product of two vectors is zero if and only if the vectors are parallel (collinear). Since the vectors share a common origin point, a zero cross product means all three points lie on the same line."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,104 @@
+---
+title: "Average of Levels in Binary Tree"
+summary: "Given the root of a binary tree, return the average value of the nodes on each level in the form of an array."
+date: "May 17, 2025"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.90% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given the root of a binary tree, return the average value of the nodes on each level in the form of an array. Answers within 10⁻⁵ of the actual answer will be accepted.
+
+- Examples
+- Constraints
+- [Breadth-First Search (Level Order Traversal)](#bfs)
+- [Depth-First Search](#dfs)
+
+## Examples
+
+### Example 1
+
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: [3.00000,14.50000,11.00000]
+Explanation: The average value of nodes on level 0 is 3, on level 1 is 14.5, and on level 2 is 11.
+Hence return [3, 14.5, 11].
+```
+
+### Example 2
+
+```text
+Input: root = [3,9,20,15,7]
+Output: [3.00000,14.50000,11.00000]
+```
+
+## Constraints
+
+```text
+- The number of nodes in the tree is in the range [1, 10^4].
+- -2^31 <= Node.val <= 2^31 - 1
+```
+
+---
+
+## Breadth-First Search (Level Order Traversal)
+
+**Intuition**
+Process the tree level by level using a queue, calculating the average for each level as we go.
+
+**Steps**
+- Initialize a queue with the root node
+- For each level, record the number of nodes and sum their values
+- Divide the sum by the count to get the average for that level
+- Add children of current level nodes to the queue for the next iteration
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\nfrom typing import List, Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def averageOfLevels(self, root: Optional[TreeNode]) -&gt; List[float]:\n        if not root:\n            return []\n        \n        result = []\n        queue = deque([root])\n        \n        while queue:\n            level_size = len(queue)\n            level_sum = 0\n            \n            for _ in range(level_size):\n                node = queue.popleft()\n                level_sum += node.val\n                \n                if node.left:\n                    queue.append(node.left)\n                if node.right:\n                    queue.append(node.right)\n            \n            result.append(level_sum / level_size)\n        \n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\nclass Solution {\n    public List&lt;Double&gt; averageOfLevels(TreeNode root) {\n        List&lt;Double&gt; result = new ArrayList&lt;&gt;();\n        if (root == null) {\n            return result;\n        }\n        \n        Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(root);\n        \n        while (!queue.isEmpty()) {\n            int levelSize = queue.size();\n            double levelSum = 0;\n            \n            for (int i = 0; i &lt; levelSize; i++) {\n                TreeNode node = queue.poll();\n                levelSum += node.val;\n                \n                if (node.left != null) {\n                    queue.offer(node.left);\n                }\n                if (node.right != null) {\n                    queue.offer(node.right);\n                }\n            }\n            \n            result.add(levelSum / levelSize);\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;queue&gt;\n\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\nclass Solution {\npublic:\n    vector&lt;double&gt; averageOfLevels(TreeNode* root) {\n        vector&lt;double&gt; result;\n        if (root == nullptr) {\n            return result;\n        }\n        \n        queue&lt;TreeNode*&gt; q;\n        q.push(root);\n        \n        while (!q.empty()) {\n            int levelSize = q.size();\n            double levelSum = 0;\n            \n            for (int i = 0; i &lt; levelSize; i++) {\n                TreeNode* node = q.front();\n                q.pop();\n                levelSum += node-&gt;val;\n                \n                if (node-&gt;left != nullptr) {\n                    q.push(node-&gt;left);\n                }\n                if (node-&gt;right != nullptr) {\n                    q.push(node-&gt;right);\n                }\n            }\n            \n            result.push_back(levelSum / levelSize);\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function TreeNode(val, left, right) {\n    this.val = (val === undefined ? 0 : val);\n    this.left = (left === undefined ? null : left);\n    this.right = (right === undefined ? null : right);\n}\n\nvar averageOfLevels = function(root) {\n    if (!root) {\n        return [];\n    }\n    \n    const result = [];\n    const queue = [root];\n    \n    while (queue.length &gt; 0) {\n        const levelSize = queue.length;\n        let levelSum = 0;\n        \n        for (let i = 0; i &lt; levelSize; i++) {\n            const node = queue.shift();\n            levelSum += node.val;\n            \n            if (node.left) {\n                queue.push(node.left);\n            }\n            if (node.right) {\n                queue.push(node.right);\n            }\n        }\n        \n        result.push(levelSum / levelSize);\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n        this.val = (val === undefined ? 0 : val);\n        this.left = (left === undefined ? null : left);\n        this.right = (right === undefined ? null : right);\n    }\n}\n\nfunction averageOfLevels(root: TreeNode | null): number[] {\n    if (!root) {\n        return [];\n    }\n    \n    const result: number[] = [];\n    const queue: TreeNode[] = [root];\n    \n    while (queue.length &gt; 0) {\n        const levelSize = queue.length;\n        let levelSum = 0;\n        \n        for (let i = 0; i &lt; levelSize; i++) {\n            const node = queue.shift()!;\n            levelSum += node.val;\n            \n            if (node.left) {\n                queue.push(node.left);\n            }\n            if (node.right) {\n                queue.push(node.right);\n            }\n        }\n        \n        result.push(levelSum / levelSize);\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(w) where w is the maximum width of the tree (worst case O(n))
+- Notes: Intuitive approach that naturally processes nodes level by level
+
+---
+
+## Depth-First Search
+
+**Intuition**
+Traverse the tree recursively while tracking the depth, accumulating sums and counts for each level.
+
+**Steps**
+- Use two arrays to store sum and count of nodes at each depth
+- During DFS, when visiting a node at depth d, add its value to sum[d] and increment count[d]
+- After traversal, compute averages by dividing each sum by its corresponding count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List, Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def averageOfLevels(self, root: Optional[TreeNode]) -&gt; List[float]:\n        if not root:\n            return []\n        \n        level_sums = []\n        level_counts = []\n        \n        def dfs(node: Optional[TreeNode], depth: int):\n            if not node:\n                return\n            \n            if depth == len(level_sums):\n                level_sums.append(0)\n                level_counts.append(0)\n            \n            level_sums[depth] += node.val\n            level_counts[depth] += 1\n            \n            dfs(node.left, depth + 1)\n            dfs(node.right, depth + 1)\n        \n        dfs(root, 0)\n        \n        return [s / c for s, c in zip(level_sums, level_counts)]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\nclass Solution {\n    private List&lt;Double&gt; levelSums = new ArrayList&lt;&gt;();\n    private List&lt;Integer&gt; levelCounts = new ArrayList&lt;&gt;();\n    \n    public List&lt;Double&gt; averageOfLevels(TreeNode root) {\n        if (root == null) {\n            return new ArrayList&lt;&gt;();\n        }\n        \n        dfs(root, 0);\n        \n        List&lt;Double&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; levelSums.size(); i++) {\n            result.add(levelSums.get(i) / levelCounts.get(i));\n        }\n        \n        return result;\n    }\n    \n    private void dfs(TreeNode node, int depth) {\n        if (node == null) {\n            return;\n        }\n        \n        if (depth == levelSums.size()) {\n            levelSums.add(0.0);\n            levelCounts.add(0);\n        }\n        \n        levelSums.set(depth, levelSums.get(depth) + node.val);\n        levelCounts.set(depth, levelCounts.get(depth) + 1);\n        \n        dfs(node.left, depth + 1);\n        dfs(node.right, depth + 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nstruct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\nclass Solution {\nprivate:\n    vector&lt;double&gt; levelSums;\n    vector&lt;int&gt; levelCounts;\n    \npublic:\n    vector&lt;double&gt; averageOfLevels(TreeNode* root) {\n        if (root == nullptr) {\n            return {};\n        }\n        \n        dfs(root, 0);\n        \n        vector&lt;double&gt; result;\n        for (size_t i = 0; i &lt; levelSums.size(); i++) {\n            result.push_back(levelSums[i] / levelCounts[i]);\n        }\n        \n        return result;\n    }\n    \nprivate:\n    void dfs(TreeNode* node, int depth) {\n        if (node == nullptr) {\n            return;\n        }\n        \n        if (depth == levelSums.size()) {\n            levelSums.push_back(0);\n            levelCounts.push_back(0);\n        }\n        \n        levelSums[depth] += node-&gt;val;\n        levelCounts[depth] += 1;\n        \n        dfs(node-&gt;left, depth + 1);\n        dfs(node-&gt;right, depth + 1);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function TreeNode(val, left, right) {\n    this.val = (val === undefined ? 0 : val);\n    this.left = (left === undefined ? null : left);\n    this.right = (right === undefined ? null : right);\n}\n\nvar averageOfLevels = function(root) {\n    if (!root) {\n        return [];\n    }\n    \n    const levelSums = [];\n    const levelCounts = [];\n    \n    function dfs(node, depth) {\n        if (!node) {\n            return;\n        }\n        \n        if (depth === levelSums.length) {\n            levelSums.push(0);\n            levelCounts.push(0);\n        }\n        \n        levelSums[depth] += node.val;\n        levelCounts[depth] += 1;\n        \n        dfs(node.left, depth + 1);\n        dfs(node.right, depth + 1);\n    }\n    \n    dfs(root, 0);\n    \n    const result = [];\n    for (let i = 0; i &lt; levelSums.length; i++) {\n        result.push(levelSums[i] / levelCounts[i]);\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n        this.val = (val === undefined ? 0 : val);\n        this.left = (left === undefined ? null : left);\n        this.right = (right === undefined ? null : right);\n    }\n}\n\nfunction averageOfLevels(root: TreeNode | null): number[] {\n    if (!root) {\n        return [];\n    }\n    \n    const levelSums: number[] = [];\n    const levelCounts: number[] = [];\n    \n    function dfs(node: TreeNode | null, depth: number): void {\n        if (!node) {\n            return;\n        }\n        \n        if (depth === levelSums.length) {\n            levelSums.push(0);\n            levelCounts.push(0);\n        }\n        \n        levelSums[depth] += node.val;\n        levelCounts[depth] += 1;\n        \n        dfs(node.left, depth + 1);\n        dfs(node.right, depth + 1);\n    }\n    \n    dfs(root, 0);\n    \n    const result: number[] = [];\n    for (let i = 0; i &lt; levelSums.length; i++) {\n        result.push(levelSums[i] / levelCounts[i]);\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree for recursion stack, plus O(h) for storing sums/counts
+- Notes: More space-efficient for skewed trees, but requires additional arrays for tracking
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Average of Levels in Binary Tree Solutions","datePublished":"2025-05-17","description":"Given the root of a binary tree, return the average value of the nodes on each level in the form of an array.","keywords":"LeetCode, Average of Levels in Binary Tree, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Breadth-First Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of Depth-First Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(h) where h is the height of the tree for recursion stack, plus O(h) for storing sums and counts."}},{"@type":"Question","name":"Which approach is more space-efficient for skewed trees?","acceptedAnswer":{"@type":"Answer","text":"Depth-First Search is more space-efficient for skewed trees as it uses O(h) space compared to BFS which uses O(w) where w can be O(n) in worst case."}}]}).replace(/</g,'\u003c')}
+</script>

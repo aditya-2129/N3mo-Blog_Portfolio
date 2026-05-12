@@ -1,0 +1,150 @@
+---
+title: "Long Pressed Name"
+summary: "Determine if a typed string could be the result of long-pressing keys while typing a target name."
+date: "Apr 05, 2024"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 32.90% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Your friend is typing his name into a keyboard. Sometimes, when typing a character c, the key might get long pressed, and the character will be typed 1 or more times.
+
+You examine the typed characters of the keyboard. Return True if it is possible that it was your friends name, with some characters (possibly none) being long pressed.
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+name = "alex", typed = "aaleex"
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+'a' and 'e' in 'alex' were long pressed.
+
+### Example 2
+
+**Input:**
+```text
+name = "saeed", typed = "ssaaedd"
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+'e' must have been pressed twice, but it was not in the typed output.
+
+## Constraints
+
+```text
+1 <= name.length, typed.length <= 1000
+name and typed consist of only lowercase English letters.
+```
+
+- Examples
+- Constraints
+- [Two Pointers](#two-pointers)
+- [Grouping / Run-Length Encoding](#grouping--run-length-encoding)
+
+## Examples
+
+### Example 1:
+```text
+Input: name = "alex", typed = "aaleex"
+Output: true
+Explanation: 'a' and 'e' in 'alex' were long pressed.
+```
+
+### Example 2:
+```text
+Input: name = "saeed", typed = "ssaaedd"
+Output: false
+Explanation: 'e' must have been long pressed, but it is not present in typed.
+```
+
+### Example 3:
+```text
+Input: name = "leelee", typed = "lleeelee"
+Output: true
+```
+
+## Constraints
+
+```text
+1 <= name.length, typed.length <= 1000
+name and typed consist of only lowercase English letters.
+```
+
+---
+## Two Pointers
+
+**Intuition**
+We can iterate through both strings simultaneously using two pointers. If the characters match, we move both pointers forward. If they don't match, we check if the current character in `typed` is a long-pressed repeat of the previous character; if so, we skip it. Otherwise, the strings are incompatible.
+
+**Steps**
+- Initialize two pointers, `i` for `name` and `j` for `typed`, both starting at 0.
+- Iterate while `j` is within the bounds of `typed`.
+- If `i` is within bounds and `name[i]` matches `typed[j]`, increment both pointers.
+- Else, if `j` is greater than 0 and `typed[j]` matches the previous character `typed[j-1]`, increment `j` to skip the long-pressed character.
+- If neither condition is met, return `false`.
+- After the loop, return `true` only if `i` has reached the end of `name`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isLongPressedName(self, name: str, typed: str) -&gt; bool:\n        i = 0\n        for j in range(len(typed)):\n            if i &lt; len(name) and name[i] == typed[j]:\n                i += 1\n            elif j == 0 or typed[j] != typed[j-1]:\n                return False\n        return i == len(name)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isLongPressedName(String name, String typed) {\n        int i = 0;\n        for (int j = 0; j &lt; typed.length(); j++) {\n            if (i &lt; name.length() && name.charAt(i) == typed.charAt(j)) {\n                i++;\n            } else if (j == 0 || typed.charAt(j) != typed.charAt(j - 1)) {\n                return false;\n            }\n        }\n        return i == name.length();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isLongPressedName(string name, string typed) {\n        int i = 0;\n        for (int j = 0; j &lt; typed.size(); ++j) {\n            if (i &lt; name.size() && name[i] == typed[j]) {\n                ++i;\n            } else if (j == 0 || typed[j] != typed[j - 1]) {\n                return false;\n            }\n        }\n        return i == name.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isLongPressedName = function(name, typed) {\n    let i = 0;\n    for (let j = 0; j &lt; typed.length; j++) {\n        if (i &lt; name.length && name[i] === typed[j]) {\n            i++;\n        } else if (j === 0 || typed[j] !== typed[j - 1]) {\n            return false;\n        }\n    }\n    return i === name.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isLongPressedName(name: string, typed: string): boolean {\n    let i = 0;\n    for (let j = 0; j &lt; typed.length; j++) {\n        if (i &lt; name.length && name[i] === typed[j]) {\n            i++;\n        } else if (j === 0 || typed[j] !== typed[j - 1]) {\n            return false;\n        }\n    }\n    return i === name.length;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of `name` and `typed`. We traverse each string at most once.
+- Space: O(1), we only use a few variables for pointers.
+- Notes: This is the most optimal approach in terms of both time and space.
+
+---
+## Grouping / Run-Length Encoding
+
+**Intuition**
+We can break both strings down into groups of consecutive identical characters (e.g., "aaleex" becomes [(a, 2), (l, 1), (e, 2), (x, 1)]). We then compare these groups one by one. The characters must match, and the count in `typed` must be greater than or equal to the count in `name`.
+
+**Steps**
+- Define a helper function to generate a list of groups (character, count) for a string.
+- Generate groups for `name` and `typed`.
+- If the number of groups differs, return `false`.
+- Iterate through the corresponding groups of both strings.
+- If the characters differ, or if the count in `typed` is less than the count in `name`, return `false`.
+- If all checks pass, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isLongPressedName(self, name: str, typed: str) -&gt; bool:\n        def get_groups(s):\n            groups = []\n            i = 0\n            while i &lt; len(s):\n                j = i\n                while j &lt; len(s) and s[j] == s[i]:\n                    j += 1\n                groups.append((s[i], j - i))\n                i = j\n            return groups\n        \n        g1 = get_groups(name)\n        g2 = get_groups(typed)\n        \n        if len(g1) != len(g2):\n            return False\n            \n        for (c1, n1), (c2, n2) in zip(g1, g2):\n            if c1 != c2 or n2 &lt; n1:\n                return False\n                \n        return True" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public boolean isLongPressedName(String name, String typed) {\n        List&lt;int[]&gt; groups1 = getGroups(name);\n        List&lt;int[]&gt; groups2 = getGroups(typed);\n        \n        if (groups1.size() != groups2.size()) {\n            return false;\n        }\n        \n        for (int i = 0; i &lt; groups1.size(); i++) {\n            int[] g1 = groups1.get(i);\n            int[] g2 = groups2.get(i);\n            if (g1[0] != g2[0] || g2[1] &lt; g1[1]) {\n                return false;\n            }\n        }\n        return true;\n    }\n    \n    private List&lt;int[]&gt; getGroups(String s) {\n        List&lt;int[]&gt; groups = new ArrayList&lt;&gt;();\n        int i = 0;\n        while (i &lt; s.length()) {\n            int j = i;\n            while (j &lt; s.length() && s.charAt(j) == s.charAt(i)) {\n                j++;\n            }\n            groups.add(new int[]{s.charAt(i), j - i});\n            i = j;\n        }\n        return groups;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isLongPressedName(string name, string typed) {\n        auto g1 = getGroups(name);\n        auto g2 = getGroups(typed);\n        \n        if (g1.size() != g2.size()) return false;\n        \n        for (int i = 0; i &lt; g1.size(); ++i) {\n            if (g1[i].first != g2[i].first || g2[i].second &lt; g1[i].second) {\n                return false;\n            }\n        }\n        return true;\n    }\n    \nprivate:\n    vector&lt;pair&lt;char, int&gt;&gt; getGroups(const string& s) {\n        vector&lt;pair&lt;char, int&gt;&gt; groups;\n        int i = 0;\n        while (i &lt; s.size()) {\n            int j = i;\n            while (j &lt; s.size() && s[j] == s[i]) {\n                ++j;\n            }\n            groups.emplace_back(s[i], j - i);\n            i = j;\n        }\n        return groups;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isLongPressedName = function(name, typed) {\n    const getGroups = (s) =&gt; {\n        const groups = [];\n        let i = 0;\n        while (i &lt; s.length) {\n            let j = i;\n            while (j &lt; s.length && s[j] === s[i]) {\n                j++;\n            }\n            groups.push([s[i], j - i]);\n            i = j;\n        }\n        return groups;\n    };\n    \n    const g1 = getGroups(name);\n    const g2 = getGroups(typed);\n    \n    if (g1.length !== g2.length) return false;\n    \n    for (let i = 0; i &lt; g1.length; i++) {\n        if (g1[i][0] !== g2[i][0] || g2[i][1] &lt; g1[i][1]) {\n            return false;\n        }\n    }\n    return true;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isLongPressedName(name: string, typed: string): boolean {\n    type Group = [string, number];\n    const getGroups = (s: string): Group[] =&gt; {\n        const groups: Group[] = [];\n        let i = 0;\n        while (i &lt; s.length) {\n            let j = i;\n            while (j &lt; s.length && s[j] === s[i]) {\n                j++;\n            }\n            groups.push([s[i], j - i]);\n            i = j;\n        }\n        return groups;\n    };\n    \n    const g1 = getGroups(name);\n    const g2 = getGroups(typed);\n    \n    if (g1.length !== g2.length) return false;\n    \n    for (let i = 0; i &lt; g1.length; i++) {\n        if (g1[i][0] !== g2[i][0] || g2[i][1] &lt; g1[i][1]) {\n            return false;\n        }\n    }\n    return true;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of `name` and `typed`. We traverse each string to build groups and then traverse the groups.
+- Space: O(N + M) in the worst case to store the groups for both strings (e.g., if all characters are unique).
+- Notes: This approach uses more memory than the Two Pointers method but can be more intuitive to understand as it explicitly separates the character counts.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Long Pressed Name Solutions","datePublished":"2024-04-05","description":"Determine if a typed string could be the result of long-pressing keys while typing a target name.","keywords":"LeetCode, Long Pressed Name, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(N + M), where N and M are the lengths of name and typed."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(1), as we only use pointers for traversal."}},{"@type":"Question","name":"How does the Grouping approach work?","acceptedAnswer":{"@type":"Answer","text":"It breaks strings into consecutive character groups and compares counts, requiring O(N + M) space."}}]}).replace(/</g,'\u003c')}
+</script>

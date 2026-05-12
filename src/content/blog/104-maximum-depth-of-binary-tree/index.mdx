@@ -1,0 +1,123 @@
+---
+title: "Maximum Depth of Binary Tree"
+summary: "Find the maximum depth of a binary tree by calculating the number of nodes along the longest path from the root node down to the farthest leaf node."
+date: "May 12, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Breadth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.10% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Breadth-First Search, Binary Tree
+
+Given the root of a binary tree, return its maximum depth.
+
+A binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+- Examples
+- Constraints
+- [Recursive Depth-First Search](#recursive-depth-first-search)
+- [Iterative Depth-First Search](#iterative-depth-first-search)
+- [Breadth-First Search](#breadth-first-search)
+
+## Examples
+
+Example 1:
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: 3
+Explanation: The longest path is 3 -> 20 -> 15 or 3 -> 20 -> 7.
+```
+
+Example 2:
+```text
+Input: root = [1,null,2]
+Output: 2
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 10⁴].
+-100 <= Node.val <= 100
+```
+
+---
+## Recursive Depth-First Search
+
+**Intuition**
+The maximum depth of a tree is the maximum depth of its left or right subtree plus one for the current node. This naturally leads to a recursive solution where we traverse down to the leaf nodes.
+
+**Steps**
+- If the root is null, return 0 (base case).
+- Recursively calculate the depth of the left subtree.
+- Recursively calculate the depth of the right subtree.
+- Return 1 plus the maximum of the left and right depths.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxDepth(TreeNode root) {\n        if (root == null) {\n            return 0;\n        }\n        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxDepth(TreeNode* root) {\n        if (!root) {\n            return 0;\n        }\n        return 1 + max(maxDepth(root-&gt;left), maxDepth(root-&gt;right));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxDepth = function(root) {\n    if (!root) {\n        return 0;\n    }\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDepth(root: TreeNode | null): number {\n    if (!root) {\n        return 0;\n    }\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}" },]} />
+
+**Complexity**
+- Time: O(n) — We visit every node once.
+- Space: O(h) — Where h is the height of the tree. This is the space used by the recursion stack. In the worst case (skewed tree), h is O(n).
+
+---
+## Iterative Depth-First Search
+
+**Intuition**
+We can simulate the recursive call stack using an explicit stack data structure. We store pairs of nodes and their corresponding depths.
+
+**Steps**
+- Initialize a stack with the root node and depth 1.
+- While the stack is not empty, pop a node and its depth.
+- Update the maximum depth found so far.
+- If the node has children, push them onto the stack with their depth incremented by 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        stack = [(root, 1)]\n        max_depth = 0\n        \n        while stack:\n            node, depth = stack.pop()\n            max_depth = max(max_depth, depth)\n            \n            if node.left:\n                stack.append((node.left, depth + 1))\n            if node.right:\n                stack.append((node.right, depth + 1))\n                \n        return max_depth" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxDepth(TreeNode root) {\n        if (root == null) {\n            return 0;\n        }\n        \n        Stack&lt;TreeNode&gt; nodeStack = new Stack&lt;&gt;();\n        Stack&lt;Integer&gt; depthStack = new Stack&lt;&gt;();\n        nodeStack.push(root);\n        depthStack.push(1);\n        int maxDepth = 0;\n        \n        while (!nodeStack.isEmpty()) {\n            TreeNode node = nodeStack.pop();\n            int depth = depthStack.pop();\n            maxDepth = Math.max(maxDepth, depth);\n            \n            if (node.left != null) {\n                nodeStack.push(node.left);\n                depthStack.push(depth + 1);\n            }\n            if (node.right != null) {\n                nodeStack.push(node.right);\n                depthStack.push(depth + 1);\n            }\n        }\n        return maxDepth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxDepth(TreeNode* root) {\n        if (!root) return 0;\n        \n        stack&lt;pair&lt;TreeNode*, int&gt;&gt; st;\n        st.push({root, 1});\n        int maxDepth = 0;\n        \n        while (!st.empty()) {\n            auto [node, depth] = st.top();\n            st.pop();\n            maxDepth = max(maxDepth, depth);\n            \n            if (node-&gt;left) st.push({node-&gt;left, depth + 1});\n            if (node-&gt;right) st.push({node-&gt;right, depth + 1});\n        }\n        return maxDepth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxDepth = function(root) {\n    if (!root) return 0;\n    \n    const stack = [[root, 1]];\n    let maxDepth = 0;\n    \n    while (stack.length) {\n        const [node, depth] = stack.pop();\n        maxDepth = Math.max(maxDepth, depth);\n        \n        if (node.left) stack.push([node.left, depth + 1]);\n        if (node.right) stack.push([node.right, depth + 1]);\n    }\n    return maxDepth;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDepth(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const stack: [TreeNode, number][] = [[root, 1]];\n    let maxDepth = 0;\n    \n    while (stack.length) {\n        const [node, depth] = stack.pop()!;\n        maxDepth = Math.max(maxDepth, depth);\n        \n        if (node.left) stack.push([node.left, depth + 1]);\n        if (node.right) stack.push([node.right, depth + 1]);\n    }\n    return maxDepth;\n}" },]} />
+
+**Complexity**
+- Time: O(n) — We visit every node once.
+- Space: O(h) — The stack can grow to the height of the tree in the worst case.
+
+---
+## Breadth-First Search
+
+**Intuition**
+We traverse the tree level by level. The number of levels we traverse corresponds to the maximum depth.
+
+**Steps**
+- Initialize a queue with the root node.
+- While the queue is not empty, increment the depth counter.
+- Process all nodes currently in the queue (this represents one level).
+- Add the children of these nodes to the queue for the next level.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def maxDepth(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        queue = deque([root])\n        depth = 0\n        \n        while queue:\n            depth += 1\n            level_size = len(queue)\n            \n            for _ in range(level_size):\n                node = queue.popleft()\n                if node.left:\n                    queue.append(node.left)\n                if node.right:\n                    queue.append(node.right)\n                    \n        return depth" },
+{ name: "Java", lang: "java", code: "import java.util.LinkedList;\nimport java.util.Queue;\n\nclass Solution {\n    public int maxDepth(TreeNode root) {\n        if (root == null) {\n            return 0;\n        }\n        \n        Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(root);\n        int depth = 0;\n        \n        while (!queue.isEmpty()) {\n            depth++;\n            int levelSize = queue.size();\n            \n            for (int i = 0; i &lt; levelSize; i++) {\n                TreeNode node = queue.poll();\n                if (node.left != null) {\n                    queue.offer(node.left);\n                }\n                if (node.right != null) {\n                    queue.offer(node.right);\n                }\n            }\n        }\n        return depth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass Solution {\npublic:\n    int maxDepth(TreeNode* root) {\n        if (!root) return 0;\n        \n        queue&lt;TreeNode*&gt; q;\n        q.push(root);\n        int depth = 0;\n        \n        while (!q.empty()) {\n            depth++;\n            int levelSize = q.size();\n            \n            for (int i = 0; i &lt; levelSize; ++i) {\n                TreeNode* node = q.front();\n                q.pop();\n                if (node-&gt;left) q.push(node-&gt;left);\n                if (node-&gt;right) q.push(node-&gt;right);\n            }\n        }\n        return depth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxDepth = function(root) {\n    if (!root) return 0;\n    \n    const queue = [root];\n    let depth = 0;\n    \n    while (queue.length) {\n        depth++;\n        const levelSize = queue.length;\n        \n        for (let i = 0; i &lt; levelSize; i++) {\n            const node = queue.shift();\n            if (node.left) queue.push(node.left);\n            if (node.right) queue.push(node.right);\n        }\n    }\n    return depth;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxDepth(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const queue: TreeNode[] = [root];\n    let depth = 0;\n    \n    while (queue.length) {\n        depth++;\n        const levelSize = queue.length;\n        \n        for (let i = 0; i &lt; levelSize; i++) {\n            const node = queue.shift()!;\n            if (node.left) queue.push(node.left);\n            if (node.right) queue.push(node.right);\n        }\n    }\n    return depth;\n}" },]} />
+
+**Complexity**
+- Time: O(n) — We visit every node once.
+- Space: O(w) — Where w is the maximum width of the tree. In the worst case (a complete binary tree), the last level holds n/2 nodes, so space is O(n).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Depth of Binary Tree Solutions","datePublished":"2026-05-12","description":"Find the maximum depth of a binary tree by calculating the number of nodes along the longest path from the root node down to the farthest leaf node.","keywords":"LeetCode, Maximum Depth of Binary Tree, Easy, Tree, Depth-First Search, Breadth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Time Complexity of Recursive Depth-First Search?","acceptedAnswer":{"@type":"Answer","text":"O(n), where n is the number of nodes in the tree."}},{"@type":"Question","name":"What is the Space Complexity of Breadth-First Search?","acceptedAnswer":{"@type":"Answer","text":"O(w), where w is the maximum width of the tree. In the worst case, this is O(n)."}},{"@type":"Question","name":"What is the Space Complexity of Recursive Depth-First Search?","acceptedAnswer":{"@type":"Answer","text":"O(h), where h is the height of the tree, due to the recursion stack."}}]}).replace(/</g,'\u003c')}
+</script>

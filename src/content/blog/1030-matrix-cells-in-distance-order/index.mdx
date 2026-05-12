@@ -1,0 +1,140 @@
+---
+title: "Matrix Cells in Distance Order"
+summary: "Return all matrix coordinates sorted by their Manhattan distance from a center cell."
+date: "Feb 26, 2024"
+tags:
+  - Array
+  - Math
+  - Geometry
+  - Sorting
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.10% | **Paid:** No
+> **Topics:** Array, Math, Geometry, Sorting, Matrix
+
+You are given four integers rows, cols, rCenter, and cCenter. There is a rows x cols matrix and you are on the cell with the coordinates (rCenter, cCenter).
+
+Return the coordinates of all cells in the matrix, sorted by their distance from (rCenter, cCenter) from the smallest distance to the largest distance. You may return the answer in any order that satisfies this condition.
+
+The distance between two cells (r1, c1) and (r2, c2) is |r1 - r2| + |c1 - c2|.
+
+- Examples
+- Constraints
+- [Brute Force with Sorting](#brute-force-with-sorting)
+- [BFS Traversal](#bfs-traversal)
+- [Bucket Sort](#bucket-sort)
+
+## Examples
+
+```text
+Input: rows = 1, cols = 2, rCenter = 0, cCenter = 0
+Output: [[0,0],[0,1]]
+Explanation: The distances from (0,0) to other cells are: [0,1]
+```
+
+```text
+Input: rows = 2, cols = 2, rCenter = 0, cCenter = 1
+Output: [[0,1],[0,0],[1,1],[1,0]]
+Explanation: The distances from (0,1) to other cells are: [0,1,1,2]
+The answer [[0,1],[1,1],[0,0],[1,0]] would also be accepted as [0,1,1,2].
+```
+
+```text
+Input: rows = 2, cols = 3, rCenter = 1, cCenter = 2
+Output: [[1,2],[0,2],[1,1],[0,1],[1,0],[0,0]]
+Explanation: The distances from (1,2) to other cells are: [0,1,1,2,2,3]
+There are other answers that would also be accepted such as [[1,2],[0,2],[1,1],[0,1],[1,0],[0,0]].
+```
+
+## Constraints
+
+```text
+1 <= rows, cols <= 100
+0 <= rCenter < rows
+0 <= cCenter < cols
+```
+
+---
+
+## Brute Force with Sorting
+
+**Intuition**
+Generate all cell coordinates, calculate their Manhattan distance from the center, and sort by distance. Python's sort is stable, so cells with equal distance maintain their natural row-major order.
+
+**Steps**
+- Iterate through all cells in the matrix
+- Calculate Manhattan distance for each cell
+- Sort cells by their distance from the center
+- Return the sorted list
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def allCellsDistOrder(self, rows: int, cols: int, rCenter: int, cCenter: int) -&gt; List[List[int]]:\n        cells = []\n        for r in range(rows):\n            for c in range(cols):\n                cells.append([r, c])\n        cells.sort(key=lambda x: abs(x[0] - rCenter) + abs(x[1] - cCenter))\n        return cells" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[][] allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        int[][] cells = new int[rows * cols][2];\n        int idx = 0;\n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                cells[idx][0] = r;\n                cells[idx][1] = c;\n                idx++;\n            }\n        }\n        Arrays.sort(cells, (a, b) -&gt; {\n            int distA = Math.abs(a[0] - rCenter) + Math.abs(a[1] - cCenter);\n            int distB = Math.abs(b[0] - rCenter) + Math.abs(b[1] - cCenter);\n            return distA - distB;\n        });\n        return cells;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        vector&lt;vector&lt;int&gt;&gt; cells;\n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                cells.push_back({r, c});\n            }\n        }\n        sort(cells.begin(), cells.end(), [rCenter, cCenter](const vector&lt;int&gt;& a, const vector&lt;int&gt;& b) {\n            int distA = abs(a[0] - rCenter) + abs(a[1] - cCenter);\n            int distB = abs(b[0] - rCenter) + abs(b[1] - cCenter);\n            return distA &lt; distB;\n        });\n        return cells;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} rows\n * @param {number} cols\n * @param {number} rCenter\n * @param {number} cCenter\n * @return {number[][]}\n */\nvar allCellsDistOrder = function(rows, cols, rCenter, cCenter) {\n    const cells = [];\n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            cells.push([r, c]);\n        }\n    }\n    cells.sort((a, b) =&gt; {\n        const distA = Math.abs(a[0] - rCenter) + Math.abs(a[1] - cCenter);\n        const distB = Math.abs(b[0] - rCenter) + Math.abs(b[1] - cCenter);\n        return distA - distB;\n    });\n    return cells;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function allCellsDistOrder(rows: number, cols: number, rCenter: number, cCenter: number): number[][] {\n    const cells: number[][] = [];\n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            cells.push([r, c]);\n        }\n    }\n    cells.sort((a, b) =&gt; {\n        const distA = Math.abs(a[0] - rCenter) + Math.abs(a[1] - cCenter);\n        const distB = Math.abs(b[0] - rCenter) + Math.abs(b[1] - cCenter);\n        return distA - distB;\n    });\n    return cells;\n}" },]} />
+
+**Complexity**
+- Time: O(rows × cols × log(rows × cols)) for sorting
+- Space: O(rows × cols) to store all cells
+- Notes: Simple but not optimal due to sorting overhead
+
+---
+
+## BFS Traversal
+
+**Intuition**
+Breadth-First Search naturally explores cells in order of increasing distance from the starting point. Starting from the center, we visit all adjacent cells level by level.
+
+**Steps**
+- Initialize a queue with the center cell and mark it as visited
+- Use BFS to explore cells in 4 directions
+- Add each visited cell to the result
+- Continue until all cells are visited
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\nfrom typing import List\n\nclass Solution:\n    def allCellsDistOrder(self, rows: int, cols: int, rCenter: int, cCenter: int) -&gt; List[List[int]]:\n        result = []\n        visited = [[False] * cols for _ in range(rows)]\n        queue = deque([(rCenter, cCenter)])\n        visited[rCenter][cCenter] = True\n        \n        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n        \n        while queue:\n            r, c = queue.popleft()\n            result.append([r, c])\n            \n            for dr, dc in directions:\n                nr, nc = r + dr, c + dc\n                if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and not visited[nr][nc]:\n                    visited[nr][nc] = True\n                    queue.append((nr, nc))\n        \n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[][] allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        int[][] result = new int[rows * cols][2];\n        boolean[][] visited = new boolean[rows][cols];\n        Queue&lt;int[]&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(new int[]{rCenter, cCenter});\n        visited[rCenter][cCenter] = true;\n        \n        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        int idx = 0;\n        \n        while (!queue.isEmpty()) {\n            int[] cell = queue.poll();\n            result[idx][0] = cell[0];\n            result[idx][1] = cell[1];\n            idx++;\n            \n            for (int[] dir : directions) {\n                int nr = cell[0] + dir[0];\n                int nc = cell[1] + dir[1];\n                if (nr &gt;= 0 && nr &lt; rows && nc &gt;= 0 && nc &lt; cols && !visited[nr][nc]) {\n                    visited[nr][nc] = true;\n                    queue.offer(new int[]{nr, nc});\n                }\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;queue&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        vector&lt;vector&lt;int&gt;&gt; result;\n        vector&lt;vector&lt;bool&gt;&gt; visited(rows, vector&lt;bool&gt;(cols, false));\n        queue&lt;pair&lt;int, int&gt;&gt; q;\n        q.push({rCenter, cCenter});\n        visited[rCenter][cCenter] = true;\n        \n        int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        \n        while (!q.empty()) {\n            auto [r, c] = q.front();\n            q.pop();\n            result.push_back({r, c});\n            \n            for (auto& dir : directions) {\n                int nr = r + dir[0];\n                int nc = c + dir[1];\n                if (nr &gt;= 0 && nr &lt; rows && nc &gt;= 0 && nc &lt; cols && !visited[nr][nc]) {\n                    visited[nr][nc] = true;\n                    q.push({nr, nc});\n                }\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} rows\n * @param {number} cols\n * @param {number} rCenter\n * @param {number} cCenter\n * @return {number[][]}\n */\nvar allCellsDistOrder = function(rows, cols, rCenter, cCenter) {\n    const result = [];\n    const visited = new Array(rows).fill(null).map(() =&gt; new Array(cols).fill(false));\n    const queue = [[rCenter, cCenter]];\n    visited[rCenter][cCenter] = true;\n    \n    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n    \n    while (queue.length &gt; 0) {\n        const [r, c] = queue.shift();\n        result.push([r, c]);\n        \n        for (const [dr, dc] of directions) {\n            const nr = r + dr;\n            const nc = c + dc;\n            if (nr &gt;= 0 && nr &lt; rows && nc &gt;= 0 && nc &lt; cols && !visited[nr][nc]) {\n                visited[nr][nc] = true;\n                queue.push([nr, nc]);\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function allCellsDistOrder(rows: number, cols: number, rCenter: number, cCenter: number): number[][] {\n    const result: number[][] = [];\n    const visited: boolean[][] = new Array(rows).fill(null).map(() =&gt; new Array(cols).fill(false));\n    const queue: number[][] = [[rCenter, cCenter]];\n    visited[rCenter][cCenter] = true;\n    \n    const directions: number[][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n    \n    while (queue.length &gt; 0) {\n        const [r, c] = queue.shift()!;\n        result.push([r, c]);\n        \n        for (const [dr, dc] of directions) {\n            const nr = r + dr;\n            const nc = c + dc;\n            if (nr &gt;= 0 && nr &lt; rows && nc &gt;= 0 && nc &lt; cols && !visited[nr][nc]) {\n                visited[nr][nc] = true;\n                queue.push([nr, nc]);\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(rows × cols) - each cell visited exactly once
+- Space: O(rows × cols) for visited array and queue
+- Notes: Optimal time complexity, but uses extra space for tracking visited cells
+
+---
+
+## Bucket Sort
+
+**Intuition**
+The maximum possible distance from the center is bounded. We can use bucket sort where each bucket contains cells at a specific distance, eliminating the need for comparison-based sorting.
+
+**Steps**
+- Calculate the maximum possible distance from center
+- Create buckets indexed by distance
+- Place each cell in its corresponding distance bucket
+- Concatenate all buckets in order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def allCellsDistOrder(self, rows: int, cols: int, rCenter: int, cCenter: int) -&gt; List[List[int]]:\n        max_dist = max(rCenter, rows - 1 - rCenter) + max(cCenter, cols - 1 - cCenter)\n        buckets = [[] for _ in range(max_dist + 1)]\n        \n        for r in range(rows):\n            for c in range(cols):\n                dist = abs(r - rCenter) + abs(c - cCenter)\n                buckets[dist].append([r, c])\n        \n        result = []\n        for bucket in buckets:\n            result.extend(bucket)\n        \n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[][] allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        int maxDist = Math.max(rCenter, rows - 1 - rCenter) + Math.max(cCenter, cols - 1 - cCenter);\n        List&lt;List&lt;int[]&gt;&gt; buckets = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt;= maxDist; i++) {\n            buckets.add(new ArrayList&lt;&gt;());\n        }\n        \n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                int dist = Math.abs(r - rCenter) + Math.abs(c - cCenter);\n                buckets.get(dist).add(new int[]{r, c});\n            }\n        }\n        \n        int[][] result = new int[rows * cols][2];\n        int idx = 0;\n        for (List&lt;int[]&gt; bucket : buckets) {\n            for (int[] cell : bucket) {\n                result[idx][0] = cell[0];\n                result[idx][1] = cell[1];\n                idx++;\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; allCellsDistOrder(int rows, int cols, int rCenter, int cCenter) {\n        int maxDist = max(rCenter, rows - 1 - rCenter) + max(cCenter, cols - 1 - cCenter);\n        vector&lt;vector&lt;vector&lt;int&gt;&gt;&gt; buckets(maxDist + 1);\n        \n        for (int r = 0; r &lt; rows; r++) {\n            for (int c = 0; c &lt; cols; c++) {\n                int dist = abs(r - rCenter) + abs(c - cCenter);\n                buckets[dist].push_back({r, c});\n            }\n        }\n        \n        vector&lt;vector&lt;int&gt;&gt; result;\n        for (auto& bucket : buckets) {\n            result.insert(result.end(), bucket.begin(), bucket.end());\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} rows\n * @param {number} cols\n * @param {number} rCenter\n * @param {number} cCenter\n * @return {number[][]}\n */\nvar allCellsDistOrder = function(rows, cols, rCenter, cCenter) {\n    const maxDist = Math.max(rCenter, rows - 1 - rCenter) + Math.max(cCenter, cols - 1 - cCenter);\n    const buckets = new Array(maxDist + 1).fill(null).map(() =&gt; []);\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            const dist = Math.abs(r - rCenter) + Math.abs(c - cCenter);\n            buckets[dist].push([r, c]);\n        }\n    }\n    \n    const result = [];\n    for (const bucket of buckets) {\n        result.push(...bucket);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function allCellsDistOrder(rows: number, cols: number, rCenter: number, cCenter: number): number[][] {\n    const maxDist = Math.max(rCenter, rows - 1 - rCenter) + Math.max(cCenter, cols - 1 - cCenter);\n    const buckets: number[][][] = new Array(maxDist + 1).fill(null).map(() =&gt; []);\n    \n    for (let r = 0; r &lt; rows; r++) {\n        for (let c = 0; c &lt; cols; c++) {\n            const dist = Math.abs(r - rCenter) + Math.abs(c - cCenter);\n            buckets[dist].push([r, c]);\n        }\n    }\n    \n    const result: number[][] = [];\n    for (const bucket of buckets) {\n        result.push(...bucket);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(rows × cols) - linear time without sorting
+- Space: O(rows × cols) for buckets
+- Notes: Optimal approach with linear time complexity, leverages bounded distance range
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Matrix Cells in Distance Order Solutions","datePublished":"2024-02-26","description":"Return all matrix coordinates sorted by their Manhattan distance from a center cell.","keywords":"LeetCode, Matrix Cells in Distance Order, Easy, Array, Math, Geometry, Sorting, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force with Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(rows × cols × log(rows × cols)) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the BFS approach?","acceptedAnswer":{"@type":"Answer","text":"O(rows × cols) as each cell is visited exactly once."}},{"@type":"Question","name":"What is the time complexity of the Bucket Sort approach?","acceptedAnswer":{"@type":"Answer","text":"O(rows × cols) - linear time without comparison-based sorting."}},{"@type":"Question","name":"Which approach is the most optimal?","acceptedAnswer":{"@type":"Answer","text":"Both BFS and Bucket Sort achieve O(rows × cols) time complexity, which is optimal for this problem."}}]}).replace(/</g,'\u003c')}
+</script>

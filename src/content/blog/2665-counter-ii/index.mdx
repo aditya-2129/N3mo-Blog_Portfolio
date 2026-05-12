@@ -1,0 +1,518 @@
+---
+title: "Counter II"
+summary: "Create a counter object with increment, decrement, and reset functions using closures."
+date: "Dec 03, 2025"
+tags:
+  - Closure
+  - Design
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.20% | **Paid:** No
+> **Topics:** N/A
+
+Write a function createCounter. It should accept an initial integer init. It should return an object with three functions.
+
+The three functions are:
+- increment() increments the current value by 1 and then returns it.
+- decrement() decrements the current value by 1 and then returns it.
+- reset() resets the current value to init and then returns it.
+
+- Examples
+- Constraints
+- [Closure Approach](#closure-approach)
+- [Class-based Approach](#class-based-approach)
+- [Object with Internal State](#object-with-internal-state)
+
+## Examples
+
+### Example 1
+```text
+Input: init = 5, calls = ["increment","reset","decrement"]
+Output: [6,5,4]
+Explanation:
+const counter = createCounter(5);
+counter.increment(); // 6
+counter.reset(); // 5
+counter.decrement(); // 4
+```
+
+### Example 2
+```text
+Input: init = 0, calls = ["increment","decrement","increment","decrement","reset","reset","decrement"]
+Output: [1,-1,1,-1,0,0,-1]
+Explanation:
+const counter = createCounter(0);
+counter.increment(); // 1
+counter.decrement(); // -1
+counter.increment(); // 1
+counter.decrement(); // -1
+counter.reset(); // 0
+counter.reset(); // 0
+counter.decrement(); // -1
+```
+
+## Constraints
+
+```text
+-1000 <= init <= 1000
+0 <= calls.length <= 1000
+calls[i] is one of "increment", "decrement", and "reset"
+```
+
+---
+## Closure Approach
+
+**Intuition**
+Use a closure to maintain the current counter state, allowing the returned functions to access and modify the private variable.
+
+**Steps**
+- Store the initial value and current value in the closure scope
+- Return an object with three functions that modify and return the current value
+- Each function has access to the private current variable through closure
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def createCounter(init: int):
+    current = init
+    
+    def increment():
+        nonlocal current
+        current += 1
+        return current
+    
+    def decrement():
+        nonlocal current
+        current -= 1
+        return current
+    
+    def reset():
+        nonlocal current
+        current = init
+        return current
+    
+    return {"increment": increment, "decrement": decrement, "reset": reset}` },
+{ name: "Java", lang: "java", code: `import java.util.function.IntSupplier;
+
+class Solution {
+    private int init;
+    private int current;
+    
+    public Solution(int init) {
+        this.init = init;
+        this.current = init;
+    }
+    
+    public IntSupplier increment() {
+        return () -> ++current;
+    }
+    
+    public IntSupplier decrement() {
+        return () -> --current;
+    }
+    
+    public IntSupplier reset() {
+        return () -> {
+            current = init;
+            return current;
+        };
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <functional>
+using namespace std;
+
+class Solution {
+private:
+    int init;
+    int current;
+    
+public:
+    Solution(int init) : init(init), current(init) {}
+    
+    function<int()&gt; increment() {
+        return [this]() -> int {
+            return ++current;
+        };
+    }
+    
+    function<int()&gt; decrement() {
+        return [this]() -> int {
+            return --current;
+        };
+    }
+    
+    function<int()&gt; reset() {
+        return [this]() -> int {
+            current = init;
+            return current;
+        };
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {integer} init
+ * @return { increment: Function, decrement: Function, reset: Function }
+ */
+var createCounter = function(init) {
+    let current = init;
+    
+    return {
+        increment: function() {
+            return ++current;
+        },
+        decrement: function() {
+            return --current;
+        },
+        reset: function() {
+            current = init;
+            return current;
+        }
+    };
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = {
+    increment: () =&gt; number;
+    decrement: () =&gt; number;
+    reset: () =&gt; number;
+}
+
+function createCounter(init: number): Counter {
+    let current: number = init;
+    
+    return {
+        increment: function(): number {
+            return ++current;
+        },
+        decrement: function(): number {
+            return --current;
+        },
+        reset: function(): number {
+            current = init;
+            return current;
+        }
+    };
+}` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(1) for storing the counter state
+- Notes: Most idiomatic approach for JavaScript/TypeScript, uses closure to maintain private state
+
+---
+## Class-based Approach
+
+**Intuition**
+Use a class to encapsulate the counter state and methods, providing a clean object-oriented solution.
+
+**Steps**
+- Create a class with init and current as instance variables
+- Implement increment, decrement, and reset as instance methods
+- Return an instance of the class with the required methods
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Counter:
+    def __init__(self, init: int):
+        self.init = init
+        self.current = init
+    
+    def increment(self) -> int:
+        self.current += 1
+        return self.current
+    
+    def decrement(self) -> int:
+        self.current -= 1
+        return self.current
+    
+    def reset(self) -> int:
+        self.current = self.init
+        return self.current
+
+def createCounter(init: int):
+    counter = Counter(init)
+    return {
+        "increment": counter.increment,
+        "decrement": counter.decrement,
+        "reset": counter.reset
+    }` },
+{ name: "Java", lang: "java", code: `class Counter {
+    private int init;
+    private int current;
+    
+    public Counter(int init) {
+        this.init = init;
+        this.current = init;
+    }
+    
+    public int increment() {
+        return ++current;
+    }
+    
+    public int decrement() {
+        return --current;
+    }
+    
+    public int reset() {
+        current = init;
+        return current;
+    }
+}
+
+class Solution {
+    public Counter createCounter(int init) {
+        return new Counter(init);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Counter {
+private:
+    int init;
+    int current;
+public:
+    Counter(int init) : init(init), current(init) {}
+    
+    int increment() {
+        return ++current;
+    }
+    
+    int decrement() {
+        return --current;
+    }
+    
+    int reset() {
+        current = init;
+        return current;
+    }
+};
+
+class Solution {
+public:
+    Counter* createCounter(int init) {
+        return new Counter(init);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {integer} init
+ * @return { increment: Function, decrement: Function, reset: Function }
+ */
+class Counter {
+    constructor(init) {
+        this.init = init;
+        this.current = init;
+    }
+    
+    increment() {
+        return ++this.current;
+    }
+    
+    decrement() {
+        return --this.current;
+    }
+    
+    reset() {
+        this.current = this.init;
+        return this.current;
+    }
+}
+
+var createCounter = function(init) {
+    const counter = new Counter(init);
+    return {
+        increment: () =&gt; counter.increment(),
+        decrement: () =&gt; counter.decrement(),
+        reset: () =&gt; counter.reset()
+    };
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = {
+    increment: () =&gt; number;
+    decrement: () =&gt; number;
+    reset: () =&gt; number;
+}
+
+class CounterClass {
+    private init: number;
+    private current: number;
+    
+    constructor(init: number) {
+        this.init = init;
+        this.current = init;
+    }
+    
+    increment(): number {
+        return ++this.current;
+    }
+    
+    decrement(): number {
+        return --this.current;
+    }
+    
+    reset(): number {
+        this.current = this.init;
+        return this.current;
+    }
+}
+
+function createCounter(init: number): Counter {
+    const counter = new CounterClass(init);
+    return {
+        increment: () =&gt; counter.increment(),
+        decrement: () =&gt; counter.decrement(),
+        reset: () =&gt; counter.reset()
+    };
+}` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(1) for storing the counter state
+- Notes: Clean OOP approach, useful when you need multiple counter instances
+
+---
+## Object with Internal State
+
+**Intuition**
+Use a simple object with properties to store state, directly accessing and modifying the current value.
+
+**Steps**
+- Create an object with init and current properties
+- Attach methods that directly modify the current property
+- Return the object with all methods
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `def createCounter(init: int):
+    class CounterDict(dict):
+        def __init__(self, init):
+            super().__init__()
+            self["init"] = init
+            self["current"] = init
+        
+        def increment(self):
+            self["current"] += 1
+            return self["current"]
+        
+        def decrement(self):
+            self["current"] -= 1
+            return self["current"]
+        
+        def reset(self):
+            self["current"] = self["init"]
+            return self["current"]
+    
+    counter = CounterDict(init)
+    return {
+        "increment": counter.increment,
+        "decrement": counter.decrement,
+        "reset": counter.reset
+    }` },
+{ name: "Java", lang: "java", code: `import java.util.HashMap;
+import java.util.Map;
+import java.util.function.IntSupplier;
+
+class Solution {
+    public Map<String, IntSupplier> createCounter(int init) {
+        Map<String, IntSupplier> counter = new HashMap&lt;&gt;();
+        int[] current = {init};
+        int[] initial = {init};
+        
+        counter.put("increment", () -> ++current[0]);
+        counter.put("decrement", () -> --current[0]);
+        counter.put("reset", () -> {
+            current[0] = initial[0];
+            return current[0];
+        });
+        
+        return counter;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <map>
+#include <functional>
+using namespace std;
+
+class Solution {
+public:
+    map<string, function<int()&gt;&gt; createCounter(int init) {
+        map<string, function<int()&gt;&gt; counter;
+        int* current = new int(init);
+        int* initial = new int(init);
+        
+        counter["increment"] = [current]() -> int {
+            return ++(*current);
+        };
+        
+        counter["decrement"] = [current]() -> int {
+            return --(*current);
+        };
+        
+        counter["reset"] = [current, initial]() -> int {
+            *current = *initial;
+            return *current;
+        };
+        
+        return counter;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {integer} init
+ * @return { increment: Function, decrement: Function, reset: Function }
+ */
+var createCounter = function(init) {
+    const counter = {
+        init: init,
+        current: init,
+        increment: function() {
+            return ++this.current;
+        },
+        decrement: function() {
+            return --this.current;
+        },
+        reset: function() {
+            this.current = this.init;
+            return this.current;
+        }
+    };
+    
+    return {
+        increment: () =&gt; counter.increment(),
+        decrement: () =&gt; counter.decrement(),
+        reset: () =&gt; counter.reset()
+    };
+};` },
+{ name: "TypeScript", lang: "typescript", code: `type Counter = {
+    increment: () =&gt; number;
+    decrement: () =&gt; number;
+    reset: () =&gt; number;
+}
+
+function createCounter(init: number): Counter {
+    const counter = {
+        init: init,
+        current: init,
+        increment: function(): number {
+            return ++this.current;
+        },
+        decrement: function(): number {
+            return --this.current;
+        },
+        reset: function(): number {
+            this.current = this.init;
+            return this.current;
+        }
+    };
+    
+    return {
+        increment: () =&gt; counter.increment(),
+        decrement: () =&gt; counter.decrement(),
+        reset: () =&gt; counter.reset()
+    };
+}` },]} />
+
+**Complexity**
+- Time: O(1) for each operation
+- Space: O(1) for storing the counter state
+- Notes: Simple and straightforward, but exposes internal state in some implementations
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Counter II Solutions","datePublished":"2025-12-03","description":"Create a counter object with increment, decrement, and reset functions using closures.","keywords":"LeetCode, Counter II, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Closure Approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for each operation - increment, decrement, and reset all take constant time."}},{"@type":"Question","name":"What is the space complexity of the Class-based Approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - we only store the initial value and current value as instance variables."}},{"@type":"Question","name":"What is the difference between Closure and Class-based approaches?","acceptedAnswer":{"@type":"Answer","text":"Closure approach uses lexical scoping to maintain private state, while Class-based approach uses object-oriented encapsulation. Both achieve the same result with similar complexity."}}]}).replace(/</g,'\u003c')}
+</script>

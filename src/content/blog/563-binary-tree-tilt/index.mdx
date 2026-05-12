@@ -1,0 +1,119 @@
+---
+title: "Binary Tree Tilt"
+summary: "Calculate the sum of every tree node's tilt, where tilt is the absolute difference between left and right subtree sums."
+date: "Jun 18, 2025"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.80% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Tree
+
+Given the root of a binary tree, return the sum of every tree node's tilt.
+
+The tilt of a tree node is the absolute difference between the sum of all left subtree node values and the sum of all right subtree node values. If a node does not have a left child, then the sum of the left subtree node values is treated as 0. The rule is similar if the node does not have a right child.
+
+- Examples
+- Constraints
+- [Post-order Traversal (DFS)](#post-order-traversal-dfs)
+- [Brute Force with Helper Function](#brute-force-with-helper-function)
+
+## Examples
+
+### Example 1
+```text
+Input: root = [1,2,3]
+Output: 1
+Explanation: 
+Tilt of node 2 : |0-0| = 0
+Tilt of node 3 : |0-0| = 0
+Tilt of node 1 : |2-3| = 1
+Sum of every tilt : 0 + 0 + 1 = 1
+```
+
+### Example 2
+```text
+Input: root = [4,2,9,3,5,null,7]
+Output: 15
+Explanation: 
+Tilt of node 3 : |0-0| = 0
+Tilt of node 5 : |0-0| = 0
+Tilt of node 7 : |0-0| = 0
+Tilt of node 2 : |3-5| = 2
+Tilt of node 9 : |0-7| = 7
+Tilt of node 4 : |(3+5+2)-(9+7)| = |10-16| = 6
+Sum of every tilt : 0 + 0 + 0 + 2 + 7 + 6 = 15
+```
+
+### Example 3
+```text
+Input: root = [21,7,14,1,1,2,2,3,3]
+Output: 9
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 10⁴].
+-1000 <= Node.val <= 1000
+```
+
+---
+## Post-order Traversal (DFS)
+
+**Intuition**
+Use post-order traversal to compute subtree sums bottom-up, calculating each node's tilt while returning the sum to parent nodes.
+
+**Steps**
+- Traverse the tree in post-order (left, right, root)
+- For each node, get the sum of left and right subtrees
+- Calculate the tilt as absolute difference and add to total
+- Return the total sum of subtree rooted at current node
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def findTilt(self, root: TreeNode) -&gt; int:\n        self.total_tilt = 0\n        \n        def dfs(node):\n            if not node:\n                return 0\n            \n            left_sum = dfs(node.left)\n            right_sum = dfs(node.right)\n            \n            tilt = abs(left_sum - right_sum)\n            self.total_tilt += tilt\n            \n            return node.val + left_sum + right_sum\n        \n        dfs(root)\n        return self.total_tilt" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    private int totalTilt = 0;\n    \n    public int findTilt(TreeNode root) {\n        dfs(root);\n        return totalTilt;\n    }\n    \n    private int dfs(TreeNode node) {\n        if (node == null) {\n            return 0;\n        }\n        \n        int leftSum = dfs(node.left);\n        int rightSum = dfs(node.right);\n        \n        int tilt = Math.abs(leftSum - rightSum);\n        totalTilt += tilt;\n        \n        return node.val + leftSum + rightSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\nprivate:\n    int totalTilt = 0;\n    \n    int dfs(TreeNode* node) {\n        if (node == nullptr) {\n            return 0;\n        }\n        \n        int leftSum = dfs(node-&gt;left);\n        int rightSum = dfs(node-&gt;right);\n        \n        int tilt = abs(leftSum - rightSum);\n        totalTilt += tilt;\n        \n        return node-&gt;val + leftSum + rightSum;\n    }\n    \npublic:\n    int findTilt(TreeNode* root) {\n        dfs(root);\n        return totalTilt;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar findTilt = function(root) {\n    let totalTilt = 0;\n    \n    function dfs(node) {\n        if (node === null) {\n            return 0;\n        }\n        \n        const leftSum = dfs(node.left);\n        const rightSum = dfs(node.right);\n        \n        const tilt = Math.abs(leftSum - rightSum);\n        totalTilt += tilt;\n        \n        return node.val + leftSum + rightSum;\n    }\n    \n    dfs(root);\n    return totalTilt;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction findTilt(root: TreeNode | null): number {\n    let totalTilt = 0;\n    \n    function dfs(node: TreeNode | null): number {\n        if (node === null) {\n            return 0;\n        }\n        \n        const leftSum = dfs(node.left);\n        const rightSum = dfs(node.right);\n        \n        const tilt = Math.abs(leftSum - rightSum);\n        totalTilt += tilt;\n        \n        return node.val + leftSum + rightSum;\n    }\n    \n    dfs(root);\n    return totalTilt;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of nodes
+- Space: O(h) where h is the height of the tree (recursion stack)
+- Notes: Optimal single-pass solution
+
+---
+## Brute Force with Helper Function
+
+**Intuition**
+For each node, separately calculate the sum of left and right subtrees using a helper function, then compute the tilt.
+
+**Steps**
+- Create a helper function to calculate subtree sum
+- For each node, get left and right subtree sums
+- Calculate tilt and recursively process children
+- Sum up all tilts across the tree
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "# Definition for a binary tree node.\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def findTilt(self, root: TreeNode) -&gt; int:\n        def subtree_sum(node):\n            if not node:\n                return 0\n            return node.val + subtree_sum(node.left) + subtree_sum(node.right)\n        \n        def calculate_tilt(node):\n            if not node:\n                return 0\n            left_sum = subtree_sum(node.left)\n            right_sum = subtree_sum(node.right)\n            return abs(left_sum - right_sum) + calculate_tilt(node.left) + calculate_tilt(node.right)\n        \n        return calculate_tilt(root)" },
+{ name: "Java", lang: "java", code: "/**\n * Definition for a binary tree node.\n * public class TreeNode {\n *     int val;\n *     TreeNode left;\n *     TreeNode right;\n *     TreeNode() {}\n *     TreeNode(int val) { this.val = val; }\n *     TreeNode(int val, TreeNode left, TreeNode right) {\n *         this.val = val;\n *         this.left = left;\n *         this.right = right;\n *     }\n * }\n */\nclass Solution {\n    public int findTilt(TreeNode root) {\n        return calculateTilt(root);\n    }\n    \n    private int subtreeSum(TreeNode node) {\n        if (node == null) {\n            return 0;\n        }\n        return node.val + subtreeSum(node.left) + subtreeSum(node.right);\n    }\n    \n    private int calculateTilt(TreeNode node) {\n        if (node == null) {\n            return 0;\n        }\n        int leftSum = subtreeSum(node.left);\n        int rightSum = subtreeSum(node.right);\n        return Math.abs(leftSum - rightSum) + calculateTilt(node.left) + calculateTilt(node.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int findTilt(TreeNode* root) {\n        return calculateTilt(root);\n    }\n    \nprivate:\n    int subtreeSum(TreeNode* node) {\n        if (node == nullptr) {\n            return 0;\n        }\n        return node-&gt;val + subtreeSum(node-&gt;left) + subtreeSum(node-&gt;right);\n    }\n    \n    int calculateTilt(TreeNode* node) {\n        if (node == nullptr) {\n            return 0;\n        }\n        int leftSum = subtreeSum(node-&gt;left);\n        int rightSum = subtreeSum(node-&gt;right);\n        return abs(leftSum - rightSum) + calculateTilt(node-&gt;left) + calculateTilt(node-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * Definition for a binary tree node.\n * function TreeNode(val, left, right) {\n *     this.val = (val===undefined ? 0 : val)\n *     this.left = (left===undefined ? null : left)\n *     this.right = (right===undefined ? null : right)\n * }\n */\n/**\n * @param {TreeNode} root\n * @return {number}\n */\nvar findTilt = function(root) {\n    function subtreeSum(node) {\n        if (node === null) {\n            return 0;\n        }\n        return node.val + subtreeSum(node.left) + subtreeSum(node.right);\n    }\n    \n    function calculateTilt(node) {\n        if (node === null) {\n            return 0;\n        }\n        const leftSum = subtreeSum(node.left);\n        const rightSum = subtreeSum(node.right);\n        return Math.abs(leftSum - rightSum) + calculateTilt(node.left) + calculateTilt(node.right);\n    }\n    \n    return calculateTilt(root);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "/**\n * Definition for a binary tree node.\n * class TreeNode {\n *     val: number\n *     left: TreeNode | null\n *     right: TreeNode | null\n *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {\n *         this.val = (val===undefined ? 0 : val)\n *         this.left = (left===undefined ? null : left)\n *         this.right = (right===undefined ? null : right)\n *     }\n * }\n */\n\nfunction findTilt(root: TreeNode | null): number {\n    function subtreeSum(node: TreeNode | null): number {\n        if (node === null) {\n            return 0;\n        }\n        return node.val + subtreeSum(node.left) + subtreeSum(node.right);\n    }\n    \n    function calculateTilt(node: TreeNode | null): number {\n        if (node === null) {\n            return 0;\n        }\n        const leftSum = subtreeSum(node.left);\n        const rightSum = subtreeSum(node.right);\n        return Math.abs(leftSum - rightSum) + calculateTilt(node.left) + calculateTilt(node.right);\n    }\n    \n    return calculateTilt(root);\n}" },]} />
+
+**Complexity**
+- Time: O(n²) worst case for skewed tree
+- Space: O(h) for recursion stack
+- Notes: Recalculates subtree sums multiple times, less efficient
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Binary Tree Tilt Solutions","datePublished":"2025-06-18","description":"Calculate the sum of every tree node's tilt, where tilt is the absolute difference between left and right subtree sums.","keywords":"LeetCode, Binary Tree Tilt, Easy, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Post-order Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of nodes in the tree."}},{"@type":"Question","name":"What is the space complexity of the optimal solution?","acceptedAnswer":{"@type":"Answer","text":"O(h) where h is the height of the tree for the recursion stack."}},{"@type":"Question","name":"Why is the brute force approach less efficient?","acceptedAnswer":{"@type":"Answer","text":"It recalculates subtree sums multiple times, resulting in O(n²) time complexity in the worst case."}}]}).replace(/</g,'\u003c')}
+</script>

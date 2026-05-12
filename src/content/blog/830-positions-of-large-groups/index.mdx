@@ -1,0 +1,161 @@
+---
+title: "Positions of Large Groups"
+summary: "Find start and end indices of groups of 3 or more consecutive identical characters in a string."
+date: "Apr 18, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.00% | **Paid:** No
+> **Topics:** String
+
+In a string s of lowercase letters, these letters form consecutive groups of the same character.
+
+For example, a string s = "abbxxxxzyy" has the groups "a", "bb", "xxxx", "z", and "yy".
+
+A group is considered large if it has 3 or more characters. We would like the starting and ending positions of every large group.
+
+The final answer should be in lexicographic order.
+
+## Examples
+
+```text
+Input: s = "abbxxxxzzy"
+Output: [[3,6]]
+Explanation: "xxxx" is the only large group with start index 3 and end index 6.
+```
+
+```text
+Input: s = "abc"
+Output: []
+Explanation: We have groups "a", "b", and "c", none of which is a large group.
+```
+
+```text
+Input: s = "abcdddeeeeaabbbcd"
+Output: [[3,5],[6,9],[12,14]]
+Explanation: The large groups are "ddd", "eeee", and "bbb".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s contains lowercase English letters only.
+```
+
+- Examples
+- Constraints
+- [Approach 1: One Pass Iteration](#approach-1-one-pass-iteration)
+- [Approach 2: Two Pointers](#approach-2-two-pointers)
+- [Approach 3: Regular Expressions](#approach-3-regular-expressions)
+
+## Examples
+
+```text
+Input: s = "abbxxxxzzy"
+Output: [[3,6]]
+Explanation: "xxxx" is the only large group with start index 3 and end index 6.
+```
+
+```text
+Input: s = "abc"
+Output: []
+Explanation: We have groups "a", "b", and "c", none of which is a large group.
+```
+
+```text
+Input: s = "abcdddeeeeaabbbcd"
+Output: [[3,5],[6,9],[12,14]]
+Explanation: The large groups are "ddd", "eeee", and "bbb".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s contains lowercase English letters only.
+```
+
+---
+## Approach 1: One Pass Iteration
+
+**Intuition**
+We iterate through the string once, keeping track of the start index of the current character group. When the character changes or we reach the end of the string, we check if the group length is 3 or more.
+
+**Steps**
+- Initialize an empty list `res` to store results and `start = 0` to mark the beginning of the current group.
+- Iterate through the string with index `i` from 0 to `n` (inclusive).
+- If `i` reaches the end `n` or the current character `s[i]` differs from `s[start]`, the current group has ended.
+- Calculate the length of the group as `i - start`. If it is &gt;= 3, add `[start, i - 1]` to `res`.
+- Update `start = i` to begin a new group.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largeGroupPositions(self, s: str) -&gt; list[list[int]]:\n        res = []\n        n = len(s)\n        start = 0\n        for i in range(n + 1):\n            if i == n or s[i] != s[start]:\n                if i - start &gt;= 3:\n                    res.append([start, i - 1])\n                start = i\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; largeGroupPositions(String s) {\n        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();\n        int n = s.length();\n        int start = 0;\n        for (int i = 0; i &lt;= n; i++) {\n            if (i == n || s.charAt(i) != s.charAt(start)) {\n                if (i - start &gt;= 3) {\n                    res.add(Arrays.asList(start, i - 1));\n                }\n                start = i;\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; largeGroupPositions(string s) {\n        vector&lt;vector&lt;int&gt;&gt; res;\n        int n = s.size();\n        int start = 0;\n        for (int i = 0; i &lt;= n; ++i) {\n            if (i == n || s[i] != s[start]) {\n                if (i - start &gt;= 3) {\n                    res.push_back({start, i - 1});\n                }\n                start = i;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number[][]}\n */\nvar largeGroupPositions = function(s) {\n    let res = [];\n    let n = s.length;\n    let start = 0;\n    for (let i = 0; i &lt;= n; i++) {\n        if (i === n || s[i] !== s[start]) {\n            if (i - start &gt;= 3) {\n                res.push([start, i - 1]);\n            }\n            start = i;\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largeGroupPositions(s: string): number[][] {\n    let res: number[][] = [];\n    let n: number = s.length;\n    let start: number = 0;\n    for (let i: number = 0; i &lt;= n; i++) {\n        if (i === n || s[i] !== s[start]) {\n            if (i - start &gt;= 3) {\n                res.push([start, i - 1]);\n            }\n            start = i;\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string. We traverse the string once.
+- Space: O(1) auxiliary space, excluding the space required for the output list.
+- Notes: This is the most efficient approach for this problem.
+
+---
+## Approach 2: Two Pointers
+
+**Intuition**
+We use two pointers, `start` and `end`, to define the boundaries of the current group. We expand the `end` pointer as long as the characters are the same.
+
+**Steps**
+- Initialize `res` and set `i = 0`.
+- While `i &lt; n`:
+    - Set `j = i`.
+    - While `j &lt; n` and `s[j] == s[i]`, increment `j`.
+    - Now the group is from `i` to `j - 1`. If `j - i &gt;= 3`, add `[i, j - 1]` to `res`.
+    - Move `i` to `j` to start checking the next group.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largeGroupPositions(self, s: str) -&gt; list[list[int]]:\n        res = []\n        n = len(s)\n        i = 0\n        while i &lt; n:\n            j = i\n            while j &lt; n and s[j] == s[i]:\n                j += 1\n            if j - i &gt;= 3:\n                res.append([i, j - 1])\n            i = j\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; largeGroupPositions(String s) {\n        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();\n        int n = s.length();\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            while (j &lt; n && s.charAt(j) == s.charAt(i)) {\n                j++;\n            }\n            if (j - i &gt;= 3) {\n                res.add(Arrays.asList(i, j - 1));\n            }\n            i = j;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; largeGroupPositions(string s) {\n        vector&lt;vector&lt;int&gt;&gt; res;\n        int n = s.size();\n        int i = 0;\n        while (i &lt; n) {\n            int j = i;\n            while (j &lt; n && s[j] == s[i]) {\n                j++;\n            }\n            if (j - i &gt;= 3) {\n                res.push_back({i, j - 1});\n            }\n            i = j;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number[][]}\n */\nvar largeGroupPositions = function(s) {\n    let res = [];\n    let n = s.length;\n    let i = 0;\n    while (i &lt; n) {\n        let j = i;\n        while (j &lt; n && s[j] === s[i]) {\n            j++;\n        }\n        if (j - i &gt;= 3) {\n            res.push([i, j - 1]);\n        }\n        i = j;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largeGroupPositions(s: string): number[][] {\n    let res: number[][] = [];\n    let n: number = s.length;\n    let i: number = 0;\n    while (i &lt; n) {\n        let j: number = i;\n        while (j &lt; n && s[j] === s[i]) {\n            j++;\n        }\n        if (j - i &gt;= 3) {\n            res.push([i, j - 1]);\n        }\n        i = j;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n) as each character is visited at most twice (once by `i` and once by `j`).
+- Space: O(1) auxiliary space.
+- Notes: This approach is logically equivalent to the one-pass iteration but explicitly uses two pointers to define the window.
+
+---
+## Approach 3: Regular Expressions
+
+**Intuition**
+We can use a regular expression to find all substrings consisting of 3 or more identical characters. The regex pattern `(.)\1{2,}` captures a character followed by the same character at least 2 more times.
+
+**Steps**
+- Construct the regex pattern `(.)\1{2,}`.
+- Iterate through all matches found in the string.
+- For each match, get the start index and end index (start index + length - 1) and add to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def largeGroupPositions(self, s: str) -&gt; list[list[int]]:\n        res = []\n        # Pattern matches any char (.) followed by same char 2+ times\n        for m in re.finditer(r'(.)\\1{2,}', s):\n            res.append([m.start(), m.end() - 1])\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public List&lt;List&lt;Integer&gt;&gt; largeGroupPositions(String s) {\n        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();\n        Pattern p = Pattern.compile(\"(.)\\\\1{2,}\");\n        Matcher m = p.matcher(s);\n        while (m.find()) {\n            res.add(Arrays.asList(m.start(), m.end() - 1));\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; largeGroupPositions(string s) {\n        vector&lt;vector&lt;int&gt;&gt; res;\n        regex r(\"(.)\\\\1{2,}\");\n        for (std::sregex_iterator i = std::sregex_iterator(s.begin(), s.end(), r);\n             i != std::sregex_iterator();\n             ++i) {\n            smatch m = *i;\n            res.push_back({m.position(), m.position() + (int)m.length() - 1});\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {number[][]}\n */\nvar largeGroupPositions = function(s) {\n    let res = [];\n    const regex = /(.)\\1{2,}/g;\n    let match;\n    while ((match = regex.exec(s)) !== null) {\n        res.push([match.index, match.index + match[0].length - 1]);\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largeGroupPositions(s: string): number[][] {\n    let res: number[][] = [];\n    const regex: RegExp = /(.)\\1{2,}/g;\n    let match: RegExpExecArray | null;\n    while ((match = regex.exec(s)) !== null) {\n        res.push([match.index, match.index + match[0].length - 1]);\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n) in practice, though regex engines can have overhead.
+- Space: O(1) auxiliary space.
+- Notes: This approach is concise but may be less efficient than a manual scan due to regex engine overhead. It relies on language-specific regex support.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Positions of Large Groups Solutions","datePublished":"2024-04-18","description":"Find start and end indices of groups of 3 or more consecutive identical characters in a string.","keywords":"LeetCode, Positions of Large Groups, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the One Pass Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the output list."}},{"@type":"Question","name":"How does the Regular Expressions approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses the pattern (.)\\1{2,} to find substrings of 3 or more identical consecutive characters and extracts their indices."}}]}).replace(/</g,'\u003c')}
+</script>

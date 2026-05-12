@@ -1,0 +1,129 @@
+---
+title: "Find the Highest Altitude"
+summary: "A biker starts at altitude 0 and travels through points with net altitude gains. Find the highest altitude reached during the trip."
+date: "Sep 10, 2024"
+tags:
+  - Array
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.90% | **Paid:** No
+> **Topics:** Array, Prefix Sum
+
+There is a biker going on a road trip. The road trip consists of n + 1 points at different altitudes. The biker starts at altitude 0.
+
+You are given an integer array gain of length n where gain[i] is the net gain in altitude between points i and i + 1 for all 0 &lt;= i &lt; n.
+
+Return the highest altitude of a point.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Prefix Sum](#approach-1-iterative-prefix-sum)
+- [Approach 2: Explicit Array Construction](#approach-2-explicit-array-construction)
+- [Approach 3: Functional / Reduce](#approach-3-functional--reduce)
+
+## Examples
+
+### Example 1:
+```text
+Input: gain = [-5,1,5,0,-7]
+Output: 1
+Explanation: The altitudes are [0,-5,-4,1,1,-6]. The highest is 1.
+```
+
+### Example 2:
+```text
+Input: gain = [-4,-3,-2,-1,4,3,2]
+Output: 0
+Explanation: The altitudes are [0,-4,-7,-9,-10,-6,-3,-1]. The highest is 0.
+```
+
+## Constraints
+
+```text
+n == gain.length
+1 <= n <= 100
+-100 <= gain[i] <= 100
+```
+
+---
+## Approach 1: Iterative Prefix Sum
+
+**Intuition**
+We can simulate the journey by keeping a running sum of the altitude gains. As we calculate the current altitude, we compare it with the maximum altitude found so far.
+
+**Steps**
+- Initialize `current_altitude` and `max_altitude` to 0.
+- Iterate through the `gain` array.
+- Add the current gain to `current_altitude`.
+- Update `max_altitude` if `current_altitude` is greater.
+- Return `max_altitude`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def largestAltitude(self, gain: List[int]) -&gt; int:\n        current = 0\n        max_altitude = 0\n        for g in gain:\n            current += g\n            max_altitude = max(max_altitude, current)\n        return max_altitude\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int largestAltitude(int[] gain) {\n        int current = 0;\n        int maxAltitude = 0;\n        for (int g : gain) {\n            current += g;\n            if (current &gt; maxAltitude) {\n                maxAltitude = current;\n            }\n        }\n        return maxAltitude;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestAltitude(vector&lt;int&gt;& gain) {\n        int current = 0;\n        int maxAltitude = 0;\n        for (int g : gain) {\n            current += g;\n            maxAltitude = max(maxAltitude, current);\n        }\n        return maxAltitude;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gain\n * @return {number}\n */\nvar largestAltitude = function(gain) {\n    let current = 0;\n    let maxAltitude = 0;\n    for (let g of gain) {\n        current += g;\n        maxAltitude = Math.max(maxAltitude, current);\n    }\n    return maxAltitude;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestAltitude(gain: number[]): number {\n    let current = 0;\n    let maxAltitude = 0;\n    for (let g of gain) {\n        current += g;\n        maxAltitude = Math.max(maxAltitude, current);\n    }\n    return maxAltitude;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: This is the most optimal approach as it only requires a single pass and constant extra space.
+
+---
+## Approach 2: Explicit Array Construction
+
+**Intuition**
+We can explicitly construct the array of altitudes visited at each point. The first point is 0, and each subsequent point is the sum of the previous altitude and the corresponding gain. Finally, we find the maximum value in this array.
+
+**Steps**
+- Create an array `altitudes` of size `n + 1` initialized to 0.
+- Iterate from 0 to `n - 1`.
+- Set `altitudes[i + 1] = altitudes[i] + gain[i]`.
+- Return the maximum value in `altitudes`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def largestAltitude(self, gain: List[int]) -&gt; int:\n        altitudes = [0] * (len(gain) + 1)\n        for i in range(len(gain)):\n            altitudes[i + 1] = altitudes[i] + gain[i]\n        return max(altitudes)\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int largestAltitude(int[] gain) {\n        int n = gain.length;\n        int[] altitudes = new int[n + 1];\n        for (int i = 0; i &lt; n; i++) {\n            altitudes[i + 1] = altitudes[i] + gain[i];\n        }\n        int max = altitudes[0];\n        for (int alt : altitudes) {\n            if (alt &gt; max) max = alt;\n        }\n        return max;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestAltitude(vector&lt;int&gt;& gain) {\n        int n = gain.size();\n        vector&lt;int&gt; altitudes(n + 1, 0);\n        for (int i = 0; i &lt; n; ++i) {\n            altitudes[i + 1] = altitudes[i] + gain[i];\n        }\n        return *max_element(altitudes.begin(), altitudes.end());\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gain\n * @return {number}\n */\nvar largestAltitude = function(gain) {\n    let altitudes = [0];\n    for (let i = 0; i &lt; gain.length; i++) {\n        altitudes.push(altitudes[i] + gain[i]);\n    }\n    return Math.max(...altitudes);\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestAltitude(gain: number[]): number {\n    let altitudes: number[] = [0];\n    for (let i = 0; i &lt; gain.length; i++) {\n        altitudes.push(altitudes[i] + gain[i]);\n    }\n    return Math.max(...altitudes);\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses O(n) extra space to store the altitude history, which is not necessary since we only need the maximum value.
+
+---
+## Approach 3: Functional / Reduce
+
+**Intuition**
+We can use a functional programming style (like `reduce`) to accumulate the current altitude and track the maximum simultaneously in a single expression.
+
+**Steps**
+- Use the `reduce` function on the `gain` array.
+- The accumulator holds an object or tuple with `current` altitude and `max` altitude.
+- Update the accumulator for each gain value.
+- Return the `max` value from the final accumulator.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom functools import reduce\n\nclass Solution:\n    def largestAltitude(self, gain: List[int]) -&gt; int:\n        return reduce(lambda acc, g: (acc[0] + g, max(acc[1], acc[0] + g)), gain, (0, 0))[1]\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int largestAltitude(int[] gain) {\n        int current = 0;\n        int maxAltitude = 0;\n        for (int g : gain) {\n            current += g;\n            maxAltitude = Math.max(maxAltitude, current);\n        }\n        return maxAltitude;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int largestAltitude(vector&lt;int&gt;& gain) {\n        int current = 0;\n        int maxAltitude = 0;\n        for (int g : gain) {\n            current += g;\n            maxAltitude = max(maxAltitude, current);\n        }\n        return maxAltitude;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} gain\n * @return {number}\n */\nvar largestAltitude = function(gain) {\n    return gain.reduce((acc, g) =&gt; {\n        acc.current += g;\n        acc.max = Math.max(acc.max, acc.current);\n        return acc;\n    }, { current: 0, max: 0 }).max;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestAltitude(gain: number[]): number {\n    return gain.reduce((acc, g) =&gt; {\n        acc.current += g;\n        acc.max = Math.max(acc.max, acc.current);\n        return acc;\n    }, { current: 0, max: 0 }).max;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: While concise, this approach may be less readable to some developers compared to the iterative loop. In Java and C++, the standard loop is preferred over functional streams for this specific stateful accumulation.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Highest Altitude Solutions","datePublished":"2024-09-10","description":"A biker starts at altitude 0 and travels through points with net altitude gains. Find the highest altitude reached during the trip.","keywords":"LeetCode, Find the Highest Altitude, Easy, Array, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the gain array, as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Iterative Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use two variables to track the current and maximum altitude."}},{"@type":"Question","name":"What is the time complexity of the Explicit Array Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) for building the array and finding the maximum."}},{"@type":"Question","name":"What is the space complexity of the Explicit Array Construction approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) because we store all altitudes in a separate array."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,137 @@
+---
+title: "Find Most Frequent Vowel and Consonant"
+summary: "Given a string, find the most frequent vowel and consonant. Return the result based on frequency and lexicographical order."
+date: "Nov 20, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 89.30% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+You are given a string `s` consisting of lowercase English letters. A letter is a vowel if it is in the set `{'a', 'e', 'i', 'o', 'u'}`. Otherwise, it is a consonant.
+
+Return a list of two strings: the most frequent vowel and the most frequent consonant.
+
+If there are multiple vowels with the same maximum frequency, return the lexicographically smallest one. If there are multiple consonants with the same maximum frequency, return the lexicographically smallest one.
+
+If there are no vowels in the string, return an empty string `""` for the vowel part. If there are no consonants in the string, return an empty string `""` for the consonant part.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Counting](#approach-1-hash-map-counting)
+- [Approach 2: Fixed Array Counting](#approach-2-fixed-array-counting)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "successes"
+```
+
+**Output:**
+```text
+6
+```
+
+**Explanation:**
+The vowels are: 'u' (frequency 1), 'e' (frequency 2). The maximum frequency is 2.
+
+The consonants are: 's' (frequency 4), 'c' (frequency 2). The maximum frequency is 4.
+
+The output is 2 + 4 = 6.
+
+### Example 2
+
+**Input:**
+```text
+s = "aeiaeia"
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+The vowels are: 'a' (frequency 3), 'e' ( frequency 2), 'i' (frequency 2). The maximum frequency is 3.
+
+There are no consonants in s. Hence, maximum consonant frequency = 0.
+
+The output is 3 + 0 = 3.
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s consists of lowercase English letters.
+```
+
+---
+## Approach 1: Hash Map Counting
+
+**Intuition**
+We can iterate through the string and separate the characters into two groups: vowels and consonants. We use a hash map (or dictionary) to count the frequency of characters in each group. Finally, we iterate through the maps to find the character with the highest frequency, breaking ties by selecting the lexicographically smallest character.
+
+**Steps**
+- Initialize two hash maps: one for vowels and one for consonants.
+- Iterate through each character in the string `s`.
+- Check if the character is a vowel.
+- If it is a vowel, increment its count in the vowel map. Otherwise, increment its count in the consonant map.
+- After processing the string, determine the most frequent vowel by iterating through the vowel map. Track the maximum frequency and the corresponding character. If frequencies are equal, choose the smaller character.
+- Repeat the process for the consonant map.
+- Return the results as a list. If a map is empty, return an empty string for that part.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostFrequentVowelAndConsonant(self, s: str) -&gt; list[str]:\n        vowels = set('aeiou')\n        v_count = {}\n        c_count = {}\n        \n        for char in s:\n            if char in vowels:\n                v_count[char] = v_count.get(char, 0) + 1\n            else:\n                c_count[char] = c_count.get(char, 0) + 1\n        \n        def get_most_frequent(count_map):\n            if not count_map:\n                return \"\"\n            max_char = \"\"\n            max_freq = -1\n            for char, freq in count_map.items():\n                if freq &gt; max_freq or (freq == max_freq and char &lt; max_char):\n                    max_freq = freq\n                    max_char = char\n            return max_char\n        \n        return [get_most_frequent(v_count), get_most_frequent(c_count)]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] mostFrequentVowelAndConsonant(String s) {\n        Set&lt;Character&gt; vowels = new HashSet&lt;&gt;(Arrays.asList('a', 'e', 'i', 'o', 'u'));\n        Map&lt;Character, Integer&gt; vCount = new HashMap&lt;&gt;();\n        Map&lt;Character, Integer&gt; cCount = new HashMap&lt;&gt;();\n        \n        for (char c : s.toCharArray()) {\n            if (vowels.contains(c)) {\n                vCount.put(c, vCount.getOrDefault(c, 0) + 1);\n            } else {\n                cCount.put(c, cCount.getOrDefault(c, 0) + 1);\n            }\n        }\n        \n        String vRes = getMostFrequent(vCount);\n        String cRes = getMostFrequent(cCount);\n        \n        return new String[]{vRes, cRes};\n    }\n    \n    private String getMostFrequent(Map&lt;Character, Integer&gt; map) {\n        if (map.isEmpty()) return \"\";\n        \n        char maxChar = 'z';\n        int maxFreq = -1;\n        \n        for (Map.Entry&lt;Character, Integer&gt; entry : map.entrySet()) {\n            char c = entry.getKey();\n            int freq = entry.getValue();\n            \n            if (freq &gt; maxFreq || (freq == maxFreq && c &lt; maxChar)) {\n                maxFreq = freq;\n                maxChar = c;\n            }\n        }\n        return String.valueOf(maxChar);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;set&gt;\n#include &lt;vector&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; mostFrequentVowelAndConsonant(string s) {\n        set&lt;char&gt; vowels = {'a', 'e', 'i', 'o', 'u'};\n        unordered_map&lt;char, int&gt; vCount;\n        unordered_map&lt;char, int&gt; cCount;\n        \n        for (char c : s) {\n            if (vowels.count(c)) {\n                vCount[c]++;\n            } else {\n                cCount[c]++;\n            }\n        }\n        \n        auto getMostFrequent = [](const unordered_map&lt;char, int&gt;& map) -&gt; string {\n            if (map.empty()) return \"\";\n            char maxChar = 'z';\n            int maxFreq = INT_MIN;\n            for (const auto& pair : map) {\n                if (pair.second &gt; maxFreq || (pair.second == maxFreq && pair.first &lt; maxChar)) {\n                    maxFreq = pair.second;\n                    maxChar = pair.first;\n                }\n            }\n            return string(1, maxChar);\n        };\n        \n        return {getMostFrequent(vCount), getMostFrequent(cCount)};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string[]}\n */\nvar mostFrequentVowelAndConsonant = function(s) {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u']);\n    const vCount = new Map();\n    const cCount = new Map();\n    \n    for (const char of s) {\n        if (vowels.has(char)) {\n            vCount.set(char, (vCount.get(char) || 0) + 1);\n        } else {\n            cCount.set(char, (cCount.get(char) || 0) + 1);\n        }\n    }\n    \n    const getMostFrequent = (map) =&gt; {\n        if (map.size === 0) return \"\";\n        let maxChar = '';\n        let maxFreq = -1;\n        \n        for (const [char, freq] of map) {\n            if (freq &gt; maxFreq || (freq === maxFreq && char &lt; maxChar)) {\n                maxFreq = freq;\n                maxChar = char;\n            }\n        }\n        return maxChar;\n    };\n    \n    return [getMostFrequent(vCount), getMostFrequent(cCount)];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequentVowelAndConsonant(s: string): string[] {\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u']);\n    const vCount = new Map&lt;string, number&gt;();\n    const cCount = new Map&lt;string, number&gt;();\n    \n    for (const char of s) {\n        if (vowels.has(char)) {\n            vCount.set(char, (vCount.get(char) || 0) + 1);\n        } else {\n            cCount.set(char, (cCount.get(char) || 0) + 1);\n        }\n    }\n    \n    const getMostFrequent = (map: Map&lt;string, number&gt;): string =&gt; {\n        if (map.size === 0) return \"\";\n        let maxChar = '';\n        let maxFreq = -1;\n        \n        for (const [char, freq] of map) {\n            if (freq &gt; maxFreq || (freq === maxFreq && char &lt; maxChar)) {\n                maxFreq = freq;\n                maxChar = char;\n            }\n        }\n        return maxChar;\n    };\n    \n    return [getMostFrequent(vCount), getMostFrequent(cCount)];\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string. We iterate through the string once and then through the unique characters (at most 26).
+- Space: O(1) because the number of distinct characters is bounded by the alphabet size (26), regardless of the input string length.
+- Notes: Hash maps provide O(1) average time complexity for insertions and lookups.
+
+---
+## Approach 2: Fixed Array Counting
+
+**Intuition**
+Since the input consists only of lowercase English letters, we can optimize space and speed by using fixed-size arrays of length 26 instead of hash maps. We map each character to an index (e.g., 'a' -> 0, 'b' -> 1). This avoids the overhead of hashing and is generally faster for small, fixed key sets.
+
+**Steps**
+- Create two integer arrays of size 26: `vCount` and `cCount`, initialized to 0.
+- Iterate through the string `s`.
+- For each character, calculate its index (e.g., `char.charCodeAt(0) - 'a'.charCodeAt(0)`).
+- Check if the character is a vowel.
+- If it is a vowel, increment `vCount[index]`. Otherwise, increment `cCount[index]`.
+- Iterate through the `vCount` array (indices 0 to 25) to find the index with the maximum value. If values are equal, pick the smaller index (which corresponds to the lexicographically smaller character). Convert the index back to the character.
+- Repeat the process for `cCount`.
+- Return the results.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostFrequentVowelAndConsonant(self, s: str) -&gt; list[str]:\n        vowels = set('aeiou')\n        v_count = [0] * 26\n        c_count = [0] * 26\n        \n        for char in s:\n            idx = ord(char) - ord('a')\n            if char in vowels:\n                v_count[idx] += 1\n            else:\n                c_count[idx] += 1\n        \n        def get_most_frequent(count_arr):\n            max_freq = -1\n            max_idx = -1\n            for i in range(26):\n                if count_arr[i] &gt; 0:\n                    if count_arr[i] &gt; max_freq or (count_arr[i] == max_freq and i &lt; max_idx):\n                        max_freq = count_arr[i]\n                        max_idx = i\n            if max_idx == -1:\n                return \"\"\n            return chr(max_idx + ord('a'))\n        \n        return [get_most_frequent(v_count), get_most_frequent(c_count)]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String[] mostFrequentVowelAndConsonant(String s) {\n        int[] vCount = new int[26];\n        int[] cCount = new int[26];\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            int idx = c - 'a';\n            if (isVowel(c)) {\n                vCount[idx]++;\n            } else {\n                cCount[idx]++;\n            }\n        }\n        \n        String vRes = getMostFrequent(vCount);\n        String cRes = getMostFrequent(cCount);\n        \n        return new String[]{vRes, cRes};\n    }\n    \n    private boolean isVowel(char c) {\n        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n    }\n    \n    private String getMostFrequent(int[] count) {\n        int maxFreq = -1;\n        int maxIdx = -1;\n        for (int i = 0; i &lt; 26; i++) {\n            if (count[i] &gt; 0) {\n                if (count[i] &gt; maxFreq || (count[i] == maxFreq && i &lt; maxIdx)) {\n                    maxFreq = count[i];\n                    maxIdx = i;\n                }\n            }\n        }\n        if (maxIdx == -1) return \"\";\n        return String.valueOf((char) (maxIdx + 'a'));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n#include &lt;climits&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; mostFrequentVowelAndConsonant(string s) {\n        vector&lt;int&gt; vCount(26, 0);\n        vector&lt;int&gt; cCount(26, 0);\n        \n        for (char c : s) {\n            int idx = c - 'a';\n            if (isVowel(c)) {\n                vCount[idx]++;\n            } else {\n                cCount[idx]++;\n            }\n        }\n        \n        auto getMostFrequent = [](const vector&lt;int&gt;& count) -&gt; string {\n            int maxFreq = INT_MIN;\n            int maxIdx = -1;\n            for (int i = 0; i &lt; 26; ++i) {\n                if (count[i] &gt; 0) {\n                    if (count[i] &gt; maxFreq || (count[i] == maxFreq && i &lt; maxIdx)) {\n                        maxFreq = count[i];\n                        maxIdx = i;\n                    }\n                }\n            }\n            if (maxIdx == -1) return \"\";\n            return string(1, (char)(maxIdx + 'a'));\n        };\n        \n        return {getMostFrequent(vCount), getMostFrequent(cCount)};\n    }\n    \nprivate:\n    bool isVowel(char c) {\n        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string[]}\n */\nvar mostFrequentVowelAndConsonant = function(s) {\n    const vCount = new Array(26).fill(0);\n    const cCount = new Array(26).fill(0);\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u']);\n    \n    for (const char of s) {\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\n        if (vowels.has(char)) {\n            vCount[idx]++;\n        } else {\n            cCount[idx]++;\n        }\n    }\n    \n    const getMostFrequent = (count) =&gt; {\n        let maxFreq = -1;\n        let maxIdx = -1;\n        for (let i = 0; i &lt; 26; i++) {\n            if (count[i] &gt; 0) {\n                if (count[i] &gt; maxFreq || (count[i] === maxFreq && i &lt; maxIdx)) {\n                    maxFreq = count[i];\n                    maxIdx = i;\n                }\n            }\n        }\n        if (maxIdx === -1) return \"\";\n        return String.fromCharCode(maxIdx + 97);\n    };\n    \n    return [getMostFrequent(vCount), getMostFrequent(cCount)];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequentVowelAndConsonant(s: string): string[] {\n    const vCount: number[] = new Array(26).fill(0);\n    const cCount: number[] = new Array(26).fill(0);\n    const vowels = new Set(['a', 'e', 'i', 'o', 'u']);\n    \n    for (const char of s) {\n        const idx = char.charCodeAt(0) - 'a'.charCodeAt(0);\n        if (vowels.has(char)) {\n            vCount[idx]++;\n        } else {\n            cCount[idx]++;\n        }\n    }\n    \n    const getMostFrequent = (count: number[]): string =&gt; {\n        let maxFreq = -1;\n        let maxIdx = -1;\n        for (let i = 0; i &lt; 26; i++) {\n            if (count[i] &gt; 0) {\n                if (count[i] &gt; maxFreq || (count[i] === maxFreq && i &lt; maxIdx)) {\n                    maxFreq = count[i];\n                    maxIdx = i;\n                }\n            }\n        }\n        if (maxIdx === -1) return \"\";\n        return String.fromCharCode(maxIdx + 97);\n    };\n    \n    return [getMostFrequent(vCount), getMostFrequent(cCount)];\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string. We iterate through the string once and then through the fixed-size array of 26 elements.
+- Space: O(1) because we use two fixed-size arrays of length 26, which does not depend on the input size.
+- Notes: This approach is generally more performant than hash maps due to lower overhead and better cache locality, though the difference is negligible for this specific problem size.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Most Frequent Vowel and Consonant Solutions","datePublished":"2025-11-20","description":"Given a string, find the most frequent vowel and consonant. Return the result based on frequency and lexicographical order.","keywords":"LeetCode, Find Most Frequent Vowel and Consonant, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Fixed Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the array size is fixed at 26."}},{"@type":"Question","name":"How are ties handled when finding the most frequent character?","acceptedAnswer":{"@type":"Answer","text":"If multiple characters have the same maximum frequency, the lexicographically smallest character is returned."}}]}).replace(/</g,'\u003c')}
+</script>

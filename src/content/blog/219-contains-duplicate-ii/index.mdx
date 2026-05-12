@@ -1,0 +1,135 @@
+---
+title: "Contains Duplicate II"
+summary: "Given an integer array nums and an integer k, return true if there are two distinct indices i and j such that nums[i] == nums[j] and abs(i - j) &lt;= k."
+date: "Dec 15, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sliding Window
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.20% | **Paid:** No
+> **Topics:** Array, Hash Table, Sliding Window
+
+Given an integer array nums and an integer k, return true if there are two distinct indices i and j in the array such that nums[i] == nums[j] and abs(i - j) &lt;= k.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map](#hash-map)
+- [Sliding Window](#sliding-window)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [1,2,3,1], k = 3
+Output: true
+Explanation: The duplicate 1 is found at indices 0 and 3. The distance is 3, which is <= k.
+```
+
+Example 2:
+```text
+Input: nums = [1,0,1,1], k = 1
+Output: true
+Explanation: The duplicate 1 is found at indices 2 and 3. The distance is 1, which is <= k.
+```
+
+Example 3:
+```text
+Input: nums = [1,2,3,1,2,3], k = 2
+Output: false
+Explanation: While there are duplicates (1 and 2), none of them are within a distance of 2 indices.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 10^5
+- -10^9 <= nums[i] <= 10^9
+- 0 <= k <= 10^5
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check every possible pair of indices to see if they contain the same value and if their distance is within k.
+
+**Steps**
+- Iterate through the array with index i.
+- For each i, iterate through indices j from i + 1 up to i + k (or the end of the array).
+- If nums[i] == nums[j], return true.
+- If the loops finish without finding a match, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsNearbyDuplicate(self, nums: list[int], k: int) -&gt; bool:\n        n = len(nums)\n        for i in range(n):\n            # Check the next k elements (or until the end of the array)\n            for j in range(i + 1, min(n, i + k + 1)):\n                if nums[i] == nums[j]:\n                    return True\n        return False\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean containsNearbyDuplicate(int[] nums, int k) {\n        int n = nums.length;\n        for (int i = 0; i &lt; n; i++) {\n            // Check the next k elements (or until the end of the array)\n            for (int j = i + 1; j &lt; Math.min(n, i + k + 1); j++) {\n                if (nums[i] == nums[j]) {\n                    return true;\n                }\n            }\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsNearbyDuplicate(vector&lt;int&gt;& nums, int k) {\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            // Check the next k elements (or until the end of the array)\n            for (int j = i + 1; j &lt; min(n, i + k + 1); j++) {\n                if (nums[i] == nums[j]) {\n                    return true;\n                }\n            }\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var containsNearbyDuplicate = function(nums, k) {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        // Check the next k elements (or until the end of the array)\n        for (let j = i + 1; j &lt; Math.min(n, i + k + 1); j++) {\n            if (nums[i] === nums[j]) {\n                return true;\n            }\n        }\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function containsNearbyDuplicate(nums: number[], k: number): boolean {\n    const n = nums.length;\n    for (let i = 0; i &lt; n; i++) {\n        // Check the next k elements (or until the end of the array)\n        for (let j = i + 1; j &lt; Math.min(n, i + k + 1); j++) {\n            if (nums[i] === nums[j]) {\n                return true;\n            }\n        }\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n * k)
+- Space: O(1)
+- Notes: This approach is inefficient for large inputs where k is close to n.
+
+---
+## Hash Map
+
+**Intuition**
+Use a hash map to store the most recent index of each number. As we iterate, if we encounter a number that already exists in the map, we check if the distance between the current index and the stored index is &lt;= k.
+
+**Steps**
+- Initialize an empty hash map.
+- Iterate through the array with index i.
+- If nums[i] is in the map and i - map[nums[i]] &lt;= k, return true.
+- Update the map with nums[i] and its current index i.
+- If the loop finishes, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsNearbyDuplicate(self, nums: list[int], k: int) -&gt; bool:\n        seen = {}\n        for i, num in enumerate(nums):\n            if num in seen and i - seen[num] &lt;= k:\n                return True\n            seen[num] = i\n        return False\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean containsNearbyDuplicate(int[] nums, int k) {\n        Map&lt;Integer, Integer&gt; seen = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (seen.containsKey(nums[i]) && i - seen.get(nums[i]) &lt;= k) {\n                return true;\n            }\n            seen.put(nums[i], i);\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsNearbyDuplicate(vector&lt;int&gt;& nums, int k) {\n        unordered_map&lt;int, int&gt; seen;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (seen.find(nums[i]) != seen.end() && i - seen[nums[i]] &lt;= k) {\n                return true;\n            }\n            seen[nums[i]] = i;\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var containsNearbyDuplicate = function(nums, k) {\n    const seen = new Map();\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (seen.has(nums[i]) && i - seen.get(nums[i]) &lt;= k) {\n            return true;\n        }\n        seen.set(nums[i], i);\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function containsNearbyDuplicate(nums: number[], k: number): boolean {\n    const seen = new Map&lt;number, number&gt;();\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (seen.has(nums[i]) && i - seen.get(nums[i])! &lt;= k) {\n            return true;\n        }\n        seen.set(nums[i], i);\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Efficient time complexity, but uses O(n) space to store the indices.
+
+---
+## Sliding Window
+
+**Intuition**
+Maintain a sliding window of the last k elements using a hash set. If the current element is already in the set, we found a duplicate within distance k. Otherwise, add the element to the set and remove the element that falls out of the window.
+
+**Steps**
+- Initialize an empty hash set.
+- Iterate through the array with index i.
+- If i &gt; k, remove nums[i - k - 1] from the set (slide the window).
+- If nums[i] is in the set, return true.
+- Add nums[i] to the set.
+- If the loop finishes, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def containsNearbyDuplicate(self, nums: list[int], k: int) -&gt; bool:\n        window = set()\n        for i, num in enumerate(nums):\n            # If the window size exceeds k, remove the oldest element\n            if i &gt; k:\n                window.remove(nums[i - k - 1])\n            # If current number is already in the window, we found a duplicate\n            if num in window:\n                return True\n            window.add(num)\n        return False\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean containsNearbyDuplicate(int[] nums, int k) {\n        Set&lt;Integer&gt; window = new HashSet&lt;&gt;();\n        for (int i = 0; i &lt; nums.length; i++) {\n            // If the window size exceeds k, remove the oldest element\n            if (i &gt; k) {\n                window.remove(nums[i - k - 1]);\n            }\n            // If current number is already in the window, we found a duplicate\n            if (!window.add(nums[i])) {\n                return true;\n            }\n        }\n        return false;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool containsNearbyDuplicate(vector&lt;int&gt;& nums, int k) {\n        unordered_set&lt;int&gt; window;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            // If the window size exceeds k, remove the oldest element\n            if (i &gt; k) {\n                window.erase(nums[i - k - 1]);\n            }\n            // If current number is already in the window, we found a duplicate\n            if (window.find(nums[i]) != window.end()) {\n                return true;\n            }\n            window.insert(nums[i]);\n        }\n        return false;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var containsNearbyDuplicate = function(nums, k) {\n    const window = new Set();\n    for (let i = 0; i &lt; nums.length; i++) {\n        // If the window size exceeds k, remove the oldest element\n        if (i &gt; k) {\n            window.delete(nums[i - k - 1]);\n        }\n        // If current number is already in the window, we found a duplicate\n        if (window.has(nums[i])) {\n            return true;\n        }\n        window.add(nums[i]);\n    }\n    return false;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function containsNearbyDuplicate(nums: number[], k: number): boolean {\n    const window = new Set&lt;number&gt;();\n    for (let i = 0; i &lt; nums.length; i++) {\n        // If the window size exceeds k, remove the oldest element\n        if (i &gt; k) {\n            window.delete(nums[i - k - 1]);\n        }\n        // If current number is already in the window, we found a duplicate\n        if (window.has(nums[i])) {\n            return true;\n        }\n        window.add(nums[i]);\n    }\n    return false;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(k)
+- Notes: Optimized space complexity compared to the Hash Map approach, as it only stores at most k elements.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Contains Duplicate II Solutions","datePublished":"2025-12-15","description":"Given an integer array nums and an integer k, return true if there are two distinct indices i and j such that nums[i] == nums[j] and abs(i - j) &lt;= k.","keywords":"LeetCode, Contains Duplicate II, Easy, Array, Hash Table, Sliding Window"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n * k)."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity of the Hash Map approach is O(n)."}},{"@type":"Question","name":"What is the space complexity of the Sliding Window approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity of the Sliding Window approach is O(k)."}}]}).replace(/</g,'\u003c')}
+</script>

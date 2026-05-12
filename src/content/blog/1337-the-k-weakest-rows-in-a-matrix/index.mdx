@@ -1,0 +1,180 @@
+---
+title: "The K Weakest Rows in a Matrix"
+summary: "Find the k weakest rows in a binary matrix where each row is sorted with 1s before 0s."
+date: "Sep 24, 2025"
+tags:
+  - Array
+  - Binary Search
+  - Sorting
+  - Heap
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.40% | **Paid:** No
+> **Topics:** Array, Binary Search, Sorting, Heap (Priority Queue), Matrix
+
+You are given an m x n binary matrix mat of 1's (representing soldiers) and 0's (representing civilians). The soldiers are positioned in front of the civilians. That is, all the 1's will appear to the left of all the 0's in each row.
+
+A row i is weaker than a row j if one of the following is true:
+
+The number of soldiers in row i is less than the number of soldiers in row j.
+Both rows have the same number of soldiers and i &lt; j.
+Return the indices of the k weakest rows in the matrix ordered from weakest to strongest.
+
+- Examples
+- Constraints
+- [Brute Force with Sorting](#brute-force-with-sorting)
+- [Binary Search + Sorting](#binary-search--sorting)
+- [Min-Heap (Priority Queue)](#min-heap-priority-queue)
+- [Bucket Sort](#bucket-sort)
+
+## Examples
+
+```text
+Input: mat = 
+[[1,1,0,0,0],
+ [1,1,1,1,0],
+ [1,0,0,0,0],
+ [1,1,0,0,0],
+ [1,1,1,1,1]], 
+k = 3
+Output: [2,0,3]
+Explanation: 
+The number of soldiers in each row is: 
+- Row 0: 2 
+- Row 1: 4 
+- Row 2: 1 
+- Row 3: 2 
+- Row 4: 5 
+The rows ordered from weakest to strongest are [2,0,3,1,4].
+```
+
+```text
+Input: mat = 
+[[1,0,0,0],
+ [1,1,1,1],
+ [1,0,0,0],
+ [1,0,0,0]], 
+k = 2
+Output: [0,2]
+Explanation: 
+The number of soldiers in each row is: 
+- Row 0: 1 
+- Row 1: 4 
+- Row 2: 1 
+- Row 3: 1 
+The rows ordered from weakest to strongest are [0,2,3,1].
+```
+
+## Constraints
+
+```text
+m == mat.length
+n == mat[i].length
+2 <= n, m <= 100
+1 <= k <= m
+mat[i][j] is either 0 or 1.
+```
+
+---
+## Brute Force with Sorting
+
+**Intuition**
+Count the number of 1s in each row by scanning, then sort rows by (count, index) and return the first k indices.
+
+**Steps**
+- Iterate through each row and count the number of 1s
+- Store pairs of (count, row_index) in an array
+- Sort the array by count first, then by index
+- Return the first k row indices
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kWeakestRows(self, mat: List[List[int]], k: int) -&gt; List[int]:\n        rows = [(sum(row), i) for i, row in enumerate(mat)]\n        rows.sort()\n        return [i for _, i in rows[:k]]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] kWeakestRows(int[][] mat, int k) {\n        int m = mat.length;\n        int n = mat[0].length;\n        int[][] rows = new int[m][2];\n        \n        for (int i = 0; i &lt; m; i++) {\n            int count = 0;\n            for (int j = 0; j &lt; n; j++) {\n                count += mat[i][j];\n            }\n            rows[i][0] = count;\n            rows[i][1] = i;\n        }\n        \n        Arrays.sort(rows, (a, b) -&gt; {\n            if (a[0] != b[0]) return a[0] - b[0];\n            return a[1] - b[1];\n        });\n        \n        int[] result = new int[k];\n        for (int i = 0; i &lt; k; i++) {\n            result[i] = rows[i][1];\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; kWeakestRows(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        int m = mat.size();\n        int n = mat[0].size();\n        vector&lt;pair&lt;int, int&gt;&gt; rows;\n        \n        for (int i = 0; i &lt; m; i++) {\n            int count = 0;\n            for (int j = 0; j &lt; n; j++) {\n                count += mat[i][j];\n            }\n            rows.push_back({count, i});\n        }\n        \n        sort(rows.begin(), rows.end());\n        \n        vector&lt;int&gt; result;\n        for (int i = 0; i &lt; k; i++) {\n            result.push_back(rows[i].second);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kWeakestRows = function(mat, k) {\n    const m = mat.length;\n    const n = mat[0].length;\n    const rows = [];\n    \n    for (let i = 0; i &lt; m; i++) {\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            count += mat[i][j];\n        }\n        rows.push([count, i]);\n    }\n    \n    rows.sort((a, b) =&gt; {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    const result = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(rows[i][1]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kWeakestRows(mat: number[][], k: number): number[] {\n    const m = mat.length;\n    const n = mat[0].length;\n    const rows: [number, number][] = [];\n    \n    for (let i = 0; i &lt; m; i++) {\n        let count = 0;\n        for (let j = 0; j &lt; n; j++) {\n            count += mat[i][j];\n        }\n        rows.push([count, i]);\n    }\n    \n    rows.sort((a, b) =&gt; {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    const result: number[] = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(rows[i][1]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × n + m × log(m))
+- Space: O(m)
+- Notes: Simple but not optimal for counting 1s in sorted rows
+
+---
+## Binary Search + Sorting
+
+**Intuition**
+Since each row is sorted, use binary search to find the first 0 (count of 1s) efficiently, then sort and return k weakest.
+
+**Steps**
+- For each row, use binary search to find the index of first 0
+- The count of 1s equals that index
+- Store (count, row_index) pairs and sort
+- Return first k indices
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kWeakestRows(self, mat: List[List[int]], k: int) -&gt; List[int]:\n        def countSoldiers(row):\n            left, right = 0, len(row)\n            while left &lt; right:\n                mid = (left + right) // 2\n                if row[mid] == 1:\n                    left = mid + 1\n                else:\n                    right = mid\n            return left\n        \n        rows = [(countSoldiers(row), i) for i, row in enumerate(mat)]\n        rows.sort()\n        return [i for _, i in rows[:k]]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] kWeakestRows(int[][] mat, int k) {\n        int m = mat.length;\n        int[][] rows = new int[m][2];\n        \n        for (int i = 0; i &lt; m; i++) {\n            rows[i][0] = countSoldiers(mat[i]);\n            rows[i][1] = i;\n        }\n        \n        Arrays.sort(rows, (a, b) -&gt; {\n            if (a[0] != b[0]) return a[0] - b[0];\n            return a[1] - b[1];\n        });\n        \n        int[] result = new int[k];\n        for (int i = 0; i &lt; k; i++) {\n            result[i] = rows[i][1];\n        }\n        return result;\n    }\n    \n    private int countSoldiers(int[] row) {\n        int left = 0, right = row.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; kWeakestRows(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        int m = mat.size();\n        vector&lt;pair&lt;int, int&gt;&gt; rows;\n        \n        for (int i = 0; i &lt; m; i++) {\n            rows.push_back({countSoldiers(mat[i]), i});\n        }\n        \n        sort(rows.begin(), rows.end());\n        \n        vector&lt;int&gt; result;\n        for (int i = 0; i &lt; k; i++) {\n            result.push_back(rows[i].second);\n        }\n        return result;\n    }\n    \nprivate:\n    int countSoldiers(vector&lt;int&gt;& row) {\n        int left = 0, right = row.size();\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kWeakestRows = function(mat, k) {\n    const countSoldiers = (row) =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const m = mat.length;\n    const rows = [];\n    \n    for (let i = 0; i &lt; m; i++) {\n        rows.push([countSoldiers(mat[i]), i]);\n    }\n    \n    rows.sort((a, b) =&gt; {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    const result = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(rows[i][1]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kWeakestRows(mat: number[][], k: number): number[] {\n    const countSoldiers = (row: number[]): number =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const m = mat.length;\n    const rows: [number, number][] = [];\n    \n    for (let i = 0; i &lt; m; i++) {\n        rows.push([countSoldiers(mat[i]), i]);\n    }\n    \n    rows.sort((a, b) =&gt; {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    const result: number[] = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(rows[i][1]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × log(n) + m × log(m))
+- Space: O(m)
+- Notes: Better than brute force for counting, leverages sorted row property
+
+---
+## Min-Heap (Priority Queue)
+
+**Intuition**
+Use a min-heap to maintain rows ordered by (soldier_count, row_index), then extract k elements to get the weakest rows.
+
+**Steps**
+- Count soldiers in each row using binary search
+- Push (count, index) pairs into a min-heap
+- Extract k elements from the heap
+- Return the indices in order
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def kWeakestRows(self, mat: List[List[int]], k: int) -&gt; List[int]:\n        def countSoldiers(row):\n            left, right = 0, len(row)\n            while left &lt; right:\n                mid = (left + right) // 2\n                if row[mid] == 1:\n                    left = mid + 1\n                else:\n                    right = mid\n            return left\n        \n        heap = []\n        for i, row in enumerate(mat):\n            count = countSoldiers(row)\n            heapq.heappush(heap, (count, i))\n        \n        result = []\n        for _ in range(k):\n            result.append(heapq.heappop(heap)[1])\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] kWeakestRows(int[][] mat, int k) {\n        PriorityQueue&lt;int[]&gt; minHeap = new PriorityQueue&lt;&gt;((a, b) -&gt; {\n            if (a[0] != b[0]) return a[0] - b[0];\n            return a[1] - b[1];\n        });\n        \n        for (int i = 0; i &lt; mat.length; i++) {\n            int count = countSoldiers(mat[i]);\n            minHeap.offer(new int[]{count, i});\n        }\n        \n        int[] result = new int[k];\n        for (int i = 0; i &lt; k; i++) {\n            result[i] = minHeap.poll()[1];\n        }\n        return result;\n    }\n    \n    private int countSoldiers(int[] row) {\n        int left = 0, right = row.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; kWeakestRows(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        auto cmp = [](const pair&lt;int, int&gt;& a, const pair&lt;int, int&gt;& b) {\n            if (a.first != b.first) return a.first &gt; b.first;\n            return a.second &gt; b.second;\n        };\n        priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, decltype(cmp)&gt; minHeap(cmp);\n        \n        for (int i = 0; i &lt; mat.size(); i++) {\n            int count = countSoldiers(mat[i]);\n            minHeap.push({count, i});\n        }\n        \n        vector&lt;int&gt; result;\n        for (int i = 0; i &lt; k; i++) {\n            result.push_back(minHeap.top().second);\n            minHeap.pop();\n        }\n        return result;\n    }\n    \nprivate:\n    int countSoldiers(vector&lt;int&gt;& row) {\n        int left = 0, right = row.size();\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kWeakestRows = function(mat, k) {\n    const countSoldiers = (row) =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const heap = [];\n    const push = (count, index) =&gt; {\n        heap.push([count, index]);\n        let i = heap.length - 1;\n        while (i &gt; 0) {\n            const parent = Math.floor((i - 1) / 2);\n            if (heap[parent][0] &lt; heap[i][0] || \n                (heap[parent][0] === heap[i][0] && heap[parent][1] &lt; heap[i][1])) {\n                break;\n            }\n            [heap[parent], heap[i]] = [heap[i], heap[parent]];\n            i = parent;\n        }\n    };\n    \n    const pop = () =&gt; {\n        const result = heap[0];\n        const last = heap.pop();\n        if (heap.length &gt; 0) {\n            heap[0] = last;\n            let i = 0;\n            while (true) {\n                const left = 2 * i + 1;\n                const right = 2 * i + 2;\n                let smallest = i;\n                if (left &lt; heap.length && \n                    (heap[left][0] &lt; heap[smallest][0] || \n                     (heap[left][0] === heap[smallest][0] && heap[left][1] &lt; heap[smallest][1]))) {\n                    smallest = left;\n                }\n                if (right &lt; heap.length && \n                    (heap[right][0] &lt; heap[smallest][0] || \n                     (heap[right][0] === heap[smallest][0] && heap[right][1] &lt; heap[smallest][1]))) {\n                    smallest = right;\n                }\n                if (smallest === i) break;\n                [heap[i], heap[smallest]] = [heap[smallest], heap[i]];\n                i = smallest;\n            }\n        }\n        return result;\n    };\n    \n    for (let i = 0; i &lt; mat.length; i++) {\n        push(countSoldiers(mat[i]), i);\n    }\n    \n    const result = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(pop()[1]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kWeakestRows(mat: number[][], k: number): number[] {\n    const countSoldiers = (row: number[]): number =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const heap: [number, number][] = [];\n    const push = (count: number, index: number): void =&gt; {\n        heap.push([count, index]);\n        let i = heap.length - 1;\n        while (i &gt; 0) {\n            const parent = Math.floor((i - 1) / 2);\n            if (heap[parent][0] &lt; heap[i][0] || \n                (heap[parent][0] === heap[i][0] && heap[parent][1] &lt; heap[i][1])) {\n                break;\n            }\n            [heap[parent], heap[i]] = [heap[i], heap[parent]];\n            i = parent;\n        }\n    };\n    \n    const pop = (): [number, number] =&gt; {\n        const result = heap[0];\n        const last = heap.pop()!;\n        if (heap.length &gt; 0) {\n            heap[0] = last;\n            let i = 0;\n            while (true) {\n                const left = 2 * i + 1;\n                const right = 2 * i + 2;\n                let smallest = i;\n                if (left &lt; heap.length && \n                    (heap[left][0] &lt; heap[smallest][0] || \n                     (heap[left][0] === heap[smallest][0] && heap[left][1] &lt; heap[smallest][1]))) {\n                    smallest = left;\n                }\n                if (right &lt; heap.length && \n                    (heap[right][0] &lt; heap[smallest][0] || \n                     (heap[right][0] === heap[smallest][0] && heap[right][1] &lt; heap[smallest][1]))) {\n                    smallest = right;\n                }\n                if (smallest === i) break;\n                [heap[i], heap[smallest]] = [heap[smallest], heap[i]];\n                i = smallest;\n            }\n        }\n        return result;\n    };\n    \n    for (let i = 0; i &lt; mat.length; i++) {\n        push(countSoldiers(mat[i]), i);\n    }\n    \n    const result: number[] = [];\n    for (let i = 0; i &lt; k; i++) {\n        result.push(pop()[1]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × log(n) + m × log(m) + k × log(m))
+- Space: O(m)
+- Notes: Useful when k is much smaller than m, can optimize with max-heap of size k
+
+---
+## Bucket Sort
+
+**Intuition**
+Since the maximum number of soldiers per row is at most n (number of columns), use bucket sort where each bucket stores row indices with that specific soldier count.
+
+**Steps**
+- Create n+1 buckets (for counts 0 to n)
+- For each row, count soldiers using binary search and add index to corresponding bucket
+- Iterate through buckets in order, collecting indices until we have k results
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def kWeakestRows(self, mat: List[List[int]], k: int) -&gt; List[int]:\n        def countSoldiers(row):\n            left, right = 0, len(row)\n            while left &lt; right:\n                mid = (left + right) // 2\n                if row[mid] == 1:\n                    left = mid + 1\n                else:\n                    right = mid\n            return left\n        \n        n = len(mat[0])\n        buckets = [[] for _ in range(n + 1)]\n        \n        for i, row in enumerate(mat):\n            count = countSoldiers(row)\n            buckets[count].append(i)\n        \n        result = []\n        for bucket in buckets:\n            for idx in bucket:\n                result.append(idx)\n                if len(result) == k:\n                    return result\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] kWeakestRows(int[][] mat, int k) {\n        int m = mat.length;\n        int n = mat[0].length;\n        \n        List&lt;List&lt;Integer&gt;&gt; buckets = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt;= n; i++) {\n            buckets.add(new ArrayList&lt;&gt;());\n        }\n        \n        for (int i = 0; i &lt; m; i++) {\n            int count = countSoldiers(mat[i]);\n            buckets.get(count).add(i);\n        }\n        \n        int[] result = new int[k];\n        int idx = 0;\n        for (List&lt;Integer&gt; bucket : buckets) {\n            for (int rowIdx : bucket) {\n                result[idx++] = rowIdx;\n                if (idx == k) {\n                    return result;\n                }\n            }\n        }\n        return result;\n    }\n    \n    private int countSoldiers(int[] row) {\n        int left = 0, right = row.length;\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; kWeakestRows(vector&lt;vector&lt;int&gt;&gt;& mat, int k) {\n        int m = mat.size();\n        int n = mat[0].size();\n        \n        vector&lt;vector&lt;int&gt;&gt; buckets(n + 1);\n        \n        for (int i = 0; i &lt; m; i++) {\n            int count = countSoldiers(mat[i]);\n            buckets[count].push_back(i);\n        }\n        \n        vector&lt;int&gt; result;\n        for (const auto& bucket : buckets) {\n            for (int rowIdx : bucket) {\n                result.push_back(rowIdx);\n                if (result.size() == k) {\n                    return result;\n                }\n            }\n        }\n        return result;\n    }\n    \nprivate:\n    int countSoldiers(vector&lt;int&gt;& row) {\n        int left = 0, right = row.size();\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (row[mid] == 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var kWeakestRows = function(mat, k) {\n    const countSoldiers = (row) =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const n = mat[0].length;\n    const buckets = Array.from({ length: n + 1 }, () =&gt; []);\n    \n    for (let i = 0; i &lt; mat.length; i++) {\n        const count = countSoldiers(mat[i]);\n        buckets[count].push(i);\n    }\n    \n    const result = [];\n    for (const bucket of buckets) {\n        for (const rowIdx of bucket) {\n            result.push(rowIdx);\n            if (result.length === k) {\n                return result;\n            }\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function kWeakestRows(mat: number[][], k: number): number[] {\n    const countSoldiers = (row: number[]): number =&gt; {\n        let left = 0, right = row.length;\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (row[mid] === 1) {\n                left = mid + 1;\n            } else {\n                right = mid;\n            }\n        }\n        return left;\n    };\n    \n    const n = mat[0].length;\n    const buckets: number[][] = Array.from({ length: n + 1 }, () =&gt; []);\n    \n    for (let i = 0; i &lt; mat.length; i++) {\n        const count = countSoldiers(mat[i]);\n        buckets[count].push(i);\n    }\n    \n    const result: number[] = [];\n    for (const bucket of buckets) {\n        for (const rowIdx of bucket) {\n            result.push(rowIdx);\n            if (result.length === k) {\n                return result;\n            }\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(m × log(n) + n + k)
+- Space: O(m + n)
+- Notes: Optimal when n is small, avoids sorting overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode The K Weakest Rows in a Matrix Solutions","datePublished":"2025-09-24","description":"Find the k weakest rows in a binary matrix where each row is sorted with 1s before 0s.","keywords":"LeetCode, The K Weakest Rows in a Matrix, Easy, Array, Binary Search, Sorting, Heap (Priority Queue), Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force with Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × n + m × log(m)) where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the time complexity of Binary Search + Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × log(n) + m × log(m)) where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the time complexity of Min-Heap approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × log(n) + m × log(m) + k × log(m)) where m is the number of rows, n is the number of columns, and k is the number of weakest rows to return."}},{"@type":"Question","name":"What is the time complexity of Bucket Sort approach?","acceptedAnswer":{"@type":"Answer","text":"O(m × log(n) + n + k) where m is the number of rows, n is the number of columns, and k is the number of weakest rows to return."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Bucket Sort is most efficient when n (number of columns) is small, as it avoids the sorting overhead of O(m × log(m))."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,150 @@
+---
+title: "Count Elements With Maximum Frequency"
+summary: "Count the total frequency of elements in an array that appear the maximum number of times."
+date: "Jan 16, 2026"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+You are given an array nums consisting of positive integers.
+
+Return the total frequency of elements in nums that have the maximum frequency.
+
+The frequency of an element is the number of times it appears in the array.
+
+## Examples
+
+### Example 1:
+Input: nums = [1,2,2,3,1,4]
+Output: 4
+Explanation: The elements 1 and 2 have a frequency of 2, which is the maximum frequency in the array. So the total frequency of elements with maximum frequency is 2 + 2 = 4.
+
+### Example 2:
+Input: nums = [1,2,3,4,5]
+Output: 5
+Explanation: All elements have a frequency of 1, which is the maximum. So the total frequency is 5.
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+- [Hash Map Frequency Counting](#hash-map-frequency-counting)
+- [Single Pass Optimization](#single-pass-optimization)
+- [Fixed Array Counting](#fixed-array-counting)
+- [Sorting](#sorting)
+
+---
+## Hash Map Frequency Counting
+
+**Intuition**
+We can iterate through the array to count the frequency of each element using a hash map. Once we have all frequencies, we determine the maximum frequency value. Finally, we sum the frequencies of all elements that match this maximum value.
+
+**Steps**
+- Initialize a hash map to store element frequencies.
+- Iterate through the input array, incrementing the count for each element in the map.
+- Find the maximum value among all frequencies in the map.
+- Iterate through the map values again, summing up all values that equal the maximum frequency.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def maxFrequencyElements(self, nums: List[int]) -&gt; int:\n        freq = defaultdict(int)\n        for num in nums:\n            freq[num] += 1\n        \n        max_freq = 0\n        for count in freq.values():\n            max_freq = max(max_freq, count)\n            \n        total = 0\n        for count in freq.values():\n            if count == max_freq:\n                total += count\n                \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int maxFrequencyElements(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        \n        int maxFreq = 0;\n        for (int count : freq.values()) {\n            maxFreq = Math.max(maxFreq, count);\n        }\n        \n        int total = 0;\n        for (int count : freq.values()) {\n            if (count == maxFreq) {\n                total += count;\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxFrequencyElements(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        int maxFreq = 0;\n        for (const auto& p : freq) {\n            maxFreq = max(maxFreq, p.second);\n        }\n        \n        int total = 0;\n        for (const auto& p : freq) {\n            if (p.second == maxFreq) {\n                total += p.second;\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxFrequencyElements = function(nums) {\n    const freq = new Map();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxFreq = 0;\n    for (const count of freq.values()) {\n        maxFreq = Math.max(maxFreq, count);\n    }\n    \n    let total = 0;\n    for (const count of freq.values()) {\n        if (count === maxFreq) {\n            total += count;\n        }\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxFrequencyElements(nums: number[]): number {\n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxFreq = 0;\n    for (const count of freq.values()) {\n        maxFreq = Math.max(maxFreq, count);\n    }\n    \n    let total = 0;\n    for (const count of freq.values()) {\n        if (count === maxFreq) {\n            total += count;\n        }\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of elements in the array.
+- Space: O(n) to store the frequency map.
+- Notes: This approach requires two passes over the map (one to find max, one to sum), but is generally efficient.
+
+---
+## Single Pass Optimization
+
+**Intuition**
+We can optimize the previous approach by tracking the maximum frequency and the total count of elements with that frequency in a single pass through the array. As we update the frequency of an element, we check if it affects the global maximum.
+
+**Steps**
+- Initialize a hash map, `maxFreq` to 0, and `total` to 0.
+- Iterate through the array:
+    - Increment the frequency of the current number.
+    - If the new frequency is greater than `maxFreq`, update `maxFreq` and reset `total` to this new frequency.
+    - If the new frequency equals `maxFreq`, add this frequency to `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def maxFrequencyElements(self, nums: List[int]) -&gt; int:\n        freq = defaultdict(int)\n        max_freq = 0\n        total = 0\n        \n        for num in nums:\n            freq[num] += 1\n            count = freq[num]\n            \n            if count &gt; max_freq:\n                max_freq = count\n                total = count\n            elif count == max_freq:\n                total += count\n                \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int maxFrequencyElements(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        int maxFreq = 0;\n        int total = 0;\n        \n        for (int num : nums) {\n            int count = freq.getOrDefault(num, 0) + 1;\n            freq.put(num, count);\n            \n            if (count &gt; maxFreq) {\n                maxFreq = count;\n                total = count;\n            } else if (count == maxFreq) {\n                total += count;\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxFrequencyElements(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        int maxFreq = 0;\n        int total = 0;\n        \n        for (int num : nums) {\n            int count = ++freq[num];\n            \n            if (count &gt; maxFreq) {\n                maxFreq = count;\n                total = count;\n            } else if (count == maxFreq) {\n                total += count;\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxFrequencyElements = function(nums) {\n    const freq = new Map();\n    let maxFreq = 0;\n    let total = 0;\n    \n    for (const num of nums) {\n        const count = (freq.get(num) || 0) + 1;\n        freq.set(num, count);\n        \n        if (count &gt; maxFreq) {\n            maxFreq = count;\n            total = count;\n        } else if (count === maxFreq) {\n            total += count;\n        }\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxFrequencyElements(nums: number[]): number {\n    const freq = new Map&lt;number, number&gt;();\n    let maxFreq = 0;\n    let total = 0;\n    \n    for (const num of nums) {\n        const count = (freq.get(num) || 0) + 1;\n        freq.set(num, count);\n        \n        if (count &gt; maxFreq) {\n            maxFreq = count;\n            total = count;\n        } else if (count === maxFreq) {\n            total += count;\n        }\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of elements in the array.
+- Space: O(n) to store the frequency map.
+- Notes: This is the most optimal approach for the general case, combining counting and aggregation in one pass.
+
+---
+## Fixed Array Counting
+
+**Intuition**
+Given the constraint `1 &lt;= nums[i] &lt;= 100`, the range of possible values is very small and fixed. We can use a fixed-size array (bucket) of size 101 instead of a hash map to count frequencies. This avoids the overhead of hashing and is slightly faster.
+
+**Steps**
+- Initialize an integer array `freq` of size 101 with zeros.
+- Iterate through `nums`, incrementing the index corresponding to the value.
+- Iterate through the `freq` array to find the maximum frequency.
+- Iterate through `freq` again to sum all values equal to the maximum frequency.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maxFrequencyElements(self, nums: List[int]) -&gt; int:\n        freq = [0] * 101\n        for num in nums:\n            freq[num] += 1\n        \n        max_freq = max(freq)\n        return sum(count for count in freq if count == max_freq)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxFrequencyElements(int[] nums) {\n        int[] freq = new int[101];\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        int maxFreq = 0;\n        for (int count : freq) {\n            maxFreq = Math.max(maxFreq, count);\n        }\n        \n        int total = 0;\n        for (int count : freq) {\n            if (count == maxFreq) {\n                total += count;\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxFrequencyElements(vector&lt;int&gt;& nums) {\n        int freq[101] = {0};\n        for (int num : nums) {\n            freq[num]++;\n        }\n        \n        int maxFreq = 0;\n        for (int i = 0; i &lt;= 100; i++) {\n            maxFreq = max(maxFreq, freq[i]);\n        }\n        \n        int total = 0;\n        for (int i = 0; i &lt;= 100; i++) {\n            if (freq[i] == maxFreq) {\n                total += freq[i];\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxFrequencyElements = function(nums) {\n    const freq = new Array(101).fill(0);\n    for (const num of nums) {\n        freq[num]++;\n    }\n    \n    let maxFreq = 0;\n    for (let i = 0; i &lt;= 100; i++) {\n        maxFreq = Math.max(maxFreq, freq[i]);\n    }\n    \n    let total = 0;\n    for (let i = 0; i &lt;= 100; i++) {\n        if (freq[i] === maxFreq) {\n            total += freq[i];\n        }\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxFrequencyElements(nums: number[]): number {\n    const freq = new Array(101).fill(0);\n    for (const num of nums) {\n        freq[num]++;\n    }\n    \n    let maxFreq = 0;\n    for (let i = 0; i &lt;= 100; i++) {\n        maxFreq = Math.max(maxFreq, freq[i]);\n    }\n    \n    let total = 0;\n    for (let i = 0; i &lt;= 100; i++) {\n        if (freq[i] === maxFreq) {\n            total += freq[i];\n        }\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k) where n is the array length and k is the value range (101). Since k is constant, this is O(n).
+- Space: O(k) for the fixed array, which is O(1) constant space.
+- Notes: This is highly efficient for this specific problem due to the tight constraints on input values.
+
+---
+## Sorting
+
+**Intuition**
+If we sort the array, identical elements will be grouped together. We can then iterate through the sorted array, counting the length of consecutive runs of the same number. We keep track of the maximum run length found so far and the sum of lengths of runs that match this maximum.
+
+**Steps**
+- Sort the input array.
+- Initialize `maxFreq`, `total`, and `currentCount` to 0.
+- Iterate through the sorted array:
+    - If the current number is the same as the previous, increment `currentCount`.
+    - Else, reset `currentCount` to 1.
+    - If `currentCount` &gt; `maxFreq`, update `maxFreq` and set `total` to `currentCount`.
+    - Else if `currentCount` == `maxFreq`, add `currentCount` to `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def maxFrequencyElements(self, nums: List[int]) -&gt; int:\n        nums.sort()\n        max_freq = 0\n        total = 0\n        curr_count = 0\n        \n        for i in range(len(nums)):\n            if i &gt; 0 and nums[i] == nums[i-1]:\n                curr_count += 1\n            else:\n                curr_count = 1\n            \n            if curr_count &gt; max_freq:\n                max_freq = curr_count\n                total = curr_count\n            elif curr_count == max_freq:\n                total += curr_count\n                \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int maxFrequencyElements(int[] nums) {\n        Arrays.sort(nums);\n        int maxFreq = 0;\n        int total = 0;\n        int currCount = 0;\n        \n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i &gt; 0 && nums[i] == nums[i - 1]) {\n                currCount++;\n            } else {\n                currCount = 1;\n            }\n            \n            if (currCount &gt; maxFreq) {\n                maxFreq = currCount;\n                total = currCount;\n            } else if (currCount == maxFreq) {\n                total += currCount;\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxFrequencyElements(vector&lt;int&gt;& nums) {\n        sort(nums.begin(), nums.end());\n        int maxFreq = 0;\n        int total = 0;\n        int currCount = 0;\n        \n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i &gt; 0 && nums[i] == nums[i - 1]) {\n                currCount++;\n            } else {\n                currCount = 1;\n            }\n            \n            if (currCount &gt; maxFreq) {\n                maxFreq = currCount;\n                total = currCount;\n            } else if (currCount == maxFreq) {\n                total += currCount;\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar maxFrequencyElements = function(nums) {\n    nums.sort((a, b) =&gt; a - b);\n    let maxFreq = 0;\n    let total = 0;\n    let currCount = 0;\n    \n    for (let i = 0; i &lt; nums.length; i++) {\n        if (i &gt; 0 && nums[i] === nums[i - 1]) {\n            currCount++;\n        } else {\n            currCount = 1;\n        }\n        \n        if (currCount &gt; maxFreq) {\n            maxFreq = currCount;\n            total = currCount;\n        } else if (currCount === maxFreq) {\n            total += currCount;\n        }\n    }\n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxFrequencyElements(nums: number[]): number {\n    nums.sort((a, b) =&gt; a - b);\n    let maxFreq = 0;\n    let total = 0;\n    let currCount = 0;\n    \n    for (let i = 0; i &lt; nums.length; i++) {\n        if (i &gt; 0 && nums[i] === nums[i - 1]) {\n            currCount++;\n        } else {\n            currCount = 1;\n        }\n        \n        if (currCount &gt; maxFreq) {\n            maxFreq = currCount;\n            total = currCount;\n        } else if (currCount === maxFreq) {\n            total += currCount;\n        }\n    }\n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(1) or O(n) depending on the sorting algorithm's memory usage.
+- Notes: While valid, this is less efficient than the counting approaches for this specific problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Elements With Maximum Frequency Solutions","datePublished":"2026-01-16","description":"Count the total frequency of elements in an array that appear the maximum number of times.","keywords":"LeetCode, Count Elements With Maximum Frequency, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of elements in the array."}},{"@type":"Question","name":"What is the space complexity of the Single Pass Optimization?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the frequency map."}},{"@type":"Question","name":"Why is Fixed Array Counting efficient here?","acceptedAnswer":{"@type":"Answer","text":"Because the input values are constrained between 1 and 100, allowing us to use a fixed-size array instead of a hash map, reducing overhead."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}}]}).replace(/</g,'\u003c')}
+</script>

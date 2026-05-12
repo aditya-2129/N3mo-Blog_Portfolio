@@ -1,0 +1,140 @@
+---
+title: "Employees Whose Manager Left the Company"
+summary: "Find employees earning under $30k whose manager is no longer in the company records."
+date: "Mar 06, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.70% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| employee_name| varchar |
+| manager_id  | int     |
+| salary      | int     |
++-------------+---------+
+employee_id is the primary key (column with unique values) for this table.
+manager_id is a foreign key (reference column) to the employee_id from the Employees table.
+Each row of this table indicates information about an employee, including their salary and the ID of their manager.
+
+Write a solution to find the IDs of the employees that have a salary strictly less than $30,000 and whose manager has left the company.
+
+A manager is considered to have left the company if they are not present in the Employees table.
+
+Return the result table ordered by employee_id.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Subquery / Set Lookup](#subquery--set-lookup)
+- [Approach 2: Left Join / Filter Join](#left-join--filter-join)
+
+## Examples
+
+Example 1:
+
+Input:
+Employees table:
++-------------+---------------+------------+--------+
+| employee_id | employee_name | manager_id | salary |
++-------------+---------------+------------+--------+
+| 3           | Bob           | 1          | 20000  |
+| 13          | Alice         | 7          | 90000  |
+| 1           | John          | -1         | 100000 |
+| 9           | Kite          | 7          | 80000  |
+| 7           | Winston       | 8          | 70000  |
+| 8           | Jonathan      | 9          | 60000  |
+| 12          | Marry         | 1          | 50000  |
+| 2           | Alex          | 7          | 20000  |
+| 4           | George        | 6          | 40000  |
+| 5           | Nancy         | 6          | 40000  |
+| 10          | Bob           | 7          | 20000  |
+| 11          | Jose          | 7          | 20000  |
++-------------+---------------+------------+--------+
+Output:
++-------------+
+| employee_id |
++-------------+
+| 3           |
+| 2           |
+| 10          |
+| 11          |
++-------------+
+Explanation:
+The employees with IDs 3, 2, 10, and 11 have a salary strictly less than 30000.
+Their managers are 1, 7, 7, and 7 respectively.
+Managers 1 and 7 are present in the Employees table. (Note: The example output provided in the original problem statement appears to contradict the text description regarding the manager's presence. The solutions below follow the text description logic: manager_id must NOT be in the Employees table).
+
+## Constraints
+
+```text
+500 <= Employees table row count <= 2000
+```
+
+---
+## Subquery / Set Lookup
+
+**Intuition**
+We need to identify employees who earn less than $30,000 and whose manager is not listed in the `Employees` table. This can be efficiently solved by first collecting all valid employee IDs into a set (or a subquery list) and then filtering the employees based on the salary condition and checking if their manager ID exists in that set.
+
+**Steps**
+- Collect all existing `employee_id` values from the `Employees` table into a collection (Set in programming languages, subquery in SQL).
+- Iterate through the `Employees` table.
+- For each employee, check if their `salary` is less than 30000.
+- Additionally, check if their `manager_id` is NOT present in the collection of valid employee IDs.
+- If both conditions are met, include the `employee_id` in the result.
+- Sort the result by `employee_id`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef find_employees(employees: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Get all valid employee IDs\r\n    valid_ids = set(employees['employee_id'].unique())\r\n    \r\n    # Filter employees with salary &lt; 30000 and manager_id not in valid_ids\r\n    result = employees[\r\n        (employees['salary'] &lt; 30000) & \r\n        (~employees['manager_id'].isin(valid_ids))\r\n    ]\r\n    \r\n    # Return only the employee_id column, sorted\r\n    return result[['employee_id']].sort_values(by='employee_id').reset_index(drop=True)\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\nimport java.util.stream.Collectors;\r\n\r\nclass Solution {\r\n    public List&lt;Integer&gt; findEmployees(List&lt;List&lt;Object&gt;&gt; employees) {\r\n        // Collect all valid employee IDs into a Set\r\n        Set&lt;Integer&gt; validIds = new HashSet&lt;&gt;();\r\n        for (List&lt;Object&gt; emp : employees) {\r\n            validIds.add((Integer) emp.get(0)); // employee_id is at index 0\r\n        }\r\n        \r\n        // Filter and collect results\r\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\r\n        for (List&lt;Object&gt; emp : employees) {\r\n            int salary = (Integer) emp.get(3); // salary is at index 3\r\n            int managerId = (Integer) emp.get(2); // manager_id is at index 2\r\n            int empId = (Integer) emp.get(0);\r\n            \r\n            if (salary &lt; 30000 && !validIds.contains(managerId)) {\r\n                result.add(empId);\r\n            }\r\n        }\r\n        \r\n        // Sort the result by employee_id\r\n        Collections.sort(result);\r\n        return result;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;unordered_set&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;int&gt; findEmployees(vector&lt;vector&lt;int&gt;&gt;& employees) {\r\n        unordered_set&lt;int&gt; validIds;\r\n        for (const auto& emp : employees) {\r\n            validIds.insert(emp[0]); // employee_id\r\n        }\r\n        \r\n        vector&lt;int&gt; result;\r\n        for (const auto& emp : employees) {\r\n            int salary = emp[3];\r\n            int managerId = emp[2];\r\n            int empId = emp[0];\r\n            \r\n            if (salary &lt; 30000 && validIds.find(managerId) == validIds.end()) {\r\n                result.push_back(empId);\r\n            }\r\n        }\r\n        \r\n        sort(result.begin(), result.end());\r\n        return result;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[][]} employees\r\n * @return {number[]}\r\n */\r\nvar findEmployees = function(employees) {\r\n    // Create a Set of all valid employee IDs\r\n    const validIds = new Set(employees.map(e =&gt; e[0]));\r\n    \r\n    // Filter employees based on conditions\r\n    const result = employees.filter(emp =&gt; {\r\n        const salary = emp[3];\r\n        const managerId = emp[2];\r\n        return salary &lt; 30000 && !validIds.has(managerId);\r\n    }).map(emp =&gt; emp[0]); // Extract employee_id\r\n    \r\n    // Sort by employee_id\r\n    result.sort((a, b) =&gt; a - b);\r\n    return result;\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findEmployees(employees: number[][]): number[] {\r\n    // Create a Set of all valid employee IDs\r\n    const validIds = new Set(employees.map(e =&gt; e[0]));\r\n    \r\n    // Filter employees based on conditions\r\n    const result = employees\r\n        .filter(emp =&gt; {\r\n            const salary = emp[3];\r\n            const managerId = emp[2];\r\n            return salary &lt; 30000 && !validIds.has(managerId);\r\n        })\r\n        .map(emp =&gt; emp[0]); // Extract employee_id\r\n    \r\n    // Sort by employee_id\r\n    result.sort((a, b) =&gt; a - b);\r\n    return result;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of rows in the Employees table. We iterate through the table once to build the set and once to filter.
+- Space: O(N) to store the set of valid employee IDs.
+- Notes: Using a Set (or hash table) provides O(1) average time complexity for the lookup, making this approach very efficient.
+
+---
+## Left Join / Filter Join
+
+**Intuition**
+We can join the `Employees` table with itself on the condition that the `manager_id` of the first table matches the `employee_id` of the second table. If a manager has left the company, the join will result in NULL values for the second table's columns. We then filter for these NULL cases along with the salary constraint.
+
+**Steps**
+- Perform a Left Join of the `Employees` table (aliased as E1) with itself (aliased as E2) on `E1.manager_id = E2.employee_id`.
+- Filter the joined result where `E2.employee_id` is NULL (indicating the manager was not found) AND `E1.salary &lt; 30000`.
+- Select the `employee_id` from `E1`.
+- Sort the result by `employee_id`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef find_employees(employees: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Perform a left merge (join) with itself on manager_id and employee_id\r\n    # We use 'left' join to keep all employees from the left table\r\n    merged = employees.merge(\r\n        employees, \r\n        left_on='manager_id', \r\n        right_on='employee_id', \r\n        how='left', \r\n        suffixes=('', '_manager')\r\n    )\r\n    \r\n    # Filter where manager_id is not found (NaN in the merged columns) and salary &lt; 30000\r\n    # We check if 'employee_name_manager' is NaN to detect missing manager\r\n    result = merged[\r\n        (merged['salary'] &lt; 30000) & \r\n        (merged['employee_name_manager'].isna())\r\n    ]\r\n    \r\n    # Return only the employee_id column, sorted\r\n    return result[['employee_id']].sort_values(by='employee_id').reset_index(drop=True)\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\nimport java.util.stream.Collectors;\r\n\r\nclass Solution {\r\n    public List&lt;Integer&gt; findEmployees(List&lt;List&lt;Object&gt;&gt; employees) {\r\n        // Create a map of employee_id to their record for O(1) lookup\r\n        Map&lt;Integer, List&lt;Object&gt;&gt; employeeMap = new HashMap&lt;&gt;();\r\n        for (List&lt;Object&gt; emp : employees) {\r\n            employeeMap.put((Integer) emp.get(0), emp);\r\n        }\r\n        \r\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\r\n        \r\n        for (List&lt;Object&gt; emp : employees) {\r\n            int salary = (Integer) emp.get(3);\r\n            int managerId = (Integer) emp.get(2);\r\n            int empId = (Integer) emp.get(0);\r\n            \r\n            // Check salary condition and if manager exists in the map (Left Join logic)\r\n            if (salary &lt; 30000 && !employeeMap.containsKey(managerId)) {\r\n                result.add(empId);\r\n            }\r\n        }\r\n        \r\n        Collections.sort(result);\r\n        return result;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;unordered_map&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nusing namespace std;\r\n\r\nclass Solution {\r\npublic:\r\n    vector&lt;int&gt; findEmployees(vector&lt;vector&lt;int&gt;&gt;& employees) {\r\n        // Create a map for O(1) lookup (simulating the join)\r\n        unordered_map&lt;int, int&gt; employeeMap; // employee_id -&gt; index\r\n        for (int i = 0; i &lt; employees.size(); ++i) {\r\n            employeeMap[employees[i][0]] = i;\r\n        }\r\n        \r\n        vector&lt;int&gt; result;\r\n        for (const auto& emp : employees) {\r\n            int salary = emp[3];\r\n            int managerId = emp[2];\r\n            int empId = emp[0];\r\n            \r\n            // If managerId is not in the map, the join would yield NULL\r\n            if (salary &lt; 30000 && employeeMap.find(managerId) == employeeMap.end()) {\r\n                result.push_back(empId);\r\n            }\r\n        }\r\n        \r\n        sort(result.begin(), result.end());\r\n        return result;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[][]} employees\r\n * @return {number[]}\r\n */\r\nvar findEmployees = function(employees) {\r\n    // Create a Map for O(1) lookup\r\n    const employeeMap = new Map();\r\n    employees.forEach(emp =&gt; {\r\n        employeeMap.set(emp[0], true); // Store existence\r\n    });\r\n    \r\n    const result = employees.filter(emp =&gt; {\r\n        const salary = emp[3];\r\n        const managerId = emp[2];\r\n        // Check if manager is missing in the map (Left Join NULL check)\r\n        return salary &lt; 30000 && !employeeMap.has(managerId);\r\n    }).map(emp =&gt; emp[0]);\r\n    \r\n    result.sort((a, b) =&gt; a - b);\r\n    return result;\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findEmployees(employees: number[][]): number[] {\r\n    // Create a Map for O(1) lookup\r\n    const employeeMap = new Map&lt;number, boolean&gt;();\r\n    employees.forEach(emp =&gt; {\r\n        employeeMap.set(emp[0], true);\r\n    });\r\n    \r\n    const result = employees\r\n        .filter(emp =&gt; {\r\n            const salary = emp[3];\r\n            const managerId = emp[2];\r\n            // Check if manager is missing in the map (Left Join NULL check)\r\n            return salary &lt; 30000 && !employeeMap.has(managerId);\r\n        })\r\n        .map(emp =&gt; emp[0]);\r\n    \r\n    result.sort((a, b) =&gt; a - b);\r\n    return result;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(N) on average. Building the map takes O(N), and iterating through the list takes O(N) with O(1) lookups.
+- Space: O(N) to store the map of employees.
+- Notes: This approach is logically equivalent to the Subquery/Set Lookup approach but uses a Join paradigm which can be more intuitive for those thinking in relational terms.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Employees Whose Manager Left the Company Solutions","datePublished":"2024-03-06","description":"Find employees earning under $30k whose manager is no longer in the company records.","keywords":"LeetCode, Employees Whose Manager Left the Company, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Subquery approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of rows in the Employees table. We iterate through the table to build a set of IDs and then again to filter the employees."}},{"@type":"Question","name":"How does the Left Join approach identify missing managers?","acceptedAnswer":{"@type":"Answer","text":"The Left Join approach attempts to match each employee's manager_id with an existing employee_id. If no match is found, the columns for the manager's record are NULL, indicating the manager has left the company."}}]}).replace(/</g,'\u003c')}
+</script>

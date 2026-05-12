@@ -1,0 +1,140 @@
+---
+title: "Count Complete Tree Nodes"
+summary: "Given the root of a complete binary tree, return the number of nodes in the tree efficiently without traversing all nodes."
+date: "Mar 08, 2026"
+tags:
+  - Binary Search
+  - Bit Manipulation
+  - Tree
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.50% | **Paid:** No
+> **Topics:** Binary Search, Bit Manipulation, Tree, Binary Tree
+
+Given the root of a complete binary tree, return the number of nodes in the tree.
+
+A complete binary tree is a binary tree in which every level, except possibly the last, is completely filled, and all nodes in the last level are as far left as possible.
+
+Design an algorithm that runs in less than O(n) time complexity.
+
+- Examples
+- Constraints
+- [Brute Force (DFS)](#brute-force-dfs)
+- [Binary Search on Last Level](#binary-search-on-last-level)
+- [Recursive Divide and Conquer](#recursive-divide-and-conquer)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [1,2,3,4,5,6]
+Output: 6
+```
+
+**Example 2:**
+
+```text
+Input: root = []
+Output: 0
+```
+
+**Example 3:**
+
+```text
+Input: root = [1]
+Output: 1
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 5 * 10^4].
+0 <= Node.val <= 5 * 10^4
+The tree is guaranteed to be a complete binary tree.
+```
+
+---
+## Brute Force (DFS)
+
+**Intuition**
+The simplest way to count nodes is to traverse the entire tree using Depth First Search (DFS), visiting every node exactly once and incrementing a counter.
+
+**Steps**
+- If the root is null, return 0.
+- Recursively count nodes in the left subtree.
+- Recursively count nodes in the right subtree.
+- Return the sum of left count, right count, and 1 (for the current node).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countNodes(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        return 1 + self.countNodes(root.left) + self.countNodes(root.right)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countNodes(TreeNode root) {\n        if (root == null) return 0;\n        return 1 + countNodes(root.left) + countNodes(root.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countNodes(TreeNode* root) {\n        if (!root) return 0;\n        return 1 + countNodes(root-&gt;left) + countNodes(root-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countNodes = function(root) {\n    if (!root) return 0;\n    return 1 + countNodes(root.left) + countNodes(root.right);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countNodes(root: TreeNode | null): number {\n    if (!root) return 0;\n    return 1 + countNodes(root.left) + countNodes(root.right);\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes.
+- Space: O(H) where H is the height of the tree, for the recursion stack.
+- Notes: This approach visits every node, which is inefficient for large complete trees.
+
+---
+## Binary Search on Last Level
+
+**Intuition**
+In a complete binary tree, all levels except the last are fully filled. The last level is filled from left to right. We can calculate the number of nodes in the upper levels (2ʰ - 1) and use binary search to determine how many nodes exist in the last level.
+
+**Steps**
+- Calculate the depth `d` of the tree (the number of edges from root to the deepest leaf).
+- If depth is 0, return 1.
+- The number of nodes in the last level can range from 1 to 2ᵈ. Perform a binary search on the index of the last node (0 to 2ᵈ - 1).
+- For each midpoint index, check if a node exists at that position in the last level by traversing the path determined by the binary representation of the index.
+- If the node exists, search the right half; otherwise, search the left half.
+- The total nodes is the sum of nodes in upper levels and the count found in the last level.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countNodes(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        def depth(node):\n            d = 0\n            while node.left:\n                node = node.left\n                d += 1\n            return d\n        \n        d = depth(root)\n        \n        if d == 0:\n            return 1\n        \n        def exists(idx, d, node):\n            left, right = 0, 2**d - 1\n            for _ in range(d):\n                mid = (left + right) // 2\n                if idx &lt;= mid:\n                    node = node.left\n                    right = mid\n                else:\n                    node = node.right\n                    left = mid + 1\n            return node is not None\n        \n        left, right = 0, 2**d - 1\n        while left &lt;= right:\n            mid = (left + right) // 2\n            if exists(mid, d, root):\n                left = mid + 1\n            else:\n                right = mid - 1\n        \n        return (2**d - 1) + left" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countNodes(TreeNode root) {\n        if (root == null) return 0;\n        \n        int d = depth(root);\n        if (d == 0) return 1;\n        \n        int left = 0, right = (1 &lt;&lt; d) - 1;\n        while (left &lt;= right) {\n            int mid = left + (right - left) / 2;\n            if (exists(mid, d, root)) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        return (1 &lt;&lt; d) - 1 + left;\n    }\n    \n    private int depth(TreeNode node) {\n        int d = 0;\n        while (node.left != null) {\n            node = node.left;\n            d++;\n        }\n        return d;\n    }\n    \n    private boolean exists(int idx, int d, TreeNode node) {\n        int left = 0, right = (1 &lt;&lt; d) - 1;\n        for (int i = 0; i &lt; d; i++) {\n            int mid = left + (right - left) / 2;\n            if (idx &lt;= mid) {\n                node = node.left;\n                right = mid;\n            } else {\n                node = node.right;\n                left = mid + 1;\n            }\n        }\n        return node != null;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countNodes(TreeNode* root) {\n        if (!root) return 0;\n        \n        int d = depth(root);\n        if (d == 0) return 1;\n        \n        int left = 0, right = (1 &lt;&lt; d) - 1;\n        while (left &lt;= right) {\n            int mid = left + (right - left) / 2;\n            if (exists(mid, d, root)) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        return (1 &lt;&lt; d) - 1 + left;\n    }\n    \nprivate:\n    int depth(TreeNode* node) {\n        int d = 0;\n        while (node-&gt;left) {\n            node = node-&gt;left;\n            d++;\n        }\n        return d;\n    }\n    \n    bool exists(int idx, int d, TreeNode* node) {\n        int left = 0, right = (1 &lt;&lt; d) - 1;\n        for (int i = 0; i &lt; d; i++) {\n            int mid = left + (right - left) / 2;\n            if (idx &lt;= mid) {\n                node = node-&gt;left;\n                right = mid;\n            } else {\n                node = node-&gt;right;\n                left = mid + 1;\n            }\n        }\n        return node != nullptr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countNodes = function(root) {\n    if (!root) return 0;\n    \n    const depth = (node) =&gt; {\n        let d = 0;\n        while (node.left) {\n            node = node.left;\n            d++;\n        }\n        return d;\n    };\n    \n    const exists = (idx, d, node) =&gt; {\n        let left = 0, right = Math.pow(2, d) - 1;\n        for (let i = 0; i &lt; d; i++) {\n            const mid = Math.floor((left + right) / 2);\n            if (idx &lt;= mid) {\n                node = node.left;\n                right = mid;\n            } else {\n                node = node.right;\n                left = mid + 1;\n            }\n        }\n        return node !== null;\n    };\n    \n    const d = depth(root);\n    if (d === 0) return 1;\n    \n    let left = 0, right = Math.pow(2, d) - 1;\n    while (left &lt;= right) {\n        const mid = Math.floor((left + right) / 2);\n        if (exists(mid, d, root)) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n    return Math.pow(2, d) - 1 + left;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countNodes(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const depth = (node: TreeNode | null): number =&gt; {\n        let d = 0;\n        while (node && node.left) {\n            node = node.left;\n            d++;\n        }\n        return d;\n    };\n    \n    const exists = (idx: number, d: number, node: TreeNode | null): boolean =&gt; {\n        let left = 0, right = Math.pow(2, d) - 1;\n        for (let i = 0; i &lt; d; i++) {\n            const mid = Math.floor((left + right) / 2);\n            if (idx &lt;= mid) {\n                node = node.left;\n                right = mid;\n            } else {\n                node = node.right;\n                left = mid + 1;\n            }\n        }\n        return node !== null;\n    };\n    \n    const d = depth(root);\n    if (d === 0) return 1;\n    \n    let left = 0, right = Math.pow(2, d) - 1;\n    while (left &lt;= right) {\n        const mid = Math.floor((left + right) / 2);\n        if (exists(mid, d, root)) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n    return Math.pow(2, d) - 1 + left;\n}" },]} />
+
+**Complexity**
+- Time: O(log² N) - We perform binary search (O(log N)) and for each check, we traverse the height of the tree (O(log N)).
+- Space: O(1) - Iterative approach uses constant space.
+- Notes: Efficiently handles the constraint of not visiting all nodes.
+
+---
+## Recursive Divide and Conquer
+
+**Intuition**
+We can leverage the property of complete binary trees recursively. If the left and right subtrees of a node have the same height, the left subtree is a perfect binary tree. If they differ, the right subtree is a perfect binary tree. We can calculate the nodes in a perfect tree instantly using 2ʰ - 1.
+
+**Steps**
+- Define a helper function to compute the height of a tree by going only to the left.
+- Compare the height of the left and right subtrees of the current root.
+- If heights are equal, the left subtree is perfect. Total nodes = nodes in left perfect tree + 1 (root) + nodes in right subtree.
+- If heights are not equal, the right subtree is perfect. Total nodes = nodes in right perfect tree + 1 (root) + nodes in left subtree.
+- Recurse until the base case (null node).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countNodes(self, root: Optional[TreeNode]) -&gt; int:\n        if not root:\n            return 0\n        \n        left_depth = self.get_depth(root.left)\n        right_depth = self.get_depth(root.right)\n        \n        if left_depth == right_depth:\n            return (1 &lt;&lt; left_depth) + self.countNodes(root.right)\n        else:\n            return (1 &lt;&lt; right_depth) + self.countNodes(root.left)\n    \n    def get_depth(self, node):\n        depth = 0\n        while node:\n            node = node.left\n            depth += 1\n        return depth" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countNodes(TreeNode root) {\n        if (root == null) return 0;\n        \n        int leftDepth = getDepth(root.left);\n        int rightDepth = getDepth(root.right);\n        \n        if (leftDepth == rightDepth) {\n            return (1 &lt;&lt; leftDepth) + countNodes(root.right);\n        } else {\n            return (1 &lt;&lt; rightDepth) + countNodes(root.left);\n        }\n    }\n    \n    private int getDepth(TreeNode node) {\n        int depth = 0;\n        while (node != null) {\n            node = node.left;\n            depth++;\n        }\n        return depth;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countNodes(TreeNode* root) {\n        if (!root) return 0;\n        \n        int leftDepth = getDepth(root-&gt;left);\n        int rightDepth = getDepth(root-&gt;right);\n        \n        if (leftDepth == rightDepth) {\n            return (1 &lt;&lt; leftDepth) + countNodes(root-&gt;right);\n        } else {\n            return (1 &lt;&lt; rightDepth) + countNodes(root-&gt;left);\n        }\n    }\n    \nprivate:\n    int getDepth(TreeNode* node) {\n        int depth = 0;\n        while (node) {\n            node = node-&gt;left;\n            depth++;\n        }\n        return depth;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countNodes = function(root) {\n    if (!root) return 0;\n    \n    const leftDepth = getDepth(root.left);\n    const rightDepth = getDepth(root.right);\n    \n    if (leftDepth === rightDepth) {\n        return (1 &lt;&lt; leftDepth) + countNodes(root.right);\n    } else {\n        return (1 &lt;&lt; rightDepth) + countNodes(root.left);\n    }\n};\n\nfunction getDepth(node) {\n    let depth = 0;\n    while (node) {\n        node = node.left;\n        depth++;\n    }\n    return depth;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function countNodes(root: TreeNode | null): number {\n    if (!root) return 0;\n    \n    const leftDepth = getDepth(root.left);\n    const rightDepth = getDepth(root.right);\n    \n    if (leftDepth === rightDepth) {\n        return (1 &lt;&lt; leftDepth) + countNodes(root.right);\n    } else {\n        return (1 &lt;&lt; rightDepth) + countNodes(root.left);\n    }\n}\n\nfunction getDepth(node: TreeNode | null): number {\n    let depth = 0;\n    while (node) {\n        node = node.left;\n        depth++;\n    }\n    return depth;\n}" },]} />
+
+**Complexity**
+- Time: O(log² N) - We visit O(log N) nodes, and for each node, we calculate depth which takes O(log N).
+- Space: O(log N) - Recursion stack depth is proportional to the height of the tree.
+- Notes: This is a clean recursive solution that optimizes by skipping perfect subtrees.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Complete Tree Nodes Solutions","datePublished":"2026-03-08","description":"Given the root of a complete binary tree, return the number of nodes in the tree efficiently without traversing all nodes.","keywords":"LeetCode, Count Complete Tree Nodes, Easy, Binary Search, Bit Manipulation, Tree, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(N), where N is the number of nodes in the tree."}},{"@type":"Question","name":"What is the time complexity of the Binary Search on Last Level approach?","acceptedAnswer":{"@type":"Answer","text":"O(log² N), as we perform binary search on the last level and traverse the height of the tree for each check."}},{"@type":"Question","name":"What is the time complexity of the Recursive Divide and Conquer approach?","acceptedAnswer":{"@type":"Answer","text":"O(log² N), because we visit O(log N) nodes and calculating the depth for each takes O(log N) time."}}]}).replace(/</g,'\u003c')}
+</script>

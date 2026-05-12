@@ -1,0 +1,132 @@
+---
+title: "Number of Even and Odd Bits"
+summary: "Count the number of 1s at even and odd positions in the binary representation of a given positive integer."
+date: "Dec 07, 2025"
+tags:
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.50% | **Paid:** No
+> **Topics:** Bit Manipulation
+
+You are given a positive integer n.
+
+Return an array answer where answer[0] is the number of even-numbered bits set to 1 in the binary representation of n and answer[1] is the number of odd-numbered bits set to 1 in the binary representation of n.
+
+The 0th bit is considered even.
+
+- Examples
+- Constraints
+- [Bit Manipulation with Shifting](#bit-manipulation-with-shifting)
+- [Bit Manipulation with Masking](#bit-manipulation-with-masking)
+- [String Conversion](#string-conversion)
+
+## Examples
+
+```text
+Input: n = 17
+Output: [2,0]
+Explanation: The binary representation of 17 is 10001.
+- The 0th and 4th bits are set to 1 (both are even-numbered bits).
+- The 1st, 2nd, and 3rd bits are set to 0.
+- So answer[0] = 2 and answer[1] = 0.
+```
+
+```text
+Input: n = 2
+Output: [0,1]
+Explanation: The binary representation of 2 is 10.
+- The 0th bit is set to 0.
+- The 1st bit is set to 1 (odd-numbered bit).
+- So answer[0] = 0 and answer[1] = 1.
+```
+
+## Constraints
+
+```text
+1 <= n <= 1000
+```
+
+---
+## Bit Manipulation with Shifting
+
+**Intuition**
+Iterate through each bit position by right-shifting the number, checking if the least significant bit is set, and incrementing the appropriate counter based on position parity.
+
+**Steps**
+- Initialize counters for even and odd positions
+- While n is greater than 0, check if the least significant bit is set using bitwise AND
+- If set, increment even or odd counter based on current position
+- Right-shift n and increment position counter
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def evenOddBit(self, n: int) -&gt; list[int]:\n        even = odd = 0\n        pos = 0\n        while n:\n            if n & 1:\n                if pos % 2 == 0:\n                    even += 1\n                else:\n                    odd += 1\n            n &gt;&gt;= 1\n            pos += 1\n        return [even, odd]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] evenOddBit(int n) {\n        int even = 0, odd = 0;\n        int pos = 0;\n        while (n &gt; 0) {\n            if ((n & 1) == 1) {\n                if (pos % 2 == 0) {\n                    even++;\n                } else {\n                    odd++;\n                }\n            }\n            n &gt;&gt;= 1;\n            pos++;\n        }\n        return new int[]{even, odd};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; evenOddBit(int n) {\n        int even = 0, odd = 0;\n        int pos = 0;\n        while (n &gt; 0) {\n            if (n & 1) {\n                if (pos % 2 == 0) {\n                    even++;\n                } else {\n                    odd++;\n                }\n            }\n            n &gt;&gt;= 1;\n            pos++;\n        }\n        return {even, odd};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number[]}\n */\nvar evenOddBit = function(n) {\n    let even = 0, odd = 0;\n    let pos = 0;\n    while (n &gt; 0) {\n        if (n & 1) {\n            if (pos % 2 === 0) {\n                even++;\n            } else {\n                odd++;\n            }\n        }\n        n &gt;&gt;= 1;\n        pos++;\n    }\n    return [even, odd];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function evenOddBit(n: number): number[] {\n    let even = 0, odd = 0;\n    let pos = 0;\n    while (n &gt; 0) {\n        if (n & 1) {\n            if (pos % 2 === 0) {\n                even++;\n            } else {\n                odd++;\n            }\n        }\n        n &gt;&gt;= 1;\n        pos++;\n    }\n    return [even, odd];\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - we process each bit of n
+- Space: O(1) - only using constant extra space
+- Notes: Simple and intuitive approach with minimal operations
+
+---
+## Bit Manipulation with Masking
+
+**Intuition**
+Use bitmask patterns to extract all even-positioned bits and odd-positioned bits separately, then count the set bits in each result.
+
+**Steps**
+- Create mask for even positions (0x55555555 = 01010101... in binary)
+- Create mask for odd positions (0xAAAAAAAA = 10101010... in binary)
+- Apply masks to n using bitwise AND to isolate even and odd bits
+- Count the number of set bits in each masked result
+- Return the counts as an array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def evenOddBit(self, n: int) -&gt; list[int]:\n        even_mask = 0x55555555  # 01010101... in binary\n        odd_mask = 0xAAAAAAAA   # 10101010... in binary\n        \n        even_bits = n & even_mask\n        odd_bits = n & odd_mask\n        \n        # Count set bits\n        even_count = bin(even_bits).count('1')\n        odd_count = bin(odd_bits).count('1')\n        \n        return [even_count, odd_count]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] evenOddBit(int n) {\n        int evenMask = 0x55555555;  // 01010101... in binary\n        int oddMask = 0xAAAAAAAA;   // 10101010... in binary\n        \n        int evenBits = n & evenMask;\n        int oddBits = n & oddMask;\n        \n        // Count set bits using Brian Kernighan's algorithm\n        int evenCount = 0, oddCount = 0;\n        while (evenBits &gt; 0) {\n            evenBits &= (evenBits - 1);\n            evenCount++;\n        }\n        while (oddBits &gt; 0) {\n            oddBits &= (oddBits - 1);\n            oddCount++;\n        }\n        \n        return new int[]{evenCount, oddCount};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; evenOddBit(int n) {\n        int evenMask = 0x55555555;  // 01010101... in binary\n        int oddMask = 0xAAAAAAAA;   // 10101010... in binary\n        \n        int evenBits = n & evenMask;\n        int oddBits = n & oddMask;\n        \n        // Count set bits using __builtin_popcount\n        int evenCount = __builtin_popcount(evenBits);\n        int oddCount = __builtin_popcount(oddBits);\n        \n        return {evenCount, oddCount};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number[]}\n */\nvar evenOddBit = function(n) {\n    const evenMask = 0x55555555;  // 01010101... in binary\n    const oddMask = 0xAAAAAAAA;   // 10101010... in binary\n    \n    const evenBits = n & evenMask;\n    const oddBits = n & oddMask;\n    \n    // Count set bits\n    const countBits = (x) =&gt; {\n        let count = 0;\n        while (x &gt; 0) {\n            x &= (x - 1);\n            count++;\n        }\n        return count;\n    };\n    \n    return [countBits(evenBits), countBits(oddBits)];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function evenOddBit(n: number): number[] {\n    const evenMask = 0x55555555;  // 01010101... in binary\n    const oddMask = 0xAAAAAAAA;   // 10101010... in binary\n    \n    const evenBits = n & evenMask;\n    const oddBits = n & oddMask;\n    \n    // Count set bits\n    const countBits = (x: number): number =&gt; {\n        let count = 0;\n        while (x &gt; 0) {\n            x &= (x - 1);\n            count++;\n        }\n        return count;\n    };\n    \n    return [countBits(evenBits), countBits(oddBits)];\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - bit counting takes time proportional to number of set bits
+- Space: O(1) - only using constant extra space
+- Notes: Elegant solution using bitmask patterns, efficient for sparse bit patterns
+
+---
+## String Conversion
+
+**Intuition**
+Convert the number to its binary string representation, reverse it so the least significant bit is at index 0, then iterate through characters counting 1s at even and odd indices.
+
+**Steps**
+- Convert n to binary string representation
+- Reverse the string so index 0 corresponds to the 0th bit (LSB)
+- Iterate through each character in the reversed string
+- If character is '1', increment even or odd counter based on index
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def evenOddBit(self, n: int) -&gt; list[int]:\n        binary = bin(n)[2:]  # Remove '0b' prefix\n        binary = binary[::-1]  # Reverse to have LSB at index 0\n        \n        even = odd = 0\n        for i, bit in enumerate(binary):\n            if bit == '1':\n                if i % 2 == 0:\n                    even += 1\n                else:\n                    odd += 1\n        return [even, odd]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] evenOddBit(int n) {\n        String binary = Integer.toBinaryString(n);\n        StringBuilder sb = new StringBuilder(binary).reverse();\n        \n        int even = 0, odd = 0;\n        for (int i = 0; i &lt; sb.length(); i++) {\n            if (sb.charAt(i) == '1') {\n                if (i % 2 == 0) {\n                    even++;\n                } else {\n                    odd++;\n                }\n            }\n        }\n        return new int[]{even, odd};\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; evenOddBit(int n) {\n        string binary = bitset&lt;32&gt;(n).to_string();\n        reverse(binary.begin(), binary.end());\n        \n        int even = 0, odd = 0;\n        for (int i = 0; i &lt; binary.size(); i++) {\n            if (binary[i] == '1') {\n                if (i % 2 == 0) {\n                    even++;\n                } else {\n                    odd++;\n                }\n            }\n        }\n        return {even, odd};\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number[]}\n */\nvar evenOddBit = function(n) {\n    const binary = n.toString(2).split('').reverse();\n    \n    let even = 0, odd = 0;\n    for (let i = 0; i &lt; binary.length; i++) {\n        if (binary[i] === '1') {\n            if (i % 2 === 0) {\n                even++;\n            } else {\n                odd++;\n            }\n        }\n    }\n    return [even, odd];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function evenOddBit(n: number): number[] {\n    const binary = n.toString(2).split('').reverse();\n    \n    let even = 0, odd = 0;\n    for (let i = 0; i &lt; binary.length; i++) {\n        if (binary[i] === '1') {\n            if (i % 2 === 0) {\n                even++;\n            } else {\n                odd++;\n            }\n        }\n    }\n    return [even, odd];\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - converting to binary and iterating through bits
+- Space: O(log n) - storing the binary string representation
+- Notes: More readable but uses extra space for string storage
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Even and Odd Bits Solutions","datePublished":"2025-12-07","description":"Count the number of 1s at even and odd positions in the binary representation of a given positive integer.","keywords":"LeetCode, Number of Even and Odd Bits, Easy, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Bit Manipulation with Shifting approach?","acceptedAnswer":{"@type":"Answer","text":"O(log n) - we process each bit of n."}},{"@type":"Question","name":"What is the time complexity of Bit Manipulation with Masking approach?","acceptedAnswer":{"@type":"Answer","text":"O(log n) - bit counting takes time proportional to number of set bits."}},{"@type":"Question","name":"What is the time complexity of String Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"O(log n) - converting to binary and iterating through bits."}},{"@type":"Question","name":"Which approach uses the least space?","acceptedAnswer":{"@type":"Answer","text":"Bit Manipulation with Shifting and Masking both use O(1) space, while String Conversion uses O(log n) space."}}]}).replace(/</g,'\u003c')}
+</script>

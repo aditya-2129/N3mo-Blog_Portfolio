@@ -1,0 +1,138 @@
+---
+title: "Number of Steps to Reduce a Number to Zero"
+summary: "Given an integer num, return the number of steps to reduce it to zero. If even, divide by 2; otherwise, subtract 1."
+date: "Mar 06, 2024"
+tags:
+  - Math
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.80% | **Paid:** No
+> **Topics:** Math, Bit Manipulation
+
+Given an integer num, return the number of steps to reduce it to zero.
+
+In one step, if the current number is even, you have to divide it by 2, otherwise you have to subtract 1 from it.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation](#approach-1-simulation)
+- [Approach 2: Bit Manipulation](#approach-2-bit-manipulation)
+- [Approach 3: Recursion](#approach-3-recursion)
+
+## Examples
+
+```text
+Input: num = 14
+Output: 6
+Explanation: 
+Step 1) 14 is even; divide by 2 and obtain 7. 
+Step 2) 7 is odd; subtract 1 and obtain 6.
+Step 3) 6 is even; divide by 2 and obtain 3. 
+Step 4) 3 is odd; subtract 1 and obtain 2. 
+Step 5) 2 is even; divide by 2 and obtain 1. 
+Step 6) 1 is odd; subtract 1 and obtain 0.
+```
+
+```text
+Input: num = 8
+Output: 4
+Explanation:
+Step 1) 8 is even; divide by 2 and obtain 4. 
+Step 2) 4 is even; divide by 2 and obtain 2. 
+Step 3) 2 is even; divide by 2 and obtain 1. 
+Step 4) 1 is odd; subtract 1 and obtain 0.
+```
+
+```text
+Input: num = 123
+Output: 12
+```
+
+## Constraints
+
+```text
+0 <= num <= 10⁶
+```
+
+---
+## Approach 1: Simulation
+
+**Intuition**
+We can directly simulate the process described in the problem statement. We iterate until the number becomes zero, checking if it is even or odd at each step and applying the corresponding operation.
+
+**Steps**
+- Initialize a counter `steps` to 0.
+- Loop while `num` is greater than 0.
+- If `num` is even, divide it by 2.
+- If `num` is odd, subtract 1 from it.
+- Increment `steps` in every iteration.
+- Return `steps`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def numberOfSteps(self, num: int) -&gt; int:\n        steps = 0\n        while num &gt; 0:\n            if num % 2 == 0:\n                num //= 2\n            else:\n                num -= 1\n            steps += 1\n        return steps" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int numberOfSteps(int num) {\n        int steps = 0;\n        while (num &gt; 0) {\n            if (num % 2 == 0) {\n                num /= 2;\n            } else {\n                num -= 1;\n            }\n            steps++;\n        }\n        return steps;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int numberOfSteps(int num) {\n        int steps = 0;\n        while (num &gt; 0) {\n            if (num % 2 == 0) {\n                num /= 2;\n            } else {\n                num -= 1;\n            }\n            steps++;\n        }\n        return steps;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar numberOfSteps = function(num) {\n    let steps = 0;\n    while (num &gt; 0) {\n        if (num % 2 === 0) {\n            num /= 2;\n        } else {\n            num -= 1;\n        }\n        steps++;\n    }\n    return steps;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numberOfSteps(num: number): number {\n    let steps = 0;\n    while (num &gt; 0) {\n        if (num % 2 === 0) {\n            num /= 2;\n        } else {\n            num -= 1;\n        }\n        steps++;\n    }\n    return steps;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - In the worst case, we divide by 2 repeatedly.
+- Space: O(1) - We only use a few variables.
+- Notes: This is the most straightforward approach.
+
+---
+## Approach 2: Bit Manipulation
+
+**Intuition**
+The operations described correspond directly to binary bit manipulation. Dividing by 2 is a right shift, and subtracting 1 clears the least significant bit (LSB). The total steps equal the number of bits (for shifts) plus the number of 1s (for subtractions).
+
+**Steps**
+- If `num` is 0, return 0.
+- Count the number of 1-bits in `num` (let's call it `ones`).
+- Calculate the length of the binary representation of `num` (let's call it `bits`).
+- The result is `(bits - 1) + ones`. We subtract 1 from `bits` because the most significant bit does not require a shift step to disappear (it is handled by the final subtraction).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def numberOfSteps(self, num: int) -&gt; int:\n        if num == 0:\n            return 0\n        # bin(num) returns string like '0b101', count '1's\n        ones = bin(num).count('1')\n        # len(bin(num)) - 2 removes '0b' prefix\n        bits = len(bin(num)) - 2\n        return (bits - 1) + ones" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int numberOfSteps(int num) {\n        if (num == 0) {\n            return 0;\n        }\n        int ones = Integer.bitCount(num);\n        int bits = 32 - Integer.numberOfLeadingZeros(num);\n        return (bits - 1) + ones;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int numberOfSteps(int num) {\n        if (num == 0) {\n            return 0;\n        }\n        int ones = __builtin_popcount(num);\n        int bits = 32 - __builtin_clz(num);\n        return (bits - 1) + ones;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar numberOfSteps = function(num) {\n    if (num === 0) {\n        return 0;\n    }\n    const binary = num.toString(2);\n    const ones = (binary.match(/1/g) || []).length;\n    const bits = binary.length;\n    return (bits - 1) + ones;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numberOfSteps(num: number): number {\n    if (num === 0) {\n        return 0;\n    }\n    const binary = num.toString(2);\n    const ones = (binary.match(/1/g) || []).length;\n    const bits = binary.length;\n    return (bits - 1) + ones;\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - Converting to binary or counting bits takes time proportional to the number of bits.
+- Space: O(1) - Constant extra space (ignoring space for string conversion in JS/TS).
+- Notes: This is mathematically the most efficient approach, often faster in practice due to CPU bit-counting instructions.
+
+---
+## Approach 3: Recursion
+
+**Intuition**
+We can solve the problem using recursion by breaking it down into smaller sub-problems. If the number is even, we solve for `num / 2` and add 1 step. If odd, we solve for `num - 1` and add 1 step.
+
+**Steps**
+- Base case: if `num` is 0, return 0.
+- If `num` is even, return `1 + numberOfSteps(num / 2)`.
+- If `num` is odd, return `1 + numberOfSteps(num - 1)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def numberOfSteps(self, num: int) -&gt; int:\n        if num == 0:\n            return 0\n        if num % 2 == 0:\n            return 1 + self.numberOfSteps(num // 2)\n        else:\n            return 1 + self.numberOfSteps(num - 1)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int numberOfSteps(int num) {\n        if (num == 0) {\n            return 0;\n        }\n        if (num % 2 == 0) {\n            return 1 + numberOfSteps(num / 2);\n        } else {\n            return 1 + numberOfSteps(num - 1);\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int numberOfSteps(int num) {\n        if (num == 0) {\n            return 0;\n        }\n        if (num % 2 == 0) {\n            return 1 + numberOfSteps(num / 2);\n        } else {\n            return 1 + numberOfSteps(num - 1);\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar numberOfSteps = function(num) {\n    if (num === 0) {\n        return 0;\n    }\n    if (num % 2 === 0) {\n        return 1 + numberOfSteps(num / 2);\n    } else {\n        return 1 + numberOfSteps(num - 1);\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function numberOfSteps(num: number): number {\n    if (num === 0) {\n        return 0;\n    }\n    if (num % 2 === 0) {\n        return 1 + numberOfSteps(num / 2);\n    } else {\n        return 1 + numberOfSteps(num - 1);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log n) - Similar to the iterative approach.
+- Space: O(log n) - Due to the recursion stack depth.
+- Notes: Elegant but less memory-efficient than the iterative approach for very large numbers (though constraints are small here).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Steps to Reduce a Number to Zero Solutions","datePublished":"2024-03-06","description":"Given an integer num, return the number of steps to reduce it to zero. If even, divide by 2; otherwise, subtract 1.","keywords":"LeetCode, Number of Steps to Reduce a Number to Zero, Easy, Math, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n) because we divide the number by 2 in every other step."}},{"@type":"Question","name":"How does Bit Manipulation optimize the solution?","acceptedAnswer":{"@type":"Answer","text":"Bit manipulation allows us to calculate the result in O(log n) or O(1) time by counting bits directly, avoiding loop overhead."}},{"@type":"Question","name":"What is the space complexity of the Recursive approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(log n) due to the recursion stack depth."}}]}).replace(/</g,'\u003c')}
+</script>

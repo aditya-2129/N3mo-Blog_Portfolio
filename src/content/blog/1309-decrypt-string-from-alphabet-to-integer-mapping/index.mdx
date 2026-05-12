@@ -1,0 +1,149 @@
+---
+title: "Decrypt String from Alphabet to Integer Mapping"
+summary: "Given an encrypted string where 1-9 map to a-i and 10#-26# map to j-z, decrypt it to the original string."
+date: "May 25, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 80.60% | **Paid:** No
+> **Topics:** String
+
+You are given a string s formed by digits and '#'. We want to map s to English lowercase characters as follows:
+
+- Characters ('a' to 'i') are represented by ('1' to '9') respectively.
+- Characters ('j' to 'z') are represented by ('10#' to '26#') respectively.
+
+Return the string formed after mapping.
+
+The test cases are generated so that a unique mapping of s to English letters always exists.
+
+- Examples
+- Constraints
+- [Reverse Iteration](#reverse-iteration)
+- [Forward Iteration with Lookahead](#forward-iteration-with-lookahead)
+- [Hash Map Lookup](#hash-map-lookup)
+- [Regular Expression](#regular-expression)
+
+## Examples
+
+```text
+Input: s = "10#11#12"
+Output: "jkab"
+Explanation: "j" -> "10#" , "k" -> "11#" , "a" -> "1" , "b" -> "2".
+```
+
+```text
+Input: s = "1326#"
+Output: "acz"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 1000
+s consists of digits and the '#' letter.
+s will be a valid string such that mapping is always possible.
+```
+
+---
+## Reverse Iteration
+
+**Intuition**
+Scan the string from right to left. When we encounter '#', we know it's part of a two-digit number (10-26), so we take the two digits before it. Otherwise, it's a single digit (1-9).
+
+**Steps**
+- Start from the end of the string
+- If current character is '#', extract the two digits before it and convert to letter (j-z)
+- Otherwise, take the single digit and convert to letter (a-i)
+- Build the result in reverse order, then reverse at the end
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def freqAlphabets(self, s: str) -&gt; str:\n        result = []\n        i = len(s) - 1\n        while i &gt;= 0:\n            if s[i] == '#':\n                num = int(s[i-2:i])\n                result.append(chr(ord('a') + num - 1))\n                i -= 3\n            else:\n                num = int(s[i])\n                result.append(chr(ord('a') + num - 1))\n                i -= 1\n        return ''.join(reversed(result))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String freqAlphabets(String s) {\n        StringBuilder result = new StringBuilder();\n        int i = s.length() - 1;\n        while (i &gt;= 0) {\n            if (s.charAt(i) == '#') {\n                int num = Integer.parseInt(s.substring(i - 2, i));\n                result.append((char)('a' + num - 1));\n                i -= 3;\n            } else {\n                int num = s.charAt(i) - '0';\n                result.append((char)('a' + num - 1));\n                i--;\n            }\n        }\n        return result.reverse().toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string freqAlphabets(string s) {\n        string result;\n        int i = s.length() - 1;\n        while (i &gt;= 0) {\n            if (s[i] == '#') {\n                int num = stoi(s.substr(i - 2, 2));\n                result += 'a' + num - 1;\n                i -= 3;\n            } else {\n                int num = s[i] - '0';\n                result += 'a' + num - 1;\n                i--;\n            }\n        }\n        reverse(result.begin(), result.end());\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    freqAlphabets(s) {\n        let result = [];\n        let i = s.length - 1;\n        while (i &gt;= 0) {\n            if (s[i] === '#') {\n                let num = parseInt(s.substring(i - 2, i));\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i -= 3;\n            } else {\n                let num = parseInt(s[i]);\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i--;\n            }\n        }\n        return result.reverse().join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    freqAlphabets(s: string): string {\n        let result: string[] = [];\n        let i = s.length - 1;\n        while (i &gt;= 0) {\n            if (s[i] === '#') {\n                let num = parseInt(s.substring(i - 2, i));\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i -= 3;\n            } else {\n                let num = parseInt(s[i]);\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i--;\n            }\n        }\n        return result.reverse().join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Requires reversing the result at the end, but avoids lookahead checks
+
+---
+## Forward Iteration with Lookahead
+
+**Intuition**
+Scan from left to right and look ahead to check if there's a '#' two positions ahead. If yes, it's a two-digit encoded character; otherwise, it's a single digit.
+
+**Steps**
+- Iterate through the string from left to right
+- Check if position i+2 exists and contains '#'
+- If yes, take two digits and skip 3 positions
+- Otherwise, take one digit and skip 1 position
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def freqAlphabets(self, s: str) -&gt; str:\n        result = []\n        i = 0\n        n = len(s)\n        while i &lt; n:\n            if i + 2 &lt; n and s[i + 2] == '#':\n                num = int(s[i:i+2])\n                result.append(chr(ord('a') + num - 1))\n                i += 3\n            else:\n                num = int(s[i])\n                result.append(chr(ord('a') + num - 1))\n                i += 1\n        return ''.join(result)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String freqAlphabets(String s) {\n        StringBuilder result = new StringBuilder();\n        int i = 0;\n        int n = s.length();\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s.charAt(i + 2) == '#') {\n                int num = Integer.parseInt(s.substring(i, i + 2));\n                result.append((char)('a' + num - 1));\n                i += 3;\n            } else {\n                int num = s.charAt(i) - '0';\n                result.append((char)('a' + num - 1));\n                i++;\n            }\n        }\n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string freqAlphabets(string s) {\n        string result;\n        int i = 0;\n        int n = s.length();\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] == '#') {\n                int num = stoi(s.substr(i, 2));\n                result += 'a' + num - 1;\n                i += 3;\n            } else {\n                int num = s[i] - '0';\n                result += 'a' + num - 1;\n                i++;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    freqAlphabets(s) {\n        let result = [];\n        let i = 0;\n        let n = s.length;\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] === '#') {\n                let num = parseInt(s.substring(i, i + 2));\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i += 3;\n            } else {\n                let num = parseInt(s[i]);\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i++;\n            }\n        }\n        return result.join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    freqAlphabets(s: string): string {\n        let result: string[] = [];\n        let i = 0;\n        let n = s.length;\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] === '#') {\n                let num = parseInt(s.substring(i, i + 2));\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i += 3;\n            } else {\n                let num = parseInt(s[i]);\n                result.push(String.fromCharCode('a'.charCodeAt(0) + num - 1));\n                i++;\n            }\n        }\n        return result.join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Builds result in correct order without needing to reverse
+
+---
+## Hash Map Lookup
+
+**Intuition**
+Pre-build a mapping from all possible encoded strings ("1" to "9" and "10#" to "26#") to their corresponding letters. Then iterate through the string and use the map for O(1) lookups.
+
+**Steps**
+- Create a hash map with keys "1"-"9" mapping to "a"-"i" and "10#"-"26#" mapping to "j"-"z"
+- Iterate through the string, checking for '#' two positions ahead
+- Use the map to get the corresponding letter for each encoded segment
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def freqAlphabets(self, s: str) -&gt; str:\n        mapping = {}\n        for i in range(1, 10):\n            mapping[str(i)] = chr(ord('a') + i - 1)\n        for i in range(10, 27):\n            mapping[str(i) + '#'] = chr(ord('a') + i - 1)\n        \n        result = []\n        i = 0\n        n = len(s)\n        while i &lt; n:\n            if i + 2 &lt; n and s[i + 2] == '#':\n                result.append(mapping[s[i:i+3]])\n                i += 3\n            else:\n                result.append(mapping[s[i]])\n                i += 1\n        return ''.join(result)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String freqAlphabets(String s) {\n        Map&lt;String, Character&gt; mapping = new HashMap&lt;&gt;();\n        for (int i = 1; i &lt;= 9; i++) {\n            mapping.put(String.valueOf(i), (char)('a' + i - 1));\n        }\n        for (int i = 10; i &lt;= 26; i++) {\n            mapping.put(i + \"#\", (char)('a' + i - 1));\n        }\n        \n        StringBuilder result = new StringBuilder();\n        int i = 0;\n        int n = s.length();\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s.charAt(i + 2) == '#') {\n                result.append(mapping.get(s.substring(i, i + 3)));\n                i += 3;\n            } else {\n                result.append(mapping.get(s.substring(i, i + 1)));\n                i++;\n            }\n        }\n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n\nclass Solution {\npublic:\n    string freqAlphabets(string s) {\n        unordered_map&lt;string, char&gt; mapping;\n        for (int i = 1; i &lt;= 9; i++) {\n            mapping[to_string(i)] = 'a' + i - 1;\n        }\n        for (int i = 10; i &lt;= 26; i++) {\n            mapping[to_string(i) + \"#\"] = 'a' + i - 1;\n        }\n        \n        string result;\n        int i = 0;\n        int n = s.length();\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] == '#') {\n                result += mapping[s.substr(i, 3)];\n                i += 3;\n            } else {\n                result += mapping[s.substr(i, 1)];\n                i++;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    freqAlphabets(s) {\n        const mapping = {};\n        for (let i = 1; i &lt;= 9; i++) {\n            mapping[i.toString()] = String.fromCharCode('a'.charCodeAt(0) + i - 1);\n        }\n        for (let i = 10; i &lt;= 26; i++) {\n            mapping[i.toString() + '#'] = String.fromCharCode('a'.charCodeAt(0) + i - 1);\n        }\n        \n        let result = [];\n        let i = 0;\n        let n = s.length;\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] === '#') {\n                result.push(mapping[s.substring(i, i + 3)]);\n                i += 3;\n            } else {\n                result.push(mapping[s.substring(i, i + 1)]);\n                i++;\n            }\n        }\n        return result.join('');\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    freqAlphabets(s: string): string {\n        const mapping: { [key: string]: string } = {};\n        for (let i = 1; i &lt;= 9; i++) {\n            mapping[i.toString()] = String.fromCharCode('a'.charCodeAt(0) + i - 1);\n        }\n        for (let i = 10; i &lt;= 26; i++) {\n            mapping[i.toString() + '#'] = String.fromCharCode('a'.charCodeAt(0) + i - 1);\n        }\n        \n        let result: string[] = [];\n        let i = 0;\n        let n = s.length;\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] === '#') {\n                result.push(mapping[s.substring(i, i + 3)]);\n                i += 3;\n            } else {\n                result.push(mapping[s.substring(i, i + 1)]);\n                i++;\n            }\n        }\n        return result.join('');\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string plus O(26) for the hash map
+- Notes: Uses extra space for the map but provides clean, readable code with O(1) lookups
+
+---
+## Regular Expression
+
+**Intuition**
+Use regex pattern matching to find all encoded segments (either single digit or digit-digit-#) and replace each with its corresponding letter in one pass.
+
+**Steps**
+- Define a regex pattern that matches either a single digit or two digits followed by '#'
+- Apply the pattern to find all matches in the string
+- For each match, convert to the corresponding letter
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def freqAlphabets(self, s: str) -&gt; str:\n        def replace_match(match):\n            num = int(match.group(0).replace('#', ''))\n            return chr(ord('a') + num - 1)\n        \n        return re.sub(r'\\d\\d#|\\d', replace_match, s)" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public String freqAlphabets(String s) {\n        Pattern pattern = Pattern.compile(\"\\\\d\\\\d#|\\\\d\");\n        Matcher matcher = pattern.matcher(s);\n        StringBuffer result = new StringBuffer();\n        \n        while (matcher.find()) {\n            String group = matcher.group();\n            int num = Integer.parseInt(group.replace(\"#\", \"\"));\n            matcher.appendReplacement(result, String.valueOf((char)('a' + num - 1)));\n        }\n        matcher.appendTail(result);\n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string freqAlphabets(string s) {\n        string result;\n        int i = 0;\n        int n = s.length();\n        while (i &lt; n) {\n            if (i + 2 &lt; n && s[i + 2] == '#') {\n                int num = stoi(s.substr(i, 2));\n                result += 'a' + num - 1;\n                i += 3;\n            } else {\n                int num = s[i] - '0';\n                result += 'a' + num - 1;\n                i++;\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    freqAlphabets(s) {\n        return s.replace(/\\d\\d#|\\d/g, (match) =&gt; {\n            const num = parseInt(match.replace('#', ''));\n            return String.fromCharCode('a'.charCodeAt(0) + num - 1);\n        });\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    freqAlphabets(s: string): string {\n        return s.replace(/\\d\\d#|\\d/g, (match: string) =&gt; {\n            const num = parseInt(match.replace('#', ''));\n            return String.fromCharCode('a'.charCodeAt(0) + num - 1);\n        });\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for the result string
+- Notes: Most concise solution in languages with good regex support; C++ uses forward iteration as regex approach is less idiomatic
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Decrypt String from Alphabet to Integer Mapping Solutions","datePublished":"2025-05-25","description":"Given an encrypted string where 1-9 map to a-i and 10#-26# map to j-z, decrypt it to the original string.","keywords":"LeetCode, Decrypt String from Alphabet to Integer Mapping, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Reverse Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string. We visit each character exactly once."}},{"@type":"Question","name":"What is the space complexity of Forward Iteration with Lookahead?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the result string. No additional space is needed beyond the output."}},{"@type":"Question","name":"What is the time complexity of Hash Map Lookup approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string. Each lookup is O(1) and we process each character once."}},{"@type":"Question","name":"What is the space complexity of Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for the result string. The regex engine uses some additional space for pattern matching."}}]}).replace(/</g,'\u003c')}
+</script>

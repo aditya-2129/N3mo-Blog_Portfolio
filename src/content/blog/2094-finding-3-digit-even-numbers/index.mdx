@@ -1,0 +1,140 @@
+---
+title: "Finding 3-Digit Even Numbers"
+summary: "Given an array of digits, return all unique 3-digit even numbers that can be formed using each digit at most once."
+date: "Feb 22, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Recursion
+  - Sorting
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.70% | **Paid:** No
+> **Topics:** Array, Hash Table, Recursion, Sorting, Enumeration
+
+You are given an integer array digits, where each element is a digit. The array may contain duplicates.
+You need to return all the unique 3-digit even numbers that can be formed from the digits.
+A 3-digit number is an integer from 100 to 999 (inclusive).
+You can use the digits in the array at most once in each number.
+
+- Examples
+- Constraints
+- [Brute Force Enumeration](#brute-force-enumeration)
+- [Frequency Counting](#frequency-counting)
+- [Backtracking](#backtracking)
+
+## Examples
+
+### Example 1:
+```text
+Input: digits = [2,1,3,0]
+Output: [102,120,130,132,210,230,302,310,312,320]
+Explanation: All the possible 3-digit even numbers that can be formed using the digits are listed.
+```
+
+### Example 2:
+```text
+Input: digits = [2,2,2,2]
+Output: [222]
+Explanation: The only number that can be formed is 222.
+```
+
+### Example 3:
+```text
+Input: digits = [1,2,3]
+Output: [132,312]
+Explanation: The numbers 132 and 312 are the only 3-digit even numbers that can be formed.
+```
+
+## Constraints
+
+```text
+3 <= digits.length <= 100
+0 <= digits[i] <= 9
+```
+
+---
+## Brute Force Enumeration
+
+**Intuition**
+Since the input size is relatively small (up to 100), we can afford to check every possible combination of three digits. We iterate through all possible triplets of indices to form numbers, ensuring we use distinct indices for each digit position.
+
+**Steps**
+- Initialize an empty set to store unique results.
+- Use three nested loops to iterate through the array indices `i`, `j`, and `k`.
+- Ensure `i`, `j`, and `k` are distinct to use different digits for each place.
+- Check if the digit at index `k` (the units place) is even.
+- Form the number: `digits[i] * 100 + digits[j] * 10 + digits[k]`.
+- If the number is greater than or equal to 100 (to avoid leading zeros), add it to the set.
+- Convert the set to a list, sort it, and return.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def findEvenNumbers(self, digits: List[int]) -&gt; List[int]:\r\n        n = len(digits)\r\n        unique_numbers = set()\r\n        \r\n        for i in range(n):\r\n            for j in range(n):\r\n                for k in range(n):\r\n                    if i != j and j != k and i != k:\r\n                        if digits[k] % 2 == 0:\r\n                            num = digits[i] * 100 + digits[j] * 10 + digits[k]\r\n                            if num &gt;= 100:\r\n                                unique_numbers.add(num)\r\n        \r\n        return sorted(list(unique_numbers))\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public int[] findEvenNumbers(int[] digits) {\r\n        Set&lt;Integer&gt; resultSet = new HashSet&lt;&gt;();\r\n        int n = digits.length;\r\n        \r\n        for (int i = 0; i &lt; n; i++) {\r\n            for (int j = 0; j &lt; n; j++) {\r\n                for (int k = 0; k &lt; n; k++) {\r\n                    if (i != j && j != k && i != k) {\r\n                        if (digits[k] % 2 == 0) {\r\n                            int num = digits[i] * 100 + digits[j] * 10 + digits[k];\r\n                            if (num &gt;= 100) {\r\n                                resultSet.add(num);\r\n                            }\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        \r\n        int[] result = resultSet.stream().mapToInt(Integer::intValue).sorted().toArray();\r\n        return result;\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;set&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    std::vector&lt;int&gt; findEvenNumbers(std::vector&lt;int&gt;& digits) {\r\n        std::set&lt;int&gt; uniqueNumbers;\r\n        int n = digits.size();\r\n        \r\n        for (int i = 0; i &lt; n; ++i) {\r\n            for (int j = 0; j &lt; n; ++j) {\r\n                for (int k = 0; k &lt; n; ++k) {\r\n                    if (i != j && j != k && i != k) {\r\n                        if (digits[k] % 2 == 0) {\r\n                            int num = digits[i] * 100 + digits[j] * 10 + digits[k];\r\n                            if (num &gt;= 100) {\r\n                                uniqueNumbers.insert(num);\r\n                            }\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        \r\n        return std::vector&lt;int&gt;(uniqueNumbers.begin(), uniqueNumbers.end());\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} digits\r\n * @return {number[]}\r\n */\r\nvar findEvenNumbers = function(digits) {\r\n    const resultSet = new Set();\r\n    const n = digits.length;\r\n    \r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = 0; j &lt; n; j++) {\r\n            for (let k = 0; k &lt; n; k++) {\r\n                if (i !== j && j !== k && i !== k) {\r\n                    if (digits[k] % 2 === 0) {\r\n                        const num = digits[i] * 100 + digits[j] * 10 + digits[k];\r\n                        if (num &gt;= 100) {\r\n                            resultSet.add(num);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n    \r\n    return Array.from(resultSet).sort((a, b) =&gt; a - b);\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findEvenNumbers(digits: number[]): number[] {\r\n    const resultSet = new Set&lt;number&gt;();\r\n    const n = digits.length;\r\n    \r\n    for (let i = 0; i &lt; n; i++) {\r\n        for (let j = 0; j &lt; n; j++) {\r\n            for (let k = 0; k &lt; n; k++) {\r\n                if (i !== j && j !== k && i !== k) {\r\n                    if (digits[k] % 2 === 0) {\r\n                        const num = digits[i] * 100 + digits[j] * 10 + digits[k];\r\n                        if (num &gt;= 100) {\r\n                            resultSet.add(num);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n    \r\n    return Array.from(resultSet).sort((a, b) =&gt; a - b);\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(n³) where n is the length of the digits array.
+- Space: O(1) auxiliary space (excluding the space required for the output).
+- Notes: Simple to implement but can be slow for the upper constraint limit.
+
+---
+## Frequency Counting
+
+**Intuition**
+Instead of generating numbers from the digits, we can iterate through all possible 3-digit even numbers (100 to 998) and check if the input digits can form that number. Since the range of 3-digit numbers is constant (450 numbers), this approach is very efficient.
+
+**Steps**
+- Create a frequency map (or array of size 10) to count occurrences of each digit in the input.
+- Iterate through all even numbers from 100 to 998.
+- For each number, count the frequency of its digits.
+- Compare this frequency with the input frequency map.
+- If the input has at least as many of each digit as required by the number, add the number to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\nfrom collections import Counter\r\n\r\nclass Solution:\r\n    def findEvenNumbers(self, digits: List[int]) -&gt; List[int]:\r\n        count = Counter(digits)\r\n        result = []\r\n        \r\n        for num in range(100, 1000, 2):\r\n            temp_count = Counter(str(num))\r\n            if all(count[int(d)] &gt;= temp_count[d] for d in temp_count):\r\n                result.append(num)\r\n                \r\n        return result\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    public int[] findEvenNumbers(int[] digits) {\r\n        int[] count = new int[10];\r\n        for (int d : digits) {\r\n            count[d]++;\r\n        }\r\n        \r\n        List&lt;Integer&gt; resultList = new ArrayList&lt;&gt;();\r\n        \r\n        for (int num = 100; num &lt; 1000; num += 2) {\r\n            int[] tempCount = new int[10];\r\n            int n = num;\r\n            while (n &gt; 0) {\r\n                tempCount[n % 10]++;\r\n                n /= 10;\r\n            }\r\n            \r\n            boolean valid = true;\r\n            for (int i = 0; i &lt; 10; i++) {\r\n                if (tempCount[i] &gt; count[i]) {\r\n                    valid = false;\r\n                    break;\r\n                }\r\n            }\r\n            \r\n            if (valid) {\r\n                resultList.add(num);\r\n            }\r\n        }\r\n        \r\n        return resultList.stream().mapToInt(Integer::intValue).toArray();\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;array&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    std::vector&lt;int&gt; findEvenNumbers(std::vector&lt;int&gt;& digits) {\r\n        std::array&lt;int, 10&gt; count = {0};\r\n        for (int d : digits) {\r\n            count[d]++;\r\n        }\r\n        \r\n        std::vector&lt;int&gt; result;\r\n        \r\n        for (int num = 100; num &lt; 1000; num += 2) {\r\n            std::array&lt;int, 10&gt; tempCount = {0};\r\n            int n = num;\r\n            while (n &gt; 0) {\r\n                tempCount[n % 10]++;\r\n                n /= 10;\r\n            }\r\n            \r\n            bool valid = true;\r\n            for (int i = 0; i &lt; 10; i++) {\r\n                if (tempCount[i] &gt; count[i]) {\r\n                    valid = false;\r\n                    break;\r\n                }\r\n            }\r\n            \r\n            if (valid) {\r\n                result.push_back(num);\r\n            }\r\n        }\r\n        \r\n        return result;\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} digits\r\n * @return {number[]}\r\n */\r\nvar findEvenNumbers = function(digits) {\r\n    const count = new Array(10).fill(0);\r\n    for (const d of digits) {\r\n        count[d]++;\r\n    }\r\n    \r\n    const result = [];\r\n    \r\n    for (let num = 100; num &lt; 1000; num += 2) {\r\n        const tempCount = new Array(10).fill(0);\r\n        let n = num;\r\n        while (n &gt; 0) {\r\n            tempCount[n % 10]++;\r\n            n = Math.floor(n / 10);\r\n        }\r\n        \r\n        let valid = true;\r\n        for (let i = 0; i &lt; 10; i++) {\r\n            if (tempCount[i] &gt; count[i]) {\r\n                valid = false;\r\n                break;\r\n            }\r\n        }\r\n        \r\n        if (valid) {\r\n            result.push(num);\r\n        }\r\n    }\r\n    \r\n    return result;\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findEvenNumbers(digits: number[]): number[] {\r\n    const count: number[] = new Array(10).fill(0);\r\n    for (const d of digits) {\r\n        count[d]++;\r\n    }\r\n    \r\n    const result: number[] = [];\r\n    \r\n    for (let num = 100; num &lt; 1000; num += 2) {\r\n        const tempCount: number[] = new Array(10).fill(0);\r\n        let n = num;\r\n        while (n &gt; 0) {\r\n            tempCount[n % 10]++;\r\n            n = Math.floor(n / 10);\r\n        }\r\n        \r\n        let valid = true;\r\n        for (let i = 0; i &lt; 10; i++) {\r\n            if (tempCount[i] &gt; count[i]) {\r\n                valid = false;\r\n                break;\r\n            }\r\n        }\r\n        \r\n        if (valid) {\r\n            result.push(num);\r\n        }\r\n    }\r\n    \r\n    return result;\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(1) because we iterate through a constant range of 450 numbers.
+- Space: O(1) auxiliary space for the frequency arrays.
+- Notes: This is the most optimal approach for this problem.
+
+---
+## Backtracking
+
+**Intuition**
+We can use recursion to explore all permutations of length 3 from the digits array. This is a standard depth-first search approach where we build the number digit by digit.
+
+**Steps**
+- Define a recursive function that takes the current number being built and a set of used indices.
+- Base case: If the number has 3 digits, check if it is even and &gt;= 100. If so, add to results.
+- Recursive step: Iterate through all digits. If a digit is not used, add it to the current number and recurse.
+- Use a set to track results to ensure uniqueness.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def findEvenNumbers(self, digits: List[int]) -&gt; List[int]:\r\n        n = len(digits)\r\n        res = set()\r\n        \r\n        def backtrack(curr, used):\r\n            if len(curr) == 3:\r\n                if curr[2] % 2 == 0:\r\n                    num = curr[0] * 100 + curr[1] * 10 + curr[2]\r\n                    if num &gt;= 100:\r\n                        res.add(num)\r\n                return\r\n            \r\n            for i in range(n):\r\n                if not used[i]:\r\n                    if len(curr) == 0 and digits[i] == 0:\r\n                        continue\r\n                    used[i] = True\r\n                    backtrack(curr + [digits[i]], used)\r\n                    used[i] = False\r\n                    \r\n        backtrack([], [False] * n)\r\n        return sorted(list(res))\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\r\n\r\nclass Solution {\r\n    Set&lt;Integer&gt; resultSet = new HashSet&lt;&gt;();\r\n    int[] digits;\r\n    \r\n    public int[] findEvenNumbers(int[] digits) {\r\n        this.digits = digits;\r\n        boolean[] used = new boolean[digits.length];\r\n        backtrack(0, used);\r\n        \r\n        return resultSet.stream().mapToInt(Integer::intValue).sorted().toArray();\r\n    }\r\n    \r\n    private void backtrack(int currentNum, boolean[] used) {\r\n        int length = String.valueOf(currentNum).length();\r\n        if (length == 3) {\r\n            if (currentNum % 2 == 0 && currentNum &gt;= 100) {\r\n                resultSet.add(currentNum);\r\n            }\r\n            return;\r\n        }\r\n        \r\n        for (int i = 0; i &lt; digits.length; i++) {\r\n            if (!used[i]) {\r\n                if (length == 0 && digits[i] == 0) continue;\r\n                used[i] = true;\r\n                backtrack(currentNum * 10 + digits[i], used);\r\n                used[i] = false;\r\n            }\r\n        }\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;set&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    std::set&lt;int&gt; resultSet;\r\n    std::vector&lt;int&gt; digits;\r\n    \r\n    std::vector&lt;int&gt; findEvenNumbers(std::vector&lt;int&gt;& d) {\r\n        this-&gt;digits = d;\r\n        std::vector&lt;bool&gt; used(d.size(), false);\r\n        backtrack(0, used);\r\n        return std::vector&lt;int&gt;(resultSet.begin(), resultSet.end());\r\n    }\r\n    \r\n    void backtrack(int currentNum, std::vector&lt;bool&gt;& used) {\r\n        int length = 0;\r\n        int temp = currentNum;\r\n        if (temp == 0) length = 1;\r\n        else {\r\n            while (temp &gt; 0) {\r\n                length++;\r\n                temp /= 10;\r\n            }\r\n        }\r\n        \r\n        if (length == 3) {\r\n            if (currentNum % 2 == 0 && currentNum &gt;= 100) {\r\n                resultSet.insert(currentNum);\r\n            }\r\n            return;\r\n        }\r\n        \r\n        for (int i = 0; i &lt; digits.size(); i++) {\r\n            if (!used[i]) {\r\n                if (length == 0 && digits[i] == 0) continue;\r\n                used[i] = true;\r\n                backtrack(currentNum * 10 + digits[i], used);\r\n                used[i] = false;\r\n            }\r\n        }\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} digits\r\n * @return {number[]}\r\n */\r\nvar findEvenNumbers = function(digits) {\r\n    const resultSet = new Set();\r\n    const n = digits.length;\r\n    const used = new Array(n).fill(false);\r\n    \r\n    function backtrack(currentNum) {\r\n        const length = currentNum.toString().length;\r\n        if (length === 3) {\r\n            if (currentNum % 2 === 0 && currentNum &gt;= 100) {\r\n                resultSet.add(currentNum);\r\n            }\r\n            return;\r\n        }\r\n        \r\n        for (let i = 0; i &lt; n; i++) {\r\n            if (!used[i]) {\r\n                if (length === 0 && digits[i] === 0) continue;\r\n                used[i] = true;\r\n                backtrack(currentNum * 10 + digits[i]);\r\n                used[i] = false;\r\n            }\r\n        }\r\n    }\r\n    \r\n    backtrack(0);\r\n    return Array.from(resultSet).sort((a, b) =&gt; a - b);\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findEvenNumbers(digits: number[]): number[] {\r\n    const resultSet = new Set&lt;number&gt;();\r\n    const n = digits.length;\r\n    const used = new Array(n).fill(false);\r\n    \r\n    function backtrack(currentNum: number): void {\r\n        const length = currentNum.toString().length;\r\n        if (length === 3) {\r\n            if (currentNum % 2 === 0 && currentNum &gt;= 100) {\r\n                resultSet.add(currentNum);\r\n            }\r\n            return;\r\n        }\r\n        \r\n        for (let i = 0; i &lt; n; i++) {\r\n            if (!used[i]) {\r\n                if (length === 0 && digits[i] === 0) continue;\r\n                used[i] = true;\r\n                backtrack(currentNum * 10 + digits[i]);\r\n                used[i] = false;\r\n            }\r\n        }\r\n    }\r\n    \r\n    backtrack(0);\r\n    return Array.from(resultSet).sort((a, b) =&gt; a - b);\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(nP3) which is O(n³) in the worst case.
+- Space: O(n) for the recursion stack and the `used` array.
+- Notes: More complex to implement than brute force but demonstrates a fundamental algorithmic pattern.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Finding 3-Digit Even Numbers Solutions","datePublished":"2024-02-22","description":"Given an array of digits, return all unique 3-digit even numbers that can be formed using each digit at most once.","keywords":"LeetCode, Finding 3-Digit Even Numbers, Easy, Array, Hash Table, Recursion, Sorting, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n³), where n is the length of the digits array."}},{"@type":"Question","name":"What is the time complexity of the Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we iterate through a constant range of 450 numbers."}},{"@type":"Question","name":"What is the space complexity of the Frequency Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space for the frequency arrays."}}]}).replace(/</g,'\u003c')}
+</script>

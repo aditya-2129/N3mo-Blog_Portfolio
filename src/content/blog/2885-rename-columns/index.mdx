@@ -1,0 +1,432 @@
+---
+title: "Rename Columns"
+summary: "Rename DataFrame columns from snake_case to Title Case format"
+date: "Mar 02, 2024"
+tags:
+  - Pandas
+  - DataFrame
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.20% | **Paid:** No
+> **Topics:** N/A
+
+## Problem Description
+
+DataFrame students
+```
++-------------+--------+
+| Column Name | Type   |
++-------------+--------+
+| student_id  | int    |
+| name        | object |
+| age         | int    |
++-------------+--------+
+```
+
+Write a solution to rename the columns as follows:
+- student_id → Student Id
+- name → Name
+- age → Age
+
+The output should look like this:
+```
++------------+--------+
+| Student Id | Name   | Age   |
++------------+--------+
+| 1          | Alice  | 20    |
+| 2          | Bob    | 21    |
++------------+--------+
+```
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [String Manipulation Approach](#string-manipulation-approach)
+- [List Comprehension Approach](#list-comprehension-approach)
+- [Regex Approach](#regex-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
++----+---------+----------+-----+
+| id | first   | last     | age |
++----+---------+----------+-----+
+| 1  | Mason   | King     | 6   |
+| 2  | Ava     | Wright   | 7   |
+| 3  | Taylor  | Hall     | 16  |
+| 4  | Georgia | Thompson | 18  |
+| 5  | Thomas  | Moore    | 10  |
++----+---------+----------+-----+
+```
+
+**Output:**
+```text
++------------+------------+-----------+--------------+
+| student_id | first_name | last_name | age_in_years |
++------------+------------+-----------+--------------+
+| 1          | Mason      | King      | 6            |
+| 2          | Ava        | Wright    | 7            |
+| 3          | Taylor     | Hall      | 16           |
+| 4          | Georgia    | Thompson  | 18           |
+| 5          | Thomas     | Moore     | 10           |
++------------+------------+-----------+--------------+
+```
+
+**Explanation:**
+The column names are changed accordingly.
+
+## Constraints
+
+```text
+- 1 <= number of columns <= 100
+- 1 <= number of rows <= 1000
+- Column names consist of lowercase letters and underscores only
+- Column names start and end with a letter (not underscore)
+- No consecutive underscores in column names
+```
+
+## String Manipulation Approach
+
+**Intuition**
+Split each column name by underscores, capitalize each word, and join them back with spaces.
+
+**Steps**
+- Get the list of column names from the DataFrame
+- For each column name, split by underscore
+- Capitalize the first letter of each word
+- Join the words with spaces
+- Assign the new column names to the DataFrame
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def renameColumns(students: pd.DataFrame) -> pd.DataFrame:
+    new_columns = []
+    for col in students.columns:
+        words = col.split('_')
+        title_case = ' '.join(word.capitalize() for word in words)
+        new_columns.append(title_case)
+    students.columns = new_columns
+    return students` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+public class Solution {
+    public List<List<String>&gt; renameColumns(List<List<String>&gt; students, List<String> columns) {
+        List<String> newColumns = new ArrayList&lt;&gt;();
+        for (String col : columns) {
+            String[] words = col.split("_");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i &lt; words.length; i++) {
+                if (i &gt; 0) sb.append(" ");
+                sb.append(Character.toUpperCase(words[i].charAt(0)));
+                sb.append(words[i].substring(1));
+            }
+            newColumns.add(sb.toString());
+        }
+        return students;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <sstream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; renameColumns(vector<vector<string>&gt;& students, vector<string>& columns) {
+        vector<string> newColumns;
+        for (const string& col : columns) {
+            stringstream ss(col);
+            string word;
+            vector<string> words;
+            while (getline(ss, word, '_')) {
+                words.push_back(word);
+            }
+            string newCol;
+            for (size_t i = 0; i &lt; words.size(); i++) {
+                if (i &gt; 0) newCol += " ";
+                if (!words[i].empty()) {
+                    newCol += toupper(words[i][0]);
+                    newCol += words[i].substr(1);
+                }
+            }
+            newColumns.push_back(newCol);
+        }
+        return students;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Object} students
+ * @return {Object}
+ */
+function renameColumns(students) {
+    const newColumns = Object.keys(students).map(col =&gt; {
+        return col.split('_').map(word =&gt; 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    });
+    
+    const result = {};
+    newColumns.forEach((newCol, index) =&gt; {
+        result[newCol] = students[Object.keys(students)[index]];
+    });
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `interface DataFrame {
+    [key: string]: any[];
+}
+
+function renameColumns(students: DataFrame): DataFrame {
+    const newColumns = Object.keys(students).map(col =&gt; {
+        return col.split('_').map(word =&gt; 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    });
+    
+    const result: DataFrame = {};
+    newColumns.forEach((newCol, index) =&gt; {
+        result[newCol] = students[Object.keys(students)[index]];
+    });
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of columns and m is the average length of column names
+- Space: O(n) for storing new column names
+- Notes: Simple and readable approach
+
+## List Comprehension Approach
+
+**Intuition**
+Use list comprehension to transform all column names in a single line of code.
+
+**Steps**
+- Get the list of column names
+- Apply transformation using list comprehension
+- Assign the result back to DataFrame columns
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def renameColumns(students: pd.DataFrame) -> pd.DataFrame:
+    students.columns = [' '.join(word.capitalize() for word in col.split('_')) 
+                        for col in students.columns]
+    return students` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.stream.Collectors;
+
+public class Solution {
+    public List<List<String>&gt; renameColumns(List<List<String>&gt; students, List<String> columns) {
+        List<String> newColumns = columns.stream()
+            .map(col -> Arrays.stream(col.split("_"))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                .collect(Collectors.joining(" ")))
+            .collect(Collectors.toList());
+        return students;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <sstream>
+#include <cctype>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; renameColumns(vector<vector<string>&gt;& students, vector<string>& columns) {
+        vector<string> newColumns;
+        for (const string& col : columns) {
+            string newCol = col;
+            replace(newCol.begin(), newCol.end(), '_', ' ');
+            if (!newCol.empty()) {
+                newCol[0] = toupper(newCol[0]);
+                for (size_t i = 1; i &lt; newCol.length(); i++) {
+                    if (newCol[i-1] == ' ') {
+                        newCol[i] = toupper(newCol[i]);
+                    }
+                }
+            }
+            newColumns.push_back(newCol);
+        }
+        return students;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Object} students
+ * @return {Object}
+ */
+function renameColumns(students) {
+    const oldKeys = Object.keys(students);
+    const newKeys = oldKeys.map(col =&gt; 
+        col.split('_').map(word =&gt; 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ')
+    );
+    
+    const result = {};
+    oldKeys.forEach((key, index) =&gt; {
+        result[newKeys[index]] = students[key];
+    });
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `interface DataFrame {
+    [key: string]: any[];
+}
+
+function renameColumns(students: DataFrame): DataFrame {
+    const oldKeys = Object.keys(students);
+    const newKeys = oldKeys.map(col =&gt; 
+        col.split('_').map(word =&gt; 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ')
+    );
+    
+    const result: DataFrame = {};
+    oldKeys.forEach((key, index) =&gt; {
+        result[newKeys[index]] = students[key];
+    });
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of columns and m is the average length of column names
+- Space: O(n) for storing new column names
+- Notes: More concise Python code using list comprehension
+
+## Regex Approach
+
+**Intuition**
+Use regular expressions to find and replace patterns in column names.
+
+**Steps**
+- Use regex to find underscores followed by lowercase letters
+- Replace with space and uppercase letter
+- Capitalize the first letter of the column name
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+import re
+
+def renameColumns(students: pd.DataFrame) -> pd.DataFrame:
+    new_columns = []
+    for col in students.columns:
+        new_col = re.sub(r'_([a-z])', lambda m: ' ' + m.group(1).upper(), col)
+        new_col = new_col[0].upper() + new_col[1:]
+        new_columns.append(new_col)
+    students.columns = new_columns
+    return students` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.regex.*;
+
+public class Solution {
+    public List<List<String>&gt; renameColumns(List<List<String>&gt; students, List<String> columns) {
+        List<String> newColumns = new ArrayList&lt;&gt;();
+        Pattern pattern = Pattern.compile("_([a-z])");
+        
+        for (String col : columns) {
+            Matcher matcher = pattern.matcher(col);
+            StringBuffer sb = new StringBuffer();
+            while (matcher.find()) {
+                matcher.appendReplacement(sb, " " + matcher.group(1).toUpperCase());
+            }
+            matcher.appendTail(sb);
+            
+            String newCol = sb.toString();
+            if (!newCol.isEmpty()) {
+                newCol = Character.toUpperCase(newCol.charAt(0)) + newCol.substring(1);
+            }
+            newColumns.add(newCol);
+        }
+        return students;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <regex>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; renameColumns(vector<vector<string>&gt;& students, vector<string>& columns) {
+        vector<string> newColumns;
+        regex pattern("_([a-z])");
+        
+        for (const string& col : columns) {
+            string newCol = regex_replace(col, pattern, " $1");
+            if (!newCol.empty()) {
+                newCol[0] = toupper(newCol[0]);
+                for (size_t i = 1; i &lt; newCol.length(); i++) {
+                    if (newCol[i-1] == ' ') {
+                        newCol[i] = toupper(newCol[i]);
+                    }
+                }
+            }
+            newColumns.push_back(newCol);
+        }
+        return students;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Object} students
+ * @return {Object}
+ */
+function renameColumns(students) {
+    const newColumns = Object.keys(students).map(col =&gt; {
+        let newCol = col.replace(/_([a-z])/g, (match, letter) =&gt; ' ' + letter.toUpperCase());
+        newCol = newCol.charAt(0).toUpperCase() + newCol.slice(1);
+        return newCol;
+    });
+    
+    const result = {};
+    newColumns.forEach((newCol, index) =&gt; {
+        result[newCol] = students[Object.keys(students)[index]];
+    });
+    
+    return result;
+}` },
+{ name: "TypeScript", lang: "typescript", code: `interface DataFrame {
+    [key: string]: any[];
+}
+
+function renameColumns(students: DataFrame): DataFrame {
+    const newColumns = Object.keys(students).map(col =&gt; {
+        let newCol = col.replace(/_([a-z])/g, (match: string, letter: string) =&gt; ' ' + letter.toUpperCase());
+        newCol = newCol.charAt(0).toUpperCase() + newCol.slice(1);
+        return newCol;
+    });
+    
+    const result: DataFrame = {};
+    newColumns.forEach((newCol, index) =&gt; {
+        result[newCol] = students[Object.keys(students)[index]];
+    });
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the number of columns and m is the average length of column names
+- Space: O(n) for storing new column names
+- Notes: Regex approach is powerful but may be overkill for simple transformations
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rename Columns Solutions","datePublished":"2024-03-02","description":"Rename DataFrame columns from snake_case to Title Case format","keywords":"LeetCode, Rename Columns, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the String Manipulation Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m) where n is the number of columns and m is the average length of column names."}},{"@type":"Question","name":"What is the space complexity of the List Comprehension Approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing new column names."}},{"@type":"Question","name":"What is the time complexity of the Regex Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m) where n is the number of columns and m is the average length of column names."}}]}).replace(/</g,'\u003c')}
+</script>

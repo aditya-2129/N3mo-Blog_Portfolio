@@ -1,0 +1,145 @@
+---
+title: "Count Partitions with Even Sum Difference"
+summary: "Count the number of ways to partition an array into two non-empty contiguous parts such that the absolute difference of their sums is even."
+date: "Jan 17, 2024"
+tags:
+  - Array
+  - Math
+  - Prefix Sum
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.20% | **Paid:** No
+> **Topics:** Array, Math, Prefix Sum
+
+You are given a 0-indexed integer array nums of length n.
+
+A partition of an array is a way to split the array into two non-empty contiguous subarrays. The sum difference of a partition is the absolute difference between the sum of the left subarray and the sum of the right subarray.
+
+Return the number of partitions where the sum difference is even.
+
+- Table of Contents
+- Examples
+- Constraints
+- [Mathematical Observation](#mathematical-observation)
+- [Prefix Sum Approach](#prefix-sum-approach)
+- [Brute Force Approach](#brute-force-approach)
+
+## Examples
+
+Example 1:
+```text
+Input: nums = [1, 2, 3]
+Output: 2
+Explanation: There are 2 partitions with even sum difference:
+- Split after index 0: left = [1], right = [2, 3], |1 - 5| = 4 (even)
+- Split after index 1: left = [1, 2], right = [3], |3 - 3| = 0 (even)
+```
+
+Example 2:
+```text
+Input: nums = [1, 1, 1]
+Output: 0
+Explanation: There are 0 partitions with even sum difference:
+- Split after index 0: left = [1], right = [1, 1], |1 - 2| = 1 (odd)
+- Split after index 1: left = [1, 1], right = [1], |2 - 1| = 1 (odd)
+```
+
+Example 3:
+```text
+Input: nums = [2, 4, 6]
+Output: 2
+Explanation: There are 2 partitions with even sum difference:
+- Split after index 0: left = [2], right = [4, 6], |2 - 10| = 8 (even)
+- Split after index 1: left = [2, 4], right = [6], |6 - 6| = 0 (even)
+```
+
+## Constraints
+
+```text
+2 <= nums.length <= 10⁵
+1 <= nums[i] <= 10⁹
+```
+
+---
+
+## Mathematical Observation
+
+**Intuition**
+The absolute difference |a - b| is even if and only if a and b have the same parity (both even or both odd). Since sum(left) + sum(right) = total_sum, both sums have the same parity exactly when total_sum is even.
+
+**Steps**
+- Calculate the total sum of all elements in the array
+- If total sum is odd, return 0 (no valid partitions)
+- If total sum is even, return n - 1 (all partitions are valid)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPartitions(self, nums: list[int]) -&gt; int:\n        total = sum(nums)\n        if total % 2 == 1:\n            return 0\n        return len(nums) - 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPartitions(int[] nums) {\n        long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        if (total % 2 == 1) {\n            return 0;\n        }\n        return nums.length - 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPartitions(vector&lt;int&gt;& nums) {\n        long long total = 0;\n        for (int num : nums) {\n            total += num;\n        }\n        if (total % 2 == 1) {\n            return 0;\n        }\n        return nums.size() - 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPartitions(nums) {\n        let total = 0n;\n        for (const num of nums) {\n            total += BigInt(num);\n        }\n        if (total % 2n === 1n) {\n            return 0;\n        }\n        return nums.length - 1;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPartitions(nums: number[]): number {\n        let total = 0n;\n        for (const num of nums) {\n            total += BigInt(num);\n        }\n        if (total % 2n === 1n) {\n            return 0;\n        }\n        return nums.length - 1;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: This is the optimal solution with constant space and linear time complexity.
+
+---
+
+## Prefix Sum Approach
+
+**Intuition**
+Use prefix sums to efficiently calculate the sum of left and right subarrays for each possible partition point, then check if their difference is even.
+
+**Steps**
+- Calculate prefix sums where prefix[i] is the sum of elements from index 0 to i-1
+- For each split point i from 1 to n-1, calculate left sum as prefix[i] and right sum as total - prefix[i]
+- Check if |left - right| is even and count valid partitions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPartitions(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + nums[i]\n        \n        total = prefix[n]\n        count = 0\n        \n        for i in range(1, n):\n            left_sum = prefix[i]\n            right_sum = total - left_sum\n            if abs(left_sum - right_sum) % 2 == 0:\n                count += 1\n        \n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPartitions(int[] nums) {\n        int n = nums.length;\n        long[] prefix = new long[n + 1];\n        for (int i = 0; i &lt; n; i++) {\n            prefix[i + 1] = prefix[i] + nums[i];\n        }\n        \n        long total = prefix[n];\n        int count = 0;\n        \n        for (int i = 1; i &lt; n; i++) {\n            long leftSum = prefix[i];\n            long rightSum = total - leftSum;\n            if (Math.abs(leftSum - rightSum) % 2 == 0) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPartitions(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        vector&lt;long long&gt; prefix(n + 1, 0);\n        for (int i = 0; i &lt; n; i++) {\n            prefix[i + 1] = prefix[i] + nums[i];\n        }\n        \n        long long total = prefix[n];\n        int count = 0;\n        \n        for (int i = 1; i &lt; n; i++) {\n            long long leftSum = prefix[i];\n            long long rightSum = total - leftSum;\n            if (abs(leftSum - rightSum) % 2 == 0) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPartitions(nums) {\n        const n = nums.length;\n        const prefix = new Array(n + 1).fill(0n);\n        for (let i = 0; i &lt; n; i++) {\n            prefix[i + 1] = prefix[i] + BigInt(nums[i]);\n        }\n        \n        const total = prefix[n];\n        let count = 0;\n        \n        for (let i = 1; i &lt; n; i++) {\n            const leftSum = prefix[i];\n            const rightSum = total - leftSum;\n            if ((leftSum - rightSum &lt; 0n ? rightSum - leftSum : leftSum - rightSum) % 2n === 0n) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPartitions(nums: number[]): number {\n        const n = nums.length;\n        const prefix: bigint[] = new Array(n + 1).fill(0n);\n        for (let i = 0; i &lt; n; i++) {\n            prefix[i + 1] = prefix[i] + BigInt(nums[i]);\n        }\n        \n        const total = prefix[n];\n        let count = 0;\n        \n        for (let i = 1; i &lt; n; i++) {\n            const leftSum = prefix[i];\n            const rightSum = total - leftSum;\n            const diff = leftSum - rightSum &lt; 0n ? rightSum - leftSum : leftSum - rightSum;\n            if (diff % 2n === 0n) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses O(n) extra space for prefix sums, but can be optimized to O(1) space.
+
+---
+
+## Brute Force Approach
+
+**Intuition**
+For each possible partition point, calculate the sum of left and right subarrays separately and check if their difference is even.
+
+**Steps**
+- Initialize count to 0
+- For each split point i from 1 to n-1:
+  - Calculate left sum by iterating from 0 to i-1
+  - Calculate right sum by iterating from i to n-1
+  - Check if |left - right| is even and increment count
+- Return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPartitions(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        count = 0\n        \n        for i in range(1, n):\n            left_sum = sum(nums[:i])\n            right_sum = sum(nums[i:])\n            if abs(left_sum - right_sum) % 2 == 0:\n                count += 1\n        \n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPartitions(int[] nums) {\n        int n = nums.length;\n        int count = 0;\n        \n        for (int i = 1; i &lt; n; i++) {\n            long leftSum = 0;\n            for (int j = 0; j &lt; i; j++) {\n                leftSum += nums[j];\n            }\n            long rightSum = 0;\n            for (int j = i; j &lt; n; j++) {\n                rightSum += nums[j];\n            }\n            if (Math.abs(leftSum - rightSum) % 2 == 0) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPartitions(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int count = 0;\n        \n        for (int i = 1; i &lt; n; i++) {\n            long long leftSum = 0;\n            for (int j = 0; j &lt; i; j++) {\n                leftSum += nums[j];\n            }\n            long long rightSum = 0;\n            for (int j = i; j &lt; n; j++) {\n                rightSum += nums[j];\n            }\n            if (abs(leftSum - rightSum) % 2 == 0) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPartitions(nums) {\n        const n = nums.length;\n        let count = 0;\n        \n        for (let i = 1; i &lt; n; i++) {\n            let leftSum = 0n;\n            for (let j = 0; j &lt; i; j++) {\n                leftSum += BigInt(nums[j]);\n            }\n            let rightSum = 0n;\n            for (let j = i; j &lt; n; j++) {\n                rightSum += BigInt(nums[j]);\n            }\n            const diff = leftSum - rightSum &lt; 0n ? rightSum - leftSum : leftSum - rightSum;\n            if (diff % 2n === 0n) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPartitions(nums: number[]): number {\n        const n = nums.length;\n        let count = 0;\n        \n        for (let i = 1; i &lt; n; i++) {\n            let leftSum = 0n;\n            for (let j = 0; j &lt; i; j++) {\n                leftSum += BigInt(nums[j]);\n            }\n            let rightSum = 0n;\n            for (let j = i; j &lt; n; j++) {\n                rightSum += BigInt(nums[j]);\n            }\n            const diff = leftSum - rightSum &lt; 0n ? rightSum - leftSum : leftSum - rightSum;\n            if (diff % 2n === 0n) {\n                count++;\n            }\n        }\n        \n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: This approach has quadratic time complexity and may time out for large inputs, but demonstrates the brute force concept clearly.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Partitions with Even Sum Difference Solutions","datePublished":"2024-01-17","description":"Count the number of ways to partition an array into two non-empty contiguous parts such that the absolute difference of their sums is even.","keywords":"LeetCode, Count Partitions with Even Sum Difference, Easy, Array, Math, Prefix Sum"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Mathematical Observation approach?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical Observation approach has O(n) time complexity and O(1) space complexity, making it the optimal solution."}},{"@type":"Question","name":"Why does the total sum parity determine all valid partitions?","acceptedAnswer":{"@type":"Answer","text":"The absolute difference |a - b| is even if and only if a and b have the same parity. Since sum(left) + sum(right) = total_sum, both sums have the same parity exactly when total_sum is even."}},{"@type":"Question","name":"What is the worst-case time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has O(n²) time complexity as it recalculates sums for each partition point, making it inefficient for large inputs."}}]}).replace(/</g,'\u003c')}
+</script>

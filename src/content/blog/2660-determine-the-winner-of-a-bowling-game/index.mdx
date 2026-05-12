@@ -1,0 +1,170 @@
+---
+title: "Determine the Winner of a Bowling Game"
+summary: "Calculate scores for two players in a bowling game where knocking down 10 pins doubles the next two scores, then determine the winner."
+date: "Apr 17, 2024"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 37.50% | **Paid:** No
+> **Topics:** Array, Simulation
+
+You are given two integer arrays player1 and player2, representing the number of pins knocked down in each throw for two players in a bowling game.
+
+The game consists of n turns, and the number of pins knocked down in the i-th turn for each player is player1[i] and player2[i] respectively.
+
+The score of a player is the sum of the pins knocked down in all of their turns, but there is a special rule:
+If a player knocks down all 10 pins on the i-th turn (i.e., playerX[i] == 10), the score for the i+1-th and i+2-th turns is doubled. The doubled score is added to the player's total score.
+
+Note that the i+1-th and i+2-th turns might be outside the bounds of the array, in which case the doubling does not apply.
+
+Return 1 if the score of player1 is higher than the score of player2, otherwise return 2. If the scores are equal, return 0.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation with Helper Function](#approach-1-simulation-with-helper-function)
+- [Approach 2: State Tracking](#approach-2-state-tracking)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+player1 = [5,10,3,2], player2 = [6,5,7,3]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+The score of player 1 is 5 + 10 + 2*3 + 2*2 = 25.
+
+The score of player 2 is 6 + 5 + 7 + 3 = 21.
+
+### Example 2
+
+**Input:**
+```text
+player1 = [3,5,7,6], player2 = [8,10,10,2]
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The score of player 1 is 3 + 5 + 7 + 6 = 21.
+
+The score of player 2 is 8 + 10 + 2*10 + 2*2 = 42.
+
+### Example 3
+
+**Input:**
+```text
+player1 = [2,3], player2 = [4,1]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+The score of player1 is 2 + 3 = 5.
+
+The score of player2 is 4 + 1 = 5.
+
+### Example 4
+
+**Input:**
+```text
+player1 = [1,1,1,10,10,10,10], player2 = [10,10,10,10,1,1,1]
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The score of player1 is 1 + 1 + 1 + 10 + 2*10 + 2*10 + 2*10 = 73.
+
+The score of player2 is 10 + 2*10 + 2*10 + 2*10 + 2*1 + 2*1 + 1 = 75.
+
+## Constraints
+
+```text
+n == player1.length == player2.length
+1 <= n <= 1000
+0 <= player1[i], player2[i] <= 10
+```
+
+---
+## Approach 1: Simulation with Helper Function
+
+**Intuition**
+We can simulate the game by iterating through the throws for each player. For every throw, we check if the previous one or two throws resulted in a strike (10 pins). If so, we double the current score; otherwise, we add it normally.
+
+**Steps**
+- Create a helper function `calculateScore` that takes an array of throws.
+- Initialize a total score variable to 0.
+- Loop through the array with index `i`.
+- Check if `i &gt; 0` and `arr[i-1] == 10`, or if `i &gt; 1` and `arr[i-2] == 10`.
+- If either condition is true, add `2 * arr[i]` to the total.
+- Otherwise, add `arr[i]` to the total.
+- Call this helper for `player1` and `player2`.
+- Compare the results and return 1, 2, or 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isWinner(self, player1: list[int], player2: list[int]) -&gt; int:\n        def calculate_score(arr):\n            total = 0\n            for i in range(len(arr)):\n                if (i &gt; 0 and arr[i-1] == 10) or (i &gt; 1 and arr[i-2] == 10):\n                    total += 2 * arr[i]\n                else:\n                    total += arr[i]\n            return total\n        \n        score1 = calculate_score(player1)\n        score2 = calculate_score(player2)\n        \n        if score1 &gt; score2:\n            return 1\n        elif score2 &gt; score1:\n            return 2\n        else:\n            return 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int isWinner(int[] player1, int[] player2) {\n        int score1 = calculateScore(player1);\n        int score2 = calculateScore(player2);\n        \n        if (score1 &gt; score2) return 1;\n        if (score2 &gt; score1) return 2;\n        return 0;\n    }\n    \n    private int calculateScore(int[] arr) {\n        int total = 0;\n        for (int i = 0; i &lt; arr.length; i++) {\n            if ((i &gt; 0 && arr[i-1] == 10) || (i &gt; 1 && arr[i-2] == 10)) {\n                total += 2 * arr[i];\n            } else {\n                total += arr[i];\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int isWinner(vector&lt;int&gt;& player1, vector&lt;int&gt;& player2) {\n        int score1 = calculateScore(player1);\n        int score2 = calculateScore(player2);\n        \n        if (score1 &gt; score2) return 1;\n        if (score2 &gt; score1) return 2;\n        return 0;\n    }\n    \nprivate:\n    int calculateScore(const vector&lt;int&gt;& arr) {\n        int total = 0;\n        int n = arr.size();\n        for (int i = 0; i &lt; n; ++i) {\n            if ((i &gt; 0 && arr[i-1] == 10) || (i &gt; 1 && arr[i-2] == 10)) {\n                total += 2 * arr[i];\n            } else {\n                total += arr[i];\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isWinner(player1, player2) {\n        const calculateScore = (arr) =&gt; {\n            let total = 0;\n            for (let i = 0; i &lt; arr.length; i++) {\n                if ((i &gt; 0 && arr[i-1] === 10) || (i &gt; 1 && arr[i-2] === 10)) {\n                    total += 2 * arr[i];\n                } else {\n                    total += arr[i];\n                }\n            }\n            return total;\n        };\n        \n        const score1 = calculateScore(player1);\n        const score2 = calculateScore(player2);\n        \n        if (score1 &gt; score2) return 1;\n        if (score2 &gt; score1) return 2;\n        return 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isWinner(player1: number[], player2: number[]): number {\n        const calculateScore = (arr: number[]): number =&gt; {\n            let total = 0;\n            for (let i = 0; i &lt; arr.length; i++) {\n                if ((i &gt; 0 && arr[i-1] === 10) || (i &gt; 1 && arr[i-2] === 10)) {\n                    total += 2 * arr[i];\n                } else {\n                    total += arr[i];\n                }\n            }\n            return total;\n        };\n        \n        const score1 = calculateScore(player1);\n        const score2 = calculateScore(player2);\n        \n        if (score1 &gt; score2) return 1;\n        if (score2 &gt; score1) return 2;\n        return 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the player arrays. We iterate through the array once for each player.
+- Space: O(1) extra space, excluding the input arrays.
+- Notes: This approach is straightforward and easy to understand.
+
+---
+## Approach 2: State Tracking
+
+**Intuition**
+Instead of looking back at previous indices, we can maintain a counter that tracks how many subsequent throws should be doubled. If a player hits 10 pins, we set this counter to 2. We decrement the counter after each throw.
+
+**Steps**
+- Define a helper function `getScore` that takes an array.
+- Initialize `total` to 0 and `double` to 0.
+- Iterate through each pin count `x` in the array.
+- If `double &gt; 0`, add `2 * x` to `total` and decrement `double`.
+- Otherwise, add `x` to `total`.
+- If `x == 10`, set `double` to 2 (since the next two throws are doubled).
+- Compare the final scores for both players.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isWinner(self, player1: list[int], player2: list[int]) -&gt; int:\n        def get_score(arr):\n            total = 0\n            double = 0\n            for x in arr:\n                if double &gt; 0:\n                    total += 2 * x\n                    double -= 1\n                else:\n                    total += x\n                if x == 10:\n                    double = 2\n            return total\n        \n        s1 = get_score(player1)\n        s2 = get_score(player2)\n        \n        if s1 &gt; s2:\n            return 1\n        elif s2 &gt; s1:\n            return 2\n        else:\n            return 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int isWinner(int[] player1, int[] player2) {\n        int s1 = getScore(player1);\n        int s2 = getScore(player2);\n        \n        if (s1 &gt; s2) return 1;\n        if (s2 &gt; s1) return 2;\n        return 0;\n    }\n    \n    private int getScore(int[] arr) {\n        int total = 0;\n        int doubleCount = 0;\n        for (int x : arr) {\n            if (doubleCount &gt; 0) {\n                total += 2 * x;\n                doubleCount--;\n            } else {\n                total += x;\n            }\n            if (x == 10) {\n                doubleCount = 2;\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int isWinner(vector&lt;int&gt;& player1, vector&lt;int&gt;& player2) {\n        int s1 = getScore(player1);\n        int s2 = getScore(player2);\n        \n        if (s1 &gt; s2) return 1;\n        if (s2 &gt; s1) return 2;\n        return 0;\n    }\n    \nprivate:\n    int getScore(const vector&lt;int&gt;& arr) {\n        int total = 0;\n        int doubleCount = 0;\n        for (int x : arr) {\n            if (doubleCount &gt; 0) {\n                total += 2 * x;\n                doubleCount--;\n            } else {\n                total += x;\n            }\n            if (x == 10) {\n                doubleCount = 2;\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    isWinner(player1, player2) {\n        const getScore = (arr) =&gt; {\n            let total = 0;\n            let double = 0;\n            for (const x of arr) {\n                if (double &gt; 0) {\n                    total += 2 * x;\n                    double--;\n                } else {\n                    total += x;\n                }\n                if (x === 10) {\n                    double = 2;\n                }\n            }\n            return total;\n        };\n        \n        const s1 = getScore(player1);\n        const s2 = getScore(player2);\n        \n        if (s1 &gt; s2) return 1;\n        if (s2 &gt; s1) return 2;\n        return 0;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    isWinner(player1: number[], player2: number[]): number {\n        const getScore = (arr: number[]): number =&gt; {\n            let total = 0;\n            let double = 0;\n            for (const x of arr) {\n                if (double &gt; 0) {\n                    total += 2 * x;\n                    double--;\n                } else {\n                    total += x;\n                }\n                if (x === 10) {\n                    double = 2;\n                }\n            }\n            return total;\n        };\n        \n        const s1 = getScore(player1);\n        const s2 = getScore(player2);\n        \n        if (s1 &gt; s2) return 1;\n        if (s2 &gt; s1) return 2;\n        return 0;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the player arrays.
+- Space: O(1) extra space.
+- Notes: This approach avoids checking previous indices explicitly by maintaining state, which can be slightly more efficient in practice.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Determine the Winner of a Bowling Game Solutions","datePublished":"2024-04-17","description":"Calculate scores for two players in a bowling game where knocking down 10 pins doubles the next two scores, then determine the winner.","keywords":"LeetCode, Determine the Winner of a Bowling Game, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation with Helper Function approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of throws. We iterate through the array once for each player."}},{"@type":"Question","name":"What is the space complexity of the State Tracking approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few variables to store the total score and the double counter."}},{"@type":"Question","name":"How does the scoring rule work in this problem?","acceptedAnswer":{"@type":"Answer","text":"If a player knocks down 10 pins in a turn, the score for the next two turns is doubled. If the next two turns are outside the array bounds, the doubling does not apply."}}]}).replace(/</g,'\u003c')}
+</script>

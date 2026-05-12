@@ -1,0 +1,298 @@
+---
+title: "Delete Columns to Make Sorted"
+summary: "You are given an array of strings of the same length. Determine the number of columns that are not sorted lexicographically."
+date: "Jan 13, 2024"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.10% | **Paid:** No
+> **Topics:** Array, String
+
+You are given an array of n strings strs, all of the same length.
+
+The strings can be arranged such that there is one on each line, making a grid. For example, strs = ["abc", "bce", "cae"] can be arranged as:
+
+abc
+bce
+cae
+
+You want to delete the columns that are not sorted lexicographically. In the above example (0-indexed), columns 0 ('a', 'b', 'c') and 2 ('c', 'e', 'e') are sorted while column 1 ('b', 'c', 'a') is not, so you would delete column 1.
+
+Return the number of columns that you will delete.
+
+- Examples
+- Constraints
+- [Vertical Scan](#vertical-scan)
+- [Column-wise Comparison (Zip/Transpose)](#column-wise-comparison-ziptranspose)
+
+## Examples
+
+Example 1:
+```text
+Input: strs = ["cba","daf","ghi"]
+Output: 1
+Explanation: 
+The grid looks as follows:
+  cba
+  daf
+  ghi
+Columns 0 and 2 are sorted, but column 1 is not, so you would delete column 1.
+```
+
+Example 2:
+```text
+Input: strs = ["a","b"]
+Output: 0
+Explanation: 
+The grid looks as follows:
+  a
+  b
+Column 0 is the only column and it is sorted.
+```
+
+Example 3:
+```text
+Input: strs = ["zyx","wvu","tsr"]
+Output: 3
+Explanation: 
+The grid looks as follows:
+  zyx
+  wvu
+  tsr
+All 3 columns are not sorted.
+```
+
+## Constraints
+
+```text
+n == strs.length
+1 <= n <= 100
+1 <= strs[i].length <= 1000
+strs[i] consists of lowercase English letters.
+```
+
+---
+## Vertical Scan
+
+**Intuition**
+We can iterate through each column index and check if the characters in that column are sorted from top to bottom. If we find any character that is smaller than the character above it, the column is unsorted.
+
+**Steps**
+- Get the number of rows `n` and the number of columns `m`.
+- Initialize a counter `ans` to 0.
+- Iterate through each column index `j` from 0 to `m - 1`.
+- Iterate through each row index `i` from 0 to `n - 2`.
+- Compare the character at `strs[i][j]` with the character at `strs[i+1][j]`.
+- If `strs[i][j] &gt; strs[i+1][j]`, increment `ans` and break the inner loop (move to the next column).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minDeletionSize(self, strs: list[str]) -> int:
+        n = len(strs)
+        m = len(strs[0])
+        ans = 0
+        for j in range(m):
+            for i in range(n - 1):
+                if strs[i][j] &gt; strs[i + 1][j]:
+                    ans += 1
+                    break
+        return ans
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minDeletionSize(String[] strs) {
+        int n = strs.length;
+        int m = strs[0].length();
+        int ans = 0;
+        for (int j = 0; j &lt; m; j++) {
+            for (int i = 0; i &lt; n - 1; i++) {
+                if (strs[i].charAt(j) &gt; strs[i + 1].charAt(j)) {
+                    ans++;
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minDeletionSize(vector<string>& strs) {
+        int n = strs.size();
+        int m = strs[0].size();
+        int ans = 0;
+        for (int j = 0; j &lt; m; j++) {
+            for (int i = 0; i &lt; n - 1; i++) {
+                if (strs[i][j] &gt; strs[i + 1][j]) {
+                    ans++;
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var minDeletionSize = function(strs) {
+    const n = strs.length;
+    const m = strs[0].length;
+    let ans = 0;
+    for (let j = 0; j &lt; m; j++) {
+        for (let i = 0; i &lt; n - 1; i++) {
+            if (strs[i][j] &gt; strs[i + 1][j]) {
+                ans++;
+                break;
+            }
+        }
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function minDeletionSize(strs: string[]): number {
+    const n = strs.length;
+    const m = strs[0].length;
+    let ans = 0;
+    for (let j = 0; j &lt; m; j++) {
+        for (let i = 0; i &lt; n - 1; i++) {
+            if (strs[i][j] &gt; strs[i + 1][j]) {
+                ans++;
+                break;
+            }
+        }
+    }
+    return ans;
+};
+` },]} />
+
+**Complexity**
+- Time: O(N × M), where N is the number of strings and M is the length of the strings. We visit each character at most once.
+- Space: O(1). We only use a few variables for counting and indexing.
+- Notes: This is the most optimal approach as it performs a single pass with early termination.
+
+---
+## Column-wise Comparison (Zip/Transpose)
+
+**Intuition**
+We can "transpose" the grid conceptually by grouping characters from the same index in each string together. Once we have a column as a sequence of characters, we simply check if that sequence is sorted.
+
+**Steps**
+- Iterate through each column index `j` from 0 to `m - 1`.
+- Construct a string (or list) representing the column by taking the `j`-th character from every string in `strs`.
+- Check if this constructed column string is sorted lexicographically.
+- If it is not sorted, increment the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def minDeletionSize(self, strs: list[str]) -> int:
+        # Zip groups the i-th character of each string together
+        # zip(*strs) transforms rows into columns
+        return sum(list(col) != sorted(col) for col in zip(*strs))
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minDeletionSize(String[] strs) {
+        int n = strs.length;
+        int m = strs[0].length();
+        int ans = 0;
+        for (int j = 0; j &lt; m; j++) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i &lt; n; i++) {
+                sb.append(strs[i].charAt(j));
+            }
+            String col = sb.toString();
+            if (!isSorted(col)) {
+                ans++;
+            }
+        }
+        return ans;
+    }
+    
+    private boolean isSorted(String s) {
+        for (int i = 0; i &lt; s.length() - 1; i++) {
+            if (s.charAt(i) &gt; s.charAt(i + 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minDeletionSize(vector<string>& strs) {
+        int n = strs.size();
+        int m = strs[0].size();
+        int ans = 0;
+        for (int j = 0; j &lt; m; j++) {
+            string col;
+            for (int i = 0; i &lt; n; i++) {
+                col += strs[i][j];
+            }
+            if (!is_sorted(col.begin(), col.end())) {
+                ans++;
+            }
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `var minDeletionSize = function(strs) {
+    const n = strs.length;
+    const m = strs[0].length;
+    let ans = 0;
+    for (let j = 0; j &lt; m; j++) {
+        let col = "";
+        for (let i = 0; i &lt; n; i++) {
+            col += strs[i][j];
+        }
+        // Check if sorted
+        let sorted = true;
+        for (let k = 0; k &lt; col.length - 1; k++) {
+            if (col[k] &gt; col[k + 1]) {
+                sorted = false;
+                break;
+            }
+        }
+        if (!sorted) ans++;
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function minDeletionSize(strs: string[]): number {
+    const n = strs.length;
+    const m = strs[0].length;
+    let ans = 0;
+    for (let j = 0; j &lt; m; j++) {
+        let col = "";
+        for (let i = 0; i &lt; n; i++) {
+            col += strs[i][j];
+        }
+        // Check if sorted
+        let sorted = true;
+        for (let k = 0; k &lt; col.length - 1; k++) {
+            if (col[k] &gt; col[k + 1]) {
+                sorted = false;
+                break;
+            }
+        }
+        if (!sorted) ans++;
+    }
+    return ans;
+};
+` },]} />
+
+**Complexity**
+- Time: O(N × M). We iterate through every character to build the column strings and then iterate through the column strings to check sorted order. This is effectively O(2 × N × M), which simplifies to O(N × M).
+- Space: O(N) to store the constructed column string (or O(M) if we check in place, but typically O(N) for the column buffer).
+- Notes: This approach is often more readable in languages like Python due to built-in functions like `zip`, but it uses extra space compared to the vertical scan.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Delete Columns to Make Sorted Solutions","datePublished":"2024-01-13","description":"You are given an array of strings of the same length. Determine the number of columns that are not sorted lexicographically.","keywords":"LeetCode, Delete Columns to Make Sorted, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Vertical Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N × M), where N is the number of strings and M is the length of the strings."}},{"@type":"Question","name":"What is the space complexity of the Vertical Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few variables for counting."}},{"@type":"Question","name":"What is the time complexity of the Column-wise Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N × M). We visit each character to form columns and check sortedness."}},{"@type":"Question","name":"What is the space complexity of the Column-wise Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the column string temporarily."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,116 @@
+---
+title: "Rank Transform of an Array"
+summary: "Replace each element with its rank based on relative magnitude, starting from 1."
+date: "Aug 13, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+Given an array of integers arr, replace each element with its rank.
+
+The rank represents how large the element is. The rank has the following rules:
+
+Rank is an integer starting from 1.
+The larger the element, the larger the rank.
+If two elements are equal, their rank must be the same.
+Rank should be as small as possible.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting + Hash Map](#sorting-hash-map)
+
+## Examples
+
+Example 1:
+```text
+Input: arr = [40,10,20,30]
+Output: [4,1,2,3]
+Explanation: 40 is the largest element. 10 is the smallest. 20 is the second smallest. 30 is the third smallest.
+```
+
+Example 2:
+```text
+Input: arr = [100,100,100]
+Output: [1,1,1]
+Explanation: All elements are equal, so they all have the same rank.
+```
+
+Example 3:
+```text
+Input: arr = [37,12,28,9,100,56,80,5,12]
+Output: [5,3,4,2,8,6,7,1,3]
+```
+
+## Constraints
+
+```text
+- 0 <= arr.length <= 10^5
+- -10^9 <= arr[i] <= 10^9
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each element in the array, we can determine its rank by counting how many unique elements in the array are smaller than it. The rank is then this count plus one.
+
+**Steps**
+- Initialize an empty result array.
+- Iterate through each element x in the input array.
+- For each x, iterate through the array again to count how many unique numbers are strictly smaller than x.
+- Set the rank of x to be the count of smaller unique numbers + 1.
+- Store the rank in the result array.
+- Return the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arrayRankTransform(self, arr: list[int]) -&gt; list[int]:\n        n = len(arr)\n        res = [0] * n\n        for i in range(n):\n            unique_smaller = set()\n            for j in range(n):\n                if arr[j] &lt; arr[i]:\n                    unique_smaller.add(arr[j])\n            res[i] = len(unique_smaller) + 1\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] arrayRankTransform(int[] arr) {\n        int n = arr.length;\n        int[] res = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            int count = 0;\n            for (int j = 0; j &lt; n; j++) {\n                if (arr[j] &lt; arr[i]) {\n                    boolean isUnique = true;\n                    for (int k = 0; k &lt; j; k++) {\n                        if (arr[k] == arr[j]) {\n                            isUnique = false;\n                            break;\n                        }\n                    }\n                    if (isUnique) count++;\n                }\n            }\n            res[i] = count + 1;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; arrayRankTransform(vector&lt;int&gt;& arr) {\n        int n = arr.size();\n        vector&lt;int&gt; res(n);\n        for (int i = 0; i &lt; n; ++i) {\n            set&lt;int&gt; unique_smaller;\n            for (int j = 0; j &lt; n; ++j) {\n                if (arr[j] &lt; arr[i]) {\n                    unique_smaller.insert(arr[j]);\n                }\n            }\n            res[i] = unique_smaller.size() + 1;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var arrayRankTransform = function(arr) {\n    const n = arr.length;\n    const res = new Array(n);\n    for (let i = 0; i &lt; n; i++) {\n        const uniqueSmaller = new Set();\n        for (let j = 0; j &lt; n; j++) {\n            if (arr[j] &lt; arr[i]) {\n                uniqueSmaller.add(arr[j]);\n            }\n        }\n        res[i] = uniqueSmaller.size + 1;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function arrayRankTransform(arr: number[]): number[] {\n    const n = arr.length;\n    const res = new Array(n);\n    for (let i = 0; i &lt; n; i++) {\n        const uniqueSmaller = new Set&lt;number&gt;();\n        for (let j = 0; j &lt; n; j++) {\n            if (arr[j] &lt; arr[i]) {\n                uniqueSmaller.add(arr[j]);\n            }\n        }\n        res[i] = uniqueSmaller.size + 1;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - For each element, we traverse the array to find smaller unique elements.
+- Space: O(n) - To store the result and the set of unique smaller elements.
+- Notes: This approach is inefficient for large inputs (n up to 10⁵) and will result in Time Limit Exceeded.
+
+---
+## Sorting + Hash Map
+
+**Intuition**
+We can sort the array to easily determine the order of elements. By iterating through the sorted array, we can assign ranks to unique values sequentially. We then use a hash map to store the rank for each value, allowing us to transform the original array in linear time.
+
+**Steps**
+- Create a copy of the original array and sort it.
+- Initialize an empty hash map and a rank counter starting at 1.
+- Iterate through the sorted array. If the current element is not already in the hash map, assign it the current rank value, increment the rank, and store the mapping in the hash map.
+- Iterate through the original array and replace each element with its corresponding rank found in the hash map.
+- Return the modified array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def arrayRankTransform(self, arr: list[int]) -&gt; list[int]:\n        sorted_arr = sorted(arr)\n        ranks = {}\n        rank = 1\n        for num in sorted_arr:\n            if num not in ranks:\n                ranks[num] = rank\n                rank += 1\n        return [ranks[num] for num in arr]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] arrayRankTransform(int[] arr) {\n        int n = arr.length;\n        if (n == 0) return new int[0];\n        int[] sorted = arr.clone();\n        Arrays.sort(sorted);\n        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();\n        int rank = 1;\n        for (int i = 0; i &lt; n; i++) {\n            if (!map.containsKey(sorted[i])) {\n                map.put(sorted[i], rank++);\n            }\n        }\n        int[] res = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            res[i] = map.get(arr[i]);\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; arrayRankTransform(vector&lt;int&gt;& arr) {\n        vector&lt;int&gt; sorted = arr;\n        sort(sorted.begin(), sorted.end());\n        unordered_map&lt;int, int&gt; ranks;\n        int rank = 1;\n        for (int num : sorted) {\n            if (ranks.find(num) == ranks.end()) {\n                ranks[num] = rank++;\n            }\n        }\n        for (int& num : arr) {\n            num = ranks[num];\n        }\n        return arr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var arrayRankTransform = function(arr) {\n    if (arr.length === 0) return [];\n    const sorted = [...arr].sort((a, b) =&gt; a - b);\n    const map = new Map();\n    let rank = 1;\n    for (let i = 0; i &lt; sorted.length; i++) {\n        if (!map.has(sorted[i])) {\n            map.set(sorted[i], rank++);\n        }\n    }\n    return arr.map(x =&gt; map.get(x));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function arrayRankTransform(arr: number[]): number[] {\n    if (arr.length === 0) return [];\n    const sorted = [...arr].sort((a, b) =&gt; a - b);\n    const map = new Map&lt;number, number&gt;();\n    let rank = 1;\n    for (let i = 0; i &lt; sorted.length; i++) {\n        if (!map.has(sorted[i])) {\n            map.set(sorted[i], rank++);\n        }\n    }\n    return arr.map(x =&gt; map.get(x)!);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) - Dominated by the sorting step.
+- Space: O(n) - To store the sorted array and the hash map.
+- Notes: This is the optimal approach for this problem, handling duplicates and large input sizes efficiently.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rank Transform of an Array Solutions","datePublished":"2025-08-13","description":"Replace each element with its rank based on relative magnitude, starting from 1.","keywords":"LeetCode, Rank Transform of an Array, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the number of elements in the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Sorting + Hash Map approach is O(n log n) due to the sorting step."}},{"@type":"Question","name":"Why is a Hash Map used in the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"A Hash Map is used to store the rank of each unique value after sorting, allowing for O(1) average time lookup when transforming the original array."}}]}).replace(/</g,'\u003c')}
+</script>

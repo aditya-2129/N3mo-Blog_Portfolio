@@ -1,0 +1,136 @@
+---
+title: "Greatest Common Divisor of Strings"
+summary: "Find the largest string that can be constructed by taking a substring of str1 and str2 multiple times."
+date: "Apr 24, 2024"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.70% | **Paid:** No
+> **Topics:** Math, String
+
+For two strings s and t, we say "t divides s" if and only if s = t + ... + t (i.e., t is concatenated with itself one or more times).
+
+Given two strings str1 and str2, return the largest string x such that x divides both str1 and str2.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Mathematical GCD](#mathematical-gcd)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+str1 = "ABCABC", str2 = "ABC"
+```
+
+**Output:**
+```text
+"ABC"
+```
+
+### Example 2
+
+**Input:**
+```text
+str1 = "ABABAB", str2 = "ABAB"
+```
+
+**Output:**
+```text
+"AB"
+```
+
+### Example 3
+
+**Input:**
+```text
+str1 = "LEET", str2 = "CODE"
+```
+
+**Output:**
+```text
+""
+```
+
+### Example 4
+
+**Input:**
+```text
+str1 = "AAAAAB", str2 = "AAA"
+```
+
+**Output:**
+```text
+""​​​​​​​
+```
+
+## Constraints
+
+```text
+1 <= str1.length, str2.length <= 1000
+str1 and str2 consist of English uppercase letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can iterate through all possible lengths of the common divisor string, starting from the smallest length up to the length of the shorter string. For each length, we check if it divides both strings.
+
+**Steps**
+- Find the minimum length `min_len` between `str1` and `str2`.
+- Iterate `i` from 1 to `min_len`.
+- Check if `min_len` is divisible by `i` (to ensure the substring can form the string).
+- Extract the candidate substring of length `i`.
+- Check if repeating this candidate `len(str1)/i` times equals `str1` and `len(str2)/i` times equals `str2`.
+- If both checks pass, update the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def gcdOfStrings(self, str1: str, str2: str) -&gt; str:\n        len1, len2 = len(str1), len(str2)\n        min_len = min(len1, len2)\n        res = ''\n        for i in range(1, min_len + 1):\n            if len1 % i == 0 and len2 % i == 0:\n                candidate = str1[:i]\n                if candidate * (len1 // i) == str1 and candidate * (len2 // i) == str2:\n                    res = candidate\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String gcdOfStrings(String str1, String str2) {\n        int len1 = str1.length();\n        int len2 = str2.length();\n        int minLen = Math.min(len1, len2);\n        String res = \"\";\n        for (int i = 1; i &lt;= minLen; i++) {\n            if (len1 % i == 0 && len2 % i == 0) {\n                String candidate = str1.substring(0, i);\n                if (candidate.repeat(len1 / i).equals(str1) && candidate.repeat(len2 / i).equals(str2)) {\n                    res = candidate;\n                }\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string gcdOfStrings(string str1, string str2) {\n        int len1 = str1.length();\n        int len2 = str2.length();\n        int minLen = min(len1, len2);\n        string res = \"\";\n        for (int i = 1; i &lt;= minLen; i++) {\n            if (len1 % i == 0 && len2 % i == 0) {\n                string candidate = str1.substr(0, i);\n                string temp1 = \"\";\n                string temp2 = \"\";\n                for (int j = 0; j &lt; len1 / i; j++) temp1 += candidate;\n                for (int j = 0; j &lt; len2 / i; j++) temp2 += candidate;\n                if (temp1 == str1 && temp2 == str2) {\n                    res = candidate;\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var gcdOfStrings = function(str1, str2) {\n    const len1 = str1.length;\n    const len2 = str2.length;\n    const minLen = Math.min(len1, len2);\n    let res = '';\n    for (let i = 1; i &lt;= minLen; i++) {\n        if (len1 % i === 0 && len2 % i === 0) {\n            const candidate = str1.substring(0, i);\n            if (candidate.repeat(len1 / i) === str1 && candidate.repeat(len2 / i) === str2) {\n                res = candidate;\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function gcdOfStrings(str1: string, str2: string): string {\n    const len1 = str1.length;\n    const len2 = str2.length;\n    const minLen = Math.min(len1, len2);\n    let res = '';\n    for (let i = 1; i &lt;= minLen; i++) {\n        if (len1 % i === 0 && len2 % i === 0) {\n            const candidate = str1.substring(0, i);\n            if (candidate.repeat(len1 / i) === str1 && candidate.repeat(len2 / i) === str2) {\n                res = candidate;\n            }\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(min(N, M) * (N + M))
+- Space: O(N + M)
+- Notes: We iterate up to the minimum length and perform string concatenation/comparison at each step.
+
+---
+## Mathematical GCD
+
+**Intuition**
+If `str1` and `str2` have a common divisor string `x`, then `str1 + str2` must be equal to `str2 + str1`. If they are not equal, no common divisor exists. If they are equal, the length of the greatest common divisor string is the GCD of the lengths of `str1` and `str2`.
+
+**Steps**
+- Check if `str1 + str2` is equal to `str2 + str1`. If not, return an empty string.
+- Calculate the greatest common divisor (GCD) of the lengths of `str1` and `str2`.
+- Return the substring of `str1` from index 0 to the calculated GCD length.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def gcdOfStrings(self, str1: str, str2: str) -&gt; str:\n        if str1 + str2 != str2 + str1:\n            return ''\n        from math import gcd\n        return str1[:gcd(len(str1), len(str2))]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String gcdOfStrings(String str1, String str2) {\n        if (!(str1 + str2).equals(str2 + str1)) {\n            return \"\";\n        }\n        return str1.substring(0, gcd(str1.length(), str2.length()));\n    }\n    private int gcd(int a, int b) {\n        while (b != 0) {\n            int temp = b;\n            b = a % b;\n            a = temp;\n        }\n        return a;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;numeric&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string gcdOfStrings(string str1, string str2) {\n        if (str1 + str2 != str2 + str1) {\n            return \"\";\n        }\n        return str1.substr(0, gcd(str1.size(), str2.size()));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var gcdOfStrings = function(str1, str2) {\n    if (str1 + str2 !== str2 + str1) {\n        return '';\n    }\n    const gcd = (a, b) =&gt; {\n        while (b !== 0) {\n            let temp = b;\n            b = a % b;\n            a = temp;\n        }\n        return a;\n    };\n    return str1.substring(0, gcd(str1.length, str2.length));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function gcdOfStrings(str1: string, str2: string): string {\n    if (str1 + str2 !== str2 + str1) {\n        return '';\n    }\n    const gcd = (a: number, b: number): number =&gt; {\n        while (b !== 0) {\n            let temp = b;\n            b = a % b;\n            a = temp;\n        }\n        return a;\n    };\n    return str1.substring(0, gcd(str1.length, str2.length));\n}" },]} />
+
+**Complexity**
+- Time: O(N + M)
+- Space: O(N + M)
+- Notes: Concatenating strings takes O(N+M) time and space. The GCD calculation is O(log(min(N, M))).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Greatest Common Divisor of Strings Solutions","datePublished":"2024-04-24","description":"Find the largest string that can be constructed by taking a substring of str1 and str2 multiple times.","keywords":"LeetCode, Greatest Common Divisor of Strings, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(min(N, M) * (N + M)), where N and M are the lengths of the strings."}},{"@type":"Question","name":"What is the time complexity of the Mathematical GCD approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M) for string concatenation and comparison."}},{"@type":"Question","name":"What is the space complexity of the Mathematical GCD approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N + M) to store the concatenated strings."}}]}).replace(/</g,'\u003c')}
+</script>

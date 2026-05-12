@@ -1,0 +1,137 @@
+---
+title: "Second Minimum Node In a Binary Tree"
+summary: "Find the second smallest distinct value in a special binary tree where every parent node is smaller than its children."
+date: "Apr 01, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 46.10% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Tree
+
+Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in this tree has exactly two or zero sub-nodes. More formally, the property `root.val = min(root.left.val, root.right.val)` always holds.
+
+As such, the root of the tree is the minimum value in the whole tree.
+
+Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
+
+If no such second minimum value exists, output -1 instead.
+
+- Examples
+- Constraints
+- [Brute Force Set Traversal](#brute-force-set-traversal)
+- [Depth-First Search (Optimal)](#depth-first-search-optimal)
+- [Breadth-First Search](#breadth-first-search)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [2,2,5,null,null,5,7]
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+```
+
+**Example 2:**
+
+```text
+Input: root = [2,2,2]
+Output: -1
+Explanation: The smallest value is 2, but there is not a second smallest value.
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 25].
+1 <= Node.val <= 2³¹ - 1
+Each node in this tree has exactly two or zero sub-nodes.
+All nodes in the tree have distinct values if the tree has more than one node.
+```
+
+---
+## Brute Force Set Traversal
+
+**Intuition**
+Traverse the entire tree to collect all unique node values into a set. Since the root is the minimum, the second minimum is simply the smallest value in the set that is strictly greater than the root value.
+
+**Steps**
+- Initialize an empty set to store unique values.
+- Perform a traversal (DFS or BFS) of the tree, adding every node's value to the set.
+- If the set contains fewer than 2 values, return -1.
+- Otherwise, find the smallest value in the set that is greater than the root's value.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findSecondMinimumValue(self, root):\n        values = set()\n        \n        def dfs(node):\n            if not node:\n                return\n            values.add(node.val)\n            dfs(node.left)\n            dfs(node.right)\n            \n        dfs(root)\n        \n        if len(values) &lt; 2:\n            return -1\n        \n        # Remove the minimum (root.val) and find the new minimum\n        values.remove(root.val)\n        return min(values)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int findSecondMinimumValue(TreeNode root) {\n        Set&lt;Integer&gt; values = new TreeSet&lt;&gt;();\n        \n        dfs(root, values);\n        \n        if (values.size() &lt; 2) {\n            return -1;\n        }\n        \n        // Remove the minimum (root.val)\n        values.remove(root.val);\n        \n        // The first element remaining is the second minimum\n        return values.iterator().next();\n    }\n    \n    private void dfs(TreeNode node, Set&lt;Integer&gt; values) {\n        if (node == null) {\n            return;\n        }\n        values.add(node.val);\n        dfs(node.left, values);\n        dfs(node.right, values);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;set&gt;\n#include &lt;climits&gt;\n\nclass Solution {\npublic:\n    void dfs(TreeNode* node, std::set&lt;int&gt;& values) {\n        if (!node) return;\n        values.insert(node-&gt;val);\n        dfs(node-&gt;left, values);\n        dfs(node-&gt;right, values);\n    }\n\n    int findSecondMinimumValue(TreeNode* root) {\n        std::set&lt;int&gt; values;\n        dfs(root, values);\n        \n        if (values.size() &lt; 2) return -1;\n        \n        // The set is sorted. The first element is root.val.\n        // The second element is the answer.\n        auto it = values.begin();\n        it++; // Move to second element\n        return *it;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findSecondMinimumValue = function(root) {\n    const values = new Set();\n    \n    function dfs(node) {\n        if (!node) return;\n        values.add(node.val);\n        dfs(node.left);\n        dfs(node.right);\n    }\n    \n    dfs(root);\n    \n    if (values.size &lt; 2) return -1;\n    \n    // Convert to array, sort, and find the second smallest\n    const sorted = Array.from(values).sort((a, b) =&gt; a - b);\n    return sorted[1];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findSecondMinimumValue(root: TreeNode | null): number {\n        const values = new Set&lt;number&gt;();\n        \n        const dfs = (node: TreeNode | null) =&gt; {\n            if (!node) return;\n            values.add(node.val);\n            dfs(node.left);\n            dfs(node.right);\n        };\n        \n        dfs(root);\n        \n        if (values.size &lt; 2) return -1;\n        \n        const sorted = Array.from(values).sort((a, b) =&gt; a - b);\n        return sorted[1];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting the set/array in the worst case (though TreeSet/SortedSet handles insertion in O(log N), overall complexity is dominated by sorting or iteration).
+- Space: O(N) to store the set of values.
+- Notes: Simple to implement but uses extra space proportional to the number of nodes.
+
+---
+## Depth-First Search (Optimal)
+
+**Intuition**
+Since the root value is the global minimum, we only need to find the smallest value in the tree that is strictly greater than `root.val`. We can traverse the tree and keep track of the minimum candidate found so far.
+
+**Steps**
+- Initialize a variable `ans` to a value larger than the maximum possible node value (e.g., `Infinity` or `Long.MAX_VALUE`).
+- Traverse the tree using DFS.
+- If a node's value is greater than `root.val` and less than the current `ans`, update `ans`.
+- After traversal, if `ans` remains at the initial large value, return -1. Otherwise, return `ans`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findSecondMinimumValue(self, root):\n        self.ans = float('inf')\n        min_val = root.val\n        \n        def dfs(node):\n            if not node:\n                return\n            if min_val &lt; node.val &lt; self.ans:\n                self.ans = node.val\n                # Optimization: if we find the immediate successor, we can stop early\n                # but for simplicity we continue or could add a check here\n            dfs(node.left)\n            dfs(node.right)\n            \n        dfs(root)\n        return -1 if self.ans == float('inf') else self.ans" },
+{ name: "Java", lang: "java", code: "class Solution {\n    long ans = Long.MAX_VALUE;\n    int minVal;\n    \n    public int findSecondMinimumValue(TreeNode root) {\n        minVal = root.val;\n        dfs(root);\n        return ans == Long.MAX_VALUE ? -1 : (int) ans;\n    }\n    \n    private void dfs(TreeNode node) {\n        if (node == null) return;\n        if (node.val &gt; minVal && node.val &lt; ans) {\n            ans = node.val;\n        }\n        dfs(node.left);\n        dfs(node.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;climits&gt;\n\nclass Solution {\npublic:\n    long long ans = LLONG_MAX;\n    int minVal;\n    \n    void dfs(TreeNode* node) {\n        if (!node) return;\n        if (node-&gt;val &gt; minVal && node-&gt;val &lt; ans) {\n            ans = node-&gt;val;\n        }\n        dfs(node-&gt;left);\n        dfs(node-&gt;right);\n    }\n\n    int findSecondMinimumValue(TreeNode* root) {\n        minVal = root-&gt;val;\n        dfs(root);\n        return ans == LLONG_MAX ? -1 : (int)ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findSecondMinimumValue = function(root) {\n    let ans = Infinity;\n    const minVal = root.val;\n    \n    function dfs(node) {\n        if (!node) return;\n        if (node.val &gt; minVal && node.val &lt; ans) {\n            ans = node.val;\n        }\n        dfs(node.left);\n        dfs(node.right);\n    }\n    \n    dfs(root);\n    return ans === Infinity ? -1 : ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    ans: number = Infinity;\n    minVal: number = 0;\n\n    findSecondMinimumValue(root: TreeNode | null): number {\n        if (!root) return -1;\n        this.minVal = root.val;\n        this.dfs(root);\n        return this.ans === Infinity ? -1 : this.ans;\n    }\n\n    dfs(node: TreeNode | null): void {\n        if (!node) return;\n        if (node.val &gt; this.minVal && node.val &lt; this.ans) {\n            this.ans = node.val;\n        }\n        this.dfs(node.left);\n        this.dfs(node.right);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes. We visit each node once.
+- Space: O(H) where H is the height of the tree, for the recursion stack.
+- Notes: This is the most optimal approach as it avoids storing all values and sorts implicitly during traversal.
+
+---
+## Breadth-First Search
+
+**Intuition**
+Similar to the optimal DFS approach, we can use a queue to traverse the tree level by level, keeping track of the smallest value found that is greater than the root's value.
+
+**Steps**
+- Initialize `ans` to a large value (e.g., `Infinity`).
+- Initialize a queue with the root node.
+- While the queue is not empty:
+    - Dequeue a node.
+    - If the node's value is greater than `root.val` and less than `ans`, update `ans`.
+    - Enqueue the left and right children if they exist.
+- Return `ans` if updated, otherwise -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import deque\n\nclass Solution:\n    def findSecondMinimumValue(self, root):\n        min_val = root.val\n        ans = float('inf')\n        q = deque([root])\n        \n        while q:\n            node = q.popleft()\n            if min_val &lt; node.val &lt; ans:\n                ans = node.val\n            if node.left:\n                q.append(node.left)\n            if node.right:\n                q.append(node.right)\n                \n        return -1 if ans == float('inf') else ans" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int findSecondMinimumValue(TreeNode root) {\n        long ans = Long.MAX_VALUE;\n        int minVal = root.val;\n        Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(root);\n        \n        while (!queue.isEmpty()) {\n            TreeNode node = queue.poll();\n            if (node.val &gt; minVal && node.val &lt; ans) {\n                ans = node.val;\n            }\n            if (node.left != null) queue.offer(node.left);\n            if (node.right != null) queue.offer(node.right);\n        }\n        \n        return ans == Long.MAX_VALUE ? -1 : (int) ans;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n#include &lt;climits&gt;\n\nclass Solution {\npublic:\n    int findSecondMinimumValue(TreeNode* root) {\n        long long ans = LLONG_MAX;\n        int minVal = root-&gt;val;\n        std::queue&lt;TreeNode*&gt; q;\n        q.push(root);\n        \n        while (!q.empty()) {\n            TreeNode* node = q.front();\n            q.pop();\n            if (node-&gt;val &gt; minVal && node-&gt;val &lt; ans) {\n                ans = node-&gt;val;\n            }\n            if (node-&gt;left) q.push(node-&gt;left);\n            if (node-&gt;right) q.push(node-&gt;right);\n        }\n        \n        return ans == LLONG_MAX ? -1 : (int)ans;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var findSecondMinimumValue = function(root) {\n    const minVal = root.val;\n    let ans = Infinity;\n    const queue = [root];\n    \n    while (queue.length &gt; 0) {\n        const node = queue.shift();\n        if (node.val &gt; minVal && node.val &lt; ans) {\n            ans = node.val;\n        }\n        if (node.left) queue.push(node.left);\n        if (node.right) queue.push(node.right);\n    }\n    \n    return ans === Infinity ? -1 : ans;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    findSecondMinimumValue(root: TreeNode | null): number {\n        if (!root) return -1;\n        const minVal = root.val;\n        let ans = Infinity;\n        const queue: (TreeNode | null)[] = [root];\n        \n        while (queue.length &gt; 0) {\n            const node = queue.shift();\n            if (node && node.val &gt; minVal && node.val &lt; ans) {\n                ans = node.val;\n            }\n            if (node && node.left) queue.push(node.left);\n            if (node && node.right) queue.push(node.right);\n        }\n        \n        return ans === Infinity ? -1 : ans;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of nodes.
+- Space: O(W) where W is the maximum width of the tree (for the queue).
+- Notes: Useful if you prefer iterative solutions or want to avoid recursion stack overflow on very deep trees (though constraints are small here).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Second Minimum Node In a Binary Tree Solutions","datePublished":"2026-04-01","description":"Find the second smallest distinct value in a special binary tree where every parent node is smaller than its children.","keywords":"LeetCode, Second Minimum Node In a Binary Tree, Easy, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Set Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to sorting the values or maintaining a sorted set."}},{"@type":"Question","name":"What is the most optimal approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Depth-First Search (Optimal) approach is the most efficient with O(N) time complexity and O(H) space complexity."}},{"@type":"Question","name":"Why is the root value guaranteed to be the minimum?","acceptedAnswer":{"@type":"Answer","text":"The problem states that for every node, root.val = min(root.left.val, root.right.val). This property propagates up to the root, making it the smallest value in the entire tree."}}]}).replace(/</g,'\u003c')}
+</script>

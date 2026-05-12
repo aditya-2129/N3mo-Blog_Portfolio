@@ -1,0 +1,382 @@
+---
+title: "Number of Recent Calls"
+summary: "Count the number of recent requests within a 3000ms time frame using a queue-based approach."
+date: "Jun 25, 2025"
+tags:
+  - Design
+  - Queue
+  - Data Stream
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.40% | **Paid:** No
+> **Topics:** Design, Queue, Data Stream
+
+You have a RecentCounter class which counts the number of recent requests within a certain time frame.
+
+Implement the RecentCounter class:
+
+- RecentCounter() Initializes the counter with zero recent requests.
+- int ping(int t) Adds a new request at time t, where t represents some time in milliseconds, and returns the number of requests that have happened in the inclusive range [t - 3000, t].
+
+It is guaranteed that every call to ping uses a strictly larger value of t than the previous call.
+
+- Examples
+- Constraints
+- [Queue Approach](#queue-approach)
+- [Binary Search Approach](#binary-search-approach)
+- [Two Pointers Approach](#two-pointers-approach)
+
+## Examples
+
+### Example 1
+
+Input:
+["RecentCounter", "ping", "ping", "ping", "ping"]
+[[], [1], [100], [3001], [3002]]
+
+Output:
+[null, 1, 2, 3, 3]
+
+Explanation:
+- At t = 1, the number of requests in [1-3000, 1] is 1.
+- At t = 100, the number of requests in [100-3000, 100] is 2.
+- At t = 3001, the number of requests in [3001-3000, 3001] is 3.
+- At t = 3002, the number of requests in [3002-3000, 3002] is 3.
+
+## Constraints
+
+```text
+- 1 <= t <= 10^9
+- Each test case will call ping with strictly increasing values of t.
+- At most 10^4 calls will be made to ping.
+```
+
+---
+## Queue Approach
+
+**Intuition**
+Use a queue to maintain timestamps of recent requests, removing outdated entries older than t-3000.
+
+**Steps**
+- Initialize an empty queue
+- For each ping, add the timestamp to the queue
+- Remove all timestamps older than t-3000 from the front
+- Return the queue size
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from collections import deque
+
+class RecentCounter:
+    def __init__(self):
+        self.queue = deque()
+
+    def ping(self, t: int) -> int:
+        self.queue.append(t)
+        while self.queue[0] &lt; t - 3000:
+            self.queue.popleft()
+        return len(self.queue)
+` },
+{ name: "Java", lang: "java", code: `import java.util.LinkedList;
+import java.util.Queue;
+
+class RecentCounter {
+    private Queue<Integer> queue;
+
+    public RecentCounter() {
+        queue = new LinkedList&lt;&gt;();
+    }
+
+    public int ping(int t) {
+        queue.offer(t);
+        while (queue.peek() &lt; t - 3000) {
+            queue.poll();
+        }
+        return queue.size();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <queue>
+
+class RecentCounter {
+private:
+    std::queue<int> q;
+
+public:
+    RecentCounter() {}
+
+    int ping(int t) {
+        q.push(t);
+        while (q.front() &lt; t - 3000) {
+            q.pop();
+        }
+        return q.size();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class RecentCounter {
+    constructor() {
+        this.queue = [];
+    }
+
+    ping(t) {
+        this.queue.push(t);
+        while (this.queue[0] &lt; t - 3000) {
+            this.queue.shift();
+        }
+        return this.queue.length;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class RecentCounter {
+    private queue: number[];
+
+    constructor() {
+        this.queue = [];
+    }
+
+    ping(t: number): number {
+        this.queue.push(t);
+        while (this.queue[0] &lt; t - 3000) {
+            this.queue.shift();
+        }
+        return this.queue.length;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) amortized O(1) per ping
+- Space: O(n) where n is the number of pings in the 3000ms window
+- Notes: Each element is added and removed at most once, making amortized time O(1)
+
+---
+## Binary Search Approach
+
+**Intuition**
+Store all timestamps in a sorted list and use binary search to find the count of valid timestamps.
+
+**Steps**
+- Initialize an empty list to store all timestamps
+- For each ping, append the timestamp (already sorted due to strictly increasing t)
+- Use binary search to find the first index where timestamp &gt;= t-3000
+- Return the count from that index to the end
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import bisect
+
+class RecentCounter:
+    def __init__(self):
+        self.timestamps = []
+
+    def ping(self, t: int) -> int:
+        self.timestamps.append(t)
+        left = bisect.bisect_left(self.timestamps, t - 3000)
+        return len(self.timestamps) - left
+` },
+{ name: "Java", lang: "java", code: `import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+class RecentCounter {
+    private List<Integer> timestamps;
+
+    public RecentCounter() {
+        timestamps = new ArrayList&lt;&gt;();
+    }
+
+    public int ping(int t) {
+        timestamps.add(t);
+        int left = Collections.binarySearch(timestamps, t - 3000);
+        if (left &lt; 0) {
+            left = -left - 1;
+        }
+        return timestamps.size() - left;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <algorithm>
+
+class RecentCounter {
+private:
+    std::vector<int> timestamps;
+
+public:
+    RecentCounter() {}
+
+    int ping(int t) {
+        timestamps.push_back(t);
+        int left = std::lower_bound(timestamps.begin(), timestamps.end(), t - 3000) - timestamps.begin();
+        return timestamps.size() - left;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class RecentCounter {
+    constructor() {
+        this.timestamps = [];
+    }
+
+    ping(t) {
+        this.timestamps.push(t);
+        const left = this.binarySearch(t - 3000);
+        return this.timestamps.length - left;
+    }
+
+    binarySearch(target) {
+        let left = 0, right = this.timestamps.length;
+        while (left &lt; right) {
+            const mid = Math.floor((left + right) / 2);
+            if (this.timestamps[mid] &lt; target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class RecentCounter {
+    private timestamps: number[];
+
+    constructor() {
+        this.timestamps = [];
+    }
+
+    ping(t: number): number {
+        this.timestamps.push(t);
+        const left = this.binarySearch(t - 3000);
+        return this.timestamps.length - left;
+    }
+
+    private binarySearch(target: number): number {
+        let left = 0, right = this.timestamps.length;
+        while (left &lt; right) {
+            const mid = Math.floor((left + right) / 2);
+            if (this.timestamps[mid] &lt; target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(log n) per ping
+- Space: O(n) where n is the total number of pings
+- Notes: More efficient per query but uses more space as we never remove old timestamps
+
+---
+## Two Pointers Approach
+
+**Intuition**
+Use an array with two pointers to simulate a queue without the overhead of queue operations.
+
+**Steps**
+- Initialize an array and a left pointer at 0
+- For each ping, append the timestamp
+- Move the left pointer past any timestamps older than t-3000
+- Return the count from left to the end
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class RecentCounter:
+    def __init__(self):
+        self.timestamps = []
+        self.left = 0
+
+    def ping(self, t: int) -> int:
+        self.timestamps.append(t)
+        while self.timestamps[self.left] &lt; t - 3000:
+            self.left += 1
+        return len(self.timestamps) - self.left
+` },
+{ name: "Java", lang: "java", code: `import java.util.ArrayList;
+import java.util.List;
+
+class RecentCounter {
+    private List<Integer> timestamps;
+    private int left;
+
+    public RecentCounter() {
+        timestamps = new ArrayList&lt;&gt;();
+        left = 0;
+    }
+
+    public int ping(int t) {
+        timestamps.add(t);
+        while (timestamps.get(left) &lt; t - 3000) {
+            left++;
+        }
+        return timestamps.size() - left;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+
+class RecentCounter {
+private:
+    std::vector<int> timestamps;
+    int left;
+
+public:
+    RecentCounter() : left(0) {}
+
+    int ping(int t) {
+        timestamps.push_back(t);
+        while (timestamps[left] &lt; t - 3000) {
+            left++;
+        }
+        return timestamps.size() - left;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `class RecentCounter {
+    constructor() {
+        this.timestamps = [];
+        this.left = 0;
+    }
+
+    ping(t) {
+        this.timestamps.push(t);
+        while (this.timestamps[this.left] &lt; t - 3000) {
+            this.left++;
+        }
+        return this.timestamps.length - this.left;
+    }
+}
+` },
+{ name: "TypeScript", lang: "typescript", code: `class RecentCounter {
+    private timestamps: number[];
+    private left: number;
+
+    constructor() {
+        this.timestamps = [];
+        this.left = 0;
+    }
+
+    ping(t: number): number {
+        this.timestamps.push(t);
+        while (this.timestamps[this.left] &lt; t - 3000) {
+            this.left++;
+        }
+        return this.timestamps.length - this.left;
+    }
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) amortized O(1) per ping
+- Space: O(n) where n is the total number of pings
+- Notes: Similar to queue approach but with array-based implementation, may have better cache locality
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Recent Calls Solutions","datePublished":"2025-06-25","description":"Count the number of recent requests within a 3000ms time frame using a queue-based approach.","keywords":"LeetCode, Number of Recent Calls, Easy, Design, Queue, Data Stream"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Queue Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) amortized O(1) per ping operation, as each element is added and removed at most once."}},{"@type":"Question","name":"What is the time complexity of the Binary Search Approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n) per ping operation, where n is the total number of pings made so far."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"All approaches have O(n) space complexity where n is the number of pings stored in the data structure."}},{"@type":"Question","name":"Which approach is most efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Queue Approach is most practical with amortized O(1) time and O(n) space, as it naturally removes outdated timestamps."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,356 @@
+---
+title: "Matrix Diagonal Sum"
+summary: "Given a square matrix, return the sum of the matrix diagonals, excluding the center element if counted twice."
+date: "Oct 03, 2025"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.20% | **Paid:** No
+> **Topics:** Array, Matrix
+
+Given a square matrix mat, return the sum of the matrix diagonals.
+
+Only include the sum of all the elements on the primary diagonal and all the elements on the secondary diagonal that are not part of the primary diagonal.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Single Pass Iteration](#single-pass-iteration)
+- [Separate Accumulation](#separate-accumulation)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: mat = [[1,2,3],
+              [4,5,6],
+              [7,8,9]]
+Output: 25
+Explanation: Diagonals sum: 1 + 5 + 9 + 3 + 7 = 25
+Notice that element mat[1][1] = 5 is counted only once.
+```
+
+**Example 2:**
+
+```text
+Input: mat = [[1,1,1,1],
+              [1,1,1,1],
+              [1,1,1,1],
+              [1,1,1,1]]
+Output: 8
+```
+
+**Example 3:**
+
+```text
+Input: mat = [[5]]
+Output: 5
+```
+
+## Constraints
+
+```text
+n == mat.length == mat[i].length
+1 <= n <= 100
+1 <= mat[i][j] <= 100
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+Iterate through every single element in the matrix. Check if the current element lies on the primary diagonal (where row index equals column index) or the secondary diagonal (where row index plus column index equals n - 1). If it does, add it to the sum.
+
+**Steps**
+- Initialize `total` to 0.
+- Get the size of the matrix `n`.
+- Loop through each row `i` from 0 to n-1.
+- Loop through each column `j` from 0 to n-1.
+- Check if `i == j` (primary diagonal) or `i + j == n - 1` (secondary diagonal).
+- If either condition is true, add `mat[i][j]` to `total`.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def diagonalSum(self, mat: list[list[int]]) -> int:
+        n = len(mat)
+        total = 0
+        for i in range(n):
+            for j in range(n):
+                if i == j or i + j == n - 1:
+                    total += mat[i][j]
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int diagonalSum(int[][] mat) {
+        int n = mat.length;
+        int total = 0;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (i == j || i + j == n - 1) {
+                    total += mat[i][j];
+                }
+            }
+        }
+        return total;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int diagonalSum(vector<vector<int>&gt;& mat) {
+        int n = mat.size();
+        int total = 0;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (i == j || i + j == n - 1) {
+                    total += mat[i][j];
+                }
+            }
+        }
+        return total;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var diagonalSum = function(mat) {
+    const n = mat.length;
+    let total = 0;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (i === j || i + j === n - 1) {
+                total += mat[i][j];
+            }
+        }
+    }
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function diagonalSum(mat: number[][]): number {
+    const n = mat.length;
+    let total = 0;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            if (i === j || i + j === n - 1) {
+                total += mat[i][j];
+            }
+        }
+    }
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n²) — We visit every element in the n x n matrix.
+- Space: O(1) — We only use a constant amount of extra space.
+- Notes: Simple to implement but less efficient than necessary since we check every cell.
+
+---
+
+## Single Pass Iteration
+
+**Intuition**
+Instead of checking every cell, we can iterate through the rows once. In each row, the primary diagonal element is at index `i` and the secondary diagonal element is at index `n - 1 - i`. We add both. If the matrix has an odd size, the center element is added twice (once for each diagonal), so we subtract it once at the end.
+
+**Steps**
+- Initialize `total` to 0 and `n` to `mat.length`.
+- Loop `i` from 0 to n-1.
+- Add `mat[i][i]` (primary diagonal) to `total`.
+- Add `mat[i][n - 1 - i]` (secondary diagonal) to `total`.
+- If `n` is odd, subtract `mat[n // 2][n // 2]` from `total` to correct the double count.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def diagonalSum(self, mat: list[list[int]]) -> int:
+        n = len(mat)
+        total = 0
+        for i in range(n):
+            total += mat[i][i]
+            total += mat[i][n - 1 - i]
+        
+        if n % 2 == 1:
+            total -= mat[n // 2][n // 2]
+            
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int diagonalSum(int[][] mat) {
+        int n = mat.length;
+        int total = 0;
+        for (int i = 0; i &lt; n; i++) {
+            total += mat[i][i];
+            total += mat[i][n - 1 - i];
+        }
+        if (n % 2 == 1) {
+            total -= mat[n / 2][n / 2];
+        }
+        return total;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int diagonalSum(vector<vector<int>&gt;& mat) {
+        int n = mat.size();
+        int total = 0;
+        for (int i = 0; i &lt; n; i++) {
+            total += mat[i][i];
+            total += mat[i][n - 1 - i];
+        }
+        if (n % 2 == 1) {
+            total -= mat[n / 2][n / 2];
+        }
+        return total;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var diagonalSum = function(mat) {
+    const n = mat.length;
+    let total = 0;
+    for (let i = 0; i &lt; n; i++) {
+        total += mat[i][i];
+        total += mat[i][n - 1 - i];
+    }
+    if (n % 2 === 1) {
+        total -= mat[Math.floor(n / 2)][Math.floor(n / 2)];
+    }
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function diagonalSum(mat: number[][]): number {
+    const n = mat.length;
+    let total = 0;
+    for (let i = 0; i &lt; n; i++) {
+        total += mat[i][i];
+        total += mat[i][n - 1 - i];
+    }
+    if (n % 2 === 1) {
+        total -= mat[Math.floor(n / 2)][Math.floor(n / 2)];
+    }
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n) — We iterate through the matrix rows once.
+- Space: O(1) — We only use a constant amount of extra space.
+- Notes: Optimal time complexity. The subtraction step handles the overlapping center element efficiently.
+
+---
+
+## Separate Accumulation
+
+**Intuition**
+Calculate the sum of the primary diagonal and the sum of the secondary diagonal separately. Then, combine them. If the matrix size is odd, the center element is included in both sums, so we subtract it once from the total.
+
+**Steps**
+- Initialize `primarySum`, `secondarySum`, and `n`.
+- Loop `i` from 0 to n-1.
+- Add `mat[i][i]` to `primarySum`.
+- Add `mat[i][n - 1 - i]` to `secondarySum`.
+- Calculate `total = primarySum + secondarySum`.
+- If `n` is odd, subtract `mat[n // 2][n // 2]` from `total`.
+- Return `total`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def diagonalSum(self, mat: list[list[int]]) -> int:
+        n = len(mat)
+        primary_sum = 0
+        secondary_sum = 0
+        
+        for i in range(n):
+            primary_sum += mat[i][i]
+            secondary_sum += mat[i][n - 1 - i]
+            
+        total = primary_sum + secondary_sum
+        
+        if n % 2 == 1:
+            total -= mat[n // 2][n // 2]
+            
+        return total` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int diagonalSum(int[][] mat) {
+        int n = mat.length;
+        int primarySum = 0;
+        int secondarySum = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            primarySum += mat[i][i];
+            secondarySum += mat[i][n - 1 - i];
+        }
+        
+        int total = primarySum + secondarySum;
+        
+        if (n % 2 == 1) {
+            total -= mat[n / 2][n / 2];
+        }
+        
+        return total;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int diagonalSum(vector<vector<int>&gt;& mat) {
+        int n = mat.size();
+        int primarySum = 0;
+        int secondarySum = 0;
+        
+        for (int i = 0; i &lt; n; i++) {
+            primarySum += mat[i][i];
+            secondarySum += mat[i][n - 1 - i];
+        }
+        
+        int total = primarySum + secondarySum;
+        
+        if (n % 2 == 1) {
+            total -= mat[n / 2][n / 2];
+        }
+        
+        return total;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `var diagonalSum = function(mat) {
+    const n = mat.length;
+    let primarySum = 0;
+    let secondarySum = 0;
+    
+    for (let i = 0; i &lt; n; i++) {
+        primarySum += mat[i][i];
+        secondarySum += mat[i][n - 1 - i];
+    }
+    
+    let total = primarySum + secondarySum;
+    
+    if (n % 2 === 1) {
+        total -= mat[Math.floor(n / 2)][Math.floor(n / 2)];
+    }
+    
+    return total;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function diagonalSum(mat: number[][]): number {
+    const n = mat.length;
+    let primarySum = 0;
+    let secondarySum = 0;
+    
+    for (let i = 0; i &lt; n; i++) {
+        primarySum += mat[i][i];
+        secondarySum += mat[i][n - 1 - i];
+    }
+    
+    let total = primarySum + secondarySum;
+    
+    if (n % 2 === 1) {
+        total -= mat[Math.floor(n / 2)][Math.floor(n / 2)];
+    }
+    
+    return total;
+}` },]} />
+
+**Complexity**
+- Time: O(n) — We iterate through the matrix rows once.
+- Space: O(1) — We use a fixed number of integer variables.
+- Notes: Conceptually clear separation of concerns, though functionally similar to the single pass approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Matrix Diagonal Sum Solutions","datePublished":"2025-10-03","description":"Given a square matrix, return the sum of the matrix diagonals, excluding the center element if counted twice.","keywords":"LeetCode, Matrix Diagonal Sum, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the dimension of the matrix, as we visit every cell."}},{"@type":"Question","name":"What is the time complexity of the Single Pass Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the dimension of the matrix, as we iterate through the rows once."}},{"@type":"Question","name":"What is the space complexity for these approaches?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) for all approaches as we only use a few variables for summation."}}]}).replace(/</g,'\u003c')}
+</script>

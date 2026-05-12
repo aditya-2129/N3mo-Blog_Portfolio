@@ -1,0 +1,386 @@
+---
+title: "Lemonade Change"
+summary: "Determine if you can provide correct change to all customers at a lemonade stand where each lemonade costs $5."
+date: "May 21, 2024"
+tags:
+  - Array
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.10% | **Paid:** No
+> **Topics:** Array, Greedy
+
+At a lemonade stand, each lemonade costs $5. Customers are standing in a queue to buy from you and order one at a time. Each customer will only buy one lemonade and pay with either a $5, $10, or $20 bill. You must provide the correct change to each customer so that the net transaction is that the customer pays $5.
+
+Note that you do not have any change at first. Given an integer array bills where bills[i] is the bill the ith customer pays, return true if you can provide every customer with the correct change, or false otherwise.
+
+- Examples
+- Constraints
+- [Greedy Approach](#greedy-approach)
+- [Direct Simulation](#direct-simulation)
+
+## Examples
+
+### Example 1
+```text
+Input: bills = [5,5,5,10,20]
+Output: true
+Explanation: 
+- From the first 3 customers, we collect three $5 bills in order.
+- From the fourth customer, we collect a $10 bill and give back a $5.
+- From the fifth customer, we give a $10 bill and a $5 bill.
+- Since all customers got correct change, we output true.
+```
+
+### Example 2
+```text
+Input: bills = [5,5,10,10,20]
+Output: false
+Explanation: 
+- From the first two customers, we collect two $5 bills.
+- For the next two customers, we collect a $10 bill and give back a $5 bill.
+- For the last customer, we can not give the change of $15 because we only have two $10 bills.
+- Since not every customer received the correct change, the answer is false.
+```
+
+## Constraints
+
+```text
+1 <= bills.length <= 10⁵
+bills[i] is either 5, 10, or 20.
+```
+
+---
+## Greedy Approach
+
+**Intuition**
+Always prefer giving $10 bills as change when possible because $5 bills are more versatile for future transactions with $10 customers.
+
+**Steps**
+- Track the count of $5 and $10 bills using two counters.
+- For each $5 payment, increment the $5 counter.
+- For each $10 payment, give one $5 as change if available.
+- For each $20 payment, prefer giving one $10 and one $5 (optimal), or three $5s as fallback.
+- Return false immediately if change cannot be provided at any point.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def lemonadeChange(self, bills: list[int]) -> bool:
+        five = 0
+        ten = 0
+        
+        for bill in bills:
+            if bill == 5:
+                five += 1
+            elif bill == 10:
+                if five == 0:
+                    return False
+                five -= 1
+                ten += 1
+            else:  # bill == 20
+                if ten &gt; 0 and five &gt; 0:
+                    ten -= 1
+                    five -= 1
+                elif five &gt;= 3:
+                    five -= 3
+                else:
+                    return False
+        
+        return True` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean lemonadeChange(int[] bills) {
+        int five = 0;
+        int ten = 0;
+        
+        for (int bill : bills) {
+            if (bill == 5) {
+                five++;
+            } else if (bill == 10) {
+                if (five == 0) {
+                    return false;
+                }
+                five--;
+                ten++;
+            } else { // bill == 20
+                if (ten &gt; 0 && five &gt; 0) {
+                    ten--;
+                    five--;
+                } else if (five &gt;= 3) {
+                    five -= 3;
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool lemonadeChange(vector<int>& bills) {
+        int five = 0;
+        int ten = 0;
+        
+        for (int bill : bills) {
+            if (bill == 5) {
+                five++;
+            } else if (bill == 10) {
+                if (five == 0) {
+                    return false;
+                }
+                five--;
+                ten++;
+            } else { // bill == 20
+                if (ten &gt; 0 && five &gt; 0) {
+                    ten--;
+                    five--;
+                } else if (five &gt;= 3) {
+                    five -= 3;
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} bills
+ * @return {boolean}
+ */
+var lemonadeChange = function(bills) {
+    let five = 0;
+    let ten = 0;
+    
+    for (let bill of bills) {
+        if (bill === 5) {
+            five++;
+        } else if (bill === 10) {
+            if (five === 0) {
+                return false;
+            }
+            five--;
+            ten++;
+        } else { // bill === 20
+            if (ten &gt; 0 && five &gt; 0) {
+                ten--;
+                five--;
+            } else if (five &gt;= 3) {
+                five -= 3;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function lemonadeChange(bills: number[]): boolean {
+    let five = 0;
+    let ten = 0;
+    
+    for (let bill of bills) {
+        if (bill === 5) {
+            five++;
+        } else if (bill === 10) {
+            if (five === 0) {
+                return false;
+            }
+            five--;
+            ten++;
+        } else { // bill === 20
+            if (ten &gt; 0 && five &gt; 0) {
+                ten--;
+                five--;
+            } else if (five &gt;= 3) {
+                five -= 3;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of bills array
+- Space: O(1) only using constant extra space
+- Notes: This is the optimal solution with linear time complexity and constant space.
+
+---
+## Direct Simulation
+
+**Intuition**
+Simulate the actual transaction process by maintaining available bills and checking if exact change can be given for each customer.
+
+**Steps**
+- Initialize counters for $5 and $10 bills to track available change.
+- Process each bill in the order customers pay.
+- For $10 bills, verify we have at least one $5 to give as change.
+- For $20 bills, try optimal change combination first ($10 + $5), then fallback to three $5s.
+- Return false immediately if required change is unavailable.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def lemonadeChange(self, bills: list[int]) -> bool:
+        count_5 = 0
+        count_10 = 0
+        
+        for bill in bills:
+            if bill == 5:
+                count_5 += 1
+            elif bill == 10:
+                if count_5 &gt; 0:
+                    count_5 -= 1
+                    count_10 += 1
+                else:
+                    return False
+            else:  # bill == 20
+                if count_10 &gt; 0 and count_5 &gt; 0:
+                    count_10 -= 1
+                    count_5 -= 1
+                elif count_5 &gt;= 3:
+                    count_5 -= 3
+                else:
+                    return False
+        
+        return True` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean lemonadeChange(int[] bills) {
+        int count5 = 0;
+        int count10 = 0;
+        
+        for (int bill : bills) {
+            if (bill == 5) {
+                count5++;
+            } else if (bill == 10) {
+                if (count5 &gt; 0) {
+                    count5--;
+                    count10++;
+                } else {
+                    return false;
+                }
+            } else { // bill == 20
+                if (count10 &gt; 0 && count5 &gt; 0) {
+                    count10--;
+                    count5--;
+                } else if (count5 &gt;= 3) {
+                    count5 -= 3;
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool lemonadeChange(vector<int>& bills) {
+        int count5 = 0;
+        int count10 = 0;
+        
+        for (int bill : bills) {
+            if (bill == 5) {
+                count5++;
+            } else if (bill == 10) {
+                if (count5 &gt; 0) {
+                    count5--;
+                    count10++;
+                } else {
+                    return false;
+                }
+            } else { // bill == 20
+                if (count10 &gt; 0 && count5 &gt; 0) {
+                    count10--;
+                    count5--;
+                } else if (count5 &gt;= 3) {
+                    count5 -= 3;
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} bills
+ * @return {boolean}
+ */
+var lemonadeChange = function(bills) {
+    let count5 = 0;
+    let count10 = 0;
+    
+    for (let bill of bills) {
+        if (bill === 5) {
+            count5++;
+        } else if (bill === 10) {
+            if (count5 &gt; 0) {
+                count5--;
+                count10++;
+            } else {
+                return false;
+            }
+        } else { // bill === 20
+            if (count10 &gt; 0 && count5 &gt; 0) {
+                count10--;
+                count5--;
+            } else if (count5 &gt;= 3) {
+                count5 -= 3;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function lemonadeChange(bills: number[]): boolean {
+    let count5 = 0;
+    let count10 = 0;
+    
+    for (let bill of bills) {
+        if (bill === 5) {
+            count5++;
+        } else if (bill === 10) {
+            if (count5 &gt; 0) {
+                count5--;
+                count10++;
+            } else {
+                return false;
+            }
+        } else { // bill === 20
+            if (count10 &gt; 0 && count5 &gt; 0) {
+                count10--;
+                count5--;
+            } else if (count5 &gt;= 3) {
+                count5 -= 3;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of bills array
+- Space: O(1) only using constant extra space for counters
+- Notes: This approach directly simulates each transaction, making the logic easy to follow.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Lemonade Change Solutions","datePublished":"2024-05-21","description":"Determine if you can provide correct change to all customers at a lemonade stand where each lemonade costs $5.","keywords":"LeetCode, Lemonade Change, Easy, Array, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Approach for Lemonade Change?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the bills array, as we process each bill exactly once."}},{"@type":"Question","name":"What is the space complexity of the Greedy Approach for Lemonade Change?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use two integer variables to track the count of $5 and $10 bills."}},{"@type":"Question","name":"What is the time complexity of the Direct Simulation Approach for Lemonade Change?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the length of the bills array, as we iterate through each bill once."}},{"@type":"Question","name":"What is the space complexity of the Direct Simulation Approach for Lemonade Change?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only maintain counters for the available bills."}}]}).replace(/</g,'\u003c')}
+</script>

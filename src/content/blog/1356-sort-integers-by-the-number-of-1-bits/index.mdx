@@ -1,0 +1,129 @@
+---
+title: "Sort Integers by The Number of 1 Bits"
+summary: "Sort an array of integers based on the number of 1 bits in their binary representation. If counts are equal, sort by decimal value."
+date: "Sep 12, 2024"
+tags:
+  - Array
+  - Bit Manipulation
+  - Sorting
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 82.30% | **Paid:** No
+> **Topics:** Array, Bit Manipulation, Sorting, Counting
+
+You are given an integer array arr. Sort the integers in the array in ascending order by the number of 1's in their binary representation and in case of two or more integers have the same number of 1's you have to sort them in ascending order.
+
+Return the sorted array.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Sort with Custom Comparator](#approach-1-built-in-sort-with-custom-comparator)
+- [Approach 2: Brian Kernighan's Algorithm](#approach-2-brian-kernighans-algorithm)
+- [Approach 3: Precomputed Bit Counts (Dynamic Programming)](#approach-3-precomputed-bit-counts-dynamic-programming)
+
+## Examples
+
+```text
+Input: arr = [0,1,2,3,4,5,6,7,8]
+Output: [0,1,2,4,8,3,5,6,7]
+Explanation:
+[0] is the only integer with 0 bits.
+[1,2,4,8] all have 1 bit.
+[3,5,6] have 2 bits.
+[7] has 3 bits.
+The sorted array by bits is [0,1,2,4,8,3,5,6,7]
+```
+
+```text
+Input: arr = [1024,512,256,128,64,32,16,8,4,2,1]
+Output: [1,2,4,8,16,32,64,128,256,512,1024]
+Explanation:
+All integers have 1 bit in the binary representation, so you just sort them in ascending order.
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 500
+0 <= arr[i] <= 10^4
+```
+
+---
+## Approach 1: Built-in Sort with Custom Comparator
+
+**Intuition**
+Leverage the language's built-in sorting algorithm but provide a custom key or comparator that sorts primarily by the count of set bits (1s) and secondarily by the integer value itself.
+
+**Steps**
+- Define a helper function or use a built-in method to count the number of 1 bits in an integer.
+- Sort the array using a comparator that compares the bit counts first. If bit counts are equal, compare the integer values directly.
+- Return the sorted array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortByBits(self, arr: list[int]) -&gt; list[int]:\n        return sorted(arr, key=lambda x: (bin(x).count('1'), x))" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int[] sortByBits(int[] arr) {\n        Integer[] boxedArr = Arrays.stream(arr).boxed().toArray(Integer[]::new);\n        Arrays.sort(boxedArr, (a, b) -&gt; {\n            int countA = Integer.bitCount(a);\n            int countB = Integer.bitCount(b);\n            if (countA == countB) {\n                return a - b;\n            }\n            return countA - countB;\n        });\n        return Arrays.stream(boxedArr).mapToInt(Integer::intValue).toArray();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortByBits(vector&lt;int&gt;& arr) {\n        auto cmp = [](int a, int b) {\n            int countA = __builtin_popcount(a);\n            int countB = __builtin_popcount(b);\n            if (countA == countB) return a &lt; b;\n            return countA &lt; countB;\n        };\n        sort(arr.begin(), arr.end(), cmp);\n        return arr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number[]}\n */\nvar sortByBits = function(arr) {\n    const countBits = (num) =&gt; num.toString(2).split('1').length - 1;\n    return arr.sort((a, b) =&gt; {\n        const countA = countBits(a);\n        const countB = countBits(b);\n        if (countA === countB) return a - b;\n        return countA - countB;\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortByBits(arr: number[]): number[] {\n    const countBits = (num: number): number =&gt; num.toString(2).split('1').length - 1;\n    return arr.sort((a, b) =&gt; {\n        const countA = countBits(a);\n        const countB = countBits(b);\n        if (countA === countB) return a - b;\n        return countA - countB;\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(n log n * k), where n is the number of elements and k is the average number of bits (usually 32 or 64). The sorting dominates the complexity.
+- Space: O(n) or O(log n) depending on the sorting algorithm's space complexity.
+- Notes: This is the most concise solution and relies on highly optimized standard library functions.
+
+---
+## Approach 2: Brian Kernighan's Algorithm
+
+**Intuition**
+Instead of converting to a string or using built-ins, we manually count the set bits using Brian Kernighan's algorithm, which repeatedly clears the least significant set bit until the number becomes zero.
+
+**Steps**
+- Implement a helper function `countBits(x)` that initializes a counter to 0.
+- While `x` is not zero, perform `x = x & (x - 1)` to clear the least significant set bit, and increment the counter.
+- Use this helper function within the sorting logic to determine the primary sort key.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortByBits(self, arr: list[int]) -&gt; list[int]:\n        def count_bits(x: int) -&gt; int:\n            count = 0\n            while x:\n                x &= x - 1\n                count += 1\n            return count\n        return sorted(arr, key=lambda x: (count_bits(x), x))" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    private int countBits(int x) {\n        int count = 0;\n        while (x != 0) {\n            x &= (x - 1);\n            count++;\n        }\n        return count;\n    }\n\n    public int[] sortByBits(int[] arr) {\n        Integer[] boxedArr = Arrays.stream(arr).boxed().toArray(Integer[]::new);\n        Arrays.sort(boxedArr, (a, b) -&gt; {\n            int countA = countBits(a);\n            int countB = countBits(b);\n            if (countA == countB) return a - b;\n            return countA - countB;\n        });\n        return Arrays.stream(boxedArr).mapToInt(Integer::intValue).toArray();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\nprivate:\n    int countBits(int x) {\n        int count = 0;\n        while (x) {\n            x &= (x - 1);\n            count++;\n        }\n        return count;\n    }\n\npublic:\n    vector&lt;int&gt; sortByBits(vector&lt;int&gt;& arr) {\n        auto cmp = [this](int a, int b) {\n            int countA = countBits(a);\n            int countB = countBits(b);\n            if (countA == countB) return a &lt; b;\n            return countA &lt; countB;\n        };\n        sort(arr.begin(), arr.end(), cmp);\n        return arr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number[]}\n */\nvar sortByBits = function(arr) {\n    const countBits = (num) =&gt; {\n        let count = 0;\n        while (num) {\n            num &= num - 1;\n            count++;\n        }\n        return count;\n    };\n    return arr.sort((a, b) =&gt; {\n        const countA = countBits(a);\n        const countB = countBits(b);\n        if (countA === countB) return a - b;\n        return countA - countB;\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortByBits(arr: number[]): number[] {\n    const countBits = (num: number): number =&gt; {\n        let count = 0;\n        while (num) {\n            num &= num - 1;\n            count++;\n        }\n        return count;\n    };\n    return arr.sort((a, b) =&gt; {\n        const countA = countBits(a);\n        const countB = countBits(b);\n        if (countA === countB) return a - b;\n        return countA - countB;\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(n log n * k), where k is the number of set bits in the numbers. This is often faster than checking every bit.
+- Space: O(1) auxiliary space (excluding sort space).
+- Notes: This approach is efficient for sparse numbers (numbers with few 1 bits).
+
+---
+## Approach 3: Precomputed Bit Counts (Dynamic Programming)
+
+**Intuition**
+Since the constraints limit the values to 10⁴, we can precompute the number of 1 bits for every number from 0 to the maximum value in the array. This allows O(1) lookup during the sort phase.
+
+**Steps**
+- Find the maximum value in the input array.
+- Create an array `bits` of size `max_val + 1`.
+- Iterate from 1 to `max_val` to populate `bits`. Use the relation `bits[i] = bits[i &gt;&gt; 1] + (i & 1)` to compute counts efficiently using previously computed values.
+- Sort the original array using the precomputed `bits` array as the key.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortByBits(self, arr: list[int]) -&gt; list[int]:\n        if not arr:\n            return []\n        max_val = max(arr)\n        bits = [0] * (max_val + 1)\n        for i in range(1, max_val + 1):\n            bits[i] = bits[i &gt;&gt; 1] + (i & 1)\n        return sorted(arr, key=lambda x: (bits[x], x))" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int[] sortByBits(int[] arr) {\n        if (arr.length == 0) return new int[0];\n        int maxVal = 0;\n        for (int num : arr) {\n            maxVal = Math.max(maxVal, num);\n        }\n        int[] bits = new int[maxVal + 1];\n        for (int i = 1; i &lt;= maxVal; i++) {\n            bits[i] = bits[i &gt;&gt; 1] + (i & 1);\n        }\n        Integer[] boxedArr = Arrays.stream(arr).boxed().toArray(Integer[]::new);\n        Arrays.sort(boxedArr, (a, b) -&gt; {\n            if (bits[a] == bits[b]) return a - b;\n            return bits[a] - bits[b];\n        });\n        return Arrays.stream(boxedArr).mapToInt(Integer::intValue).toArray();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortByBits(vector&lt;int&gt;& arr) {\n        if (arr.empty()) return {};\n        int maxVal = *max_element(arr.begin(), arr.end());\n        vector&lt;int&gt; bits(maxVal + 1, 0);\n        for (int i = 1; i &lt;= maxVal; ++i) {\n            bits[i] = bits[i &gt;&gt; 1] + (i & 1);\n        }\n        auto cmp = [&bits](int a, int b) {\n            if (bits[a] == bits[b]) return a &lt; b;\n            return bits[a] &lt; bits[b];\n        };\n        sort(arr.begin(), arr.end(), cmp);\n        return arr;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number[]}\n */\nvar sortByBits = function(arr) {\n    if (arr.length === 0) return [];\n    const maxVal = Math.max(...arr);\n    const bits = new Array(maxVal + 1).fill(0);\n    for (let i = 1; i &lt;= maxVal; i++) {\n        bits[i] = bits[i &gt;&gt; 1] + (i & 1);\n    }\n    return arr.sort((a, b) =&gt; {\n        if (bits[a] === bits[b]) return a - b;\n        return bits[a] - bits[b];\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function sortByBits(arr: number[]): number[] {\n    if (arr.length === 0) return [];\n    const maxVal = Math.max(...arr);\n    const bits: number[] = new Array(maxVal + 1).fill(0);\n    for (let i = 1; i &lt;= maxVal; i++) {\n        bits[i] = bits[i &gt;&gt; 1] + (i & 1);\n    }\n    return arr.sort((a, b) =&gt; {\n        if (bits[a] === bits[b]) return a - b;\n        return bits[a] - bits[b];\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(n + M log n), where M is the maximum value in the array (10⁴). Precomputation takes O(M), and sorting takes O(n log n).
+- Space: O(M) to store the precomputed bit counts.
+- Notes: This is optimal if the range of numbers is small, as it reduces the bit counting cost during sorting to a simple array lookup.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort Integers by The Number of 1 Bits Solutions","datePublished":"2024-09-12","description":"Sort an array of integers based on the number of 1 bits in their binary representation. If counts are equal, sort by decimal value.","keywords":"LeetCode, Sort Integers by The Number of 1 Bits, Easy, Array, Bit Manipulation, Sorting, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n * k), where n is the number of elements and k is the number of bits required to represent the numbers."}},{"@type":"Question","name":"How does Brian Kernighan's Algorithm improve bit counting?","acceptedAnswer":{"@type":"Answer","text":"Brian Kernighan's Algorithm runs in O(k) where k is the number of set bits, rather than the total number of bits, making it faster for sparse numbers."}},{"@type":"Question","name":"When is the Precomputed Bit Counts approach most efficient?","acceptedAnswer":{"@type":"Answer","text":"This approach is most efficient when the range of input numbers is small and bounded, allowing O(1) lookup time during sorting."}}]}).replace(/</g,'\u003c')}
+</script>

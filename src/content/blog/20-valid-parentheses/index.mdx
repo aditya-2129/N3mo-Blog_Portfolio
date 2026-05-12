@@ -1,0 +1,161 @@
+---
+title: "Valid Parentheses"
+summary: "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid."
+date: "Jan 10, 2026"
+tags:
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 44.10% | **Paid:** No
+> **Topics:** String, Stack
+
+Given a string s containing just the characters '(', ')', '\{', '\}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+
+Open brackets must be closed by the same type of brackets.
+Open brackets must be closed in the correct order.
+Every close bracket has a corresponding open bracket of the same type.
+
+- Examples
+- Constraints
+- [Stack](#stack)
+- [Hash Map Optimization](#hash-map-optimization)
+- [String Replacement](#string-replacement)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "()"
+Output: true
+```
+
+Example 2:
+```text
+Input: s = "()[]{}"
+Output: true
+```
+
+Example 3:
+```text
+Input: s = "(]"
+Output: false
+```
+
+Example 4:
+```text
+Input: s = "([)]"
+Output: false
+```
+
+Example 5:
+```text
+Input: s = "{[]}"
+Output: true
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁴
+s consists of parentheses only '()[]{}'.
+```
+
+---
+## Stack
+
+**Intuition**
+We can iterate through the string and push every opening bracket onto a stack. When we encounter a closing bracket, we check if the top of the stack contains the corresponding opening bracket. If it does, we pop the stack; otherwise, the string is invalid.
+
+**Steps**
+- Initialize an empty stack.
+- Iterate through each character in the string.
+- If the character is an opening bracket ('(', '\{', '['), push it onto the stack.
+- If the character is a closing bracket (')', '\}', ']'):
+  - If the stack is empty, return false (no matching opening bracket).
+  - Pop the top element from the stack.
+  - If the popped element does not match the corresponding opening bracket for the current closing bracket, return false.
+- After processing all characters, if the stack is empty, return true; otherwise, return false.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def isValid(self, s: str) -> bool:\\n        stack = []\\n        mapping = {')': '(', '}': '{', ']': '['}\\n        \\n        for char in s:\\n            if char in mapping:\\n                if not stack:\\n                    return False\\n                top_element = stack.pop()\\n                if mapping[char] != top_element:\\n                    return False\\n            else:\\n                stack.append(char)\\n        \\n        return not stack\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public boolean isValid(String s) {\\n        Stack<Character> stack = new Stack<>();\\n        for (char c : s.toCharArray()) {\\n            if (c == '(') {\\n                stack.push(')');\\n            } else if (c == '{') {\\n                stack.push('}');\\n            } else if (c == '[') {\\n                stack.push(']');\\n            } else if (stack.isEmpty() || stack.pop() != c) {\\n                return false;\\n            }\\n        }\\n        return stack.isEmpty();\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    bool isValid(string s) {\\n        stack<char> st;\\n        for (char c : s) {\\n            if (c == '(') {\\n                st.push(')');\\n            } else if (c == '{') {\\n                st.push('}');\\n            } else if (c == '[') {\\n                st.push(']');\\n            } else if (st.empty() || st.top() != c) {\\n                return false;\\n            } else {\\n                st.pop();\\n            }\\n        }\\n        return st.empty();\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @return {boolean}\\n */\\nvar isValid = function(s) {\\n    const stack = [];\\n    const map = {\\n        ')': '(',\\n        '}': '{',\\n        ']': '['\\n    };\\n    \\n    for (let char of s) {\\n        if (map[char]) {\\n            if (stack.length === 0) return false;\\n            const top = stack.pop();\\n            if (map[char] !== top) return false;\\n        } else {\\n            stack.push(char);\\n        }\\n    }\\n    \\n    return stack.length === 0;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    isValid(s: string): boolean {\\n        const stack: string[] = [];\\n        const map: { [key: string]: string } = {\\n            ')': '(',\\n            '}': '{',\\n            ']': '['\\n        };\\n        \\n        for (const char of s) {\\n            if (map[char]) {\\n                if (stack.length === 0) return false;\\n                const top = stack.pop();\\n                if (map[char] !== top) return false;\\n            } else {\\n                stack.push(char);\\n            }\\n        }\\n        \\n        return stack.length === 0;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: We iterate through the string once, and in the worst case, we push all characters onto the stack.
+
+---
+## Hash Map Optimization
+
+**Intuition**
+This approach is conceptually similar to the standard stack approach but optimizes the matching logic by using a hash map to store the pairs of parentheses. This makes the code cleaner and the lookup for the matching opening bracket O(1).
+
+**Steps**
+- Create a hash map that maps closing brackets to their corresponding opening brackets.
+- Initialize an empty stack.
+- Iterate through the string.
+- If the character is a closing bracket (exists in the map):
+  - Check if the stack is not empty and the top of the stack matches the value from the map.
+  - If not, return false.
+  - If it matches, pop the stack.
+- If the character is an opening bracket, push it onto the stack.
+- Finally, return true if the stack is empty.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def isValid(self, s: str) -> bool:\\n        stack = []\\n        mapping = {')': '(', '}': '{', ']': '['}\\n        \\n        for char in s:\\n            if char in mapping:\\n                top_element = stack.pop() if stack else '#'\\n                if mapping[char] != top_element:\\n                    return False\\n            else:\\n                stack.append(char)\\n        \\n        return not stack\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public boolean isValid(String s) {\\n        Map<Character, Character> map = new HashMap<>();\\n        map.put(')', '(');\\n        map.put('}', '{');\\n        map.put(']', '[');\\n        \\n        Stack<Character> stack = new Stack<>();\\n        \\n        for (char c : s.toCharArray()) {\\n            if (map.containsKey(c)) {\\n                char top = stack.isEmpty() ? '#' : stack.pop();\\n                if (top != map.get(c)) {\\n                    return false;\\n                }\\n            } else {\\n                stack.push(c);\\n            }\\n        }\\n        return stack.isEmpty();\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    bool isValid(string s) {\\n        unordered_map<char, char> map = {\\n            {')', '('},\\n            {'}', '{'},\\n            {']', '['}\\n        };\\n        stack<char> st;\\n        \\n        for (char c : s) {\\n            if (map.count(c)) {\\n                if (st.empty() || st.top() != map[c]) return false;\\n                st.pop();\\n            } else {\\n                st.push(c);\\n            }\\n        }\\n        return st.empty();\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @return {boolean}\\n */\\nvar isValid = function(s) {\\n    const map = new Map();\\n    map.set(')', '(');\\n    map.set('}', '{');\\n    map.set(']', '[');\\n    \\n    const stack = [];\\n    \\n    for (let char of s) {\\n        if (map.has(char)) {\\n            const top = stack.length === 0 ? '#' : stack.pop();\\n            if (top !== map.get(char)) {\\n                return false;\\n            }\\n        } else {\\n            stack.push(char);\\n        }\\n    }\\n    \\n    return stack.length === 0;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    isValid(s: string): boolean {\\n        const map = new Map<string, string>([\\n            [')', '('],\\n            ['}', '{'],\\n            [']', '[']\\n        ]);\\n        \\n        const stack: string[] = [];\\n        \\n        for (const char of s) {\\n            if (map.has(char)) {\\n                const top = stack.length === 0 ? '#' : stack.pop();\\n                if (top !== map.get(char)) {\\n                    return false;\\n                }\\n            } else {\\n                stack.push(char);\\n            }\\n        }\\n        \\n        return stack.length === 0;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: The space complexity is O(n) for the stack in the worst case. The hash map adds constant space O(1).
+
+---
+## String Replacement
+
+**Intuition**
+We can repeatedly remove all valid adjacent pairs of parentheses ("()", "[]", "\{\}") from the string. If the string is valid, we will eventually be left with an empty string. If the string is invalid, some characters will remain.
+
+**Steps**
+- While the string contains "()", "[]", or "\{\}":
+  - Replace all occurrences of "()" with an empty string.
+  - Replace all occurrences of "[]" with an empty string.
+  - Replace all occurrences of "\{\}" with an empty string.
+- Check if the resulting string is empty.
+
+<CodeTabs client:load tabs={[
+{ name: "Python3", lang: "python", code: "class Solution:\\n    def isValid(self, s: str) -> bool:\\n        while '()' in s or '[]' in s or '{}' in s:\\n            s = s.replace('()', '').replace('[]', '').replace('{}', '')\\n        return s == ''\\n" },
+{ name: "Java", lang: "java", code: "class Solution {\\n    public boolean isValid(String s) {\\n        while (s.contains(\\\"()\\\") || s.contains(\\\"[]\\\") || s.contains(\\\"{}\\\")) {\\n            s = s.replace(\\\"()\\\", \\\"\\\");\\n            s = s.replace(\\\"[]\\\", \\\"\\\");\\n            s = s.replace(\\\"{}\\\", \\\"\\\");\\n        }\\n        return s.isEmpty();\\n    }\\n}\\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\\npublic:\\n    bool isValid(string s) {\\n        while (s.find(\\\"()\\\") != string::npos || s.find(\\\"[]\\\") != string::npos || s.find(\\\"{}\\\") != string::npos) {\\n            size_t pos;\\n            while ((pos = s.find(\\\"()\\\")) != string::npos) s.erase(pos, 2);\\n            while ((pos = s.find(\\\"[]\\\")) != string::npos) s.erase(pos, 2);\\n            while ((pos = s.find(\\\"{}\\\")) != string::npos) s.erase(pos, 2);\\n        }\\n        return s.empty();\\n    }\\n};\\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\\n * @param {string} s\\n * @return {boolean}\\n */\\nvar isValid = function(s) {\\n    let len;\\n    do {\\n        len = s.length;\\n        s = s.replace(/\\\\(\\\\)|\\\\[\\\\]|\\\\{\\\\}/g, '');\\n    } while (len !== s.length);\\n    \\n    return s.length === 0;\\n};\\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\\n    isValid(s: string): boolean {\\n        let len: number;\\n        do {\\n            len = s.length;\\n            s = s.replace(/\\\\(\\\\)|\\\\[\\\\]|\\\\{\\\\}/g, '');\\n        } while (len !== s.length);\\n        \\n        return s.length === 0;\\n    }\\n}\\n" }
+]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: In the worst case (e.g., "((((("), we might iterate through the string n times, resulting in quadratic time complexity. This is generally less efficient than the stack approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Valid Parentheses Solutions","datePublished":"2026-01-10","description":"Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.","keywords":"LeetCode, Valid Parentheses, Easy, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Stack approach is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the stack in the worst case, plus O(1) for the hash map."}},{"@type":"Question","name":"Is the String Replacement approach efficient?","acceptedAnswer":{"@type":"Answer","text":"No, the String Replacement approach has a time complexity of O(n²) in the worst case, making it less efficient than the Stack approach."}}]}).replace(/</g,'\u003c')}
+</script>

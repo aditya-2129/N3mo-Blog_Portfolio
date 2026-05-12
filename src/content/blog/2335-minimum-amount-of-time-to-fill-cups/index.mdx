@@ -1,0 +1,396 @@
+---
+title: "Minimum Amount of Time to Fill Cups"
+summary: "Find the minimum time to fill cups of different types when you can fill up to 2 cups per second."
+date: "Aug 31, 2025"
+tags:
+  - Array
+  - Greedy
+  - Sorting
+  - Heap
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.20% | **Paid:** No
+> **Topics:** Array, Greedy, Sorting, Heap (Priority Queue)
+
+You have a water dispenser that can dispense cold, warm, and hot water. Every second, you can either fill up 2 cups with different types of water, or 1 cup of any type of water.
+
+You are given a 0-indexed integer array amount of length 3 where amount[0], amount[1], and amount[2] denote the number of cups of cold, warm, and hot water needed to be filled respectively. Return the minimum number of seconds needed to fill up all the cups.
+
+- Examples
+- Constraints
+- [Mathematical Approach](#mathematical-approach)
+- [Sorting Simulation](#sorting-simulation)
+- [Max-Heap Approach](#max-heap-approach)
+
+## Examples
+
+Example 1:
+```text
+Input: amount = [1,4,2]
+Output: 4
+Explanation: One way to fill up the cups is:
+Second 1: Fill up a cold cup and a warm cup.
+Second 2: Fill up a warm cup and a hot cup.
+Second 3: Fill up a warm cup and a hot cup.
+Second 4: Fill up a warm cup.
+It can be proven that you cannot fill up the cups in 3 seconds.
+```
+
+Example 2:
+```text
+Input: amount = [5,4,4]
+Output: 7
+Explanation: One way to fill up the cups is:
+Second 1: Fill up a cold cup and a warm cup.
+Second 2: Fill up a cold cup and a warm cup.
+Second 3: Fill up a cold cup and a warm cup.
+Second 4: Fill up a warm cup and a hot cup.
+Second 5: Fill up a cold cup and a hot cup.
+Second 6: Fill up a cold cup and a hot cup.
+Second 7: Fill up a hot cup.
+```
+
+Example 3:
+```text
+Input: amount = [5,0,0]
+Output: 5
+Explanation: Every second, we fill up a cold cup.
+```
+
+## Constraints
+
+```text
+0 <= amount[i] <= 100
+```
+
+## Mathematical Approach
+
+**Intuition**
+The answer is the maximum of the largest cup count and half the total cups (rounded up). If one type dominates, we are limited by that count. Otherwise, we can pair cups optimally.
+
+**Steps**
+- Find the maximum value in the array
+- Calculate the sum of all values
+- Return max(max_value, (sum + 1) // 2)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def fillCups(self, amount: List[int]) -> int:
+        return max(max(amount), (sum(amount) + 1) // 2)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int fillCups(int[] amount) {
+        int max = 0;
+        int sum = 0;
+        for (int a : amount) {
+            max = Math.max(max, a);
+            sum += a;
+        }
+        return Math.max(max, (sum + 1) / 2);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int fillCups(vector<int>& amount) {
+        int maxVal = 0;
+        int sum = 0;
+        for (int a : amount) {
+            maxVal = max(maxVal, a);
+            sum += a;
+        }
+        return max(maxVal, (sum + 1) / 2);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} amount
+ * @return {number}
+ */
+var fillCups = function(amount) {
+    const max = Math.max(...amount);
+    const sum = amount.reduce((a, b) =&gt; a + b, 0);
+    return Math.max(max, Math.ceil(sum / 2));
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function fillCups(amount: number[]): number {
+    const max = Math.max(...amount);
+    const sum = amount.reduce((a, b) =&gt; a + b, 0);
+    return Math.max(max, Math.ceil(sum / 2));
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) - fixed size array
+- Space: O(1)
+- Notes: Most optimal solution with constant time and space
+
+## Sorting Simulation
+
+**Intuition**
+Always fill the two types with the most remaining cups. This greedy strategy ensures we minimize total time.
+
+**Steps**
+- Sort the array in descending order
+- While cups remain, decrement the two largest values
+- Re-sort and repeat until all cups are filled
+- Count the number of operations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def fillCups(self, amount: List[int]) -> int:
+        seconds = 0
+        while sum(amount) &gt; 0:
+            amount.sort(reverse=True)
+            if amount[0] &gt; 0 and amount[1] &gt; 0:
+                amount[0] -= 1
+                amount[1] -= 1
+            elif amount[0] &gt; 0:
+                amount[0] -= 1
+            seconds += 1
+        return seconds
+` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int fillCups(int[] amount) {
+        int seconds = 0;
+        while (amount[0] &gt; 0 || amount[1] &gt; 0 || amount[2] &gt; 0) {
+            Arrays.sort(amount);
+            if (amount[2] &gt; 0 && amount[1] &gt; 0) {
+                amount[2]--;
+                amount[1]--;
+            } else if (amount[2] &gt; 0) {
+                amount[2]--;
+            }
+            seconds++;
+        }
+        return seconds;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    int fillCups(vector<int>& amount) {
+        int seconds = 0;
+        while (amount[0] &gt; 0 || amount[1] &gt; 0 || amount[2] &gt; 0) {
+            sort(amount.rbegin(), amount.rend());
+            if (amount[0] &gt; 0 && amount[1] &gt; 0) {
+                amount[0]--;
+                amount[1]--;
+            } else if (amount[0] &gt; 0) {
+                amount[0]--;
+            }
+            seconds++;
+        }
+        return seconds;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} amount
+ * @return {number}
+ */
+var fillCups = function(amount) {
+    let seconds = 0;
+    while (amount[0] &gt; 0 || amount[1] &gt; 0 || amount[2] &gt; 0) {
+        amount.sort((a, b) =&gt; b - a);
+        if (amount[0] &gt; 0 && amount[1] &gt; 0) {
+            amount[0]--;
+            amount[1]--;
+        } else if (amount[0] &gt; 0) {
+            amount[0]--;
+        }
+        seconds++;
+    }
+    return seconds;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function fillCups(amount: number[]): number {
+    let seconds = 0;
+    while (amount[0] &gt; 0 || amount[1] &gt; 0 || amount[2] &gt; 0) {
+        amount.sort((a, b) =&gt; b - a);
+        if (amount[0] &gt; 0 && amount[1] &gt; 0) {
+            amount[0]--;
+            amount[1]--;
+        } else if (amount[0] &gt; 0) {
+            amount[0]--;
+        }
+        seconds++;
+    }
+    return seconds;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the maximum cup count
+- Space: O(1)
+- Notes: Sorting at each iteration makes this less efficient than the mathematical approach
+
+## Max-Heap Approach
+
+**Intuition**
+Use a max-heap to efficiently retrieve and update the two largest cup counts at each step.
+
+**Steps**
+- Push all cup counts into a max-heap
+- While heap has more than one element, pop two largest values
+- Decrement both and push back if still positive
+- Count operations and add remaining single cup count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import heapq
+
+class Solution:
+    def fillCups(self, amount: List[int]) -> int:
+        heap = [-a for a in amount if a &gt; 0]
+        heapq.heapify(heap)
+        seconds = 0
+        
+        while len(heap) &gt; 1:
+            a = -heapq.heappop(heap)
+            b = -heapq.heappop(heap)
+            a -= 1
+            b -= 1
+            if a &gt; 0:
+                heapq.heappush(heap, -a)
+            if b &gt; 0:
+                heapq.heappush(heap, -b)
+            seconds += 1
+        
+        if heap:
+            seconds += -heap[0]
+        
+        return seconds
+` },
+{ name: "Java", lang: "java", code: `import java.util.PriorityQueue;
+
+class Solution {
+    public int fillCups(int[] amount) {
+        PriorityQueue<Integer> maxHeap = new PriorityQueue&lt;&gt;((a, b) -> b - a);
+        for (int a : amount) {
+            if (a &gt; 0) {
+                maxHeap.offer(a);
+            }
+        }
+        
+        int seconds = 0;
+        while (maxHeap.size() &gt; 1) {
+            int a = maxHeap.poll();
+            int b = maxHeap.poll();
+            a--;
+            b--;
+            if (a &gt; 0) {
+                maxHeap.offer(a);
+            }
+            if (b &gt; 0) {
+                maxHeap.offer(b);
+            }
+            seconds++;
+        }
+        
+        if (!maxHeap.isEmpty()) {
+            seconds += maxHeap.poll();
+        }
+        
+        return seconds;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <queue>
+
+class Solution {
+public:
+    int fillCups(vector<int>& amount) {
+        priority_queue<int> maxHeap;
+        for (int a : amount) {
+            if (a &gt; 0) {
+                maxHeap.push(a);
+            }
+        }
+        
+        int seconds = 0;
+        while (maxHeap.size() &gt; 1) {
+            int a = maxHeap.top();
+            maxHeap.pop();
+            int b = maxHeap.top();
+            maxHeap.pop();
+            a--;
+            b--;
+            if (a &gt; 0) {
+                maxHeap.push(a);
+            }
+            if (b &gt; 0) {
+                maxHeap.push(b);
+            }
+            seconds++;
+        }
+        
+        if (!maxHeap.empty()) {
+            seconds += maxHeap.top();
+        }
+        
+        return seconds;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} amount
+ * @return {number}
+ */
+var fillCups = function(amount) {
+    let heap = amount.filter(a =&gt; a &gt; 0);
+    let seconds = 0;
+    
+    while (heap.length &gt; 1) {
+        heap.sort((a, b) =&gt; b - a);
+        let a = heap.shift() - 1;
+        let b = heap.shift() - 1;
+        if (a &gt; 0) heap.push(a);
+        if (b &gt; 0) heap.push(b);
+        seconds++;
+    }
+    
+    if (heap.length &gt; 0) {
+        seconds += heap[0];
+    }
+    
+    return seconds;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function fillCups(amount: number[]): number {
+    let heap = amount.filter(a =&gt; a &gt; 0);
+    let seconds = 0;
+    
+    while (heap.length &gt; 1) {
+        heap.sort((a, b) =&gt; b - a);
+        let a = heap.shift() - 1;
+        let b = heap.shift() - 1;
+        if (a &gt; 0) heap.push(a);
+        if (b &gt; 0) heap.push(b);
+        seconds++;
+    }
+    
+    if (heap.length &gt; 0) {
+        seconds += heap[0];
+    }
+    
+    return seconds;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the maximum cup count
+- Space: O(1) - heap has at most 3 elements
+- Notes: More efficient than sorting simulation but still not as optimal as mathematical approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Amount of Time to Fill Cups Solutions","datePublished":"2025-08-31","description":"Find the minimum time to fill cups of different types when you can fill up to 2 cups per second.","keywords":"LeetCode, Minimum Amount of Time to Fill Cups, Easy, Array, Greedy, Sorting, Heap (Priority Queue)"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Mathematical Approach?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical Approach has O(1) time complexity since we only need to find the maximum and sum of a fixed-size array of 3 elements."}},{"@type":"Question","name":"What is the time complexity of the Sorting Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting Simulation approach has O(n log n) time complexity where n is the maximum cup count, as we sort the array in each iteration."}},{"@type":"Question","name":"What is the time complexity of the Max-Heap approach?","acceptedAnswer":{"@type":"Answer","text":"The Max-Heap approach has O(n log n) time complexity where n is the maximum cup count, as we perform heap operations in each iteration."}},{"@type":"Question","name":"Which approach is the most optimal?","acceptedAnswer":{"@type":"Answer","text":"The Mathematical Approach is the most optimal with O(1) time and O(1) space complexity, making it the preferred solution for this problem."}}]}).replace(/</g,'\u003c')}
+</script>

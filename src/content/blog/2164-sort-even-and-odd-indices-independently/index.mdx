@@ -1,0 +1,147 @@
+---
+title: "Sort Even and Odd Indices Independently"
+summary: "Sort values at even indices in non-decreasing order and odd indices in non-increasing order."
+date: "Oct 31, 2024"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.30% | **Paid:** No
+> **Topics:** Array, Sorting
+
+You are given a 0-indexed integer array nums. Rearrange the values of nums according to the following rules:
+
+1. Sort the values at odd indices of nums in non-increasing order.
+2. Sort the values at even indices of nums in non-decreasing order.
+
+Return the array formed after rearranging nums's values.
+
+- Examples
+- Constraints
+- [Separate and Sort](#separate-and-sort)
+- [In-place Modification](#in-place-modification)
+- [Priority Queue Approach](#priority-queue-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [4,1,2,3]
+```
+
+**Output:**
+```text
+[2,3,4,1]
+```
+
+**Explanation:**
+First, we sort the values present at odd indices (1 and 3) in non-increasing order.
+So, nums changes from [4,1,2,3] to [4,3,2,1].
+Next, we sort the values present at even indices (0 and 2) in non-decreasing order.
+So, nums changes from [4,1,2,3] to [2,3,4,1].
+Thus, the array formed after rearranging the values is [2,3,4,1].
+
+### Example 2
+
+**Input:**
+```text
+nums = [2,1]
+```
+
+**Output:**
+```text
+[2,1]
+```
+
+**Explanation:**
+Since there is exactly one odd index and one even index, no rearrangement of values takes place.
+The resultant array formed is [2,1], which is the same as the initial array.
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+---
+## Separate and Sort
+
+**Intuition**
+Extract elements at even and odd indices into separate arrays, sort them independently, then merge back into the result array.
+
+**Steps**
+- Create two separate arrays for even and odd indexed elements
+- Sort even-indexed elements in ascending order
+- Sort odd-indexed elements in descending order
+- Merge the sorted arrays back into their original positions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortEvenOdd(self, nums: List[int]) -&gt; List[int]:\n        even = [nums[i] for i in range(0, len(nums), 2)]\n        odd = [nums[i] for i in range(1, len(nums), 2)]\n        \n        even.sort()\n        odd.sort(reverse=True)\n        \n        result = []\n        e_idx, o_idx = 0, 0\n        for i in range(len(nums)):\n            if i % 2 == 0:\n                result.append(even[e_idx])\n                e_idx += 1\n            else:\n                result.append(odd[o_idx])\n                o_idx += 1\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] sortEvenOdd(int[] nums) {\n        List&lt;Integer&gt; even = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; odd = new ArrayList&lt;&gt;();\n        \n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                even.add(nums[i]);\n            } else {\n                odd.add(nums[i]);\n            }\n        }\n        \n        Collections.sort(even);\n        Collections.sort(odd, Collections.reverseOrder());\n        \n        int[] result = new int[nums.length];\n        int eIdx = 0, oIdx = 0;\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                result[i] = even.get(eIdx++);\n            } else {\n                result[i] = odd.get(oIdx++);\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; sortEvenOdd(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; even, odd;\n        \n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                even.push_back(nums[i]);\n            } else {\n                odd.push_back(nums[i]);\n            }\n        }\n        \n        sort(even.begin(), even.end());\n        sort(odd.begin(), odd.end(), greater&lt;int&gt;());\n        \n        vector&lt;int&gt; result(nums.size());\n        int eIdx = 0, oIdx = 0;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                result[i] = even[eIdx++];\n            } else {\n                result[i] = odd[oIdx++];\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    sortEvenOdd(nums) {\n        const even = [];\n        const odd = [];\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                even.push(nums[i]);\n            } else {\n                odd.push(nums[i]);\n            }\n        }\n        \n        even.sort((a, b) =&gt; a - b);\n        odd.sort((a, b) =&gt; b - a);\n        \n        const result = new Array(nums.length);\n        let eIdx = 0, oIdx = 0;\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                result[i] = even[eIdx++];\n            } else {\n                result[i] = odd[oIdx++];\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    sortEvenOdd(nums: number[]): number[] {\n        const even: number[] = [];\n        const odd: number[] = [];\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                even.push(nums[i]);\n            } else {\n                odd.push(nums[i]);\n            }\n        }\n        \n        even.sort((a, b) =&gt; a - b);\n        odd.sort((a, b) =&gt; b - a);\n        \n        const result: number[] = new Array(nums.length);\n        let eIdx = 0, oIdx = 0;\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                result[i] = even[eIdx++];\n            } else {\n                result[i] = odd[oIdx++];\n            }\n        }\n        \n        return result;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Uses extra space for separate arrays but is straightforward and readable.
+
+---
+## In-place Modification
+
+**Intuition**
+Modify the input array directly by extracting, sorting, and placing elements back at their correct positions without creating a new result array.
+
+**Steps**
+- Extract even and odd indexed elements into separate lists
+- Sort even list ascending and odd list descending
+- Place sorted elements back into the original array at their respective positions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def sortEvenOdd(self, nums: List[int]) -&gt; List[int]:\n        even = sorted([nums[i] for i in range(0, len(nums), 2)])\n        odd = sorted([nums[i] for i in range(1, len(nums), 2)], reverse=True)\n        \n        for i in range(0, len(nums), 2):\n            nums[i] = even[i // 2]\n        \n        for i in range(1, len(nums), 2):\n            nums[i] = odd[i // 2]\n        \n        return nums" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] sortEvenOdd(int[] nums) {\n        List&lt;Integer&gt; even = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; odd = new ArrayList&lt;&gt;();\n        \n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                even.add(nums[i]);\n            } else {\n                odd.add(nums[i]);\n            }\n        }\n        \n        Collections.sort(even);\n        Collections.sort(odd, Collections.reverseOrder());\n        \n        int eIdx = 0, oIdx = 0;\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                nums[i] = even.get(eIdx++);\n            } else {\n                nums[i] = odd.get(oIdx++);\n            }\n        }\n        \n        return nums;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; sortEvenOdd(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; even, odd;\n        \n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                even.push_back(nums[i]);\n            } else {\n                odd.push_back(nums[i]);\n            }\n        }\n        \n        sort(even.begin(), even.end());\n        sort(odd.begin(), odd.end(), greater&lt;int&gt;());\n        \n        int eIdx = 0, oIdx = 0;\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                nums[i] = even[eIdx++];\n            } else {\n                nums[i] = odd[oIdx++];\n            }\n        }\n        \n        return nums;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    sortEvenOdd(nums) {\n        const even = [];\n        const odd = [];\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                even.push(nums[i]);\n            } else {\n                odd.push(nums[i]);\n            }\n        }\n        \n        even.sort((a, b) =&gt; a - b);\n        odd.sort((a, b) =&gt; b - a);\n        \n        let eIdx = 0, oIdx = 0;\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                nums[i] = even[eIdx++];\n            } else {\n                nums[i] = odd[oIdx++];\n            }\n        }\n        \n        return nums;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    sortEvenOdd(nums: number[]): number[] {\n        const even: number[] = [];\n        const odd: number[] = [];\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                even.push(nums[i]);\n            } else {\n                odd.push(nums[i]);\n            }\n        }\n        \n        even.sort((a, b) =&gt; a - b);\n        odd.sort((a, b) =&gt; b - a);\n        \n        let eIdx = 0, oIdx = 0;\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                nums[i] = even[eIdx++];\n            } else {\n                nums[i] = odd[oIdx++];\n            }\n        }\n        \n        return nums;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Modifies input array in-place but still uses O(n) auxiliary space for sorting.
+
+---
+## Priority Queue Approach
+
+**Intuition**
+Use a min-heap for even indices and a max-heap for odd indices to efficiently retrieve elements in the required sorted order during reconstruction.
+
+**Steps**
+- Push all even-indexed elements into a min-heap
+- Push all odd-indexed elements into a max-heap
+- Pop elements from heaps alternately to build the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def sortEvenOdd(self, nums: List[int]) -&gt; List[int]:\n        min_heap = []\n        max_heap = []\n        \n        for i in range(len(nums)):\n            if i % 2 == 0:\n                heapq.heappush(min_heap, nums[i])\n            else:\n                heapq.heappush(max_heap, -nums[i])\n        \n        result = []\n        for i in range(len(nums)):\n            if i % 2 == 0:\n                result.append(heapq.heappop(min_heap))\n            else:\n                result.append(-heapq.heappop(max_heap))\n        \n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int[] sortEvenOdd(int[] nums) {\n        PriorityQueue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();\n        PriorityQueue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        \n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                minHeap.offer(nums[i]);\n            } else {\n                maxHeap.offer(nums[i]);\n            }\n        }\n        \n        int[] result = new int[nums.length];\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (i % 2 == 0) {\n                result[i] = minHeap.poll();\n            } else {\n                result[i] = maxHeap.poll();\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; sortEvenOdd(vector&lt;int&gt;& nums) {\n        priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap;\n        priority_queue&lt;int&gt; maxHeap;\n        \n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                minHeap.push(nums[i]);\n            } else {\n                maxHeap.push(nums[i]);\n            }\n        }\n        \n        vector&lt;int&gt; result(nums.size());\n        for (int i = 0; i &lt; nums.size(); i++) {\n            if (i % 2 == 0) {\n                result[i] = minHeap.top();\n                minHeap.pop();\n            } else {\n                result[i] = maxHeap.top();\n                maxHeap.pop();\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MinHeap {\n    constructor() {\n        this.heap = [];\n    }\n    \n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            const parentIdx = Math.floor((idx - 1) / 2);\n            if (this.heap[parentIdx] &lt;= this.heap[idx]) break;\n            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];\n            idx = parentIdx;\n        }\n    }\n    \n    pop() {\n        const min = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return min;\n    }\n    \n    sinkDown(idx) {\n        while (true) {\n            const leftChild = 2 * idx + 1;\n            const rightChild = 2 * idx + 2;\n            let swapIdx = null;\n            \n            if (leftChild &lt; this.heap.length && this.heap[leftChild] &lt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            \n            if (rightChild &lt; this.heap.length && \n                ((swapIdx === null && this.heap[rightChild] &lt; this.heap[idx]) ||\n                 (swapIdx !== null && this.heap[rightChild] &lt; this.heap[leftChild]))) {\n                swapIdx = rightChild;\n            }\n            \n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n}\n\nclass MaxHeap {\n    constructor() {\n        this.heap = [];\n    }\n    \n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            const parentIdx = Math.floor((idx - 1) / 2);\n            if (this.heap[parentIdx] &gt;= this.heap[idx]) break;\n            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];\n            idx = parentIdx;\n        }\n    }\n    \n    pop() {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n    \n    sinkDown(idx) {\n        while (true) {\n            const leftChild = 2 * idx + 1;\n            const rightChild = 2 * idx + 2;\n            let swapIdx = null;\n            \n            if (leftChild &lt; this.heap.length && this.heap[leftChild] &gt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            \n            if (rightChild &lt; this.heap.length && \n                ((swapIdx === null && this.heap[rightChild] &gt; this.heap[idx]) ||\n                 (swapIdx !== null && this.heap[rightChild] &gt; this.heap[leftChild]))) {\n                swapIdx = rightChild;\n            }\n            \n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n}\n\nclass Solution {\n    sortEvenOdd(nums) {\n        const minHeap = new MinHeap();\n        const maxHeap = new MaxHeap();\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                minHeap.push(nums[i]);\n            } else {\n                maxHeap.push(nums[i]);\n            }\n        }\n        \n        const result = new Array(nums.length);\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                result[i] = minHeap.pop();\n            } else {\n                result[i] = maxHeap.pop();\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class MinHeap {\n    heap: number[] = [];\n    \n    push(val: number): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    bubbleUp(idx: number): void {\n        while (idx &gt; 0) {\n            const parentIdx = Math.floor((idx - 1) / 2);\n            if (this.heap[parentIdx] &lt;= this.heap[idx]) break;\n            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];\n            idx = parentIdx;\n        }\n    }\n    \n    pop(): number {\n        const min = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end!;\n            this.sinkDown(0);\n        }\n        return min;\n    }\n    \n    sinkDown(idx: number): void {\n        while (true) {\n            const leftChild = 2 * idx + 1;\n            const rightChild = 2 * idx + 2;\n            let swapIdx: number | null = null;\n            \n            if (leftChild &lt; this.heap.length && this.heap[leftChild] &lt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            \n            if (rightChild &lt; this.heap.length && \n                ((swapIdx === null && this.heap[rightChild] &lt; this.heap[idx]) ||\n                 (swapIdx !== null && this.heap[rightChild] &lt; this.heap[leftChild]))) {\n                swapIdx = rightChild;\n            }\n            \n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx!]] = [this.heap[swapIdx!], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n}\n\nclass MaxHeap {\n    heap: number[] = [];\n    \n    push(val: number): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    bubbleUp(idx: number): void {\n        while (idx &gt; 0) {\n            const parentIdx = Math.floor((idx - 1) / 2);\n            if (this.heap[parentIdx] &gt;= this.heap[idx]) break;\n            [this.heap[parentIdx], this.heap[idx]] = [this.heap[idx], this.heap[parentIdx]];\n            idx = parentIdx;\n        }\n    }\n    \n    pop(): number {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end!;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n    \n    sinkDown(idx: number): void {\n        while (true) {\n            const leftChild = 2 * idx + 1;\n            const rightChild = 2 * idx + 2;\n            let swapIdx: number | null = null;\n            \n            if (leftChild &lt; this.heap.length && this.heap[leftChild] &gt; this.heap[idx]) {\n                swapIdx = leftChild;\n            }\n            \n            if (rightChild &lt; this.heap.length && \n                ((swapIdx === null && this.heap[rightChild] &gt; this.heap[idx]) ||\n                 (swapIdx !== null && this.heap[rightChild] &gt; this.heap[leftChild]))) {\n                swapIdx = rightChild;\n            }\n            \n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx!]] = [this.heap[swapIdx!], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n}\n\nclass Solution {\n    sortEvenOdd(nums: number[]): number[] {\n        const minHeap = new MinHeap();\n        const maxHeap = new MaxHeap();\n        \n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                minHeap.push(nums[i]);\n            } else {\n                maxHeap.push(nums[i]);\n            }\n        }\n        \n        const result: number[] = new Array(nums.length);\n        for (let i = 0; i &lt; nums.length; i++) {\n            if (i % 2 === 0) {\n                result[i] = minHeap.pop();\n            } else {\n                result[i] = maxHeap.pop();\n            }\n        }\n        \n        return result;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Useful when elements need to be processed in sorted order dynamically, but has higher constant factors than simple sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Sort Even and Odd Indices Independently Solutions","datePublished":"2024-10-31","description":"Sort values at even indices in non-decreasing order and odd indices in non-increasing order.","keywords":"LeetCode, Sort Even and Odd Indices Independently, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Separate and Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to sorting operations."}},{"@type":"Question","name":"What is the space complexity of In-place Modification approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for auxiliary arrays used during sorting."}},{"@type":"Question","name":"When should I use the Priority Queue approach?","acceptedAnswer":{"@type":"Answer","text":"Use Priority Queue approach when you need dynamic access to sorted elements, though it has higher constant factors than simple sorting."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,252 @@
+---
+title: "Recyclable and Low Fat Products"
+summary: "Find product IDs for products that are both recyclable and low fat."
+date: "Nov 30, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 88.70% | **Paid:** No
+> **Topics:** Database
+
+Table: Products
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| product_id  | int     |
+| low_fats    | enum    |
+| recyclable  | enum    |
++-------------+---------+
+product_id is the primary key (column with unique values) for this table.
+low_fats is an ENUM (category) of type ('Y', 'N') where 'Y' means it is low fat and 'N' means it is not low fat.
+recyclable is an ENUM (category) of types ('Y', 'N') where 'Y' means the product is recyclable and 'N' means it is not recyclable.
+
+Write a solution to find the ids of products that are both low fat and recyclable.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Basic WHERE with AND](#basic-where-with-and)
+- [Using Boolean Logic](#using-boolean-logic)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+Products table:
++-------------+----------+------------+
+| product_id  | low_fats | recyclable |
++-------------+----------+------------+
+| 0           | Y        | N          |
+| 1           | Y        | Y          |
+| 2           | N        | Y          |
+| 3           | Y        | Y          |
+| 4           | N        | N          |
++-------------+----------+------------+
+```
+
+**Output:**
+```text
++-------------+
+| product_id  |
++-------------+
+| 1           |
+| 3           |
++-------------+
+```
+
+**Explanation:**
+Only products 1 and 3 are both low fat and recyclable.
+
+## Constraints
+
+```text
+1 <= product_id <= 1000
+```
+
+## Basic WHERE with AND
+
+**Intuition**
+Use a simple WHERE clause with AND to filter rows where both conditions are true.
+
+**Steps**
+- Select product_id from Products table
+- Filter where low_fats = 'Y' AND recyclable = 'Y'
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_products(products: pd.DataFrame) -> pd.DataFrame:
+    result = products[(products['low_fats'] == 'Y') & (products['recyclable'] == 'Y')]
+    return result[['product_id']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+class Solution {
+    public List<Integer> findProducts(Connection conn) throws SQLException {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        String sql = "SELECT product_id FROM Products WHERE low_fats = 'Y' AND recyclable = 'Y'";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                result.add(rs.getInt("product_id"));
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <sqlite3.h>
+
+using namespace std;
+
+vector<int> findProducts(sqlite3* db) {
+    vector<int> result;
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT product_id FROM Products WHERE low_fats = 'Y' AND recyclable = 'Y'";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            result.push_back(sqlite3_column_int(stmt, 0));
+        }
+        sqlite3_finalize(stmt);
+    }
+    return result;
+}` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array} products
+ * @return {Array}
+ */
+var findProducts = function(products) {
+    return products
+        .filter(p =&gt; p.low_fats === 'Y' && p.recyclable === 'Y')
+        .map(p =&gt; ({ product_id: p.product_id }));
+};` },
+{ name: "TypeScript", lang: "typescript", code: `interface Product {
+    product_id: number;
+    low_fats: string;
+    recyclable: string;
+}
+
+function findProducts(products: Product[]): Product[] {
+    return products
+        .filter(p =&gt; p.low_fats === 'Y' && p.recyclable === 'Y')
+        .map(p =&gt; ({ product_id: p.product_id }));
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in Products table
+- Space: O(k) where k is the number of matching products
+- Notes: This is the most straightforward and efficient approach for this problem.
+
+## Using Boolean Logic
+
+**Intuition**
+Use boolean logic to combine conditions and filter the results.
+
+**Steps**
+- Select product_id from Products table
+- Apply boolean AND operation on both conditions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def find_products(products: pd.DataFrame) -> pd.DataFrame:
+    mask = (products['low_fats'] == 'Y') & (products['recyclable'] == 'Y')
+    result = products.loc[mask, ['product_id']]
+    return result` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+class Solution {
+    public List<Integer> findProducts(Connection conn) throws SQLException {
+        List<Integer> result = new ArrayList&lt;&gt;();
+        String sql = "SELECT product_id FROM Products WHERE low_fats = 'Y' AND recyclable = 'Y'";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            result.add(rs.getInt("product_id"));
+        }
+        rs.close();
+        pstmt.close();
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <sqlite3.h>
+
+using namespace std;
+
+vector<int> findProducts(sqlite3* db) {
+    vector<int> result;
+    const char* sql = "SELECT product_id FROM Products WHERE low_fats = 'Y' AND recyclable = 'Y'";
+    sqlite3_stmt* stmt;
+    
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            int id = sqlite3_column_int(stmt, 0);
+            result.push_back(id);
+        }
+        sqlite3_finalize(stmt);
+    }
+    return result;
+}` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array} products
+ * @return {Array}
+ */
+var findProducts = function(products) {
+    const result = [];
+    for (let i = 0; i &lt; products.length; i++) {
+        const p = products[i];
+        if (p.low_fats === 'Y' && p.recyclable === 'Y') {
+            result.push({ product_id: p.product_id });
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `interface Product {
+    product_id: number;
+    low_fats: string;
+    recyclable: string;
+}
+
+interface Result {
+    product_id: number;
+}
+
+function findProducts(products: Product[]): Result[] {
+    const result: Result[] = [];
+    for (let i = 0; i &lt; products.length; i++) {
+        const p = products[i];
+        if (p.low_fats === 'Y' && p.recyclable === 'Y') {
+            result.push({ product_id: p.product_id });
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in Products table
+- Space: O(k) where k is the number of matching products
+- Notes: This approach demonstrates explicit boolean logic and iteration.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Recyclable and Low Fat Products Solutions","datePublished":"2025-11-30","description":"Find product IDs for products that are both recyclable and low fat.","keywords":"LeetCode, Recyclable and Low Fat Products, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Basic WHERE with AND approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Products table, as we need to scan through all rows to find matching products."}},{"@type":"Question","name":"What is the space complexity of the Basic WHERE with AND approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of matching products, as we store only the results that match our criteria."}},{"@type":"Question","name":"What is the time complexity of the Using Boolean Logic approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Products table, as we need to scan through all rows to find matching products."}},{"@type":"Question","name":"What is the space complexity of the Using Boolean Logic approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(k) where k is the number of matching products, as we store only the results that match our criteria."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,418 @@
+---
+title: "Number of Segments in a String"
+summary: "Count the number of segments in a string, where a segment is defined as a contiguous sequence of non-space characters."
+date: "Jan 05, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 37.30% | **Paid:** No
+> **Topics:** String
+
+Given a string s, return the number of segments in the string.
+
+A segment is defined as a contiguous sequence of non-space characters.
+
+- Examples
+- Constraints
+- [Built-in Split](#built-in-split)
+- [Linear Scan (State Machine)](#linear-scan-state-machine)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "Hello, my name is John"
+```
+
+**Output:**
+```text
+5
+```
+
+**Explanation:**
+The five segments are ["Hello,", "my", "name", "is", "John"]
+
+### Example 2
+
+**Input:**
+```text
+s = "Hello"
+```
+
+**Output:**
+```text
+1
+```
+
+## Constraints
+
+```text
+0 <= s.length <= 300
+s consists of English letters, digits, symbols, and spaces.
+```
+
+---
+## Built-in Split
+
+**Intuition**
+Most programming languages provide a built-in method to split strings by a delimiter (whitespace in this case). We can split the string and count the resulting non-empty tokens.
+
+**Steps**
+- Trim leading and trailing whitespace from the string.
+- If the string is empty after trimming, return 0.
+- Split the string by one or more whitespace characters.
+- Return the length of the resulting array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countSegments(self, s: str) -> int:
+        # split() without arguments splits by any whitespace and ignores empty strings
+        return len(s.split())
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countSegments(String s) {
+        // Trim to handle leading/trailing spaces, then split by one or more spaces
+        s = s.trim();
+        if (s.isEmpty()) {
+            return 0;
+        }
+        // "\\\\s+" matches one or more whitespace characters
+        return s.split("\\\\s+").length;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <sstream>
+#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    int countSegments(string s) {
+        stringstream ss(s);
+        string word;
+        int count = 0;
+        // The &gt;&gt; operator skips whitespace automatically
+        while (ss &gt;&gt; word) {
+            count++;
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {number}
+ */
+var countSegments = function(s) {
+    // Trim removes leading/trailing spaces. 
+    // Split with regex /\\s+/ handles multiple spaces between words.
+    // Filter removes empty strings that might result from specific split behaviors or edge cases.
+    return s.trim().split(/\\s+/).filter(x =&gt; x.length &gt; 0).length;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countSegments(s: string): number {
+    // Trim removes leading/trailing spaces.
+    // Split with regex /\\s+/ handles multiple spaces between words.
+    // Filter removes empty strings.
+    return s.trim().split(/\\s+/).filter(x =&gt; x.length &gt; 0).length;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Splitting the string requires iterating through all characters.
+- Space: O(n) - In the worst case, we store the entire string in an array of segments.
+- Notes: This approach is concise and readable but uses extra space proportional to the input size.
+
+---
+## Linear Scan (State Machine)
+
+**Intuition**
+We can iterate through the string character by character. We maintain a state indicating whether we are currently inside a segment. We increment the counter only when we transition from a space to a non-space character.
+
+**Steps**
+- Initialize `segmentCount` to 0 and `inSegment` to false.
+- Iterate through each character in the string.
+- If the current character is not a space:
+  - If we are not currently `inSegment`, increment `segmentCount` and set `inSegment` to true.
+- If the current character is a space:
+  - Set `inSegment` to false.
+- Return `segmentCount`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countSegments(self, s: str) -> int:
+        count = 0
+        in_segment = False
+        
+        for char in s:
+            if char != ' ':
+                if not in_segment:
+                    count += 1
+                    in_segment = True
+            else:
+                in_segment = False
+                
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countSegments(String s) {
+        int segmentCount = 0;
+        boolean inSegment = false;
+        
+        for (int i = 0; i &lt; s.length(); i++) {
+            char c = s.charAt(i);
+            if (c != ' ') {
+                if (!inSegment) {
+                    segmentCount++;
+                    inSegment = true;
+                }
+            } else {
+                inSegment = false;
+            }
+        }
+        
+        return segmentCount;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    int countSegments(string s) {
+        int segmentCount = 0;
+        bool inSegment = false;
+        
+        for (char c : s) {
+            if (c != ' ') {
+                if (!inSegment) {
+                    segmentCount++;
+                    inSegment = true;
+                }
+            } else {
+                inSegment = false;
+            }
+        }
+        
+        return segmentCount;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {number}
+ */
+var countSegments = function(s) {
+    let segmentCount = 0;
+    let inSegment = false;
+    
+    for (let i = 0; i &lt; s.length; i++) {
+        const c = s[i];
+        if (c !== ' ') {
+            if (!inSegment) {
+                segmentCount++;
+                inSegment = true;
+            }
+        } else {
+            inSegment = false;
+        }
+    }
+    
+    return segmentCount;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countSegments(s: string): number {
+    let segmentCount = 0;
+    let inSegment = false;
+    
+    for (let i = 0; i &lt; s.length; i++) {
+        const c = s[i];
+        if (c !== ' ') {
+            if (!inSegment) {
+                segmentCount++;
+                inSegment = true;
+            }
+        } else {
+            inSegment = false;
+        }
+    }
+    
+    return segmentCount;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the string exactly once.
+- Space: O(1) - We only use a few variables for state and counting.
+- Notes: This is the most space-efficient approach as it avoids creating an auxiliary array.
+
+---
+## Two Pointers
+
+**Intuition**
+We can use a pointer to traverse the string. We skip any leading spaces. When we find a non-space character, we have found a new segment. We then skip all subsequent non-space characters to find the end of the current segment, and repeat the process.
+
+**Steps**
+- Initialize `i` to 0 and `count` to 0.
+- While `i` is less than the string length:
+  - Skip all space characters by incrementing `i`.
+  - If `i` is still within bounds (meaning we found a non-space char), increment `count`.
+  - While `i` is within bounds and the character at `i` is not a space, increment `i` (move to the end of the segment).
+- Return `count`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def countSegments(self, s: str) -> int:
+        n = len(s)
+        i = 0
+        count = 0
+        
+        while i &lt; n:
+            # Skip spaces
+            while i &lt; n and s[i] == ' ':
+                i += 1
+            
+            # If we found a non-space character, it's a new segment
+            if i &lt; n:
+                count += 1
+                
+            # Skip the non-space characters of the current segment
+            while i &lt; n and s[i] != ' ':
+                i += 1
+                
+        return count
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int countSegments(String s) {
+        int n = s.length();
+        int i = 0;
+        int count = 0;
+        
+        while (i &lt; n) {
+            // Skip spaces
+            while (i &lt; n && s.charAt(i) == ' ') {
+                i++;
+            }
+            
+            // If we found a non-space character, it's a new segment
+            if (i &lt; n) {
+                count++;
+            }
+            
+            // Skip the non-space characters of the current segment
+            while (i &lt; n && s.charAt(i) != ' ') {
+                i++;
+            }
+        }
+        
+        return count;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+
+using namespace std;
+
+class Solution {
+public:
+    int countSegments(string s) {
+        int n = s.length();
+        int i = 0;
+        int count = 0;
+        
+        while (i &lt; n) {
+            // Skip spaces
+            while (i &lt; n && s[i] == ' ') {
+                i++;
+            }
+            
+            // If we found a non-space character, it's a new segment
+            if (i &lt; n) {
+                count++;
+            }
+            
+            // Skip the non-space characters of the current segment
+            while (i &lt; n && s[i] != ' ') {
+                i++;
+            }
+        }
+        
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {number}
+ */
+var countSegments = function(s) {
+    const n = s.length;
+    let i = 0;
+    let count = 0;
+    
+    while (i &lt; n) {
+        // Skip spaces
+        while (i &lt; n && s[i] === ' ') {
+            i++;
+        }
+        
+        // If we found a non-space character, it's a new segment
+        if (i &lt; n) {
+            count++;
+        }
+        
+        // Skip the non-space characters of the current segment
+        while (i &lt; n && s[i] !== ' ') {
+            i++;
+        }
+    }
+    
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function countSegments(s: string): number {
+    const n = s.length;
+    let i = 0;
+    let count = 0;
+    
+    while (i &lt; n) {
+        // Skip spaces
+        while (i &lt; n && s[i] === ' ') {
+            i++;
+        }
+        
+        // If we found a non-space character, it's a new segment
+        if (i &lt; n) {
+            count++;
+        }
+        
+        // Skip the non-space characters of the current segment
+        while (i &lt; n && s[i] !== ' ') {
+            i++;
+        }
+    }
+    
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Each character is visited at most twice (once by the outer loop logic, once by the inner skip logic).
+- Space: O(1) - No extra space is used apart from pointers and counters.
+- Notes: This approach effectively mimics how a parser might tokenize the input string.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Segments in a String Solutions","datePublished":"2025-01-05","description":"Count the number of segments in a string, where a segment is defined as a contiguous sequence of non-space characters.","keywords":"LeetCode, Number of Segments in a String, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Built-in Split approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we must iterate through the entire string to split it."}},{"@type":"Question","name":"What is the space complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few variables to track the state and count, without allocating extra data structures proportional to the input size."}},{"@type":"Question","name":"How does the Two Pointers approach handle multiple spaces between words?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers approach explicitly skips over consecutive space characters using a while loop, ensuring that multiple spaces are treated as a single delimiter."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,126 @@
+---
+title: "Check If String Is a Prefix of Array"
+summary: "Given a string s and an array of strings words, check if s can be formed by concatenating some prefix of words in order."
+date: "Nov 04, 2025"
+tags:
+  - Array
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 52.80% | **Paid:** No
+> **Topics:** Array, Two Pointers, String
+
+Given a string s and an array of strings words, determine whether s is a prefix string of the concatenated string formed by words in order.
+
+A prefix string is a string that can be made by concatenating some prefix of the array words (i.e., some contiguous subarray starting from the beginning).
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Concatenation](#approach-1-iterative-concatenation)
+- [Approach 2: Two Pointers / Index Tracking](#approach-2-two-pointers--index-tracking)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "iloveleetcode", words = ["i","love","leetcode","apples"]
+```
+
+**Output:**
+```text
+true
+```
+
+**Explanation:**
+s can be made by concatenating "i", "love", and "leetcode" together.
+
+### Example 2
+
+**Input:**
+```text
+s = "iloveleetcode", words = ["apples","i","love","leetcode"]
+```
+
+**Output:**
+```text
+false
+```
+
+**Explanation:**
+It is impossible to make s using a prefix of arr.
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 20
+1 <= s.length <= 10⁴
+words[i] and s consist of only lowercase English letters.
+```
+
+---
+## Approach 1: Iterative Concatenation
+
+**Intuition**
+We can simulate the process of building the prefix string by iterating through the `words` array and appending each word to a temporary string. After each append, we check if the temporary string matches `s` or if it has become longer than `s`.
+
+**Steps**
+- Initialize an empty string `current` to store the concatenated prefix.
+- Iterate through each word in the `words` array.
+- Append the current word to `current`.
+- Check if `current` is equal to `s`. If yes, return `true`.
+- Check if the length of `current` is greater than the length of `s`. If yes, return `false` because `s` cannot be a prefix of a string that is already longer than it.
+- If the loop finishes without finding a match, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPrefixString(self, s: str, words: list[str]) -&gt; bool:\n        current = \"\"\n        for word in words:\n            current += word\n            if current == s:\n                return True\n            if len(current) &gt; len(s):\n                return False\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPrefixString(String s, String[] words) {\n        StringBuilder current = new StringBuilder();\n        for (String word : words) {\n            current.append(word);\n            if (current.length() &gt; s.length()) {\n                return false;\n            }\n            if (current.toString().equals(s)) {\n                return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPrefixString(string s, vector&lt;string&gt;& words) {\n        string current = \"\";\n        for (const string& word : words) {\n            current += word;\n            if (current.length() &gt; s.length()) {\n                return false;\n            }\n            if (current == s) {\n                return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPrefixString = function(s, words) {\n    let current = '';\n    for (const word of words) {\n        current += word;\n        if (current.length &gt; s.length) {\n            return false;\n        }\n        if (current === s) {\n            return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPrefixString(s: string, words: string[]): boolean {\n    let current = '';\n    for (const word of words) {\n        current += word;\n        if (current.length &gt; s.length) {\n            return false;\n        }\n        if (current === s) {\n            return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of words and L is the average length of a word. In the worst case, we construct a string of length equal to `s`.
+- Space: O(N * L) to store the `current` string.
+- Notes: This approach is intuitive but uses extra space to store the concatenated string.
+
+---
+## Approach 2: Two Pointers / Index Tracking
+
+**Intuition**
+Instead of building a new string, we can optimize space by tracking the current position (index) in `s` that we are trying to match. We iterate through the `words` and then through the characters of each word, comparing them with the corresponding character in `s`.
+
+**Steps**
+- Initialize a pointer `k = 0` to track the current index in `s`.
+- Iterate through each word in the `words` array.
+- Iterate through each character in the current word.
+- If `k` is equal to the length of `s`, it means we have successfully matched all characters of `s` previously, but we are still processing a word. This implies `s` is shorter than the current prefix, so return `false`.
+- If the current character from the word does not match `s[k]`, return `false`.
+- Increment `k` to move to the next character in `s`.
+- After finishing the inner loop (processing a word), check if `k` equals the length of `s`. If yes, we have matched `s` exactly at the end of a word, so return `true`.
+- If the outer loop finishes, check if `k` equals the length of `s` (handles the case where `s` is empty, though constraints say min length 1) or simply return `false` if we exited without matching.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPrefixString(self, s: str, words: list[str]) -&gt; bool:\n        k = 0\n        n = len(s)\n        for word in words:\n            for char in word:\n                if k &gt;= n or char != s[k]:\n                    return False\n                k += 1\n            if k == n:\n                return True\n        return False" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isPrefixString(String s, String[] words) {\n        int k = 0;\n        int n = s.length();\n        for (String word : words) {\n            for (int i = 0; i &lt; word.length(); i++) {\n                if (k &gt;= n || word.charAt(i) != s.charAt(k)) {\n                    return false;\n                }\n                k++;\n            }\n            if (k == n) {\n                return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isPrefixString(string s, vector&lt;string&gt;& words) {\n        int k = 0;\n        int n = s.size();\n        for (const string& word : words) {\n            for (char c : word) {\n                if (k &gt;= n || c != s[k]) {\n                    return false;\n                }\n                k++;\n            }\n            if (k == n) {\n                return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var isPrefixString = function(s, words) {\n    let k = 0;\n    const n = s.length;\n    for (const word of words) {\n        for (const char of word) {\n            if (k &gt;= n || char !== s[k]) {\n                return false;\n            }\n            k++;\n        }\n        if (k === n) {\n            return true;\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPrefixString(s: string, words: string[]): boolean {\n    let k = 0;\n    const n = s.length;\n    for (const word of words) {\n        for (const char of word) {\n            if (k &gt;= n || char !== s[k]) {\n                return false;\n            }\n            k++;\n        }\n        if (k === n) {\n            return true;\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(S), where S is the length of `s`. We stop iterating as soon as we finish matching `s` or find a mismatch.
+- Space: O(1), as we only use a few integer variables for pointers and do not allocate extra space proportional to the input size.
+- Notes: This is the optimal approach as it minimizes space usage and avoids unnecessary string copying.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check If String Is a Prefix of Array Solutions","datePublished":"2025-11-04","description":"Given a string s and an array of strings words, check if s can be formed by concatenating some prefix of words in order.","keywords":"LeetCode, Check If String Is a Prefix of Array, Easy, Array, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Iterative Concatenation?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of words and L is the average length of a word."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Two Pointers?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as it only uses a constant amount of extra space for pointers."}},{"@type":"Question","name":"Why is Approach 2 considered better than Approach 1?","acceptedAnswer":{"@type":"Answer","text":"Approach 2 is better because it avoids creating a new string, which saves memory (O(1) vs O(N*L) space) and can be faster by eliminating the overhead of string copying."}}]}).replace(/</g,'\u003c')}
+</script>

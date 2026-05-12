@@ -1,0 +1,382 @@
+---
+title: "Image Smoother"
+summary: "An image smoother calculates the average of surrounding cells for each pixel in a matrix."
+date: "Jun 27, 2024"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 69.30% | **Paid:** No
+> **Topics:** Array, Matrix
+
+An image smoother is a filter of the size 3 x 3 that is applied to each cell of an image by rounding down the average of the cell and the eight surrounding cells (i.e., average of the nine cells in the blue smoother). If one or more of the surrounding cells does not exist, we do not consider it in the average (i.e., the average of the existing cells).
+
+Given an m x n integer matrix img representing the grayscale of an image, return the image after applying the smoother on each cell of it.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation with Copy Matrix](#approach-1-simulation-with-copy-matrix)
+- [Approach 2: In-place Calculation](#approach-2-in-place-calculation)
+
+## Examples
+
+```text
+Input: img = [[1,1,1],[1,0,1],[1,1,1]]
+Output: [[0,0,0],[0,0,0],[0,0,0]]
+Explanation:
+For the point (0,0), (0,2), (2,0) and (2,2): floor(3/4) = floor(0.75) = 0
+For the point (0,1), (1,0), (1,2) and (2,1): floor(5/6) = floor(0.83333333) = 0
+For the point (1,1): floor(8/9) = floor(0.88888889) = 0
+```
+
+```text
+Input: img = [[100,200,100],[200,50,200],[100,200,100]]
+Output: [[137,141,137],[141,138,141],[137,141,137]]
+Explanation:
+For the point (0,0), (0,2), (2,0) and (2,2): floor(100+200+200+50+100+200+100+200+100 / 9) = floor(1500 / 9) = floor(166.666667) = 166
+Wait, the example calculation in the problem description is slightly different based on neighbors.
+Let's re-verify the example logic provided by LeetCode.
+(0,0) neighbors: (0,0), (0,1), (1,0), (1,1). Sum = 100+200+200+50 = 550. Count = 4. Avg = 137.
+(0,1) neighbors: (0,0), (0,1), (0,2), (1,0), (1,1), (1,2). Sum = 100+200+100+200+50+200 = 850. Count = 6. Avg = 141.
+(1,1) neighbors: all 9. Sum = 100+200+100+200+50+200+100+200+100 = 1250. Count = 9. Avg = 138.
+The output matches the logic.
+```
+
+## Constraints
+
+```text
+m == img.length
+n == img[i].length
+1 <= m, n <= 200
+0 <= img[i][j] <= 255
+```
+
+---
+## Approach 1: Simulation with Copy Matrix
+
+**Intuition**
+Create a new matrix to store the result. For each cell in the original matrix, iterate through its valid neighbors (including itself), sum their values, count them, and calculate the floor of the average.
+
+**Steps**
+- Initialize a result matrix `ans` with the same dimensions as `img`.
+- Iterate through each cell `(i, j)` in `img`.
+- Initialize `sum` and `count` to 0.
+- Iterate through the 3x3 grid centered at `(i, j)` using offsets `r` from `i-1` to `i+1` and `c` from `j-1` to `j+1`.
+- Check if `(r, c)` is within bounds.
+- If valid, add `img[r][c]` to `sum` and increment `count`.
+- Store `Math.floor(sum / count)` in `ans[i][j]`.
+- Return `ans`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+from typing import List
+
+class Solution:
+    def imageSmoother(self, img: List[List[int]]) -> List[List[int]]:
+        m, n = len(img), len(img[0])
+        ans = [[0] * n for _ in range(m)]
+        
+        for i in range(m):
+            for j in range(n):
+                total = 0
+                count = 0
+                for r in range(i - 1, i + 2):
+                    for c in range(j - 1, j + 2):
+                        if 0 &lt;= r &lt; m and 0 &lt;= c &lt; n:
+                            total += img[r][c]
+                            count += 1
+                ans[i][j] = total // count
+        return ans
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int[][] imageSmoother(int[][] img) {
+        int m = img.length;
+        int n = img[0].length;
+        int[][] ans = new int[m][n];
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                int sum = 0;
+                int count = 0;
+                for (int r = i - 1; r &lt;= i + 1; r++) {
+                    for (int c = j - 1; c &lt;= j + 1; c++) {
+                        if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                            sum += img[r][c];
+                            count++;
+                        }
+                    }
+                }
+                ans[i][j] = sum / count;
+            }
+        }
+        return ans;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>&gt; imageSmoother(vector<vector<int>&gt;& img) {
+        int m = img.size();
+        int n = img[0].size();
+        vector<vector<int>&gt; ans(m, vector<int>(n));
+        
+        for (int i = 0; i &lt; m; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                int sum = 0;
+                int count = 0;
+                for (int r = i - 1; r &lt;= i + 1; ++r) {
+                    for (int c = j - 1; c &lt;= j + 1; ++c) {
+                        if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                            sum += img[r][c];
+                            count++;
+                        }
+                    }
+                }
+                ans[i][j] = sum / count;
+            }
+        }
+        return ans;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+var imageSmoother = function(img) {
+    const m = img.length;
+    const n = img[0].length;
+    const ans = new Array(m).fill(0).map(() =&gt; new Array(n).fill(0));
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            let sum = 0;
+            let count = 0;
+            for (let r = i - 1; r &lt;= i + 1; r++) {
+                for (let c = j - 1; c &lt;= j + 1; c++) {
+                    if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                        sum += img[r][c];
+                        count++;
+                    }
+                }
+            }
+            ans[i][j] = Math.floor(sum / count);
+        }
+    }
+    return ans;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function imageSmoother(img: number[][]): number[][] {
+    const m = img.length;
+    const n = img[0].length;
+    const ans: number[][] = new Array(m).fill(0).map(() =&gt; new Array(n).fill(0));
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            let sum = 0;
+            let count = 0;
+            for (let r = i - 1; r &lt;= i + 1; r++) {
+                for (let c = j - 1; c &lt;= j + 1; c++) {
+                    if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                        sum += img[r][c];
+                        count++;
+                    }
+                }
+            }
+            ans[i][j] = Math.floor(sum / count);
+        }
+    }
+    return ans;
+}
+` },]} />
+
+**Complexity**
+- Time: O(mn) where m is the number of rows and n is the number of columns. We process each cell and check up to 9 neighbors.
+- Space: O(mn) to store the result matrix.
+- Notes: This is the most straightforward approach and is easy to understand.
+
+---
+## Approach 2: In-place Calculation
+
+**Intuition**
+Since the pixel values are limited to 0-255 (8 bits), we can store the new calculated value in the higher bits of the integer (e.g., bits 8-15) while keeping the original value in the lower bits (0-7). This allows us to compute the average using original values without allocating extra space for a separate matrix.
+
+**Steps**
+- Iterate through each cell `(i, j)` in `img`.
+- Calculate the sum and count of neighbors using the original values (which are in the lower 8 bits, accessible via `img[r][c] & 255`).
+- Compute the average and store it in the higher bits: `img[i][j] |= (average &lt;&lt; 8)`.
+- After processing all cells, iterate through the matrix again.
+- Shift each value right by 8 bits to retrieve the calculated average and overwrite the cell.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+from typing import List
+
+class Solution:
+    def imageSmoother(self, img: List[List[int]]) -> List[List[int]]:
+        m, n = len(img), len(img[0])
+        
+        for i in range(m):
+            for j in range(n):
+                total = 0
+                count = 0
+                for r in range(i - 1, i + 2):
+                    for c in range(j - 1, j + 2):
+                        if 0 &lt;= r &lt; m and 0 &lt;= c &lt; n:
+                            total += img[r][c] & 255
+                            count += 1
+                img[i][j] |= (total // count) &lt;&lt; 8
+        
+        for i in range(m):
+            for j in range(n):
+                img[i][j] &gt;&gt;= 8
+                
+        return img
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int[][] imageSmoother(int[][] img) {
+        int m = img.length;
+        int n = img[0].length;
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                int sum = 0;
+                int count = 0;
+                for (int r = i - 1; r &lt;= i + 1; r++) {
+                    for (int c = j - 1; c &lt;= j + 1; c++) {
+                        if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                            sum += img[r][c] & 255;
+                            count++;
+                        }
+                    }
+                }
+                img[i][j] |= (sum / count) &lt;&lt; 8;
+            }
+        }
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                img[i][j] &gt;&gt;= 8;
+            }
+        }
+        return img;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>&gt; imageSmoother(vector<vector<int>&gt;& img) {
+        int m = img.size();
+        int n = img[0].size();
+        
+        for (int i = 0; i &lt; m; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                int sum = 0;
+                int count = 0;
+                for (int r = i - 1; r &lt;= i + 1; ++r) {
+                    for (int c = j - 1; c &lt;= j + 1; ++c) {
+                        if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                            sum += img[r][c] & 255;
+                            count++;
+                        }
+                    }
+                }
+                img[i][j] |= (sum / count) &lt;&lt; 8;
+            }
+        }
+        
+        for (int i = 0; i &lt; m; ++i) {
+            for (int j = 0; j &lt; n; ++j) {
+                img[i][j] &gt;&gt;= 8;
+            }
+        }
+        return img;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+var imageSmoother = function(img) {
+    const m = img.length;
+    const n = img[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            let sum = 0;
+            let count = 0;
+            for (let r = i - 1; r &lt;= i + 1; r++) {
+                for (let c = j - 1; c &lt;= j + 1; c++) {
+                    if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                        sum += img[r][c] & 255;
+                        count++;
+                    }
+                }
+            }
+            img[i][j] |= (Math.floor(sum / count) &lt;&lt; 8);
+        }
+    }
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            img[i][j] &gt;&gt;= 8;
+        }
+    }
+    return img;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function imageSmoother(img: number[][]): number[][] {
+    const m = img.length;
+    const n = img[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            let sum = 0;
+            let count = 0;
+            for (let r = i - 1; r &lt;= i + 1; r++) {
+                for (let c = j - 1; c &lt;= j + 1; c++) {
+                    if (r &gt;= 0 && r &lt; m && c &gt;= 0 && c &lt; n) {
+                        sum += img[r][c] & 255;
+                        count++;
+                    }
+                }
+            }
+            img[i][j] |= (Math.floor(sum / count) &lt;&lt; 8);
+        }
+    }
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            img[i][j] &gt;&gt;= 8;
+        }
+    }
+    return img;
+}
+` },]} />
+
+**Complexity**
+- Time: O(mn) where m is the number of rows and n is the number of columns.
+- Space: O(1) extra space, modifying the input matrix in-place.
+- Notes: This approach optimizes space complexity by utilizing bit manipulation, which is useful when memory is constrained.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Image Smoother Solutions","datePublished":"2024-06-27","description":"An image smoother calculates the average of surrounding cells for each pixel in a matrix.","keywords":"LeetCode, Image Smoother, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation with Copy Matrix approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(mn), where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the space complexity of the In-place Calculation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) extra space, as we modify the input matrix in-place using bit manipulation."}},{"@type":"Question","name":"How does the In-place Calculation approach work?","acceptedAnswer":{"@type":"Answer","text":"It stores the new calculated value in the higher bits of the integer while keeping the original value in the lower bits, allowing us to compute averages without extra space."}}]}).replace(/</g,'\u003c')}
+</script>

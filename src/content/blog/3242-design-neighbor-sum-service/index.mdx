@@ -1,0 +1,161 @@
+---
+title: "Design Neighbor Sum Service"
+summary: "Design a service to calculate adjacent and diagonal neighbor sums for values in an n x n grid."
+date: "Feb 11, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Design
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Design, Matrix, Simulation
+
+You are given a n x n grid where each cell contains a unique value from 0 to n² - 1. Design a service that supports two operations:
+
+- adjacentSum(value): Returns the sum of all adjacent cells (up, down, left, right) that contain the given value.
+- diagonalSum(value): Returns the sum of all diagonal cells (top-left, top-right, bottom-left, bottom-right) that contain the given value.
+
+If a neighbor does not exist (i.e., the cell is on the border of the grid), it is not included in the sum.
+
+- Examples
+- Constraints
+- [Hash Map Position Lookup](#hash-map-position-lookup)
+- [Precomputed Sums](#precomputed-sums)
+- [Brute Force Grid Search](#brute-force-grid-search)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input:
+["NeighborSum", "adjacentSum", "adjacentSum", "diagonalSum", "diagonalSum"]
+[[[[0, 1, 2], [3, 4, 5], [6, 7, 8]]], [1], [4], [4], [8]]
+
+Output:
+[null, 6, 16, 16, 12]
+
+Explanation:
+- The grid is:
+  0 1 2
+  3 4 5
+  6 7 8
+- adjacentSum(1): The cell with value 1 is at (0, 1). Its adjacent neighbors are 0, 2, and 4. Sum = 0 + 2 + 4 = 6.
+- adjacentSum(4): The cell with value 4 is at (1, 1). Its adjacent neighbors are 1, 3, 5, and 7. Sum = 1 + 3 + 5 + 7 = 16.
+- diagonalSum(4): The cell with value 4 is at (1, 1). Its diagonal neighbors are 0, 2, 6, and 8. Sum = 0 + 2 + 6 + 8 = 16.
+- diagonalSum(8): The cell with value 8 is at (2, 2). Its diagonal neighbors are 4. Sum = 4.
+```
+
+**Example 2:**
+
+```text
+Input:
+["NeighborSum", "adjacentSum", "diagonalSum"]
+[[[[1, 2, 0, 3], [4, 7, 15, 6], [8, 9, 10, 11], [12, 13, 14, 5]]], [15], [9]]
+
+Output:
+[null, 23, 45]
+
+Explanation:
+- The grid is:
+  1  2  0  3
+  4  7 15  6
+  8  9 10 11
+ 12 13 14  5
+- adjacentSum(15): The cell with value 15 is at (1, 2). Its adjacent neighbors are 0, 6, 7, and 10. Sum = 0 + 6 + 7 + 10 = 23.
+- diagonalSum(9): The cell with value 9 is at (2, 1). Its diagonal neighbors are 4, 6, 12, and 14. Sum = 4 + 6 + 12 + 14 = 36.
+```
+
+## Constraints
+
+```text
+3 <= n <= 50
+1 <= grid[i][j] <= n²
+All values in the grid are unique.
+0 <= value <= n² - 1
+At most 2 * 10⁴ calls will be made to adjacentSum and diagonalSum.
+```
+
+---
+## Hash Map Position Lookup
+
+**Intuition**
+Store the position (row, column) of each value in a hash map during initialization. For each query, look up the position in O(1) time and calculate the sum by checking valid neighbor positions.
+
+**Steps**
+- Create a hash map mapping each value to its (row, col) position
+- For adjacentSum, check the 4 cardinal directions (up, down, left, right)
+- For diagonalSum, check the 4 diagonal directions
+- Only add values from valid positions within grid bounds
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class NeighborSum:\n    def __init__(self, grid):\n        self.grid = grid\n        self.n = len(grid)\n        self.pos = {}\n        for i in range(self.n):\n            for j in range(self.n):\n                self.pos[grid[i][j]] = (i, j)\n    \n    def adjacentSum(self, value):\n        i, j = self.pos[value]\n        total = 0\n        for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n            ni, nj = i + di, j + dj\n            if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                total += self.grid[ni][nj]\n        return total\n    \n    def diagonalSum(self, value):\n        i, j = self.pos[value]\n        total = 0\n        for di, dj in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:\n            ni, nj = i + di, j + dj\n            if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                total += self.grid[ni][nj]\n        return total" },
+{ name: "Java", lang: "java", code: "class NeighborSum {\n    private int[][] grid;\n    private int n;\n    private Map&lt;Integer, int[]&gt; pos;\n\n    public NeighborSum(int[][] grid) {\n        this.grid = grid;\n        this.n = grid.length;\n        this.pos = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                pos.put(grid[i][j], new int[]{i, j});\n            }\n        }\n    }\n\n    public int adjacentSum(int value) {\n        int[] coord = pos.get(value);\n        int i = coord[0], j = coord[1];\n        int total = 0;\n        int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        for (int[] d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    public int diagonalSum(int value) {\n        int[] coord = pos.get(value);\n        int i = coord[0], j = coord[1];\n        int total = 0;\n        int[][] dirs = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n        for (int[] d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class NeighborSum {\nprivate:\n    vector&lt;vector&lt;int&gt;&gt; grid;\n    int n;\n    unordered_map&lt;int, pair&lt;int, int&gt;&gt; pos;\n\npublic:\n    NeighborSum(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        this-&gt;grid = grid;\n        this-&gt;n = grid.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                pos[grid[i][j]] = {i, j};\n            }\n        }\n    }\n\n    int adjacentSum(int value) {\n        auto [i, j] = pos[value];\n        int total = 0;\n        int dirs[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        for (auto& d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    int diagonalSum(int value) {\n        auto [i, j] = pos[value];\n        int total = 0;\n        int dirs[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n        for (auto& d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class NeighborSum {\n    constructor(grid) {\n        this.grid = grid;\n        this.n = grid.length;\n        this.pos = new Map();\n        for (let i = 0; i &lt; this.n; i++) {\n            for (let j = 0; j &lt; this.n; j++) {\n                this.pos.set(grid[i][j], [i, j]);\n            }\n        }\n    }\n\n    adjacentSum(value) {\n        const [i, j] = this.pos.get(value);\n        let total = 0;\n        const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    diagonalSum(value) {\n        const [i, j] = this.pos.get(value);\n        let total = 0;\n        const dirs = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class NeighborSum {\n    private grid: number[][];\n    private n: number;\n    private pos: Map&lt;number, [number, number]&gt;;\n\n    constructor(grid: number[][]) {\n        this.grid = grid;\n        this.n = grid.length;\n        this.pos = new Map();\n        for (let i = 0; i &lt; this.n; i++) {\n            for (let j = 0; j &lt; this.n; j++) {\n                this.pos.set(grid[i][j], [i, j]);\n            }\n        }\n    }\n\n    adjacentSum(value: number): number {\n        const [i, j] = this.pos.get(value)!;\n        let total = 0;\n        const dirs: [number, number][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    diagonalSum(value: number): number {\n        const [i, j] = this.pos.get(value)!;\n        let total = 0;\n        const dirs: [number, number][] = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²) for initialization, O(1) for each query
+- Space: O(n²) for storing positions
+- Notes: Optimal balance between initialization and query time
+
+---
+## Precomputed Sums
+
+**Intuition**
+Precompute both adjacent and diagonal sums for all values during initialization. This makes each query a simple O(1) lookup at the cost of higher memory usage.
+
+**Steps**
+- Store position of each value in a hash map
+- For each cell, calculate its adjacent sum and diagonal sum
+- Store both sums in separate hash maps keyed by value
+- Return precomputed sums directly for queries
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class NeighborSum:\n    def __init__(self, grid):\n        self.n = len(grid)\n        self.adj_sum = {}\n        self.diag_sum = {}\n        \n        for i in range(self.n):\n            for j in range(self.n):\n                value = grid[i][j]\n                adj_total = 0\n                diag_total = 0\n                \n                for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n                    ni, nj = i + di, j + dj\n                    if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                        adj_total += grid[ni][nj]\n                \n                for di, dj in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:\n                    ni, nj = i + di, j + dj\n                    if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                        diag_total += grid[ni][nj]\n                \n                self.adj_sum[value] = adj_total\n                self.diag_sum[value] = diag_total\n    \n    def adjacentSum(self, value):\n        return self.adj_sum[value]\n    \n    def diagonalSum(self, value):\n        return self.diag_sum[value]" },
+{ name: "Java", lang: "java", code: "class NeighborSum {\n    private Map&lt;Integer, Integer&gt; adjSum;\n    private Map&lt;Integer, Integer&gt; diagSum;\n\n    public NeighborSum(int[][] grid) {\n        int n = grid.length;\n        this.adjSum = new HashMap&lt;&gt;();\n        this.diagSum = new HashMap&lt;&gt;();\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                int value = grid[i][j];\n                int adjTotal = 0;\n                int diagTotal = 0;\n                \n                int[][] adjDirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n                for (int[] d : adjDirs) {\n                    int ni = i + d[0], nj = j + d[1];\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        adjTotal += grid[ni][nj];\n                    }\n                }\n                \n                int[][] diagDirs = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n                for (int[] d : diagDirs) {\n                    int ni = i + d[0], nj = j + d[1];\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        diagTotal += grid[ni][nj];\n                    }\n                }\n                \n                adjSum.put(value, adjTotal);\n                diagSum.put(value, diagTotal);\n            }\n        }\n    }\n\n    public int adjacentSum(int value) {\n        return adjSum.get(value);\n    }\n\n    public int diagonalSum(int value) {\n        return diagSum.get(value);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class NeighborSum {\nprivate:\n    unordered_map&lt;int, int&gt; adjSum;\n    unordered_map&lt;int, int&gt; diagSum;\n\npublic:\n    NeighborSum(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                int value = grid[i][j];\n                int adjTotal = 0;\n                int diagTotal = 0;\n                \n                int adjDirs[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n                for (auto& d : adjDirs) {\n                    int ni = i + d[0], nj = j + d[1];\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        adjTotal += grid[ni][nj];\n                    }\n                }\n                \n                int diagDirs[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n                for (auto& d : diagDirs) {\n                    int ni = i + d[0], nj = j + d[1];\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        diagTotal += grid[ni][nj];\n                    }\n                }\n                \n                adjSum[value] = adjTotal;\n                diagSum[value] = diagTotal;\n            }\n        }\n    }\n\n    int adjacentSum(int value) {\n        return adjSum[value];\n    }\n\n    int diagonalSum(int value) {\n        return diagSum[value];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class NeighborSum {\n    constructor(grid) {\n        this.adjSum = new Map();\n        this.diagSum = new Map();\n        const n = grid.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = 0; j &lt; n; j++) {\n                const value = grid[i][j];\n                let adjTotal = 0;\n                let diagTotal = 0;\n                \n                const adjDirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n                for (const [di, dj] of adjDirs) {\n                    const ni = i + di, nj = j + dj;\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        adjTotal += grid[ni][nj];\n                    }\n                }\n                \n                const diagDirs = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n                for (const [di, dj] of diagDirs) {\n                    const ni = i + di, nj = j + dj;\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        diagTotal += grid[ni][nj];\n                    }\n                }\n                \n                this.adjSum.set(value, adjTotal);\n                this.diagSum.set(value, diagTotal);\n            }\n        }\n    }\n\n    adjacentSum(value) {\n        return this.adjSum.get(value);\n    }\n\n    diagonalSum(value) {\n        return this.diagSum.get(value);\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class NeighborSum {\n    private adjSum: Map&lt;number, number&gt;;\n    private diagSum: Map&lt;number, number&gt;;\n\n    constructor(grid: number[][]) {\n        this.adjSum = new Map();\n        this.diagSum = new Map();\n        const n = grid.length;\n        \n        for (let i = 0; i &lt; n; i++) {\n            for (let j = 0; j &lt; n; j++) {\n                const value = grid[i][j];\n                let adjTotal = 0;\n                let diagTotal = 0;\n                \n                const adjDirs: [number, number][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n                for (const [di, dj] of adjDirs) {\n                    const ni = i + di, nj = j + dj;\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        adjTotal += grid[ni][nj];\n                    }\n                }\n                \n                const diagDirs: [number, number][] = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n                for (const [di, dj] of diagDirs) {\n                    const ni = i + di, nj = j + dj;\n                    if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                        diagTotal += grid[ni][nj];\n                    }\n                }\n                \n                this.adjSum.set(value, adjTotal);\n                this.diagSum.set(value, diagTotal);\n            }\n        }\n    }\n\n    adjacentSum(value: number): number {\n        return this.adjSum.get(value)!;\n    }\n\n    diagonalSum(value: number): number {\n        return this.diagSum.get(value)!;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²) for initialization, O(1) for each query
+- Space: O(n²) for storing precomputed sums
+- Notes: Fastest query time but uses more memory than position lookup
+
+---
+## Brute Force Grid Search
+
+**Intuition**
+For each query, scan the entire grid to find the position of the value, then calculate the sum by checking neighbors. This avoids any preprocessing but has slower query time.
+
+**Steps**
+- Store the grid reference
+- For each query, iterate through all cells to find the value's position
+- Once found, calculate the sum by checking valid neighbor positions
+- Return the calculated sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class NeighborSum:\n    def __init__(self, grid):\n        self.grid = grid\n        self.n = len(grid)\n    \n    def _find_position(self, value):\n        for i in range(self.n):\n            for j in range(self.n):\n                if self.grid[i][j] == value:\n                    return i, j\n        return -1, -1\n    \n    def adjacentSum(self, value):\n        i, j = self._find_position(value)\n        total = 0\n        for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:\n            ni, nj = i + di, j + dj\n            if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                total += self.grid[ni][nj]\n        return total\n    \n    def diagonalSum(self, value):\n        i, j = self._find_position(value)\n        total = 0\n        for di, dj in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:\n            ni, nj = i + di, j + dj\n            if 0 &lt;= ni &lt; self.n and 0 &lt;= nj &lt; self.n:\n                total += self.grid[ni][nj]\n        return total" },
+{ name: "Java", lang: "java", code: "class NeighborSum {\n    private int[][] grid;\n    private int n;\n\n    public NeighborSum(int[][] grid) {\n        this.grid = grid;\n        this.n = grid.length;\n    }\n\n    private int[] findPosition(int value) {\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] == value) {\n                    return new int[]{i, j};\n                }\n            }\n        }\n        return new int[]{-1, -1};\n    }\n\n    public int adjacentSum(int value) {\n        int[] coord = findPosition(value);\n        int i = coord[0], j = coord[1];\n        int total = 0;\n        int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        for (int[] d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    public int diagonalSum(int value) {\n        int[] coord = findPosition(value);\n        int i = coord[0], j = coord[1];\n        int total = 0;\n        int[][] dirs = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n        for (int[] d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class NeighborSum {\nprivate:\n    vector&lt;vector&lt;int&gt;&gt; grid;\n    int n;\n\n    pair&lt;int, int&gt; findPosition(int value) {\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] == value) {\n                    return {i, j};\n                }\n            }\n        }\n        return {-1, -1};\n    }\n\npublic:\n    NeighborSum(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        this-&gt;grid = grid;\n        this-&gt;n = grid.size();\n    }\n\n    int adjacentSum(int value) {\n        auto [i, j] = findPosition(value);\n        int total = 0;\n        int dirs[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};\n        for (auto& d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    int diagonalSum(int value) {\n        auto [i, j] = findPosition(value);\n        int total = 0;\n        int dirs[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};\n        for (auto& d : dirs) {\n            int ni = i + d[0], nj = j + d[1];\n            if (ni &gt;= 0 && ni &lt; n && nj &gt;= 0 && nj &lt; n) {\n                total += grid[ni][nj];\n            }\n        }\n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class NeighborSum {\n    constructor(grid) {\n        this.grid = grid;\n        this.n = grid.length;\n    }\n\n    findPosition(value) {\n        for (let i = 0; i &lt; this.n; i++) {\n            for (let j = 0; j &lt; this.n; j++) {\n                if (this.grid[i][j] === value) {\n                    return [i, j];\n                }\n            }\n        }\n        return [-1, -1];\n    }\n\n    adjacentSum(value) {\n        const [i, j] = this.findPosition(value);\n        let total = 0;\n        const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    diagonalSum(value) {\n        const [i, j] = this.findPosition(value);\n        let total = 0;\n        const dirs = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class NeighborSum {\n    private grid: number[][];\n    private n: number;\n\n    constructor(grid: number[][]) {\n        this.grid = grid;\n        this.n = grid.length;\n    }\n\n    private findPosition(value: number): [number, number] {\n        for (let i = 0; i &lt; this.n; i++) {\n            for (let j = 0; j &lt; this.n; j++) {\n                if (this.grid[i][j] === value) {\n                    return [i, j];\n                }\n            }\n        }\n        return [-1, -1];\n    }\n\n    adjacentSum(value: number): number {\n        const [i, j] = this.findPosition(value);\n        let total = 0;\n        const dirs: [number, number][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n\n    diagonalSum(value: number): number {\n        const [i, j] = this.findPosition(value);\n        let total = 0;\n        const dirs: [number, number][] = [[1, 1], [1, -1], [-1, 1], [-1, -1]];\n        for (const [di, dj] of dirs) {\n            const ni = i + di, nj = j + dj;\n            if (ni &gt;= 0 && ni &lt; this.n && nj &gt;= 0 && nj &lt; this.n) {\n                total += this.grid[ni][nj];\n            }\n        }\n        return total;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) for initialization, O(n²) for each query
+- Space: O(1) additional space
+- Notes: Simplest implementation but inefficient for many queries
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Design Neighbor Sum Service Solutions","datePublished":"2024-02-11","description":"Design a service to calculate adjacent and diagonal neighbor sums for values in an n x n grid.","keywords":"LeetCode, Design Neighbor Sum Service, Easy, Array, Hash Table, Design, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Hash Map Position Lookup approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) for initialization and O(1) for each query."}},{"@type":"Question","name":"What is the time complexity of Precomputed Sums approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) for initialization and O(1) for each query."}},{"@type":"Question","name":"What is the time complexity of Brute Force Grid Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) for initialization and O(n²) for each query."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map Position Lookup approach provides the best balance between initialization time, query time, and memory usage."}}]}).replace(/</g,'\u003c')}
+</script>

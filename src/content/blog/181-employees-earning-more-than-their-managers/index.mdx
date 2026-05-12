@@ -1,0 +1,124 @@
+---
+title: "Employees Earning More Than Their Managers"
+summary: "Find all employees who earn more than their direct managers using SQL self-joins."
+date: "Aug 17, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.20% | **Paid:** No
+> **Topics:** Database
+
+Table: Employee
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
+| salary      | int     |
+| managerId   | int     |
++-------------+---------+
+id is the primary key (column with unique values) of this table.
+managerId is a foreign key (reference column) to id from the Employee table, and it is NULL for the top manager.
+Each row of this table contains information about the salary of an employee and their manager.
+
+Write a solution to find the employees who earn more than their managers.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Self Join](#approach-1-self-join)
+- [Approach 2: Subquery](#approach-2-subquery)
+
+## Examples
+
+### Example 1
+
+**Input:**
+Employee table:
++----+-------+--------+-----------+
+| id | name  | salary | managerId |
++----+-------+--------+-----------+
+| 1  | Joe   | 70000  | 3         |
+| 2  | Henry | 80000  | 4         |
+| 3  | Sam   | 60000  | NULL      |
+| 4  | Max   | 90000  | NULL      |
++----+-------+--------+-----------+
+
+**Output:**
++----------+
+| Employee |
++----------+
+| Joe      |
++----------+
+
+**Explanation:**
+Joe is the only employee who earns more than his manager.
+
+## Constraints
+
+```text
+Salary is positive.
+```
+
+---
+
+## Approach 1: Self Join
+
+**Intuition**
+We can join the Employee table with itself to match each employee with their manager based on the managerId, then compare their salaries.
+
+**Steps**
+- Join the Employee table with itself, aliasing the first instance as e1 (employee) and the second as e2 (manager).
+- Match rows where e1.managerId equals e2.id.
+- Filter the results to keep only rows where e1.salary is greater than e2.salary.
+- Select the name of the employee from the resulting rows.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef find_employees(employee: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Merge the employee table with itself on managerId and id\r\n    merged = employee.merge(employee, left_on='managerId', right_on='id', suffixes=('', '_manager'))\r\n    # Filter where employee salary is greater than manager salary\r\n    result = merged[merged['salary'] &gt; merged['salary_manager']]\r\n    # Return the name column\r\n    return result[['name']]" },
+{ name: "Java", lang: "java", code: "/* Write your T-SQL query statement below */\r\nSELECT e1.name\r\nFROM Employee e1\r\nJOIN Employee e2 ON e1.managerId = e2.id\r\nWHERE e1.salary &gt; e2.salary" },
+{ name: "C++", lang: "cpp", code: "/* Write your PL/SQL query statement below */\r\nSELECT e1.name\r\nFROM Employee e1\r\nJOIN Employee e2 ON e1.managerId = e2.id\r\nWHERE e1.salary &gt; e2.salary" },
+{ name: "JavaScript", lang: "javascript", code: "/* Write your MySQL query statement below */\r\nSELECT e1.name\r\nFROM Employee e1\r\nJOIN Employee e2 ON e1.managerId = e2.id\r\nWHERE e1.salary &gt; e2.salary" },
+{ name: "TypeScript", lang: "typescript", code: "/* Write your PostgreSQL query statement below */\r\nSELECT e1.name\r\nFROM Employee e1\r\nJOIN Employee e2 ON e1.managerId = e2.id\r\nWHERE e1.salary &gt; e2.salary" },]} />
+
+**Complexity**
+- Time: O(N) where N is the number of rows in the Employee table, assuming efficient indexing on the join columns.
+- Space: O(N) for storing the result set.
+- Notes: Self-joins are efficient for hierarchical data within a single table.
+
+---
+
+## Approach 2: Subquery
+
+**Intuition**
+Use a subquery to find the salary of the manager for each employee and compare it directly in the WHERE clause.
+
+**Steps**
+- Select the name from the Employee table.
+- Use a WHERE clause to filter employees whose salary is greater than the salary of the employee whose ID matches their managerId.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\r\n\r\ndef find_employees(employee: pd.DataFrame) -&gt; pd.DataFrame:\r\n    # Create a series mapping manager IDs to their salaries\r\n    manager_salaries = employee.set_index('id')['salary']\r\n    # Filter employees whose salary is greater than their manager's salary\r\n    # Note: managerId can be NULL, so we need to handle that\r\n    mask = employee.apply(lambda row: row['managerId'] is not None and row['salary'] &gt; manager_salaries.get(row['managerId'], 0), axis=1)\r\n    result = employee[mask]\r\n    return result[['name']]" },
+{ name: "Java", lang: "java", code: "/* Write your T-SQL query statement below */\r\nSELECT name\r\nFROM Employee\r\nWHERE salary &gt; (\r\n    SELECT salary\r\n    FROM Employee\r\n    WHERE id = managerId\r\n)" },
+{ name: "C++", lang: "cpp", code: "/* Write your PL/SQL query statement below */\r\nSELECT name\r\nFROM Employee\r\nWHERE salary &gt; (\r\n    SELECT salary\r\n    FROM Employee\r\n    WHERE id = managerId\r\n)" },
+{ name: "JavaScript", lang: "javascript", code: "/* Write your MySQL query statement below */\r\nSELECT name\r\nFROM Employee\r\nWHERE salary &gt; (\r\n    SELECT salary\r\n    FROM Employee\r\n    WHERE id = managerId\r\n)" },
+{ name: "TypeScript", lang: "typescript", code: "/* Write your PostgreSQL query statement below */\r\nSELECT name\r\nFROM Employee\r\nWHERE salary &gt; (\r\n    SELECT salary\r\n    FROM Employee\r\n    WHERE id = managerId\r\n)" },]} />
+
+**Complexity**
+- Time: O(N²) in the worst case without indexing, as the subquery may execute for each row.
+- Space: O(1) auxiliary space, excluding the result set.
+- Notes: The Self Join approach is generally preferred for readability and potential performance benefits with proper indexing.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Employees Earning More Than Their Managers Solutions","datePublished":"2025-08-17","description":"Find all employees who earn more than their direct managers using SQL self-joins.","keywords":"LeetCode, Employees Earning More Than Their Managers, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Self Join approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N) where N is the number of rows in the Employee table, assuming efficient indexing on the join columns."}},{"@type":"Question","name":"What is the time complexity of the Subquery approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N²) in the worst case without indexing, as the subquery may execute for each row."}}]}).replace(/</g,'\u003c')}
+</script>

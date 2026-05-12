@@ -1,0 +1,184 @@
+---
+title: "Percentage of Users Attended a Contest"
+summary: "Calculate the percentage of users who registered for each contest, rounded to two decimal places."
+date: "Jul 09, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 60.30% | **Paid:** No
+> **Topics:** Database
+
+Table: Users
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| user_id     | int     |
+| user_name   | varchar |
++-------------+---------+
+user_id is the primary key (column with unique values) of this table.
+Each row of this table contains the name and the id of the user.
+
+Table: Register
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| contest_id  | int     |
+| user_id     | int     |
++-------------+---------+
+(contest_id, user_id) is the primary key (combination of columns with unique values) of this table.
+Each row of this table indicates that the user with user_id attended the contest with contest_id.
+
+Write a solution to find the percentage of the users registered in each contest. Round the percentage to the nearest two decimals.
+
+Return the result table ordered by percentage in descending order, and in case of a tie, by contest_id in ascending order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Subquery Approach](#subquery-approach)
+- [Cross Join Approach](#cross-join-approach)
+- [Left Join Approach](#left-join-approach)
+
+## Examples
+
+### Example 1
+
+Input:
+Users table:
++---------+-----------+
+| user_id | user_name |
++---------+-----------+
+| 6       | Alice     |
+| 2       | Bob       |
+| 7       | Alex      |
++---------+-----------+
+
+Register table:
++------------+---------+
+| contest_id | user_id |
++------------+---------+
+| 215        | 6       |
+| 209        | 2       |
+| 208        | 2       |
+| 210        | 6       |
+| 208        | 6       |
+| 209        | 7       |
+| 209        | 6       |
+| 208        | 7       |
+| 210        | 2       |
+| 207        | 7       |
+| 209        | 5       |
++------------+---------+
+
+Output:
++------------+------------+
+| contest_id | percentage |
++------------+------------+
+| 208        | 100.0      |
+| 209        | 100.0      |
+| 210        | 66.67      |
+| 215        | 33.33      |
+| 207        | 33.33      |
++------------+------------+
+
+Explanation:
+- All the users (Alice, Bob, and Alex) attended contests 208 and 209.
+- Alice and Alex attended contest 210. Percentage is 66.67.
+- Alice attended contest 215. Percentage is 33.33.
+- Alex attended contest 207. Percentage is 33.33.
+
+## Constraints
+
+```text
+1 <= user_id <= 1000
+1 <= contest_id <= 10000
+1 <= number of rows in Users <= 1000
+1 <= number of rows in Register <= 10000
+```
+
+---
+
+## Subquery Approach
+
+**Intuition**
+Calculate the total number of users using a subquery, then count unique users per contest and compute the percentage by dividing by the total.
+
+**Steps**
+- Get total user count from Users table using a subquery
+- Group Register table by contest_id and count distinct user_id
+- Calculate percentage as (count * 100.0) / total_users
+- Round to 2 decimal places and order by percentage DESC, contest_id ASC
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef users_percentage(users: pd.DataFrame, register: pd.DataFrame) -&gt; pd.DataFrame:\n    total_users = len(users)\n    contest_counts = register.groupby('contest_id')['user_id'].nunique().reset_index()\n    contest_counts['percentage'] = round(contest_counts['user_id'] * 100.0 / total_users, 2)\n    contest_counts = contest_counts.sort_values(by=['percentage', 'contest_id'], ascending=[False, True])\n    return contest_counts[['contest_id', 'percentage']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.sql.*;\n\npublic class Solution {\n    public String getPercentage() {\n        return \"SELECT contest_id, \" +\n               \"ROUND(COUNT(DISTINCT user_id) * 100.0 / \" +\n               \"(SELECT COUNT(*) FROM Users), 2) AS percentage \" +\n               \"FROM Register \" +\n               \"GROUP BY contest_id \" +\n               \"ORDER BY percentage DESC, contest_id ASC\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;set&gt;\n#include &lt;algorithm&gt;\n#include &lt;iomanip&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nstruct Result {\n    int contest_id;\n    double percentage;\n};\n\nvector&lt;Result&gt; calculatePercentage(vector&lt;vector&lt;int&gt;&gt;& users, vector&lt;vector&lt;int&gt;&gt;& register) {\n    int total_users = users.size();\n    \n    map&lt;int, set&lt;int&gt;&gt; contest_users;\n    for (auto& r : register) {\n        contest_users[r[0]].insert(r[1]);\n    }\n    \n    vector&lt;Result&gt; results;\n    for (auto& [contest_id, user_set] : contest_users) {\n        double pct = round((double)user_set.size() * 10000.0 / total_users) / 100.0;\n        results.push_back({contest_id, pct});\n    }\n    \n    sort(results.begin(), results.end(), [](const Result& a, const Result& b) {\n        if (abs(a.percentage - b.percentage) &gt; 0.001) return a.percentage &gt; b.percentage;\n        return a.contest_id &lt; b.contest_id;\n    });\n    \n    return results;\n}" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} users\n * @param {number[][]} register\n * @return {number[][]}\n */\nfunction usersPercentage(users, register) {\n    const totalUsers = users.length;\n    const contestMap = new Map();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId).add(userId);\n    }\n    \n    const results = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function usersPercentage(users: number[][], register: number[][]): number[][] {\n    const totalUsers = users.length;\n    const contestMap = new Map&lt;number, Set&lt;number&gt;&gt;();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId)!.add(userId);\n    }\n    \n    const results: number[][] = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is number of users and m is number of registrations
+- Space: O(k) where k is number of unique contests
+- Notes: Simple and readable approach with clear separation of concerns
+
+## Cross Join Approach
+
+**Intuition**
+Use CROSS JOIN to combine each contest with the total user count, then calculate percentages in a single pass without nested subqueries.
+
+**Steps**
+- Create a subquery to get total user count
+- CROSS JOIN this with Register table to make total available for each row
+- Group by contest_id and count distinct users
+- Calculate percentage and round to 2 decimals
+- Order by percentage DESC, contest_id ASC
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef users_percentage(users: pd.DataFrame, register: pd.DataFrame) -&gt; pd.DataFrame:\n    total_users = len(users)\n    result = register.merge(pd.DataFrame({'total': [total_users]}), how='cross')\n    contest_counts = result.groupby('contest_id').agg(\n        user_count=('user_id', 'nunique'),\n        total=('total', 'first')\n    ).reset_index()\n    contest_counts['percentage'] = round(contest_counts['user_count'] * 100.0 / contest_counts['total'], 2)\n    contest_counts = contest_counts.sort_values(by=['percentage', 'contest_id'], ascending=[False, True])\n    return contest_counts[['contest_id', 'percentage']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.sql.*;\n\npublic class Solution {\n    public String getPercentage() {\n        return \"SELECT r.contest_id, \" +\n               \"ROUND(COUNT(DISTINCT r.user_id) * 100.0 / u.total_count, 2) AS percentage \" +\n               \"FROM Register r \" +\n               \"CROSS JOIN (SELECT COUNT(*) AS total_count FROM Users) u \" +\n               \"GROUP BY r.contest_id, u.total_count \" +\n               \"ORDER BY percentage DESC, r.contest_id ASC\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;set&gt;\n#include &lt;algorithm&gt;\n#include &lt;iomanip&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nstruct Result {\n    int contest_id;\n    double percentage;\n};\n\nvector&lt;Result&gt; calculatePercentage(vector&lt;vector&lt;int&gt;&gt;& users, vector&lt;vector&lt;int&gt;&gt;& register) {\n    int total_users = users.size();\n    \n    map&lt;int, set&lt;int&gt;&gt; contest_users;\n    for (auto& r : register) {\n        contest_users[r[0]].insert(r[1]);\n    }\n    \n    vector&lt;Result&gt; results;\n    for (auto& [contest_id, user_set] : contest_users) {\n        double pct = round((double)user_set.size() * 10000.0 / total_users) / 100.0;\n        results.push_back({contest_id, pct});\n    }\n    \n    sort(results.begin(), results.end(), [](const Result& a, const Result& b) {\n        if (abs(a.percentage - b.percentage) &gt; 0.001) return a.percentage &gt; b.percentage;\n        return a.contest_id &lt; b.contest_id;\n    });\n    \n    return results;\n}" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} users\n * @param {number[][]} register\n * @return {number[][]}\n */\nfunction usersPercentage(users, register) {\n    const totalUsers = users.length;\n    const contestMap = new Map();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId).add(userId);\n    }\n    \n    const results = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function usersPercentage(users: number[][], register: number[][]): number[][] {\n    const totalUsers = users.length;\n    const contestMap = new Map&lt;number, Set&lt;number&gt;&gt;();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId)!.add(userId);\n    }\n    \n    const results: number[][] = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n is number of users and m is number of registrations
+- Space: O(k) where k is number of unique contests
+- Notes: CROSS JOIN creates a Cartesian product but with single-row subquery, it's efficient
+
+## Left Join Approach
+
+**Intuition**
+Use LEFT JOIN with a constant condition to make total user count available for all rows, then aggregate by contest to calculate percentages.
+
+**Steps**
+- LEFT JOIN Register with Users using ON 1=1 (cartesian join)
+- Group by contest_id and count distinct users from Register
+- Count distinct users from Users to get total
+- Calculate percentage and round to 2 decimals
+- Order by percentage DESC, contest_id ASC
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef users_percentage(users: pd.DataFrame, register: pd.DataFrame) -&gt; pd.DataFrame:\n    total_users = len(users)\n    contest_counts = register.groupby('contest_id')['user_id'].nunique().reset_index()\n    contest_counts['percentage'] = round(contest_counts['user_id'] * 100.0 / total_users, 2)\n    contest_counts = contest_counts.sort_values(by=['percentage', 'contest_id'], ascending=[False, True])\n    return contest_counts[['contest_id', 'percentage']]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.sql.*;\n\npublic class Solution {\n    public String getPercentage() {\n        return \"SELECT r.contest_id, \" +\n               \"ROUND(COUNT(DISTINCT r.user_id) * 100.0 / COUNT(DISTINCT u.user_id), 2) AS percentage \" +\n               \"FROM Register r \" +\n               \"LEFT JOIN Users u ON 1=1 \" +\n               \"GROUP BY r.contest_id \" +\n               \"ORDER BY percentage DESC, r.contest_id ASC\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;map&gt;\n#include &lt;set&gt;\n#include &lt;algorithm&gt;\n#include &lt;iomanip&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nstruct Result {\n    int contest_id;\n    double percentage;\n};\n\nvector&lt;Result&gt; calculatePercentage(vector&lt;vector&lt;int&gt;&gt;& users, vector&lt;vector&lt;int&gt;&gt;& register) {\n    int total_users = users.size();\n    \n    map&lt;int, set&lt;int&gt;&gt; contest_users;\n    for (auto& r : register) {\n        contest_users[r[0]].insert(r[1]);\n    }\n    \n    vector&lt;Result&gt; results;\n    for (auto& [contest_id, user_set] : contest_users) {\n        double pct = round((double)user_set.size() * 10000.0 / total_users) / 100.0;\n        results.push_back({contest_id, pct});\n    }\n    \n    sort(results.begin(), results.end(), [](const Result& a, const Result& b) {\n        if (abs(a.percentage - b.percentage) &gt; 0.001) return a.percentage &gt; b.percentage;\n        return a.contest_id &lt; b.contest_id;\n    });\n    \n    return results;\n}" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} users\n * @param {number[][]} register\n * @return {number[][]}\n */\nfunction usersPercentage(users, register) {\n    const totalUsers = users.length;\n    const contestMap = new Map();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId).add(userId);\n    }\n    \n    const results = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function usersPercentage(users: number[][], register: number[][]): number[][] {\n    const totalUsers = users.length;\n    const contestMap = new Map&lt;number, Set&lt;number&gt;&gt;();\n    \n    for (const [contestId, userId] of register) {\n        if (!contestMap.has(contestId)) {\n            contestMap.set(contestId, new Set());\n        }\n        contestMap.get(contestId)!.add(userId);\n    }\n    \n    const results: number[][] = [];\n    for (const [contestId, userSet] of contestMap) {\n        const percentage = Math.round((userSet.size * 10000) / totalUsers) / 100;\n        results.push([contestId, percentage]);\n    }\n    \n    results.sort((a, b) =&gt; {\n        if (b[1] !== a[1]) return b[1] - a[1];\n        return a[0] - b[0];\n    });\n    \n    return results;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) in worst case due to cartesian join, but optimized by SQL engines
+- Space: O(k) where k is number of unique contests
+- Notes: Less efficient than subquery approach for large datasets due to cartesian product
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Percentage of Users Attended a Contest Solutions","datePublished":"2025-07-09","description":"Calculate the percentage of users who registered for each contest, rounded to two decimal places.","keywords":"LeetCode, Percentage of Users Attended a Contest, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Subquery Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n is the number of users and m is the number of registrations."}},{"@type":"Question","name":"What is the time complexity of the Cross Join Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n + m) where n is the number of users and m is the number of registrations."}},{"@type":"Question","name":"What is the time complexity of the Left Join Approach?","acceptedAnswer":{"@type":"Answer","text":"O(n × m) in worst case due to cartesian join, but optimized by SQL engines."}},{"@type":"Question","name":"Which approach is recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Subquery Approach is recommended as it's simple, readable, and efficient without creating unnecessary cartesian products."}}]}).replace(/</g,'\u003c')}
+</script>

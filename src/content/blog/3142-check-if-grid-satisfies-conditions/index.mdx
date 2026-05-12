@@ -1,0 +1,516 @@
+---
+title: "Check if Grid Satisfies Conditions"
+summary: "Check if all cells in each row have the same value and all cells in each column have different values."
+date: "Nov 05, 2025"
+tags:
+  - Array
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 45.20% | **Paid:** No
+> **Topics:** Array, Matrix
+
+You are given a 2D grid of size m x n. You need to check if the grid satisfies the following conditions:
+
+1. All cells in each row have the same value.
+2. All cells in each column have different values.
+
+Return true if the grid satisfies the conditions, otherwise return false.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Single Pass](#single-pass)
+- [Using Sets](#using-sets)
+
+## Examples
+
+### Example 1
+
+Input:
+```text
+grid = [[1,0,2],[1,0,2]]
+```
+
+Output:
+```text
+false
+```
+
+Explanation:
+```text
+All cells in row 0 are not the same.
+```
+
+### Example 2
+
+Input:
+```text
+grid = [[1,1],[2,2]]
+```
+
+Output:
+```text
+true
+```
+
+Explanation:
+```text
+All cells in each row are the same and all cells in each column are different.
+```
+
+### Example 3
+
+Input:
+```text
+grid = [[1],[2],[3]]
+```
+
+Output:
+```text
+true
+```
+
+Explanation:
+```text
+All cells in each row are the same (each row has only one cell) and all cells in the column are different.
+```
+
+## Constraints
+
+```text
+- 1 <= n, m <= 10
+- 0 <= grid[i][j] <= 9
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check each row for uniform values and each column for unique values separately.
+
+**Steps**
+- Iterate through each row and verify all elements match the first element.
+- Iterate through each column and use a set to detect duplicates.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def satisfiesConditions(self, grid: List[List[int]]) -> bool:
+        m, n = len(grid), len(grid[0])
+        
+        for i in range(m):
+            for j in range(1, n):
+                if grid[i][j] != grid[i][0]:
+                    return False
+        
+        for j in range(n):
+            seen = set()
+            for i in range(m):
+                if grid[i][j] in seen:
+                    return False
+                seen.add(grid[i][j])
+        
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean satisfiesConditions(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 1; j &lt; n; j++) {
+                if (grid[i][j] != grid[i][0]) {
+                    return false;
+                }
+            }
+        }
+        
+        for (int j = 0; j &lt; n; j++) {
+            java.util.Set<Integer> seen = new java.util.HashSet&lt;&gt;();
+            for (int i = 0; i &lt; m; i++) {
+                if (seen.contains(grid[i][j])) {
+                    return false;
+                }
+                seen.add(grid[i][j]);
+            }
+        }
+        
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool satisfiesConditions(vector<vector<int>&gt;& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 1; j &lt; n; j++) {
+                if (grid[i][j] != grid[i][0]) {
+                    return false;
+                }
+            }
+        }
+        
+        for (int j = 0; j &lt; n; j++) {
+            unordered_set<int> seen;
+            for (int i = 0; i &lt; m; i++) {
+                if (seen.count(grid[i][j])) {
+                    return false;
+                }
+                seen.insert(grid[i][j]);
+            }
+        }
+        
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {boolean}
+ */
+var satisfiesConditions = function(grid) {
+    const m = grid.length;
+    const n = grid[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 1; j &lt; n; j++) {
+            if (grid[i][j] !== grid[i][0]) {
+                return false;
+            }
+        }
+    }
+    
+    for (let j = 0; j &lt; n; j++) {
+        const seen = new Set();
+        for (let i = 0; i &lt; m; i++) {
+            if (seen.has(grid[i][j])) {
+                return false;
+            }
+            seen.add(grid[i][j]);
+        }
+    }
+    
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function satisfiesConditions(grid: number[][]): boolean {
+    const m = grid.length;
+    const n = grid[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 1; j &lt; n; j++) {
+            if (grid[i][j] !== grid[i][0]) {
+                return false;
+            }
+        }
+    }
+    
+    for (let j = 0; j &lt; n; j++) {
+        const seen = new Set<number>();
+        for (let i = 0; i &lt; m; i++) {
+            if (seen.has(grid[i][j])) {
+                return false;
+            }
+            seen.add(grid[i][j]);
+        }
+    }
+    
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(m)
+- Notes: Simple and straightforward, but requires two passes through the grid.
+
+---
+## Single Pass
+
+**Intuition**
+Check both conditions simultaneously while traversing the grid once.
+
+**Steps**
+- Maintain a set for each column to track seen values.
+- For each cell, verify row uniformity and column uniqueness.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def satisfiesConditions(self, grid: List[List[int]]) -> bool:
+        m, n = len(grid), len(grid[0])
+        col_values = [set() for _ in range(n)]
+        
+        for i in range(m):
+            row_val = grid[i][0]
+            for j in range(n):
+                if grid[i][j] != row_val:
+                    return False
+                if grid[i][j] in col_values[j]:
+                    return False
+                col_values[j].add(grid[i][j])
+        
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean satisfiesConditions(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        java.util.Set<Integer>[] colValues = new java.util.Set[n];
+        
+        for (int j = 0; j &lt; n; j++) {
+            colValues[j] = new java.util.HashSet&lt;&gt;();
+        }
+        
+        for (int i = 0; i &lt; m; i++) {
+            int rowVal = grid[i][0];
+            for (int j = 0; j &lt; n; j++) {
+                if (grid[i][j] != rowVal) {
+                    return false;
+                }
+                if (colValues[j].contains(grid[i][j])) {
+                    return false;
+                }
+                colValues[j].add(grid[i][j]);
+            }
+        }
+        
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool satisfiesConditions(vector<vector<int>&gt;& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        vector<unordered_set<int>&gt; colValues(n);
+        
+        for (int i = 0; i &lt; m; i++) {
+            int rowVal = grid[i][0];
+            for (int j = 0; j &lt; n; j++) {
+                if (grid[i][j] != rowVal) {
+                    return false;
+                }
+                if (colValues[j].count(grid[i][j])) {
+                    return false;
+                }
+                colValues[j].insert(grid[i][j]);
+            }
+        }
+        
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {boolean}
+ */
+var satisfiesConditions = function(grid) {
+    const m = grid.length;
+    const n = grid[0].length;
+    const colValues = Array.from({ length: n }, () =&gt; new Set());
+    
+    for (let i = 0; i &lt; m; i++) {
+        const rowVal = grid[i][0];
+        for (let j = 0; j &lt; n; j++) {
+            if (grid[i][j] !== rowVal) {
+                return false;
+            }
+            if (colValues[j].has(grid[i][j])) {
+                return false;
+            }
+            colValues[j].add(grid[i][j]);
+        }
+    }
+    
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function satisfiesConditions(grid: number[][]): boolean {
+    const m = grid.length;
+    const n = grid[0].length;
+    const colValues: Set<number>[] = Array.from({ length: n }, () =&gt; new Set<number>());
+    
+    for (let i = 0; i &lt; m; i++) {
+        const rowVal = grid[i][0];
+        for (let j = 0; j &lt; n; j++) {
+            if (grid[i][j] !== rowVal) {
+                return false;
+            }
+            if (colValues[j].has(grid[i][j])) {
+                return false;
+            }
+            colValues[j].add(grid[i][j]);
+        }
+    }
+    
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(m × n)
+- Notes: Single pass through the grid, but uses more space to track column values.
+
+---
+## Using Sets
+
+**Intuition**
+Use sets to efficiently check row uniformity and column uniqueness.
+
+**Steps**
+- For each row, check if the set of elements has size 1.
+- For each column, check if the set of elements has size equal to the number of rows.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def satisfiesConditions(self, grid: List[List[int]]) -> bool:
+        m, n = len(grid), len(grid[0])
+        
+        for i in range(m):
+            if len(set(grid[i])) != 1:
+                return False
+        
+        for j in range(n):
+            col = [grid[i][j] for i in range(m)]
+            if len(set(col)) != m:
+                return False
+        
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean satisfiesConditions(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        
+        for (int i = 0; i &lt; m; i++) {
+            java.util.Set<Integer> rowSet = new java.util.HashSet&lt;&gt;();
+            for (int j = 0; j &lt; n; j++) {
+                rowSet.add(grid[i][j]);
+            }
+            if (rowSet.size() != 1) {
+                return false;
+            }
+        }
+        
+        for (int j = 0; j &lt; n; j++) {
+            java.util.Set<Integer> colSet = new java.util.HashSet&lt;&gt;();
+            for (int i = 0; i &lt; m; i++) {
+                colSet.add(grid[i][j]);
+            }
+            if (colSet.size() != m) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool satisfiesConditions(vector<vector<int>&gt;& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        for (int i = 0; i &lt; m; i++) {
+            unordered_set<int> rowSet;
+            for (int j = 0; j &lt; n; j++) {
+                rowSet.insert(grid[i][j]);
+            }
+            if (rowSet.size() != 1) {
+                return false;
+            }
+        }
+        
+        for (int j = 0; j &lt; n; j++) {
+            unordered_set<int> colSet;
+            for (int i = 0; i &lt; m; i++) {
+                colSet.insert(grid[i][j]);
+            }
+            if (colSet.size() != m) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} grid
+ * @return {boolean}
+ */
+var satisfiesConditions = function(grid) {
+    const m = grid.length;
+    const n = grid[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        const rowSet = new Set(grid[i]);
+        if (rowSet.size !== 1) {
+            return false;
+        }
+    }
+    
+    for (let j = 0; j &lt; n; j++) {
+        const colSet = new Set();
+        for (let i = 0; i &lt; m; i++) {
+            colSet.add(grid[i][j]);
+        }
+        if (colSet.size !== m) {
+            return false;
+        }
+    }
+    
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function satisfiesConditions(grid: number[][]): boolean {
+    const m = grid.length;
+    const n = grid[0].length;
+    
+    for (let i = 0; i &lt; m; i++) {
+        const rowSet = new Set(grid[i]);
+        if (rowSet.size !== 1) {
+            return false;
+        }
+    }
+    
+    for (let j = 0; j &lt; n; j++) {
+        const colSet = new Set<number>();
+        for (let i = 0; i &lt; m; i++) {
+            colSet.add(grid[i][j]);
+        }
+        if (colSet.size !== m) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(m × n)
+- Notes: Clean and readable, but uses more space for creating sets.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Grid Satisfies Conditions Solutions","datePublished":"2025-11-05","description":"Check if all cells in each row have the same value and all cells in each column have different values.","keywords":"LeetCode, Check if Grid Satisfies Conditions, Easy, Array, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m × n) where m is the number of rows and n is the number of columns."}},{"@type":"Question","name":"What is the space complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m × n) for storing column values in sets."}},{"@type":"Question","name":"What is the time complexity of the Using Sets approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m × n) where m is the number of rows and n is the number of columns."}}]}).replace(/</g,'\u003c')}
+</script>

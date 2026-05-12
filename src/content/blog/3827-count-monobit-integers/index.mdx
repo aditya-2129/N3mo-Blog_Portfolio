@@ -1,0 +1,142 @@
+---
+title: "Count Monobit Integers"
+summary: "Count integers in [0, n] whose binary representation consists of only 0s or only 1s."
+date: "Feb 24, 2024"
+tags:
+  - Bit Manipulation
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.40% | **Paid:** No
+> **Topics:** Bit Manipulation, Enumeration
+
+An integer is monobit if its binary representation consists of only 0s or only 1s.
+
+Given an integer n, return the count of monobit integers in the range [0, n].
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force Enumeration](#approach-1-brute-force-enumeration)
+- [Approach 2: Mathematical Bit Length](#approach-2-mathematical-bit-length)
+- [Approach 3: Iterative Bit Generation](#approach-3-iterative-bit-generation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+n = 1
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+The integers in the range [0, 1] have binary representations "0" and "1".
+
+Each representation consists of identical bits. Thus, the answer is 2.
+
+### Example 2
+
+**Input:**
+```text
+n = 4
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+The integers in the range [0, 4] include binaries "0", "1", "10", "11", and "100".
+
+Only 0, 1 and 3 satisfy the Monobit condition. Thus, the answer is 3.
+
+## Constraints
+
+```text
+- 0 <= n <= 1000
+```
+
+---
+## Approach 1: Brute Force Enumeration
+
+**Intuition**
+Iterate through every number from 0 to n and check if its binary representation contains only 0s or only 1s.
+
+**Steps**
+- Initialize a counter to 0.
+- Loop through each integer i from 0 to n.
+- For each i, check if it is 0 (all 0s) or if i & (i + 1) == 0 (all 1s).
+- If the condition is met, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countMonobitIntegers(self, n: int) -&gt; int:\n        count = 0\n        for i in range(n + 1):\n            if i == 0:\n                count += 1\n            elif (i & (i + 1)) == 0:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countMonobitIntegers(int n) {\n        int count = 0;\n        for (int i = 0; i &lt;= n; i++) {\n            if (i == 0) {\n                count++;\n            } else if ((i & (i + 1)) == 0) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countMonobitIntegers(int n) {\n        int count = 0;\n        for (int i = 0; i &lt;= n; ++i) {\n            if (i == 0) {\n                count++;\n            } else if ((i & (i + 1)) == 0) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar countMonobitIntegers = function(n) {\n    let count = 0;\n    for (let i = 0; i &lt;= n; i++) {\n        if (i === 0) {\n            count++;\n        } else if ((i & (i + 1)) === 0) {\n            count++;\n        }\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countMonobitIntegers(n: number): number {\n    let count = 0;\n    for (let i = 0; i &lt;= n; i++) {\n        if (i === 0) {\n            count++;\n        } else if ((i & (i + 1)) === 0) {\n            count++;\n        }\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1)
+- Notes: This approach is too slow for the upper constraint of n = 10⁹.
+
+---
+## Approach 2: Mathematical Bit Length
+
+**Intuition**
+A monobit integer is either 0 or a number of the form 2ᵏ - 1 (e.g., 1, 3, 7, 15...). The count of such numbers up to n is equivalent to the number of bits required to represent n + 1.
+
+**Steps**
+- Calculate n + 1.
+- Return the bit length of n + 1. In most languages, this is a built-in operation or can be derived from the binary string length.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countMonobitIntegers(self, n: int) -&gt; int:\n        return (n + 1).bit_length()\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countMonobitIntegers(int n) {\n        return 32 - Integer.numberOfLeadingZeros(n + 1);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countMonobitIntegers(int n) {\n        return 32 - __builtin_clz(n + 1);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar countMonobitIntegers = function(n) {\n    return (n + 1).toString(2).length;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countMonobitIntegers(n: number): number {\n    return (n + 1).toString(2).length;\n}\n" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: This is the optimal solution, leveraging mathematical properties of binary numbers.
+
+---
+## Approach 3: Iterative Bit Generation
+
+**Intuition**
+Generate all numbers of the form 2ᵏ - 1 that are less than or equal to n, and count them along with 0.
+
+**Steps**
+- Initialize count = 1 (for 0) and val = 1.
+- While val - 1 &lt;= n, increment count and multiply val by 2.
+- Return count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countMonobitIntegers(self, n: int) -&gt; int:\n        count = 1\n        val = 1\n        while val - 1 &lt;= n:\n            count += 1\n            val *= 2\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countMonobitIntegers(int n) {\n        int count = 1;\n        int val = 1;\n        while (val - 1 &lt;= n) {\n            count++;\n            val *= 2;\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countMonobitIntegers(int n) {\n        int count = 1;\n        int val = 1;\n        while (val - 1 &lt;= n) {\n            count++;\n            val *= 2;\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} n\n * @return {number}\n */\nvar countMonobitIntegers = function(n) {\n    let count = 1;\n    let val = 1;\n    while (val - 1 &lt;= n) {\n        count++;\n        val *= 2;\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countMonobitIntegers(n: number): number {\n    let count = 1;\n    let val = 1;\n    while (val - 1 &lt;= n) {\n        count++;\n        val *= 2;\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(log n)
+- Space: O(1)
+- Notes: Efficient enough for constraints, but slightly slower than the direct bit length calculation.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Monobit Integers Solutions","datePublished":"2024-02-24","description":"Count integers in [0, n] whose binary representation consists of only 0s or only 1s.","keywords":"LeetCode, Count Monobit Integers, Easy, Bit Manipulation, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force Enumeration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n), as we iterate through n numbers and perform bitwise operations."}},{"@type":"Question","name":"What is the time complexity of the Mathematical Bit Length approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1), as it involves a single arithmetic or bit operation."}},{"@type":"Question","name":"What is the time complexity of the Iterative Bit Generation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log n), as we iterate through the number of bits in n."}}]}).replace(/</g,'\u003c')}
+</script>

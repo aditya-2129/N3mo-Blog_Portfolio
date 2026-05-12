@@ -1,0 +1,107 @@
+---
+title: "Largest Triangle Area"
+summary: "Given a set of points on a 2D plane, find the maximum area of a triangle that can be formed from any three points."
+date: "Feb 02, 2024"
+tags:
+  - Array
+  - Math
+  - Geometry
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.60% | **Paid:** No
+> **Topics:** Array, Math, Geometry
+
+You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2.00000
+Explanation: The five points are shown in the figure. The red triangle is the largest.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Brute Force (Shoelace Formula)](#brute-force-shoelace-formula)
+- [Convex Hull + Rotating Calipers](#convex-hull-rotating-calipers)
+
+## Examples
+
+### Example 1
+```text
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2.00000
+Explanation: The five points are show in the figure. The red triangle is the largest.
+```
+
+### Example 2
+```text
+Input: points = [[1,0],[0,0],[0,1]]
+Output: 0.50000
+```
+
+## Constraints
+
+```text
+- 3 <= points.length <= 50
+- -50 <= xi, yi <= 50
+- All the given points are unique.
+```
+
+---
+## Brute Force (Shoelace Formula)
+
+**Intuition**
+Since the number of points is small (N ≤ 50), we can check every possible combination of 3 points. The area of a triangle formed by three points can be calculated efficiently using the Shoelace formula (or the determinant method).
+
+**Steps**
+- Iterate through all unique triplets of points using three nested loops.
+- For each triplet (A, B, C), calculate the area using the formula: $0.5 \times |x_1(y_2 - y_3) + x_2(y_3 - y_1) + x_3(y_1 - y_2)|$.
+- Keep track of the maximum area found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestTriangleArea(self, points: list[list[int]]) -&gt; float:\n        n = len(points)\n        max_area = 0.0\n        for i in range(n):\n            x1, y1 = points[i]\n            for j in range(i + 1, n):\n                x2, y2 = points[j]\n                for k in range(j + 1, n):\n                    x3, y3 = points[k]\n                    # Shoelace formula / Cross product magnitude\n                    area = abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0\n                    max_area = max(max_area, area)\n        return max_area\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public double largestTriangleArea(int[][] points) {\n        int n = points.length;\n        double maxArea = 0.0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    int x1 = points[i][0], y1 = points[i][1];\n                    int x2 = points[j][0], y2 = points[j][1];\n                    int x3 = points[k][0], y3 = points[k][1];\n                    // Shoelace formula\n                    double area = Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0;\n                    maxArea = Math.max(maxArea, area);\n                }\n            }\n        }\n        return maxArea;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;cmath&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    double largestTriangleArea(vector&lt;vector&lt;int&gt;&gt;& points) {\n        int n = points.size();\n        double maxArea = 0.0;\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i + 1; j &lt; n; ++j) {\n                for (int k = j + 1; k &lt; n; ++k) {\n                    int x1 = points[i][0], y1 = points[i][1];\n                    int x2 = points[j][0], y2 = points[j][1];\n                    int x3 = points[k][0], y3 = points[k][1];\n                    // Shoelace formula\n                    double area = abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0;\n                    maxArea = max(maxArea, area);\n                }\n            }\n        }\n        return maxArea;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestTriangleArea = function(points) {\n    let n = points.length;\n    let maxArea = 0.0;\n    for (let i = 0; i &lt; n; i++) {\n        let x1 = points[i][0], y1 = points[i][1];\n        for (let j = i + 1; j &lt; n; j++) {\n            let x2 = points[j][0], y2 = points[j][1];\n            for (let k = j + 1; k &lt; n; k++) {\n                let x3 = points[k][0], y3 = points[k][1];\n                // Shoelace formula\n                let area = Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0;\n                maxArea = Math.max(maxArea, area);\n            }\n        }\n    }\n    return maxArea;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestTriangleArea(points: number[][]): number {\n    let n = points.length;\n    let maxArea = 0.0;\n    for (let i = 0; i &lt; n; i++) {\n        let x1 = points[i][0], y1 = points[i][1];\n        for (let j = i + 1; j &lt; n; j++) {\n            let x2 = points[j][0], y2 = points[j][1];\n            for (let k = j + 1; k &lt; n; k++) {\n                let x3 = points[k][0], y3 = points[k][1];\n                // Shoelace formula\n                let area = Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0;\n                maxArea = Math.max(maxArea, area);\n            }\n        }\n    }\n    return maxArea;\n};\n" },]} />
+
+**Complexity**
+- Time: O(N³) — We iterate through all combinations of 3 points.
+- Space: O(1) — We only store variables for coordinates and max area.
+- Notes: This is the simplest approach and is very efficient given the constraint N ≤ 50.
+
+---
+## Convex Hull + Rotating Calipers
+
+**Intuition**
+The largest triangle must have its vertices on the convex hull of the point set. We can first compute the convex hull (e.g., using Monotone Chain), then use a rotating calipers technique to find the maximum area triangle in O(M²) or O(M) time, where M is the number of points on the hull.
+
+**Steps**
+- Compute the Convex Hull of the points.
+- If the hull has fewer than 3 points, return 0.
+- Iterate through each pair of points on the hull (i, j).
+- For each pair (i, j), find the point k on the hull that maximizes the area of the triangle (i, j, k). Since the hull is convex, as we move j forward, k will also move forward (monotonicity).
+- Track the maximum area found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestTriangleArea(self, points: list[list[int]]) -&gt; float:\n        def cross(o, a, b):\n            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])\n\n        points.sort()\n        lower = []\n        for p in points:\n            while len(lower) &gt;= 2 and cross(lower[-2], lower[-1], p) &lt;= 0:\n                lower.pop()\n            lower.append(p)\n\n        upper = []\n        for p in reversed(points):\n            while len(upper) &gt;= 2 and cross(upper[-2], upper[-1], p) &lt;= 0:\n                upper.pop()\n            upper.append(p)\n\n        hull = lower[:-1] + upper[:-1]\n        n = len(hull)\n        if n &lt; 3:\n            return 0.0\n\n        max_area = 0.0\n        for i in range(n):\n            k = i + 2\n            for j in range(i + 1, n):\n                while k + 1 &lt; n and cross(hull[i], hull[j], hull[k]) &lt; cross(hull[i], hull[j], hull[k+1]):\n                    k += 1\n                area = abs(cross(hull[i], hull[j], hull[k])) / 2.0\n                max_area = max(max_area, area)\n        return max_area\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public double largestTriangleArea(int[][] points) {\n        int n = points.length;\n        Arrays.sort(points, (a, b) -&gt; a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);\n\n        List&lt;int[]&gt; lower = new ArrayList&lt;&gt;();\n        for (int[] p : points) {\n            while (lower.size() &gt;= 2 && cross(lower.get(lower.size() - 2), lower.get(lower.size() - 1), p) &lt;= 0) {\n                lower.remove(lower.size() - 1);\n            }\n            lower.add(p);\n        }\n\n        List&lt;int[]&gt; upper = new ArrayList&lt;&gt;();\n        for (int i = n - 1; i &gt;= 0; i--) {\n            int[] p = points[i];\n            while (upper.size() &gt;= 2 && cross(upper.get(upper.size() - 2), upper.get(upper.size() - 1), p) &lt;= 0) {\n                upper.remove(upper.size() - 1);\n            }\n            upper.add(p);\n        }\n\n        List&lt;int[]&gt; hull = new ArrayList&lt;&gt;();\n        hull.addAll(lower.subList(0, lower.size() - 1));\n        hull.addAll(upper.subList(0, upper.size() - 1));\n\n        int m = hull.size();\n        if (m &lt; 3) return 0.0;\n\n        double maxArea = 0.0;\n        for (int i = 0; i &lt; m; i++) {\n            int k = i + 2;\n            for (int j = i + 1; j &lt; m; j++) {\n                while (k + 1 &lt; m && cross(hull.get(i), hull.get(j), hull.get(k)) &lt; cross(hull.get(i), hull.get(j), hull.get(k + 1))) {\n                    k++;\n                }\n                double area = Math.abs(cross(hull.get(i), hull.get(j), hull.get(k))) / 2.0;\n                maxArea = Math.max(maxArea, area);\n            }\n        }\n        return maxArea;\n    }\n\n    private long cross(int[] o, int[] a, int[] b) {\n        return (long)(a[0] - o[0]) * (b[1] - o[1]) - (long)(a[1] - o[1]) * (b[0] - o[0]);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n#include &lt;cmath&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    double largestTriangleArea(vector&lt;vector&lt;int&gt;&gt;& points) {\n        sort(points.begin(), points.end());\n        vector&lt;vector&lt;int&gt;&gt; lower, upper;\n\n        for (auto& p : points) {\n            while (lower.size() &gt;= 2 && cross(lower[lower.size()-2], lower.back(), p) &lt;= 0) {\n                lower.pop_back();\n            }\n            lower.push_back(p);\n        }\n\n        for (int i = points.size() - 1; i &gt;= 0; i--) {\n            auto& p = points[i];\n            while (upper.size() &gt;= 2 && cross(upper[upper.size()-2], upper.back(), p) &lt;= 0) {\n                upper.pop_back();\n            }\n            upper.push_back(p);\n        }\n\n        vector&lt;vector&lt;int&gt;&gt; hull;\n        hull.insert(hull.end(), lower.begin(), lower.end() - 1);\n        hull.insert(hull.end(), upper.begin(), upper.end() - 1);\n\n        int n = hull.size();\n        if (n &lt; 3) return 0.0;\n\n        double maxArea = 0.0;\n        for (int i = 0; i &lt; n; i++) {\n            int k = i + 2;\n            for (int j = i + 1; j &lt; n; j++) {\n                while (k + 1 &lt; n && cross(hull[i], hull[j], hull[k]) &lt; cross(hull[i], hull[j], hull[k+1])) {\n                    k++;\n                }\n                double area = abs(cross(hull[i], hull[j], hull[k])) / 2.0;\n                maxArea = max(maxArea, area);\n            }\n        }\n        return maxArea;\n    }\n\nprivate:\n    long long cross(vector&lt;int&gt;& o, vector&lt;int&gt;& a, vector&lt;int&gt;& b) {\n        return (long long)(a[0] - o[0]) * (b[1] - o[1]) - (long long)(a[1] - o[1]) * (b[0] - o[0]);\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var largestTriangleArea = function(points) {\n    points.sort((a, b) =&gt; a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);\n\n    const cross = (o, a, b) =&gt; {\n        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);\n    };\n\n    let lower = [];\n    for (let p of points) {\n        while (lower.length &gt;= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) &lt;= 0) {\n            lower.pop();\n        }\n        lower.push(p);\n    }\n\n    let upper = [];\n    for (let i = points.length - 1; i &gt;= 0; i--) {\n        let p = points[i];\n        while (upper.length &gt;= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) &lt;= 0) {\n            upper.pop();\n        }\n        upper.push(p);\n    }\n\n    let hull = [...lower.slice(0, lower.length - 1), ...upper.slice(0, upper.length - 1)];\n    let n = hull.length;\n    if (n &lt; 3) return 0.0;\n\n    let maxArea = 0.0;\n    for (let i = 0; i &lt; n; i++) {\n        let k = i + 2;\n        for (let j = i + 1; j &lt; n; j++) {\n            while (k + 1 &lt; n && cross(hull[i], hull[j], hull[k]) &lt; cross(hull[i], hull[j], hull[k + 1])) {\n                k++;\n            }\n            let area = Math.abs(cross(hull[i], hull[j], hull[k])) / 2.0;\n            maxArea = Math.max(maxArea, area);\n        }\n    }\n    return maxArea;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function largestTriangleArea(points: number[][]): number {\n    points.sort((a, b) =&gt; a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);\n\n    const cross = (o: number[], a: number[], b: number[]): number =&gt; {\n        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);\n    };\n\n    let lower: number[][] = [];\n    for (let p of points) {\n        while (lower.length &gt;= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) &lt;= 0) {\n            lower.pop();\n        }\n        lower.push(p);\n    }\n\n    let upper: number[][] = [];\n    for (let i = points.length - 1; i &gt;= 0; i--) {\n        let p = points[i];\n        while (upper.length &gt;= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) &lt;= 0) {\n            upper.pop();\n        }\n        upper.push(p);\n    }\n\n    let hull: number[][] = [...lower.slice(0, lower.length - 1), ...upper.slice(0, upper.length - 1)];\n    let n = hull.length;\n    if (n &lt; 3) return 0.0;\n\n    let maxArea = 0.0;\n    for (let i = 0; i &lt; n; i++) {\n        let k = i + 2;\n        for (let j = i + 1; j &lt; n; j++) {\n            while (k + 1 &lt; n && cross(hull[i], hull[j], hull[k]) &lt; cross(hull[i], hull[j], hull[k + 1])) {\n                k++;\n            }\n            let area = Math.abs(cross(hull[i], hull[j], hull[k])) / 2.0;\n            maxArea = Math.max(maxArea, area);\n        }\n    }\n    return maxArea;\n};\n" },]} />
+
+**Complexity**
+- Time: O(N log N + M²) — Sorting takes O(N log N). Finding the convex hull takes O(N). Finding the max area triangle on the hull takes O(M²) where M is the number of points on the hull.
+- Space: O(N) — To store the convex hull.
+- Notes: This approach is optimal for larger datasets where N is large, but for N ≤ 50, the brute force method is simpler and equally fast.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Triangle Area Solutions","datePublished":"2024-02-02","description":"Given a set of points on a 2D plane, find the maximum area of a triangle that can be formed from any three points.","keywords":"LeetCode, Largest Triangle Area, Easy, Array, Math, Geometry"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N³), where N is the number of points."}},{"@type":"Question","name":"What is the time complexity of the Convex Hull approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N + M²), where N is the number of points and M is the number of points on the convex hull."}},{"@type":"Question","name":"What formula is used to calculate the area of a triangle given coordinates?","acceptedAnswer":{"@type":"Answer","text":"The Shoelace formula (or determinant method) is used: 0.5 * |x1(y2 - y3) + x2(y3 - y1) + x3(y1 - y2)|."}}]}).replace(/</g,'\u003c')}
+</script>

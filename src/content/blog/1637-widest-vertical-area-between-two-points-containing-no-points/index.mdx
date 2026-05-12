@@ -1,0 +1,109 @@
+---
+title: "Widest Vertical Area Between Two Points Containing No Points"
+summary: "Given n points on a 2D plane, find the maximum width of a vertical area between two points that contains no other points."
+date: "Apr 06, 2026"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.10% | **Paid:** No
+> **Topics:** Array, Sorting
+
+Given n points on a 2D plane, find the widest vertical area between two points such that no points lie inside the area.
+
+A vertical area is an area of fixed-width extending infinitely along the y-axis. The widest vertical area is the one with the maximum width.
+
+Note that points on the edge of a vertical area are not considered included in the area.
+
+- Examples
+- Constraints
+- [Sorting](#sorting)
+- [Brute Force](#brute-force)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: points = [[8,7],[9,9],[7,4],[9,7]]
+Output: 1
+Explanation: The red-shaded region is between x = 7 and x = 9, which has a width of 1. No other points lie inside this region.
+```
+
+**Example 2:**
+
+```text
+Input: points = [[3,1],[9,0],[1,0],[1,4],[5,3],[8,8]]
+Output: 3
+Explanation: The red-shaded region is between x = 5 and x = 8, which has a width of 3. No other points lie inside this region.
+```
+
+## Constraints
+
+```text
+- n == points.length
+- 2 <= n <= 10^5
+- points[i].length == 2
+- 0 <= xi, yi <= 10^9
+```
+
+---
+
+## Sorting
+
+**Intuition**
+The y-coordinates are irrelevant to the width of the vertical area. The problem reduces to finding the maximum difference between consecutive x-coordinates after sorting them.
+
+**Steps**
+- Extract all x-coordinates from the points array.
+- Sort the array of x-coordinates.
+- Iterate through the sorted array to find the maximum difference between adjacent elements.
+- Return the maximum difference found.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxWidthOfVerticalArea(self, points: list[list[int]]) -&gt; int:\n        xs = sorted([p[0] for p in points])\n        max_width = 0\n        for i in range(1, len(xs)):\n            max_width = max(max_width, xs[i] - xs[i-1])\n        return max_width" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int maxWidthOfVerticalArea(int[][] points) {\n        int n = points.length;\n        int[] xs = new int[n];\n        for (int i = 0; i &lt; n; i++) {\n            xs[i] = points[i][0];\n        }\n        Arrays.sort(xs);\n        int max = 0;\n        for (int i = 1; i &lt; n; i++) {\n            max = Math.max(max, xs[i] - xs[i - 1]);\n        }\n        return max;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxWidthOfVerticalArea(vector&lt;vector&lt;int&gt;&gt;& points) {\n        vector&lt;int&gt; xs;\n        for (auto& p : points) {\n            xs.push_back(p[0]);\n        }\n        sort(xs.begin(), xs.end());\n        int maxW = 0;\n        for (int i = 1; i &lt; xs.size(); i++) {\n            maxW = max(maxW, xs[i] - xs[i - 1]);\n        }\n        return maxW;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxWidthOfVerticalArea = function(points) {\n    let xs = points.map(p =&gt; p[0]);\n    xs.sort((a, b) =&gt; a - b);\n    let max = 0;\n    for (let i = 1; i &lt; xs.length; i++) {\n        max = Math.max(max, xs[i] - xs[i - 1]);\n    }\n    return max;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxWidthOfVerticalArea(points: number[][]): number {\n    let xs = points.map(p =&gt; p[0]);\n    xs.sort((a, b) =&gt; a - b);\n    let max = 0;\n    for (let i = 1; i &lt; xs.length; i++) {\n        max = Math.max(max, xs[i] - xs[i - 1]);\n    }\n    return max;\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting.
+- Space: O(N) to store the x-coordinates.
+- Notes: This is the most efficient approach for the given constraints.
+
+---
+
+## Brute Force
+
+**Intuition**
+Check every possible pair of points to see if they form a valid empty vertical area, and track the maximum width found.
+
+**Steps**
+- Iterate through all pairs of points (i, j).
+- For each pair, determine the left and right x-coordinates.
+- Check if any other point k has an x-coordinate strictly between left and right.
+- If no such point exists, update the maximum width with the difference between right and left.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxWidthOfVerticalArea(self, points: list[list[int]]) -&gt; int:\n        n = len(points)\n        max_width = 0\n        for i in range(n):\n            for j in range(i + 1, n):\n                x1, x2 = points[i][0], points[j][0]\n                if x1 == x2: continue\n                left, right = min(x1, x2), max(x1, x2)\n                valid = True\n                for k in range(n):\n                    if k == i or k == j: continue\n                    if left &lt; points[k][0] &lt; right:\n                        valid = False\n                        break\n                if valid:\n                    max_width = max(max_width, right - left)\n        return max_width" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxWidthOfVerticalArea(int[][] points) {\n        int n = points.length;\n        int max = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int x1 = points[i][0];\n                int x2 = points[j][0];\n                if (x1 == x2) continue;\n                int left = Math.min(x1, x2);\n                int right = Math.max(x1, x2);\n                boolean valid = true;\n                for (int k = 0; k &lt; n; k++) {\n                    if (k == i || k == j) continue;\n                    int xk = points[k][0];\n                    if (left &lt; xk && xk &lt; right) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    max = Math.max(max, right - left);\n                }\n            }\n        }\n        return max;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxWidthOfVerticalArea(vector&lt;vector&lt;int&gt;&gt;& points) {\n        int n = points.size();\n        int maxW = 0;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                int x1 = points[i][0];\n                int x2 = points[j][0];\n                if (x1 == x2) continue;\n                int left = min(x1, x2);\n                int right = max(x1, x2);\n                bool valid = true;\n                for (int k = 0; k &lt; n; k++) {\n                    if (k == i || k == j) continue;\n                    int xk = points[k][0];\n                    if (left &lt; xk && xk &lt; right) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    maxW = max(maxW, right - left);\n                }\n            }\n        }\n        return maxW;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var maxWidthOfVerticalArea = function(points) {\n    let n = points.length;\n    let max = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            let x1 = points[i][0];\n            let x2 = points[j][0];\n            if (x1 === x2) continue;\n            let left = Math.min(x1, x2);\n            let right = Math.max(x1, x2);\n            let valid = true;\n            for (let k = 0; k &lt; n; k++) {\n                if (k === i || k === j) continue;\n                let xk = points[k][0];\n                if (left &lt; xk && xk &lt; right) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) {\n                max = Math.max(max, right - left);\n            }\n        }\n    }\n    return max;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maxWidthOfVerticalArea(points: number[][]): number {\n    let n = points.length;\n    let max = 0;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            let x1 = points[i][0];\n            let x2 = points[j][0];\n            if (x1 === x2) continue;\n            let left = Math.min(x1, x2);\n            let right = Math.max(x1, x2);\n            let valid = true;\n            for (let k = 0; k &lt; n; k++) {\n                if (k === i || k === j) continue;\n                let xk = points[k][0];\n                if (left &lt; xk && xk &lt; right) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) {\n                max = Math.max(max, right - left);\n            }\n        }\n    }\n    return max;\n}" },]} />
+
+**Complexity**
+- Time: O(N³) in the worst case.
+- Space: O(1).
+- Notes: This approach is not efficient for large inputs and will result in a Time Limit Exceeded error on LeetCode.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Widest Vertical Area Between Two Points Containing No Points Solutions","datePublished":"2026-04-06","description":"Given n points on a 2D plane, find the maximum width of a vertical area between two points that contains no other points.","keywords":"LeetCode, Widest Vertical Area Between Two Points Containing No Points, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N) due to the sorting step."}},{"@type":"Question","name":"Why is the Brute Force approach inefficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(N³), which is too slow for the constraint N &lt;= 10⁵."}},{"@type":"Question","name":"Do the y-coordinates affect the result?","acceptedAnswer":{"@type":"Answer","text":"No, the y-coordinates are irrelevant because the vertical area extends infinitely along the y-axis."}}]}).replace(/</g,'\u003c')}
+</script>

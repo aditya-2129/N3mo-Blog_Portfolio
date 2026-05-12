@@ -1,0 +1,162 @@
+---
+title: "Count Prefix and Suffix Pairs I"
+summary: "Count pairs of strings where the earlier string is both a prefix and a suffix of the later string."
+date: "Apr 25, 2025"
+tags:
+  - Array
+  - String
+  - Trie
+  - Rolling Hash
+  - String Matching
+  - Hash Function
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 77.80% | **Paid:** No
+> **Topics:** Array, String, Trie, Rolling Hash, String Matching, Hash Function
+
+You are given a 0-indexed array `words` of size `n` consisting of distinct strings.
+
+The string `words[i]` can be paired with the string `words[j]` if:
+
+*   `0 &lt;= i &lt; j &lt; n`, and
+*   `words[i]` is equal to `words[j]`'s prefix and `words[i]` is equal to `words[j]`'s suffix.
+
+Return the number of pairs `(i, j)` such that `words[i]` can be paired with `words[j]`.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Trie](#trie)
+- [Rolling Hash](#rolling-hash)
+
+## Examples
+
+### Example 1
+```text
+Input: words = ["a","aba","ababa","aa"]
+Output: 4
+Explanation: In this example, the counted index pairs are:
+(0,1) because words[0] = "a" is a prefix and suffix of words[1] = "aba"
+(0,2) because words[0] = "a" is a prefix and suffix of words[2] = "ababa"
+(1,2) because words[1] = "aba" is a prefix and suffix of words[2] = "ababa"
+(3,3) is invalid because i < j is not satisfied.
+Wait, (3,3) is not valid. Let's re-verify.
+Actually, the pairs are (0,1), (0,2), (0,3), (1,2).
+(0,3): "a" is prefix and suffix of "aa".
+So there are 4 pairs.
+```
+
+### Example 2
+```text
+Input: words = ["pa","papa","ma","mama"]
+Output: 2
+Explanation: In this example, the counted index pairs are:
+(0,1) because words[0] = "pa" is a prefix and suffix of words[1] = "papa"
+(2,3) because words[2] = "ma" is a prefix and suffix of words[3] = "mama"
+```
+
+### Example 3
+```text
+Input: words = ["abab","ab"]
+Output: 0
+Explanation: In this example, the only index pair is (0,1), and words[0] is not a suffix of words[1].
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 50
+1 <= words[i].length <= 10
+words[i] consists only of lowercase English letters.
+words[i] are distinct.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Since the constraints are very small (`words.length &lt;= 50` and `words[i].length &lt;= 10`), we can simply check every possible pair `(i, j)` where `i &lt; j`. For each pair, we verify if `words[i]` is both a prefix and a suffix of `words[j]`.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through the array with index `i` from 0 to `n-1`.
+- Iterate through the array with index `j` from `i+1` to `n-1`.
+- For each pair `(i, j)`, check if `words[j]` starts with `words[i]` AND ends with `words[i]`.
+- If both conditions are true, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPrefixSuffixPairs(self, words: List[str]) -&gt; int:\n        count = 0\n        n = len(words)\n        for i in range(n):\n            for j in range(i + 1, n):\n                w1 = words[i]\n                w2 = words[j]\n                if w2.startswith(w1) and w2.endswith(w1):\n                    count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPrefixSuffixPairs(String[] words) {\n        int count = 0;\n        int n = words.length;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                String w1 = words[i];\n                String w2 = words[j];\n                if (w2.startsWith(w1) && w2.endsWith(w1)) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPrefixSuffixPairs(vector&lt;string&gt;& words) {\n        int count = 0;\n        int n = words.size();\n        for (int i = 0; i &lt; n; ++i) {\n            for (int j = i + 1; j &lt; n; ++j) {\n                string w1 = words[i];\n                string w2 = words[j];\n                int l = w1.length();\n                if (w2.substr(0, l) == w1 && w2.substr(w2.length() - l) == w1) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countPrefixSuffixPairs = function(words) {\n    let count = 0;\n    const n = words.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const w1 = words[i];\n            const w2 = words[j];\n            if (w2.startsWith(w1) && w2.endsWith(w1)) {\n                count++;\n            }\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countPrefixSuffixPairs(words: string[]): number {\n    let count = 0;\n    const n = words.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            const w1 = words[i];\n            const w2 = words[j];\n            if (w2.startsWith(w1) && w2.endsWith(w1)) {\n                count++;\n            }\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n² * L), where n is the number of words and L is the maximum length of a word. We check n² pairs, and each check takes O(L) time.
+- Space: O(1), we only use a few variables for counting.
+- Notes: This is the most straightforward solution and is perfectly acceptable given the constraints.
+
+---
+## Trie
+
+**Intuition**
+We can optimize the lookup of previous words using a Trie. We iterate through the words. For each word `words[j]`, we check all its prefixes. If a prefix is also a suffix of `words[j]`, we check if that prefix string exists in our Trie (which contains all `words[i]` where `i &lt; j`). If it does, we increment our count. Finally, we insert `words[j]` into the Trie for future checks.
+
+**Steps**
+- Initialize a Trie and a counter.
+- Iterate through each word in the input array.
+- For the current word `w`, iterate through all possible lengths `k` from 1 to `len(w)`.
+- Extract the prefix of length `k` and the suffix of length `k`.
+- If the prefix equals the suffix, search for this string in the Trie. If found, increment the counter.
+- Insert the current word `w` into the Trie.
+- Return the total count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Solution:\n    def countPrefixSuffixPairs(self, words: List[str]) -&gt; int:\n        root = TrieNode()\n        count = 0\n        \n        def insert(word):\n            node = root\n            for ch in word:\n                if ch not in node.children:\n                    node.children[ch] = TrieNode()\n                node = node.children[ch]\n            node.is_end = True\n        \n        def search(word):\n            node = root\n            for ch in word:\n                if ch not in node.children:\n                    return False\n                node = node.children[ch]\n            return node.is_end\n\n        for w in words:\n            for k in range(1, len(w) + 1):\n                prefix = w[:k]\n                suffix = w[-k:]\n                if prefix == suffix:\n                    if search(prefix):\n                        count += 1\n            insert(w)\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private static class TrieNode {\n        TrieNode[] children = new TrieNode[26];\n        boolean isEnd = false;\n    }\n\n    public int countPrefixSuffixPairs(String[] words) {\n        TrieNode root = new TrieNode();\n        int count = 0;\n\n        for (String w : words) {\n            for (int k = 1; k &lt;= w.length(); k++) {\n                String prefix = w.substring(0, k);\n                String suffix = w.substring(w.length() - k);\n                if (prefix.equals(suffix)) {\n                    if (search(root, prefix)) {\n                        count++;\n                    }\n                }\n            }\n            insert(root, w);\n        }\n        return count;\n    }\n\n    private void insert(TrieNode root, String word) {\n        TrieNode node = root;\n        for (char c : word.toCharArray()) {\n            int idx = c - 'a';\n            if (node.children[idx] == null) {\n                node.children[idx] = new TrieNode();\n            }\n            node = node.children[idx];\n        }\n        node.isEnd = true;\n    }\n\n    private boolean search(TrieNode root, String word) {\n        TrieNode node = root;\n        for (char c : word.toCharArray()) {\n            int idx = c - 'a';\n            if (node.children[idx] == null) return false;\n            node = node.children[idx];\n        }\n        return node.isEnd;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "struct TrieNode {\n    TrieNode* children[26];\n    bool isEnd;\n    TrieNode() {\n        for(int i=0; i&lt;26; ++i) children[i] = nullptr;\n        isEnd = false;\n    }\n};\n\nclass Solution {\npublic:\n    int countPrefixSuffixPairs(vector&lt;string&gt;& words) {\n        TrieNode* root = new TrieNode();\n        int count = 0;\n        for (const string& w : words) {\n            for (int k = 1; k &lt;= w.length(); ++k) {\n                string prefix = w.substr(0, k);\n                string suffix = w.substr(w.length() - k);\n                if (prefix == suffix) {\n                    if (search(root, prefix)) count++;\n                }\n            }\n            insert(root, w);\n        }\n        return count;\n    }\n\n    void insert(TrieNode* root, const string& word) {\n        TrieNode* node = root;\n        for (char c : word) {\n            int idx = c - 'a';\n            if (!node-&gt;children[idx]) node-&gt;children[idx] = new TrieNode();\n            node = node-&gt;children[idx];\n        }\n        node-&gt;isEnd = true;\n    }\n\n    bool search(TrieNode* root, const string& word) {\n        TrieNode* node = root;\n        for (char c : word) {\n            int idx = c - 'a';\n            if (!node-&gt;children[idx]) return false;\n            node = node-&gt;children[idx];\n        }\n        return node-&gt;isEnd;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countPrefixSuffixPairs = function(words) {\n    let root = {};\n    let count = 0;\n\n    const insert = (word) =&gt; {\n        let node = root;\n        for (const ch of word) {\n            if (!node[ch]) node[ch] = {};\n            node = node[ch];\n        }\n        node.isEnd = true;\n    };\n\n    const search = (word) =&gt; {\n        let node = root;\n        for (const ch of word) {\n            if (!node[ch]) return false;\n            node = node[ch];\n        }\n        return !!node.isEnd;\n    };\n\n    for (const w of words) {\n        for (let k = 1; k &lt;= w.length; k++) {\n            const prefix = w.substring(0, k);\n            const suffix = w.substring(w.length - k);\n            if (prefix === suffix) {\n                if (search(prefix)) count++;\n            }\n        }\n        insert(w);\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "interface TrieNode {\n    children: { [key: string]: TrieNode };\n    isEnd: boolean;\n}\n\nfunction countPrefixSuffixPairs(words: string[]): number {\n    const root: TrieNode = { children: {}, isEnd: false };\n    let count = 0;\n\n    const insert = (word: string): void =&gt; {\n        let node = root;\n        for (const ch of word) {\n            if (!node.children[ch]) node.children[ch] = { children: {}, isEnd: false };\n            node = node.children[ch];\n        }\n        node.isEnd = true;\n    };\n\n    const search = (word: string): boolean =&gt; {\n        let node = root;\n        for (const ch of word) {\n            if (!node.children[ch]) return false;\n            node = node.children[ch];\n        }\n        return node.isEnd;\n    };\n\n    for (const w of words) {\n        for (let k = 1; k &lt;= w.length; k++) {\n            const prefix = w.substring(0, k);\n            const suffix = w.substring(w.length - k);\n            if (prefix === suffix) {\n                if (search(prefix)) count++;\n            }\n        }\n        insert(w);\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n * L²), where n is the number of words and L is the maximum length of a word. For each word, we check L prefixes, and each check/search takes O(L).
+- Space: O(n * L) to store the Trie.
+- Notes: While more complex to implement, this approach scales better for larger inputs compared to Brute Force.
+
+---
+## Rolling Hash
+
+**Intuition**
+We can use a polynomial rolling hash to represent strings as integers. We store the hash values of all previously seen words in a set. For each new word, we calculate the hash of all its valid prefix-suffix candidates. If a hash exists in the set, we have a valid pair.
+
+**Steps**
+- Initialize a set to store hashes of seen words and a counter.
+- Iterate through each word in the array.
+- For the current word `w`, iterate through all possible lengths `k` from 1 to `len(w)`.
+- Check if the prefix of length `k` equals the suffix of length `k`.
+- If they are equal, calculate the rolling hash of this substring.
+- If the hash exists in the set, increment the counter.
+- Calculate the hash of the full word `w` and add it to the set.
+- Return the total count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countPrefixSuffixPairs(self, words: List[str]) -&gt; int:\n        seen = set()\n        count = 0\n        base = 31\n        mod = 10**9 + 7\n        \n        def get_hash(s):\n            h = 0\n            for ch in s:\n                h = (h * base + ord(ch) - ord('a') + 1) % mod\n            return h\n\n        for w in words:\n            for k in range(1, len(w) + 1):\n                prefix = w[:k]\n                suffix = w[-k:]\n                if prefix == suffix:\n                    if get_hash(prefix) in seen:\n                        count += 1\n            seen.add(get_hash(w))\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countPrefixSuffixPairs(String[] words) {\n        Set&lt;Long&gt; seen = new HashSet&lt;&gt;();\n        int count = 0;\n        long base = 31;\n        long mod = (long)1e9 + 7;\n\n        for (String w : words) {\n            for (int k = 1; k &lt;= w.length(); k++) {\n                String prefix = w.substring(0, k);\n                String suffix = w.substring(w.length() - k);\n                if (prefix.equals(suffix)) {\n                    long h = getHash(prefix, base, mod);\n                    if (seen.contains(h)) {\n                        count++;\n                    }\n                }\n            }\n            seen.add(getHash(w, base, mod));\n        }\n        return count;\n    }\n\n    private long getHash(String s, long base, long mod) {\n        long h = 0;\n        for (char c : s.toCharArray()) {\n            h = (h * base + (c - 'a' + 1)) % mod;\n        }\n        return h;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countPrefixSuffixPairs(vector&lt;string&gt;& words) {\n        unordered_set&lt;long long&gt; seen;\n        int count = 0;\n        long long base = 31;\n        long long mod = 1e9 + 7;\n\n        for (const string& w : words) {\n            for (int k = 1; k &lt;= w.length(); ++k) {\n                string prefix = w.substr(0, k);\n                string suffix = w.substr(w.length() - k);\n                if (prefix == suffix) {\n                    long long h = getHash(prefix, base, mod);\n                    if (seen.find(h) != seen.end()) {\n                        count++;\n                    }\n                }\n            }\n            seen.insert(getHash(w, base, mod));\n        }\n        return count;\n    }\n\n    long long getHash(const string& s, long long base, long long mod) {\n        long long h = 0;\n        for (char c : s) {\n            h = (h * base + (c - 'a' + 1)) % mod;\n        }\n        return h;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countPrefixSuffixPairs = function(words) {\n    const seen = new Set();\n    let count = 0;\n    const base = 31;\n    const mod = 1e9 + 7;\n\n    const getHash = (s) =&gt; {\n        let h = 0;\n        for (const ch of s) {\n            h = (h * base + (ch.charCodeAt(0) - 97 + 1)) % mod;\n        }\n        return h;\n    };\n\n    for (const w of words) {\n        for (let k = 1; k &lt;= w.length; k++) {\n            const prefix = w.substring(0, k);\n            const suffix = w.substring(w.length - k);\n            if (prefix === suffix) {\n                if (seen.has(getHash(prefix))) {\n                    count++;\n                }\n            }\n        }\n        seen.add(getHash(w));\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countPrefixSuffixPairs(words: string[]): number {\n    const seen = new Set&lt;number&gt;();\n    let count = 0;\n    const base = 31;\n    const mod = 1e9 + 7;\n\n    const getHash = (s: string): number =&gt; {\n        let h = 0;\n        for (const ch of s) {\n            h = (h * base + (ch.charCodeAt(0) - 97 + 1)) % mod;\n        }\n        return h;\n    };\n\n    for (const w of words) {\n        for (let k = 1; k &lt;= w.length; k++) {\n            const prefix = w.substring(0, k);\n            const suffix = w.substring(w.length - k);\n            if (prefix === suffix) {\n                if (seen.has(getHash(prefix))) {\n                    count++;\n                }\n            }\n        }\n        seen.add(getHash(w));\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(n * L²), where n is the number of words and L is the maximum length of a word. We iterate through substrings and compute hashes.
+- Space: O(n) to store the hash values.
+- Notes: This approach is efficient for string matching problems. Note that in production code, one must handle potential hash collisions (e.g., by double hashing or storing the string itself), but for this problem, a single hash is sufficient.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Prefix and Suffix Pairs I Solutions","datePublished":"2025-04-25","description":"Count pairs of strings where the earlier string is both a prefix and a suffix of the later string.","keywords":"LeetCode, Count Prefix and Suffix Pairs I, Easy, Array, String, Trie, Rolling Hash, String Matching, Hash Function"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n² * L), where n is the number of words and L is the maximum length of a word."}},{"@type":"Question","name":"What is the time complexity of the Trie approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * L²), where n is the number of words and L is the maximum length of a word."}},{"@type":"Question","name":"What is the time complexity of the Rolling Hash approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n * L²), where n is the number of words and L is the maximum length of a word."}}]}).replace(/</g,'\u003c')}
+</script>

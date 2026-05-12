@@ -1,0 +1,162 @@
+---
+title: "Minimum Number of Pushes to Type Word I"
+summary: "Find the minimum number of pushes needed to type a word by optimally mapping letters to phone keypad keys."
+date: "Apr 23, 2024"
+tags:
+  - Math
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.10% | **Paid:** No
+> **Topics:** Math, String, Greedy
+
+You are given a string word containing lowercase English letters.
+
+In a standard phone keypad (like the one shown below), each letter is mapped to a digit. To type a letter, you need to press the corresponding key multiple times. For example, to type 'a', you press key '2' once, to type 'b', you press key '2' twice, and so on.
+
+However, you are allowed to remap the letters to the keys in any way you want. The only constraint is that each key (2-9) can have at most one letter assigned to each position (1st, 2nd, 3rd, or 4th press).
+
+Return the minimum number of pushes required to type the given word.
+
+- Examples
+- Constraints
+- [Greedy with Frequency Array](#greedy-with-frequency-array)
+- [Using Hash Map](#using-hash-map)
+- [Priority Queue Approach](#priority-queue-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+word = "abcde"
+```
+
+**Output:**
+```text
+5
+```
+
+**Explanation:**
+The remapped keypad given in the image provides the minimum cost.
+"a" -> one push on key 2
+"b" -> one push on key 3
+"c" -> one push on key 4
+"d" -> one push on key 5
+"e" -> one push on key 6
+Total cost is 1 + 1 + 1 + 1 + 1 = 5.
+It can be shown that no other mapping can provide a lower cost.
+
+### Example 2
+
+**Input:**
+```text
+word = "xycdefghij"
+```
+
+**Output:**
+```text
+12
+```
+
+**Explanation:**
+The remapped keypad given in the image provides the minimum cost.
+"x" -> one push on key 2
+"y" -> two pushes on key 2
+"c" -> one push on key 3
+"d" -> two pushes on key 3
+"e" -> one push on key 4
+"f" -> one push on key 5
+"g" -> one push on key 6
+"h" -> one push on key 7
+"i" -> one push on key 8
+"j" -> one push on key 9
+Total cost is 1 + 2 + 1 + 2 + 1 + 1 + 1 + 1 + 1 + 1 = 12.
+It can be shown that no other mapping can provide a lower cost.
+
+## Constraints
+
+```text
+1 <= word.length <= 26
+word consists of lowercase English letters.
+```
+
+---
+## Greedy with Frequency Array
+
+**Intuition**
+To minimize total pushes, assign the most frequent letters to keys requiring fewer presses. With 8 keys, the first 8 letters need 1 push, next 8 need 2 pushes, and so on.
+
+**Steps**
+- Count frequency of each character using a fixed-size array of 26
+- Sort frequencies in descending order
+- Calculate total pushes: position = index // 8 + 1, multiply by frequency
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minimumPushes(self, word: str) -&gt; int:\n        freq = [0] * 26\n        for c in word:\n            freq[ord(c) - ord('a')] += 1\n        \n        freq.sort(reverse=True)\n        \n        total = 0\n        for i in range(26):\n            if freq[i] == 0:\n                break\n            position = i // 8 + 1\n            total += position * freq[i]\n        \n        return total" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumPushes(String word) {\n        int[] freq = new int[26];\n        for (char c : word.toCharArray()) {\n            freq[c - 'a']++;\n        }\n        \n        Integer[] freqBoxed = new Integer[26];\n        for (int i = 0; i &lt; 26; i++) {\n            freqBoxed[i] = freq[i];\n        }\n        java.util.Arrays.sort(freqBoxed, java.util.Collections.reverseOrder());\n        \n        int total = 0;\n        for (int i = 0; i &lt; 26; i++) {\n            if (freqBoxed[i] == 0) break;\n            int position = i / 8 + 1;\n            total += position * freqBoxed[i];\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumPushes(string word) {\n        int freq[26] = {0};\n        for (char c : word) {\n            freq[c - 'a']++;\n        }\n        \n        sort(freq, freq + 26, greater&lt;int&gt;());\n        \n        int total = 0;\n        for (int i = 0; i &lt; 26; i++) {\n            if (freq[i] == 0) break;\n            int position = i / 8 + 1;\n            total += position * freq[i];\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @return {number}\n */\nvar minimumPushes = function(word) {\n    const freq = new Array(26).fill(0);\n    for (const c of word) {\n        freq[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    freq.sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; 26; i++) {\n        if (freq[i] === 0) break;\n        const position = Math.floor(i / 8) + 1;\n        total += position * freq[i];\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumPushes(word: string): number {\n    const freq = new Array(26).fill(0);\n    for (const c of word) {\n        freq[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    freq.sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; 26; i++) {\n        if (freq[i] === 0) break;\n        const position = Math.floor(i / 8) + 1;\n        total += position * freq[i];\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n + 26 log 26) = O(n)
+- Space: O(26) = O(1)
+- Notes: Most efficient with fixed array size
+
+---
+## Using Hash Map
+
+**Intuition**
+Use a hash map to count character frequencies, then sort only the non-zero frequencies for potentially better performance with sparse inputs.
+
+**Steps**
+- Count character frequencies using a hash map
+- Extract and sort frequencies in descending order
+- Calculate total pushes based on position
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from collections import Counter\n\nclass Solution:\n    def minimumPushes(self, word: str) -&gt; int:\n        freq = Counter(word)\n        \n        sorted_freq = sorted(freq.values(), reverse=True)\n        \n        total = 0\n        for i, count in enumerate(sorted_freq):\n            position = i // 8 + 1\n            total += position * count\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int minimumPushes(String word) {\n        Map&lt;Character, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (char c : word.toCharArray()) {\n            freq.put(c, freq.getOrDefault(c, 0) + 1);\n        }\n        \n        List&lt;Integer&gt; freqList = new ArrayList&lt;&gt;(freq.values());\n        Collections.sort(freqList, Collections.reverseOrder());\n        \n        int total = 0;\n        for (int i = 0; i &lt; freqList.size(); i++) {\n            int position = i / 8 + 1;\n            total += position * freqList.get(i);\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int minimumPushes(string word) {\n        unordered_map&lt;char, int&gt; freq;\n        for (char c : word) {\n            freq[c]++;\n        }\n        \n        vector&lt;int&gt; freqList;\n        for (auto& p : freq) {\n            freqList.push_back(p.second);\n        }\n        sort(freqList.begin(), freqList.end(), greater&lt;int&gt;());\n        \n        int total = 0;\n        for (int i = 0; i &lt; freqList.size(); i++) {\n            int position = i / 8 + 1;\n            total += position * freqList[i];\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @return {number}\n */\nvar minimumPushes = function(word) {\n    const freq = new Map();\n    for (const c of word) {\n        freq.set(c, (freq.get(c) || 0) + 1);\n    }\n    \n    const freqList = Array.from(freq.values()).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; freqList.length; i++) {\n        const position = Math.floor(i / 8) + 1;\n        total += position * freqList[i];\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumPushes(word: string): number {\n    const freq = new Map&lt;string, number&gt;();\n    for (const c of word) {\n        freq.set(c, (freq.get(c) || 0) + 1);\n    }\n    \n    const freqList = Array.from(freq.values()).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; freqList.length; i++) {\n        const position = Math.floor(i / 8) + 1;\n        total += position * freqList[i];\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k log k) where k is number of unique characters
+- Space: O(k) for the hash map
+- Notes: More memory efficient for words with few unique characters
+
+---
+## Priority Queue Approach
+
+**Intuition**
+Use a max heap to efficiently retrieve the highest frequency characters one at a time, assigning them to optimal positions.
+
+**Steps**
+- Count character frequencies
+- Build a max heap with non-zero frequencies
+- Pop frequencies one by one, calculating pushes based on position
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def minimumPushes(self, word: str) -&gt; int:\n        freq = [0] * 26\n        for c in word:\n            freq[ord(c) - ord('a')] += 1\n        \n        max_heap = [-f for f in freq if f &gt; 0]\n        heapq.heapify(max_heap)\n        \n        total = 0\n        i = 0\n        while max_heap:\n            position = i // 8 + 1\n            count = -heapq.heappop(max_heap)\n            total += position * count\n            i += 1\n        \n        return total" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int minimumPushes(String word) {\n        int[] freq = new int[26];\n        for (char c : word.toCharArray()) {\n            freq[c - 'a']++;\n        }\n        \n        PriorityQueue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        for (int f : freq) {\n            if (f &gt; 0) {\n                maxHeap.offer(f);\n            }\n        }\n        \n        int total = 0;\n        int i = 0;\n        while (!maxHeap.isEmpty()) {\n            int position = i / 8 + 1;\n            int count = maxHeap.poll();\n            total += position * count;\n            i++;\n        }\n        \n        return total;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n\nclass Solution {\npublic:\n    int minimumPushes(string word) {\n        int freq[26] = {0};\n        for (char c : word) {\n            freq[c - 'a']++;\n        }\n        \n        priority_queue&lt;int&gt; maxHeap;\n        for (int f : freq) {\n            if (f &gt; 0) {\n                maxHeap.push(f);\n            }\n        }\n        \n        int total = 0;\n        int i = 0;\n        while (!maxHeap.empty()) {\n            int position = i / 8 + 1;\n            int count = maxHeap.top();\n            maxHeap.pop();\n            total += position * count;\n            i++;\n        }\n        \n        return total;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} word\n * @return {number}\n */\nvar minimumPushes = function(word) {\n    const freq = new Array(26).fill(0);\n    for (const c of word) {\n        freq[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    const maxHeap = freq.filter(f =&gt; f &gt; 0).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; maxHeap.length; i++) {\n        const position = Math.floor(i / 8) + 1;\n        total += position * maxHeap[i];\n    }\n    \n    return total;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minimumPushes(word: string): number {\n    const freq = new Array(26).fill(0);\n    for (const c of word) {\n        freq[c.charCodeAt(0) - 'a'.charCodeAt(0)]++;\n    }\n    \n    const maxHeap = freq.filter(f =&gt; f &gt; 0).sort((a, b) =&gt; b - a);\n    \n    let total = 0;\n    for (let i = 0; i &lt; maxHeap.length; i++) {\n        const position = Math.floor(i / 8) + 1;\n        total += position * maxHeap[i];\n    }\n    \n    return total;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k log k) where k is number of unique characters
+- Space: O(k) for the heap
+- Notes: Useful when you need to process frequencies incrementally
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Number of Pushes to Type Word I Solutions","datePublished":"2024-04-23","description":"Find the minimum number of pushes needed to type a word by optimally mapping letters to phone keypad keys.","keywords":"LeetCode, Minimum Number of Pushes to Type Word I, Easy, Math, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Greedy with Frequency Array approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the word, since sorting 26 elements is constant time."}},{"@type":"Question","name":"What is the space complexity of Using Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of unique characters in the word."}},{"@type":"Question","name":"Why do we sort frequencies in descending order?","acceptedAnswer":{"@type":"Answer","text":"To assign the most frequent letters to keys requiring fewer pushes, minimizing total presses."}}]}).replace(/</g,'\u003c')}
+</script>

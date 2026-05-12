@@ -1,0 +1,456 @@
+---
+title: "Reshape the Matrix"
+summary: "Reshape a 2D matrix into a new dimension while preserving the original data order."
+date: "Mar 26, 2026"
+tags:
+  - Array
+  - Matrix
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.90% | **Paid:** No
+> **Topics:** Array, Matrix, Simulation
+
+In MATLAB, there is a handy function called reshape which can reshape an m x n matrix into a new one with a different size r x c keeping its original data.
+
+You're given a matrix represented by a 2D array, and two integers r and c representing the number of rows and columns of the wanted reshaped matrix.
+
+The reshaped matrix should be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the reshape operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+- Examples
+- Constraints
+- [Flatten and Reshape](#flatten-and-reshape)
+- [Direct Index Mapping](#direct-index-mapping)
+- [Two Pointer Simulation](#two-pointer-simulation)
+
+## Examples
+
+### Example 1:
+```text
+Input: mat = [[1,2],[3,4]], r = 1, c = 4
+Output: [[1,2,3,4]]
+```
+
+### Example 2:
+```text
+Input: mat = [[1,2],[3,4]], r = 2, c = 4
+Output: [[1,2],[3,4]]
+```
+
+## Constraints
+
+```text
+- m == mat.length
+- n == mat[i].length
+- 1 <= m, n <= 100
+- -1000 <= mat[i][j] <= 1000
+- 1 <= r, c <= 300
+```
+
+---
+
+## Flatten and Reshape
+
+**Intuition**
+First flatten the 2D matrix into a 1D array, then construct the new matrix by taking elements from this array in order.
+
+**Steps**
+- Check if reshape is possible by comparing total elements
+- Flatten the matrix into a 1D array
+- Create the new matrix by filling elements from the 1D array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def matrixReshape(self, mat: List[List[int]], r: int, c: int) -> List[List[int]]:
+        m, n = len(mat), len(mat[0])
+        if m * n != r * c:
+            return mat
+        
+        flat = [mat[i][j] for i in range(m) for j in range(n)]
+        result = []
+        for i in range(r):
+            result.append(flat[i * c:(i + 1) * c])
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] matrixReshape(int[][] mat, int r, int c) {
+        int m = mat.length;
+        int n = mat[0].length;
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        int[] flat = new int[m * n];
+        int idx = 0;
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                flat[idx++] = mat[i][j];
+            }
+        }
+        
+        int[][] result = new int[r][c];
+        idx = 0;
+        for (int i = 0; i &lt; r; i++) {
+            for (int j = 0; j &lt; c; j++) {
+                result[i][j] = flat[idx++];
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; matrixReshape(vector<vector<int>&gt;& mat, int r, int c) {
+        int m = mat.size();
+        int n = mat[0].size();
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        vector<int> flat;
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                flat.push_back(mat[i][j]);
+            }
+        }
+        
+        vector<vector<int>&gt; result(r, vector<int>(c));
+        int idx = 0;
+        for (int i = 0; i &lt; r; i++) {
+            for (int j = 0; j &lt; c; j++) {
+                result[i][j] = flat[idx++];
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} mat
+ * @param {number} r
+ * @param {number} c
+ * @return {number[][]}
+ */
+var matrixReshape = function(mat, r, c) {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const flat = [];
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            flat.push(mat[i][j]);
+        }
+    }
+    
+    const result = [];
+    let idx = 0;
+    for (let i = 0; i &lt; r; i++) {
+        const row = [];
+        for (let j = 0; j &lt; c; j++) {
+            row.push(flat[idx++]);
+        }
+        result.push(row);
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function matrixReshape(mat: number[][], r: number, c: number): number[][] {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const flat: number[] = [];
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            flat.push(mat[i][j]);
+        }
+    }
+    
+    const result: number[][] = [];
+    let idx = 0;
+    for (let i = 0; i &lt; r; i++) {
+        const row: number[] = [];
+        for (let j = 0; j &lt; c; j++) {
+            row.push(flat[idx++]);
+        }
+        result.push(row);
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(m × n)
+- Notes: Uses extra space for the flattened array
+
+---
+
+## Direct Index Mapping
+
+**Intuition**
+Map each element's position in the original matrix directly to its position in the reshaped matrix using mathematical formulas.
+
+**Steps**
+- Check if reshape is possible
+- For each element at (i, j) in original matrix, calculate its position in new matrix
+- Position in new matrix: row = k // c, col = k % c where k = i × n + j
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def matrixReshape(self, mat: List[List[int]], r: int, c: int) -> List[List[int]]:
+        m, n = len(mat), len(mat[0])
+        if m * n != r * c:
+            return mat
+        
+        result = [[0] * c for _ in range(r)]
+        for i in range(m):
+            for j in range(n):
+                k = i * n + j
+                result[k // c][k % c] = mat[i][j]
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] matrixReshape(int[][] mat, int r, int c) {
+        int m = mat.length;
+        int n = mat[0].length;
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        int[][] result = new int[r][c];
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                int k = i * n + j;
+                result[k / c][k % c] = mat[i][j];
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; matrixReshape(vector<vector<int>&gt;& mat, int r, int c) {
+        int m = mat.size();
+        int n = mat[0].size();
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        vector<vector<int>&gt; result(r, vector<int>(c));
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                int k = i * n + j;
+                result[k / c][k % c] = mat[i][j];
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} mat
+ * @param {number} r
+ * @param {number} c
+ * @return {number[][]}
+ */
+var matrixReshape = function(mat, r, c) {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const result = new Array(r).fill(0).map(() =&gt; new Array(c).fill(0));
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            const k = i * n + j;
+            result[Math.floor(k / c)][k % c] = mat[i][j];
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function matrixReshape(mat: number[][], r: number, c: number): number[][] {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const result: number[][] = new Array(r).fill(0).map(() =&gt; new Array(c).fill(0));
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            const k = i * n + j;
+            result[Math.floor(k / c)][k % c] = mat[i][j];
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(r × c)
+- Notes: More space-efficient as it doesn't use a separate flattened array
+
+---
+
+## Two Pointer Simulation
+
+**Intuition**
+Simulate the reshape process by iterating through both matrices simultaneously using two pointers.
+
+**Steps**
+- Check if reshape is possible
+- Use two pointers to track positions in original and new matrices
+- Copy elements one by one from original to new matrix
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def matrixReshape(self, mat: List[List[int]], r: int, c: int) -> List[List[int]]:
+        m, n = len(mat), len(mat[0])
+        if m * n != r * c:
+            return mat
+        
+        result = [[0] * c for _ in range(r)]
+        row, col = 0, 0
+        
+        for i in range(m):
+            for j in range(n):
+                result[row][col] = mat[i][j]
+                col += 1
+                if col == c:
+                    col = 0
+                    row += 1
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] matrixReshape(int[][] mat, int r, int c) {
+        int m = mat.length;
+        int n = mat[0].length;
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        int[][] result = new int[r][c];
+        int row = 0, col = 0;
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                result[row][col] = mat[i][j];
+                col++;
+                if (col == c) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; matrixReshape(vector<vector<int>&gt;& mat, int r, int c) {
+        int m = mat.size();
+        int n = mat[0].size();
+        
+        if (m * n != r * c) {
+            return mat;
+        }
+        
+        vector<vector<int>&gt; result(r, vector<int>(c));
+        int row = 0, col = 0;
+        
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                result[row][col] = mat[i][j];
+                col++;
+                if (col == c) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} mat
+ * @param {number} r
+ * @param {number} c
+ * @return {number[][]}
+ */
+var matrixReshape = function(mat, r, c) {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const result = new Array(r).fill(0).map(() =&gt; new Array(c).fill(0));
+    let row = 0, col = 0;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            result[row][col] = mat[i][j];
+            col++;
+            if (col === c) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function matrixReshape(mat: number[][], r: number, c: number): number[][] {
+    const m = mat.length;
+    const n = mat[0].length;
+    
+    if (m * n !== r * c) {
+        return mat;
+    }
+    
+    const result: number[][] = new Array(r).fill(0).map(() =&gt; new Array(c).fill(0));
+    let row = 0, col = 0;
+    
+    for (let i = 0; i &lt; m; i++) {
+        for (let j = 0; j &lt; n; j++) {
+            result[row][col] = mat[i][j];
+            col++;
+            if (col === c) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(m × n)
+- Space: O(r × c)
+- Notes: Intuitive approach that simulates the actual reshape process
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reshape the Matrix Solutions","datePublished":"2026-03-26","description":"Reshape a 2D matrix into a new dimension while preserving the original data order.","keywords":"LeetCode, Reshape the Matrix, Easy, Array, Matrix, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Flatten and Reshape approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m × n) where m and n are the dimensions of the original matrix."}},{"@type":"Question","name":"What is the space complexity of the Direct Index Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(r × c) for the result matrix, without additional space for a flattened array."}},{"@type":"Question","name":"What is the time complexity of the Two Pointer Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m × n) as we iterate through all elements of the original matrix once."}}]}).replace(/</g,'\u003c')}
+</script>

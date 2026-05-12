@@ -1,0 +1,381 @@
+---
+title: "Count Days Spent Together"
+summary: "Alice and Bob are traveling to Rome for vacation. Calculate the number of days they spend together based on their arrival and departure dates."
+date: "Feb 16, 2025"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 47.90% | **Paid:** No
+> **Topics:** Math, String
+
+Alice and Bob are traveling to Rome for vacation. They have lists of dates they will be in Rome. Given the strings arriveAlice and leaveAlice representing the dates Alice arrives and leaves Rome, and the strings arriveBob and leaveBob representing the dates Bob arrives and leaves Rome, return the count of days where they are both in Rome at the same time.
+
+A person is considered to be in Rome on a date if they arrive on that date or leave on that date.
+
+- Examples
+- Constraints
+- [Prefix Sum / Day of Year](#prefix-sum--day-of-year)
+- [Brute Force Simulation](#brute-force-simulation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+arriveAlice = "08-15", leaveAlice = "08-18", arriveBob = "08-16", leaveBob = "08-19"
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+Alice will be in Rome from August 15 to August 18. Bob will be in Rome from August 16 to August 19. They are both in Rome together on August 16th, 17th, and 18th, so the answer is 3.
+
+### Example 2
+
+**Input:**
+```text
+arriveAlice = "10-01", leaveAlice = "10-31", arriveBob = "11-01", leaveBob = "12-31"
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+There is no day when Alice and Bob are in Rome together, so we return 0.
+
+## Constraints
+
+```text
+arriveAlice and leaveAlice are in the format "MM-DD".
+arriveBob and leaveBob are in the format "MM-DD".
+The dates are valid dates in a non-leap year.
+The dates are in chronological order.
+arriveAlice <= leaveAlice and arriveBob <= leaveBob.
+```
+
+---
+## Prefix Sum / Day of Year
+
+**Intuition**
+Convert the "MM-DD" strings into an integer representing the day of the year (1 to 365). The problem then reduces to finding the intersection length of two intervals on a number line.
+
+**Steps**
+- Define an array storing the number of days in each month for a non-leap year.
+- Create a prefix sum array to quickly calculate the total days passed before a specific month.
+- Implement a helper function to parse "MM-DD" and return the day of the year.
+- Calculate the start and end day numbers for both Alice and Bob.
+- The overlap is calculated as `max(0, min(end1, end2) - max(start1, start2) + 1)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def countDaysTogether(self, arriveAlice: str, leaveAlice: str, arriveBob: str, leaveBob: str) -> int:
+        days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        prefix = [0] * 13
+        for i in range(1, 13):
+            prefix[i] = prefix[i - 1] + days_in_month[i - 1]
+        
+        def convert(date: str) -> int:
+            month = int(date[:2])
+            day = int(date[3:])
+            return prefix[month - 1] + day
+        
+        start_a = convert(arriveAlice)
+        end_a = convert(leaveAlice)
+        start_b = convert(arriveBob)
+        end_b = convert(leaveBob)
+        
+        start = max(start_a, start_b)
+        end = min(end_a, end_b)
+        
+        return max(0, end - start + 1)
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int countDaysTogether(String arriveAlice, String leaveAlice, String arriveBob, String leaveBob) {
+        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int[] prefix = new int[13];
+        for (int i = 1; i &lt; 13; i++) {
+            prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+        }
+        
+        int startA = convert(arriveAlice, prefix);
+        int endA = convert(leaveAlice, prefix);
+        int startB = convert(arriveBob, prefix);
+        int endB = convert(leaveBob, prefix);
+        
+        int start = Math.max(startA, startB);
+        int end = Math.min(endA, endB);
+        
+        return Math.max(0, end - start + 1);
+    }
+    
+    private int convert(String date, int[] prefix) {
+        int month = Integer.parseInt(date.substring(0, 2));
+        int day = Integer.parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+class Solution {
+public:
+    int countDaysTogether(string arriveAlice, string leaveAlice, string arriveBob, string leaveBob) {
+        vector<int> daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        vector<int> prefix(13, 0);
+        for (int i = 1; i &lt; 13; ++i) {
+            prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+        }
+        
+        auto convert = [&](const string& date) {
+            int month = stoi(date.substr(0, 2));
+            int day = stoi(date.substr(3));
+            return prefix[month - 1] + day;
+        };
+        
+        int startA = convert(arriveAlice);
+        int endA = convert(leaveAlice);
+        int startB = convert(arriveBob);
+        int endB = convert(leaveBob);
+        
+        int start = max(startA, startB);
+        int end = min(endA, endB);
+        
+        return max(0, end - start + 1);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+var countDaysTogether = function(arriveAlice, leaveAlice, arriveBob, leaveBob) {
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const prefix = new Array(13).fill(0);
+    for (let i = 1; i &lt; 13; i++) {
+        prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+    }
+    
+    const convert = (date) =&gt; {
+        const month = parseInt(date.substring(0, 2));
+        const day = parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    };
+    
+    const startA = convert(arriveAlice);
+    const endA = convert(leaveAlice);
+    const startB = convert(arriveBob);
+    const endB = convert(leaveBob);
+    
+    const start = Math.max(startA, startB);
+    const end = Math.min(endA, endB);
+    
+    return Math.max(0, end - start + 1);
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function countDaysTogether(arriveAlice: string, leaveAlice: string, arriveBob: string, leaveBob: string): number {
+    const daysInMonth: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const prefix: number[] = new Array(13).fill(0);
+    for (let i = 1; i &lt; 13; i++) {
+        prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+    }
+    
+    const convert = (date: string): number =&gt; {
+        const month = parseInt(date.substring(0, 2));
+        const day = parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    };
+    
+    const startA = convert(arriveAlice);
+    const endA = convert(leaveAlice);
+    const startB = convert(arriveBob);
+    const endB = convert(leaveBob);
+    
+    const start = Math.max(startA, startB);
+    const end = Math.min(endA, endB);
+    
+    return Math.max(0, end - start + 1);
+}
+` },]} />
+
+**Complexity**
+- Time: O(1) - The number of days and months is constant.
+- Space: O(1) - We use a fixed-size array for month days.
+- Notes: This is the most efficient approach, utilizing simple math and interval intersection logic.
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Since the year only has 365 days, we can iterate through every single day of the year and check if that specific day falls within both Alice's and Bob's vacation intervals.
+
+**Steps**
+- Create a helper function to convert a "MM-DD" string into the day of the year (1-365).
+- Iterate through every day `d` from 1 to 365.
+- Check if `d` is greater than or equal to Alice's arrival and less than or equal to Alice's departure.
+- Check if `d` is greater than or equal to Bob's arrival and less than or equal to Bob's departure.
+- If both conditions are true, increment the answer counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `
+class Solution:
+    def countDaysTogether(self, arriveAlice: str, leaveAlice: str, arriveBob: str, leaveBob: str) -> int:
+        days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        prefix = [0] * 13
+        for i in range(1, 13):
+            prefix[i] = prefix[i - 1] + days_in_month[i - 1]
+        
+        def convert(date: str) -> int:
+            month = int(date[:2])
+            day = int(date[3:])
+            return prefix[month - 1] + day
+        
+        start_a = convert(arriveAlice)
+        end_a = convert(leaveAlice)
+        start_b = convert(arriveBob)
+        end_b = convert(leaveBob)
+        
+        count = 0
+        for d in range(1, 366):
+            if start_a &lt;= d &lt;= end_a and start_b &lt;= d &lt;= end_b:
+                count += 1
+        return count
+` },
+{ name: "Java", lang: "java", code: `
+class Solution {
+    public int countDaysTogether(String arriveAlice, String leaveAlice, String arriveBob, String leaveBob) {
+        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int[] prefix = new int[13];
+        for (int i = 1; i &lt; 13; i++) {
+            prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+        }
+        
+        int startA = convert(arriveAlice, prefix);
+        int endA = convert(leaveAlice, prefix);
+        int startB = convert(arriveBob, prefix);
+        int endB = convert(leaveBob, prefix);
+        
+        int count = 0;
+        for (int d = 1; d &lt;= 365; d++) {
+            if (d &gt;= startA && d &lt;= endA && d &gt;= startB && d &lt;= endB) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    private int convert(String date, int[] prefix) {
+        int month = Integer.parseInt(date.substring(0, 2));
+        int day = Integer.parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `
+class Solution {
+public:
+    int countDaysTogether(string arriveAlice, string leaveAlice, string arriveBob, string leaveBob) {
+        vector<int> daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        vector<int> prefix(13, 0);
+        for (int i = 1; i &lt; 13; ++i) {
+            prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+        }
+        
+        auto convert = [&](const string& date) {
+            int month = stoi(date.substr(0, 2));
+            int day = stoi(date.substr(3));
+            return prefix[month - 1] + day;
+        };
+        
+        int startA = convert(arriveAlice);
+        int endA = convert(leaveAlice);
+        int startB = convert(arriveBob);
+        int endB = convert(leaveBob);
+        
+        int count = 0;
+        for (int d = 1; d &lt;= 365; ++d) {
+            if (d &gt;= startA && d &lt;= endA && d &gt;= startB && d &lt;= endB) {
+                count++;
+            }
+        }
+        return count;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `
+var countDaysTogether = function(arriveAlice, leaveAlice, arriveBob, leaveBob) {
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const prefix = new Array(13).fill(0);
+    for (let i = 1; i &lt; 13; i++) {
+        prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+    }
+    
+    const convert = (date) =&gt; {
+        const month = parseInt(date.substring(0, 2));
+        const day = parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    };
+    
+    const startA = convert(arriveAlice);
+    const endA = convert(leaveAlice);
+    const startB = convert(arriveBob);
+    const endB = convert(leaveBob);
+    
+    let count = 0;
+    for (let d = 1; d &lt;= 365; d++) {
+        if (d &gt;= startA && d &lt;= endA && d &gt;= startB && d &lt;= endB) {
+            count++;
+        }
+    }
+    return count;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `
+function countDaysTogether(arriveAlice: string, leaveAlice: string, arriveBob: string, leaveBob: string): number {
+    const daysInMonth: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const prefix: number[] = new Array(13).fill(0);
+    for (let i = 1; i &lt; 13; i++) {
+        prefix[i] = prefix[i - 1] + daysInMonth[i - 1];
+    }
+    
+    const convert = (date: string): number =&gt; {
+        const month = parseInt(date.substring(0, 2));
+        const day = parseInt(date.substring(3));
+        return prefix[month - 1] + day;
+    };
+    
+    const startA = convert(arriveAlice);
+    const endA = convert(leaveAlice);
+    const startB = convert(arriveBob);
+    const endB = convert(leaveBob);
+    
+    let count = 0;
+    for (let d = 1; d &lt;= 365; d++) {
+        if (d &gt;= startA && d &lt;= endA && d &gt;= startB && d &lt;= endB) {
+            count++;
+        }
+    }
+    return count;
+}
+` },]} />
+
+**Complexity**
+- Time: O(365) -> O(1) - We iterate through a constant number of days.
+- Space: O(1) - Only a few integer variables are used.
+- Notes: While less elegant than the interval intersection method, this approach is perfectly valid given the small constraint of 365 days.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Days Spent Together Solutions","datePublished":"2025-02-16","description":"Alice and Bob are traveling to Rome for vacation. Calculate the number of days they spend together based on their arrival and departure dates.","keywords":"LeetCode, Count Days Spent Together, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Prefix Sum approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a constant number of arithmetic operations regardless of input size."}},{"@type":"Question","name":"What is the space complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a fixed amount of extra space for variables."}},{"@type":"Question","name":"How do we handle the date conversion?","acceptedAnswer":{"@type":"Answer","text":"We use a prefix sum array of days per month to convert a 'MM-DD' string into the day of the year (1-365)."}}]}).replace(/</g,'\u003c')}
+</script>

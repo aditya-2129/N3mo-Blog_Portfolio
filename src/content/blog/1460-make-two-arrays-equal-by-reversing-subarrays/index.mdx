@@ -1,0 +1,138 @@
+---
+title: "Make Two Arrays Equal by Reversing Subarrays"
+summary: "Check if two arrays can be made equal by reversing subarrays. Since any permutation is possible, we just need to check if they have the same elements."
+date: "Nov 23, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.80% | **Paid:** No
+> **Topics:** Array, Hash Table, Sorting
+
+You are given two integer arrays of equal length target and arr. In one step, you can select any non-empty sub-array of arr and reverse it. You are allowed to make any number of steps.
+Return true if you can make arr equal to target, or false otherwise.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting](#approach-1-sorting)
+- [Approach 2: Hash Map Frequency Count](#approach-2-hash-map-frequency-count)
+- [Approach 3: Greedy Simulation](#approach-3-greedy-simulation)
+
+## Examples
+
+Example 1:
+```text
+Input: target = [1,2,3,4], arr = [2,4,1,3]
+Output: true
+Explanation: You can follow the next steps to convert arr to target:
+1- Reverse sub-array [2,4,1], arr becomes [1,4,2,3]
+2- Reverse sub-array [4,2], arr becomes [1,2,4,3]
+3- Reverse sub-array [4,3], arr becomes [1,2,3,4]
+There are multiple ways to convert arr to target, this is not the only way to do so.
+```
+
+Example 2:
+```text
+Input: target = [7], arr = [7]
+Output: true
+```
+
+Example 3:
+```text
+Input: target = [3,7,9], arr = [3,7,11]
+Output: false
+```
+
+## Constraints
+
+```text
+target.length == arr.length
+1 <= target.length <= 1000
+1 <= target[i] <= 1000
+1 <= arr[i] <= 1000
+```
+
+---
+## Approach 1: Sorting
+
+**Intuition**
+Since we can reverse any subarray, we can effectively swap any two elements by reversing the subarray between them. This means we can reorder `arr` into any permutation we want. Therefore, `arr` can be made equal to `target` if and only if they contain the exact same elements in the same frequencies. Sorting both arrays puts them into a canonical order; if the sorted arrays are identical, the original arrays are permutations of each other.
+
+**Steps**
+- Create a copy of `target` and `arr` (or sort in place if allowed).
+- Sort both arrays in ascending order.
+- Compare the sorted arrays element by element.
+- If all elements match, return `true`; otherwise, return `false`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def canBeEqual(self, target: list[int], arr: list[int]) -> bool:\n        target.sort()\n        arr.sort()\n        return target == arr' },
+{ name: "Java", lang: "java", code: 'import java.util.Arrays;\n\nclass Solution {\n    public boolean canBeEqual(int[] target, int[] arr) {\n        Arrays.sort(target);\n        Arrays.sort(arr);\n        return Arrays.equals(target, arr);\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canBeEqual(vector<int>& target, vector<int>& arr) {\n        sort(target.begin(), target.end());\n        sort(arr.begin(), arr.end());\n        return target == arr;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} target\n * @param {number[]} arr\n * @return {boolean}\n */\nvar canBeEqual = function(target, arr) {\n    target.sort((a, b) =&gt; a - b);\n    arr.sort((a, b) =&gt; a - b);\n    \n    for (let i = 0; i &lt; target.length; i++) {\n        if (target[i] !== arr[i]) {\n            return false;\n        }\n    }\n    return true;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function canBeEqual(target: number[], arr: number[]): boolean {\n    target.sort((a, b) =&gt; a - b);\n    arr.sort((a, b) =&gt; a - b);\n    \n    for (let i = 0; i &lt; target.length; i++) {\n        if (target[i] !== arr[i]) {\n            return false;\n        }\n    }\n    return true;\n}' },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting, where n is the length of the arrays.
+- Space: O(1) or O(n) depending on the sorting algorithm implementation used by the language.
+- Notes: This is the most straightforward approach and is very efficient for the given constraints (n &lt;= 1000).
+
+---
+## Approach 2: Hash Map Frequency Count
+
+**Intuition**
+Instead of sorting, we can count the frequency of each number in the `target` array. Then, we iterate through the `arr` array and decrement the corresponding count in the map. If we ever try to decrement a count that is zero (or missing), or if the final map contains any non-zero counts, the arrays are not equal.
+
+**Steps**
+- Initialize a hash map (or dictionary) to store frequencies of elements in `target`.
+- Iterate through `target` and populate the frequency map.
+- Iterate through `arr`. For each element, check if it exists in the map with a positive count. If not, return `false`. Otherwise, decrement the count.
+- Return `true` if the loop completes without mismatches.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'from collections import Counter\n\nclass Solution:\n    def canBeEqual(self, target: list[int], arr: list[int]) -> bool:\n        return Counter(target) == Counter(arr)' },
+{ name: "Java", lang: "java", code: 'import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean canBeEqual(int[] target, int[] arr) {\n        Map<Integer, Integer> counts = new HashMap&lt;&gt;();\n        for (int num : target) {\n            counts.put(num, counts.getOrDefault(num, 0) + 1);\n        }\n        for (int num : arr) {\n            if (!counts.containsKey(num) || counts.get(num) == 0) {\n                return false;\n            }\n            counts.put(num, counts.get(num) - 1);\n        }\n        return true;\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <unordered_map>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canBeEqual(vector<int>& target, vector<int>& arr) {\n        unordered_map<int, int> counts;\n        for (int num : target) {\n            counts[num]++;\n        }\n        for (int num : arr) {\n            if (counts[num] == 0) return false;\n            counts[num]--;\n        }\n        return true;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} target\n * @param {number[]} arr\n * @return {boolean}\n */\nvar canBeEqual = function(target, arr) {\n    const map = new Map();\n    for (const num of target) {\n        map.set(num, (map.get(num) || 0) + 1);\n    }\n    for (const num of arr) {\n        if (!map.has(num) || map.get(num) === 0) {\n            return false;\n        }\n        map.set(num, map.get(num) - 1);\n    }\n    return true;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function canBeEqual(target: number[], arr: number[]): boolean {\n    const map = new Map<number, number>();\n    for (const num of target) {\n        map.set(num, (map.get(num) || 0) + 1);\n    }\n    for (const num of arr) {\n        if (!map.has(num) || map.get(num) === 0) {\n            return false;\n        }\n        map.set(num, map.get(num) - 1);\n    }\n    return true;\n}' },]} />
+
+**Complexity**
+- Time: O(n) since we iterate through the arrays twice and hash map operations are O(1) on average.
+- Space: O(n) to store the frequency counts in the worst case where all elements are unique.
+- Notes: This is theoretically faster than sorting for large n, but for n=1000, the difference is negligible.
+
+---
+## Approach 3: Greedy Simulation
+
+**Intuition**
+We can simulate the process of making `arr` equal to `target`. Since we can reverse any subarray, we can bring the correct element to the current position `i` by finding the element `target[i]` in `arr` (at some index `j &gt;= i`) and reversing the subarray `arr[i...j]`. This effectively swaps the element at `j` to position `i` while shifting the intermediate elements.
+
+**Steps**
+- Iterate through the array with index `i` from 0 to `n-1`.
+- If `arr[i]` already matches `target[i]`, continue.
+- If `arr[i]` does not match, find the index `j` (where `j &gt;= i`) such that `arr[j] == target[i]`.
+- If no such `j` exists, return `false`.
+- Reverse the subarray of `arr` from index `i` to `j`.
+- After processing all indices, return `true`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: 'class Solution:\n    def canBeEqual(self, target: list[int], arr: list[int]) -> bool:\n        n = len(target)\n        for i in range(n):\n            if arr[i] != target[i]:\n                # Find target[i] in the remaining part of arr\n                try:\n                    j = arr.index(target[i], i)\n                except ValueError:\n                    return False\n                # Reverse subarray arr[i:j+1]\n                arr[i:j+1] = arr[i:j+1][::-1]\n        return True' },
+{ name: "Java", lang: "java", code: 'class Solution {\n    public boolean canBeEqual(int[] target, int[] arr) {\n        int n = target.length;\n        for (int i = 0; i &lt; n; i++) {\n            if (arr[i] != target[i]) {\n                int j = i;\n                // Find the index j where arr[j] == target[i]\n                while (j &lt; n && arr[j] != target[i]) {\n                    j++;\n                }\n                if (j == n) return false;\n                // Reverse arr from i to j\n                reverse(arr, i, j);\n            }\n        }\n        return true;\n    }\n    \n    private void reverse(int[] arr, int start, int end) {\n        while (start &lt; end) {\n            int temp = arr[start];\n            arr[start] = arr[end];\n            arr[end] = temp;\n            start++;\n            end--;\n        }\n    }\n}' },
+{ name: "C++", lang: "cpp", code: '#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canBeEqual(vector<int>& target, vector<int>& arr) {\n        int n = target.size();\n        for (int i = 0; i &lt; n; ++i) {\n            if (arr[i] != target[i]) {\n                int j = i;\n                while (j &lt; n && arr[j] != target[i]) {\n                    j++;\n                }\n                if (j == n) return false;\n                reverse(arr.begin() + i, arr.begin() + j + 1);\n            }\n        }\n        return true;\n    }\n};' },
+{ name: "JavaScript", lang: "javascript", code: '/**\n * @param {number[]} target\n * @param {number[]} arr\n * @return {boolean}\n */\nvar canBeEqual = function(target, arr) {\n    const n = target.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] !== target[i]) {\n            let j = i;\n            while (j &lt; n && arr[j] !== target[i]) {\n                j++;\n            }\n            if (j === n) return false;\n            // Reverse arr from i to j\n            let left = i, right = j;\n            while (left &lt; right) {\n                [arr[left], arr[right]] = [arr[right], arr[left]];\n                left++;\n                right--;\n            }\n        }\n    }\n    return true;\n};' },
+{ name: "TypeScript", lang: "typescript", code: 'function canBeEqual(target: number[], arr: number[]): boolean {\n    const n = target.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] !== target[i]) {\n            let j = i;\n            while (j &lt; n && arr[j] !== target[i]) {\n                j++;\n            }\n            if (j === n) return false;\n            // Reverse arr from i to j\n            let left = i, right = j;\n            while (left &lt; right) {\n                [arr[left], arr[right]] = [arr[right], arr[left]];\n                left++;\n                right--;\n            }\n        }\n    }\n    return true;\n}' },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case. For each element, we might scan the rest of the array (O(n)) and reverse up to O(n) elements.
+- Space: O(1) extra space (modifying `arr` in place).
+- Notes: This approach is less efficient than Sorting or Hash Map but demonstrates the mechanics of the allowed operation.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Make Two Arrays Equal by Reversing Subarrays Solutions","datePublished":"2025-11-23","description":"Check if two arrays can be made equal by reversing subarrays. Since any permutation is possible, we just need to check if they have the same elements.","keywords":"LeetCode, Make Two Arrays Equal by Reversing Subarrays, Easy, Array, Hash Table, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) since we iterate through the arrays and perform O(1) hash map operations."}},{"@type":"Question","name":"Why can we simply check if the arrays are permutations of each other?","acceptedAnswer":{"@type":"Answer","text":"Reversing any subarray allows us to swap any two elements, which means we can generate any permutation of the array. Thus, order does not matter, only the multiset of elements."}}]}).replace(/</g,'\u003c')}
+</script>

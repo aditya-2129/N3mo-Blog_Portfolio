@@ -1,0 +1,170 @@
+---
+title: "Count the Number of Consistent Strings"
+summary: "You are given a string allowed and an array of strings words. Return the number of strings in words that are consistent with allowed."
+date: "May 08, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+  - Bit Manipulation
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 88.50% | **Paid:** No
+> **Topics:** Array, Hash Table, String, Bit Manipulation, Counting
+
+You are given a string allowed consisting of distinct characters and an array of strings words. A string is consistent if all characters in the string appear in the string allowed.
+
+Return the number of consistent strings in the array words.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Set](#hash-set)
+- [Boolean Array](#boolean-array)
+- [Bit Manipulation](#bit-manipulation)
+
+## Examples
+
+Example 1:
+```text
+Input: allowed = "ab", words = ["ad","bd","aaab","baa","badab"]
+Output: 2
+Explanation: Strings "aaab" and "baa" are consistent since they only contain characters 'a' and 'b'.
+```
+
+Example 2:
+```text
+Input: allowed = "abc", words = ["a","b","c","ab","ac","bc","abc"]
+Output: 7
+Explanation: All strings are consistent.
+```
+
+Example 3:
+```text
+Input: allowed = "cad", words = ["cc","acd","b","ba","bac","bad","ac","d"]
+Output: 4
+Explanation: Strings "cc", "acd", "ac", and "d" are consistent.
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 10⁴
+1 <= allowed.length <= 26
+1 <= words[i].length <= 10
+allowed consists of distinct lowercase English letters.
+words[i] consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+For every word, iterate through its characters and check if each character exists within the `allowed` string using a built-in search function.
+
+**Steps**
+- Initialize a counter to 0.
+- Iterate through each word in the `words` array.
+- For each word, iterate through each character.
+- Check if the character is present in the `allowed` string.
+- If any character is not found, the word is not consistent; skip to the next word.
+- If all characters are found, increment the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countConsistentStrings(self, allowed: str, words: list[str]) -&gt; int:\n        count = 0\n        for word in words:\n            is_consistent = True\n            for char in word:\n                if char not in allowed:\n                    is_consistent = False\n                    break\n            if is_consistent:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countConsistentStrings(String allowed, String[] words) {\n        int count = 0;\n        for (String word : words) {\n            boolean isConsistent = true;\n            for (int i = 0; i &lt; word.length(); i++) {\n                char c = word.charAt(i);\n                if (allowed.indexOf(c) == -1) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countConsistentStrings(string allowed, vector&lt;string&gt;& words) {\n        int count = 0;\n        for (const string& word : words) {\n            bool isConsistent = true;\n            for (char c : word) {\n                if (allowed.find(c) == string::npos) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} allowed\n * @param {string[]} words\n * @return {number}\n */\nvar countConsistentStrings = function(allowed, words) {\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowed.includes(char)) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countConsistentStrings(allowed: string, words: string[]): number {\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowed.includes(char)) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M * L), where N is the number of words, M is the average length of a word, and L is the length of `allowed` (max 26). In the worst case, checking `char in allowed` takes O(L).
+- Space: O(1)
+- Notes: Simple to implement but slower due to repeated string scanning.
+
+---
+## Hash Set
+
+**Intuition**
+Optimize the lookup process by storing the characters of `allowed` in a Hash Set. This allows for O(1) average time complexity for checking if a character is allowed.
+
+**Steps**
+- Convert the `allowed` string into a Set of characters.
+- Initialize a counter to 0.
+- Iterate through each word in `words`.
+- For each word, iterate through its characters.
+- Check if every character exists in the Set.
+- If all characters are present, increment the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countConsistentStrings(self, allowed: str, words: list[str]) -&gt; int:\n        allowed_set = set(allowed)\n        count = 0\n        for word in words:\n            is_consistent = True\n            for char in word:\n                if char not in allowed_set:\n                    is_consistent = False\n                    break\n            if is_consistent:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int countConsistentStrings(String allowed, String[] words) {\n        Set&lt;Character&gt; allowedSet = new HashSet&lt;&gt;();\n        for (char c : allowed.toCharArray()) {\n            allowedSet.add(c);\n        }\n        int count = 0;\n        for (String word : words) {\n            boolean isConsistent = true;\n            for (int i = 0; i &lt; word.length(); i++) {\n                if (!allowedSet.contains(word.charAt(i))) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    int countConsistentStrings(string allowed, vector&lt;string&gt;& words) {\n        unordered_set&lt;char&gt; allowedSet(allowed.begin(), allowed.end());\n        int count = 0;\n        for (const string& word : words) {\n            bool isConsistent = true;\n            for (char c : word) {\n                if (allowedSet.find(c) == allowedSet.end()) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} allowed\n * @param {string[]} words\n * @return {number}\n */\nvar countConsistentStrings = function(allowed, words) {\n    const allowedSet = new Set(allowed);\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowedSet.has(char)) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countConsistentStrings(allowed: string, words: string[]): number {\n    const allowedSet = new Set(allowed);\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowedSet.has(char)) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the number of words and M is the average length of a word. Set lookups are O(1) on average.
+- Space: O(1), as the set stores at most 26 characters.
+- Notes: Very efficient and idiomatic for high-level languages.
+
+---
+## Boolean Array
+
+**Intuition**
+Since the input consists only of lowercase English letters, we can use a fixed-size boolean array of length 26 to track allowed characters. This avoids the overhead of hashing and is generally faster for small, fixed key sets.
+
+**Steps**
+- Create a boolean array of size 26 initialized to false.
+- Iterate through `allowed` and set the corresponding index (e.g., `char - 'a'`) to true.
+- Iterate through `words` and their characters.
+- Check the boolean array for each character.
+- Count words where all characters map to true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countConsistentStrings(self, allowed: str, words: list[str]) -&gt; int:\n        allowed_chars = [False] * 26\n        for char in allowed:\n            allowed_chars[ord(char) - ord('a')] = True\n        \n        count = 0\n        for word in words:\n            is_consistent = True\n            for char in word:\n                if not allowed_chars[ord(char) - ord('a')]:\n                    is_consistent = False\n                    break\n            if is_consistent:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countConsistentStrings(String allowed, String[] words) {\n        boolean[] allowedChars = new boolean[26];\n        for (char c : allowed.toCharArray()) {\n            allowedChars[c - 'a'] = true;\n        }\n        int count = 0;\n        for (String word : words) {\n            boolean isConsistent = true;\n            for (int i = 0; i &lt; word.length(); i++) {\n                if (!allowedChars[word.charAt(i) - 'a']) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countConsistentStrings(string allowed, vector&lt;string&gt;& words) {\n        vector&lt;bool&gt; allowedChars(26, false);\n        for (char c : allowed) {\n            allowedChars[c - 'a'] = true;\n        }\n        int count = 0;\n        for (const string& word : words) {\n            bool isConsistent = true;\n            for (char c : word) {\n                if (!allowedChars[c - 'a']) {\n                    isConsistent = false;\n                    break;\n                }\n            }\n            if (isConsistent) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} allowed\n * @param {string[]} words\n * @return {number}\n */\nvar countConsistentStrings = function(allowed, words) {\n    const allowedChars = new Array(26).fill(false);\n    for (const char of allowed) {\n        allowedChars[char.charCodeAt(0) - 97] = true;\n    }\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowedChars[char.charCodeAt(0) - 97]) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countConsistentStrings(allowed: string, words: string[]): number {\n    const allowedChars: boolean[] = new Array(26).fill(false);\n    for (const char of allowed) {\n        allowedChars[char.charCodeAt(0) - 97] = true;\n    }\n    let count = 0;\n    for (const word of words) {\n        let isConsistent = true;\n        for (const char of word) {\n            if (!allowedChars[char.charCodeAt(0) - 97]) {\n                isConsistent = false;\n                break;\n            }\n        }\n        if (isConsistent) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the number of words and M is the average length of a word.
+- Space: O(1), fixed size array of 26 booleans.
+- Notes: Extremely fast due to direct memory access and lack of hashing overhead.
+
+---
+## Bit Manipulation
+
+**Intuition**
+We can represent the set of allowed characters using a 26-bit integer (bitmask). Each bit corresponds to a letter in the alphabet (e.g., bit 0 for 'a', bit 1 for 'b'). A word is consistent if its bitmask is a subset of the allowed bitmask.
+
+**Steps**
+- Initialize an integer `mask` to 0.
+- Iterate through `allowed`, setting the corresponding bit in `mask` (e.g., `mask |= 1 &lt;&lt; (c - 'a')`).
+- Iterate through each word in `words`.
+- For each word, calculate its own bitmask `wordMask`.
+- Check if `(wordMask & mask) == wordMask`. If true, all bits in `wordMask` are set in `mask`.
+- Increment count if the condition holds.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countConsistentStrings(self, allowed: str, words: list[str]) -&gt; int:\n        mask = 0\n        for char in allowed:\n            mask |= 1 &lt;&lt; (ord(char) - ord('a'))\n        \n        count = 0\n        for word in words:\n            word_mask = 0\n            for char in word:\n                word_mask |= 1 &lt;&lt; (ord(char) - ord('a'))\n            if (word_mask & mask) == word_mask:\n                count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countConsistentStrings(String allowed, String[] words) {\n        int mask = 0;\n        for (char c : allowed.toCharArray()) {\n            mask |= 1 &lt;&lt; (c - 'a');\n        }\n        int count = 0;\n        for (String word : words) {\n            int wordMask = 0;\n            for (int i = 0; i &lt; word.length(); i++) {\n                wordMask |= 1 &lt;&lt; (word.charAt(i) - 'a');\n            }\n            if ((wordMask & mask) == wordMask) {\n                count++;\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countConsistentStrings(string allowed, vector&lt;string&gt;& words) {\n        int mask = 0;\n        for (char c : allowed) {\n            mask |= 1 &lt;&lt; (c - 'a');\n        }\n        int count = 0;\n        for (const string& word : words) {\n            int wordMask = 0;\n            for (char c : word) {\n                wordMask |= 1 &lt;&lt; (c - 'a');\n            }\n            if ((wordMask & mask) == wordMask) {\n                count++;\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} allowed\n * @param {string[]} words\n * @return {number}\n */\nvar countConsistentStrings = function(allowed, words) {\n    let mask = 0;\n    for (const char of allowed) {\n        mask |= 1 &lt;&lt; (char.charCodeAt(0) - 97);\n    }\n    let count = 0;\n    for (const word of words) {\n        let wordMask = 0;\n        for (const char of word) {\n            wordMask |= 1 &lt;&lt; (char.charCodeAt(0) - 97);\n        }\n        if ((wordMask & mask) === wordMask) {\n            count++;\n        }\n    }\n    return count;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countConsistentStrings(allowed: string, words: string[]): number {\n    let mask = 0;\n    for (const char of allowed) {\n        mask |= 1 &lt;&lt; (char.charCodeAt(0) - 97);\n    }\n    let count = 0;\n    for (const word of words) {\n        let wordMask = 0;\n        for (const char of word) {\n            wordMask |= 1 &lt;&lt; (char.charCodeAt(0) - 97);\n        }\n        if ((wordMask & mask) === wordMask) {\n            count++;\n        }\n    }\n    return count;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M), where N is the number of words and M is the average length of a word.
+- Space: O(1), using only a few integer variables.
+- Notes: Highly efficient for space and often very fast, commonly used in competitive programming for alphabet-related problems.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count the Number of Consistent Strings Solutions","datePublished":"2025-05-08","description":"You are given a string allowed and an array of strings words. Return the number of strings in words that are consistent with allowed.","keywords":"LeetCode, Count the Number of Consistent Strings, Easy, Array, Hash Table, String, Bit Manipulation, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * M * L), where N is the number of words, M is the average word length, and L is the length of the allowed string."}},{"@type":"Question","name":"What is the most space-efficient approach?","acceptedAnswer":{"@type":"Answer","text":"The Boolean Array and Bit Manipulation approaches are the most space-efficient, using O(1) auxiliary space."}},{"@type":"Question","name":"How does the Bit Manipulation approach work?","acceptedAnswer":{"@type":"Answer","text":"It uses a 26-bit integer to represent allowed characters. A word is consistent if its bitmask is a subset of the allowed bitmask, checked using bitwise AND."}}]}).replace(/</g,'\u003c')}
+</script>

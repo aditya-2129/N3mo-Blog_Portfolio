@@ -1,0 +1,127 @@
+---
+title: "Reverse Words in a String III"
+summary: "Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order."
+date: "Jan 26, 2024"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 84.00% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Functions](#approach-1-built-in-functions)
+- [Approach 2: Two Pointers](#approach-2-two-pointers)
+- [Approach 3: Stack](#approach-3-stack)
+
+## Examples
+
+### Example 1:
+```text
+Input: s = "Let's take LeetCode contest"
+Output: "s'teL ekat edoCteeL tsetnoc"
+```
+
+### Example 2:
+```text
+Input: s = "God Ding"
+Output: "doG gniD"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 5 * 10⁴
+s contains printable ASCII characters.
+s does not contain any leading or trailing spaces.
+There is at least one word in s.
+All the words in s are separated by a single space.
+```
+
+---
+## Approach 1: Built-in Functions
+
+**Intuition**
+Utilize the standard library functions to split the string into words, reverse each word individually, and then join them back together.
+
+**Steps**
+- Split the input string by spaces to get an array of words.
+- Iterate through the array and reverse each word.
+- Join the reversed words back into a single string with spaces.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseWords(self, s: str) -&gt; str:\n        return \" \".join(word[::-1] for word in s.split(\" \"))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reverseWords(String s) {\n        String[] words = s.split(\" \");\n        StringBuilder result = new StringBuilder();\n        for (String word : words) {\n            result.append(new StringBuilder(word).reverse().toString());\n            result.append(\" \");\n        }\n        return result.substring(0, result.length() - 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reverseWords(string s) {\n        stringstream ss(s);\n        string word, result;\n        while (ss &gt;&gt; word) {\n            reverse(word.begin(), word.end());\n            result += word + \" \";\n        }\n        result.pop_back();\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseWords = function(s) {\n    return s.split(\" \").map(word =&gt; word.split(\"\").reverse().join(\"\")).join(\" \");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseWords(s: string): string {\n    return s.split(\" \").map(word =&gt; word.split(\"\").reverse().join(\"\")).join(\" \");\n}" },]} />
+
+**Complexity**
+- Time: O(N), where N is the length of the string. We iterate through the string to split and join, and reversing each word takes linear time relative to the word length.
+- Space: O(N), to store the array of words and the resulting string.
+- Notes: This approach is concise and leverages built-in methods effectively.
+
+---
+## Approach 2: Two Pointers
+
+**Intuition**
+Convert the string into a mutable character array. Use two pointers to identify the start and end of each word, then reverse the characters in place between these pointers.
+
+**Steps**
+- Convert the string to a character array (if necessary for the language).
+- Initialize a pointer `left` at the start of the string.
+- Iterate through the string with a pointer `right`.
+- When `right` encounters a space or the end of the string, reverse the characters from `left` to `right - 1`.
+- Update `left` to `right + 1` to start the next word.
+- Convert the character array back to a string and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseWords(self, s: str) -&gt; str:\n        lst = list(s)\n        n = len(lst)\n        i = 0\n        for j in range(n + 1):\n            if j == n or lst[j] == \" \":\n                left, right = i, j - 1\n                while left &lt; right:\n                    lst[left], lst[right] = lst[right], lst[left]\n                    left += 1\n                    right -= 1\n                i = j + 1\n        return \"\".join(lst)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String reverseWords(String s) {\n        char[] chars = s.toCharArray();\n        int n = chars.length;\n        int i = 0;\n        for (int j = 0; j &lt;= n; j++) {\n            if (j == n || chars[j] == ' ') {\n                int left = i;\n                int right = j - 1;\n                while (left &lt; right) {\n                    char temp = chars[left];\n                    chars[left] = chars[right];\n                    chars[right] = temp;\n                    left++;\n                    right--;\n                }\n                i = j + 1;\n            }\n        }\n        return new String(chars);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reverseWords(string s) {\n        int i = 0;\n        for (int j = 0; j &lt; s.size(); ++j) {\n            if (s[j] == ' ') {\n                reverse(s.begin() + i, s.begin() + j);\n                i = j + 1;\n            }\n        }\n        reverse(s.begin() + i, s.end());\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseWords = function(s) {\n    let arr = s.split(\"\");\n    let n = arr.length;\n    let i = 0;\n    for (let j = 0; j &lt;= n; j++) {\n        if (j === n || arr[j] === \" \") {\n            let left = i;\n            let right = j - 1;\n            while (left &lt; right) {\n                let temp = arr[left];\n                arr[left] = arr[right];\n                arr[right] = temp;\n                left++;\n                right--;\n            }\n            i = j + 1;\n        }\n    }\n    return arr.join(\"\");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseWords(s: string): string {\n    let arr = s.split(\"\");\n    let n = arr.length;\n    let i = 0;\n    for (let j = 0; j &lt;= n; j++) {\n        if (j === n || arr[j] === \" \") {\n            let left = i;\n            let right = j - 1;\n            while (left &lt; right) {\n                let temp = arr[left];\n                arr[left] = arr[right];\n                arr[right] = temp;\n                left++;\n                right--;\n            }\n            i = j + 1;\n        }\n    }\n    return arr.join(\"\");\n}" },]} />
+
+**Complexity**
+- Time: O(N), we traverse the string once and each character is swapped at most once.
+- Space: O(N) for the character array (or O(1) if the language allows in-place string modification like C++).
+- Notes: This approach avoids creating many intermediate string objects, which can be more efficient in memory-managed languages.
+
+---
+## Approach 3: Stack
+
+**Intuition**
+Use a stack to reverse the characters of each word. Push characters onto the stack until a space is encountered, then pop them to build the reversed word.
+
+**Steps**
+- Initialize an empty stack and a result list/string.
+- Iterate through each character in the string.
+- If the character is not a space, push it onto the stack.
+- If the character is a space, pop all characters from the stack and append them to the result, then append the space.
+- After the loop, pop any remaining characters from the stack for the last word.
+- Return the result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def reverseWords(self, s: str) -&gt; str:\n        stack = []\n        res = []\n        for char in s:\n            if char != \" \":\n                stack.append(char)\n            else:\n                while stack:\n                    res.append(stack.pop())\n                res.append(\" \")\n        while stack:\n            res.append(stack.pop())\n        return \"\".join(res)" },
+{ name: "Java", lang: "java", code: "import java.util.Stack;\n\nclass Solution {\n    public String reverseWords(String s) {\n        Stack&lt;Character&gt; stack = new Stack&lt;&gt;();\n        StringBuilder result = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (c != ' ') {\n                stack.push(c);\n            } else {\n                while (!stack.isEmpty()) {\n                    result.append(stack.pop());\n                }\n                result.append(' ');\n            }\n        }\n        while (!stack.isEmpty()) {\n            result.append(stack.pop());\n        }\n        return result.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string reverseWords(string s) {\n        stack&lt;char&gt; st;\n        string result;\n        for (char c : s) {\n            if (c != ' ') {\n                st.push(c);\n            } else {\n                while (!st.empty()) {\n                    result += st.top();\n                    st.pop();\n                }\n                result += ' ';\n            }\n        }\n        while (!st.empty()) {\n            result += st.top();\n            st.pop();\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @return {string}\n */\nvar reverseWords = function(s) {\n    let stack = [];\n    let result = [];\n    for (let char of s) {\n        if (char !== \" \") {\n            stack.push(char);\n        } else {\n            while (stack.length &gt; 0) {\n                result.push(stack.pop());\n            }\n            result.push(\" \");\n        }\n    }\n    while (stack.length &gt; 0) {\n        result.push(stack.pop());\n    }\n    return result.join(\"\");\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function reverseWords(s: string): string {\n    let stack: string[] = [];\n    let result: string[] = [];\n    for (let char of s) {\n        if (char !== \" \") {\n            stack.push(char);\n        } else {\n            while (stack.length &gt; 0) {\n                result.push(stack.pop()!);\n            }\n            result.push(\" \");\n        }\n    }\n    while (stack.length &gt; 0) {\n        result.push(stack.pop()!);\n    }\n    return result.join(\"\");\n}" },]} />
+
+**Complexity**
+- Time: O(N), each character is pushed and popped exactly once.
+- Space: O(N), for the stack and the result string.
+- Notes: This approach demonstrates the use of a stack data structure for reversal but is generally less space-efficient than the two-pointer approach due to the auxiliary stack storage.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reverse Words in a String III Solutions","datePublished":"2024-01-26","description":"Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.","keywords":"LeetCode, Reverse Words in a String III, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Approach 1: Built-in Functions?","acceptedAnswer":{"@type":"Answer","text":"O(N), where N is the length of the string. We iterate through the string to split and join, and reversing each word takes linear time relative to the word length."}},{"@type":"Question","name":"What is the space complexity of Approach 2: Two Pointers?","acceptedAnswer":{"@type":"Answer","text":"O(N) for the character array (or O(1) if the language allows in-place string modification like C++)."}},{"@type":"Question","name":"What is the time complexity of Approach 3: Stack?","acceptedAnswer":{"@type":"Answer","text":"O(N), each character is pushed and popped exactly once."}}]}).replace(/</g,'\u003c')}
+</script>

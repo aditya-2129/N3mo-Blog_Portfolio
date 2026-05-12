@@ -1,0 +1,122 @@
+---
+title: "Check if Binary String Has at Most One Segment of Ones"
+summary: "Given a binary string s, return true if it contains at most one contiguous segment of '1's."
+date: "Feb 22, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 49.10% | **Paid:** No
+> **Topics:** String
+
+Given a binary string s without leading zeros, return true if s contains at most one contiguous segment of ones. Otherwise, return false.
+
+- Examples
+- Constraints
+- [Iteration with State Flag](#iteration-with-state-flag)
+- [String Find Method](#string-find-method)
+- [Split and Count](#split-and-count)
+
+## Examples
+
+```text
+Input: s = "1001"
+Output: false
+Explanation: The ones do not form a contiguous segment.
+```
+
+```text
+Input: s = "110"
+Output: true
+Explanation: The ones form a contiguous segment.
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s[i] is either '0' or '1'.
+s[0] is '1'
+```
+
+---
+## Iteration with State Flag
+
+**Intuition**
+Since the string has no leading zeros, it starts with a segment of ones. We iterate through the string. If we encounter a '0', we know the first segment has ended. If we encounter a '1' after that, it means a second segment has started, so we return false.
+
+**Steps**
+- Initialize a boolean flag `seen_zero` to false.
+- Iterate through each character `c` in the string `s`.
+- If `c` is '0', set `seen_zero` to true.
+- If `c` is '1' and `seen_zero` is already true, return false.
+- If the loop finishes without returning false, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkOnesSegment(self, s: str) -&gt; bool:\n        seen_zero = False\n        for c in s:\n            if c == '0':\n                seen_zero = True\n            elif seen_zero:\n                return False\n        return True" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkOnesSegment(String s) {\n        boolean seenZero = false;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == '0') {\n                seenZero = true;\n            } else if (seenZero) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkOnesSegment(string s) {\n        bool seenZero = false;\n        for (char c : s) {\n            if (c == '0') {\n                seenZero = true;\n            } else if (seenZero) {\n                return false;\n            }\n        }\n        return true;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    checkOnesSegment(s) {\n        let seenZero = false;\n        for (const c of s) {\n            if (c === '0') {\n                seenZero = true;\n            } else if (seenZero) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    checkOnesSegment(s: string): boolean {\n        let seenZero: boolean = false;\n        for (const c of s) {\n            if (c === '0') {\n                seenZero = true;\n            } else if (seenZero) {\n                return false;\n            }\n        }\n        return true;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string.
+- Space: O(1) auxiliary space.
+- Notes: This is the most optimal approach as it scans the string only once.
+
+---
+## String Find Method
+
+**Intuition**
+A valid string with one segment of ones looks like `111...000...`. It transitions from 1s to 0s at most once. This means the substring "01" (transition from 1 to 0) can appear at most once, and if it does, no "1" can appear after it.
+
+**Steps**
+- Find the index of the substring "01" in `s`.
+- If "01" is not found, return true (the string is all 1s or 1s followed by 0s).
+- If "01" is found, check if there is any "1" in the remaining substring starting from `index + 2`.
+- If a "1" is found, return false; otherwise, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkOnesSegment(self, s: str) -&gt; bool:\n        idx = s.find(\"01\")\n        if idx == -1:\n            return True\n        return \"1\" not in s[idx + 2:]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkOnesSegment(String s) {\n        int idx = s.indexOf(\"01\");\n        if (idx == -1) {\n            return true;\n        }\n        return !s.substring(idx + 2).contains(\"1\");\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkOnesSegment(string s) {\n        size_t pos = s.find(\"01\");\n        if (pos == string::npos) {\n            return true;\n        }\n        return s.find(\"1\", pos + 2) == string::npos;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    checkOnesSegment(s) {\n        const idx = s.indexOf(\"01\");\n        if (idx === -1) {\n            return true;\n        }\n        return !s.slice(idx + 2).includes(\"1\");\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    checkOnesSegment(s: string): boolean {\n        const idx: number = s.indexOf(\"01\");\n        if (idx === -1) {\n            return true;\n        }\n        return !s.slice(idx + 2).includes(\"1\");\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) in the worst case, as string searching and slicing can take linear time.
+- Space: O(1) auxiliary space, though slicing in some languages (like Python/JS) creates a new string copy.
+- Notes: Concise but relies on built-in string methods which might have overhead.
+
+---
+## Split and Count
+
+**Intuition**
+If we split the string by '0', the resulting array will contain strings consisting only of '1's. If there is more than one non-empty string in this array, it means there were multiple segments of ones separated by zeros.
+
+**Steps**
+- Split the string `s` using the delimiter "0".
+- Iterate through the resulting parts and count how many parts are non-empty.
+- If the count is greater than 1, return false.
+- Otherwise, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkOnesSegment(self, s: str) -&gt; bool:\n        parts = s.split(\"0\")\n        count = 0\n        for p in parts:\n            if p:\n                count += 1\n        return count &lt;= 1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean checkOnesSegment(String s) {\n        String[] parts = s.split(\"0\", -1);\n        int count = 0;\n        for (String p : parts) {\n            if (!p.isEmpty()) {\n                count++;\n            }\n        }\n        return count &lt;= 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool checkOnesSegment(string s) {\n        stringstream ss(s);\n        string token;\n        int count = 0;\n        while (getline(ss, token, '0')) {\n            if (!token.empty()) {\n                count++;\n            }\n        }\n        return count &lt;= 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    checkOnesSegment(s) {\n        const parts = s.split(\"0\");\n        let count = 0;\n        for (const p of parts) {\n            if (p.length &gt; 0) {\n                count++;\n            }\n        }\n        return count &lt;= 1;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    checkOnesSegment(s: string): boolean {\n        const parts: string[] = s.split(\"0\");\n        let count: number = 0;\n        for (const p of parts) {\n            if (p.length &gt; 0) {\n                count++;\n            }\n        }\n        return count &lt;= 1;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) to split the string and iterate through parts.
+- Space: O(n) to store the split array/parts.
+- Notes: Less space efficient than the iteration approach due to the storage required for the split result.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Binary String Has at Most One Segment of Ones Solutions","datePublished":"2024-02-22","description":"Given a binary string s, return true if it contains at most one contiguous segment of '1's.","keywords":"LeetCode, Check if Binary String Has at Most One Segment of Ones, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we traverse the string once."}},{"@type":"Question","name":"What is the space complexity of the String Find approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, though slicing operations may use O(n) space in some languages."}},{"@type":"Question","name":"Can we solve this problem using Regular Expressions?","acceptedAnswer":{"@type":"Answer","text":"Yes, by checking if the string matches the pattern ^1+0*$, which ensures ones are followed only by zeros."}}]}).replace(/</g,'\u003c')}
+</script>

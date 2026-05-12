@@ -1,0 +1,136 @@
+---
+title: "Substrings of Size Three with Distinct Characters"
+summary: "Count the number of substrings of length 3 with all distinct characters."
+date: "Apr 23, 2026"
+tags:
+  - Hash Table
+  - String
+  - Sliding Window
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.70% | **Paid:** No
+> **Topics:** Hash Table, String, Sliding Window, Counting
+
+A string is good if there are no repeated characters.
+
+Given a string s, return the number of good substrings of length 3 in s.
+
+Note that a substring is a contiguous sequence of characters in a string.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sliding Window with Set](#sliding-window-with-set)
+- [Direct Comparison](#direct-comparison)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "xyzzaz"
+Output: 2
+Explanation: There are 2 substrings of size 3 that have no repeated characters: "xyz" and "yza".
+```
+
+**Example 2:**
+
+```text
+Input: s = "aababcabc"
+Output: 8
+Explanation: There are 8 substrings of size 3 that have no repeated characters: "aab", "aba", "bab", "abc", "bca", "cab", "abc", "bca".
+```
+
+## Constraints
+
+```text
+3 <= s.length <= 100
+s[i] consists of lowercase English letters.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through the string and check every possible substring of length 3. For each substring, check if all characters are unique by comparing them or using a set.
+
+**Steps**
+- Initialize a counter to 0.
+- Loop from index `i = 0` to `length - 3`.
+- Extract the substring `s[i : i+3]`.
+- Check if the characters at indices `i`, `i+1`, and `i+2` are all distinct.
+- If they are, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodSubstrings(self, s: str) -&gt; int:\n        count = 0\n        for i in range(len(s) - 2):\n            if len(set(s[i:i+3])) == 3:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countGoodSubstrings(String s) {\n        int count = 0;\n        for (int i = 0; i &lt; s.length() - 2; i++) {\n            char a = s.charAt(i);\n            char b = s.charAt(i + 1);\n            char c = s.charAt(i + 2);\n            if (a != b && b != c && a != c) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countGoodSubstrings(string s) {\n        int count = 0;\n        for (int i = 0; i &lt; s.length() - 2; i++) {\n            if (s[i] != s[i+1] && s[i+1] != s[i+2] && s[i] != s[i+2]) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countGoodSubstrings = function(s) {\n    let count = 0;\n    for (let i = 0; i &lt; s.length - 2; i++) {\n        if (s[i] !== s[i+1] && s[i+1] !== s[i+2] && s[i] !== s[i+2]) {\n            count++;\n        }\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countGoodSubstrings(s: string): number {\n    let count = 0;\n    for (let i = 0; i &lt; s.length - 2; i++) {\n        if (s[i] !== s[i+1] && s[i+1] !== s[i+2] && s[i] !== s[i+2]) {\n            count++;\n        }\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string once, and checking 3 characters is O(1).
+- Space: O(1), we only use a few variables for storage.
+- Notes: Simple and effective for small constraints.
+
+---
+## Sliding Window with Set
+
+**Intuition**
+Maintain a sliding window of size 3 using a Set to track unique characters. As we move the window one step to the right, we remove the leftmost character and add the new rightmost character.
+
+**Steps**
+- Initialize a counter and an empty Set.
+- Iterate through the string with index `i`.
+- Add `s[i]` to the Set.
+- If the window size exceeds 3 (i.e., `i &gt;= 3`), remove `s[i-3]` from the Set.
+- If the window size is at least 3 (i.e., `i &gt;= 2`) and the Set size is 3, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodSubstrings(self, s: str) -&gt; int:\n        count = 0\n        window = set()\n        for i in range(len(s)):\n            window.add(s[i])\n            if i &gt;= 3:\n                window.remove(s[i-3])\n            if i &gt;= 2 and len(window) == 3:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public int countGoodSubstrings(String s) {\n        int count = 0;\n        Set&lt;Character&gt; window = new HashSet&lt;&gt;();\n        for (int i = 0; i &lt; s.length(); i++) {\n            window.add(s.charAt(i));\n            if (i &gt;= 3) {\n                window.remove(s.charAt(i - 3));\n            }\n            if (i &gt;= 2 && window.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_set&gt;\n\nclass Solution {\npublic:\n    int countGoodSubstrings(string s) {\n        int count = 0;\n        unordered_set&lt;char&gt; window;\n        for (int i = 0; i &lt; s.length(); i++) {\n            window.insert(s[i]);\n            if (i &gt;= 3) {\n                window.erase(s[i - 3]);\n            }\n            if (i &gt;= 2 && window.size() == 3) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countGoodSubstrings = function(s) {\n    let count = 0;\n    let window = new Set();\n    for (let i = 0; i &lt; s.length; i++) {\n        window.add(s[i]);\n        if (i &gt;= 3) {\n            window.delete(s[i - 3]);\n        }\n        if (i &gt;= 2 && window.size === 3) {\n            count++;\n        }\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countGoodSubstrings(s: string): number {\n    let count = 0;\n    let window = new Set&lt;string&gt;();\n    for (let i = 0; i &lt; s.length; i++) {\n        window.add(s[i]);\n        if (i &gt;= 3) {\n            window.delete(s[i - 3]);\n        }\n        if (i &gt;= 2 && window.size === 3) {\n            count++;\n        }\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), we traverse the string once.
+- Space: O(1), the Set size is bounded by the window size (3).
+- Notes: Generalizes well to larger window sizes k.
+
+---
+## Direct Comparison
+
+**Intuition**
+Since the window size is fixed and very small (3), we can simply check the three characters in the window directly without the overhead of a Set data structure.
+
+**Steps**
+- Initialize a counter to 0.
+- Loop from index `i = 0` to `length - 3`.
+- Check if `s[i] != s[i+1]`, `s[i+1] != s[i+2]`, and `s[i] != s[i+2]`.
+- If all conditions are true, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countGoodSubstrings(self, s: str) -&gt; int:\n        count = 0\n        for i in range(len(s) - 2):\n            if s[i] != s[i+1] and s[i+1] != s[i+2] and s[i] != s[i+2]:\n                count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countGoodSubstrings(String s) {\n        int count = 0;\n        for (int i = 0; i &lt; s.length() - 2; i++) {\n            if (s.charAt(i) != s.charAt(i + 1) && \n                s.charAt(i + 1) != s.charAt(i + 2) && \n                s.charAt(i) != s.charAt(i + 2)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countGoodSubstrings(string s) {\n        int count = 0;\n        for (int i = 0; i &lt; s.length() - 2; i++) {\n            if (s[i] != s[i+1] && s[i+1] != s[i+2] && s[i] != s[i+2]) {\n                count++;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countGoodSubstrings = function(s) {\n    let count = 0;\n    for (let i = 0; i &lt; s.length - 2; i++) {\n        if (s[i] !== s[i+1] && s[i+1] !== s[i+2] && s[i] !== s[i+2]) {\n            count++;\n        }\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countGoodSubstrings(s: string): number {\n    let count = 0;\n    for (let i = 0; i &lt; s.length - 2; i++) {\n        if (s[i] !== s[i+1] && s[i+1] !== s[i+2] && s[i] !== s[i+2]) {\n            count++;\n        }\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), single pass through the string.
+- Space: O(1), no extra data structures used.
+- Notes: Most efficient approach for this specific problem size.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Substrings of Size Three with Distinct Characters Solutions","datePublished":"2026-04-23","description":"Count the number of substrings of length 3 with all distinct characters.","keywords":"LeetCode, Substrings of Size Three with Distinct Characters, Easy, Hash Table, String, Sliding Window, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string. We iterate through the string once, and checking 3 characters is O(1)."}},{"@type":"Question","name":"What is the space complexity of the Sliding Window with Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the Set size is bounded by the fixed window size of 3."}},{"@type":"Question","name":"Why is Direct Comparison considered the most efficient approach?","acceptedAnswer":{"@type":"Answer","text":"Direct comparison avoids the overhead of creating and managing a Set data structure, performing only simple character comparisons, which makes it slightly faster for this specific fixed window size."}}]}).replace(/</g,'\u003c')}
+</script>

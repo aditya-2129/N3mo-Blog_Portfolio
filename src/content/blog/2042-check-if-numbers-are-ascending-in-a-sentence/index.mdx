@@ -1,0 +1,444 @@
+---
+title: "Check if Numbers Are Ascending in a Sentence"
+summary: "Check if all numbers in a sentence are in strictly ascending order from left to right."
+date: "Mar 09, 2026"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.10% | **Paid:** No
+> **Topics:** String
+
+A sentence is a list of tokens separated by a single space with no leading or trailing spaces. Each token consists of English letters and/or digits. A token is numeric if it consists only of digits. Return true if all numeric tokens in the sentence are in strictly ascending order, or false otherwise.
+
+## Examples
+
+### Example 1:
+```text
+Input: s = "1 box has 3 blue 4 red 6 green and 12 yellow marbles"
+Output: true
+Explanation: The numbers in s are: 1, 3, 4, 6, 12. They are strictly increasing.
+```
+
+### Example 2:
+```text
+Input: s = "hello world 5 x 5"
+Output: false
+Explanation: The numbers in s are: 5, 5. They are not strictly increasing.
+```
+
+### Example 3:
+```text
+Input: s = "sunset is at 7 51 pm overnight lows will be in the 50 60 s"
+Output: false
+Explanation: The numbers in s are: 7, 51, 50, 60. They are not strictly increasing.
+```
+
+## Constraints
+
+```text
+- 3 <= s.length <= 200
+- s consists of lowercase English letters, spaces, and digits from 0 to 9, inclusive.
+- The number of tokens in s is between 2 and 100, inclusive.
+- The tokens in s are separated by a single space.
+- There are at least two numbers in s.
+- Each number in s is a positive number less than 100, with no leading zeros.
+- s contains no leading or trailing spaces.
+```
+
+## Table of Contents
+- Examples
+- Constraints
+- [Simple Iteration](#simple-iteration)
+- [Regular Expression](#regular-expression)
+- [Character-by-Character Parsing](#character-by-character-parsing)
+
+---
+## Simple Iteration
+
+**Intuition**
+Split the sentence by spaces and iterate through each token, checking if it's numeric and comparing it with the previous number.
+
+**Steps**
+- Split the sentence by spaces
+- Initialize previous number to -1
+- For each token, check if it's numeric
+- If numeric, compare with previous number
+- Return false if current number is not greater than previous
+- Update previous number and continue
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def areNumbersAscending(self, s: str) -> bool:
+        tokens = s.split()
+        prev = -1
+        for token in tokens:
+            if token.isdigit():
+                curr = int(token)
+                if curr &lt;= prev:
+                    return False
+                prev = curr
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean areNumbersAscending(String s) {
+        String[] tokens = s.split(" ");
+        int prev = -1;
+        for (String token : tokens) {
+            if (isNumeric(token)) {
+                int curr = Integer.parseInt(token);
+                if (curr &lt;= prev) {
+                    return false;
+                }
+                prev = curr;
+            }
+        }
+        return true;
+    }
+    
+    private boolean isNumeric(String s) {
+        for (char c : s.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool areNumbersAscending(string s) {
+        vector<string> tokens;
+        string token;
+        stringstream ss(s);
+        while (ss &gt;&gt; token) {
+            tokens.push_back(token);
+        }
+        
+        int prev = -1;
+        for (const string& token : tokens) {
+            if (isNumeric(token)) {
+                int curr = stoi(token);
+                if (curr &lt;= prev) {
+                    return false;
+                }
+                prev = curr;
+            }
+        }
+        return true;
+    }
+    
+private:
+    bool isNumeric(const string& s) {
+        for (char c : s) {
+            if (!isdigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var areNumbersAscending = function(s) {
+    const tokens = s.split(' ');
+    let prev = -1;
+    for (const token of tokens) {
+        if (/^\\d+$/.test(token)) {
+            const curr = parseInt(token);
+            if (curr &lt;= prev) {
+                return false;
+            }
+            prev = curr;
+        }
+    }
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function areNumbersAscending(s: string): boolean {
+    const tokens = s.split(' ');
+    let prev = -1;
+    for (const token of tokens) {
+        if (/^\\d+$/.test(token)) {
+            const curr = parseInt(token);
+            if (curr &lt;= prev) {
+                return false;
+            }
+            prev = curr;
+        }
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing the tokens
+- Notes: Simple and readable approach
+
+---
+## Regular Expression
+
+**Intuition**
+Use regular expression to extract all numbers from the sentence, then check if they form a strictly increasing sequence.
+
+**Steps**
+- Use regex to find all numeric substrings
+- Convert them to integers
+- Iterate through the numbers and check if each is greater than the previous
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+
+class Solution:
+    def areNumbersAscending(self, s: str) -> bool:
+        numbers = list(map(int, re.findall(r'\\d+', s)))
+        for i in range(1, len(numbers)):
+            if numbers[i] &lt;= numbers[i - 1]:
+                return False
+        return True
+` },
+{ name: "Java", lang: "java", code: `import java.util.regex.*;
+import java.util.*;
+
+class Solution {
+    public boolean areNumbersAscending(String s) {
+        Pattern pattern = Pattern.compile("\\\\d+");
+        Matcher matcher = pattern.matcher(s);
+        
+        List<Integer> numbers = new ArrayList&lt;&gt;();
+        while (matcher.find()) {
+            numbers.add(Integer.parseInt(matcher.group()));
+        }
+        
+        for (int i = 1; i &lt; numbers.size(); i++) {
+            if (numbers.get(i) &lt;= numbers.get(i - 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <regex>
+#include <vector>
+
+class Solution {
+public:
+    bool areNumbersAscending(string s) {
+        regex pattern("\\\\d+");
+        vector<int> numbers;
+        
+        for (auto it = sregex_iterator(s.begin(), s.end(), pattern); 
+             it != sregex_iterator(); ++it) {
+            numbers.push_back(stoi(it->str()));
+        }
+        
+        for (int i = 1; i &lt; numbers.size(); i++) {
+            if (numbers[i] &lt;= numbers[i - 1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var areNumbersAscending = function(s) {
+    const numbers = s.match(/\\d+/g).map(Number);
+    for (let i = 1; i &lt; numbers.length; i++) {
+        if (numbers[i] &lt;= numbers[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function areNumbersAscending(s: string): boolean {
+    const numbers: number[] = s.match(/\\d+/g)!.map(Number);
+    for (let i = 1; i &lt; numbers.length; i++) {
+        if (numbers[i] &lt;= numbers[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing the numbers
+- Notes: Concise but requires regex knowledge
+
+---
+## Character-by-Character Parsing
+
+**Intuition**
+Parse the string character by character, building numbers digit by digit, and check ascending order without splitting or using regex.
+
+**Steps**
+- Initialize previous number to -1 and current number to 0
+- Flag to track if we're currently parsing a number
+- Iterate through each character
+- If digit, build the current number
+- If space and we were parsing a number, compare with previous
+- Return false if not strictly increasing
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def areNumbersAscending(self, s: str) -> bool:
+        prev = -1
+        curr = 0
+        in_number = False
+        
+        for ch in s:
+            if ch.isdigit():
+                curr = curr * 10 + int(ch)
+                in_number = True
+            elif in_number:
+                if curr &lt;= prev:
+                    return False
+                prev = curr
+                curr = 0
+                in_number = False
+        
+        if in_number and curr &lt;= prev:
+            return False
+        
+        return True
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public boolean areNumbersAscending(String s) {
+        int prev = -1;
+        int curr = 0;
+        boolean inNumber = false;
+        
+        for (int i = 0; i &lt; s.length(); i++) {
+            char ch = s.charAt(i);
+            if (Character.isDigit(ch)) {
+                curr = curr * 10 + (ch - '0');
+                inNumber = true;
+            } else if (inNumber) {
+                if (curr &lt;= prev) {
+                    return false;
+                }
+                prev = curr;
+                curr = 0;
+                inNumber = false;
+            }
+        }
+        
+        if (inNumber && curr &lt;= prev) {
+            return false;
+        }
+        
+        return true;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    bool areNumbersAscending(string s) {
+        int prev = -1;
+        int curr = 0;
+        bool inNumber = false;
+        
+        for (char ch : s) {
+            if (isdigit(ch)) {
+                curr = curr * 10 + (ch - '0');
+                inNumber = true;
+            } else if (inNumber) {
+                if (curr &lt;= prev) {
+                    return false;
+                }
+                prev = curr;
+                curr = 0;
+                inNumber = false;
+            }
+        }
+        
+        if (inNumber && curr &lt;= prev) {
+            return false;
+        }
+        
+        return true;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var areNumbersAscending = function(s) {
+    let prev = -1;
+    let curr = 0;
+    let inNumber = false;
+    
+    for (const ch of s) {
+        if (ch &gt;= '0' && ch &lt;= '9') {
+            curr = curr * 10 + (ch.charCodeAt(0) - 48);
+            inNumber = true;
+        } else if (inNumber) {
+            if (curr &lt;= prev) {
+                return false;
+            }
+            prev = curr;
+            curr = 0;
+            inNumber = false;
+        }
+    }
+    
+    if (inNumber && curr &lt;= prev) {
+        return false;
+    }
+    
+    return true;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function areNumbersAscending(s: string): boolean {
+    let prev: number = -1;
+    let curr: number = 0;
+    let inNumber: boolean = false;
+    
+    for (const ch of s) {
+        if (ch &gt;= '0' && ch &lt;= '9') {
+            curr = curr * 10 + (ch.charCodeAt(0) - 48);
+            inNumber = true;
+        } else if (inNumber) {
+            if (curr &lt;= prev) {
+                return false;
+            }
+            prev = curr;
+            curr = 0;
+            inNumber = false;
+        }
+    }
+    
+    if (inNumber && curr &lt;= prev) {
+        return false;
+    }
+    
+    return true;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) constant extra space
+- Notes: Most space-efficient approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Check if Numbers Are Ascending in a Sentence Solutions","datePublished":"2026-03-09","description":"Check if all numbers in a sentence are in strictly ascending order from left to right.","keywords":"LeetCode, Check if Numbers Are Ascending in a Sentence, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Simple Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string"}},{"@type":"Question","name":"What is the space complexity of Character-by-Character Parsing approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) constant extra space"}},{"@type":"Question","name":"What is the time complexity of Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string"}}]}).replace(/</g,'\u003c')}
+</script>

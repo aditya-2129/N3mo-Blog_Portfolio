@@ -1,0 +1,135 @@
+---
+title: "Calculate Digit Sum of a String"
+summary: "You are given a string s consisting of digits and an integer k. Perform digit sum grouping operations until the string length is &lt;= k."
+date: "Mar 30, 2025"
+tags:
+  - String
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.80% | **Paid:** No
+> **Topics:** String, Simulation
+
+You are given a string s consisting of digits and an integer k.
+
+We want to perform the following operation on s until the length of s is less than or equal to k:
+
+1. Divide s into consecutive groups of size k. The first group may have fewer than k characters.
+2. Replace each group with the sum of the digits in the group.
+3. Concatenate the groups to form a new string.
+
+Return the resulting string.
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Simulation](#approach-1-iterative-simulation)
+- [Approach 2: Recursive Simulation](#approach-2-recursive-simulation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "11111222223", k = 3
+```
+
+**Output:**
+```text
+"135"
+```
+
+**Explanation:**
+- For the first round, we divide s into groups of size 3: "111", "112", "222", and "23".
+  ​​​​​Then we calculate the digit sum of each group: 1 + 1 + 1 = 3, 1 + 1 + 2 = 4, 2 + 2 + 2 = 6, and 2 + 3 = 5.
+  So, s becomes "3" + "4" + "6" + "5" = "3465" after the first round.
+- For the second round, we divide s into "346" and "5".
+  Then we calculate the digit sum of each group: 3 + 4 + 6 = 13, 5 = 5.
+  So, s becomes "13" + "5" = "135" after second round.
+Now, s.length &lt;= k, so we return "135" as the answer.
+
+### Example 2
+
+**Input:**
+```text
+s = "00000000", k = 3
+```
+
+**Output:**
+```text
+"000"
+```
+
+**Explanation:**
+We divide s into "000", "000", and "00".
+Then we calculate the digit sum of each group: 0 + 0 + 0 = 0, 0 + 0 + 0 = 0, and 0 + 0 = 0.
+s becomes "0" + "0" + "0" = "000", whose length is equal to k, so we return "000".
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of digits only.
+1 <= k <= 10
+```
+
+---
+
+## Approach 1: Iterative Simulation
+
+**Intuition**
+We can directly simulate the process described in the problem. We repeatedly iterate through the string, chunking it into groups of size `k`, summing the digits in each group, and building a new string until the length constraint is met.
+
+**Steps**
+- While the length of `s` is greater than `k`:
+    - Initialize an empty string `next_s` to store the result of the current pass.
+    - Iterate through `s` with a step size of `k`.
+    - For each chunk, calculate the sum of its digits.
+    - Append the string representation of this sum to `next_s`.
+    - Update `s` to be `next_s`.
+- Return `s`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def digitSum(self, s: str, k: int) -&gt; str:\n        while len(s) &gt; k:\n            next_s = []\n            for i in range(0, len(s), k):\n                group = s[i:i+k]\n                total = sum(int(c) for c in group)\n                next_s.append(str(total))\n            s = \"\".join(next_s)\n        return s" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String digitSum(String s, int k) {\n        while (s.length() &gt; k) {\n            StringBuilder sb = new StringBuilder();\n            for (int i = 0; i &lt; s.length(); i += k) {\n                int sum = 0;\n                int end = Math.min(i + k, s.length());\n                for (int j = i; j &lt; end; j++) {\n                    sum += s.charAt(j) - '0';\n                }\n                sb.append(sum);\n            }\n            s = sb.toString();\n        }\n        return s;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string digitSum(string s, int k) {\n        while (s.size() &gt; k) {\n            string next;\n            for (int i = 0; i &lt; s.size(); i += k) {\n                int sum = 0;\n                for (int j = i; j &lt; min(i + k, (int)s.size()); ++j) {\n                    sum += s[j] - '0';\n                }\n                next += to_string(sum);\n            }\n            s = next;\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var digitSum = function(s, k) {\n    while (s.length &gt; k) {\n        let next = \"\";\n        for (let i = 0; i &lt; s.length; i += k) {\n            let sum = 0;\n            for (let j = i; j &lt; Math.min(i + k, s.length); j++) {\n                sum += parseInt(s[j]);\n            }\n            next += sum.toString();\n        }\n        s = next;\n    }\n    return s;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function digitSum(s: string, k: number): string {\n    while (s.length &gt; k) {\n        let next: string = \"\";\n        for (let i = 0; i &lt; s.length; i += k) {\n            let sum: number = 0;\n            for (let j = i; j &lt; Math.min(i + k, s.length); j++) {\n                sum += parseInt(s[j]);\n            }\n            next += sum.toString();\n        }\n        s = next;\n    }\n    return s;\n}" },]} />
+
+**Complexity**
+- Time: O(N²) in the worst case (where N is the length of the string). If k=1, the string length reduces by 1 each time, and we process the whole string each time. However, given N &lt;= 100, this is effectively O(1) for practical purposes.
+- Space: O(N) to store the new string in each iteration.
+- Notes: This is the most straightforward approach and perfectly efficient given the constraints.
+
+## Approach 2: Recursive Simulation
+
+**Intuition**
+The process of reducing the string is naturally recursive. If the string length is already &lt;= k, we are done. Otherwise, we perform one round of grouping and summing, then recursively solve the problem for the new string.
+
+**Steps**
+- Base Case: If the length of `s` is less than or equal to `k`, return `s`.
+- Recursive Step:
+    - Perform one iteration of the grouping and summing logic (same as the inner loop of the iterative approach) to generate `next_s`.
+    - Return the result of `digitSum(next_s, k)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def digitSum(self, s: str, k: int) -&gt; str:\n        if len(s) &lt;= k:\n            return s\n        \n        next_s = []\n        for i in range(0, len(s), k):\n            group = s[i:i+k]\n            total = sum(int(c) for c in group)\n            next_s.append(str(total))\n        \n        return self.digitSum(\"\".join(next_s), k)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String digitSum(String s, int k) {\n        if (s.length() &lt;= k) {\n            return s;\n        }\n        \n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; s.length(); i += k) {\n            int sum = 0;\n            int end = Math.min(i + k, s.length());\n            for (int j = i; j &lt; end; j++) {\n                sum += s.charAt(j) - '0';\n            }\n            sb.append(sum);\n        }\n        \n        return digitSum(sb.toString(), k);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string digitSum(string s, int k) {\n        if (s.size() &lt;= k) {\n            return s;\n        }\n        \n        string next;\n        for (int i = 0; i &lt; s.size(); i += k) {\n            int sum = 0;\n            for (int j = i; j &lt; min(i + k, (int)s.size()); ++j) {\n                sum += s[j] - '0';\n            }\n            next += to_string(sum);\n        }\n        \n        return digitSum(next, k);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var digitSum = function(s, k) {\n    if (s.length &lt;= k) {\n        return s;\n    }\n    \n    let next = \"\";\n    for (let i = 0; i &lt; s.length; i += k) {\n        let sum = 0;\n        for (let j = i; j &lt; Math.min(i + k, s.length); j++) {\n            sum += parseInt(s[j]);\n        }\n        next += sum.toString();\n    }\n    \n    return digitSum(next, k);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function digitSum(s: string, k: number): string {\n    if (s.length &lt;= k) {\n        return s;\n    }\n    \n    let next: string = \"\";\n    for (let i = 0; i &lt; s.length; i += k) {\n        let sum: number = 0;\n        for (let j = i; j &lt; Math.min(i + k, s.length); j++) {\n            sum += parseInt(s[j]);\n        }\n        next += sum.toString();\n    }\n    \n    return digitSum(next, k);\n}" },]} />
+
+**Complexity**
+- Time: O(N²) same as the iterative approach.
+- Space: O(N) for the recursion stack and the new string. The depth of recursion is proportional to the number of iterations.
+- Notes: This approach is elegant but uses stack space which could be a concern for very large inputs (though not an issue here).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Calculate Digit Sum of a String Solutions","datePublished":"2025-03-30","description":"You are given a string s consisting of digits and an integer k. Perform digit sum grouping operations until the string length is &lt;= k.","keywords":"LeetCode, Calculate Digit Sum of a String, Easy, String, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N²) in the worst case, where N is the length of the string. This happens when k=1, requiring N iterations, each processing up to N characters."}},{"@type":"Question","name":"What is the space complexity of the Recursive Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) due to the recursion stack depth and the storage required for the new string in each step."}},{"@type":"Question","name":"How does the grouping work when the string length is not divisible by k?","acceptedAnswer":{"@type":"Answer","text":"The string is divided into consecutive groups of size k. The first group may have fewer than k characters if the total length is not a multiple of k."}}]}).replace(/</g,'\u003c')}
+</script>

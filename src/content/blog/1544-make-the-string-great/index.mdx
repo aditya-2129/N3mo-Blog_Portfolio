@@ -1,0 +1,116 @@
+---
+title: "Make The String Great"
+summary: "Remove adjacent characters that are the same letter but different case until the string is great."
+date: "Jul 16, 2024"
+tags:
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 68.50% | **Paid:** No
+> **Topics:** String, Stack
+
+Given a string s of lower and upper case English letters.
+
+A good string is a string which doesn't have two adjacent characters s[i] and s[i + 1] where:
+
+0 &lt;= i &lt;= s.length - 2
+s[i] is a lower-case letter and s[i + 1] is the same letter but in upper-case or vice-versa.
+To make the string good, you can choose two adjacent characters that make the string bad and remove them. You can do this process until the string becomes good.
+
+Return the string after making it good. The answer is guaranteed to be unique.
+
+- Examples
+- Constraints
+- [Brute Force Simulation](#brute-force-simulation)
+- [Stack Approach](#stack-approach)
+
+## Examples
+
+```text
+Input: s = "leEeetcode"
+Output: "leetcode"
+Explanation: In the first step, remove "eE" from "leEeetcode" to get "leetcode".
+```
+
+```text
+Input: s = "abBAcC"
+Output: ""
+Explanation: 
+- Remove "abBAcC" -> "aAcC"
+- Remove "aAcC" -> "cC"
+- Remove "cC" -> ""
+```
+
+```text
+Input: s = "s"
+Output: "s"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of lower and upper case English letters.
+```
+
+---
+## Brute Force Simulation
+
+**Intuition**
+Repeatedly scan the string from left to right. If a "bad" pair of adjacent characters (same letter, different case) is found, remove them and restart the scan from the beginning, as the removal might create a new bad pair with the previous character.
+
+**Steps**
+- Iterate while the string can be modified.
+- In each pass, loop through the string indices.
+- Check if `s[i]` and `s[i+1]` form a bad pair (ASCII difference is 32).
+- If found, remove the substring and break the inner loop to restart.
+- If no pair is found after a full pass, the string is "great".
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def makeGood(self, s: str) -&gt; str:\n        while True:\n            found = False\n            for i in range(len(s) - 1):\n                if abs(ord(s[i]) - ord(s[i+1])) == 32:\n                    s = s[:i] + s[i+2:]\n                    found = True\n                    break\n            if not found:\n                break\n        return s" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String makeGood(String s) {\n        while (true) {\n            boolean found = false;\n            for (int i = 0; i &lt; s.length() - 1; i++) {\n                if (Math.abs(s.charAt(i) - s.charAt(i + 1)) == 32) {\n                    s = s.substring(0, i) + s.substring(i + 2);\n                    found = true;\n                    break;\n                }\n            }\n            if (!found) break;\n        }\n        return s;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string makeGood(string s) {\n        bool changed = true;\n        while (changed) {\n            changed = false;\n            for (int i = 0; i &lt; (int)s.size() - 1; i++) {\n                if (abs(s[i] - s[i+1]) == 32) {\n                    s.erase(i, 2);\n                    changed = true;\n                    break;\n                }\n            }\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var makeGood = function(s) {\n    while (true) {\n        let found = false;\n        for (let i = 0; i &lt; s.length - 1; i++) {\n            if (Math.abs(s.charCodeAt(i) - s.charCodeAt(i + 1)) === 32) {\n                s = s.slice(0, i) + s.slice(i + 2);\n                found = true;\n                break;\n            }\n        }\n        if (!found) break;\n    }\n    return s;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function makeGood(s: string): string {\n    while (true) {\n        let found = false;\n        for (let i = 0; i &lt; s.length - 1; i++) {\n            if (Math.abs(s.charCodeAt(i) - s.charCodeAt(i + 1)) === 32) {\n                s = s.slice(0, i) + s.slice(i + 2);\n                found = true;\n                break;\n            }\n        }\n        if (!found) break;\n    }\n    return s;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) - In the worst case (e.g., "abBA"), we might scan the string repeatedly.
+- Space: O(n) - To store the modified string.
+- Notes: Simple to implement but inefficient for longer strings.
+
+---
+## Stack Approach
+
+**Intuition**
+Use a stack to simulate the process efficiently. Iterate through the string, pushing characters onto the stack. If the current character forms a bad pair with the top of the stack, pop the stack instead of pushing. This handles the "cascading" removals automatically.
+
+**Steps**
+- Initialize an empty stack.
+- Iterate through each character in the string.
+- Check if the stack is not empty and the current character cancels the top of the stack (ASCII difference is 32).
+- If they cancel, pop the stack.
+- Otherwise, push the current character onto the stack.
+- Convert the stack to a string and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def makeGood(self, s: str) -&gt; str:\n        stack = []\n        for c in s:\n            if stack and abs(ord(stack[-1]) - ord(c)) == 32:\n                stack.pop()\n            else:\n                stack.append(c)\n        return \"\".join(stack)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String makeGood(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            int len = sb.length();\n            if (len &gt; 0 && Math.abs(sb.charAt(len - 1) - c) == 32) {\n                sb.deleteCharAt(len - 1);\n            } else {\n                sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string makeGood(string s) {\n        string st;\n        for (char c : s) {\n            if (!st.empty() && abs(st.back() - c) == 32) {\n                st.pop_back();\n            } else {\n                st.push_back(c);\n            }\n        }\n        return st;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var makeGood = function(s) {\n    let stack = [];\n    for (let c of s) {\n        let prev = stack[stack.length - 1];\n        if (stack.length &gt; 0 && Math.abs(prev.charCodeAt(0) - c.charCodeAt(0)) === 32) {\n            stack.pop();\n        } else {\n            stack.push(c);\n        }\n    }\n    return stack.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function makeGood(s: string): string {\n    let stack: string[] = [];\n    for (let c of s) {\n        let prev = stack[stack.length - 1];\n        if (stack.length &gt; 0 && Math.abs(prev.charCodeAt(0) - c.charCodeAt(0)) === 32) {\n            stack.pop();\n        } else {\n            stack.push(c);\n        }\n    }\n    return stack.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n) - Each character is processed exactly once.
+- Space: O(n) - In the worst case, the stack stores all characters.
+- Notes: Optimal solution for this problem.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Make The String Great Solutions","datePublished":"2024-07-16","description":"Remove adjacent characters that are the same letter but different case until the string is great.","keywords":"LeetCode, Make The String Great, Easy, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case, as we might scan the string repeatedly."}},{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we process each character exactly once."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,151 @@
+---
+title: "Min Max Game"
+summary: "Apply min-max operations on an array until only one element remains."
+date: "Aug 04, 2025"
+tags:
+  - Array
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.40% | **Paid:** No
+> **Topics:** Array, Simulation
+
+You are given a 0-indexed integer array nums whose length is a power of 2.
+
+Apply the following algorithm on nums:
+
+1. Let n be the length of nums. If n == 1, end the process. Otherwise, create a new 0-indexed integer array newNums of length n / 2.
+2. For every even index i in the range 0 &lt;= i &lt; n / 2, assign the value newNums[i] = min(nums[2 * i], nums[2 * i + 1]).
+3. For every odd index i in the range 0 &lt;= i &lt; n / 2, assign the value newNums[i] = max(nums[2 * i], nums[2 * i + 1]).
+4. Replace the array nums with newNums.
+5. Repeat the entire process starting from step 1.
+
+Return the value that remains in nums after applying the algorithm.
+
+- Examples
+- Constraints
+- [Simulation with New Array](#simulation-with-new-array)
+- [In-Place Simulation](#in-place-simulation)
+- [Recursive Approach](#recursive-approach)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [1,3,5,2,4,8,2,2]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+The following arrays are the results of applying the algorithm repeatedly.
+First: nums = [1,5,4,2]
+Second: nums = [1,4]
+Third: nums = [1]
+1 is the last remaining number, so we return 1.
+
+### Example 2
+
+**Input:**
+```text
+nums = [3]
+```
+
+**Output:**
+```text
+3
+```
+
+**Explanation:**
+3 is already the last remaining number, so we return 3.
+
+## Constraints
+
+```text
+1 <= nums.length <= 1024
+1 <= nums[i] <= 10^9
+nums.length is a power of 2.
+```
+
+---
+## Simulation with New Array
+
+**Intuition**
+Directly simulate the process by creating a new array in each iteration, applying min for even indices and max for odd indices until only one element remains.
+
+**Steps**
+- While array length is greater than 1, create a new array of half the size
+- For each index in the new array, apply min for even indices and max for odd indices using pairs from the original array
+- Replace the original array with the new array and repeat
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minMaxGame(self, nums: list[int]) -&gt; int:\n        while len(nums) &gt; 1:\n            new_nums = []\n            for i in range(len(nums) // 2):\n                if i % 2 == 0:\n                    new_nums.append(min(nums[2 * i], nums[2 * i + 1]))\n                else:\n                    new_nums.append(max(nums[2 * i], nums[2 * i + 1]))\n            nums = new_nums\n        return nums[0]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minMaxGame(int[] nums) {\n        while (nums.length &gt; 1) {\n            int[] newNums = new int[nums.length / 2];\n            for (int i = 0; i &lt; nums.length / 2; i++) {\n                if (i % 2 == 0) {\n                    newNums[i] = Math.min(nums[2 * i], nums[2 * i + 1]);\n                } else {\n                    newNums[i] = Math.max(nums[2 * i], nums[2 * i + 1]);\n                }\n            }\n            nums = newNums;\n        }\n        return nums[0];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minMaxGame(vector&lt;int&gt;& nums) {\n        while (nums.size() &gt; 1) {\n            vector&lt;int&gt; newNums(nums.size() / 2);\n            for (int i = 0; i &lt; nums.size() / 2; i++) {\n                if (i % 2 == 0) {\n                    newNums[i] = min(nums[2 * i], nums[2 * i + 1]);\n                } else {\n                    newNums[i] = max(nums[2 * i], nums[2 * i + 1]);\n                }\n            }\n            nums = newNums;\n        }\n        return nums[0];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minMaxGame = function(nums) {\n    while (nums.length &gt; 1) {\n        const newNums = [];\n        for (let i = 0; i &lt; nums.length / 2; i++) {\n            if (i % 2 === 0) {\n                newNums.push(Math.min(nums[2 * i], nums[2 * i + 1]));\n            } else {\n                newNums.push(Math.max(nums[2 * i], nums[2 * i + 1]));\n            }\n        }\n        nums = newNums;\n    }\n    return nums[0];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minMaxGame(nums: number[]): number {\n    while (nums.length &gt; 1) {\n        const newNums: number[] = [];\n        for (let i = 0; i &lt; nums.length / 2; i++) {\n            if (i % 2 === 0) {\n                newNums.push(Math.min(nums[2 * i], nums[2 * i + 1]));\n            } else {\n                newNums.push(Math.max(nums[2 * i], nums[2 * i + 1]));\n            }\n        }\n        nums = newNums;\n    }\n    return nums[0];\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the initial array length
+- Space: O(n) for storing the new array
+- Notes: Clear and intuitive but uses extra space for new arrays
+
+---
+## In-Place Simulation
+
+**Intuition**
+Optimize space by modifying the array in place instead of creating new arrays, overwriting elements from the beginning as we process pairs.
+
+**Steps**
+- Track the current effective length of the array
+- For each iteration, overwrite elements at the beginning with computed values
+- Halve the effective length after each pass until only one element remains
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minMaxGame(self, nums: list[int]) -&gt; int:\n        n = len(nums)\n        while n &gt; 1:\n            for i in range(n // 2):\n                if i % 2 == 0:\n                    nums[i] = min(nums[2 * i], nums[2 * i + 1])\n                else:\n                    nums[i] = max(nums[2 * i], nums[2 * i + 1])\n            n //= 2\n        return nums[0]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minMaxGame(int[] nums) {\n        int n = nums.length;\n        while (n &gt; 1) {\n            for (int i = 0; i &lt; n / 2; i++) {\n                if (i % 2 == 0) {\n                    nums[i] = Math.min(nums[2 * i], nums[2 * i + 1]);\n                } else {\n                    nums[i] = Math.max(nums[2 * i], nums[2 * i + 1]);\n                }\n            }\n            n /= 2;\n        }\n        return nums[0];\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minMaxGame(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        while (n &gt; 1) {\n            for (int i = 0; i &lt; n / 2; i++) {\n                if (i % 2 == 0) {\n                    nums[i] = min(nums[2 * i], nums[2 * i + 1]);\n                } else {\n                    nums[i] = max(nums[2 * i], nums[2 * i + 1]);\n                }\n            }\n            n /= 2;\n        }\n        return nums[0];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minMaxGame = function(nums) {\n    let n = nums.length;\n    while (n &gt; 1) {\n        for (let i = 0; i &lt; n / 2; i++) {\n            if (i % 2 === 0) {\n                nums[i] = Math.min(nums[2 * i], nums[2 * i + 1]);\n            } else {\n                nums[i] = Math.max(nums[2 * i], nums[2 * i + 1]);\n            }\n        }\n        n = Math.floor(n / 2);\n    }\n    return nums[0];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minMaxGame(nums: number[]): number {\n    let n: number = nums.length;\n    while (n &gt; 1) {\n        for (let i = 0; i &lt; n / 2; i++) {\n            if (i % 2 === 0) {\n                nums[i] = Math.min(nums[2 * i], nums[2 * i + 1]);\n            } else {\n                nums[i] = Math.max(nums[2 * i], nums[2 * i + 1]);\n            }\n        }\n        n = Math.floor(n / 2);\n    }\n    return nums[0];\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the initial array length
+- Space: O(1) extra space
+- Notes: Optimal space complexity by reusing the input array
+
+---
+## Recursive Approach
+
+**Intuition**
+Use recursion to naturally handle the reduction process, where each recursive call processes one level of the algorithm.
+
+**Steps**
+- Base case: if array has only one element, return it
+- Create a new array by applying min/max rules
+- Recursively call the function on the new array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def minMaxGame(self, nums: list[int]) -&gt; int:\n        if len(nums) == 1:\n            return nums[0]\n        new_nums = []\n        for i in range(len(nums) // 2):\n            if i % 2 == 0:\n                new_nums.append(min(nums[2 * i], nums[2 * i + 1]))\n            else:\n                new_nums.append(max(nums[2 * i], nums[2 * i + 1]))\n        return self.minMaxGame(new_nums)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minMaxGame(int[] nums) {\n        if (nums.length == 1) {\n            return nums[0];\n        }\n        int[] newNums = new int[nums.length / 2];\n        for (int i = 0; i &lt; nums.length / 2; i++) {\n            if (i % 2 == 0) {\n                newNums[i] = Math.min(nums[2 * i], nums[2 * i + 1]);\n            } else {\n                newNums[i] = Math.max(nums[2 * i], nums[2 * i + 1]);\n            }\n        }\n        return minMaxGame(newNums);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minMaxGame(vector&lt;int&gt;& nums) {\n        if (nums.size() == 1) {\n            return nums[0];\n        }\n        vector&lt;int&gt; newNums(nums.size() / 2);\n        for (int i = 0; i &lt; nums.size() / 2; i++) {\n            if (i % 2 == 0) {\n                newNums[i] = min(nums[2 * i], nums[2 * i + 1]);\n            } else {\n                newNums[i] = max(nums[2 * i], nums[2 * i + 1]);\n            }\n        }\n        return minMaxGame(newNums);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar minMaxGame = function(nums) {\n    if (nums.length === 1) {\n        return nums[0];\n    }\n    const newNums = [];\n    for (let i = 0; i &lt; nums.length / 2; i++) {\n        if (i % 2 === 0) {\n            newNums.push(Math.min(nums[2 * i], nums[2 * i + 1]));\n        } else {\n            newNums.push(Math.max(nums[2 * i], nums[2 * i + 1]));\n        }\n    }\n    return minMaxGame(newNums);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function minMaxGame(nums: number[]): number {\n    if (nums.length === 1) {\n        return nums[0];\n    }\n    const newNums: number[] = [];\n    for (let i = 0; i &lt; nums.length / 2; i++) {\n        if (i % 2 === 0) {\n            newNums.push(Math.min(nums[2 * i], nums[2 * i + 1]));\n        } else {\n            newNums.push(Math.max(nums[2 * i], nums[2 * i + 1]));\n        }\n    }\n    return minMaxGame(newNums);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the initial array length
+- Space: O(n) for recursion stack and new arrays
+- Notes: Elegant but uses more space due to recursion overhead
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Min Max Game Solutions","datePublished":"2025-08-04","description":"Apply min-max operations on an array until only one element remains.","keywords":"LeetCode, Min Max Game, Easy, Array, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Simulation with New Array approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) where n is the initial array length"}},{"@type":"Question","name":"What is the space complexity of In-Place Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) extra space as we modify the array in place"}},{"@type":"Question","name":"What is the time complexity of Recursive approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) where n is the initial array length"}},{"@type":"Question","name":"What is the space complexity of Recursive approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for recursion stack and new arrays"}}]}).replace(/</g,'\u003c')}
+</script>

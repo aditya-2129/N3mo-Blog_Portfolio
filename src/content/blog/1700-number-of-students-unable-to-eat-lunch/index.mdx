@@ -1,0 +1,132 @@
+---
+title: "Number of Students Unable to Eat Lunch"
+summary: "Students queue up for sandwiches. If the top sandwich doesn't match a student's preference, they move to the back. Count students who never eat."
+date: "Mar 18, 2025"
+tags:
+  - Array
+  - Stack
+  - Queue
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 79.60% | **Paid:** No
+> **Topics:** Array, Stack, Queue, Simulation
+
+The school cafeteria offers circular and square sandwiches at lunch break, referred to by numbers 0 and 1 respectively. All students stand in a queue. Each student either prefers square or circular sandwiches.
+
+The number of sandwiches in the cafeteria is equal to the number of students. The sandwiches are placed in a stack. At each step:
+
+If the student at the front of the queue prefers the sandwich type on the top of the stack, they will take it and leave the queue.
+Otherwise, they will leave it and go to the queue's end.
+This continues until none of the queue students want to take the top sandwich and are thus unable to eat.
+
+You are given two integer arrays students and sandwiches where sandwiches[i] is the type of the i​​​​​​th sandwich in the stack (i = 0 is the top of the stack) and students[j] is the preference of the j​​​​​​th student in the queue (j = 0 is the front of the queue). Return the number of students that are unable to eat.
+
+- Examples
+- Constraints
+- [Simulation](#simulation)
+- [Counting](#counting)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+students = [1,1,0,0], sandwiches = [0,1,0,1]
+```
+
+**Output:**
+```text
+0
+```
+
+**Explanation:**
+- Front student leaves the top sandwich (0) and goes to the back.
+- Front student leaves the top sandwich (0) and goes to the back.
+- Front student takes the top sandwich (0) and leaves.
+- Front student takes the top sandwich (1) and leaves.
+- Front student takes the top sandwich (0) and leaves.
+- Front student takes the top sandwich (1) and leaves.
+
+### Example 2
+
+**Input:**
+```text
+students = [1,1,1,0,0,1], sandwiches = [1,0,0,0,1,1]
+```
+
+**Output:**
+```text
+3
+```
+
+## Constraints
+
+```text
+n == students.length == sandwiches.length
+1 <= n <= 100
+students[i] is 0 or 1.
+sandwiches[i] is 0 or 1.
+```
+
+---
+## Simulation
+
+**Intuition**
+We can directly simulate the process using a queue for students and a stack (or list) for sandwiches. We iterate through the queue, checking if the front student matches the top sandwich. If they match, both are removed. If not, the student moves to the back. We track consecutive failures to detect when no one can eat.
+
+**Steps**
+- Initialize a queue with all students and a stack with all sandwiches.
+- Loop while the queue is not empty.
+- Maintain a counter for the number of consecutive students who couldn't eat.
+- If the counter equals the queue size, it means no one wants the top sandwich, so break.
+- If the front student matches the top sandwich, pop both and reset the counter.
+- Otherwise, move the front student to the back of the queue and increment the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countStudents(self, students: list[int], sandwiches: list[int]) -&gt; int:\n        from collections import deque\n        q = deque(students)\n        s = deque(sandwiches)\n        unable_to_eat = 0\n        while q:\n            if q[0] == s[0]:\n                q.popleft()\n                s.popleft()\n                unable_to_eat = 0\n            else:\n                q.append(q.popleft())\n                unable_to_eat += 1\n            if unable_to_eat == len(q):\n                break\n        return len(q)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countStudents(int[] students, int[] sandwiches) {\n        Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();\n        Stack&lt;Integer&gt; s = new Stack&lt;&gt;();\n        for (int st : students) q.add(st);\n        for (int i = sandwiches.length - 1; i &gt;= 0; i--) s.push(sandwiches[i]);\n        int unableToEat = 0;\n        while (!q.isEmpty()) {\n            if (q.peek() == s.peek()) {\n                q.poll();\n                s.pop();\n                unableToEat = 0;\n            } else {\n                q.add(q.poll());\n                unableToEat++;\n            }\n            if (unableToEat == q.size()) {\n                break;\n            }\n        }\n        return q.size();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countStudents(vector&lt;int&gt;& students, vector&lt;int&gt;& sandwiches) {\n        queue&lt;int&gt; q;\n        stack&lt;int&gt; s;\n        for (int st : students) q.push(st);\n        for (int i = sandwiches.size() - 1; i &gt;= 0; i--) s.push(sandwiches[i]);\n        int unableToEat = 0;\n        while (!q.empty()) {\n            if (q.front() == s.top()) {\n                q.pop();\n                s.pop();\n                unableToEat = 0;\n            } else {\n                q.push(q.front());\n                q.pop();\n                unableToEat++;\n            }\n            if (unableToEat == q.size()) {\n                break;\n            }\n        }\n        return q.size();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countStudents = function(students, sandwiches) {\n    let q = [...students];\n    let s = [...sandwiches];\n    let unableToEat = 0;\n    while (q.length &gt; 0) {\n        if (q[0] === s[0]) {\n            q.shift();\n            s.shift();\n            unableToEat = 0;\n        } else {\n            q.push(q.shift());\n            unableToEat++;\n        }\n        if (unableToEat === q.length) {\n            break;\n        }\n    }\n    return q.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countStudents(students: number[], sandwiches: number[]): number {\n    let q: number[] = [...students];\n    let s: number[] = [...sandwiches];\n    let unableToEat: number = 0;\n    while (q.length &gt; 0) {\n        if (q[0] === s[0]) {\n            q.shift();\n            s.shift();\n            unableToEat = 0;\n        } else {\n            q.push(q.shift());\n            unableToEat++;\n        }\n        if (unableToEat === q.length) {\n            break;\n        }\n    }\n    return q.length;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) in the worst case where n is the number of students, as we might rotate the queue many times.
+- Space: O(n) to store the queue and stack.
+- Notes: Intuitive but can be inefficient for large inputs.
+
+---
+## Counting
+
+**Intuition**
+The relative order of students doesn't strictly matter for the final count, only the number of students preferring 0 and 1. We process sandwiches in order. If a sandwich is 0, we need a student who wants 0. If no students want 0, the process stops.
+
+**Steps**
+- Count the number of students who prefer 0 (count0) and 1 (count1).
+- Iterate through the sandwiches array.
+- If the current sandwich is 0 and count0 &gt; 0, decrement count0.
+- If the current sandwich is 1 and count1 &gt; 0, decrement count1.
+- If neither condition is met, return count0 + count1 (the remaining students).
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countStudents(self, students: list[int], sandwiches: list[int]) -&gt; int:\n        count0 = students.count(0)\n        count1 = len(students) - count0\n        for s in sandwiches:\n            if s == 0:\n                if count0 == 0:\n                    return count1\n                count0 -= 1\n            else:\n                if count1 == 0:\n                    return count0\n                count1 -= 1\n        return 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countStudents(int[] students, int[] sandwiches) {\n        int count0 = 0;\n        int count1 = 0;\n        for (int s : students) {\n            if (s == 0) count0++;\n            else count1++;\n        }\n        for (int s : sandwiches) {\n            if (s == 0) {\n                if (count0 == 0) return count1;\n                count0--;\n            } else {\n                if (count1 == 0) return count0;\n                count1--;\n            }\n        }\n        return 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countStudents(vector&lt;int&gt;& students, vector&lt;int&gt;& sandwiches) {\n        int count0 = 0, count1 = 0;\n        for (int s : students) {\n            if (s == 0) count0++;\n            else count1++;\n        }\n        for (int s : sandwiches) {\n            if (s == 0) {\n                if (count0 == 0) return count1;\n                count0--;\n            } else {\n                if (count1 == 0) return count0;\n                count1--;\n            }\n        }\n        return 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var countStudents = function(students, sandwiches) {\n    let count0 = 0, count1 = 0;\n    for (let s of students) {\n        if (s === 0) count0++;\n        else count1++;\n    }\n    for (let s of sandwiches) {\n        if (s === 0) {\n            if (count0 === 0) return count1;\n            count0--;\n        } else {\n            if (count1 === 0) return count0;\n            count1--;\n        }\n    }\n    return 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function countStudents(students: number[], sandwiches: number[]): number {\n    let count0: number = 0, count1: number = 0;\n    for (let s of students) {\n        if (s === 0) count0++;\n        else count1++;\n    }\n    for (let s of sandwiches) {\n        if (s === 0) {\n            if (count0 === 0) return count1;\n            count0--;\n        } else {\n            if (count1 === 0) return count0;\n            count1--;\n        }\n    }\n    return 0;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of students, as we pass through the arrays once.
+- Space: O(1) as we only use a few integer variables.
+- Notes: Optimal solution with minimal space usage.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Students Unable to Eat Lunch Solutions","datePublished":"2025-03-18","description":"Students queue up for sandwiches. If the top sandwich doesn't match a student's preference, they move to the back. Count students who never eat.","keywords":"LeetCode, Number of Students Unable to Eat Lunch, Easy, Array, Stack, Queue, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) in the worst case."}},{"@type":"Question","name":"What is the time complexity of the Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of students."}},{"@type":"Question","name":"What is the space complexity of the Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a few integer variables."}}]}).replace(/</g,'\u003c')}
+</script>

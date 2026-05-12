@@ -1,0 +1,127 @@
+---
+title: "Count Binary Substrings"
+summary: "Count the number of substrings where the number of 0s equals the number of 1s and all 0s and 1s are grouped together."
+date: "Jun 20, 2024"
+tags:
+  - Two Pointers
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 70.40% | **Paid:** No
+> **Topics:** Two Pointers, String
+
+Give a binary string s, return the number of non-empty substrings that have the same number of 0's and 1's, and all the 0's and all the 1's in these substrings are grouped consecutively.
+
+Substrings that occur multiple times are counted the number of times they occur.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Group Counting](#group-counting)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+Example 1:
+```text
+Input: s = "00110011"
+Output: 6
+Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's: "0011", "01", "1100", "10", "0011", and "01".
+Notice that some of these substrings repeat and are counted the number of times they occur.
+```
+
+Example 2:
+```text
+Input: s = "10101"
+Output: 4
+Explanation: There are 4 substrings: "10", "01", "10", "01".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s[i] is either '0' or '1'.
+```
+
+---
+## Brute Force
+
+**Intuition**
+We can check every possible substring to see if it meets the criteria: equal number of 0s and 1s, and all characters are grouped together.
+
+**Steps**
+- Iterate through all possible starting indices of the substring.
+- For each starting index, expand the substring to the right one character at a time.
+- Keep track of the count of 0s and 1s in the current substring.
+- If the counts are equal and the substring has only one transition between 0 and 1 (e.g., 000111), increment the result.
+- Optimization: If the counts differ by more than the remaining characters, we can break early.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countBinarySubstrings(self, s: str) -&gt; int:\n        n = len(s)\n        count = 0\n        for i in range(n):\n            zeros = 0\n            ones = 0\n            for j in range(i, n):\n                if s[j] == '0':\n                    zeros += 1\n                else:\n                    ones += 1\n                \n                # If counts differ by more than 1, we can't form a valid substring starting at i ending at j or later\n                # because adding more chars will only increase the difference.\n                # However, we must be careful. A valid substring requires zeros == ones.\n                # If abs(zeros - ones) &gt; (n - 1 - j), we can break, but simple check is just zeros == ones.\n                \n                if zeros == ones:\n                    # Check if grouped: only one transition allowed\n                    # A substring with equal 0s and 1s and grouped chars looks like 0...01...1 or 1...10...0\n                    # This means there should be exactly one index k where s[k] != s[k+1] within the substring\n                    transitions = 0\n                    for k in range(i, j):\n                        if s[k] != s[k+1]:\n                            transitions += 1\n                    if transitions == 1:\n                        count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countBinarySubstrings(String s) {\n        int n = s.length();\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int zeros = 0;\n            int ones = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (s.charAt(j) == '0') {\n                    zeros++;\n                } else {\n                    ones++;\n                }\n                \n                if (zeros == ones) {\n                    int transitions = 0;\n                    for (int k = i; k &lt; j; k++) {\n                        if (s.charAt(k) != s.charAt(k + 1)) {\n                            transitions++;\n                        }\n                    }\n                    if (transitions == 1) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countBinarySubstrings(string s) {\n        int n = s.length();\n        int count = 0;\n        for (int i = 0; i &lt; n; i++) {\n            int zeros = 0;\n            int ones = 0;\n            for (int j = i; j &lt; n; j++) {\n                if (s[j] == '0') {\n                    zeros++;\n                } else {\n                    ones++;\n                }\n                \n                if (zeros == ones) {\n                    int transitions = 0;\n                    for (int k = i; k &lt; j; k++) {\n                        if (s[k] != s[k + 1]) {\n                            transitions++;\n                        }\n                    }\n                    if (transitions == 1) {\n                        count++;\n                    }\n                }\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countBinarySubstrings = function(s) {\n    const n = s.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0;\n        let ones = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') {\n                zeros++;\n            } else {\n                ones++;\n            }\n            \n            if (zeros === ones) {\n                let transitions = 0;\n                for (let k = i; k &lt; j; k++) {\n                    if (s[k] !== s[k + 1]) {\n                        transitions++;\n                    }\n                }\n                if (transitions === 1) {\n                    count++;\n                }\n            }\n        }\n    }\n    return count;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countBinarySubstrings(s: string): number {\n    const n = s.length;\n    let count = 0;\n    for (let i = 0; i &lt; n; i++) {\n        let zeros = 0;\n        let ones = 0;\n        for (let j = i; j &lt; n; j++) {\n            if (s[j] === '0') {\n                zeros++;\n            } else {\n                ones++;\n            }\n            \n            if (zeros === ones) {\n                let transitions = 0;\n                for (let k = i; k &lt; j; k++) {\n                    if (s[k] !== s[k + 1]) {\n                        transitions++;\n                    }\n                }\n                if (transitions === 1) {\n                    count++;\n                }\n            }\n        }\n    }\n    return count;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³) - Nested loops for substring generation and an inner loop to check transitions.
+- Space: O(1) - Only using a few variables.
+- Notes: This approach is too slow for the upper constraint limits but illustrates the problem logic clearly.
+
+---
+## Group Counting
+
+**Intuition**
+We can group consecutive identical characters. For example, `001110011` becomes groups of lengths `[2, 3, 2, 2]`. Valid substrings are formed at the boundary between two groups. The number of valid substrings between group `i` and `i+1` is the minimum of their sizes.
+
+**Steps**
+- Iterate through the string and count the lengths of consecutive groups of 0s and 1s. Store these lengths in an array.
+- Iterate through the array of group lengths.
+- For each pair of adjacent groups, add the minimum of the two lengths to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countBinarySubstrings(self, s: str) -&gt; int:\n        groups = []\n        count = 1\n        for i in range(1, len(s)):\n            if s[i] == s[i-1]:\n                count += 1\n            else:\n                groups.append(count)\n                count = 1\n        groups.append(count) # Append the last group\n        \n        ans = 0\n        for i in range(len(groups) - 1):\n            ans += min(groups[i], groups[i+1])\n        return ans\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public int countBinarySubstrings(String s) {\n        List&lt;Integer&gt; groups = new ArrayList&lt;&gt;();\n        int count = 1;\n        for (int i = 1; i &lt; s.length(); i++) {\n            if (s.charAt(i) == s.charAt(i - 1)) {\n                count++;\n            } else {\n                groups.add(count);\n                count = 1;\n            }\n        }\n        groups.add(count);\n        \n        int ans = 0;\n        for (int i = 0; i &lt; groups.size() - 1; i++) {\n            ans += Math.min(groups.get(i), groups.get(i + 1));\n        }\n        return ans;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int countBinarySubstrings(string s) {\n        vector&lt;int&gt; groups;\n        int count = 1;\n        for (int i = 1; i &lt; s.length(); i++) {\n            if (s[i] == s[i - 1]) {\n                count++;\n            } else {\n                groups.push_back(count);\n                count = 1;\n            }\n        }\n        groups.push_back(count);\n        \n        int ans = 0;\n        for (int i = 0; i &lt; groups.size() - 1; i++) {\n            ans += min(groups[i], groups[i + 1]);\n        }\n        return ans;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countBinarySubstrings = function(s) {\n    const groups = [];\n    let count = 1;\n    for (let i = 1; i &lt; s.length; i++) {\n        if (s[i] === s[i - 1]) {\n            count++;\n        } else {\n            groups.push(count);\n            count = 1;\n        }\n    }\n    groups.push(count);\n    \n    let ans = 0;\n    for (let i = 0; i &lt; groups.length - 1; i++) {\n        ans += Math.min(groups[i], groups[i + 1]);\n    }\n    return ans;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countBinarySubstrings(s: string): number {\n    const groups: number[] = [];\n    let count = 1;\n    for (let i = 1; i &lt; s.length; i++) {\n        if (s[i] === s[i - 1]) {\n            count++;\n        } else {\n            groups.push(count);\n            count = 1;\n        }\n    }\n    groups.push(count);\n    \n    let ans = 0;\n    for (let i = 0; i &lt; groups.length - 1; i++) {\n        ans += Math.min(groups[i], groups[i + 1]);\n    }\n    return ans;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - We traverse the string twice (once to group, once to sum).
+- Space: O(n) - We store the group counts in an array.
+- Notes: This is a very intuitive approach that simplifies the problem by aggregating data.
+
+---
+## Two Pointers
+
+**Intuition**
+We don't actually need to store all the group counts. We only need the length of the previous group and the length of the current group. As we iterate, we can update these values and calculate the contribution to the result immediately.
+
+**Steps**
+- Initialize `prev` (previous group length) to 0 and `curr` (current group length) to 1.
+- Iterate through the string starting from the second character.
+- If the current character is the same as the previous one, increment `curr`.
+- If it changes, the current group ends. The number of valid substrings ending at this boundary is `min(prev, curr)`. Add this to the result. Then, set `prev = curr` and reset `curr = 1`.
+- After the loop, add `min(prev, curr)` one last time to account for the final boundary.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countBinarySubstrings(self, s: str) -&gt; int:\n        prev = 0\n        curr = 1\n        ans = 0\n        for i in range(1, len(s)):\n            if s[i] == s[i-1]:\n                curr += 1\n            else:\n                ans += min(prev, curr)\n                prev = curr\n                curr = 1\n        ans += min(prev, curr)\n        return ans\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countBinarySubstrings(String s) {\n        int prev = 0;\n        int curr = 1;\n        int ans = 0;\n        for (int i = 1; i &lt; s.length(); i++) {\n            if (s.charAt(i) == s.charAt(i - 1)) {\n                curr++;\n            } else {\n                ans += Math.min(prev, curr);\n                prev = curr;\n                curr = 1;\n            }\n        }\n        ans += Math.min(prev, curr);\n        return ans;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n\nclass Solution {\npublic:\n    int countBinarySubstrings(string s) {\n        int prev = 0;\n        int curr = 1;\n        int ans = 0;\n        for (int i = 1; i &lt; s.length(); i++) {\n            if (s[i] == s[i - 1]) {\n                curr++;\n            } else {\n                ans += min(prev, curr);\n                prev = curr;\n                curr = 1;\n            }\n        }\n        ans += min(prev, curr);\n        return ans;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var countBinarySubstrings = function(s) {\n    let prev = 0;\n    let curr = 1;\n    let ans = 0;\n    for (let i = 1; i &lt; s.length; i++) {\n        if (s[i] === s[i - 1]) {\n            curr++;\n        } else {\n            ans += Math.min(prev, curr);\n            prev = curr;\n            curr = 1;\n        }\n    }\n    ans += Math.min(prev, curr);\n    return ans;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function countBinarySubstrings(s: string): number {\n    let prev = 0;\n    let curr = 1;\n    let ans = 0;\n    for (let i = 1; i &lt; s.length; i++) {\n        if (s[i] === s[i - 1]) {\n            curr++;\n        } else {\n            ans += Math.min(prev, curr);\n            prev = curr;\n            curr = 1;\n        }\n    }\n    ans += Math.min(prev, curr);\n    return ans;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the string.
+- Space: O(1) - Only using a few integer variables.
+- Notes: This is the optimal solution, minimizing both time and space complexity.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Binary Substrings Solutions","datePublished":"2024-06-20","description":"Count the number of substrings where the number of 0s equals the number of 1s and all 0s and 1s are grouped together.","keywords":"LeetCode, Count Binary Substrings, Easy, Two Pointers, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Time Complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n³)"}},{"@type":"Question","name":"What is the Space Complexity of the Group Counting approach?","acceptedAnswer":{"@type":"Answer","text":"O(n)"}},{"@type":"Question","name":"What is the Time Complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(n)"}},{"@type":"Question","name":"What is the Space Complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(1)"}}]}).replace(/</g,'\u003c')}
+</script>

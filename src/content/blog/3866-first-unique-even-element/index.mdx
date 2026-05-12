@@ -1,0 +1,369 @@
+---
+title: "First Unique Even Element"
+summary: "Find the first unique even element in an array. A unique element appears exactly once."
+date: "Jul 17, 2024"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.30% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+# First Unique Even Element
+
+Given an array of integers, find the first unique even element. A unique element is one that appears exactly once in the array. Return the first such element when traversing from left to right. If no such element exists, return -1.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map (Frequency Count)](#hash-map-frequency-count)
+- [Linked Hash Map](#linked-hash-map)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+nums = [3,4,2,5,4,6]
+```
+
+**Output:**
+```text
+2
+```
+
+**Explanation:**
+Both 2 and 6 are even and they appear exactly once. Since 2 occurs first in the array, the answer is 2.
+
+### Example 2
+
+**Input:**
+```text
+nums = [4,4]
+```
+
+**Output:**
+```text
+-1
+```
+
+**Explanation:**
+No even integer appears exactly once, so return -1.
+
+## Constraints
+
+```text
+1 <= nums.length <= 10⁴
+-10⁹ <= nums[i] <= 10⁹
+```
+
+---
+## Brute Force
+
+**Intuition**
+For each element in the array, check if it's even and appears exactly once by counting its occurrences in the entire array.
+
+**Steps**
+- Iterate through each element in the array.
+- For each element, check if it's even (divisible by 2).
+- If even, count its occurrences in the entire array.
+- If the count is exactly 1, return this element.
+- If no such element is found after checking all elements, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def firstUniqueEven(self, nums: List[int]) -> int:
+        for i in range(len(nums)):
+            if nums[i] % 2 == 0:
+                count = 0
+                for j in range(len(nums)):
+                    if nums[j] == nums[i]:
+                        count += 1
+                if count == 1:
+                    return nums[i]
+        return -1` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int firstUniqueEven(int[] nums) {
+        for (int i = 0; i &lt; nums.length; i++) {
+            if (nums[i] % 2 == 0) {
+                int count = 0;
+                for (int j = 0; j &lt; nums.length; j++) {
+                    if (nums[j] == nums[i]) {
+                        count++;
+                    }
+                }
+                if (count == 1) {
+                    return nums[i];
+                }
+            }
+        }
+        return -1;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int firstUniqueEven(vector<int>& nums) {
+        for (int i = 0; i &lt; nums.size(); i++) {
+            if (nums[i] % 2 == 0) {
+                int count = 0;
+                for (int j = 0; j &lt; nums.size(); j++) {
+                    if (nums[j] == nums[i]) {
+                        count++;
+                    }
+                }
+                if (count == 1) {
+                    return nums[i];
+                }
+            }
+        }
+        return -1;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var firstUniqueEven = function(nums) {
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (nums[i] % 2 === 0) {
+            let count = 0;
+            for (let j = 0; j &lt; nums.length; j++) {
+                if (nums[j] === nums[i]) {
+                    count++;
+                }
+            }
+            if (count === 1) {
+                return nums[i];
+            }
+        }
+    }
+    return -1;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function firstUniqueEven(nums: number[]): number {
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (nums[i] % 2 === 0) {
+            let count = 0;
+            for (let j = 0; j &lt; nums.length; j++) {
+                if (nums[j] === nums[i]) {
+                    count++;
+                }
+            }
+            if (count === 1) {
+                return nums[i];
+            }
+        }
+    }
+    return -1;
+}` },]} />
+
+**Complexity**
+- Time: O(n²) - For each element, we traverse the entire array to count occurrences.
+- Space: O(1) - We only use a constant amount of extra space.
+- Notes: Simple but inefficient for large arrays.
+
+---
+## Hash Map (Frequency Count)
+
+**Intuition**
+First, count the frequency of each element using a hash map. Then, traverse the array again to find the first element that is even and has a frequency of 1.
+
+**Steps**
+- Create a hash map to store the frequency of each element.
+- Iterate through the array and populate the hash map with element counts.
+- Iterate through the array again.
+- For each element, check if it's even and has a frequency of 1 in the hash map.
+- Return the first such element found.
+- If no such element exists, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import Counter
+
+class Solution:
+    def firstUniqueEven(self, nums: List[int]) -> int:
+        freq = Counter(nums)
+        for num in nums:
+            if num % 2 == 0 and freq[num] == 1:
+                return num
+        return -1` },
+{ name: "Java", lang: "java", code: `import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int firstUniqueEven(int[] nums) {
+        Map<Integer, Integer> freq = new HashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        for (int num : nums) {
+            if (num % 2 == 0 && freq.get(num) == 1) {
+                return num;
+            }
+        }
+        return -1;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    int firstUniqueEven(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        for (int num : nums) {
+            if (num % 2 == 0 && freq[num] == 1) {
+                return num;
+            }
+        }
+        return -1;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var firstUniqueEven = function(nums) {
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    for (const num of nums) {
+        if (num % 2 === 0 && freq.get(num) === 1) {
+            return num;
+        }
+    }
+    return -1;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function firstUniqueEven(nums: number[]): number {
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    for (const num of nums) {
+        if (num % 2 === 0 && freq.get(num) === 1) {
+            return num;
+        }
+    }
+    return -1;
+}` },]} />
+
+**Complexity**
+- Time: O(n) - Two passes through the array, each O(n).
+- Space: O(n) - Hash map stores at most n unique elements.
+- Notes: Optimal solution with linear time complexity.
+
+---
+## Linked Hash Map
+
+**Intuition**
+Use a LinkedHashMap (or equivalent) to maintain insertion order while counting frequencies. This allows us to find the first unique even element in a single pass after building the map.
+
+**Steps**
+- Create a LinkedHashMap to store elements with their frequencies while maintaining insertion order.
+- Iterate through the array and populate the map.
+- Iterate through the map entries in insertion order.
+- For each entry, check if the key is even and has a frequency of 1.
+- Return the first such element found.
+- If no such element exists, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import OrderedDict
+
+class Solution:
+    def firstUniqueEven(self, nums: List[int]) -> int:
+        freq = OrderedDict()
+        for num in nums:
+            freq[num] = freq.get(num, 0) + 1
+        for num, count in freq.items():
+            if num % 2 == 0 and count == 1:
+                return num
+        return -1` },
+{ name: "Java", lang: "java", code: `import java.util.LinkedHashMap;
+import java.util.Map;
+
+class Solution {
+    public int firstUniqueEven(int[] nums) {
+        Map<Integer, Integer> freq = new LinkedHashMap&lt;&gt;();
+        for (int num : nums) {
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        }
+        for (Map.Entry<Integer, Integer> entry : freq.entrySet()) {
+            if (entry.getKey() % 2 == 0 && entry.getValue() == 1) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <unordered_map>
+#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int firstUniqueEven(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for (int num : nums) {
+            freq[num]++;
+        }
+        for (int num : nums) {
+            if (num % 2 == 0 && freq[num] == 1) {
+                return num;
+            }
+        }
+        return -1;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var firstUniqueEven = function(nums) {
+    const freq = new Map();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    for (const num of nums) {
+        if (num % 2 === 0 && freq.get(num) === 1) {
+            return num;
+        }
+    }
+    return -1;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function firstUniqueEven(nums: number[]): number {
+    const freq = new Map<number, number>();
+    for (const num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+    }
+    for (const num of nums) {
+        if (num % 2 === 0 && freq.get(num) === 1) {
+            return num;
+        }
+    }
+    return -1;
+}` },]} />
+
+**Complexity**
+- Time: O(n) - Single pass to build the map and single pass to find the result.
+- Space: O(n) - LinkedHashMap stores at most n unique elements.
+- Notes: Similar to Hash Map approach but maintains insertion order, which can be useful in some scenarios.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode First Unique Even Element Solutions","datePublished":"2024-07-17","description":"Find the first unique even element in an array. A unique element appears exactly once.","keywords":"LeetCode, First Unique Even Element, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) because for each element, we traverse the entire array to count its occurrences."}},{"@type":"Question","name":"What is the optimal time complexity for this problem?","acceptedAnswer":{"@type":"Answer","text":"The optimal time complexity is O(n) using a Hash Map to count frequencies in one pass and then finding the first unique even element in a second pass."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map approach has a space complexity of O(n) because we store the frequency of each unique element in the array."}}]}).replace(/</g,'\u003c')}
+</script>

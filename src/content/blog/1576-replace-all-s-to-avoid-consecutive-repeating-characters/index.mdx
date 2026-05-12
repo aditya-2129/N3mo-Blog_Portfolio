@@ -1,0 +1,144 @@
+---
+title: "Replace All ?'s to Avoid Consecutive Repeating Characters"
+summary: "Replace all '?' characters in a string with lowercase letters so no two consecutive characters are the same."
+date: "Dec 14, 2025"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 45.30% | **Paid:** No
+> **Topics:** String
+
+Given a string s containing only lowercase English letters and the '?' character, convert all the '?' characters into lowercase letters such that the final string does not contain any consecutive repeating characters. You cannot modify the non-'?' characters.
+
+Please return the final string if there is a way to replace all '?' characters. If there is no way to replace all '?' characters, return an empty string "".
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+s = "?zs"
+```
+
+**Output:**
+```text
+"azs"
+```
+
+**Explanation:**
+There are 25 solutions for this problem. From "azs" to "yzs", all are valid. Only "z" is an invalid modification as the string will consist of consecutive repeating characters in "zzs".
+
+### Example 2
+
+**Input:**
+```text
+s = "ubv?w"
+```
+
+**Output:**
+```text
+"ubvaw"
+```
+
+**Explanation:**
+There are 24 solutions for this problem. Only "v" and "w" are invalid modifications as the strings will consist of consecutive repeating characters in "ubvvw" and "ubvww".
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consists of lowercase English letters and '?'.
+```
+
+- [Greedy Iteration](#greedy-iteration)
+- [Randomized Replacement](#randomized-replacement)
+
+## Examples
+
+### Example 1
+```text
+Input: s = "?zs"
+Output: "azs"
+```
+
+### Example 2
+```text
+Input: s = "ubv?w"
+Output: "ubvaw"
+```
+
+### Example 3
+```text
+Input: s = "j?qg??b"
+Output: "jaqgacb"
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 100
+s consist of lowercase English letters and '?'.
+```
+
+---
+## Greedy Iteration
+
+**Intuition**
+We iterate through the string character by character. Whenever we encounter a '?', we simply try to replace it with a character (e.g., 'a', 'b', or 'c') that is different from both the previous character and the next character. Since the alphabet has 26 letters and we only need to avoid at most 2 specific characters, a valid replacement always exists.
+
+**Steps**
+- Convert the string into a mutable data structure (like a character array or list).
+- Iterate through the indices of the string.
+- If the current character is '?', loop through potential replacement characters ('a', 'b', 'c').
+- Check if the potential character is different from the left neighbor (if it exists) and the right neighbor (if it exists).
+- Assign the first valid character found to the current position.
+- After processing all characters, join the array/list back into a string and return it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def modifyString(self, s: str) -&gt; str:\n        res = list(s)\n        n = len(res)\n        for i in range(n):\n            if res[i] == '?':\n                for c in 'abc':\n                    if (i == 0 or res[i-1] != c) and (i == n-1 or res[i+1] != c):\n                        res[i] = c\n                        break\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String modifyString(String s) {\n        char[] chars = s.toCharArray();\n        int n = chars.length;\n        for (int i = 0; i &lt; n; i++) {\n            if (chars[i] == '?') {\n                for (char c = 'a'; c &lt;= 'c'; c++) {\n                    boolean leftMatch = (i &gt; 0 && chars[i - 1] == c);\n                    boolean rightMatch = (i &lt; n - 1 && chars[i + 1] == c);\n                    if (!leftMatch && !rightMatch) {\n                        chars[i] = c;\n                        break;\n                    }\n                }\n            }\n        }\n        return new String(chars);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string modifyString(string s) {\n        int n = s.size();\n        for (int i = 0; i &lt; n; ++i) {\n            if (s[i] == '?') {\n                for (char c = 'a'; c &lt;= 'c'; ++c) {\n                    bool leftMatch = (i &gt; 0 && s[i - 1] == c);\n                    bool rightMatch = (i &lt; n - 1 && s[i + 1] == c);\n                    if (!leftMatch && !rightMatch) {\n                        s[i] = c;\n                        break;\n                    }\n                }\n            }\n        }\n        return s;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var modifyString = function(s) {\n    let arr = s.split('');\n    let n = arr.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] === '?') {\n            for (let c = 97; c &lt;= 99; c++) {\n                let char = String.fromCharCode(c);\n                let leftMatch = (i &gt; 0 && arr[i - 1] === char);\n                let rightMatch = (i &lt; n - 1 && arr[i + 1] === char);\n                if (!leftMatch && !rightMatch) {\n                    arr[i] = char;\n                    break;\n                }\n            }\n        }\n    }\n    return arr.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function modifyString(s: string): string {\n    let arr = s.split('');\n    let n = arr.length;\n    for (let i = 0; i &lt; n; i++) {\n        if (arr[i] === '?') {\n            for (let c = 97; c &lt;= 99; c++) {\n                let char = String.fromCharCode(c);\n                let leftMatch = (i &gt; 0 && arr[i - 1] === char);\n                let rightMatch = (i &lt; n - 1 && arr[i + 1] === char);\n                if (!leftMatch && !rightMatch) {\n                    arr[i] = char;\n                    break;\n                }\n            }\n        }\n    }\n    return arr.join('');\n};" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We iterate through the string once, and for each '?' we perform a constant amount of work (checking at most 3 characters).
+- Space: O(n) to store the character array/list. In languages where strings are mutable (like C++), this could be O(1) extra space, but generally O(n) is used for the conversion.
+- Notes: This is the most optimal deterministic approach.
+
+---
+## Randomized Replacement
+
+**Intuition**
+Since the problem asks for *any* valid string and the alphabet size (26) is significantly larger than the number of constraints (2 neighbors), we can use a randomized approach. We repeatedly fill the '?' characters with random letters and check if the resulting string is valid. The probability of a random collision is low, so this usually converges quickly.
+
+**Steps**
+- Convert the string to a mutable array.
+- Loop indefinitely until a valid string is found.
+- Iterate through the array. If a character is '?', replace it with a random lowercase letter.
+- After filling all '?', check if the string contains any consecutive repeating characters.
+- If valid, return the string. If not, repeat the process.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import random\n\nclass Solution:\n    def modifyString(self, s: str) -&gt; str:\n        while True:\n            res = list(s)\n            for i in range(len(res)):\n                if res[i] == '?':\n                    res[i] = chr(random.randint(97, 122))\n            valid = True\n            for i in range(len(res) - 1):\n                if res[i] == res[i+1]:\n                    valid = False\n                    break\n            if valid:\n                return ''.join(res)" },
+{ name: "Java", lang: "java", code: "import java.util.concurrent.ThreadLocalRandom;\n\nclass Solution {\n    public String modifyString(String s) {\n        while (true) {\n            char[] chars = s.toCharArray();\n            for (int i = 0; i &lt; chars.length; i++) {\n                if (chars[i] == '?') {\n                    chars[i] = (char) ThreadLocalRandom.current().nextInt('a', 'z' + 1);\n                }\n            }\n            boolean valid = true;\n            for (int i = 0; i &lt; chars.length - 1; i++) {\n                if (chars[i] == chars[i + 1]) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) {\n                return new String(chars);\n            }\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;cstdlib&gt;\n#include &lt;ctime&gt;\n\nclass Solution {\npublic:\n    string modifyString(string s) {\n        srand(time(0));\n        while (true) {\n            string res = s;\n            for (int i = 0; i &lt; res.size(); ++i) {\n                if (res[i] == '?') {\n                    res[i] = 'a' + (rand() % 26);\n                }\n            }\n            bool valid = true;\n            for (int i = 0; i &lt; res.size() - 1; ++i) {\n                if (res[i] == res[i + 1]) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) return res;\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var modifyString = function(s) {\n    const getRandomChar = () =&gt; String.fromCharCode(Math.floor(Math.random() * 26) + 97);\n    while (true) {\n        let arr = s.split('');\n        for (let i = 0; i &lt; arr.length; i++) {\n            if (arr[i] === '?') {\n                arr[i] = getRandomChar();\n            }\n        }\n        let valid = true;\n        for (let i = 0; i &lt; arr.length - 1; i++) {\n            if (arr[i] === arr[i + 1]) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) {\n            return arr.join('');\n        }\n    }\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function modifyString(s: string): string {\n    const getRandomChar = (): string =&gt; String.fromCharCode(Math.floor(Math.random() * 26) + 97);\n    while (true) {\n        let arr = s.split('');\n        for (let i = 0; i &lt; arr.length; i++) {\n            if (arr[i] === '?') {\n                arr[i] = getRandomChar();\n            }\n        }\n        let valid = true;\n        for (let i = 0; i &lt; arr.length - 1; i++) {\n            if (arr[i] === arr[i + 1]) {\n                valid = false;\n                break;\n            }\n        }\n        if (valid) {\n            return arr.join('');\n        }\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(k * n), where n is the length of the string and k is the number of attempts. In the worst case, k could be very large, but given the probability of collision is (1/26) per pair, k is expected to be very small (constant).
+- Space: O(n) for the character array.
+- Notes: While expected time is fast, it is non-deterministic. The Greedy approach is preferred for guaranteed performance.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Replace All ?'s to Avoid Consecutive Repeating Characters Solutions","datePublished":"2025-12-14","description":"Replace all '?' characters in a string with lowercase letters so no two consecutive characters are the same.","keywords":"LeetCode, Replace All ?'s to Avoid Consecutive Repeating Characters, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Greedy Iteration approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the character array."}},{"@type":"Question","name":"Why is the Greedy approach guaranteed to find a solution?","acceptedAnswer":{"@type":"Answer","text":"Because there are 26 lowercase letters and we only need to avoid at most 2 characters (the left and right neighbors), there is always at least one valid character available for every '?'."}}]}).replace(/</g,'\u003c')}
+</script>

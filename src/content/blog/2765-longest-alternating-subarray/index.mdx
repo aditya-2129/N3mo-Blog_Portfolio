@@ -1,0 +1,555 @@
+---
+title: "Longest Alternating Subarray"
+summary: "You are given a 0-indexed integer array nums. A subarray s of length m is called alternating if: - m > 1 - s₁ - s₀ = 1 - sᵢ₊₁ - sᵢ = (-1)ⁱ for 0 ≤ i < m - 1."
+date: "May 12, 2026"
+tags:
+  - Array
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 35.30% | **Paid:** No
+
+> **Topics:** Array, Enumeration
+
+You are given a 0-indexed integer array nums. A subarray s of length m is called alternating if: - m &gt; 1 - s₁ - s₀ = 1 - sᵢ₊₁ - sᵢ = (-1)ⁱ for 0 ≤ i &lt; m - 1. For example, [3, 4, 3, 4, 3] is an alternating subarray because [s₁ - s₀, s₂ - s₁, s₃ - s₂, s₄ - s₃] = [1, -1, 1, -1]. Return the maximum length of an alternating subarray of nums, or -1 if no such subarray exists. A subarray is a contiguous non-empty sequence of elements within an array.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Optimized Enumeration](#optimized-enumeration)
+- [Dynamic Programming](#dynamic-programming)
+- [Single Pass (Two Pointers)](#single-pass-two-pointers)
+
+## Examples
+
+**Input**
+
+```text
+nums = [2,3,4,3,4]
+```
+
+**Output**
+
+```text
+4
+```
+
+**Explanation**
+
+The alternating subarrays are [2, 3], [3, 4], [3, 4, 3], and [3, 4, 3, 4]. The longest of these is [3, 4, 3, 4], which has length 4.
+
+**Input**
+
+```text
+nums = [4,5,6]
+```
+
+**Output**
+
+```text
+2
+```
+
+**Explanation**
+
+The alternating subarrays are [4, 5] and [5, 6]. Both have length 2.
+
+## Constraints
+
+```text
+- 2 ≤ nums.length ≤ 100
+- 1 ≤ nums[i] ≤ 10⁴
+```
+---
+
+---
+
+## Brute Force
+
+**Intuition**
+
+Check every possible subarray to see if it satisfies the alternating condition.
+
+**Steps**
+
+- Iterate through all possible starting indices 'i' from 0 to n-1.
+- Iterate through all possible ending indices 'j' from i+1 to n-1.
+- For each subarray nums[i...j], verify if the difference between consecutive elements follows the pattern [1, -1, 1, -1, ...].
+- The difference at index 'k' relative to the start 'i' should be nums[k+1] - nums[k] == (-1)^(k-i).
+- Keep track of the maximum length found among all valid subarrays.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def alternatingSubarray(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = -1
+        for i in range(n):
+            for j in range(i + 1, n):
+                is_alternating = True
+                for k in range(i, j):
+                    expected_diff = 1 if (k - i) % 2 == 0 else -1
+                    if nums[k+1] - nums[k] != expected_diff:
+                        is_alternating = False
+                        break
+                if is_alternating:
+                    ans = max(ans, j - i + 1)
+        return ans` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int alternatingSubarray(int[] nums) {
+        int n = nums.length;
+        int ans = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                boolean isAlternating = true;
+                for (int k = i; k < j; k++) {
+                    int expectedDiff = (k - i) % 2 == 0 ? 1 : -1;
+                    if (nums[k+1] - nums[k] != expectedDiff) {
+                        isAlternating = false;
+                        break;
+                    }
+                }
+                if (isAlternating) {
+                    ans = Math.max(ans, j - i + 1);
+                }
+            }
+        }
+        return ans;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int alternatingSubarray(vector<int>& nums) {
+        int n = nums.size();
+        int ans = -1;
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                bool isAlternating = true;
+                for (int k = i; k < j; ++k) {
+                    int expectedDiff = (k - i) % 2 == 0 ? 1 : -1;
+                    if (nums[k+1] - nums[k] != expectedDiff) {
+                        isAlternating = false;
+                        break;
+                    }
+                }
+                if (isAlternating) {
+                    ans = max(ans, j - i + 1);
+                }
+            }
+        }
+        return ans;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var alternatingSubarray = function(nums) {
+    let n = nums.length;
+    let ans = -1;
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            let isAlternating = true;
+            for (let k = i; k < j; k++) {
+                let expectedDiff = (k - i) % 2 === 0 ? 1 : -1;
+                if (nums[k+1] - nums[k] !== expectedDiff) {
+                    isAlternating = false;
+                    break;
+                }
+            }
+            if (isAlternating) {
+                ans = Math.max(ans, j - i + 1);
+            }
+        }
+    }
+    return ans;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function alternatingSubarray(nums: number[]): number {
+    let n = nums.length;
+    let ans = -1;
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            let isAlternating = true;
+            for (let k = i; k < j; k++) {
+                let expectedDiff = (k - i) % 2 === 0 ? 1 : -1;
+                if (nums[k+1] - nums[k] !== expectedDiff) {
+                    isAlternating = false;
+                    break;
+                }
+            }
+            if (isAlternating) {
+                ans = Math.max(ans, j - i + 1);
+            }
+        }
+    }
+    return ans;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n³), where n is the length of the array. We iterate through all pairs of indices (n²) and for each pair, we iterate through the subarray (n).
+- Space: O(1), as we only use a few variables to track indices and the maximum length.
+- Notes: Given the constraints (n ≤ 100), O(n³) is acceptable, but more efficient solutions exist.
+
+---
+
+## Optimized Enumeration
+
+**Intuition**
+
+Instead of re-checking the entire subarray for every end index, extend the subarray from a fixed start index as long as the condition holds.
+
+**Steps**
+
+- Iterate through each index 'i' as a potential start of an alternating subarray.
+- Check if the first difference nums[i+1] - nums[i] is 1. If not, this 'i' cannot start a valid subarray.
+- If it is 1, continue checking subsequent elements 'j'.
+- The condition for alternating values starting at 'i' is that nums[j] must equal nums[i] + (j - i) % 2.
+- Stop as soon as the condition is violated and update the maximum length.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def alternatingSubarray(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = -1
+        for i in range(n - 1):
+            if nums[i+1] - nums[i] == 1:
+                for j in range(i + 1, n):
+                    if nums[j] == nums[i] + (j - i) % 2:
+                        ans = max(ans, j - i + 1)
+                    else:
+                        break
+        return ans` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int alternatingSubarray(int[] nums) {
+        int n = nums.length;
+        int ans = -1;
+        for (int i = 0; i < n - 1; i++) {
+            if (nums[i+1] - nums[i] == 1) {
+                for (int j = i + 1; j < n; j++) {
+                    if (nums[j] == nums[i] + (j - i) % 2) {
+                        ans = Math.max(ans, j - i + 1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int alternatingSubarray(vector<int>& nums) {
+        int n = nums.size();
+        int ans = -1;
+        for (int i = 0; i < n - 1; ++i) {
+            if (nums[i+1] - nums[i] == 1) {
+                for (int j = i + 1; j < n; ++j) {
+                    if (nums[j] == nums[i] + (j - i) % 2) {
+                        ans = max(ans, j - i + 1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var alternatingSubarray = function(nums) {
+    let n = nums.length;
+    let ans = -1;
+    for (let i = 0; i < n - 1; i++) {
+        if (nums[i+1] - nums[i] === 1) {
+            for (let j = i + 1; j < n; j++) {
+                if (nums[j] === nums[i] + (j - i) % 2) {
+                    ans = Math.max(ans, j - i + 1);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    return ans;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function alternatingSubarray(nums: number[]): number {
+    let n = nums.length;
+    let ans = -1;
+    for (let i = 0; i < n - 1; i++) {
+        if (nums[i+1] - nums[i] === 1) {
+            for (let j = i + 1; j < n; j++) {
+                if (nums[j] === nums[i] + (j - i) % 2) {
+                    ans = Math.max(ans, j - i + 1);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    return ans;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n²), where n is the length of the array. We iterate through each starting index and potentially scan the rest of the array.
+- Space: O(1), as we only use a few variables.
+- Notes: This is a significant improvement over O(n³) and is very efficient for the given constraints.
+
+---
+
+## Dynamic Programming
+
+**Intuition**
+
+The length of an alternating subarray ending at index 'i' can be derived from the length of the alternating subarray ending at index 'i-1'.
+
+**Steps**
+
+- Define dp[i] as the length of the longest alternating subarray ending at index 'i'.
+- Initialize all dp[i] to 1 (a single element is technically a subarray, though the problem requires length &gt; 1).
+- For each index 'i' from 1 to n-1:
+- Calculate diff = nums[i] - nums[i-1].
+- If diff == 1: if dp[i-1] &gt; 1 and the previous difference was -1 (nums[i-1] - nums[i-2] == -1), then dp[i] = dp[i-1] + 1. Otherwise, dp[i] = 2 (starting a new sequence).
+- If diff == -1: if dp[i-1] &gt; 1 and the previous difference was 1 (nums[i-1] - nums[i-2] == 1), then dp[i] = dp[i-1] + 1. Otherwise, dp[i] = 1 (cannot start with -1).
+- Otherwise, dp[i] = 1.
+- The answer is the maximum value in dp that is greater than 1, or -1 if no such value exists.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def alternatingSubarray(self, nums: List[int]) -> int:
+        n = len(nums)
+        dp = [1] * n
+        ans = -1
+        for i in range(1, n):
+            diff = nums[i] - nums[i-1]
+            if diff == 1:
+                if i > 1 and nums[i-1] - nums[i-2] == -1:
+                    dp[i] = dp[i-1] + 1
+                else:
+                    dp[i] = 2
+            elif diff == -1:
+                if i > 1 and nums[i-1] - nums[i-2] == 1:
+                    dp[i] = dp[i-1] + 1
+            if dp[i] > 1:
+                ans = max(ans, dp[i])
+        return ans` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int alternatingSubarray(int[] nums) {
+        int n = nums.length;
+        int[] dp = new int[n];
+        java.util.Arrays.fill(dp, 1);
+        int ans = -1;
+        for (int i = 1; i < n; i++) {
+            int diff = nums[i] - nums[i-1];
+            if (diff == 1) {
+                if (i > 1 && nums[i-1] - nums[i-2] == -1) {
+                    dp[i] = dp[i-1] + 1;
+                } else {
+                    dp[i] = 2;
+                }
+            } else if (diff == -1) {
+                if (i > 1 && nums[i-1] - nums[i-2] == 1) {
+                    dp[i] = dp[i-1] + 1;
+                }
+            }
+            if (dp[i] > 1) ans = Math.max(ans, dp[i]);
+        }
+        return ans;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int alternatingSubarray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n, 1);
+        int ans = -1;
+        for (int i = 1; i < n; ++i) {
+            int diff = nums[i] - nums[i-1];
+            if (diff == 1) {
+                if (i > 1 && nums[i-1] - nums[i-2] == -1) dp[i] = dp[i-1] + 1;
+                else dp[i] = 2;
+            } else if (diff == -1) {
+                if (i > 1 && nums[i-1] - nums[i-2] == 1) dp[i] = dp[i-1] + 1;
+            }
+            if (dp[i] > 1) ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var alternatingSubarray = function(nums) {
+    let n = nums.length;
+    let dp = new Array(n).fill(1);
+    let ans = -1;
+    for (let i = 1; i < n; i++) {
+        let diff = nums[i] - nums[i-1];
+        if (diff === 1) {
+            if (i > 1 && nums[i-1] - nums[i-2] === -1) dp[i] = dp[i-1] + 1;
+            else dp[i] = 2;
+        } else if (diff === -1) {
+            if (i > 1 && nums[i-1] - nums[i-2] === 1) dp[i] = dp[i-1] + 1;
+        }
+        if (dp[i] > 1) ans = Math.max(ans, dp[i]);
+    }
+    return ans;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function alternatingSubarray(nums: number[]): number {
+    let n = nums.length;
+    let dp = new Array(n).fill(1);
+    let ans = -1;
+    for (let i = 1; i < n; i++) {
+        let diff = nums[i] - nums[i-1];
+        if (diff === 1) {
+            if (i > 1 && nums[i-1] - nums[i-2] === -1) dp[i] = dp[i-1] + 1;
+            else dp[i] = 2;
+        } else if (diff === -1) {
+            if (i > 1 && nums[i-1] - nums[i-2] === 1) dp[i] = dp[i-1] + 1;
+        }
+        if (dp[i] > 1) ans = Math.max(ans, dp[i]);
+    }
+    return ans;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n), where n is the length of the array. We perform a single pass through the array.
+- Space: O(n) to store the DP array. This can be optimized to O(1) by only keeping track of the previous DP value.
+- Notes: This approach is optimal in terms of time complexity.
+
+---
+
+## Single Pass (Two Pointers)
+
+**Intuition**
+
+Use a sliding window approach to find the longest valid subarray in a single traversal.
+
+**Steps**
+
+- Initialize 'ans' to -1 and 'i' to 0.
+- While 'i' is less than n-1:
+- Check if nums[i+1] - nums[i] == 1. If not, increment 'i' and continue.
+- If it is 1, we found a start. Use a second pointer 'j' starting at i+1.
+- Extend 'j' as long as nums[j+1] == nums[j-1] (this maintains the alternating property x, x+1, x, x+1...).
+- Update 'ans' with the length j - i + 1.
+- Set 'i' to 'j' to start looking for the next sequence from the end of the current one.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def alternatingSubarray(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = -1
+        i = 0
+        while i < n - 1:
+            if nums[i+1] - nums[i] != 1:
+                i += 1
+                continue
+            j = i + 1
+            while j + 1 < n and nums[j+1] == nums[j-1]:
+                j += 1
+            ans = max(ans, j - i + 1)
+            i = j
+        return ans` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int alternatingSubarray(int[] nums) {
+        int n = nums.length;
+        int ans = -1;
+        int i = 0;
+        while (i < n - 1) {
+            if (nums[i+1] - nums[i] != 1) {
+                i++;
+                continue;
+            }
+            int j = i + 1;
+            while (j + 1 < n && nums[j+1] == nums[j-1]) {
+                j++;
+            }
+            ans = Math.max(ans, j - i + 1);
+            i = j;
+        }
+        return ans;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int alternatingSubarray(vector<int>& nums) {
+        int n = nums.size();
+        int ans = -1;
+        int i = 0;
+        while (i < n - 1) {
+            if (nums[i+1] - nums[i] != 1) {
+                i++;
+                continue;
+            }
+            int j = i + 1;
+            while (j + 1 < n && nums[j+1] == nums[j-1]) {
+                j++;
+            }
+            ans = max(ans, j - i + 1);
+            i = j;
+        }
+        return ans;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var alternatingSubarray = function(nums) {
+    let n = nums.length;
+    let ans = -1;
+    let i = 0;
+    while (i < n - 1) {
+        if (nums[i+1] - nums[i] !== 1) {
+            i++;
+            continue;
+        }
+        let j = i + 1;
+        while (j + 1 < n && nums[j+1] === nums[j-1]) {
+            j++;
+        }
+        ans = Math.max(ans, j - i + 1);
+        i = j;
+    }
+    return ans;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function alternatingSubarray(nums: number[]): number {
+    let n = nums.length;
+    let ans = -1;
+    let i = 0;
+    while (i < n - 1) {
+        if (nums[i+1] - nums[i] !== 1) {
+            i++;
+            continue;
+        }
+        let j = i + 1;
+        while (j + 1 < n && nums[j+1] === nums[j-1]) {
+            j++;
+        }
+        ans = Math.max(ans, j - i + 1);
+        i = j;
+    }
+    return ans;
+};` }]} />
+
+**Complexity**
+
+- Time: O(n), where n is the length of the array. Each element is visited at most twice (once by 'i' and once by 'j').
+- Space: O(1), as we only use a few variables to track indices.
+- Notes: This is the most efficient approach in terms of both time and space.
+
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Longest Alternating Subarray Solutions","datePublished":"2026-05-12T22:49:36.942899","description":"You are given a 0-indexed integer array nums. A subarray s of length m is called alternating if: - m > 1 - s\u2081 - s\u2080 = 1 - s\u1d62\u208a\u2081 - s\u1d62 = (-1)\u2071 for 0 \u2264 i < m - 1.","keywords":"LeetCode, Longest Alternating Subarray, Easy, Array, Enumeration, Hash Map, Brute Force, Array"}).replace(/</g,'\\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Brute Force complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n\u00b3), where n is the length of the array. We iterate through all pairs of indices (n\u00b2) and for each pair, we iterate through the subarray (n).; Space: O(1), as we only use a few variables to track indices and the maximum length.. Given the constraints (n \u2264 100), O(n\u00b3) is acceptable, but more efficient solutions exist."}},{"@type":"Question","name":"Optimized Enumeration complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n\u00b2), where n is the length of the array. We iterate through each starting index and potentially scan the rest of the array.; Space: O(1), as we only use a few variables.. This is a significant improvement over O(n\u00b3) and is very efficient for the given constraints."}},{"@type":"Question","name":"Dynamic Programming complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n), where n is the length of the array. We perform a single pass through the array.; Space: O(n) to store the DP array. This can be optimized to O(1) by only keeping track of the previous DP value.. This approach is optimal in terms of time complexity."}},{"@type":"Question","name":"Single Pass (Two Pointers) complexity?","acceptedAnswer":{"@type":"Answer","text":"Time: O(n), where n is the length of the array. Each element is visited at most twice (once by 'i' and once by 'j').; Space: O(1), as we only use a few variables to track indices.. This is the most efficient approach in terms of both time and space."}}]}).replace(/</g,'\\u003c')}
+</script>

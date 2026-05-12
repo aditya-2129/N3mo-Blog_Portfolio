@@ -1,0 +1,145 @@
+---
+title: "Find Total Time Spent by Each Employee"
+summary: "Calculate the total time in seconds spent by each employee per day based on their in and out times."
+date: "Dec 25, 2025"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 86.40% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| emp_id        | int     |
+| event_day     | date    |
+| in_time       | int     |
+| out_time      | int     |
++---------------+---------+
+(emp_id, event_day, in_time) is the primary key of this table.
+The table shows the employees' entries and exits in an office.
+event_day is a day in normal DD-MM-YYYY format.
+in_time and out_time are the number of minutes since midnight of that day.
+in_time &lt; out_time.
+
+Write an SQL query to calculate the total time in minutes spent by each employee per day. The total time is calculated as the difference between out_time and in_time.
+
+Return the result table ordered by day and emp_id.
+
+The query result format is in the following example.
+
+- Examples
+- Constraints
+- [Hash Map Aggregation](#hash-map-aggregation)
+- [Sorting and Grouping](#sorting-and-grouping)
+
+## Examples
+
+### Example 1
+```text
+Employees table:
++----------+------------+---------+----------+
+| emp_id   | event_day  | in_time | out_time |
++----------+------------+---------+----------+
+| 1        | 2020-11-28 | 100     | 400      |
+| 1        | 2020-11-28 | 300     | 450      |
+| 2        | 2020-11-28 | 10      | 50       |
+| 1        | 2020-11-29 | 10      | 50       |
+| 2        | 2020-11-29 | 20      | 100      |
++----------+------------+---------+----------+
+
+Result table:
++------------+----------+----------+
+| day        | emp_id   | total    |
++------------+----------+----------+
+| 2020-11-28 | 1        | 450      |
+| 2020-11-28 | 2        | 40       |
+| 2020-11-29 | 1        | 40       |
+| 2020-11-29 | 2        | 80       |
++------------+----------+----------+
+Employee 1 has three entries: two on 2020-11-28 with total time (400-100) + (450-300) = 250 + 150 = 400, and one on 2020-11-29 with total time (50-10) = 40.
+Employee 2 has two entries: one on 2020-11-28 with total time (50-10) = 40, and one on 2020-11-29 with total time (100-20) = 80.
+Note that the result table is ordered by day and emp_id.
+```
+
+## Constraints
+
+```text
+The size of the Employees table is between 1 and 1000 rows.
+in_time and out_time are between 1 and 1440.
+```
+
+---
+## Hash Map Aggregation
+
+**Intuition**
+We can iterate through the list of employee records and use a hash map (or dictionary) to accumulate the total time for each unique combination of day and employee ID.
+
+**Steps**
+- Initialize an empty hash map.
+- Iterate through each record in the input list.
+- Construct a composite key using the event day and employee ID.
+- Calculate the duration (out_time - in_time) and add it to the value stored in the hash map for that key.
+- After processing all records, convert the map entries into a list of results.
+- Sort the result list first by day, then by employee ID.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def totalTime(self, employees: list[list[int]]) -> list[list[int]]:\n        counts = {}\n        for emp in employees:\n            emp_id, day, in_time, out_time = emp\n            # Using a tuple (day, emp_id) as the key\n            key = (day, emp_id)\n            if key in counts:\n                counts[key] += out_time - in_time\n            else:\n                counts[key] = out_time - in_time\n        \n        # Convert to list of lists and sort\n        result = [[k[0], k[1], v] for k, v in counts.items()]\n        result.sort(key=lambda x: (x[0], x[1]))\n        return result"
+ },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List<List<Object>> totalTime(List<List<Integer>> employees) {\n        Map<String, Integer> map = new HashMap<>();\n        \n        for (List<Integer> emp : employees) {\n            int empId = emp.get(0);\n            int day = emp.get(1);\n            int inTime = emp.get(2);\n            int outTime = emp.get(3);\n            \n            String key = day + \"-\" + empId;\n            map.put(key, map.getOrDefault(key, 0) + (outTime - inTime));\n        }\n        \n        List<List<Object>> result = new ArrayList<>();\n        for (Map.Entry<String, Integer> entry : map.entrySet()) {\n            String[] parts = entry.getKey().split(\"-\");\n            int d = Integer.parseInt(parts[0]);\n            int id = Integer.parseInt(parts[1]);\n            result.add(Arrays.asList(d, id, entry.getValue()));\n        }\n        \n        result.sort((a, b) -> {\n            int dayCmp = Integer.compare((Integer) a.get(0), (Integer) b.get(0));\n            if (dayCmp != 0) return dayCmp;\n            return Integer.compare((Integer) a.get(1), (Integer) b.get(1));\n        });\n        \n        return result;\n    }\n}"
+ },
+{ name: "C++", lang: "cpp", code: "#include <vector>\n#include <map>\n#include <algorithm>\n#include <utility>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> totalTime(vector<vector<int>>& employees) {\n        // Using a map with pair<int, int> as key to automatically sort keys\n        map<pair<int, int>, int> mp;\n        \n        for (const auto& emp : employees) {\n            int empId = emp[0];\n            int day = emp[1];\n            int inTime = emp[2];\n            int outTime = emp[3];\n            \n            mp[{day, empId}] += outTime - inTime;\n        }\n        \n        vector<vector<int>> result;\n        for (const auto& entry : mp) {\n            result.push_back({entry.first.first, entry.first.second, entry.second});\n        }\n        \n        return result;\n    }\n};"
+ },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} employees\n * @return {number[][]}\n */\nvar totalTime = function(employees) {\n    const map = new Map();\n    \n    for (const [empId, day, inTime, outTime] of employees) {\n        const key = `${day},${empId}`;\n        map.set(key, (map.get(key) || 0) + (outTime - inTime));\n    }\n    \n    const result = [];\n    for (const [key, val] of map) {\n        const [d, id] = key.split(',').map(Number);\n        result.push([d, id, val]);\n    }\n    \n    result.sort((a, b) => {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    return result;\n};"
+ },
+{ name: "TypeScript", lang: "typescript", code: "function totalTime(employees: number[][]): number[][] {\n    const map = new Map<string, number>();\n    \n    for (const [empId, day, inTime, outTime] of employees) {\n        const key = `${day},${empId}`;\n        map.set(key, (map.get(key) || 0) + (outTime - inTime));\n    }\n    \n    const result: number[][] = [];\n    for (const [key, val] of map) {\n        const [d, id] = key.split(',').map(Number);\n        result.push([d, id, val]);\n    }\n    \n    result.sort((a, b) => {\n        if (a[0] !== b[0]) return a[0] - b[0];\n        return a[1] - b[1];\n    });\n    \n    return result;\n}"
+ },]} />
+
+**Complexity**
+- Time: O(N log N) due to the sorting step, where N is the number of unique (day, emp_id) pairs.
+- Space: O(N) to store the aggregated results in the map.
+- Notes: This approach is efficient and straightforward, effectively simulating the SQL GROUP BY operation.
+
+---
+## Sorting and Grouping
+
+**Intuition**
+If we sort the input list first by day and then by employee ID, all records belonging to the same group will be adjacent. We can then iterate through the sorted list and accumulate the time for the current group until the group changes.
+
+**Steps**
+- Sort the input list by day, then by emp_id.
+- Initialize an empty list for results.
+- Iterate through the sorted list, keeping track of the current day, emp_id, and accumulated time.
+- If the day or emp_id changes, push the previous group's result to the list and reset the accumulator.
+- After the loop, push the final group's result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def totalTime(self, employees: list[list[int]]) -> list[list[int]]:\n        if not employees:\n            return []\n        \n        # Sort by day, then by emp_id\n        employees.sort(key=lambda x: (x[1], x[0]))\n        \n        result = []\n        curr_day, curr_id = employees[0][1], employees[0][0]\n        total = 0\n        \n        for emp in employees:\n            emp_id, day, in_time, out_time = emp\n            \n            if day != curr_day or emp_id != curr_id:\n                result.append([curr_day, curr_id, total])\n                curr_day = day\n                curr_id = emp_id\n                total = 0\n            \n            total += out_time - in_time\n            \n        # Append the last group\n        result.append([curr_day, curr_id, total])\n        return result"
+ },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List<List<Object>> totalTime(List<List<Integer>> employees) {\n        if (employees.isEmpty()) return new ArrayList<>();\n        \n        // Sort by day, then by emp_id\n        employees.sort((a, b) -> {\n            int dayCmp = Integer.compare(a.get(1), b.get(1));\n            if (dayCmp != 0) return dayCmp;\n            return Integer.compare(a.get(0), b.get(0));\n        });\n        \n        List<List<Object>> result = new ArrayList<>();\n        int currDay = employees.get(0).get(1);\n        int currId = employees.get(0).get(0);\n        int total = 0;\n        \n        for (List<Integer> emp : employees) {\n            int empId = emp.get(0);\n            int day = emp.get(1);\n            int inTime = emp.get(2);\n            int outTime = emp.get(3);\n            \n            if (day != currDay || empId != currId) {\n                result.add(Arrays.asList(currDay, currId, total));\n                currDay = day;\n                currId = empId;\n                total = 0;\n            }\n            total += outTime - inTime;\n        }\n        \n        result.add(Arrays.asList(currDay, currId, total));\n        return result;\n    }\n}"
+ },
+{ name: "C++", lang: "cpp", code: "#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> totalTime(vector<vector<int>>& employees) {\n        if (employees.empty()) return {};\n        \n        // Sort by day, then by emp_id\n        sort(employees.begin(), employees.end(), [](const vector<int>& a, const vector<int>& b) {\n            if (a[1] != b[1]) return a[1] < b[1];\n            return a[0] < b[0];\n        });\n        \n        vector<vector<int>> result;\n        int currDay = employees[0][1];\n        int currId = employees[0][0];\n        int total = 0;\n        \n        for (const auto& emp : employees) {\n            int empId = emp[0];\n            int day = emp[1];\n            int inTime = emp[2];\n            int outTime = emp[3];\n            \n            if (day != currDay || empId != currId) {\n                result.push_back({currDay, currId, total});\n                currDay = day;\n                currId = empId;\n                total = 0;\n            }\n            total += outTime - inTime;\n        }\n        \n        result.push_back({currDay, currId, total});\n        return result;\n    }\n};"
+ },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} employees\n * @return {number[][]}\n */\nvar totalTime = function(employees) {\n    if (employees.length === 0) return [];\n    \n    // Sort by day, then by emp_id\n    employees.sort((a, b) => {\n        if (a[1] !== b[1]) return a[1] - b[1];\n        return a[0] - b[0];\n    });\n    \n    const result = [];\n    let currDay = employees[0][1];\n    let currId = employees[0][0];\n    let total = 0;\n    \n    for (const [empId, day, inTime, outTime] of employees) {\n        if (day !== currDay || empId !== currId) {\n            result.push([currDay, currId, total]);\n            currDay = day;\n            currId = empId;\n            total = 0;\n        }\n        total += outTime - inTime;\n    }\n    \n    result.push([currDay, currId, total]);\n    return result;\n};"
+ },
+{ name: "TypeScript", lang: "typescript", code: "function totalTime(employees: number[][]): number[][] {\n    if (employees.length === 0) return [];\n    \n    // Sort by day, then by emp_id\n    employees.sort((a, b) => {\n        if (a[1] !== b[1]) return a[1] - b[1];\n        return a[0] - b[0];\n    });\n    \n    const result: number[][] = [];\n    let currDay = employees[0][1];\n    let currId = employees[0][0];\n    let total = 0;\n    \n    for (const [empId, day, inTime, outTime] of employees) {\n        if (day !== currDay || empId !== currId) {\n            result.push([currDay, currId, total]);\n            currDay = day;\n            currId = empId;\n            total = 0;\n        }\n        total += outTime - inTime;\n    }\n    \n    result.push([currDay, currId, total]);\n    return result;\n}"
+ },]} />
+
+**Complexity**
+- Time: O(N log N) due to sorting the input list.
+- Space: O(1) auxiliary space (excluding the space for the output and the sort operation which might be O(log N) or O(N) depending on the language's sorting implementation).
+- Notes: This approach avoids using a hash map but requires modifying (or copying) the input to sort it.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Total Time Spent by Each Employee Solutions","datePublished":"2025-12-25","description":"Calculate the total time in seconds spent by each employee per day based on their in and out times.","keywords":"LeetCode, Find Total Time Spent by Each Employee, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map Aggregation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N log N), where N is the number of unique (day, emp_id) pairs, due to the final sorting step."}},{"@type":"Question","name":"What is the space complexity of the Sorting and Grouping approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space required for the output list and the sorting algorithm's stack."}}]}).replace(/</g,'\u003c')}
+</script>

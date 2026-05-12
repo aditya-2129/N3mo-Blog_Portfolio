@@ -1,0 +1,181 @@
+---
+title: "Kth Largest Element in a Stream"
+summary: "Design a class to find the kth largest element in a stream of numbers using a min-heap or sorting."
+date: "Feb 21, 2024"
+tags:
+  - Tree
+  - Design
+  - Binary Search Tree
+  - Heap (Priority Queue)
+  - Binary Tree
+  - Data Stream
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 61.00% | **Paid:** No
+> **Topics:** Tree, Design, Binary Search Tree, Heap (Priority Queue), Binary Tree, Data Stream
+
+You are part of a university admissions office and are tasked with simplifying the admissions process. You have a list of the scores of all the students who have applied, and you need to select the top k students. However, new students are constantly applying, and you need to be able to quickly determine the kth largest score at any point in time.
+
+Design a class to find the kth largest element in a stream. Note that it is the kth largest element in the sorted order, not the kth distinct element.
+
+Implement KthLargest class:
+
+KthLargest(int k, int[] nums) Initializes the object with the integer k and the stream of integers nums.
+int add(int val) Appends the integer val to the stream and returns the element representing the kth largest element in the stream.
+
+- Examples
+- Constraints
+- [Approach 1: Sorting (Brute Force)](#approach-1-sorting-brute-force)
+- [Approach 2: Min-Heap (Priority Queue)](#approach-2-min-heap-priority-queue)
+- [Approach 3: Binary Search Tree (Order Statistic Tree)](#approach-3-binary-search-tree-order-statistic-tree)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+["KthLargest", "add", "add", "add", "add", "add"]
+
+[[3, [4, 5, 8, 2]], [3], [5], [10], [9], [4]]
+```
+
+**Output:**
+```text
+[null, 4, 5, 5, 8, 8]
+```
+
+**Explanation:**
+KthLargest kthLargest = new KthLargest(3, [4, 5, 8, 2]);
+
+kthLargest.add(3); // return 4
+
+kthLargest.add(5); // return 5
+
+kthLargest.add(10); // return 5
+
+kthLargest.add(9); // return 8
+
+kthLargest.add(4); // return 8
+
+### Example 2
+
+**Input:**
+```text
+["KthLargest", "add", "add", "add", "add"]
+
+[[4, [7, 7, 7, 7, 8, 3]], [2], [10], [9], [9]]
+```
+
+**Output:**
+```text
+[null, 7, 7, 7, 8]
+```
+
+**Explanation:**
+KthLargest kthLargest = new KthLargest(4, [7, 7, 7, 7, 8, 3]);
+
+kthLargest.add(2); // return 7
+
+kthLargest.add(10); // return 7
+
+kthLargest.add(9); // return 7
+
+kthLargest.add(9); // return 8
+
+## Constraints
+```text
+1 <= k <= 10⁴
+0 <= nums.length <= 10⁴
+-10⁴ <= nums[i] <= 10⁴
+-10⁴ <= val <= 10⁴
+At most 10⁴ calls will be made to add.
+It is guaranteed that there will be at least k elements in the array when you search for the kth element.
+```
+
+---
+## Approach 1: Sorting (Brute Force)
+
+**Intuition**
+The most straightforward way to find the kth largest element is to maintain a sorted list of all numbers. When a new number is added, we insert it into the list, sort the list again, and then return the element at the index `length - k`.
+
+**Steps**
+- Initialize the class with `k` and the initial `nums` array. Sort the `nums` array immediately.
+- In the `add` method:
+  - Append the new `val` to the list.
+  - Sort the list.
+  - Return the element at index `list.length - k`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class KthLargest:\n    def __init__(self, k: int, nums: list[int]):\n        self.k = k\n        self.nums = nums\n        self.nums.sort()\n\n    def add(self, val: int) -&gt; int:\n        self.nums.append(val)\n        self.nums.sort()\n        return self.nums[-self.k]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass KthLargest {\n    private List&lt;Integer&gt; list;\n    private int k;\n\n    public KthLargest(int k, int[] nums) {\n        this.k = k;\n        this.list = new ArrayList&lt;&gt;();\n        for (int num : nums) {\n            list.add(num);\n        }\n        Collections.sort(list);\n    }\n\n    public int add(int val) {\n        list.add(val);\n        Collections.sort(list);\n        return list.get(list.size() - k);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass KthLargest {\n    vector&lt;int&gt; stream;\n    int k;\npublic:\n    KthLargest(int k, vector&lt;int&gt;& nums) {\n        this-&gt;k = k;\n        this.stream = nums;\n        sort(stream.begin(), stream.end());\n    }\n\n    int add(int val) {\n        stream.push_back(val);\n        sort(stream.begin(), stream.end());\n        return stream[stream.size() - k];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var KthLargest = function(k, nums) {\n    this.k = k;\n    this.nums = nums;\n    this.nums.sort((a, b) =&gt; a - b);\n};\n\nKthLargest.prototype.add = function(val) {\n    this.nums.push(val);\n    this.nums.sort((a, b) =&gt; a - b);\n    return this.nums[this.nums.length - this.k];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class KthLargest {\n    private k: number;\n    private nums: number[];\n\n    constructor(k: number, nums: number[]) {\n        this.k = k;\n        this.nums = nums;\n        this.nums.sort((a, b) =&gt; a - b);\n    }\n\n    add(val: number): number {\n        this.nums.push(val);\n        this.nums.sort((a, b) =&gt; a - b);\n        return this.nums[this.nums.length - this.k];\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(N log N) for the `add` operation, where N is the total number of elements. Sorting takes O(N log N).
+- Space: O(N) to store the stream of numbers.
+- Notes: This approach is simple but inefficient for large streams or frequent `add` calls due to the repeated sorting cost.
+
+---
+## Approach 2: Min-Heap (Priority Queue)
+
+**Intuition**
+We only need to keep track of the top `k` largest elements at any time. If we maintain a min-heap of size `k`, the smallest element in this heap (the root) will be the kth largest element in the stream. Any element smaller than the root can be ignored because it will never be in the top `k`.
+
+**Steps**
+- Initialize a min-heap.
+- Add all numbers from `nums` to the heap.
+- If the heap size exceeds `k`, remove the smallest element (root) to maintain size `k`.
+- In the `add` method:
+  - Add the new `val` to the heap.
+  - If the heap size exceeds `k`, remove the root.
+  - Return the root element.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass KthLargest:\n    def __init__(self, k: int, nums: list[int]):\n        self.k = k\n        self.heap = nums\n        heapq.heapify(self.heap)\n        while len(self.heap) &gt; k:\n            heapq.heappop(self.heap)\n\n    def add(self, val: int) -&gt; int:\n        heapq.heappush(self.heap, val)\n        if len(self.heap) &gt; self.k:\n            heapq.heappop(self.heap)\n        return self.heap[0]" },
+{ name: "Java", lang: "java", code: "import java.util.PriorityQueue;\n\nclass KthLargest {\n    private PriorityQueue&lt;Integer&gt; minHeap;\n    private int k;\n\n    public KthLargest(int k, int[] nums) {\n        this.k = k;\n        this.minHeap = new PriorityQueue&lt;&gt;();\n        for (int num : nums) {\n            minHeap.offer(num);\n        }\n        while (minHeap.size() &gt; k) {\n            minHeap.poll();\n        }\n    }\n\n    public int add(int val) {\n        minHeap.offer(val);\n        if (minHeap.size() &gt; k) {\n            minHeap.poll();\n        }\n        return minHeap.peek();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;queue&gt;\n#include &lt;vector&gt;\nusing namespace std;\n\nclass KthLargest {\n    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap;\n    int k;\npublic:\n    KthLargest(int k, vector&lt;int&gt;& nums) {\n        this-&gt;k = k;\n        for (int num : nums) {\n            minHeap.push(num);\n        }\n        while (minHeap.size() &gt; k) {\n            minHeap.pop();\n        }\n    }\n\n    int add(int val) {\n        minHeap.push(val);\n        if (minHeap.size() &gt; k) {\n            minHeap.pop();\n        }\n        return minHeap.top();\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "const { MinPriorityQueue } = require('@datastructures-js/priority-queue');\n\nvar KthLargest = function(k, nums) {\n    this.k = k;\n    this.pq = new MinPriorityQueue();\n    for (let num of nums) {\n        this.pq.enqueue(num);\n    }\n    while (this.pq.size() &gt; k) {\n        this.pq.dequeue();\n    }\n};\n\nKthLargest.prototype.add = function(val) {\n    this.pq.enqueue(val);\n    if (this.pq.size() &gt; this.k) {\n        this.pq.dequeue();\n    }\n    return this.pq.front().element;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "const { MinPriorityQueue } = require('@datastructures-js/priority-queue');\n\nclass KthLargest {\n    private k: number;\n    private pq: MinPriorityQueue&lt;number&gt;;\n\n    constructor(k: number, nums: number[]) {\n        this.k = k;\n        this.pq = new MinPriorityQueue();\n        for (let num of nums) {\n            this.pq.enqueue(num);\n        }\n        while (this.pq.size() &gt; k) {\n            this.pq.dequeue();\n        }\n    }\n\n    add(val: number): number {\n        this.pq.enqueue(val);\n        if (this.pq.size() &gt; this.k) {\n            this.pq.dequeue();\n        }\n        return this.pq.front().element;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(log k) for the `add` operation. Insertion and extraction in a heap of size `k` takes O(log k).
+- Space: O(k) to store the heap.
+- Notes: This is the optimal approach for this problem, significantly faster than sorting when `k` is much smaller than the total number of elements.
+
+---
+## Approach 3: Binary Search Tree (Order Statistic Tree)
+
+**Intuition**
+We can use a Binary Search Tree (BST) to store the elements. By augmenting the BST nodes to store the size of the subtree rooted at that node, we can efficiently find the kth largest element. The kth largest element corresponds to finding the node at a specific rank when traversing the tree in reverse in-order (right-root-left).
+
+**Steps**
+- Define a `TreeNode` class with `val`, `left`, `right`, and `size` (count of nodes in subtree).
+- Implement `insert` to add a value to the BST and update the `size` of ancestors.
+- Implement `findKth` to traverse the tree. If the right subtree has `R` nodes:
+  - If `k == R + 1`, current node is the answer.
+  - If `k &lt;= R`, search in the right subtree.
+  - If `k &gt; R + 1`, search in the left subtree with updated rank `k - (R + 1)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n        self.size = 1\n\nclass KthLargest:\n    def __init__(self, k: int, nums: list[int]):\n        self.k = k\n        self.root = None\n        for num in nums:\n            self.root = self._insert(self.root, num)\n\n    def _insert(self, node: TreeNode, val: int) -&gt; TreeNode:\n        if not node:\n            return TreeNode(val)\n        if val &lt;= node.val:\n            node.left = self._insert(node.left, val)\n        else:\n            node.right = self._insert(node.right, val)\n        node.size += 1\n        return node\n\n    def _find_kth(self, node: TreeNode, k: int) -&gt; int:\n        if not node:\n            return 0\n        right_size = node.right.size if node.right else 0\n        if k == right_size + 1:\n            return node.val\n        elif k &lt;= right_size:\n            return self._find_kth(node.right, k)\n        else:\n            return self._find_kth(node.left, k - right_size - 1)\n\n    def add(self, val: int) -&gt; int:\n        self.root = self._insert(self.root, val)\n        return self._find_kth(self.root, self.k)" },
+{ name: "Java", lang: "java", code: "class TreeNode {\n    int val, size;\n    TreeNode left, right;\n    TreeNode(int val) { this.val = val; this.size = 1; }\n}\n\nclass KthLargest {\n    private TreeNode root;\n    private int k;\n\n    public KthLargest(int k, int[] nums) {\n        this.k = k;\n        for (int num : nums) {\n            root = insert(root, num);\n        }\n    }\n\n    private TreeNode insert(TreeNode node, int val) {\n        if (node == null) return new TreeNode(val);\n        if (val &lt;= node.val) node.left = insert(node.left, val);\n        else node.right = insert(node.right, val);\n        node.size++;\n        return node;\n    }\n\n    private int findKth(TreeNode node, int k) {\n        int rightSize = node.right == null ? 0 : node.right.size;\n        if (k == rightSize + 1) return node.val;\n        if (k &lt;= rightSize) return findKth(node.right, k);\n        return findKth(node.left, k - rightSize - 1);\n    }\n\n    public int add(int val) {\n        root = insert(root, val);\n        return findKth(root, k);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "struct TreeNode {\n    int val, size;\n    TreeNode *left, *right;\n    TreeNode(int v) : val(v), size(1), left(nullptr), right(nullptr) {}\n};\n\nclass KthLargest {\n    TreeNode* root;\n    int k;\n\n    TreeNode* insert(TreeNode* node, int val) {\n        if (!node) return new TreeNode(val);\n        if (val &lt;= node-&gt;val) node-&gt;left = insert(node-&gt;left, val);\n        else node-&gt;right = insert(node-&gt;right, val);\n        node-&gt;size++;\n        return node;\n    }\n\n    int findKth(TreeNode* node, int k) {\n        int rightSize = node-&gt;right ? node-&gt;right-&gt;size : 0;\n        if (k == rightSize + 1) return node-&gt;val;\n        if (k &lt;= rightSize) return findKth(node-&gt;right, k);\n        return findKth(node-&gt;left, k - rightSize - 1);\n    }\n\npublic:\n    KthLargest(int k, vector&lt;int&gt;& nums) {\n        this-&gt;k = k;\n        root = nullptr;\n        for (int num : nums) root = insert(root, num);\n    }\n\n    int add(int val) {\n        root = insert(root, val);\n        return findKth(root, k);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class TreeNode {\n    constructor(val) {\n        this.val = val;\n        this.left = null;\n        this.right = null;\n        this.size = 1;\n    }\n}\n\nvar KthLargest = function(k, nums) {\n    this.k = k;\n    this.root = null;\n    for (let num of nums) {\n        this.root = this.insert(this.root, num);\n    }\n};\n\nKthLargest.prototype.insert = function(node, val) {\n    if (!node) return new TreeNode(val);\n    if (val &lt;= node.val) node.left = this.insert(node.left, val);\n    else node.right = this.insert(node.right, val);\n    node.size++;\n    return node;\n};\n\nKthLargest.prototype.findKth = function(node, k) {\n    let rightSize = node.right ? node.right.size : 0;\n    if (k === rightSize + 1) return node.val;\n    if (k &lt;= rightSize) return this.findKth(node.right, k);\n    return this.findKth(node.left, k - rightSize - 1);\n};\n\nKthLargest.prototype.add = function(val) {\n    this.root = this.insert(this.root, val);\n    return this.findKth(this.root, this.k);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n    size: number;\n    constructor(v: number) {\n        this.val = v;\n        this.left = null;\n        this.right = null;\n        this.size = 1;\n    }\n}\n\nclass KthLargest {\n    private k: number;\n    private root: TreeNode | null;\n\n    constructor(k: number, nums: number[]) {\n        this.k = k;\n        this.root = null;\n        for (let num of nums) {\n            this.root = this.insert(this.root, num);\n        }\n    }\n\n    private insert(node: TreeNode | null, val: number): TreeNode {\n        if (!node) return new TreeNode(val);\n        if (val &lt;= node.val) node.left = this.insert(node.left, val);\n        else node.right = this.insert(node.right, val);\n        node.size++;\n        return node;\n    }\n\n    private findKth(node: TreeNode | null, k: number): number {\n        let rightSize = node.right ? node.right.size : 0;\n        if (k === rightSize + 1) return node.val;\n        if (k &lt;= rightSize) return this.findKth(node.right, k);\n        return this.findKth(node.left, k - rightSize - 1);\n    }\n\n    add(val: number): number {\n        this.root = this.insert(this.root, val);\n        return this.findKth(this.root, this.k);\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(H) for both `add` and finding the element, where H is the height of the tree. In the worst case (unbalanced tree), this is O(N). On average (balanced tree), this is O(log N).
+- Space: O(N) to store the tree nodes.
+- Notes: This approach is more complex to implement than the Heap approach and offers similar average-case performance but worse worst-case performance unless the tree is self-balancing (e.g., AVL, Red-Black).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Kth Largest Element in a Stream Solutions","datePublished":"2024-02-21","description":"Design a class to find the kth largest element in a stream of numbers using a min-heap or sorting.","keywords":"LeetCode, Kth Largest Element in a Stream, Easy, Tree, Design, Binary Search Tree, Heap (Priority Queue), Binary Tree, Data Stream"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"O(N log N) for the add operation, where N is the total number of elements."}},{"@type":"Question","name":"What is the time complexity of the Min-Heap approach?","acceptedAnswer":{"@type":"Answer","text":"O(log k) for the add operation, where k is the size of the heap."}},{"@type":"Question","name":"What is the time complexity of the Binary Search Tree approach?","acceptedAnswer":{"@type":"Answer","text":"O(H) where H is the height of the tree. O(N) worst case, O(log N) average case."}}]}).replace(/</g,'\u003c')}
+</script>

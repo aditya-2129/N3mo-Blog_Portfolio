@@ -1,0 +1,119 @@
+---
+title: "Find the K-or of an Array"
+summary: "Find the K-or of an array by checking each bit position and setting bits that appear in at least k elements."
+date: "Apr 20, 2026"
+tags:
+  - Array
+  - Bit Manipulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.80% | **Paid:** No
+> **Topics:** Array, Bit Manipulation
+
+You are given a 0-indexed integer array nums and an integer k.
+
+The K-or of nums is a non-negative integer that satisfies the following:
+
+- The ith bit is set in the K-or if and only if there are at least k elements in nums where the ith bit is set.
+
+Return the K-or of nums.
+
+Note that for any integer x, the ith bit is the bit at the ith position from the right in the binary representation of x.
+
+- Examples
+- Constraints
+- [Bit-by-Bit Analysis](#bit-by-bit-analysis)
+- [Pre-counting All Bits](#pre-counting-all-bits)
+
+## Examples
+
+```text
+Input: nums = [7,12,9,8,9,15], k = 4
+Output: 9
+Explanation:
+- 0th bit: 7, 9, 9, 15 have the 0th bit set (4 numbers >= k)
+- 1st bit: 7, 9, 9, 15 have the 1st bit set (4 numbers >= k)
+- 2nd bit: 7, 12, 9, 8, 9, 15 have the 2nd bit set (6 numbers >= k)
+- 3rd bit: 12, 8, 15 have the 3rd bit set (3 numbers < k)
+So the K-or is 9 (binary 1001).
+```
+
+```text
+Input: nums = [2,12,1,11,4,5], k = 6
+Output: 0
+Explanation: No bit has at least 6 numbers with that bit set.
+```
+
+```text
+Input: nums = [10,8,5,9,11,6,8], k = 1
+Output: 15
+Explanation: Every bit has at least 1 number with that bit set.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 50
+- 0 <= nums[i] < 2^31
+- 1 <= k <= nums.length
+```
+
+---
+
+## Bit-by-Bit Analysis
+
+**Intuition**
+For each bit position from 0 to 30, count how many numbers have that bit set. If the count is at least k, include that bit in the result.
+
+**Steps**
+- Iterate through each bit position (0 to 30 since nums[i] ≤ 10⁹ &lt; 2³⁰)
+- For each bit, count how many numbers in the array have that bit set
+- If count ≥ k, set that bit in the result using bitwise OR
+- Return the final result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findKOr(self, nums: List[int], k: int) -&gt; int:\n        result = 0\n        for i in range(31):\n            count = 0\n            for num in nums:\n                if num & (1 &lt;&lt; i):\n                    count += 1\n            if count &gt;= k:\n                result |= (1 &lt;&lt; i)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findKOr(int[] nums, int k) {\n        int result = 0;\n        for (int i = 0; i &lt; 31; i++) {\n            int count = 0;\n            for (int num : nums) {\n                if ((num & (1 &lt;&lt; i)) != 0) {\n                    count++;\n                }\n            }\n            if (count &gt;= k) {\n                result |= (1 &lt;&lt; i);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findKOr(vector&lt;int&gt;& nums, int k) {\n        int result = 0;\n        for (int i = 0; i &lt; 31; i++) {\n            int count = 0;\n            for (int num : nums) {\n                if (num & (1 &lt;&lt; i)) {\n                    count++;\n                }\n            }\n            if (count &gt;= k) {\n                result |= (1 &lt;&lt; i);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar findKOr = function(nums, k) {\n    let result = 0;\n    for (let i = 0; i &lt; 31; i++) {\n        let count = 0;\n        for (let num of nums) {\n            if (num & (1 &lt;&lt; i)) {\n                count++;\n            }\n        }\n        if (count &gt;= k) {\n            result |= (1 &lt;&lt; i);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findKOr(nums: number[], k: number): number {\n    let result = 0;\n    for (let i = 0; i &lt; 31; i++) {\n        let count = 0;\n        for (let num of nums) {\n            if (num & (1 &lt;&lt; i)) {\n                count++;\n            }\n        }\n        if (count &gt;= k) {\n            result |= (1 &lt;&lt; i);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(31 × n) where n is the length of nums
+- Space: O(1)
+- Notes: Simple and efficient approach with constant space overhead
+
+---
+
+## Pre-counting All Bits
+
+**Intuition**
+First, count all set bits across all numbers in a single array, then construct the result by checking which bit positions meet the threshold.
+
+**Steps**
+- Create an array of size 31 to store bit counts
+- Iterate through all numbers and increment the count for each set bit
+- After counting, construct the result by setting bits where count ≥ k
+- Return the final result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findKOr(self, nums: List[int], k: int) -&gt; int:\n        bit_counts = [0] * 31\n        for num in nums:\n            for i in range(31):\n                if num & (1 &lt;&lt; i):\n                    bit_counts[i] += 1\n        \n        result = 0\n        for i in range(31):\n            if bit_counts[i] &gt;= k:\n                result |= (1 &lt;&lt; i)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findKOr(int[] nums, int k) {\n        int[] bitCounts = new int[31];\n        for (int num : nums) {\n            for (int i = 0; i &lt; 31; i++) {\n                if ((num & (1 &lt;&lt; i)) != 0) {\n                    bitCounts[i]++;\n                }\n            }\n        }\n        \n        int result = 0;\n        for (int i = 0; i &lt; 31; i++) {\n            if (bitCounts[i] &gt;= k) {\n                result |= (1 &lt;&lt; i);\n            }\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int findKOr(vector&lt;int&gt;& nums, int k) {\n        vector&lt;int&gt; bitCounts(31, 0);\n        for (int num : nums) {\n            for (int i = 0; i &lt; 31; i++) {\n                if (num & (1 &lt;&lt; i)) {\n                    bitCounts[i]++;\n                }\n            }\n        }\n        \n        int result = 0;\n        for (int i = 0; i &lt; 31; i++) {\n            if (bitCounts[i] &gt;= k) {\n                result |= (1 &lt;&lt; i);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nvar findKOr = function(nums, k) {\n    const bitCounts = new Array(31).fill(0);\n    for (let num of nums) {\n        for (let i = 0; i &lt; 31; i++) {\n            if (num & (1 &lt;&lt; i)) {\n                bitCounts[i]++;\n            }\n        }\n    }\n    \n    let result = 0;\n    for (let i = 0; i &lt; 31; i++) {\n        if (bitCounts[i] &gt;= k) {\n            result |= (1 &lt;&lt; i);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findKOr(nums: number[], k: number): number {\n    const bitCounts: number[] = new Array(31).fill(0);\n    for (let num of nums) {\n        for (let i = 0; i &lt; 31; i++) {\n            if (num & (1 &lt;&lt; i)) {\n                bitCounts[i]++;\n            }\n        }\n    }\n    \n    let result = 0;\n    for (let i = 0; i &lt; 31; i++) {\n        if (bitCounts[i] &gt;= k) {\n            result |= (1 &lt;&lt; i);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(31 × n) where n is the length of nums
+- Space: O(31) for the bit counts array
+- Notes: Uses extra space but separates counting and result construction phases
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the K-or of an Array Solutions","datePublished":"2026-04-20","description":"Find the K-or of an array by checking each bit position and setting bits that appear in at least k elements.","keywords":"LeetCode, Find the K-or of an Array, Easy, Array, Bit Manipulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Bit-by-Bit Analysis approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(31 × n) where n is the length of nums, since we check each of 31 bit positions for every element."}},{"@type":"Question","name":"What is the space complexity of Pre-counting All Bits approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(31) for storing the bit counts array, which is constant space."}},{"@type":"Question","name":"Why do we only check 31 bit positions?","acceptedAnswer":{"@type":"Answer","text":"Since nums[i] ≤ 10⁹ &lt; 2³⁰, we only need to check bits 0 through 30 (31 positions total)."}}]}).replace(/</g,'\u003c')}
+</script>

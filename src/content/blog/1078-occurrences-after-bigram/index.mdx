@@ -1,0 +1,124 @@
+---
+title: "Occurrences After Bigram"
+summary: "Find all words that occur immediately after a given bigram (two consecutive words) in a text."
+date: "Apr 07, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 63.90% | **Paid:** No
+> **Topics:** String
+
+Given two strings first and second, consider occurrences in some text of values "first second third", where second comes immediately after first, and third comes immediately after second.
+
+For each such occurrence, add "third" to the answer, and return the answer.
+
+- Examples
+- Constraints
+- [Split and Iterate](#split-and-iterate)
+- [String Search](#string-search)
+- [Regular Expression](#regular-expression)
+
+## Examples
+
+```text
+Input: text = "alice is a good girl she is a good student", first = "a", second = "good"
+Output: ["girl","student"]
+Explanation: "a" comes before "good" and "girl" is the word after "good". Also "a" comes before "good" and "student" is the word after "good".
+```
+
+```text
+Input: text = "we will we will rock you", first = "we", second = "will"
+Output: ["we","rock"]
+```
+
+## Constraints
+
+```text
+1 <= text.length <= 100
+text consists of lowercase English letters and spaces.
+All the words in text are separated by a single space.
+1 <= first.length, second.length <= 10
+first and second consist of lowercase English letters.
+```
+
+---
+## Split and Iterate
+
+**Intuition**
+Split the text into words and iterate through them, checking if each consecutive pair matches the bigram.
+
+**Steps**
+- Split the text into an array of words
+- Iterate through words from index 0 to length-3
+- If current word equals first and next word equals second, add the word after to result
+- Return the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findOcurrences(self, text: str, first: str, second: str) -&gt; list[str]:\n        words = text.split()\n        result = []\n        for i in range(len(words) - 2):\n            if words[i] == first and words[i + 1] == second:\n                result.append(words[i + 2])\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String[] findOcurrences(String text, String first, String second) {\n        String[] words = text.split(\" \");\n        java.util.List&lt;String&gt; result = new java.util.ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; words.length - 2; i++) {\n            if (words[i].equals(first) && words[i + 1].equals(second)) {\n                result.add(words[i + 2]);\n            }\n        }\n        return result.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; findOcurrences(string text, string first, string second) {\n        vector&lt;string&gt; words;\n        string word;\n        stringstream ss(text);\n        while (ss &gt;&gt; word) {\n            words.push_back(word);\n        }\n        vector&lt;string&gt; result;\n        for (int i = 0; i &lt; (int)words.size() - 2; i++) {\n            if (words[i] == first && words[i + 1] == second) {\n                result.push_back(words[i + 2]);\n            }\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} text\n * @param {string} first\n * @param {string} second\n * @return {string[]}\n */\nvar findOcurrences = function(text, first, second) {\n    const words = text.split(' ');\n    const result = [];\n    for (let i = 0; i &lt; words.length - 2; i++) {\n        if (words[i] === first && words[i + 1] === second) {\n            result.push(words[i + 2]);\n        }\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findOcurrences(text: string, first: string, second: string): string[] {\n    const words = text.split(' ');\n    const result: string[] = [];\n    for (let i = 0; i &lt; words.length - 2; i++) {\n        if (words[i] === first && words[i + 1] === second) {\n            result.push(words[i + 2]);\n        }\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of words
+- Space: O(n) for storing the split words
+- Notes: Simple and readable, most commonly used approach
+
+---
+## String Search
+
+**Intuition**
+Search for the pattern "first second " in the text and extract the word immediately following each match.
+
+**Steps**
+- Build the search pattern by concatenating first, space, second, and space
+- Use string find/indexOf to locate all occurrences of the pattern
+- For each match, extract the word starting right after the pattern
+- Continue searching from the next position
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findOcurrences(self, text: str, first: str, second: str) -&gt; list[str]:\n        result = []\n        pattern = first + \" \" + second + \" \"\n        start = 0\n        while True:\n            idx = text.find(pattern, start)\n            if idx == -1:\n                break\n            word_start = idx + len(pattern)\n            word_end = word_start\n            while word_end &lt; len(text) and text[word_end] != ' ':\n                word_end += 1\n            result.append(text[word_start:word_end])\n            start = idx + 1\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String[] findOcurrences(String text, String first, String second) {\n        String pattern = first + \" \" + second + \" \";\n        java.util.List&lt;String&gt; result = new java.util.ArrayList&lt;&gt;();\n        int start = 0;\n        while (true) {\n            int idx = text.indexOf(pattern, start);\n            if (idx == -1) {\n                break;\n            }\n            int wordStart = idx + pattern.length();\n            int wordEnd = wordStart;\n            while (wordEnd &lt; text.length() && text.charAt(wordEnd) != ' ') {\n                wordEnd++;\n            }\n            result.add(text.substring(wordStart, wordEnd));\n            start = idx + 1;\n        }\n        return result.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;string&gt; findOcurrences(string text, string first, string second) {\n        string pattern = first + \" \" + second + \" \";\n        vector&lt;string&gt; result;\n        size_t start = 0;\n        while (true) {\n            size_t idx = text.find(pattern, start);\n            if (idx == string::npos) {\n                break;\n            }\n            size_t wordStart = idx + pattern.length();\n            size_t wordEnd = wordStart;\n            while (wordEnd &lt; text.length() && text[wordEnd] != ' ') {\n                wordEnd++;\n            }\n            result.push_back(text.substr(wordStart, wordEnd - wordStart));\n            start = idx + 1;\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} text\n * @param {string} first\n * @param {string} second\n * @return {string[]}\n */\nvar findOcurrences = function(text, first, second) {\n    const pattern = first + \" \" + second + \" \";\n    const result = [];\n    let start = 0;\n    while (true) {\n        const idx = text.indexOf(pattern, start);\n        if (idx === -1) {\n            break;\n        }\n        const wordStart = idx + pattern.length;\n        let wordEnd = wordStart;\n        while (wordEnd &lt; text.length && text[wordEnd] !== ' ') {\n            wordEnd++;\n        }\n        result.push(text.substring(wordStart, wordEnd));\n        start = idx + 1;\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findOcurrences(text: string, first: string, second: string): string[] {\n    const pattern = first + \" \" + second + \" \";\n    const result: string[] = [];\n    let start = 0;\n    while (true) {\n        const idx = text.indexOf(pattern, start);\n        if (idx === -1) {\n            break;\n        }\n        const wordStart = idx + pattern.length;\n        let wordEnd = wordStart;\n        while (wordEnd &lt; text.length && text[wordEnd] !== ' ') {\n            wordEnd++;\n        }\n        result.push(text.substring(wordStart, wordEnd));\n        start = idx + 1;\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n × m) where n is text length and m is pattern length
+- Space: O(k) where k is the number of matches
+- Notes: Avoids splitting entire string, useful for very large texts
+
+---
+## Regular Expression
+
+**Intuition**
+Use regex pattern matching to find all occurrences of "first second word" and capture the third word.
+
+**Steps**
+- Build a regex pattern that matches first, whitespace, second, whitespace, and captures the next word
+- Use regex findall/exec to get all matches
+- Extract the captured group from each match
+- Return the array of captured words
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def findOcurrences(self, text: str, first: str, second: str) -&gt; list[str]:\n        pattern = re.escape(first) + r'\\s+' + re.escape(second) + r'\\s+(\\w+)'\n        matches = re.findall(pattern, text)\n        return matches" },
+{ name: "Java", lang: "java", code: "import java.util.regex.*;\n\nclass Solution {\n    public String[] findOcurrences(String text, String first, String second) {\n        String patternStr = Pattern.quote(first) + \"\\\\s+\" + Pattern.quote(second) + \"\\\\s+(\\\\w+)\";\n        Pattern pattern = Pattern.compile(patternStr);\n        Matcher matcher = pattern.matcher(text);\n        java.util.List&lt;String&gt; result = new java.util.ArrayList&lt;&gt;();\n        while (matcher.find()) {\n            result.add(matcher.group(1));\n        }\n        return result.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; findOcurrences(string text, string first, string second) {\n        vector&lt;string&gt; result;\n        string patternStr = first + \" \" + second + \" (\\\\w+)\";\n        regex pattern(patternStr);\n        sregex_iterator it(text.begin(), text.end(), pattern);\n        sregex_iterator end;\n        while (it != end) {\n            smatch match = *it;\n            result.push_back(match[1].str());\n            ++it;\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} text\n * @param {string} first\n * @param {string} second\n * @return {string[]}\n */\nvar findOcurrences = function(text, first, second) {\n    const escapeRegex = (str) =&gt; str.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const pattern = new RegExp(escapeRegex(first) + \"\\\\s+\" + escapeRegex(second) + \"\\\\s+(\\\\w+)\", 'g');\n    const result = [];\n    let match;\n    while ((match = pattern.exec(text)) !== null) {\n        result.push(match[1]);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findOcurrences(text: string, first: string, second: string): string[] {\n    const escapeRegex = (str: string): string =&gt; str.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const pattern = new RegExp(escapeRegex(first) + \"\\\\s+\" + escapeRegex(second) + \"\\\\s+(\\\\w+)\", 'g');\n    const result: string[] = [];\n    let match: RegExpExecArray | null;\n    while ((match = pattern.exec(text)) !== null) {\n        result.push(match[1]);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the text length
+- Space: O(k) where k is the number of matches
+- Notes: Most concise solution, handles special characters in search terms
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Occurrences After Bigram Solutions","datePublished":"2024-04-07","description":"Find all words that occur immediately after a given bigram (two consecutive words) in a text.","keywords":"LeetCode, Occurrences After Bigram, Easy, String"}).replace(/</g,'<')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Split and Iterate approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of words in the text."}},{"@type":"Question","name":"What is the space complexity of the String Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(k) where k is the number of matches found in the text."}},{"@type":"Question","name":"Which approach is most recommended for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Split and Iterate approach is most recommended due to its simplicity, readability, and O(n) time complexity."}},{"@type":"Question","name":"What is the time complexity of the Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the text string."}},{"@type":"Question","name":"Does the String Search approach require splitting the entire text?","acceptedAnswer":{"@type":"Answer","text":"No, the String Search approach works directly on the text string without splitting, which can be beneficial for very large texts."}}]}).replace(/</g,'<')}
+</script>

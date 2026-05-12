@@ -1,0 +1,139 @@
+---
+title: "Keyboard Row"
+summary: "Given an array of words, return the words that can be typed using letters of the alphabet on only one row of an American keyboard."
+date: "Mar 27, 2026"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.80% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+Given an array of strings words, return the words that can be typed using letters of the alphabet on only one row of an American keyboard like the image below.
+
+In the American keyboard:
+
+- The first row consists of the characters "qwertyuiop",
+- The second row consists of the characters "asdfghjkl", and
+- The third row consists of the characters "zxcvbnm".
+
+- Examples
+- Constraints
+- [Approach 1: Hash Set](#approach-1-hash-set)
+- [Approach 2: Character Mapping](#approach-2-character-mapping)
+- [Approach 3: Regular Expression](#approach-3-regular-expression)
+
+## Examples
+
+```text
+Input: words = ["Hello","Alaska","Dad","Peace"]
+Output: ["Alaska","Dad"]
+Explanation:
+"Hello" cannot be typed since 'h' and 'e' are not in the same row.
+"Alaska" can be typed since all letters are in the second row.
+"Dad" can be typed since all letters are in the second row.
+"Peace" cannot be typed since 'p' is in the first row and 'e' is in the second row.
+```
+
+```text
+Input: words = ["omk"]
+Output: []
+```
+
+```text
+Input: words = ["adsdf","sfd"]
+Output: ["adsdf","sfd"]
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 20
+1 <= words[i].length <= 100
+words[i] consists of English letters (both lowercase and uppercase).
+```
+
+---
+## Approach 1: Hash Set
+
+**Intuition**
+We can store the characters of each keyboard row in a separate set. A word is valid if all its characters are contained within one of these sets.
+
+**Steps**
+- Initialize three sets containing the characters for the top, home, and bottom rows.
+- Iterate through each word in the input list.
+- Convert the word to lowercase to handle case insensitivity.
+- Check if the word is a subset of the first row, the second row, or the third row.
+- If it matches any row, add the original word to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findWords(self, words: list[str]) -&gt; list[str]:\n        row1 = set(\"qwertyuiop\")\n        row2 = set(\"asdfghjkl\")\n        row3 = set(\"zxcvbnm\")\n        res = []\n        for w in words:\n            lower_w = w.lower()\n            if all(c in row1 for c in lower_w) or all(c in row2 for c in lower_w) or all(c in row3 for c in lower_w):\n                res.append(w)\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] findWords(String[] words) {\n        Set&lt;Character&gt; row1 = new HashSet&lt;&gt;(Arrays.asList('q','w','e','r','t','y','u','i','o','p'));\n        Set&lt;Character&gt; row2 = new HashSet&lt;&gt;(Arrays.asList('a','s','d','f','g','h','j','k','l'));\n        Set&lt;Character&gt; row3 = new HashSet&lt;&gt;(Arrays.asList('z','x','c','v','b','n','m'));\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        \n        for (String word : words) {\n            String lower = word.toLowerCase();\n            boolean valid = false;\n            if (row1.contains(lower.charAt(0))) {\n                valid = true;\n                for (char c : lower.toCharArray()) if (!row1.contains(c)) { valid = false; break; }\n            } else if (row2.contains(lower.charAt(0))) {\n                valid = true;\n                for (char c : lower.toCharArray()) if (!row2.contains(c)) { valid = false; break; }\n            } else {\n                valid = true;\n                for (char c : lower.toCharArray()) if (!row3.contains(c)) { valid = false; break; }\n            }\n            if (valid) res.add(word);\n        }\n        return res.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n#include &lt;cctype&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; findWords(vector&lt;string&gt;& words) {\n        unordered_set&lt;char&gt; row1 = {'q','w','e','r','t','y','u','i','o','p'};\n        unordered_set&lt;char&gt; row2 = {'a','s','d','f','g','h','j','k','l'};\n        unordered_set&lt;char&gt; row3 = {'z','x','c','v','b','n','m'};\n        vector&lt;string&gt; res;\n        \n        for (string word : words) {\n            string lower = \"\";\n            for(char c : word) lower += tolower(c);\n            \n            bool valid = false;\n            if (row1.count(lower[0])) {\n                valid = true;\n                for(char c : lower) if (!row1.count(c)) { valid = false; break; }\n            } else if (row2.count(lower[0])) {\n                valid = true;\n                for(char c : lower) if (!row2.count(c)) { valid = false; break; }\n            } else {\n                valid = true;\n                for(char c : lower) if (!row3.count(c)) { valid = false; break; }\n            }\n            if (valid) res.push_back(word);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @return {string[]}\n */\nvar findWords = function(words) {\n    const row1 = new Set(['q','w','e','r','t','y','u','i','o','p']);\n    const row2 = new Set(['a','s','d','f','g','h','j','k','l']);\n    const row3 = new Set(['z','x','c','v','b','n','m']);\n    const res = [];\n    \n    for (let w of words) {\n        const lower = w.toLowerCase();\n        let valid = false;\n        if (row1.has(lower[0])) {\n            valid = true;\n            for (let c of lower) if (!row1.has(c)) { valid = false; break; }\n        } else if (row2.has(lower[0])) {\n            valid = true;\n            for (let c of lower) if (!row2.has(c)) { valid = false; break; }\n        } else {\n            valid = true;\n            for (let c of lower) if (!row3.has(c)) { valid = false; break; }\n        }\n        if (valid) res.push(w);\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findWords(words: string[]): string[] {\n    const row1 = new Set(['q','w','e','r','t','y','u','i','o','p']);\n    const row2 = new Set(['a','s','d','f','g','h','j','k','l']);\n    const row3 = new Set(['z','x','c','v','b','n','m']);\n    const res: string[] = [];\n    \n    for (let w of words) {\n        const lower = w.toLowerCase();\n        let valid = false;\n        if (row1.has(lower[0])) {\n            valid = true;\n            for (let c of lower) if (!row1.has(c)) { valid = false; break; }\n        } else if (row2.has(lower[0])) {\n            valid = true;\n            for (let c of lower) if (!row2.has(c)) { valid = false; break; }\n        } else {\n            valid = true;\n            for (let c of lower) if (!row3.has(c)) { valid = false; break; }\n        }\n        if (valid) res.push(w);\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of words and L is the average length of a word.
+- Space: O(1) auxiliary space (excluding the output list), as the sets are of fixed size (26).
+- Notes: This approach is intuitive and easy to implement. It requires checking membership in a set for every character.
+
+---
+## Approach 2: Character Mapping
+
+**Intuition**
+Instead of checking sets, we can map every character in the alphabet to its corresponding row index (0, 1, or 2). Then, for a word to be valid, all its characters must map to the same index.
+
+**Steps**
+- Create a map or array of size 26 to store the row index for each letter.
+- Iterate through the words.
+- For each word, determine the row index of its first character.
+- Check if all subsequent characters have the same row index.
+- If they do, add the word to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findWords(self, words: list[str]) -&gt; list[str]:\n        row_map = {}\n        for c in \"qwertyuiop\": row_map[c] = 1\n        for c in \"asdfghjkl\": row_map[c] = 2\n        for c in \"zxcvbnm\": row_map[c] = 3\n        res = []\n        for w in words:\n            lower_w = w.lower()\n            if len(set(row_map[c] for c in lower_w)) == 1:\n                res.append(w)\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] findWords(String[] words) {\n        String[] rows = {\"qwertyuiop\", \"asdfghjkl\", \"zxcvbnm\"};\n        Map&lt;Character, Integer&gt; map = new HashMap&lt;&gt;();\n        for (int i = 0; i &lt; rows.length; i++) {\n            for (char c : rows[i].toCharArray()) {\n                map.put(c, i);\n            }\n        }\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        for (String word : words) {\n            String lower = word.toLowerCase();\n            int row = map.get(lower.charAt(0));\n            boolean valid = true;\n            for (char c : lower.toCharArray()) {\n                if (map.get(c) != row) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) res.add(word);\n        }\n        return res.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;cctype&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; findWords(vector&lt;string&gt;& words) {\n        unordered_map&lt;char, int&gt; m;\n        string r1 = \"qwertyuiop\", r2 = \"asdfghjkl\", r3 = \"zxcvbnm\";\n        for (char c : r1) m[c] = 1;\n        for (char c : r2) m[c] = 2;\n        for (char c : r3) m[c] = 3;\n        vector&lt;string&gt; res;\n        \n        for (string word : words) {\n            int row = -1;\n            bool valid = true;\n            for (char c : word) {\n                char lower = tolower(c);\n                if (row == -1) row = m[lower];\n                else if (m[lower] != row) {\n                    valid = false;\n                    break;\n                }\n            }\n            if (valid) res.push_back(word);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @return {string[]}\n */\nvar findWords = function(words) {\n    const rows = [\"qwertyuiop\", \"asdfghjkl\", \"zxcvbnm\"];\n    const map = {};\n    rows.forEach((row, i) =&gt; {\n        for (let c of row) map[c] = i;\n    });\n    \n    return words.filter(word =&gt; {\n        const lower = word.toLowerCase();\n        const row = map[lower[0]];\n        for (let c of lower) {\n            if (map[c] !== row) return false;\n        }\n        return true;\n    });\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findWords(words: string[]): string[] {\n    const rows = [\"qwertyuiop\", \"asdfghjkl\", \"zxcvbnm\"];\n    const map: { [key: string]: number } = {};\n    rows.forEach((row, i) =&gt; {\n        for (let c of row) map[c] = i;\n    });\n    \n    return words.filter(word =&gt; {\n        const lower = word.toLowerCase();\n        const row = map[lower[0]];\n        for (let c of lower) {\n            if (map[c] !== row) return false;\n        }\n        return true;\n    });\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of words and L is the average length of a word.
+- Space: O(1) auxiliary space, as the map holds a constant 26 entries.
+- Notes: This is often slightly faster than the Hash Set approach because it involves a single lookup per character rather than potentially checking multiple sets.
+
+---
+## Approach 3: Regular Expression
+
+**Intuition**
+We can define a regular expression that matches strings composed exclusively of characters from one specific row. We can then test each word against this pattern.
+
+**Steps**
+- Construct a regex pattern that matches one or more characters from row 1, row 2, or row 3.
+- Iterate through the list of words.
+- For each word, check if it matches the pattern (case-insensitive).
+- Collect all words that match.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\nclass Solution:\n    def findWords(self, words: list[str]) -&gt; list[str]:\n        pattern = re.compile(r'(?i)([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)')\n        return [w for w in words if pattern.fullmatch(w)]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] findWords(String[] words) {\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        for (String word : words) {\n            if (word.toLowerCase().matches(\"([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)\")) {\n                res.add(word);\n            }\n        }\n        return res.toArray(new String[0]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;regex&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; findWords(vector&lt;string&gt;& words) {\n        vector&lt;string&gt; res;\n        regex e(\"([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)\", regex::icase);\n        for (string word : words) {\n            if (regex_match(word, e)) res.push_back(word);\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @return {string[]}\n */\nvar findWords = function(words) {\n    const regex = /^([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)$/i;\n    return words.filter(w =&gt; regex.test(w));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function findWords(words: string[]): string[] {\n    const regex = /^([qwertyuiop]+|[asdfghjkl]+|[zxcvbnm]+)$/i;\n    return words.filter(w =&gt; regex.test(w));\n}" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of words and L is the average length of a word.
+- Space: O(1) auxiliary space.
+- Notes: This approach is very concise and leverages built-in string processing capabilities, though regex compilation can have a small overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Keyboard Row Solutions","datePublished":"2026-03-27","description":"Given an array of words, return the words that can be typed using letters of the alphabet on only one row of an American keyboard.","keywords":"LeetCode, Keyboard Row, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of words and L is the average length of a word."}},{"@type":"Question","name":"How does the Character Mapping approach work?","acceptedAnswer":{"@type":"Answer","text":"It maps each character to a specific row index (0, 1, or 2). A word is valid if all its characters map to the same index."}},{"@type":"Question","name":"Can Regular Expressions be used to solve Keyboard Row?","acceptedAnswer":{"@type":"Answer","text":"Yes, a regex pattern can be constructed to match strings containing only characters from a single keyboard row."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,145 @@
+---
+title: "Count Pairs Whose Sum is Less than Target"
+summary: "Given an array of integers and a target, count the number of index pairs (i, j) where i &lt; j and the sum of the elements is less than the target."
+date: "Jul 18, 2024"
+tags:
+  - Array
+  - Two Pointers
+  - Binary Search
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.70% | **Paid:** No
+> **Topics:** Array, Two Pointers, Binary Search, Sorting
+
+Given a 0-indexed integer array `nums` of length `n` and an integer `target`, return the number of pairs `(i, j)` where `0 &lt;= i &lt; j &lt; n` and `nums[i] + nums[j] &lt; target`.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Sorting + Two Pointers](#sorting-two-pointers)
+- [Sorting + Binary Search](#sorting-binary-search)
+
+## Examples
+
+### Example 1:
+```text
+Input: nums = [-1,1,2,3,0], target = 2
+Output: 3
+Explanation: There are 3 pairs of indices that satisfy the conditions below:
+- (0, 1) -> 0 < 2
+- (0, 2) -> 1 < 2
+- (0, 4) -> -1 < 2
+Note that indices 2 and 4 are not valid because their sum is 3 which is not less than 2.
+```
+
+### Example 2:
+```text
+Input: nums = [-6,2,5,-2,-7,-1,3], target = -2
+Output: 10
+Explanation: There are 10 pairs of indices that satisfy the conditions below:
+- (0, 1) -> -4 < -2
+- (0, 3) -> -8 < -2
+- (0, 4) -> -13 < -2
+- (0, 5) -> -7 < -2
+- (0, 6) -> -3 < -2
+- (1, 3) -> 0 < -2
+- (1, 4) -> -5 < -2
+- (1, 5) -> 1 < -2
+- (3, 4) -> -9 < -2
+- (3, 5) -> -3 < -2
+```
+
+## Constraints
+
+```text
+2 <= nums.length == n <= 50
+-50 <= nums[i], target <= 50
+```
+
+---
+## Brute Force
+
+**Intuition**
+Iterate through every possible pair of indices in the array and check if their sum meets the condition.
+
+**Steps**
+- Initialize a counter to 0.
+- Use a nested loop where the outer loop runs from index `i` to `n-1` and the inner loop runs from `i+1` to `n-1`.
+- For each pair `(i, j)`, check if `nums[i] + nums[j] &lt; target`.
+- If true, increment the counter.
+- Return the counter.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countPairs(self, nums: List[int], target: int) -&gt; int:\n        count = 0\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if nums[i] + nums[j] &lt; target:\n                    count += 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.List;\n\nclass Solution {\n    public int countPairs(List&lt;Integer&gt; nums, int target) {\n        int count = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (nums.get(i) + nums.get(j) &lt; target) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countPairs(vector&lt;int&gt;& nums, int target) {\n        int count = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if (nums[i] + nums[j] &lt; target) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPairs(nums, target) {\n        let count = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                if (nums[i] + nums[j] &lt; target) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPairs(nums: number[], target: number): number {\n        let count = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                if (nums[i] + nums[j] &lt; target) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Simple to implement but inefficient for large arrays.
+
+---
+## Sorting + Two Pointers
+
+**Intuition**
+Sorting the array allows us to use the two-pointer technique. If the sum of the smallest and largest elements is less than the target, then all pairs involving the smallest element and any element up to the largest will also satisfy the condition.
+
+**Steps**
+- Sort the array in non-decreasing order.
+- Initialize two pointers, `left` at the start (0) and `right` at the end (n-1).
+- While `left &lt; right`:
+  - Calculate the sum of `nums[left]` and `nums[right]`.
+  - If the sum is less than `target`, it means all elements from `left+1` to `right` will also form a valid pair with `nums[left]` (since the array is sorted). Add `right - left` to the count and increment `left`.
+  - If the sum is greater than or equal to `target`, decrement `right` to try a smaller sum.
+- Return the total count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def countPairs(self, nums: List[int], target: int) -&gt; int:\n        nums.sort()\n        count = 0\n        left, right = 0, len(nums) - 1\n        while left &lt; right:\n            if nums[left] + nums[right] &lt; target:\n                count += right - left\n                left += 1\n            else:\n                right -= 1\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.Collections;\nimport java.util.List;\n\nclass Solution {\n    public int countPairs(List&lt;Integer&gt; nums, int target) {\n        Collections.sort(nums);\n        int count = 0;\n        int left = 0;\n        int right = nums.size() - 1;\n        while (left &lt; right) {\n            if (nums.get(left) + nums.get(right) &lt; target) {\n                count += right - left;\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countPairs(vector&lt;int&gt;& nums, int target) {\n        sort(nums.begin(), nums.end());\n        int count = 0;\n        int left = 0;\n        int right = nums.size() - 1;\n        while (left &lt; right) {\n            if (nums[left] + nums[right] &lt; target) {\n                count += right - left;\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPairs(nums, target) {\n        nums.sort((a, b) =&gt; a - b);\n        let count = 0;\n        let left = 0;\n        let right = nums.length - 1;\n        while (left &lt; right) {\n            if (nums[left] + nums[right] &lt; target) {\n                count += right - left;\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPairs(nums: number[], target: number): number {\n        nums.sort((a, b) =&gt; a - b);\n        let count = 0;\n        let left = 0;\n        let right = nums.length - 1;\n        while (left &lt; right) {\n            if (nums[left] + nums[right] &lt; target) {\n                count += right - left;\n                left++;\n            } else {\n                right--;\n            }\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting algorithm.
+- Notes: More efficient than brute force for larger inputs.
+
+---
+## Sorting + Binary Search
+
+**Intuition**
+After sorting, for each element `nums[i]`, we can find the largest element `nums[j]` (where `j &gt; i`) such that `nums[i] + nums[j] &lt; target`. Since the array is sorted, we can use binary search to find the boundary of valid values for `j`.
+
+**Steps**
+- Sort the array.
+- Initialize `count` to 0.
+- Iterate through the array with index `i` from `0` to `n-1`.
+- For each `i`, perform a binary search on the subarray `nums[i+1 ... n-1]` to find the first index `j` where `nums[i] + nums[j] &gt;= target`.
+- All indices from `i+1` to `j-1` satisfy the condition. Add `j - (i + 1)` to the count.
+- Return the count.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nimport bisect\n\nclass Solution:\n    def countPairs(self, nums: List[int], target: int) -&gt; int:\n        nums.sort()\n        count = 0\n        n = len(nums)\n        for i in range(n):\n            val = target - nums[i]\n            j = bisect.bisect_left(nums, val, i + 1)\n            count += j - (i + 1)\n        return count\n" },
+{ name: "Java", lang: "java", code: "import java.util.Collections;\nimport java.util.List;\n\nclass Solution {\n    public int countPairs(List&lt;Integer&gt; nums, int target) {\n        Collections.sort(nums);\n        int count = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            int val = target - nums.get(i);\n            int left = i + 1;\n            int right = n;\n            while (left &lt; right) {\n                int mid = left + (right - left) / 2;\n                if (nums.get(mid) &lt; val) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            count += left - (i + 1);\n        }\n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int countPairs(vector&lt;int&gt;& nums, int target) {\n        sort(nums.begin(), nums.end());\n        int count = 0;\n        int n = nums.size();\n        for (int i = 0; i &lt; n; i++) {\n            int val = target - nums[i];\n            auto it = lower_bound(nums.begin() + i + 1, nums.end(), val);\n            count += it - (nums.begin() + i + 1);\n        }\n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countPairs(nums, target) {\n        nums.sort((a, b) =&gt; a - b);\n        let count = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            const val = target - nums[i];\n            let left = i + 1;\n            let right = n;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; val) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            count += left - (i + 1);\n        }\n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countPairs(nums: number[], target: number): number {\n        nums.sort((a, b) =&gt; a - b);\n        let count = 0;\n        const n = nums.length;\n        for (let i = 0; i &lt; n; i++) {\n            const val = target - nums[i];\n            let left = i + 1;\n            let right = n;\n            while (left &lt; right) {\n                const mid = Math.floor((left + right) / 2);\n                if (nums[mid] &lt; val) {\n                    left = mid + 1;\n                } else {\n                    right = mid;\n                }\n            }\n            count += left - (i + 1);\n        }\n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1) or O(n) depending on the sorting algorithm.
+- Notes: Useful when you need to find specific boundaries or counts relative to a sorted array.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count Pairs Whose Sum is Less than Target Solutions","datePublished":"2024-07-18","description":"Given an array of integers and a target, count the number of index pairs (i, j) where i &lt; j and the sum of the elements is less than the target.","keywords":"LeetCode, Count Pairs Whose Sum is Less than Target, Easy, Array, Two Pointers, Binary Search, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the length of the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step. The two-pointer traversal itself is O(n)."}},{"@type":"Question","name":"What is the space complexity of the Sorting + Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) if we ignore the space required for sorting, or O(n) if the sorting algorithm uses extra space."}}]}).replace(/</g,'\u003c')}
+</script>

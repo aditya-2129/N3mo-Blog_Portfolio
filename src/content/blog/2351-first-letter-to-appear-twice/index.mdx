@@ -1,0 +1,384 @@
+---
+title: "First Letter to Appear Twice"
+summary: "Find the first letter that appears twice in a string of lowercase English letters."
+date: "Apr 30, 2025"
+tags:
+  - Hash Table
+  - String
+  - Bit Manipulation
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.00% | **Paid:** No
+> **Topics:** Hash Table, String, Bit Manipulation, Counting
+
+Given a string s consisting of lowercase English letters, return the first letter to appear twice.
+
+A letter a appears twice before another letter b if the second occurrence of a is before the second occurrence of b.
+s contains at least one letter that appears twice.
+
+- Examples
+- Constraints
+- [Hash Set Approach](#hash-set-approach)
+- [Boolean Array Approach](#boolean-array-approach)
+- [Bit Manipulation Approach](#bit-manipulation-approach)
+- [Brute Force Approach](#brute-force-approach)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: s = "abccbaacz"
+Output: "c"
+Explanation:
+The letter 'a' appears at indices 0, 5 and 6.
+The letter 'b' appears at indices 1 and 4.
+The letter 'c' appears at indices 2, 3 and 7.
+The letter 'z' appears at index 8.
+The letter 'c' is the first letter to appear twice, because the second 'c' appears at index 3 which is before the second 'a' at index 5 and the second 'b' at index 4.
+```
+
+**Example 2:**
+
+```text
+Input: s = "abcdd"
+Output: "d"
+Explanation:
+The only letter that appears twice is 'd' so we return 'd'.
+```
+
+## Constraints
+
+```text
+2 <= s.length <= 100
+s consists of lowercase English letters.
+s contains at least one letter that appears twice.
+```
+
+---
+## Hash Set Approach
+
+**Intuition**
+Use a hash set to track characters we've seen while iterating through the string. The first character already in the set is our answer.
+
+**Steps**
+- Create an empty hash set
+- Iterate through each character in the string
+- If the character is already in the set, return it
+- Otherwise, add the character to the set
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def repeatedCharacter(self, s: str) -> str:
+        seen = set()
+        for ch in s:
+            if ch in seen:
+                return ch
+            seen.add(ch)
+        return ""` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char repeatedCharacter(String s) {
+        Set<Character> seen = new HashSet&lt;&gt;();
+        for (int i = 0; i &lt; s.length(); i++) {
+            char ch = s.charAt(i);
+            if (seen.contains(ch)) {
+                return ch;
+            }
+            seen.add(ch);
+        }
+        return ' ';
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char repeatedCharacter(string s) {
+        unordered_set<char> seen;
+        for (char ch : s) {
+            if (seen.count(ch)) {
+                return ch;
+            }
+            seen.insert(ch);
+        }
+        return ' ';
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {character}
+ */
+var repeatedCharacter = function(s) {
+    const seen = new Set();
+    for (const ch of s) {
+        if (seen.has(ch)) {
+            return ch;
+        }
+        seen.add(ch);
+    }
+    return '';
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function repeatedCharacter(s: string): string {
+    const seen = new Set<string>();
+    for (const ch of s) {
+        if (seen.has(ch)) {
+            return ch;
+        }
+        seen.add(ch);
+    }
+    return '';
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) since we store at most 26 lowercase letters
+- Notes: Clean and readable solution with constant space due to limited character set
+
+---
+## Boolean Array Approach
+
+**Intuition**
+Since we only have lowercase English letters, we can use a fixed-size boolean array of 26 elements to track seen characters, which is more memory-efficient than a hash set.
+
+**Steps**
+- Create a boolean array of size 26 initialized to false
+- Iterate through each character in the string
+- Calculate the index using character's ASCII value (ch - 'a')
+- If the value at that index is true, return the character
+- Otherwise, set the value at that index to true
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def repeatedCharacter(self, s: str) -> str:
+        seen = [False] * 26
+        for ch in s:
+            idx = ord(ch) - ord('a')
+            if seen[idx]:
+                return ch
+            seen[idx] = True
+        return ""` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char repeatedCharacter(String s) {
+        boolean[] seen = new boolean[26];
+        for (int i = 0; i &lt; s.length(); i++) {
+            char ch = s.charAt(i);
+            int idx = ch - 'a';
+            if (seen[idx]) {
+                return ch;
+            }
+            seen[idx] = true;
+        }
+        return ' ';
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char repeatedCharacter(string s) {
+        bool seen[26] = {false};
+        for (char ch : s) {
+            int idx = ch - 'a';
+            if (seen[idx]) {
+                return ch;
+            }
+            seen[idx] = true;
+        }
+        return ' ';
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {character}
+ */
+var repeatedCharacter = function(s) {
+    const seen = new Array(26).fill(false);
+    for (const ch of s) {
+        const idx = ch.charCodeAt(0) - 'a'.charCodeAt(0);
+        if (seen[idx]) {
+            return ch;
+        }
+        seen[idx] = true;
+    }
+    return '';
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function repeatedCharacter(s: string): string {
+    const seen: boolean[] = new Array(26).fill(false);
+    for (const ch of s) {
+        const idx = ch.charCodeAt(0) - 'a'.charCodeAt(0);
+        if (seen[idx]) {
+            return ch;
+        }
+        seen[idx] = true;
+    }
+    return '';
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) with a fixed array of 26 booleans
+- Notes: More memory-efficient than hash set with direct index access
+
+---
+## Bit Manipulation Approach
+
+**Intuition**
+Use a single 32-bit integer as a bitset where each bit represents whether a character has been seen. This is the most space-efficient approach.
+
+**Steps**
+- Initialize an integer bitmask to 0
+- Iterate through each character in the string
+- Calculate the bit position using character's ASCII value
+- Check if the bit at that position is already set
+- If set, return the character
+- Otherwise, set the bit at that position
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def repeatedCharacter(self, s: str) -> str:
+        seen = 0
+        for ch in s:
+            bit = 1 &lt;&lt; (ord(ch) - ord('a'))
+            if seen & bit:
+                return ch
+            seen |= bit
+        return ""` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char repeatedCharacter(String s) {
+        int seen = 0;
+        for (int i = 0; i &lt; s.length(); i++) {
+            char ch = s.charAt(i);
+            int bit = 1 &lt;&lt; (ch - 'a');
+            if ((seen & bit) != 0) {
+                return ch;
+            }
+            seen |= bit;
+        }
+        return ' ';
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char repeatedCharacter(string s) {
+        int seen = 0;
+        for (char ch : s) {
+            int bit = 1 &lt;&lt; (ch - 'a');
+            if (seen & bit) {
+                return ch;
+            }
+            seen |= bit;
+        }
+        return ' ';
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {character}
+ */
+var repeatedCharacter = function(s) {
+    let seen = 0;
+    for (const ch of s) {
+        const bit = 1 &lt;&lt; (ch.charCodeAt(0) - 'a'.charCodeAt(0));
+        if (seen & bit) {
+            return ch;
+        }
+        seen |= bit;
+    }
+    return '';
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function repeatedCharacter(s: string): string {
+    let seen: number = 0;
+    for (const ch of s) {
+        const bit = 1 &lt;&lt; (ch.charCodeAt(0) - 'a'.charCodeAt(0));
+        if (seen & bit) {
+            return ch;
+        }
+        seen |= bit;
+    }
+    return '';
+}` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(1) using only a single integer
+- Notes: Most space-efficient solution with bitwise operations
+
+---
+## Brute Force Approach
+
+**Intuition**
+For each character, check if it appears again later in the string. The first character with a duplicate is our answer.
+
+**Steps**
+- Iterate through each character in the string
+- For each character, check if it appears in the remaining substring
+- If found, return that character
+- Continue until we find the first duplicate
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def repeatedCharacter(self, s: str) -> str:
+        for i in range(len(s)):
+            for j in range(i + 1, len(s)):
+                if s[i] == s[j]:
+                    return s[i]
+        return ""` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public char repeatedCharacter(String s) {
+        for (int i = 0; i &lt; s.length(); i++) {
+            for (int j = i + 1; j &lt; s.length(); j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    return s.charAt(i);
+                }
+            }
+        }
+        return ' ';
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    char repeatedCharacter(string s) {
+        for (int i = 0; i &lt; s.length(); i++) {
+            for (int j = i + 1; j &lt; s.length(); j++) {
+                if (s[i] == s[j]) {
+                    return s[i];
+                }
+            }
+        }
+        return ' ';
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} s
+ * @return {character}
+ */
+var repeatedCharacter = function(s) {
+    for (let i = 0; i &lt; s.length; i++) {
+        for (let j = i + 1; j &lt; s.length; j++) {
+            if (s[i] === s[j]) {
+                return s[i];
+            }
+        }
+    }
+    return '';
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function repeatedCharacter(s: string): string {
+    for (let i = 0; i &lt; s.length; i++) {
+        for (let j = i + 1; j &lt; s.length; j++) {
+            if (s[i] === s[j]) {
+                return s[i];
+            }
+        }
+    }
+    return '';
+}` },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the string
+- Space: O(1) no additional data structures used
+- Notes: Simple but inefficient for larger inputs, useful for understanding the problem
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode First Letter to Appear Twice Solutions","datePublished":"2025-04-30","description":"Find the first letter that appears twice in a string of lowercase English letters.","keywords":"LeetCode, First Letter to Appear Twice, Easy, Hash Table, String, Bit Manipulation, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Set approach has a time complexity of O(n) where n is the length of the string, as we iterate through the string once and each set operation is O(1) on average."}},{"@type":"Question","name":"What is the space complexity of the Bit Manipulation approach?","acceptedAnswer":{"@type":"Answer","text":"The Bit Manipulation approach has a space complexity of O(1) as it uses only a single 32-bit integer to track seen characters."}},{"@type":"Question","name":"Why is the Brute Force approach less efficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) because for each character, we potentially scan the entire remaining string to find a duplicate."}},{"@type":"Question","name":"What is the most space-efficient solution?","acceptedAnswer":{"@type":"Answer","text":"The Bit Manipulation approach is the most space-efficient, using only a single integer (32 bits) to track all 26 lowercase letters."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,133 @@
+---
+title: "Isomorphic Strings"
+summary: "Check if two strings are isomorphic by replacing characters in one string to form the other."
+date: "Mar 20, 2025"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.30% | **Paid:** No
+> **Topics:** Hash Table, String
+
+Given two strings s and t, determine if they are isomorphic.
+
+Two strings s and t are isomorphic if the characters in s can be replaced to get t.
+
+All occurrences of a character must be replaced with another character while preserving the order of characters. No two characters may map to the same character, but a character may map to itself.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Two Hash Maps](#two-hash-maps)
+- [Array Mapping](#array-mapping)
+
+## Examples
+
+```text
+Input: s = "egg", t = "add"
+Output: true
+```
+
+```text
+Input: s = "foo", t = "bar"
+Output: false
+```
+
+```text
+Input: s = "paper", t = "title"
+Output: true
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 5 * 10⁴
+t.length == s.length
+s and t consist of any valid ascii character.
+```
+
+---
+## Brute Force
+
+**Intuition**
+For every character in the string `s`, we check all previous characters to ensure the mapping to `t` is consistent and unique.
+
+**Steps**
+- Iterate through the strings from left to right.
+- For each index `i`, check all previous indices `j` from `0` to `i-1`.
+- If `s[i]` is equal to `s[j]`, then `t[i]` must be equal to `t[j]`.
+- If `s[i]` is not equal to `s[j]`, then `t[i]` must not be equal to `t[j]`.
+- If any condition fails, return false. If the loop finishes, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isIsomorphic(self, s: str, t: str) -&gt; bool:\n        n = len(s)\n        for i in range(n):\n            for j in range(i):\n                if s[i] == s[j] and t[i] != t[j]:\n                    return False\n                if s[i] != s[j] and t[i] == t[j]:\n                    return False\n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isIsomorphic(String s, String t) {\n        int n = s.length();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; i; j++) {\n                if (s.charAt(i) == s.charAt(j) && t.charAt(i) != t.charAt(j)) {\n                    return false;\n                }\n                if (s.charAt(i) != s.charAt(j) && t.charAt(i) == t.charAt(j)) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool isIsomorphic(string s, string t) {\n        int n = s.length();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; i; j++) {\n                if (s[i] == s[j] && t[i] != t[j]) return false;\n                if (s[i] != s[j] && t[i] == t[j]) return false;\n            }\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isIsomorphic = function(s, t) {\n    const n = s.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; i; j++) {\n            if (s[i] === s[j] && t[i] !== t[j]) return false;\n            if (s[i] !== s[j] && t[i] === t[j]) return false;\n        }\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isIsomorphic(s: string, t: string): boolean {\n    const n = s.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; i; j++) {\n            if (s[i] === s[j] && t[i] !== t[j]) return false;\n            if (s[i] !== s[j] && t[i] === t[j]) return false;\n        }\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the length of the string.
+- Space: O(1)
+- Notes: This approach is inefficient for large inputs but demonstrates the logic clearly.
+
+---
+## Two Hash Maps
+
+**Intuition**
+We use two hash maps (dictionaries) to store the mapping from characters of `s` to `t` and from `t` to `s`. This ensures a one-to-one relationship.
+
+**Steps**
+- Create two empty dictionaries: `mapST` and `mapTS`.
+- Iterate through the strings simultaneously.
+- If the character `s[i]` is in `mapST`, check if it maps to `t[i]`. If not, return false.
+- If the character `t[i]` is in `mapTS`, check if it maps to `s[i]`. If not, return false.
+- If neither is present, record the mappings `s[i] -> t[i]` and `t[i] -> s[i]`.
+- If the loop completes, return true.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isIsomorphic(self, s: str, t: str) -&gt; bool:\n        map_st = {}\n        map_ts = {}\n        \n        for c1, c2 in zip(s, t):\n            if c1 in map_st:\n                if map_st[c1] != c2:\n                    return False\n            else:\n                map_st[c1] = c2\n            \n            if c2 in map_ts:\n                if map_ts[c2] != c1:\n                    return False\n            else:\n                map_ts[c2] = c1\n                \n        return True\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public boolean isIsomorphic(String s, String t) {\n        Map&lt;Character, Character&gt; mapST = new HashMap&lt;&gt;();\n        Map&lt;Character, Character&gt; mapTS = new HashMap&lt;&gt;();\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            char c1 = s.charAt(i);\n            char c2 = t.charAt(i);\n            \n            if (mapST.containsKey(c1)) {\n                if (mapST.get(c1) != c2) return false;\n            } else {\n                mapST.put(c1, c2);\n            }\n            \n            if (mapTS.containsKey(c2)) {\n                if (mapTS.get(c2) != c1) return false;\n            } else {\n                mapTS.put(c2, c1);\n            }\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;unordered_map&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isIsomorphic(string s, string t) {\n        unordered_map&lt;char, char&gt; mapST;\n        unordered_map&lt;char, char&gt; mapTS;\n        \n        for (int i = 0; i &lt; s.size(); i++) {\n            char c1 = s[i];\n            char c2 = t[i];\n            \n            if (mapST.count(c1)) {\n                if (mapST[c1] != c2) return false;\n            } else {\n                mapST[c1] = c2;\n            }\n            \n            if (mapTS.count(c2)) {\n                if (mapTS[c2] != c1) return false;\n            } else {\n                mapTS[c2] = c1;\n            }\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isIsomorphic = function(s, t) {\n    const mapST = new Map();\n    const mapTS = new Map();\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const c1 = s[i];\n        const c2 = t[i];\n        \n        if (mapST.has(c1)) {\n            if (mapST.get(c1) !== c2) return false;\n        } else {\n            mapST.set(c1, c2);\n        }\n        \n        if (mapTS.has(c2)) {\n            if (mapTS.get(c2) !== c1) return false;\n        } else {\n            mapTS.set(c2, c1);\n        }\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isIsomorphic(s: string, t: string): boolean {\n    const mapST = new Map&lt;string, string&gt;();\n    const mapTS = new Map&lt;string, string&gt;();\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const c1 = s[i];\n        const c2 = t[i];\n        \n        if (mapST.has(c1)) {\n            if (mapST.get(c1) !== c2) return false;\n        } else {\n            mapST.set(c1, c2);\n        }\n        \n        if (mapTS.has(c2)) {\n            if (mapTS.get(c2) !== c1) return false;\n        } else {\n            mapTS.set(c2, c1);\n        }\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string.
+- Space: O(1) because the character set is fixed (ASCII), though technically O(k) where k is the size of the character set.
+- Notes: This is the standard optimal solution for general cases.
+
+---
+## Array Mapping
+
+**Intuition**
+Since the problem states strings consist of valid ASCII characters, we can use fixed-size arrays (size 256 or 128) instead of hash maps. This reduces overhead and improves performance.
+
+**Steps**
+- Initialize two integer arrays of size 256 (for extended ASCII) with a default value (e.g., -1 or 0).
+- Iterate through the strings.
+- Check if the mapping stored at the ASCII value of `s[i]` matches the ASCII value of `t[i]`.
+- Check if the reverse mapping stored at the ASCII value of `t[i]` matches the ASCII value of `s[i]`.
+- Update the arrays with the current mappings.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isIsomorphic(self, s: str, t: str) -&gt; bool:\n        # Using lists of size 256 for extended ASCII\n        map_st = [-1] * 256\n        map_ts = [-1] * 256\n        \n        for i in range(len(s)):\n            c1 = ord(s[i])\n            c2 = ord(t[i])\n            \n            if map_st[c1] != -1 and map_st[c1] != c2:\n                return False\n            if map_ts[c2] != -1 and map_ts[c2] != c1:\n                return False\n                \n            map_st[c1] = c2\n            map_ts[c2] = c1\n            \n        return True\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean isIsomorphic(String s, String t) {\n        int[] mapST = new int[256];\n        int[] mapTS = new int[256];\n        // Initialize with -1 to indicate no mapping\n        for(int i = 0; i &lt; 256; i++) {\n            mapST[i] = -1;\n            mapTS[i] = -1;\n        }\n        \n        for (int i = 0; i &lt; s.length(); i++) {\n            int c1 = s.charAt(i);\n            int c2 = t.charAt(i);\n            \n            if (mapST[c1] != -1 && mapST[c1] != c2) return false;\n            if (mapTS[c2] != -1 && mapTS[c2] != c1) return false;\n            \n            mapST[c1] = c2;\n            mapTS[c2] = c1;\n        }\n        return true;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isIsomorphic(string s, string t) {\n        vector&lt;int&gt; mapST(256, -1);\n        vector&lt;int&gt; mapTS(256, -1);\n        \n        for (int i = 0; i &lt; s.size(); i++) {\n            unsigned char c1 = s[i];\n            unsigned char c2 = t[i];\n            \n            if (mapST[c1] != -1 && mapST[c1] != c2) return false;\n            if (mapTS[c2] != -1 && mapTS[c2] != c1) return false;\n            \n            mapST[c1] = c2;\n            mapTS[c2] = c1;\n        }\n        return true;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nvar isIsomorphic = function(s, t) {\n    const mapST = new Array(256).fill(-1);\n    const mapTS = new Array(256).fill(-1);\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const c1 = s.charCodeAt(i);\n        const c2 = t.charCodeAt(i);\n        \n        if (mapST[c1] !== -1 && mapST[c1] !== c2) return false;\n        if (mapTS[c2] !== -1 && mapTS[c2] !== c1) return false;\n        \n        mapST[c1] = c2;\n        mapTS[c2] = c1;\n    }\n    return true;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function isIsomorphic(s: string, t: string): boolean {\n    const mapST = new Array(256).fill(-1);\n    const mapTS = new Array(256).fill(-1);\n    \n    for (let i = 0; i &lt; s.length; i++) {\n        const c1 = s.charCodeAt(i);\n        const c2 = t.charCodeAt(i);\n        \n        if (mapST[c1] !== -1 && mapST[c1] !== c2) return false;\n        if (mapTS[c2] !== -1 && mapTS[c2] !== c1) return false;\n        \n        mapST[c1] = c2;\n        mapTS[c2] = c1;\n    }\n    return true;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string.
+- Space: O(1) as the array size is fixed regardless of input size.
+- Notes: This is often the fastest solution in practice due to cache locality and lack of hashing overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Isomorphic Strings Solutions","datePublished":"2025-03-20","description":"Check if two strings are isomorphic by replacing characters in one string to form the other.","keywords":"LeetCode, Isomorphic Strings, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Brute Force approach is O(n²), where n is the length of the string."}},{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity of the Hash Map approach is O(n), as we iterate through the string once and perform O(1) lookups."}},{"@type":"Question","name":"What is the space complexity of the Array Mapping approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we use fixed-size arrays (typically 256) regardless of the input string length."}}]}).replace(/</g,'\u003c')}
+</script>

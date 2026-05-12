@@ -1,0 +1,156 @@
+---
+title: "Count the Number of Incremovable Subarrays I"
+summary: "Count subarrays whose removal results in a strictly increasing array."
+date: "Mar 30, 2026"
+tags:
+  - Array
+  - Two Pointers
+  - Binary Search
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 56.50% | **Paid:** No
+> **Topics:** Array, Two Pointers, Binary Search, Enumeration
+
+You are given a 0-indexed array nums of length n.
+
+A subarray is called incremovable if removing it makes the remaining elements strictly increasing.
+
+Return the number of incremovable subarrays of nums.
+
+A subarray is a contiguous non-empty sequence of elements within the array.
+
+## Table of Contents
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Prefix-Suffix with Binary Search](#prefix-suffix-with-binary-search)
+- [Two Pointers](#two-pointers)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [1,2,3,4]
+Output: 10
+Explanation: All 10 subarrays are incremovable.
+```
+
+**Example 2:**
+
+```text
+Input: nums = [6,5,7,8]
+Output: 7
+Explanation: The 7 incremovable subarrays are:
+- [5,7,8]
+- [6,5,7,8]
+- [6,5,7]
+- [6,5]
+- [5]
+- [7]
+- [8]
+```
+
+**Example 3:**
+
+```text
+Input: nums = [8,7,6,6]
+Output: 3
+Explanation: The 3 incremovable subarrays are:
+- [8,7,6]
+- [7]
+- [8]
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 50
+1 <= nums[i] <= 50
+```
+
+---
+
+## Brute Force
+
+**Intuition**
+For each possible subarray, remove it and check if the remaining elements form a strictly increasing sequence.
+
+**Steps**
+- Iterate over all possible starting indices l
+- For each l, iterate over all possible ending indices r (r &gt;= l)
+- For each subarray [l, r], check if the remaining elements are strictly increasing
+- Count all valid subarrays
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def incremovableSubarrayCount(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        count = 0\n        \n        for l in range(n):\n            for r in range(l, n):\n                valid = True\n                prev = None\n                for i in range(n):\n                    if l &lt;= i &lt;= r:\n                        continue\n                    if prev is not None and nums[i] &lt;= prev:\n                        valid = False\n                        break\n                    prev = nums[i]\n                if valid:\n                    count += 1\n        \n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int incremovableSubarrayCount(int[] nums) {\n        int n = nums.length;\n        int count = 0;\n        \n        for (int l = 0; l &lt; n; l++) {\n            for (int r = l; r &lt; n; r++) {\n                boolean valid = true;\n                Integer prev = null;\n                for (int i = 0; i &lt; n; i++) {\n                    if (l &lt;= i && i &lt;= r) {\n                        continue;\n                    }\n                    if (prev != null && nums[i] &lt;= prev) {\n                        valid = false;\n                        break;\n                    }\n                    prev = nums[i];\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        \n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int incremovableSubarrayCount(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int count = 0;\n        \n        for (int l = 0; l &lt; n; l++) {\n            for (int r = l; r &lt; n; r++) {\n                bool valid = true;\n                int prev = INT_MIN;\n                for (int i = 0; i &lt; n; i++) {\n                    if (l &lt;= i && i &lt;= r) {\n                        continue;\n                    }\n                    if (nums[i] &lt;= prev) {\n                        valid = false;\n                        break;\n                    }\n                    prev = nums[i];\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        \n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    incremovableSubarrayCount(nums) {\n        const n = nums.length;\n        let count = 0;\n        \n        for (let l = 0; l &lt; n; l++) {\n            for (let r = l; r &lt; n; r++) {\n                let valid = true;\n                let prev = null;\n                for (let i = 0; i &lt; n; i++) {\n                    if (l &lt;= i && i &lt;= r) {\n                        continue;\n                    }\n                    if (prev !== null && nums[i] &lt;= prev) {\n                        valid = false;\n                        break;\n                    }\n                    prev = nums[i];\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        \n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    incremovableSubarrayCount(nums: number[]): number {\n        const n = nums.length;\n        let count = 0;\n        \n        for (let l = 0; l &lt; n; l++) {\n            for (let r = l; r &lt; n; r++) {\n                let valid = true;\n                let prev: number | null = null;\n                for (let i = 0; i &lt; n; i++) {\n                    if (l &lt;= i && i &lt;= r) {\n                        continue;\n                    }\n                    if (prev !== null && nums[i] &lt;= prev) {\n                        valid = false;\n                        break;\n                    }\n                    prev = nums[i];\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        \n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n³)
+- Space: O(1)
+- Notes: Simple but inefficient for larger arrays. Works well for the given constraints (n ≤ 50).
+
+---
+
+## Prefix-Suffix with Binary Search
+
+**Intuition**
+Precompute the longest strictly increasing prefix and suffix. For each valid prefix ending position, use binary search to find compatible suffix starting positions.
+
+**Steps**
+- Find the longest strictly increasing prefix (index `left`)
+- Find the longest strictly increasing suffix (starting index `right`)
+- Handle special case where entire array is strictly increasing
+- Count subarrays starting from index 0
+- For each valid prefix ending position, use binary search to count valid suffix combinations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from bisect import bisect_right\nfrom typing import List\n\nclass Solution:\n    def incremovableSubarrayCount(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        \n        left = 0\n        while left &lt; n - 1 and nums[left] &lt; nums[left + 1]:\n            left += 1\n        \n        if left == n - 1:\n            return n * (n + 1) // 2\n        \n        right = n - 1\n        while right &gt; 0 and nums[right - 1] &lt; nums[right]:\n            right -= 1\n        \n        count = n - (right - 1)\n        \n        for l in range(1, left + 2):\n            count += 1\n            lo = bisect_right(nums, nums[l - 1], right, n)\n            count += n - lo\n        \n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int incremovableSubarrayCount(int[] nums) {\n        int n = nums.length;\n        \n        int left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left == n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        int right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        int count = n - (right - 1);\n        \n        for (int l = 1; l &lt;= left + 1; l++) {\n            count++;\n            int lo = binarySearch(nums, nums[l - 1], right, n);\n            count += n - lo;\n        }\n        \n        return count;\n    }\n    \n    private int binarySearch(int[] nums, int target, int left, int right) {\n        while (left &lt; right) {\n            int mid = left + (right - left) / 2;\n            if (nums[mid] &gt; target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int incremovableSubarrayCount(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        \n        int left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left == n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        int right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        int count = n - (right - 1);\n        \n        for (int l = 1; l &lt;= left + 1; l++) {\n            count++;\n            int lo = upper_bound(nums.begin() + right, nums.end(), nums[l - 1]) - nums.begin();\n            count += n - lo;\n        }\n        \n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    incremovableSubarrayCount(nums) {\n        const n = nums.length;\n        \n        let left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left === n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        let right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        let count = n - (right - 1);\n        \n        for (let l = 1; l &lt;= left + 1; l++) {\n            count++;\n            let lo = this.binarySearch(nums, nums[l - 1], right, n);\n            count += n - lo;\n        }\n        \n        return count;\n    }\n    \n    binarySearch(nums, target, left, right) {\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (nums[mid] &gt; target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    incremovableSubarrayCount(nums: number[]): number {\n        const n = nums.length;\n        \n        let left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left === n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        let right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        let count = n - (right - 1);\n        \n        for (let l = 1; l &lt;= left + 1; l++) {\n            count++;\n            let lo = this.binarySearch(nums, nums[l - 1], right, n);\n            count += n - lo;\n        }\n        \n        return count;\n    }\n    \n    binarySearch(nums: number[], target: number, left: number, right: number): number {\n        while (left &lt; right) {\n            const mid = Math.floor((left + right) / 2);\n            if (nums[mid] &gt; target) {\n                right = mid;\n            } else {\n                left = mid + 1;\n            }\n        }\n        return left;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(1)
+- Notes: More efficient than brute force. Binary search leverages the sorted nature of the suffix.
+
+---
+
+## Two Pointers
+
+**Intuition**
+Since both the prefix and suffix are strictly increasing, we can use two pointers instead of binary search. As we move through the prefix, the suffix pointer only moves forward.
+
+**Steps**
+- Find the longest strictly increasing prefix and suffix
+- Handle the special case where the entire array is strictly increasing
+- Count subarrays starting from index 0
+- Use two pointers: iterate through valid prefix endings while advancing the suffix pointer to find compatible starting positions
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def incremovableSubarrayCount(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        \n        left = 0\n        while left &lt; n - 1 and nums[left] &lt; nums[left + 1]:\n            left += 1\n        \n        if left == n - 1:\n            return n * (n + 1) // 2\n        \n        right = n - 1\n        while right &gt; 0 and nums[right - 1] &lt; nums[right]:\n            right -= 1\n        \n        count = n - (right - 1)\n        \n        j = right\n        for l in range(1, left + 2):\n            count += 1\n            while j &lt; n and nums[j] &lt;= nums[l - 1]:\n                j += 1\n            count += n - j\n        \n        return count\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int incremovableSubarrayCount(int[] nums) {\n        int n = nums.length;\n        \n        int left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left == n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        int right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        int count = n - (right - 1);\n        \n        int j = right;\n        for (int l = 1; l &lt;= left + 1; l++) {\n            count++;\n            while (j &lt; n && nums[j] &lt;= nums[l - 1]) {\n                j++;\n            }\n            count += n - j;\n        }\n        \n        return count;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int incremovableSubarrayCount(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        \n        int left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left == n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        int right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        int count = n - (right - 1);\n        \n        int j = right;\n        for (int l = 1; l &lt;= left + 1; l++) {\n            count++;\n            while (j &lt; n && nums[j] &lt;= nums[l - 1]) {\n                j++;\n            }\n            count += n - j;\n        }\n        \n        return count;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    incremovableSubarrayCount(nums) {\n        const n = nums.length;\n        \n        let left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left === n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        let right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        let count = n - (right - 1);\n        \n        let j = right;\n        for (let l = 1; l &lt;= left + 1; l++) {\n            count++;\n            while (j &lt; n && nums[j] &lt;= nums[l - 1]) {\n                j++;\n            }\n            count += n - j;\n        }\n        \n        return count;\n    }\n}\n" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    incremovableSubarrayCount(nums: number[]): number {\n        const n = nums.length;\n        \n        let left = 0;\n        while (left &lt; n - 1 && nums[left] &lt; nums[left + 1]) {\n            left++;\n        }\n        \n        if (left === n - 1) {\n            return n * (n + 1) / 2;\n        }\n        \n        let right = n - 1;\n        while (right &gt; 0 && nums[right - 1] &lt; nums[right]) {\n            right--;\n        }\n        \n        let count = n - (right - 1);\n        \n        let j = right;\n        for (let l = 1; l &lt;= left + 1; l++) {\n            count++;\n            while (j &lt; n && nums[j] &lt;= nums[l - 1]) {\n                j++;\n            }\n            count += n - j;\n        }\n        \n        return count;\n    }\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution. The two pointers technique eliminates the need for binary search since both sequences are sorted.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Count the Number of Incremovable Subarrays I Solutions","datePublished":"2026-03-30","description":"Count subarrays whose removal results in a strictly increasing array.","keywords":"LeetCode, Count the Number of Incremovable Subarrays I, Easy, Array, Two Pointers, Binary Search, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n³) - We iterate through O(n²) subarrays and check each in O(n) time."}},{"@type":"Question","name":"What is the time complexity of the Prefix-Suffix with Binary Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(n log n) - We use binary search for each of the O(n) prefix positions."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) - Both pointers move at most n times total."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) - All approaches use constant extra space."}}]}).replace(/</g,'\u003c')}
+</script>

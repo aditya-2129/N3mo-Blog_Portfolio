@@ -1,0 +1,105 @@
+---
+title: "Diameter of Binary Tree"
+summary: "Find the length of the longest path between any two nodes in a binary tree."
+date: "May 12, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.50% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Tree
+
+Given the root of a binary tree, return the length of the diameter of the tree.
+
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+The length of a path between two nodes is represented by the number of edges between them.
+
+- Examples
+- Constraints
+- [Brute Force DFS](#brute-force-dfs)
+- [Optimized DFS](#optimized-dfs)
+
+## Examples
+
+```text
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+```
+
+```text
+Input: root = [1,2]
+Output: 1
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 10⁴].
+-100 <= Node.val <= 100
+```
+
+---
+## Brute Force DFS
+
+**Intuition**
+For every node, the longest path passing through it is the sum of the heights of its left and right subtrees. We can iterate through every node, calculate the height of its left and right children, and track the maximum sum found.
+
+**Steps**
+- Define a helper function `height(node)` that returns the maximum depth of a tree rooted at `node`.
+- Traverse the tree using DFS.
+- For each node visited, calculate the potential diameter passing through it as `height(node.left) + height(node.right)`.
+- Update a global maximum diameter variable if this sum is greater than the current maximum.
+- Return the global maximum after traversal completes.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -&gt; int:\n        def height(node):\n            if not node:\n                return 0\n            return 1 + max(height(node.left), height(node.right))\n        \n        self.diameter = 0\n        \n        def dfs(node):\n            if not node:\n                return\n            left_h = height(node.left)\n            right_h = height(node.right)\n            self.diameter = max(self.diameter, left_h + right_h)\n            dfs(node.left)\n            dfs(node.right)\n            \n        dfs(root)\n        return self.diameter" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private int diameter = 0;\n    \n    public int diameterOfBinaryTree(TreeNode root) {\n        dfs(root);\n        return diameter;\n    }\n    \n    private void dfs(TreeNode node) {\n        if (node == null) return;\n        \n        int leftHeight = height(node.left);\n        int rightHeight = height(node.right);\n        \n        diameter = Math.max(diameter, leftHeight + rightHeight);\n        \n        dfs(node.left);\n        dfs(node.right);\n    }\n    \n    private int height(TreeNode node) {\n        if (node == null) return 0;\n        return 1 + Math.max(height(node.left), height(node.right));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int diameter = 0;\n    \n    int diameterOfBinaryTree(TreeNode* root) {\n        dfs(root);\n        return diameter;\n    }\n    \n    void dfs(TreeNode* node) {\n        if (!node) return;\n        \n        int leftH = height(node-&gt;left);\n        int rightH = height(node-&gt;right);\n        \n        diameter = max(diameter, leftH + rightH);\n        \n        dfs(node-&gt;left);\n        dfs(node-&gt;right);\n    }\n    \n    int height(TreeNode* node) {\n        if (!node) return 0;\n        return 1 + max(height(node-&gt;left), height(node-&gt;right));\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var diameterOfBinaryTree = function(root) {\n    let diameter = 0;\n    \n    const height = (node) =&gt; {\n        if (!node) return 0;\n        return 1 + Math.max(height(node.left), height(node.right));\n    };\n    \n    const dfs = (node) =&gt; {\n        if (!node) return;\n        const leftH = height(node.left);\n        const rightH = height(node.right);\n        diameter = Math.max(diameter, leftH + rightH);\n        dfs(node.left);\n        dfs(node.right);\n    };\n    \n    dfs(root);\n    return diameter;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function diameterOfBinaryTree(root: TreeNode | null): number {\n    let diameter = 0;\n    \n    const height = (node: TreeNode | null): number =&gt; {\n        if (!node) return 0;\n        return 1 + Math.max(height(node.left), height(node.right));\n    };\n    \n    const dfs = (node: TreeNode | null): void =&gt; {\n        if (!node) return;\n        const leftH = height(node.left);\n        const rightH = height(node.right);\n        diameter = Math.max(diameter, leftH + rightH);\n        dfs(node.left);\n        dfs(node.right);\n    };\n    \n    dfs(root);\n    return diameter;\n}" },]} />
+
+**Complexity**
+- Time: O(N²) - For each of the N nodes, we calculate the height, which takes O(N) in the worst case.
+- Space: O(N) - Recursion stack space.
+- Notes: Simple to understand but inefficient for large trees.
+
+---
+## Optimized DFS
+
+**Intuition**
+We can compute the height and the diameter in a single traversal. As we recursively calculate the height of the left and right subtrees for a node, we can simultaneously update the maximum diameter found so far using the sum of those two heights.
+
+**Steps**
+- Initialize a global variable `diameter` to 0.
+- Define a recursive function `dfs(node)` that returns the height of the tree rooted at `node`.
+- In the base case (null node), return 0.
+- Recursively call `dfs` on the left and right children to get their heights.
+- The potential diameter passing through the current node is `left_height + right_height`. Update the global `diameter` if this value is larger.
+- Return the height of the current node: `max(left_height, right_height) + 1`.
+- Call `dfs(root)` and return the global `diameter`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -&gt; int:\n        self.diameter = 0\n        \n        def dfs(node):\n            if not node:\n                return 0\n            left = dfs(node.left)\n            right = dfs(node.right)\n            self.diameter = max(self.diameter, left + right)\n            return max(left, right) + 1\n        \n        dfs(root)\n        return self.diameter" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private int diameter = 0;\n    \n    public int diameterOfBinaryTree(TreeNode root) {\n        height(root);\n        return diameter;\n    }\n    \n    private int height(TreeNode node) {\n        if (node == null) return 0;\n        \n        int left = height(node.left);\n        int right = height(node.right);\n        \n        diameter = Math.max(diameter, left + right);\n        \n        return Math.max(left, right) + 1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int diameter = 0;\n    \n    int diameterOfBinaryTree(TreeNode* root) {\n        height(root);\n        return diameter;\n    }\n    \n    int height(TreeNode* node) {\n        if (!node) return 0;\n        \n        int left = height(node-&gt;left);\n        int right = height(node-&gt;right);\n        \n        diameter = max(diameter, left + right);\n        \n        return max(left, right) + 1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var diameterOfBinaryTree = function(root) {\n    let diameter = 0;\n    \n    const height = (node) =&gt; {\n        if (!node) return 0;\n        \n        const left = height(node.left);\n        const right = height(node.right);\n        \n        diameter = Math.max(diameter, left + right);\n        \n        return Math.max(left, right) + 1;\n    };\n    \n    height(root);\n    return diameter;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function diameterOfBinaryTree(root: TreeNode | null): number {\n    let diameter = 0;\n    \n    const height = (node: TreeNode | null): number =&gt; {\n        if (!node) return 0;\n        \n        const left = height(node.left);\n        const right = height(node.right);\n        \n        diameter = Math.max(diameter, left + right);\n        \n        return Math.max(left, right) + 1;\n    };\n    \n    height(root);\n    return diameter;\n}" },]} />
+
+**Complexity**
+- Time: O(N) - We visit every node exactly once.
+- Space: O(N) - Recursion stack space in the worst case (skewed tree), O(log N) for balanced tree.
+- Notes: Optimal solution, avoiding redundant calculations.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Diameter of Binary Tree Solutions","datePublished":"2026-05-12","description":"Find the length of the longest path between any two nodes in a binary tree.","keywords":"LeetCode, Diameter of Binary Tree, Easy, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N²) because for each node, we traverse its entire subtree to calculate the height."}},{"@type":"Question","name":"What is the time complexity of the Optimized DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N) as we visit each node exactly once to compute both height and diameter."}},{"@type":"Question","name":"What is the space complexity of the Optimized DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) for the recursion stack in the worst case of a skewed tree."}}]}).replace(/</g,'\u003c')}
+</script>

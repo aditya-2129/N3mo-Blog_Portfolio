@@ -1,0 +1,143 @@
+---
+title: "Merge Sorted Array"
+summary: "Merge two sorted arrays nums1 and nums2 into nums1. The first array has enough space to hold all elements. Do not return anything, modify nums1 in-place."
+date: "May 12, 2026"
+tags:
+  - Array
+  - Two Pointers
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 54.80% | **Paid:** No
+> **Topics:** Array, Two Pointers, Sorting
+
+You are given two integer arrays nums1 and nums2, sorted in non-decreasing order, and two integers m and n, representing the number of elements in nums1 and nums2 respectively.
+
+Merge nums1 and nums2 into a single array sorted in non-decreasing order.
+
+The final sorted array should not be returned by the function, but instead be stored inside the array nums1. To accommodate this, nums1 has a length of m + n, where the first m elements denote the elements that should be merged, and the last n elements are set to 0 and should be ignored. nums2 has a length of n.
+
+- Examples
+- Constraints
+- [Approach 1: Merge and Sort](#approach-1-merge-and-sort)
+- [Approach 2: Two Pointers (Backwards)](#approach-2-two-pointers-backwards)
+- [Approach 3: Two Pointers (Forward with Extra Space)](#approach-3-two-pointers-forward-with-extra-space)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+Output: [1,2,2,3,5,6]
+Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
+The result of the merge is [1,2,2,3,5,6] with the underlined elements coming from nums1.
+```
+
+**Example 2:**
+
+```text
+Input: nums1 = [1], m = 1, nums2 = [], n = 0
+Output: [1]
+Explanation: The arrays we are merging are [1] and [].
+The result of the merge is [1].
+```
+
+**Example 3:**
+
+```text
+Input: nums1 = [0], m = 0, nums2 = [1], n = 1
+Output: [1]
+Explanation: The arrays we are merging are [] and [1].
+The result of the merge is [1].
+Note that because m = 0, there are no elements in nums1. The 0 is only there to ensure the merge result can fit in nums1.
+```
+
+## Constraints
+
+```text
+nums1.length == m + n
+nums2.length == n
+0 <= m, n <= 200
+1 <= m + n <= 200
+-10⁹ <= nums1[i], nums2[j] <= 10⁹
+```
+
+---
+## Approach 1: Merge and Sort
+
+**Intuition**
+The simplest approach is to copy all elements from nums2 into the empty space at the end of nums1, and then sort the entire nums1 array.
+
+**Steps**
+- Copy the first n elements of nums2 into nums1 starting from index m.
+- Use the built-in sort function of the language to sort nums1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -&gt; None:\r\n        \"\"\"\r\n        Do not return anything, modify nums1 in-place instead.\r\n        \"\"\"\r\n        # Write the elements of nums2 into the end of nums1\r\n        for i in range(n):\r\n            nums1[m + i] = nums2[i]\r\n        \r\n        # Sort the entire array\r\n        nums1.sort()\r\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\r\n\r\nclass Solution {\r\n    public void merge(int[] nums1, int m, int[] nums2, int n) {\r\n        // Copy elements from nums2 to nums1\r\n        for (int i = 0; i &lt; n; i++) {\r\n            nums1[m + i] = nums2[i];\r\n        }\r\n        // Sort the array\r\n        Arrays.sort(nums1);\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\r\n#include &lt;algorithm&gt;\r\n\r\nclass Solution {\r\npublic:\r\n    void merge(vector&lt;int&gt;& nums1, int m, vector&lt;int&gt;& nums2, int n) {\r\n        // Copy elements from nums2 to nums1\r\n        for (int i = 0; i &lt; n; i++) {\r\n            nums1[m + i] = nums2[i];\r\n        }\r\n        // Sort the array\r\n        sort(nums1.begin(), nums1.end());\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums1\r\n * @param {number} m\r\n * @param {number[]} nums2\r\n * @param {number} n\r\n * @return {void} Do not return anything, modify nums1 in-place instead.\r\n */\r\nvar merge = function(nums1, m, nums2, n) {\r\n    // Copy elements from nums2 to nums1\r\n    for (let i = 0; i &lt; n; i++) {\r\n        nums1[m + i] = nums2[i];\r\n    }\r\n    // Sort the array\r\n    nums1.sort((a, b) =&gt; a - b);\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\r\n * Do not return anything, modify nums1 in-place instead.\r\n */\r\nfunction merge(nums1: number[], m: number, nums2: number[], n: number): void {\r\n    // Copy elements from nums2 to nums1\r\n    for (let i = 0; i &lt; n; i++) {\r\n        nums1[m + i] = nums2[i];\r\n    }\r\n    // Sort the array\r\n    nums1.sort((a, b) =&gt; a - b);\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O((m+n) log(m+n)) due to the sorting step.
+- Space: O(1) or O(log(m+n)) depending on the sorting algorithm's implementation (e.g., Timsort in Python uses O(n) space in worst case, Quicksort in C++ uses O(log n)).
+- Notes: This approach is concise but not optimal in terms of time complexity since the arrays are already sorted.
+
+---
+## Approach 2: Two Pointers (Backwards)
+
+**Intuition**
+Since nums1 has enough buffer space at the end, we can fill nums1 from the back towards the front. This avoids overwriting any elements in nums1 that we haven't processed yet. We compare the largest elements of both arrays and place the larger one at the current end of nums1.
+
+**Steps**
+- Initialize three pointers: p1 at m-1 (last valid element in nums1), p2 at n-1 (last element in nums2), and p at m+n-1 (last position in nums1).
+- While p1 >= 0 and p2 >= 0, compare nums1[p1] and nums2[p2]. Place the larger value at nums1[p] and decrement the respective pointer (p1 or p2) and p.
+- If there are remaining elements in nums2 (p2 >= 0), copy them to nums1. If there are remaining elements in nums1, they are already in their correct place.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -&gt; None:\r\n        \"\"\"\r\n        Do not return anything, modify nums1 in-place instead.\r\n        \"\"\"\r\n        # Set pointers for nums1, nums2, and the insertion position\r\n        p1 = m - 1\r\n        p2 = n - 1\r\n        p = m + n - 1\r\n        \r\n        # Compare elements from the end and place the largest at the end of nums1\r\n        while p1 &gt;= 0 and p2 &gt;= 0:\r\n            if nums1[p1] &gt; nums2[p2]:\r\n                nums1[p] = nums1[p1]\r\n                p1 -= 1\r\n            else:\r\n                nums1[p] = nums2[p2]\r\n                p2 -= 1\r\n            p -= 1\r\n        \r\n        # If there are remaining elements in nums2, copy them\r\n        # If there are remaining elements in nums1, they are already in place\r\n        while p2 &gt;= 0:\r\n            nums1[p] = nums2[p2]\r\n            p2 -= 1\r\n            p -= 1\r\n" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public void merge(int[] nums1, int m, int[] nums2, int n) {\r\n        int p1 = m - 1;\r\n        int p2 = n - 1;\r\n        int p = m + n - 1;\r\n        \r\n        while (p1 &gt;= 0 && p2 &gt;= 0) {\r\n            if (nums1[p1] &gt; nums2[p2]) {\r\n                nums1[p] = nums1[p1];\r\n                p1--;\r\n            } else {\r\n                nums1[p] = nums2[p2];\r\n                p2--;\r\n            }\r\n            p--;\r\n        }\r\n        \r\n        // Copy remaining elements from nums2 if any\r\n        while (p2 &gt;= 0) {\r\n            nums1[p] = nums2[p2];\r\n            p2--;\r\n            p--;\r\n        }\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    void merge(vector&lt;int&gt;& nums1, int m, vector&lt;int&gt;& nums2, int n) {\r\n        int p1 = m - 1;\r\n        int p2 = n - 1;\r\n        int p = m + n - 1;\r\n        \r\n        while (p1 &gt;= 0 && p2 &gt;= 0) {\r\n            if (nums1[p1] &gt; nums2[p2]) {\r\n                nums1[p--] = nums1[p1--];\r\n            } else {\r\n                nums1[p--] = nums2[p2--];\r\n            }\r\n        }\r\n        \r\n        // Copy remaining elements from nums2 if any\r\n        while (p2 &gt;= 0) {\r\n            nums1[p--] = nums2[p2--];\r\n        }\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums1\r\n * @param {number} m\r\n * @param {number[]} nums2\r\n * @param {number} n\r\n * @return {void} Do not return anything, modify nums1 in-place instead.\r\n */\r\nvar merge = function(nums1, m, nums2, n) {\r\n    let p1 = m - 1;\r\n    let p2 = n - 1;\r\n    let p = m + n - 1;\r\n    \r\n    while (p1 &gt;= 0 && p2 &gt;= 0) {\r\n        if (nums1[p1] &gt; nums2[p2]) {\r\n            nums1[p] = nums1[p1];\r\n            p1--;\r\n        } else {\r\n            nums1[p] = nums2[p2];\r\n            p2--;\r\n        }\r\n        p--;\r\n    }\r\n    \r\n    while (p2 &gt;= 0) {\r\n        nums1[p] = nums2[p2];\r\n        p2--;\r\n        p--;\r\n    }\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\r\n * Do not return anything, modify nums1 in-place instead.\r\n */\r\nfunction merge(nums1: number[], m: number, nums2: number[], n: number): void {\r\n    let p1: number = m - 1;\r\n    let p2: number = n - 1;\r\n    let p: number = m + n - 1;\r\n    \r\n    while (p1 &gt;= 0 && p2 &gt;= 0) {\r\n        if (nums1[p1] &gt; nums2[p2]) {\r\n            nums1[p] = nums1[p1];\r\n            p1--;\r\n        } else {\r\n            nums1[p] = nums2[p2];\r\n            p2--;\r\n        }\r\n        p--;\r\n    }\r\n    \r\n    while (p2 &gt;= 0) {\r\n        nums1[p] = nums2[p2];\r\n        p2--;\r\n        p--;\r\n    }\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(m+n) — We iterate through the arrays once.
+- Space: O(1) — We only use a few variables for pointers.
+- Notes: This is the optimal solution for this problem as it utilizes the existing space efficiently without overwriting unprocessed data.
+
+---
+## Approach 3: Two Pointers (Forward with Extra Space)
+
+**Intuition**
+We can create a new temporary array to store the merged result. We use two pointers starting at the beginning of nums1 and nums2, compare elements, and place the smaller one into the temporary array. Finally, we copy the temporary array back to nums1.
+
+**Steps**
+- Create a temporary array of size m + n.
+- Initialize pointers i = 0 for nums1, j = 0 for nums2, and k = 0 for the temporary array.
+- While i < m and j < n, compare nums1[i] and nums2[j]. Add the smaller one to temp[k] and increment the corresponding pointer.
+- Copy any remaining elements from nums1 or nums2 to temp.
+- Copy all elements from temp back to nums1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\r\n\r\nclass Solution:\r\n    def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -&gt; None:\r\n        \"\"\"\r\n        Do not return anything, modify nums1 in-place instead.\r\n        \"\"\"\r\n        # Create a temporary array to store the result\r\n        temp = []\r\n        i, j = 0, 0\r\n        \r\n        # Merge elements in sorted order\r\n        while i &lt; m and j &lt; n:\r\n            if nums1[i] &lt;= nums2[j]:\r\n                temp.append(nums1[i])\r\n                i += 1\r\n            else:\r\n                temp.append(nums2[j])\r\n                j += 1\r\n        \r\n        # Append remaining elements from nums1\r\n        while i &lt; m:\r\n            temp.append(nums1[i])\r\n            i += 1\r\n            \r\n        # Append remaining elements from nums2\r\n        while j &lt; n:\r\n            temp.append(nums2[j])\r\n            j += 1\r\n            \r\n        # Copy temp back to nums1\r\n        for k in range(len(temp)):\r\n            nums1[k] = temp[k]\r\n" },
+{ name: "Java", lang: "java", code: "class Solution {\r\n    public void merge(int[] nums1, int m, int[] nums2, int n) {\r\n        int[] temp = new int[m + n];\r\n        int i = 0, j = 0, k = 0;\r\n        \r\n        while (i &lt; m && j &lt; n) {\r\n            if (nums1[i] &lt;= nums2[j]) {\r\n                temp[k++] = nums1[i++];\r\n            } else {\r\n                temp[k++] = nums2[j++];\r\n            }\r\n        }\r\n        \r\n        while (i &lt; m) {\r\n            temp[k++] = nums1[i++];\r\n        }\r\n        \r\n        while (j &lt; n) {\r\n            temp[k++] = nums2[j++];\r\n        }\r\n        \r\n        for (int x = 0; x &lt; temp.length; x++) {\r\n            nums1[x] = temp[x];\r\n        }\r\n    }\r\n}\r\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\r\npublic:\r\n    void merge(vector&lt;int&gt;& nums1, int m, vector&lt;int&gt;& nums2, int n) {\r\n        vector&lt;int&gt; temp(m + n);\r\n        int i = 0, j = 0, k = 0;\r\n        \r\n        while (i &lt; m && j &lt; n) {\r\n            if (nums1[i] &lt;= nums2[j]) {\r\n                temp[k++] = nums1[i++];\r\n            } else {\r\n                temp[k++] = nums2[j++];\r\n            }\r\n        }\r\n        \r\n        while (i &lt; m) {\r\n            temp[k++] = nums1[i++];\r\n        }\r\n        \r\n        while (j &lt; n) {\r\n            temp[k++] = nums2[j++];\r\n        }\r\n        \r\n        for (int x = 0; x &lt; m + n; x++) {\r\n            nums1[x] = temp[x];\r\n        }\r\n    }\r\n};\r\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\r\n * @param {number[]} nums1\r\n * @param {number} m\r\n * @param {number[]} nums2\r\n * @param {number} n\r\n * @return {void} Do not return anything, modify nums1 in-place instead.\r\n */\r\nvar merge = function(nums1, m, nums2, n) {\r\n    let temp = [];\r\n    let i = 0, j = 0, k = 0;\r\n    \r\n    while (i &lt; m && j &lt; n) {\r\n        if (nums1[i] &lt;= nums2[j]) {\r\n            temp[k++] = nums1[i++];\r\n        } else {\r\n            temp[k++] = nums2[j++];\r\n        }\r\n    }\r\n    \r\n    while (i &lt; m) {\r\n        temp[k++] = nums1[i++];\r\n    }\r\n    \r\n    while (j &lt; n) {\r\n        temp[k++] = nums2[j++];\r\n    }\r\n    \r\n    for (let x = 0; x &lt; temp.length; x++) {\r\n        nums1[x] = temp[x];\r\n    }\r\n};\r\n" },
+{ name: "TypeScript", lang: "typescript", code: "/**\r\n * Do not return anything, modify nums1 in-place instead.\r\n */\r\nfunction merge(nums1: number[], m: number, nums2: number[], n: number): void {\r\n    let temp: number[] = [];\r\n    let i: number = 0, j: number = 0, k: number = 0;\r\n    \r\n    while (i &lt; m && j &lt; n) {\r\n        if (nums1[i] &lt;= nums2[j]) {\r\n            temp[k++] = nums1[i++];\r\n        } else {\r\n            temp[k++] = nums2[j++];\r\n        }\r\n    }\r\n    \r\n    while (i &lt; m) {\r\n        temp[k++] = nums1[i++];\r\n    }\r\n    \r\n    while (j &lt; n) {\r\n        temp[k++] = nums2[j++];\r\n    }\r\n    \r\n    for (let x = 0; x &lt; temp.length; x++) {\r\n        nums1[x] = temp[x];\r\n    }\r\n}\r\n" },]} />
+
+**Complexity**
+- Time: O(m+n) — We traverse both arrays once.
+- Space: O(m+n) — We use an extra array to store the merged result.
+- Notes: This approach is intuitive and easy to understand but uses extra space, which is not optimal compared to the backwards two-pointer approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Merge Sorted Array Solutions","datePublished":"2026-05-12","description":"Merge two sorted arrays nums1 and nums2 into nums1. The first array has enough space to hold all elements. Do not return anything, modify nums1 in-place.","keywords":"LeetCode, Merge Sorted Array, Easy, Array, Two Pointers, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Merge and Sort approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O((m+n) log(m+n)) due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(m+n) as we iterate through the arrays once."}},{"@type":"Question","name":"What is the space complexity of the optimal approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because we only use a few variables for pointers and modify nums1 in-place."}}]}).replace(/</g,'\u003c')}
+</script>

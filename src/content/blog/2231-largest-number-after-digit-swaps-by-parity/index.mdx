@@ -1,0 +1,147 @@
+---
+title: "Largest Number After Digit Swaps by Parity"
+summary: "You are given a positive integer num. You can swap two digits if they have the same parity. Return the largest number you can get."
+date: "Mar 24, 2026"
+tags:
+  - Sorting
+  - Heap
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.30% | **Paid:** No
+> **Topics:** Sorting, Heap (Priority Queue)
+
+You are given a positive integer num. You may swap two digits if they have the same parity (both odd digits or both even digits). Return the largest integer you can get after any number of swaps.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Sorting by Parity](#sorting-by-parity)
+- [Using Priority Queues](#using-priority-queues)
+- [Brute Force Swapping](#brute-force-swapping)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+num = 1234
+```
+
+**Output:**
+```text
+3412
+```
+
+**Explanation:**
+Swap the digit 3 with the digit 1, this results in the number 3214.
+Swap the digit 2 with the digit 4, this results in the number 3412.
+Note that there may be other sequences of swaps but it can be shown that 3412 is the largest possible number.
+Also note that we may not swap the digit 4 with the digit 1 since they are of different parities.
+
+### Example 2
+
+**Input:**
+```text
+num = 65875
+```
+
+**Output:**
+```text
+87655
+```
+
+**Explanation:**
+Swap the digit 8 with the digit 6, this results in the number 85675.
+Swap the first digit 5 with the digit 7, this results in the number 87655.
+Note that there may be other sequences of swaps but it can be shown that 87655 is the largest possible number.
+
+## Constraints
+
+```text
+1 <= num <= 10^9
+```
+
+---
+
+## Sorting by Parity
+
+**Intuition**
+Since we can swap any two digits of the same parity, we can independently rearrange all even digits among even positions and all odd digits among odd positions. To maximize the number, we should place the largest even digits in the leftmost even positions and the largest odd digits in the leftmost odd positions.
+
+**Steps**
+- Convert the number to a string to process each digit
+- Separate even and odd digits into two separate lists
+- Sort both lists in descending order
+- Reconstruct the result by picking from the appropriate sorted list based on the original digit's parity
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestInteger(self, num: int) -&gt; int:\n        s = str(num)\n        evens = []\n        odds = []\n        \n        for c in s:\n            digit = int(c)\n            if digit % 2 == 0:\n                evens.append(digit)\n            else:\n                odds.append(digit)\n        \n        evens.sort(reverse=True)\n        odds.sort(reverse=True)\n        \n        result = []\n        even_idx = 0\n        odd_idx = 0\n        \n        for c in s:\n            digit = int(c)\n            if digit % 2 == 0:\n                result.append(str(evens[even_idx]))\n                even_idx += 1\n            else:\n                result.append(str(odds[odd_idx]))\n                odd_idx += 1\n        \n        return int(''.join(result))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int largestInteger(int num) {\n        char[] s = Integer.toString(num).toCharArray();\n        List&lt;Integer&gt; evens = new ArrayList&lt;&gt;();\n        List&lt;Integer&gt; odds = new ArrayList&lt;&gt;();\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                evens.add(digit);\n            } else {\n                odds.add(digit);\n            }\n        }\n        \n        Collections.sort(evens, Collections.reverseOrder());\n        Collections.sort(odds, Collections.reverseOrder());\n        \n        int evenIdx = 0, oddIdx = 0;\n        StringBuilder result = new StringBuilder();\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                result.append(evens.get(evenIdx++));\n            } else {\n                result.append(odds.get(oddIdx++));\n            }\n        }\n        \n        return Integer.parseInt(result.toString());\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int largestInteger(int num) {\n        string s = to_string(num);\n        vector&lt;int&gt; evens, odds;\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                evens.push_back(digit);\n            } else {\n                odds.push_back(digit);\n            }\n        }\n        \n        sort(evens.rbegin(), evens.rend());\n        sort(odds.rbegin(), odds.rend());\n        \n        int evenIdx = 0, oddIdx = 0;\n        string result;\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                result += to_string(evens[evenIdx++]);\n            } else {\n                result += to_string(odds[oddIdx++]);\n            }\n        }\n        \n        return stoi(result);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar largestInteger = function(num) {\n    const s = num.toString();\n    const evens = [];\n    const odds = [];\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            evens.push(digit);\n        } else {\n            odds.push(digit);\n        }\n    }\n    \n    evens.sort((a, b) =&gt; b - a);\n    odds.sort((a, b) =&gt; b - a);\n    \n    let evenIdx = 0, oddIdx = 0;\n    let result = '';\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            result += evens[evenIdx++];\n        } else {\n            result += odds[oddIdx++];\n        }\n    }\n    \n    return parseInt(result);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largestInteger(num: number): number {\n    const s = num.toString();\n    const evens: number[] = [];\n    const odds: number[] = [];\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            evens.push(digit);\n        } else {\n            odds.push(digit);\n        }\n    }\n    \n    evens.sort((a, b) =&gt; b - a);\n    odds.sort((a, b) =&gt; b - a);\n    \n    let evenIdx = 0, oddIdx = 0;\n    let result = '';\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            result += evens[evenIdx++];\n        } else {\n            result += odds[oddIdx++];\n        }\n    }\n    \n    return parseInt(result);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of digits
+- Space: O(n) for storing the digit lists
+- Notes: This is the most straightforward approach with clean implementation
+
+---
+
+## Using Priority Queues
+
+**Intuition**
+Instead of sorting all digits at once, we can use max heaps (priority queues) to efficiently retrieve the largest available digit of the required parity as we reconstruct the number from left to right.
+
+**Steps**
+- Create two max heaps, one for even digits and one for odd digits
+- Push all digits into their respective heaps (using negative values for max heap in languages with min-heap only)
+- Iterate through the original number and for each position, pop the largest digit from the appropriate heap
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def largestInteger(self, num: int) -&gt; int:\n        s = str(num)\n        evens = []\n        odds = []\n        \n        for c in s:\n            digit = int(c)\n            if digit % 2 == 0:\n                heapq.heappush(evens, -digit)\n            else:\n                heapq.heappush(odds, -digit)\n        \n        result = []\n        for c in s:\n            digit = int(c)\n            if digit % 2 == 0:\n                result.append(str(-heapq.heappop(evens)))\n            else:\n                result.append(str(-heapq.heappop(odds)))\n        \n        return int(''.join(result))" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int largestInteger(int num) {\n        char[] s = Integer.toString(num).toCharArray();\n        PriorityQueue&lt;Integer&gt; evens = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        PriorityQueue&lt;Integer&gt; odds = new PriorityQueue&lt;&gt;(Collections.reverseOrder());\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                evens.offer(digit);\n            } else {\n                odds.offer(digit);\n            }\n        }\n        \n        StringBuilder result = new StringBuilder();\n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                result.append(evens.poll());\n            } else {\n                result.append(odds.poll());\n            }\n        }\n        \n        return Integer.parseInt(result.toString());\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int largestInteger(int num) {\n        string s = to_string(num);\n        priority_queue&lt;int&gt; evens, odds;\n        \n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                evens.push(digit);\n            } else {\n                odds.push(digit);\n            }\n        }\n        \n        string result;\n        for (char c : s) {\n            int digit = c - '0';\n            if (digit % 2 == 0) {\n                result += to_string(evens.top());\n                evens.pop();\n            } else {\n                result += to_string(odds.top());\n                odds.pop();\n            }\n        }\n        \n        return stoi(result);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class MaxHeap {\n    constructor() {\n        this.heap = [];\n    }\n    \n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            const parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &gt;= this.heap[idx]) break;\n            [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n            idx = parent;\n        }\n    }\n    \n    pop() {\n        const max = this.heap[0];\n        const last = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = last;\n            this.bubbleDown(0);\n        }\n        return max;\n    }\n    \n    bubbleDown(idx) {\n        while (true) {\n            let largest = idx;\n            const left = 2 * idx + 1;\n            const right = 2 * idx + 2;\n            \n            if (left &lt; this.heap.length && this.heap[left] &gt; this.heap[largest]) {\n                largest = left;\n            }\n            if (right &lt; this.heap.length && this.heap[right] &gt; this.heap[largest]) {\n                largest = right;\n            }\n            if (largest === idx) break;\n            [this.heap[idx], this.heap[largest]] = [this.heap[largest], this.heap[idx]];\n            idx = largest;\n        }\n    }\n}\n\n/**\n * @param {number} num\n * @return {number}\n */\nvar largestInteger = function(num) {\n    const s = num.toString();\n    const evens = new MaxHeap();\n    const odds = new MaxHeap();\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            evens.push(digit);\n        } else {\n            odds.push(digit);\n        }\n    }\n    \n    let result = '';\n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            result += evens.pop();\n        } else {\n            result += odds.pop();\n        }\n    }\n    \n    return parseInt(result);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "class MaxHeap {\n    private heap: number[] = [];\n    \n    push(val: number): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n    \n    private bubbleUp(idx: number): void {\n        while (idx &gt; 0) {\n            const parent = Math.floor((idx - 1) / 2);\n            if (this.heap[parent] &gt;= this.heap[idx]) break;\n            [this.heap[parent], this.heap[idx]] = [this.heap[idx], this.heap[parent]];\n            idx = parent;\n        }\n    }\n    \n    pop(): number {\n        const max = this.heap[0];\n        const last = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = last!;\n            this.bubbleDown(0);\n        }\n        return max;\n    }\n    \n    private bubbleDown(idx: number): void {\n        while (true) {\n            let largest = idx;\n            const left = 2 * idx + 1;\n            const right = 2 * idx + 2;\n            \n            if (left &lt; this.heap.length && this.heap[left] &gt; this.heap[largest]) {\n                largest = left;\n            }\n            if (right &lt; this.heap.length && this.heap[right] &gt; this.heap[largest]) {\n                largest = right;\n            }\n            if (largest === idx) break;\n            [this.heap[idx], this.heap[largest]] = [this.heap[largest], this.heap[idx]];\n            idx = largest;\n        }\n    }\n}\n\nfunction largestInteger(num: number): number {\n    const s = num.toString();\n    const evens = new MaxHeap();\n    const odds = new MaxHeap();\n    \n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            evens.push(digit);\n        } else {\n            odds.push(digit);\n        }\n    }\n    \n    let result = '';\n    for (const c of s) {\n        const digit = parseInt(c);\n        if (digit % 2 === 0) {\n            result += evens.pop();\n        } else {\n            result += odds.pop();\n        }\n    }\n    \n    return parseInt(result);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) where n is the number of digits
+- Space: O(n) for the heaps
+- Notes: Useful when you need to process digits in a specific order without sorting everything upfront
+
+---
+
+## Brute Force Swapping
+
+**Intuition**
+We can simulate the swapping process by repeatedly comparing and swapping adjacent digits of the same parity. This is similar to bubble sort where we only allow swaps between digits with matching parity.
+
+**Steps**
+- Convert the number to a character array
+- Use nested loops to compare each pair of digits
+- If two digits have the same parity and swapping them would increase the number, swap them
+- Continue until no more beneficial swaps are possible
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestInteger(self, num: int) -&gt; int:\n        s = list(str(num))\n        n = len(s)\n        \n        for i in range(n):\n            for j in range(i + 1, n):\n                if (int(s[i]) % 2) == (int(s[j]) % 2):\n                    if s[i] &lt; s[j]:\n                        s[i], s[j] = s[j], s[i]\n        \n        return int(''.join(s))" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int largestInteger(int num) {\n        char[] s = Integer.toString(num).toCharArray();\n        int n = s.length;\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if ((s[i] - '0') % 2 == (s[j] - '0') % 2) {\n                    if (s[i] &lt; s[j]) {\n                        char temp = s[i];\n                        s[i] = s[j];\n                        s[j] = temp;\n                    }\n                }\n            }\n        }\n        \n        return Integer.parseInt(new String(s));\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int largestInteger(int num) {\n        string s = to_string(num);\n        int n = s.length();\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                if ((s[i] - '0') % 2 == (s[j] - '0') % 2) {\n                    if (s[i] &lt; s[j]) {\n                        swap(s[i], s[j]);\n                    }\n                }\n            }\n        }\n        \n        return stoi(s);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} num\n * @return {number}\n */\nvar largestInteger = function(num) {\n    let s = num.toString().split('');\n    const n = s.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if ((parseInt(s[i]) % 2) === (parseInt(s[j]) % 2)) {\n                if (s[i] &lt; s[j]) {\n                    [s[i], s[j]] = [s[j], s[i]];\n                }\n            }\n        }\n    }\n    \n    return parseInt(s.join(''));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largestInteger(num: number): number {\n    let s: string[] = num.toString().split('');\n    const n: number = s.length;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i + 1; j &lt; n; j++) {\n            if ((parseInt(s[i]) % 2) === (parseInt(s[j]) % 2)) {\n                if (s[i] &lt; s[j]) {\n                    [s[i], s[j]] = [s[j], s[i]];\n                }\n            }\n        }\n    }\n    \n    return parseInt(s.join(''));\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is the number of digits
+- Space: O(n) for the character array
+- Notes: Simple to understand but less efficient; useful for educational purposes or when n is very small
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Number After Digit Swaps by Parity Solutions","datePublished":"2026-03-24","description":"You are given a positive integer num. You can swap two digits if they have the same parity. Return the largest number you can get.","keywords":"LeetCode, Largest Number After Digit Swaps by Parity, Easy, Sorting, Heap (Priority Queue)"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting by Parity approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the number of digits, due to the sorting step."}},{"@type":"Question","name":"What is the time complexity of the Using Priority Queues approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) where n is the number of digits, as each heap operation takes O(log n) time."}},{"@type":"Question","name":"What is the time complexity of the Brute Force Swapping approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the number of digits, due to the nested loop comparisons."}},{"@type":"Question","name":"What is the space complexity of all approaches?","acceptedAnswer":{"@type":"Answer","text":"All approaches have O(n) space complexity where n is the number of digits, for storing digit lists, heaps, or character arrays."}}]}).replace(/</g,'\u003c')}
+</script>

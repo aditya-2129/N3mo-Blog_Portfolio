@@ -1,0 +1,139 @@
+---
+title: "Pascal's Triangle"
+summary: "Generate the first numRows of Pascal's triangle where each number is the sum of the two numbers directly above it."
+date: "May 12, 2026"
+tags:
+  - Array
+  - Dynamic Programming
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 78.90% | **Paid:** No
+> **Topics:** Array, Dynamic Programming
+
+Given an integer numRows, return the first numRows of Pascal's triangle.
+
+In Pascal's triangle, each number is the sum of the two numbers directly above it as shown:
+
+```
+      1
+     1 1
+    1 2 1
+   1 3 3 1
+  1 4 6 4 1
+```
+
+- Examples
+- Constraints
+- [Approach 1: Iterative Construction](#iterative-construction)
+- [Approach 2: Mathematical Formula](#mathematical-formula)
+- [Approach 3: Recursive with Memoization](#recursive-with-memoization)
+
+## Examples
+
+### Example 1
+```text
+Input: numRows = 5
+Output: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]
+```
+
+### Example 2
+```text
+Input: numRows = 1
+Output: [[1]]
+```
+
+## Constraints
+
+```text
+1 <= numRows <= 30
+```
+
+---
+
+## Iterative Construction
+
+**Intuition**
+Build the triangle row by row, using the previous row to calculate the current row's values.
+
+**Steps**
+- Initialize an empty result list
+- For each row index from 0 to numRows-1:
+  - Create a row filled with 1s (first and last elements are always 1)
+  - For interior elements, sum the two elements from the previous row
+  - Add the completed row to result
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def generate(self, numRows: int) -&gt; List[List[int]]:\n        result = []\n        for i in range(numRows):\n            row = [1] * (i + 1)\n            for j in range(1, i):\n                row[j] = result[i-1][j-1] + result[i-1][j]\n            result.append(row)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; generate(int numRows) {\n        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; numRows; i++) {\n            List&lt;Integer&gt; row = new ArrayList&lt;&gt;();\n            for (int j = 0; j &lt;= i; j++) {\n                if (j == 0 || j == i) {\n                    row.add(1);\n                } else {\n                    row.add(result.get(i-1).get(j-1) + result.get(i-1).get(j));\n                }\n            }\n            result.add(row);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; generate(int numRows) {\n        vector&lt;vector&lt;int&gt;&gt; result;\n        for (int i = 0; i &lt; numRows; i++) {\n            vector&lt;int&gt; row(i + 1, 1);\n            for (int j = 1; j &lt; i; j++) {\n                row[j] = result[i-1][j-1] + result[i-1][j];\n            }\n            result.push_back(row);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} numRows\n * @return {number[][]}\n */\nvar generate = function(numRows) {\n    const result = [];\n    for (let i = 0; i &lt; numRows; i++) {\n        const row = new Array(i + 1).fill(1);\n        for (let j = 1; j &lt; i; j++) {\n            row[j] = result[i-1][j-1] + result[i-1][j];\n        }\n        result.push(row);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function generate(numRows: number): number[][] {\n    const result: number[][] = [];\n    for (let i = 0; i &lt; numRows; i++) {\n        const row: number[] = new Array(i + 1).fill(1);\n        for (let j = 1; j &lt; i; j++) {\n            row[j] = result[i-1][j-1] + result[i-1][j];\n        }\n        result.push(row);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is numRows
+- Space: O(n²) for storing the result
+- Notes: Most efficient and intuitive approach for this problem
+
+---
+
+## Mathematical Formula
+
+**Intuition**
+Each element in Pascal's triangle can be calculated using the combination formula C(n, k) = n! / (k! × (n-k)!).
+
+**Steps**
+- For each row n from 0 to numRows-1:
+  - Calculate each element using the combination formula
+  - Use the property that C(n, k+1) = C(n, k) × (n-k) / (k+1) to avoid factorial calculations
+  - Build the row and add to result
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def generate(self, numRows: int) -&gt; List[List[int]]:\n        result = []\n        for n in range(numRows):\n            row = []\n            c = 1\n            for k in range(n + 1):\n                row.append(c)\n                c = c * (n - k) // (k + 1)\n            result.append(row)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;List&lt;Integer&gt;&gt; generate(int numRows) {\n        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (int n = 0; n &lt; numRows; n++) {\n            List&lt;Integer&gt; row = new ArrayList&lt;&gt;();\n            long c = 1;\n            for (int k = 0; k &lt;= n; k++) {\n                row.add((int) c);\n                c = c * (n - k) / (k + 1);\n            }\n            result.add(row);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;vector&lt;int&gt;&gt; generate(int numRows) {\n        vector&lt;vector&lt;int&gt;&gt; result;\n        for (int n = 0; n &lt; numRows; n++) {\n            vector&lt;int&gt; row;\n            long long c = 1;\n            for (int k = 0; k &lt;= n; k++) {\n                row.push_back((int)c);\n                c = c * (n - k) / (k + 1);\n            }\n            result.push_back(row);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} numRows\n * @return {number[][]}\n */\nvar generate = function(numRows) {\n    const result = [];\n    for (let n = 0; n &lt; numRows; n++) {\n        const row = [];\n        let c = 1;\n        for (let k = 0; k &lt;= n; k++) {\n            row.push(c);\n            c = c * (n - k) / (k + 1);\n        }\n        result.push(row);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function generate(numRows: number): number[][] {\n    const result: number[][] = [];\n    for (let n = 0; n &lt; numRows; n++) {\n        const row: number[] = [];\n        let c = 1;\n        for (let k = 0; k &lt;= n; k++) {\n            row.push(c);\n            c = c * (n - k) / (k + 1);\n        }\n        result.push(row);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is numRows
+- Space: O(n²) for storing the result
+- Notes: Useful when you need to compute individual elements without building the entire triangle
+
+---
+
+## Recursive with Memoization
+
+**Intuition**
+Recursively calculate each element as the sum of two elements from the previous row, using memoization to avoid redundant calculations.
+
+**Steps**
+- Create a memoization cache
+- Define a helper function to get value at (row, col):
+  - Base case: if col is 0 or equals row, return 1
+  - Check cache first, return if found
+  - Otherwise, recursively compute and cache the result
+- Build each row by calling the helper function
+- Return the result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def generate(self, numRows: int) -&gt; List[List[int]]:\n        memo = {}\n        \n        def getValue(row, col):\n            if col == 0 or col == row:\n                return 1\n            if (row, col) in memo:\n                return memo[(row, col)]\n            memo[(row, col)] = getValue(row - 1, col - 1) + getValue(row - 1, col)\n            return memo[(row, col)]\n        \n        result = []\n        for i in range(numRows):\n            row = []\n            for j in range(i + 1):\n                row.append(getValue(i, j))\n            result.append(row)\n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private Map&lt;String, Integer&gt; memo = new HashMap&lt;&gt;();\n    \n    public List&lt;List&lt;Integer&gt;&gt; generate(int numRows) {\n        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; numRows; i++) {\n            List&lt;Integer&gt; row = new ArrayList&lt;&gt;();\n            for (int j = 0; j &lt;= i; j++) {\n                row.add(getValue(i, j));\n            }\n            result.add(row);\n        }\n        return result;\n    }\n    \n    private int getValue(int row, int col) {\n        if (col == 0 || col == row) {\n            return 1;\n        }\n        String key = row + \",\" + col;\n        if (memo.containsKey(key)) {\n            return memo.get(key);\n        }\n        int value = getValue(row - 1, col - 1) + getValue(row - 1, col);\n        memo.put(key, value);\n        return value;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\nprivate:\n    map&lt;pair&lt;int, int&gt;, int&gt; memo;\n    \n    int getValue(int row, int col) {\n        if (col == 0 || col == row) {\n            return 1;\n        }\n        auto key = make_pair(row, col);\n        if (memo.find(key) != memo.end()) {\n            return memo[key];\n        }\n        int value = getValue(row - 1, col - 1) + getValue(row - 1, col);\n        memo[key] = value;\n        return value;\n    }\n    \npublic:\n    vector&lt;vector&lt;int&gt;&gt; generate(int numRows) {\n        vector&lt;vector&lt;int&gt;&gt; result;\n        for (int i = 0; i &lt; numRows; i++) {\n            vector&lt;int&gt; row;\n            for (int j = 0; j &lt;= i; j++) {\n                row.push_back(getValue(i, j));\n            }\n            result.push_back(row);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} numRows\n * @return {number[][]}\n */\nvar generate = function(numRows) {\n    const memo = new Map();\n    \n    function getValue(row, col) {\n        if (col === 0 || col === row) {\n            return 1;\n        }\n        const key = row + \",\" + col;\n        if (memo.has(key)) {\n            return memo.get(key);\n        }\n        const value = getValue(row - 1, col - 1) + getValue(row - 1, col);\n        memo.set(key, value);\n        return value;\n    }\n    \n    const result = [];\n    for (let i = 0; i &lt; numRows; i++) {\n        const row = [];\n        for (let j = 0; j &lt;= i; j++) {\n            row.push(getValue(i, j));\n        }\n        result.push(row);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function generate(numRows: number): number[][] {\n    const memo = new Map&lt;string, number&gt;();\n    \n    function getValue(row: number, col: number): number {\n        if (col === 0 || col === row) {\n            return 1;\n        }\n        const key = row + \",\" + col;\n        if (memo.has(key)) {\n            return memo.get(key)!;\n        }\n        const value = getValue(row - 1, col - 1) + getValue(row - 1, col);\n        memo.set(key, value);\n        return value;\n    }\n    \n    const result: number[][] = [];\n    for (let i = 0; i &lt; numRows; i++) {\n        const row: number[] = [];\n        for (let j = 0; j &lt;= i; j++) {\n            row.push(getValue(i, j));\n        }\n        result.push(row);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n²) where n is numRows
+- Space: O(n²) for memoization and result
+- Notes: Educational approach demonstrating recursion with memoization, though iterative is preferred
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Pascal's Triangle Solutions","datePublished":"2026-05-12","description":"Generate the first numRows of Pascal's triangle where each number is the sum of the two numbers directly above it.","keywords":"LeetCode, Pascal's Triangle, Easy, Array, Dynamic Programming"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Iterative Construction approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) where n is numRows, as we visit each element exactly once."}},{"@type":"Question","name":"What is the space complexity of Mathematical Formula approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) for storing the result triangle with n rows."}},{"@type":"Question","name":"Why use memoization in the recursive approach?","acceptedAnswer":{"@type":"Answer","text":"Memoization avoids redundant calculations by caching previously computed values, reducing exponential time complexity to O(n²)."}}]}).replace(/</g,'\u003c')}
+</script>

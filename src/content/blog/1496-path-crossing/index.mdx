@@ -1,0 +1,109 @@
+---
+title: "Path Crossing"
+summary: "Given a path string, determine if you cross your own path at any point during the walk."
+date: "Apr 15, 2026"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 62.60% | **Paid:** No
+> **Topics:** Hash Table, String
+
+Given a string path, where path[i] = 'N', 'S', 'E' or 'W', each representing moving one unit north, south, east, or west, respectively. You start at the origin (0, 0) on a 2D plane and walk on the path specified by path.
+
+Return true if the path crosses itself at any point, that is, if at any time you are on a location you have previously visited. Return false otherwise.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation with Hash Set](#simulation-with-hash-set)
+- [Approach 2: Brute Force Simulation](#brute-force-simulation)
+
+## Examples
+
+Example 1:
+```text
+Input: path = "NES"
+Output: false
+Explanation: Notice that the path doesn't cross any point more than once.
+```
+
+Example 2:
+```text
+Input: path = "NESWW"
+Output: true
+Explanation: The path starts at (0,0), goes to (0,1), (1,1), (1,0), and then back to (0,0). The point (0,0) is visited twice, so the path crosses itself.
+```
+
+## Constraints
+
+```text
+1 <= path.length <= 10⁴
+path[i] is either 'N', 'S', 'E', or 'W'.
+```
+
+---
+## Simulation with Hash Set
+
+**Intuition**
+We can simulate the walk step-by-step, keeping track of every coordinate we visit. If we ever arrive at a coordinate that is already in our set of visited locations, we know the path has crossed itself.
+
+**Steps**
+- Initialize a set data structure to store visited coordinates. Add the starting point (0, 0).
+- Initialize variables x and y to 0 representing the current position.
+- Iterate through each character in the path string:
+  - Update x or y based on the direction (N, S, E, W).
+  - Check if the new coordinate (x, y) exists in the set.
+  - If it exists, return true immediately.
+  - Otherwise, add the new coordinate to the set.
+- If the loop finishes without finding a duplicate, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPathCrossing(self, path: str) -&gt; bool:\n        visited = set()\n        visited.add((0, 0))\n        x, y = 0, 0\n        \n        for direction in path:\n            if direction == 'N':\n                y += 1\n            elif direction == 'S':\n                y -= 1\n            elif direction == 'E':\n                x += 1\n            elif direction == 'W':\n                x -= 1\n            \n            if (x, y) in visited:\n                return True\n            \n            visited.add((x, y))\n        \n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.HashSet;\nimport java.util.Set;\n\nclass Solution {\n    public boolean isPathCrossing(String path) {\n        Set&lt;String&gt; visited = new HashSet&lt;&gt;();\n        visited.add(\"0,0\");\n        int x = 0, y = 0;\n        \n        for (int i = 0; i &lt; path.length(); i++) {\n            char d = path.charAt(i);\n            if (d == 'N') {\n                y++;\n            } else if (d == 'S') {\n                y--;\n            } else if (d == 'E') {\n                x++;\n            } else if (d == 'W') {\n                x--;\n            }\n            \n            String key = x + \",\" + y;\n            if (visited.contains(key)) {\n                return true;\n            }\n            visited.add(key);\n        }\n        \n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_set&gt;\n#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    bool isPathCrossing(std::string path) {\n        std::unordered_set&lt;std::string&gt; visited;\n        visited.insert(\"0,0\");\n        int x = 0, y = 0;\n        \n        for (char d : path) {\n            if (d == 'N') {\n                y++;\n            } else if (d == 'S') {\n                y--;\n            } else if (d == 'E') {\n                x++;\n            } else if (d == 'W') {\n                x--;\n            }\n            \n            std::string key = std::to_string(x) + \",\" + std::to_string(y);\n            if (visited.find(key) != visited.end()) {\n                return true;\n            }\n            visited.insert(key);\n        }\n        \n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} path\n * @return {boolean}\n */\nvar isPathCrossing = function(path) {\n    const visited = new Set();\n    visited.add(\"0,0\");\n    let x = 0, y = 0;\n    \n    for (let i = 0; i &lt; path.length; i++) {\n        const d = path[i];\n        if (d === 'N') {\n            y++;\n        } else if (d === 'S') {\n            y--;\n        } else if (d === 'E') {\n            x++;\n        } else if (d === 'W') {\n            x--;\n        }\n        \n        const key = x + \",\" + y;\n        if (visited.has(key)) {\n            return true;\n        }\n        visited.add(key);\n    }\n    \n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPathCrossing(path: string): boolean {\n    const visited = new Set&lt;string&gt;();\n    visited.add(\"0,0\");\n    let x = 0, y = 0;\n    \n    for (let i = 0; i &lt; path.length; i++) {\n        const d = path[i];\n        if (d === 'N') {\n            y++;\n        } else if (d === 'S') {\n            y--;\n        } else if (d === 'E') {\n            x++;\n        } else if (d === 'W') {\n            x--;\n        }\n        \n        const key = x + \",\" + y;\n        if (visited.has(key)) {\n            return true;\n        }\n        visited.add(key);\n    }\n    \n    return false;\n};" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the path. We iterate through the path once, and set operations are O(1) on average.
+- Space: O(n), to store the visited coordinates in the worst case where no crossing occurs.
+- Notes: This is the most efficient approach for this problem.
+
+---
+## Brute Force Simulation
+
+**Intuition**
+We simulate the walk and store every visited coordinate in a list. For every new step, we scan through the entire list of previously visited coordinates to check for a collision.
+
+**Steps**
+- Initialize a list to store visited coordinates. Add the starting point (0, 0).
+- Initialize variables x and y to 0.
+- Iterate through the path:
+  - Update x and y based on the direction.
+  - Iterate through the list of visited coordinates.
+  - If the current (x, y) matches any coordinate in the list, return true.
+  - Add the current (x, y) to the list.
+- If the loop finishes, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def isPathCrossing(self, path: str) -&gt; bool:\n        visited = [(0, 0)]\n        x, y = 0, 0\n        \n        for direction in path:\n            if direction == 'N':\n                y += 1\n            elif direction == 'S':\n                y -= 1\n            elif direction == 'E':\n                x += 1\n            elif direction == 'W':\n                x -= 1\n            \n            if (x, y) in visited:\n                return True\n            \n            visited.append((x, y))\n        \n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public boolean isPathCrossing(String path) {\n        List&lt;String&gt; visited = new ArrayList&lt;&gt;();\n        visited.add(\"0,0\");\n        int x = 0, y = 0;\n        \n        for (int i = 0; i &lt; path.length(); i++) {\n            char d = path.charAt(i);\n            if (d == 'N') {\n                y++;\n            } else if (d == 'S') {\n                y--;\n            } else if (d == 'E') {\n                x++;\n            } else if (d == 'W') {\n                x--;\n            }\n            \n            String key = x + \",\" + y;\n            if (visited.contains(key)) {\n                return true;\n            }\n            visited.add(key);\n        }\n        \n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;vector&gt;\n\nclass Solution {\npublic:\n    bool isPathCrossing(std::string path) {\n        std::vector&lt;std::string&gt; visited;\n        visited.push_back(\"0,0\");\n        int x = 0, y = 0;\n        \n        for (char d : path) {\n            if (d == 'N') {\n                y++;\n            } else if (d == 'S') {\n                y--;\n            } else if (d == 'E') {\n                x++;\n            } else if (d == 'W') {\n                x--;\n            }\n            \n            std::string key = std::to_string(x) + \",\" + std::to_string(y);\n            if (std::find(visited.begin(), visited.end(), key) != visited.end()) {\n                return true;\n            }\n            visited.push_back(key);\n        }\n        \n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} path\n * @return {boolean}\n */\nvar isPathCrossing = function(path) {\n    const visited = [\"0,0\"];\n    let x = 0, y = 0;\n    \n    for (let i = 0; i &lt; path.length; i++) {\n        const d = path[i];\n        if (d === 'N') {\n            y++;\n        } else if (d === 'S') {\n            y--;\n        } else if (d === 'E') {\n            x++;\n        } else if (d === 'W') {\n            x--;\n        }\n        \n        const key = x + \",\" + y;\n        if (visited.includes(key)) {\n            return true;\n        }\n        visited.push(key);\n    }\n    \n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function isPathCrossing(path: string): boolean {\n    const visited: string[] = [\"0,0\"];\n    let x = 0, y = 0;\n    \n    for (let i = 0; i &lt; path.length; i++) {\n        const d = path[i];\n        if (d === 'N') {\n            y++;\n        } else if (d === 'S') {\n            y--;\n        } else if (d === 'E') {\n            x++;\n        } else if (d === 'W') {\n            x--;\n        }\n        \n        const key = x + \",\" + y;\n        if (visited.includes(key)) {\n            return true;\n        }\n        visited.push(key);\n    }\n    \n    return false;\n};" },]} />
+
+**Complexity**
+- Time: O(n²), where n is the length of the path. For each of the n steps, we scan the list of visited coordinates, which grows up to size n.
+- Space: O(n), to store the visited coordinates.
+- Notes: This approach is conceptually simple but inefficient for large inputs compared to the Hash Set approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Path Crossing Solutions","datePublished":"2026-04-15","description":"Given a path string, determine if you cross your own path at any point during the walk.","keywords":"LeetCode, Path Crossing, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"O(n), where n is the length of the path."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) to store visited coordinates."}},{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(n²) due to scanning the list of visited points for each step."}}]}).replace(/</g,'\u003c')}
+</script>

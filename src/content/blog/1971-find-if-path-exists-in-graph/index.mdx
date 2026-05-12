@@ -1,0 +1,144 @@
+---
+title: "Find if Path Exists in Graph"
+summary: "Determine if a valid path exists between a source and destination node in an undirected graph using DFS, BFS, or Union-Find."
+date: "Jul 21, 2024"
+tags:
+  - Depth-First Search
+  - Breadth-First Search
+  - Union-Find
+  - Graph Theory
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 55.10% | **Paid:** No
+> **Topics:** Depth-First Search, Breadth-First Search, Union-Find, Graph Theory
+
+There is a bi-directional graph with n vertices, where each vertex is labeled from 0 to n - 1 (inclusive). You are given a 2D integer array edges where edges[i] = [ui, vi] denotes that there is an edge between ui and vi. Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+
+You want to determine if there is a valid path that exists from source to destination.
+
+Given edges and the integers n, source, and destination, return true if there is a valid path from source to destination, or false otherwise.
+
+- Examples
+- Constraints
+- [Approach 1: Depth-First Search (DFS)](#approach-1-depth-first-search-dfs)
+- [Approach 2: Breadth-First Search (BFS)](#approach-2-breadth-first-search-bfs)
+- [Approach 3: Union-Find (Disjoint Set Union)](#approach-3-union-find-disjoint-set-union)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2
+Output: true
+Explanation: There are two paths from 0 to 2:
+- 0 → 1 → 2
+- 0 → 2
+```
+
+**Example 2:**
+
+```text
+Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
+Output: false
+Explanation: There is no path from 0 to 5.
+```
+
+## Constraints
+
+```text
+1 <= n <= 2 * 10⁵
+0 <= edges.length <= 2 * 10⁵
+edges[i].length == 2
+0 <= uᵢ, vᵢ <= n - 1
+uᵢ != vᵢ
+0 <= source, destination <= n - 1
+There are no duplicate edges.
+There are no self edges.
+```
+
+---
+## Approach 1: Depth-First Search (DFS)
+
+**Intuition**
+We can treat the graph as a tree-like structure and explore it recursively. Starting from the source node, we visit all unvisited neighbors. If we encounter the destination node during this traversal, a path exists.
+
+**Steps**
+- Build an adjacency list to represent the graph.
+- Initialize a set to keep track of visited nodes to prevent cycles.
+- Define a recursive DFS function that takes the current node as input.
+- In the DFS function, if the current node is the destination, return true.
+- Mark the current node as visited and recursively call DFS on all unvisited neighbors.
+- If the recursion completes without finding the destination, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def validPath(self, n: int, edges: List[List[int]], source: int, destination: int) -&gt; bool:\n        if source == destination:\n            return True\n        graph = defaultdict(list)\n        for u, v in edges:\n            graph[u].append(v)\n            graph[v].append(u)\n        visited = set()\n        def dfs(node):\n            if node == destination:\n                return True\n            visited.add(node)\n            for neighbor in graph[node]:\n                if neighbor not in visited:\n                    if dfs(neighbor):\n                        return True\n            return False\n        return dfs(source)" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean validPath(int n, int[][] edges, int source, int destination) {\n        if (source == destination) return true;\n        List&lt;List&lt;Integer&gt;&gt; graph = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) graph.add(new ArrayList&lt;&gt;());\n        for (int[] edge : edges) {\n            graph.get(edge[0]).add(edge[1]);\n            graph.get(edge[1]).add(edge[0]);\n        }\n        boolean[] visited = new boolean[n];\n        return dfs(source, destination, graph, visited);\n    }\n\n    private boolean dfs(int node, int dest, List&lt;List&lt;Integer&gt;&gt; graph, boolean[] visited) {\n        if (node == dest) return true;\n        visited[node] = true;\n        for (int neighbor : graph.get(node)) {\n            if (!visited[neighbor]) {\n                if (dfs(neighbor, dest, graph, visited)) return true;\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool validPath(int n, vector&lt;vector&lt;int&gt;&gt;& edges, int source, int destination) {\n        if (source == destination) return true;\n        vector&lt;vector&lt;int&gt;&gt; graph(n);\n        for (auto& edge : edges) {\n            graph[edge[0]].push_back(edge[1]);\n            graph[edge[1]].push_back(edge[0]);\n        }\n        unordered_set&lt;int&gt; visited;\n        return dfs(source, destination, graph, visited);\n    }\n\n    bool dfs(int node, int dest, vector&lt;vector&lt;int&gt;&gt;& graph, unordered_set&lt;int&gt;& visited) {\n        if (node == dest) return true;\n        visited.insert(node);\n        for (int neighbor : graph[node]) {\n            if (visited.find(neighbor) == visited.end()) {\n                if (dfs(neighbor, dest, graph, visited)) return true;\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var validPath = function(n, edges, source, destination) {\n    if (source === destination) return true;\n    const graph = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        graph[u].push(v);\n        graph[v].push(u);\n    }\n    const visited = new Set();\n    const dfs = (node) =&gt; {\n        if (node === destination) return true;\n        visited.add(node);\n        for (const neighbor of graph[node]) {\n            if (!visited.has(neighbor)) {\n                if (dfs(neighbor)) return true;\n            }\n        }\n        return false;\n    };\n    return dfs(source);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function validPath(n: number, edges: number[][], source: number, destination: number): boolean {\n    if (source === destination) return true;\n    const graph: number[][] = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        graph[u].push(v);\n        graph[v].push(u);\n    }\n    const visited = new Set&lt;number&gt;();\n    const dfs = (node: number): boolean =&gt; {\n        if (node === destination) return true;\n        visited.add(node);\n        for (const neighbor of graph[node]) {\n            if (!visited.has(neighbor)) {\n                if (dfs(neighbor)) return true;\n            }\n        }\n        return false;\n    };\n    return dfs(source);\n}" },]} />
+
+**Complexity**
+- Time: O(V + E), where V is the number of vertices and E is the number of edges. We visit each node and edge at most once.
+- Space: O(V + E) to store the adjacency list and the visited set/recursion stack.
+- Notes: Recursive DFS may cause a stack overflow for very deep graphs (e.g., a linked list of 2*10⁵ nodes). An iterative stack-based DFS is safer for such cases.
+
+---
+## Approach 2: Breadth-First Search (BFS)
+
+**Intuition**
+BFS explores the graph layer by layer. Starting from the source, we visit all immediate neighbors before moving to their neighbors. This guarantees that we find the shortest path in terms of the number of edges, though for this problem, we only need to know if a path exists.
+
+**Steps**
+- Build an adjacency list.
+- Initialize a queue with the source node and a visited set.
+- While the queue is not empty, dequeue a node.
+- If the node is the destination, return true.
+- Otherwise, mark the node as visited and enqueue all its unvisited neighbors.
+- If the loop finishes, return false.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nfrom collections import deque, defaultdict\n\nclass Solution:\n    def validPath(self, n: int, edges: List[List[int]], source: int, destination: int) -&gt; bool:\n        if source == destination:\n            return True\n        graph = defaultdict(list)\n        for u, v in edges:\n            graph[u].append(v)\n            graph[v].append(u)\n        visited = set([source])\n        queue = deque([source])\n        while queue:\n            node = queue.popleft()\n            if node == destination:\n                return True\n            for neighbor in graph[node]:\n                if neighbor not in visited:\n                    visited.add(neighbor)\n                    queue.append(neighbor)\n        return False" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public boolean validPath(int n, int[][] edges, int source, int destination) {\n        if (source == destination) return true;\n        List&lt;List&lt;Integer&gt;&gt; graph = new ArrayList&lt;&gt;();\n        for (int i = 0; i &lt; n; i++) graph.add(new ArrayList&lt;&gt;());\n        for (int[] edge : edges) {\n            graph.get(edge[0]).add(edge[1]);\n            graph.get(edge[1]).add(edge[0]);\n        }\n        boolean[] visited = new boolean[n];\n        Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();\n        queue.offer(source);\n        visited[source] = true;\n        while (!queue.isEmpty()) {\n            int node = queue.poll();\n            if (node == destination) return true;\n            for (int neighbor : graph.get(node)) {\n                if (!visited[neighbor]) {\n                    visited[neighbor] = true;\n                    queue.offer(neighbor);\n                }\n            }\n        }\n        return false;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;queue&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    bool validPath(int n, vector&lt;vector&lt;int&gt;&gt;& edges, int source, int destination) {\n        if (source == destination) return true;\n        vector&lt;vector&lt;int&gt;&gt; graph(n);\n        for (auto& edge : edges) {\n            graph[edge[0]].push_back(edge[1]);\n            graph[edge[1]].push_back(edge[0]);\n        }\n        vector&lt;bool&gt; visited(n, false);\n        queue&lt;int&gt; q;\n        q.push(source);\n        visited[source] = true;\n        while (!q.empty()) {\n            int node = q.front();\n            q.pop();\n            if (node == destination) return true;\n            for (int neighbor : graph[node]) {\n                if (!visited[neighbor]) {\n                    visited[neighbor] = true;\n                    q.push(neighbor);\n                }\n            }\n        }\n        return false;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var validPath = function(n, edges, source, destination) {\n    if (source === destination) return true;\n    const graph = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        graph[u].push(v);\n        graph[v].push(u);\n    }\n    const visited = new Set([source]);\n    const queue = [source];\n    while (queue.length &gt; 0) {\n        const node = queue.shift();\n        if (node === destination) return true;\n        for (const neighbor of graph[node]) {\n            if (!visited.has(neighbor)) {\n                visited.add(neighbor);\n                queue.push(neighbor);\n            }\n        }\n    }\n    return false;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function validPath(n: number, edges: number[][], source: number, destination: number): boolean {\n    if (source === destination) return true;\n    const graph: number[][] = Array.from({ length: n }, () =&gt; []);\n    for (const [u, v] of edges) {\n        graph[u].push(v);\n        graph[v].push(u);\n    }\n    const visited = new Set&lt;number&gt;([source]);\n    const queue: number[] = [source];\n    while (queue.length &gt; 0) {\n        const node = queue.shift()!;\n        if (node === destination) return true;\n        for (const neighbor of graph[node]) {\n            if (!visited.has(neighbor)) {\n                visited.add(neighbor);\n                queue.push(neighbor);\n            }\n        }\n    }\n    return false;\n}" },]} />
+
+**Complexity**
+- Time: O(V + E), as we process each vertex and edge once.
+- Space: O(V + E) for the graph and O(V) for the queue and visited set.
+- Notes: BFS is generally preferred over recursive DFS for large graphs to avoid stack overflow errors.
+
+---
+## Approach 3: Union-Find (Disjoint Set Union)
+
+**Intuition**
+We can model the problem as connecting components. Initially, every node is its own component. By iterating through the edges, we merge the components of the connected nodes. Finally, if the source and destination nodes belong to the same component (have the same root), a path exists.
+
+**Steps**
+- Initialize a parent array where `parent[i] = i`.
+- Define a `find` function to locate the root of a node with path compression.
+- Define a `union` function to merge the roots of two nodes.
+- Iterate through all edges and perform `union(u, v)`.
+- After processing all edges, check if `find(source) == find(destination)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def validPath(self, n: int, edges: List[List[int]], source: int, destination: int) -&gt; bool:\n        parent = list(range(n))\n        \n        def find(i):\n            if parent[i] != i:\n                parent[i] = find(parent[i])\n            return parent[i]\n        \n        def union(i, j):\n            root_i = find(i)\n            root_j = find(j)\n            if root_i != root_j:\n                parent[root_i] = root_j\n        \n        for u, v in edges:\n            union(u, v)\n            \n        return find(source) == find(destination)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    private int[] parent;\n    \n    public boolean validPath(int n, int[][] edges, int source, int destination) {\n        parent = new int[n];\n        for (int i = 0; i &lt; n; i++) parent[i] = i;\n        \n        for (int[] edge : edges) {\n            union(edge[0], edge[1]);\n        }\n        \n        return find(source) == find(destination);\n    }\n    \n    private int find(int i) {\n        if (parent[i] != i) {\n            parent[i] = find(parent[i]);\n        }\n        return parent[i];\n    }\n    \n    private void union(int i, int j) {\n        int rootI = find(i);\n        int rootJ = find(j);\n        if (rootI != rootJ) {\n            parent[rootI] = rootJ;\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; parent;\n    \n    int find(int i) {\n        if (parent[i] != i) {\n            parent[i] = find(parent[i]);\n        }\n        return parent[i];\n    }\n    \n    void unionNodes(int i, int j) {\n        int rootI = find(i);\n        int rootJ = find(j);\n        if (rootI != rootJ) {\n            parent[rootI] = rootJ;\n        }\n    }\n    \n    bool validPath(int n, vector&lt;vector&lt;int&gt;&gt;& edges, int source, int destination) {\n        parent.resize(n);\n        for (int i = 0; i &lt; n; i++) parent[i] = i;\n        \n        for (auto& edge : edges) {\n            unionNodes(edge[0], edge[1]);\n        }\n        \n        return find(source) == find(destination);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var validPath = function(n, edges, source, destination) {\n    const parent = new Array(n);\n    for (let i = 0; i &lt; n; i++) parent[i] = i;\n    \n    const find = (i) =&gt; {\n        if (parent[i] !== i) {\n            parent[i] = find(parent[i]);\n        }\n        return parent[i];\n    };\n    \n    const union = (i, j) =&gt; {\n        const rootI = find(i);\n        const rootJ = find(j);\n        if (rootI !== rootJ) {\n            parent[rootI] = rootJ;\n        }\n    };\n    \n    for (const [u, v] of edges) {\n        union(u, v);\n    }\n    \n    return find(source) === find(destination);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function validPath(n: number, edges: number[][], source: number, destination: number): boolean {\n    const parent: number[] = new Array(n);\n    for (let i = 0; i &lt; n; i++) parent[i] = i;\n    \n    const find = (i: number): number =&gt; {\n        if (parent[i] !== i) {\n            parent[i] = find(parent[i]);\n        }\n        return parent[i];\n    };\n    \n    const union = (i: number, j: number): void =&gt; {\n        const rootI = find(i);\n        const rootJ = find(j);\n        if (rootI !== rootJ) {\n            parent[rootI] = rootJ;\n        }\n    };\n    \n    for (const [u, v] of edges) {\n        union(u, v);\n    }\n    \n    return find(source) === find(destination);\n}" },]} />
+
+**Complexity**
+- Time: O(E * α(V)), where α is the inverse Ackermann function. This is effectively linear time, O(E), as α(V) grows extremely slowly.
+- Space: O(V) to store the parent array.
+- Notes: Union-Find is highly efficient for dynamic connectivity problems and is often faster than DFS/BFS for this specific use case because it avoids the overhead of building an explicit adjacency list and recursion/stack management.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find if Path Exists in Graph Solutions","datePublished":"2024-07-21","description":"Determine if a valid path exists between a source and destination node in an undirected graph using DFS, BFS, or Union-Find.","keywords":"LeetCode, Find if Path Exists in Graph, Easy, Depth-First Search, Breadth-First Search, Union-Find, Graph Theory"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the DFS approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(V + E), where V is the number of vertices and E is the number of edges, as we visit each node and edge at most once."}},{"@type":"Question","name":"What is the space complexity of the Union-Find approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(V) to store the parent array for the disjoint set."}},{"@type":"Question","name":"Why is Union-Find efficient for this problem?","acceptedAnswer":{"@type":"Answer","text":"Union-Find is efficient because it processes edges in near-linear time (O(E * α(V))) and allows for constant-time connectivity checks after processing."}}]}).replace(/</g,'\u003c')}
+</script>

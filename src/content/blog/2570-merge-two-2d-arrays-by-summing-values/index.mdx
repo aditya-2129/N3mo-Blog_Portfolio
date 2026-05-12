@@ -1,0 +1,443 @@
+---
+title: "Merge Two 2D Arrays by Summing Values"
+summary: "Merge two 2D arrays by summing values for matching IDs and return the result sorted by ID."
+date: "Oct 26, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Two Pointers
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 81.70% | **Paid:** No
+> **Topics:** Array, Hash Table, Two Pointers
+
+You are given two 2D integer arrays nums1 and nums2.
+
+nums1[i] = [idi, vali] indicates that the value vali is associated with the id idi.
+nums2[j] = [idj, valj] indicates that the value valj is associated with the id idj.
+
+Each array is strictly increasing in id, meaning that the ids in each array are distinct and sorted in ascending order.
+
+Merge the two arrays into one array that is sorted in ascending order by id, and if an id appears in both arrays, sum the values associated with that id. The resulting array should only contain unique ids.
+
+Return the resulting array.
+
+- Examples
+- Constraints
+- [Hash Map Approach](#hash-map-approach)
+- [Two Pointers Approach](#two-pointers-approach)
+- [Brute Force Approach](#brute-force-approach)
+
+## Examples
+
+### Example 1
+
+```text
+Input: nums1 = [[1,2],[2,3],[4,5]], nums2 = [[1,4],[3,2],[4,6]]
+Output: [[1,6],[2,3],[3,2],[4,11]]
+Explanation: The id 1 appears in both arrays with values 2 and 4, so we sum them to get 6. 
+The id 2 appears only in nums1 with value 3. The id 3 appears only in nums2 with value 2. 
+The id 4 appears in both arrays with values 5 and 6, so we sum them to get 11.
+```
+
+### Example 2
+
+```text
+Input: nums1 = [[2,4],[3,6],[5,5]], nums2 = [[1,3],[4,3]]
+Output: [[1,3],[2,4],[3,6],[4,3],[5,5]]
+Explanation: There are no common ids, so we just include all ids from both arrays in sorted order.
+```
+
+## Constraints
+
+```text
+1 <= nums1.length, nums2.length <= 200
+nums1[i].length == nums2[j].length == 2
+1 <= idi, idj <= 1000
+0 <= vali, valj <= 10⁶
+nums1 and nums2 are strictly increasing in id.
+```
+
+---
+
+## Hash Map Approach
+
+**Intuition**
+Use a hash map to accumulate values for each unique ID from both arrays, then sort the keys to produce the final result.
+
+**Steps**
+- Create a hash map to store ID to value mappings
+- Iterate through nums1 and add each ID-value pair to the map
+- Iterate through nums2 and add each ID-value pair to the map (summing if ID exists)
+- Sort the map keys and construct the result array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeArrays(self, nums1: List[List[int]], nums2: List[List[int]]) -> List[List[int]]:
+        from collections import defaultdict
+        counter = defaultdict(int)
+        for id, val in nums1:
+            counter[id] += val
+        for id, val in nums2:
+            counter[id] += val
+        return [[id, counter[id]] for id in sorted(counter.keys())]
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] mergeArrays(int[][] nums1, int[][] nums2) {
+        Map<Integer, Integer> map = new TreeMap&lt;&gt;();
+        for (int[] arr : nums1) {
+            map.put(arr[0], map.getOrDefault(arr[0], 0) + arr[1]);
+        }
+        for (int[] arr : nums2) {
+            map.put(arr[0], map.getOrDefault(arr[0], 0) + arr[1]);
+        }
+        int[][] result = new int[map.size()][2];
+        int i = 0;
+        for (int key : map.keySet()) {
+            result[i][0] = key;
+            result[i][1] = map.get(key);
+            i++;
+        }
+        return result;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeArrays(vector<vector<int>&gt;& nums1, vector<vector<int>&gt;& nums2) {
+        map<int, int> counter;
+        for (auto& arr : nums1) {
+            counter[arr[0]] += arr[1];
+        }
+        for (auto& arr : nums2) {
+            counter[arr[0]] += arr[1];
+        }
+        vector<vector<int>&gt; result;
+        for (auto& [id, val] : counter) {
+            result.push_back({id, val});
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} nums1
+ * @param {number[][]} nums2
+ * @return {number[][]}
+ */
+var mergeArrays = function(nums1, nums2) {
+    const map = new Map();
+    for (const [id, val] of nums1) {
+        map.set(id, (map.get(id) || 0) + val);
+    }
+    for (const [id, val] of nums2) {
+        map.set(id, (map.get(id) || 0) + val);
+    }
+    const result = [];
+    const sortedIds = Array.from(map.keys()).sort((a, b) =&gt; a - b);
+    for (const id of sortedIds) {
+        result.push([id, map.get(id)]);
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeArrays(nums1: number[][], nums2: number[][]): number[][] {
+    const map = new Map<number, number>();
+    for (const [id, val] of nums1) {
+        map.set(id, (map.get(id) || 0) + val);
+    }
+    for (const [id, val] of nums2) {
+        map.set(id, (map.get(id) || 0) + val);
+    }
+    const result: number[][] = [];
+    const sortedIds = Array.from(map.keys()).sort((a, b) =&gt; a - b);
+    for (const id of sortedIds) {
+        result.push([id, map.get(id)]);
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O((n + m) log(n + m)) where n and m are lengths of input arrays
+- Space: O(n + m) for the hash map
+- Notes: Using TreeMap in Java or map in C++ automatically handles sorting
+
+---
+
+## Two Pointers Approach
+
+**Intuition**
+Since both arrays are already sorted by ID, use two pointers to merge them in a single pass, similar to the merge step in merge sort.
+
+**Steps**
+- Initialize two pointers at the start of both arrays
+- Compare IDs at both pointers, add the smaller one to result
+- If IDs are equal, sum the values and advance both pointers
+- Add remaining elements from whichever array has leftovers
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeArrays(self, nums1: List[List[int]], nums2: List[List[int]]) -> List[List[int]]:
+        i, j = 0, 0
+        result = []
+        while i &lt; len(nums1) and j &lt; len(nums2):
+            if nums1[i][0] &lt; nums2[j][0]:
+                result.append(nums1[i])
+                i += 1
+            elif nums1[i][0] &gt; nums2[j][0]:
+                result.append(nums2[j])
+                j += 1
+            else:
+                result.append([nums1[i][0], nums1[i][1] + nums2[j][1]])
+                i += 1
+                j += 1
+        while i &lt; len(nums1):
+            result.append(nums1[i])
+            i += 1
+        while j &lt; len(nums2):
+            result.append(nums2[j])
+            j += 1
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] mergeArrays(int[][] nums1, int[][] nums2) {
+        List<int[]&gt; result = new ArrayList&lt;&gt;();
+        int i = 0, j = 0;
+        while (i &lt; nums1.length && j &lt; nums2.length) {
+            if (nums1[i][0] &lt; nums2[j][0]) {
+                result.add(nums1[i]);
+                i++;
+            } else if (nums1[i][0] &gt; nums2[j][0]) {
+                result.add(nums2[j]);
+                j++;
+            } else {
+                result.add(new int[]{nums1[i][0], nums1[i][1] + nums2[j][1]});
+                i++;
+                j++;
+            }
+        }
+        while (i &lt; nums1.length) {
+            result.add(nums1[i]);
+            i++;
+        }
+        while (j &lt; nums2.length) {
+            result.add(nums2[j]);
+            j++;
+        }
+        return result.toArray(new int[result.size()][]);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeArrays(vector<vector<int>&gt;& nums1, vector<vector<int>&gt;& nums2) {
+        vector<vector<int>&gt; result;
+        int i = 0, j = 0;
+        while (i &lt; nums1.size() && j &lt; nums2.size()) {
+            if (nums1[i][0] &lt; nums2[j][0]) {
+                result.push_back(nums1[i]);
+                i++;
+            } else if (nums1[i][0] &gt; nums2[j][0]) {
+                result.push_back(nums2[j]);
+                j++;
+            } else {
+                result.push_back({nums1[i][0], nums1[i][1] + nums2[j][1]});
+                i++;
+                j++;
+            }
+        }
+        while (i &lt; nums1.size()) {
+            result.push_back(nums1[i]);
+            i++;
+        }
+        while (j &lt; nums2.size()) {
+            result.push_back(nums2[j]);
+            j++;
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} nums1
+ * @param {number[][]} nums2
+ * @return {number[][]}
+ */
+var mergeArrays = function(nums1, nums2) {
+    const result = [];
+    let i = 0, j = 0;
+    while (i &lt; nums1.length && j &lt; nums2.length) {
+        if (nums1[i][0] &lt; nums2[j][0]) {
+            result.push(nums1[i]);
+            i++;
+        } else if (nums1[i][0] &gt; nums2[j][0]) {
+            result.push(nums2[j]);
+            j++;
+        } else {
+            result.push([nums1[i][0], nums1[i][1] + nums2[j][1]]);
+            i++;
+            j++;
+        }
+    }
+    while (i &lt; nums1.length) {
+        result.push(nums1[i]);
+        i++;
+    }
+    while (j &lt; nums2.length) {
+        result.push(nums2[j]);
+        j++;
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeArrays(nums1: number[][], nums2: number[][]): number[][] {
+    const result: number[][] = [];
+    let i = 0, j = 0;
+    while (i &lt; nums1.length && j &lt; nums2.length) {
+        if (nums1[i][0] &lt; nums2[j][0]) {
+            result.push(nums1[i]);
+            i++;
+        } else if (nums1[i][0] &gt; nums2[j][0]) {
+            result.push(nums2[j]);
+            j++;
+        } else {
+            result.push([nums1[i][0], nums1[i][1] + nums2[j][1]]);
+            i++;
+            j++;
+        }
+    }
+    while (i &lt; nums1.length) {
+        result.push(nums1[i]);
+        i++;
+    }
+    while (j &lt; nums2.length) {
+        result.push(nums2[j]);
+        j++;
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n + m) where n and m are lengths of input arrays
+- Space: O(n + m) for the result array
+- Notes: Optimal approach that leverages the sorted input property
+
+---
+
+## Brute Force Approach
+
+**Intuition**
+Combine both arrays, sort by ID, then iterate through to sum values for consecutive duplicate IDs.
+
+**Steps**
+- Concatenate both arrays into one combined array
+- Sort the combined array by ID
+- Iterate through sorted array, summing values for consecutive same IDs
+- Build result with unique IDs and summed values
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def mergeArrays(self, nums1: List[List[int]], nums2: List[List[int]]) -> List[List[int]]:
+        combined = nums1 + nums2
+        combined.sort(key=lambda x: x[0])
+        result = []
+        for id, val in combined:
+            if result and result[-1][0] == id:
+                result[-1][1] += val
+            else:
+                result.append([id, val])
+        return result
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int[][] mergeArrays(int[][] nums1, int[][] nums2) {
+        int[][] combined = new int[nums1.length + nums2.length][2];
+        int idx = 0;
+        for (int[] arr : nums1) {
+            combined[idx++] = arr;
+        }
+        for (int[] arr : nums2) {
+            combined[idx++] = arr;
+        }
+        Arrays.sort(combined, (a, b) -> a[0] - b[0]);
+        List<int[]&gt; result = new ArrayList&lt;&gt;();
+        for (int[] arr : combined) {
+            if (!result.isEmpty() && result.get(result.size() - 1)[0] == arr[0]) {
+                result.get(result.size() - 1)[1] += arr[1];
+            } else {
+                result.add(arr);
+            }
+        }
+        return result.toArray(new int[result.size()][]);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    vector<vector<int>&gt; mergeArrays(vector<vector<int>&gt;& nums1, vector<vector<int>&gt;& nums2) {
+        vector<vector<int>&gt; combined;
+        combined.insert(combined.end(), nums1.begin(), nums1.end());
+        combined.insert(combined.end(), nums2.begin(), nums2.end());
+        sort(combined.begin(), combined.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[0] &lt; b[0];
+        });
+        vector<vector<int>&gt; result;
+        for (auto& arr : combined) {
+            if (!result.empty() && result.back()[0] == arr[0]) {
+                result.back()[1] += arr[1];
+            } else {
+                result.push_back(arr);
+            }
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[][]} nums1
+ * @param {number[][]} nums2
+ * @return {number[][]}
+ */
+var mergeArrays = function(nums1, nums2) {
+    const combined = [...nums1, ...nums2];
+    combined.sort((a, b) =&gt; a[0] - b[0]);
+    const result = [];
+    for (const [id, val] of combined) {
+        if (result.length &gt; 0 && result[result.length - 1][0] === id) {
+            result[result.length - 1][1] += val;
+        } else {
+            result.push([id, val]);
+        }
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function mergeArrays(nums1: number[][], nums2: number[][]): number[][] {
+    const combined = [...nums1, ...nums2];
+    combined.sort((a, b) =&gt; a[0] - b[0]);
+    const result: number[][] = [];
+    for (const [id, val] of combined) {
+        if (result.length &gt; 0 && result[result.length - 1][0] === id) {
+            result[result.length - 1][1] += val;
+        } else {
+            result.push([id, val]);
+        }
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O((n + m) log(n + m)) due to sorting
+- Space: O(n + m) for the combined array and result
+- Notes: Simpler to implement but less efficient than two pointers approach
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Merge Two 2D Arrays by Summing Values Solutions","datePublished":"2025-10-26","description":"Merge two 2D arrays by summing values for matching IDs and return the result sorted by ID.","keywords":"LeetCode, Merge Two 2D Arrays by Summing Values, Easy, Array, Hash Table, Two Pointers"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O((n + m) log(n + m)) where n and m are the lengths of the input arrays, due to sorting the keys at the end."}},{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n and m are the lengths of the input arrays. This is the optimal approach since we only traverse each array once."}},{"@type":"Question","name":"What is the space complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) for the result array, as we need to store all unique IDs from both arrays."}},{"@type":"Question","name":"Why is the Two Pointers approach more efficient than the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The Two Pointers approach is more efficient because it leverages the fact that both input arrays are already sorted by ID, eliminating the need for sorting at the end and reducing time complexity from O((n + m) log(n + m)) to O(n + m)."}}]}).replace(/</g,'\u003c')}
+</script>

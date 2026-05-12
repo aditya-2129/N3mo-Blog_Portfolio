@@ -1,0 +1,593 @@
+---
+title: "Closest Binary Search Tree Value"
+summary: "Find the value in a BST that is closest to a given target value."
+date: "Jul 02, 2024"
+tags:
+  - Binary Search
+  - Tree
+  - Depth-First Search
+  - Binary Search Tree
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** N/A | **Paid:** No
+> **Topics:** Binary Search, Tree, Depth-First Search, Binary Search Tree, Binary Tree
+
+Given the root of a binary search tree and a target value, return the value in the BST that is closest to the target.
+
+- Examples
+- Constraints
+- [Inorder Traversal](#inorder-traversal)
+- [Recursive Binary Search](#recursive-binary-search)
+- [Iterative Binary Search](#iterative-binary-search)
+
+## Examples
+
+```text
+Input: root = [4,2,5,1,3], target = 3.714286
+Output: 4
+```
+
+```text
+Input: root = [1], target = 4.428571
+Output: 1
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [1, 10^4].
+0 <= Node.val <= 10^9
+-10^9 <= target <= 10^9
+```
+
+---
+## Inorder Traversal
+
+**Intuition**
+Traverse the entire BST using inorder traversal to get all values in sorted order, then find the value closest to target.
+
+**Steps**
+- Perform inorder traversal to collect all node values
+- Iterate through values and track the closest to target
+- Return the closest value found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def closestValue(self, root: Optional[TreeNode], target: float) -> int:
+        values = []
+        
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.left)
+            values.append(node.val)
+            inorder(node.right)
+        
+        inorder(root)
+        
+        closest = values[0]
+        for v in values:
+            if abs(v - target) &lt; abs(closest - target):
+                closest = v
+        
+        return closest
+` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    private List<Integer> values = new ArrayList&lt;&gt;();
+    
+    public int closestValue(TreeNode root, double target) {
+        inorder(root);
+        
+        int closest = values.get(0);
+        for (int v : values) {
+            if (Math.abs(v - target) &lt; Math.abs(closest - target)) {
+                closest = v;
+            }
+        }
+        return closest;
+    }
+    
+    private void inorder(TreeNode node) {
+        if (node == null) return;
+        inorder(node.left);
+        values.add(node.val);
+        inorder(node.right);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int closestValue(TreeNode* root, double target) {
+        vector<int> values;
+        inorder(root, values);
+        
+        int closest = values[0];
+        for (int v : values) {
+            if (abs(v - target) &lt; abs(closest - target)) {
+                closest = v;
+            }
+        }
+        return closest;
+    }
+    
+private:
+    void inorder(TreeNode* node, vector<int>& values) {
+        if (!node) return;
+        inorder(node->left, values);
+        values.push_back(node->val);
+        inorder(node->right, values);
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} target
+ * @return {number}
+ */
+var closestValue = function(root, target) {
+    const values = [];
+    
+    function inorder(node) {
+        if (!node) return;
+        inorder(node.left);
+        values.push(node.val);
+        inorder(node.right);
+    }
+    
+    inorder(root);
+    
+    let closest = values[0];
+    for (const v of values) {
+        if (Math.abs(v - target) &lt; Math.abs(closest - target)) {
+            closest = v;
+        }
+    }
+    return closest;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function closestValue(root: TreeNode | null, target: number): number {
+    const values: number[] = [];
+    
+    function inorder(node: TreeNode | null): void {
+        if (!node) return;
+        inorder(node.left);
+        values.push(node.val);
+        inorder(node.right);
+    }
+    
+    inorder(root);
+    
+    let closest = values[0];
+    for (const v of values) {
+        if (Math.abs(v - target) &lt; Math.abs(closest - target)) {
+            closest = v;
+        }
+    }
+    return closest;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Simple but not optimal - visits all nodes even when answer is found early
+
+---
+## Recursive Binary Search
+
+**Intuition**
+Use BST property to navigate towards target while tracking the closest value seen so far.
+
+**Steps**
+- Initialize closest with root value
+- Recursively traverse: go left if target &lt; current node, else go right
+- Update closest whenever we find a value closer to target
+- Return closest value
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def closestValue(self, root: Optional[TreeNode], target: float) -> int:
+        closest = root.val
+        
+        def dfs(node):
+            nonlocal closest
+            if not node:
+                return
+            if abs(node.val - target) &lt; abs(closest - target):
+                closest = node.val
+            if target &lt; node.val:
+                dfs(node.left)
+            else:
+                dfs(node.right)
+        
+        dfs(root)
+        return closest
+` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    private int closest;
+    
+    public int closestValue(TreeNode root, double target) {
+        closest = root.val;
+        dfs(root, target);
+        return closest;
+    }
+    
+    private void dfs(TreeNode node, double target) {
+        if (node == null) return;
+        
+        if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+            closest = node.val;
+        }
+        
+        if (target &lt; node.val) {
+            dfs(node.left, target);
+        } else {
+            dfs(node.right, target);
+        }
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    int closest;
+    
+public:
+    int closestValue(TreeNode* root, double target) {
+        closest = root->val;
+        dfs(root, target);
+        return closest;
+    }
+    
+private:
+    void dfs(TreeNode* node, double target) {
+        if (!node) return;
+        
+        if (abs(node->val - target) &lt; abs(closest - target)) {
+            closest = node->val;
+        }
+        
+        if (target &lt; node->val) {
+            dfs(node->left, target);
+        } else {
+            dfs(node->right, target);
+        }
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} target
+ * @return {number}
+ */
+var closestValue = function(root, target) {
+    let closest = root.val;
+    
+    function dfs(node) {
+        if (!node) return;
+        
+        if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+            closest = node.val;
+        }
+        
+        if (target &lt; node.val) {
+            dfs(node.left);
+        } else {
+            dfs(node.right);
+        }
+    }
+    
+    dfs(root);
+    return closest;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function closestValue(root: TreeNode | null, target: number): number {
+    let closest = root.val;
+    
+    function dfs(node: TreeNode | null): void {
+        if (!node) return;
+        
+        if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+            closest = node.val;
+        }
+        
+        if (target &lt; node.val) {
+            dfs(node.left);
+        } else {
+            dfs(node.right);
+        }
+    }
+    
+    dfs(root);
+    return closest;
+}
+` },]} />
+
+**Complexity**
+- Time: O(h)
+- Space: O(h)
+- Notes: Uses recursion stack proportional to tree height
+
+---
+## Iterative Binary Search
+
+**Intuition**
+Same as recursive approach but uses iteration to avoid recursion stack overhead.
+
+**Steps**
+- Initialize closest with root value and current node as root
+- While current node exists:
+  - Update closest if current node is closer to target
+  - Move left if target &lt; current value, else move right
+- Return closest value
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def closestValue(self, root: Optional[TreeNode], target: float) -> int:
+        closest = root.val
+        node = root
+        
+        while node:
+            if abs(node.val - target) &lt; abs(closest - target):
+                closest = node.val
+            if target &lt; node.val:
+                node = node.left
+            else:
+                node = node.right
+        
+        return closest
+` },
+{ name: "Java", lang: "java", code: `/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int closestValue(TreeNode root, double target) {
+        int closest = root.val;
+        TreeNode node = root;
+        
+        while (node != null) {
+            if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+                closest = node.val;
+            }
+            if (target &lt; node.val) {
+                node = node.left;
+            } else {
+                node = node.right;
+            }
+        }
+        return closest;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int closestValue(TreeNode* root, double target) {
+        int closest = root->val;
+        TreeNode* node = root;
+        
+        while (node != nullptr) {
+            if (abs(node->val - target) &lt; abs(closest - target)) {
+                closest = node->val;
+            }
+            if (target &lt; node->val) {
+                node = node->left;
+            } else {
+                node = node->right;
+            }
+        }
+        return closest;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} target
+ * @return {number}
+ */
+var closestValue = function(root, target) {
+    let closest = root.val;
+    let node = root;
+    
+    while (node) {
+        if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+            closest = node.val;
+        }
+        if (target &lt; node.val) {
+            node = node.left;
+        } else {
+            node = node.right;
+        }
+    }
+    return closest;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `/**
+ * Definition for a binary tree node.
+ * class TreeNode {
+ *     val: number
+ *     left: TreeNode | null
+ *     right: TreeNode | null
+ *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
+ *         this.val = (val===undefined ? 0 : val)
+ *         this.left = (left===undefined ? null : left)
+ *         this.right = (right===undefined ? null : right)
+ *     }
+ * }
+ */
+
+function closestValue(root: TreeNode | null, target: number): number {
+    let closest = root.val;
+    let node: TreeNode | null = root;
+    
+    while (node) {
+        if (Math.abs(node.val - target) &lt; Math.abs(closest - target)) {
+            closest = node.val;
+        }
+        if (target &lt; node.val) {
+            node = node.left;
+        } else {
+            node = node.right;
+        }
+    }
+    return closest;
+}
+` },]} />
+
+**Complexity**
+- Time: O(h)
+- Space: O(1)
+- Notes: Optimal solution with constant space complexity
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Closest Binary Search Tree Value Solutions","datePublished":"2024-07-02","description":"Find the value in a BST that is closest to a given target value.","keywords":"LeetCode, Closest Binary Search Tree Value, Easy, Binary Search, Tree, Depth-First Search, Binary Search Tree, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Inorder Traversal approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the number of nodes in the tree."}},{"@type":"Question","name":"What is the time complexity of the Binary Search approaches?","acceptedAnswer":{"@type":"Answer","text":"O(h) where h is the height of the tree. For a balanced BST, this is O(log n)."}},{"@type":"Question","name":"Which approach has the best space complexity?","acceptedAnswer":{"@type":"Answer","text":"The Iterative Binary Search approach has O(1) space complexity, which is optimal."}},{"@type":"Question","name":"Why can we use binary search on a BST?","acceptedAnswer":{"@type":"Answer","text":"Because BSTs have the property that for any node, all values in the left subtree are smaller and all values in the right subtree are larger."}}]}).replace(/</g,'\u003c')}
+</script>

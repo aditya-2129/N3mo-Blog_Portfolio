@@ -1,0 +1,110 @@
+---
+title: "N-ary Tree Preorder Traversal"
+summary: "Given the root of an n-ary tree, return the preorder traversal of its nodes' values."
+date: "May 03, 2024"
+tags:
+  - Stack
+  - Tree
+  - Depth-First Search
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.80% | **Paid:** No
+> **Topics:** Stack, Tree, Depth-First Search
+
+Given the root of an n-ary tree, return the preorder traversal of its nodes' values.
+
+Nary-Tree input serialization is represented in their level order traversal. Each group of children is separated by the null value (See examples).
+
+- Examples
+- Constraints
+- [Recursive Depth-First Search](#recursive-depth-first-search)
+- [Iterative Depth-First Search](#iterative-depth-first-search)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: root = [1,null,3,2,4,null,5,6]
+Output: [1,3,5,6,2,4]
+```
+
+**Example 2:**
+
+```text
+Input: root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
+Output: [1,2,3,6,7,11,14,4,8,12,5,9,13,10]
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 10⁴].
+0 <= Node.val <= 10⁴.
+The height of the n-ary tree is less than or equal to 1000.
+```
+
+---
+
+## Recursive Depth-First Search
+
+**Intuition**
+Preorder traversal visits the root node first, followed by its children from left to right. This naturally lends itself to a recursive approach where we process the current node and then recursively process each child.
+
+**Steps**
+- Check if the root is null. If so, return an empty list.
+- Initialize a result list.
+- Create a recursive helper function that takes a node as input.
+- Inside the helper, add the node's value to the result list.
+- Iterate through the node's children and call the helper function for each child.
+- Call the helper with the root and return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def preorder(self, root: 'Node') -&gt; List[int]:\n        res = []\n        \n        def dfs(node):\n            if not node:\n                return\n            res.append(node.val)\n            for child in node.children:\n                dfs(child)\n                \n        dfs(root)\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Integer&gt; preorder(Node root) {\n        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();\n        helper(root, res);\n        return res;\n    }\n    \n    private void helper(Node node, List&lt;Integer&gt; res) {\n        if (node == null) return;\n        res.add(node.val);\n        for (Node child : node.children) {\n            helper(child, res);\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; preorder(Node* root) {\n        vector&lt;int&gt; res;\n        dfs(root, res);\n        return res;\n    }\n    \n    void dfs(Node* node, vector&lt;int&gt;& res) {\n        if (!node) return;\n        res.push_back(node-&gt;val);\n        for (Node* child : node-&gt;children) {\n            dfs(child, res);\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var preorder = function(root) {\n    const res = [];\n    \n    const dfs = (node) =&gt; {\n        if (!node) return;\n        res.push(node.val);\n        for (const child of node.children) {\n            dfs(child);\n        }\n    };\n    \n    dfs(root);\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function preorder(root: Node | null): number[] {\n    const res: number[] = [];\n    \n    const dfs = (node: Node | null) =&gt; {\n        if (!node) return;\n        res.push(node.val);\n        for (const child of node.children) {\n            dfs(child);\n        }\n    };\n    \n    dfs(root);\n    return res;\n};" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes in the tree. We visit each node exactly once.
+- Space: O(N), in the worst case of a skewed tree (essentially a linked list), the recursion stack can grow as deep as the number of nodes.
+- Notes: Simple and readable, but may cause a stack overflow for extremely deep trees due to recursion limits.
+
+---
+
+## Iterative Depth-First Search
+
+**Intuition**
+We can simulate the recursive approach using an explicit stack. The key is to push children onto the stack in reverse order so that the leftmost child is processed first (LIFO property of stacks).
+
+**Steps**
+- Check if the root is null. If so, return an empty list.
+- Initialize a stack with the root node and an empty result list.
+- While the stack is not empty:
+    - Pop the top node from the stack.
+    - Add the node's value to the result list.
+    - Iterate through the node's children in reverse order and push them onto the stack.
+- Return the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def preorder(self, root: 'Node') -&gt; List[int]:\n        if not root:\n            return []\n        \n        stack = [root]\n        res = []\n        \n        while stack:\n            node = stack.pop()\n            res.append(node.val)\n            # Add children in reverse order to process left-to-right\n            for child in reversed(node.children):\n                stack.append(child)\n                \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public List&lt;Integer&gt; preorder(Node root) {\n        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();\n        if (root == null) return res;\n        \n        Deque&lt;Node&gt; stack = new ArrayDeque&lt;&gt;();\n        stack.push(root);\n        \n        while (!stack.isEmpty()) {\n            Node node = stack.pop();\n            res.add(node.val);\n            \n            // Push children in reverse order\n            List&lt;Node&gt; children = node.children;\n            for (int i = children.size() - 1; i &gt;= 0; i--) {\n                stack.push(children.get(i));\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; preorder(Node* root) {\n        vector&lt;int&gt; res;\n        if (!root) return res;\n        \n        stack&lt;Node*&gt; st;\n        st.push(root);\n        \n        while (!st.empty()) {\n            Node* node = st.top();\n            st.pop();\n            res.push_back(node-&gt;val);\n            \n            // Push children in reverse order\n            for (int i = node-&gt;children.size() - 1; i &gt;= 0; i--) {\n                st.push(node-&gt;children[i]);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var preorder = function(root) {\n    if (!root) return [];\n    \n    const stack = [root];\n    const res = [];\n    \n    while (stack.length) {\n        const node = stack.pop();\n        res.push(node.val);\n        \n        // Push children in reverse order\n        for (let i = node.children.length - 1; i &gt;= 0; i--) {\n            stack.push(node.children[i]);\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function preorder(root: Node | null): number[] {\n    if (!root) return [];\n    \n    const stack: Node[] = [root];\n    const res: number[] = [];\n    \n    while (stack.length) {\n        const node = stack.pop()!;\n        res.push(node.val);\n        \n        // Push children in reverse order\n        for (let i = node.children.length - 1; i &gt;= 0; i--) {\n            stack.push(node.children[i]);\n        }\n    }\n    return res;\n};" },]} />
+
+**Complexity**
+- Time: O(N), where N is the number of nodes. Each node is pushed and popped from the stack exactly once.
+- Space: O(N), to store the stack and the result list. In the worst case, the stack holds all nodes (e.g., root has many children).
+- Notes: Avoids recursion depth limits and is generally preferred in production environments for traversals that might be deep.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode N-ary Tree Preorder Traversal Solutions","datePublished":"2024-05-03","description":"Given the root of an n-ary tree, return the preorder traversal of its nodes' values.","keywords":"LeetCode, N-ary Tree Preorder Traversal, Easy, Stack, Tree, Depth-First Search"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Recursive approach for N-ary Tree Preorder Traversal?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N), where N is the number of nodes in the tree, as each node is visited exactly once."}},{"@type":"Question","name":"What is the space complexity of the Iterative approach for N-ary Tree Preorder Traversal?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the stack and the result list. In the worst case, the stack holds all nodes."}},{"@type":"Question","name":"Why do we push children in reverse order in the Iterative approach?","acceptedAnswer":{"@type":"Answer","text":"We push children in reverse order so that the leftmost child is popped from the stack first, maintaining the correct left-to-right processing order of preorder traversal."}}]}).replace(/</g,'\u003c')}
+</script>

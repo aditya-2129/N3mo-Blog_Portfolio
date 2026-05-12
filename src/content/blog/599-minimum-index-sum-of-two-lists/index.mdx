@@ -1,0 +1,387 @@
+---
+title: "Minimum Index Sum of Two Lists"
+summary: "Given two string arrays, find the common strings with the smallest sum of their indices."
+date: "Dec 25, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 59.80% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of favorite restaurants represented by strings.
+
+You need to help them find out their common interest with the least list index sum. If there is a choice tie between answers, output all of them with no order requirement. You could assume there always exists an answer.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map](#approach-1-hash-map)
+- [Approach 2: Brute Force](#approach-2-brute-force)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+list1 = ["Shogun","Tapioca Express","Burger King","KFC"], list2 = ["Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"]
+```
+
+**Output:**
+```text
+["Shogun"]
+```
+
+**Explanation:**
+The only common string is "Shogun".
+
+### Example 2
+
+**Input:**
+```text
+list1 = ["Shogun","Tapioca Express","Burger King","KFC"], list2 = ["KFC","Shogun","Burger King"]
+```
+
+**Output:**
+```text
+["Shogun"]
+```
+
+**Explanation:**
+The common string with the least index sum is "Shogun" with index sum = (0 + 1) = 1.
+
+### Example 3
+
+**Input:**
+```text
+list1 = ["happy","sad","good"], list2 = ["sad","happy","good"]
+```
+
+**Output:**
+```text
+["sad","happy"]
+```
+
+**Explanation:**
+There are three common strings:
+"happy" with index sum = (0 + 1) = 1.
+"sad" with index sum = (1 + 0) = 1.
+"good" with index sum = (2 + 2) = 4.
+The strings with the least index sum are "sad" and "happy".
+
+## Constraints
+
+```text
+1 <= list1.length, list2.length <= 1000
+The sum of lengths of list1 and list2 will not exceed 1000.
+0 <= list1[i].length, list2[i].length <= 30
+list1[i] and list2[i] consist of spaces ' ' and English letters.
+All the strings of list1 are unique.
+All the strings of list2 are unique.
+```
+
+---
+## Approach 1: Hash Map
+
+**Intuition**
+To efficiently find common strings and their indices, we can store the indices of the first list in a hash map. Then, we iterate through the second list, checking for common strings and calculating the index sum on the fly.
+
+**Steps**
+- Create a hash map to store each string from `list1` as a key and its index as the value.
+- Initialize `minSum` to infinity and an empty list `result`.
+- Iterate through `list2` with index `j`.
+- If the current string exists in the hash map, calculate the sum of the stored index and `j`.
+- If this sum is less than `minSum`, update `minSum` and reset `result` with the current string.
+- If the sum equals `minSum`, append the current string to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findRestaurant(self, list1: List[str], list2: List[str]) -> List[str]:
+        index_map = {s: i for i, s in enumerate(list1)}
+        min_sum = float('inf')
+        result = []
+        
+        for j, s in enumerate(list2):
+            if s in index_map:
+                curr_sum = index_map[s] + j
+                if curr_sum &lt; min_sum:
+                    min_sum = curr_sum
+                    result = [s]
+                elif curr_sum == min_sum:
+                    result.append(s)
+        return result
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public String[] findRestaurant(String[] list1, String[] list2) {
+        Map<String, Integer> map = new HashMap&lt;&gt;();
+        for (int i = 0; i &lt; list1.length; i++) {
+            map.put(list1[i], i);
+        }
+        
+        List<String> res = new ArrayList&lt;&gt;();
+        int minSum = Integer.MAX_VALUE;
+        
+        for (int j = 0; j &lt; list2.length; j++) {
+            if (map.containsKey(list2[j])) {
+                int sum = map.get(list2[j]) + j;
+                if (sum &lt; minSum) {
+                    minSum = sum;
+                    res.clear();
+                    res.add(list2[j]);
+                } else if (sum == minSum) {
+                    res.add(list2[j]);
+                }
+            }
+        }
+        return res.toArray(new String[0]);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <unordered_map>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> indexMap;
+        for (int i = 0; i &lt; list1.size(); ++i) {
+            indexMap[list1[i]] = i;
+        }
+        
+        vector<string> result;
+        int minSum = INT_MAX;
+        
+        for (int j = 0; j &lt; list2.size(); ++j) {
+            if (indexMap.find(list2[j]) != indexMap.end()) {
+                int currentSum = indexMap[list2[j]] + j;
+                if (currentSum &lt; minSum) {
+                    minSum = currentSum;
+                    result.clear();
+                    result.push_back(list2[j]);
+                } else if (currentSum == minSum) {
+                    result.push_back(list2[j]);
+                }
+            }
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} list1
+ * @param {string[]} list2
+ * @return {string[]}
+ */
+var findRestaurant = function(list1, list2) {
+    const indexMap = new Map();
+    list1.forEach((s, i) =&gt; indexMap.set(s, i));
+    
+    let minSum = Infinity;
+    const result = [];
+    
+    for (let j = 0; j &lt; list2.length; j++) {
+        if (indexMap.has(list2[j])) {
+            const currentSum = indexMap.get(list2[j]) + j;
+            if (currentSum &lt; minSum) {
+                minSum = currentSum;
+                result.length = 0;
+                result.push(list2[j]);
+            } else if (currentSum === minSum) {
+                result.push(list2[j]);
+            }
+        }
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findRestaurant(list1: string[], list2: string[]): string[] {
+    const indexMap = new Map<string, number>();
+    list1.forEach((s, i) =&gt; indexMap.set(s, i));
+    
+    let minSum = Infinity;
+    const result: string[] = [];
+    
+    for (let j = 0; j &lt; list2.length; j++) {
+        if (indexMap.has(list2[j])) {
+            const currentSum = indexMap.get(list2[j])! + j;
+            if (currentSum &lt; minSum) {
+                minSum = currentSum;
+                result.length = 0;
+                result.push(list2[j]);
+            } else if (currentSum === minSum) {
+                result.push(list2[j]);
+            }
+        }
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of `list1` and `list2`. We traverse each list once.
+- Space: O(N), to store the hash map for `list1`.
+- Notes: This is the optimal solution for this problem.
+
+---
+## Approach 2: Brute Force
+
+**Intuition**
+Compare every string in the first list with every string in the second list. If they match, calculate the sum of their indices and track the minimum sum found.
+
+**Steps**
+- Initialize `minSum` to infinity and an empty list `result`.
+- Iterate through `list1` with index `i`.
+- Iterate through `list2` with index `j`.
+- If `list1[i]` equals `list2[j]`:
+    - Calculate `sum = i + j`.
+    - If `sum &lt; minSum`, update `minSum` and set `result` to `[list1[i]]`.
+    - If `sum == minSum`, append `list1[i]` to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def findRestaurant(self, list1: List[str], list2: List[str]) -> List[str]:
+        min_sum = float('inf')
+        result = []
+        
+        for i, s1 in enumerate(list1):
+            for j, s2 in enumerate(list2):
+                if s1 == s2:
+                    curr_sum = i + j
+                    if curr_sum &lt; min_sum:
+                        min_sum = curr_sum
+                        result = [s1]
+                    elif curr_sum == min_sum:
+                        result.append(s1)
+        return result
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public String[] findRestaurant(String[] list1, String[] list2) {
+        List<String> res = new ArrayList&lt;&gt;();
+        int minSum = Integer.MAX_VALUE;
+        
+        for (int i = 0; i &lt; list1.length; i++) {
+            for (int j = 0; j &lt; list2.length; j++) {
+                if (list1[i].equals(list2[j])) {
+                    int sum = i + j;
+                    if (sum &lt; minSum) {
+                        minSum = sum;
+                        res.clear();
+                        res.add(list1[i]);
+                    } else if (sum == minSum) {
+                        res.add(list1[i]);
+                    }
+                }
+            }
+        }
+        return res.toArray(new String[0]);
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        vector<string> result;
+        int minSum = INT_MAX;
+        
+        for (int i = 0; i &lt; list1.size(); ++i) {
+            for (int j = 0; j &lt; list2.size(); ++j) {
+                if (list1[i] == list2[j]) {
+                    int currentSum = i + j;
+                    if (currentSum &lt; minSum) {
+                        minSum = currentSum;
+                        result.clear();
+                        result.push_back(list1[i]);
+                    } else if (currentSum == minSum) {
+                        result.push_back(list1[i]);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string[]} list1
+ * @param {string[]} list2
+ * @return {string[]}
+ */
+var findRestaurant = function(list1, list2) {
+    let minSum = Infinity;
+    const result = [];
+    
+    for (let i = 0; i &lt; list1.length; i++) {
+        for (let j = 0; j &lt; list2.length; j++) {
+            if (list1[i] === list2[j]) {
+                const currentSum = i + j;
+                if (currentSum &lt; minSum) {
+                    minSum = currentSum;
+                    result.length = 0;
+                    result.push(list1[i]);
+                } else if (currentSum === minSum) {
+                    result.push(list1[i]);
+                }
+            }
+        }
+    }
+    return result;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function findRestaurant(list1: string[], list2: string[]): string[] {
+    let minSum = Infinity;
+    const result: string[] = [];
+    
+    for (let i = 0; i &lt; list1.length; i++) {
+        for (let j = 0; j &lt; list2.length; j++) {
+            if (list1[i] === list2[j]) {
+                const currentSum = i + j;
+                if (currentSum &lt; minSum) {
+                    minSum = currentSum;
+                    result.length = 0;
+                    result.push(list1[i]);
+                } else if (currentSum === minSum) {
+                    result.push(list1[i]);
+                }
+            }
+        }
+    }
+    return result;
+}
+` },]} />
+
+**Complexity**
+- Time: O(N * M), where N and M are the lengths of `list1` and `list2`. In the worst case, we check every pair.
+- Space: O(1), excluding the space required for the output list.
+- Notes: This approach is simple but inefficient for large inputs compared to the hash map approach.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Index Sum of Two Lists Solutions","datePublished":"2025-12-25","description":"Given two string arrays, find the common strings with the smallest sum of their indices.","keywords":"LeetCode, Minimum Index Sum of Two Lists, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N and M are the lengths of the two lists."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N) to store the elements of the first list in the hash map."}},{"@type":"Question","name":"Is the Brute Force approach efficient?","acceptedAnswer":{"@type":"Answer","text":"No, the Brute Force approach has a time complexity of O(N * M), which is significantly slower for larger inputs."}}]}).replace(/</g,'\u003c')}
+</script>

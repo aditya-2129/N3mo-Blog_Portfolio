@@ -1,0 +1,128 @@
+---
+title: "Third Maximum Number"
+summary: "Given an integer array, return the third distinct maximum number, or the maximum if it doesn't exist."
+date: "Mar 08, 2025"
+tags:
+  - Array
+  - Sorting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 39.30% | **Paid:** No
+> **Topics:** Array, Sorting
+
+Given an integer array nums, return the third distinct maximum number in this array. If the third maximum does not exist, return the maximum number.
+
+- Examples
+- Constraints
+- [Sorting Approach](#sorting-approach)
+- [Three Variables Approach](#three-variables-approach)
+- [Set + Heap Approach](#set--heap-approach)
+
+## Examples
+
+```text
+Input: nums = [3,2,1]
+Output: 1
+Explanation: The third maximum is 1.
+```
+
+```text
+Input: nums = [1,2]
+Output: 2
+Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
+```
+
+```text
+Input: nums = [2,2,3,1]
+Output: 1
+Explanation: Note that the third maximum here means the third maximum distinct number. Both numbers with value 2 are both considered as second maximum.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 10^4
+- -2^31 <= nums[i] <= 2^31 - 1
+```
+
+---
+
+## Sorting Approach
+
+**Intuition**
+Convert the array to a set to remove duplicates, sort in descending order, and pick the third element if it exists.
+
+**Steps**
+- Create a set from the array to get distinct elements
+- Sort the distinct elements in descending order
+- Return the third element if there are at least 3 distinct elements, otherwise return the maximum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def thirdMax(self, nums: List[int]) -&gt; int:\n        nums = sorted(set(nums), reverse=True)\n        if len(nums) &gt;= 3:\n            return nums[2]\n        return nums[0]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int thirdMax(int[] nums) {\n        Set&lt;Integer&gt; set = new HashSet&lt;&gt;();\n        for (int num : nums) {\n            set.add(num);\n        }\n        List&lt;Integer&gt; list = new ArrayList&lt;&gt;(set);\n        Collections.sort(list, Collections.reverseOrder());\n        if (list.size() &gt;= 3) {\n            return list.get(2);\n        }\n        return list.get(0);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int thirdMax(vector&lt;int&gt;& nums) {\n        set&lt;int&gt; s(nums.begin(), nums.end());\n        vector&lt;int&gt; v(s.begin(), s.end());\n        sort(v.rbegin(), v.rend());\n        if (v.size() &gt;= 3) {\n            return v[2];\n        }\n        return v[0];\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar thirdMax = function(nums) {\n    const distinct = [...new Set(nums)].sort((a, b) =&gt; b - a);\n    if (distinct.length &gt;= 3) {\n        return distinct[2];\n    }\n    return distinct[0];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function thirdMax(nums: number[]): number {\n    const distinct = [...new Set(nums)].sort((a, b) =&gt; b - a);\n    if (distinct.length &gt;= 3) {\n        return distinct[2];\n    }\n    return distinct[0];\n}" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Simple and readable, but sorting is not necessary for this problem
+
+---
+
+## Three Variables Approach
+
+**Intuition**
+Maintain three variables to track the top three distinct maximums while iterating through the array once.
+
+**Steps**
+- Initialize three variables to track first, second, and third maximums
+- Iterate through each number, skipping duplicates
+- Update the three variables based on comparisons
+- Return third maximum if it exists, otherwise return first maximum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def thirdMax(self, nums: List[int]) -&gt; int:\n        first = second = third = None\n        for num in nums:\n            if num == first or num == second or num == third:\n                continue\n            if first is None or num &gt; first:\n                third = second\n                second = first\n                first = num\n            elif second is None or num &gt; second:\n                third = second\n                second = num\n            elif third is None or num &gt; third:\n                third = num\n        return third if third is not None else first" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int thirdMax(int[] nums) {\n        Integer first = null, second = null, third = null;\n        for (int num : nums) {\n            if (num == first || num == second || num == third) {\n                continue;\n            }\n            if (first == null || num &gt; first) {\n                third = second;\n                second = first;\n                first = num;\n            } else if (second == null || num &gt; second) {\n                third = second;\n                second = num;\n            } else if (third == null || num &gt; third) {\n                third = num;\n            }\n        }\n        return third != null ? third : first;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int thirdMax(vector&lt;int&gt;& nums) {\n        long first = LONG_MIN, second = LONG_MIN, third = LONG_MIN;\n        for (int num : nums) {\n            if (num == first || num == second || num == third) {\n                continue;\n            }\n            if (num &gt; first) {\n                third = second;\n                second = first;\n                first = num;\n            } else if (num &gt; second) {\n                third = second;\n                second = num;\n            } else if (num &gt; third) {\n                third = num;\n            }\n        }\n        return third != LONG_MIN ? third : first;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar thirdMax = function(nums) {\n    let first = null, second = null, third = null;\n    for (const num of nums) {\n        if (num === first || num === second || num === third) {\n            continue;\n        }\n        if (first === null || num &gt; first) {\n            third = second;\n            second = first;\n            first = num;\n        } else if (second === null || num &gt; second) {\n            third = second;\n            second = num;\n        } else if (third === null || num &gt; third) {\n            third = num;\n        }\n    }\n    return third !== null ? third : first;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function thirdMax(nums: number[]): number {\n    let first: number | null = null, second: number | null = null, third: number | null = null;\n    for (const num of nums) {\n        if (num === first || num === second || num === third) {\n            continue;\n        }\n        if (first === null || num &gt; first) {\n            third = second;\n            second = first;\n            first = num;\n        } else if (second === null || num &gt; second) {\n            third = second;\n            second = num;\n        } else if (third === null || num &gt; third) {\n            third = num;\n        }\n    }\n    return third !== null ? third : first;\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal single-pass solution with constant space
+
+---
+
+## Set + Heap Approach
+
+**Intuition**
+Use a set to get distinct elements, then either use a heap or direct access to find the third maximum.
+
+**Steps**
+- Create a set from the array to remove duplicates
+- If fewer than 3 distinct elements, return the maximum
+- Otherwise, find the third largest element using heap or sorting
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def thirdMax(self, nums: List[int]) -&gt; int:\n        distinct = set(nums)\n        if len(distinct) &lt; 3:\n            return max(distinct)\n        return heapq.nlargest(3, distinct)[-1]" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int thirdMax(int[] nums) {\n        Set&lt;Integer&gt; set = new HashSet&lt;&gt;();\n        for (int num : nums) {\n            set.add(num);\n        }\n        if (set.size() &lt; 3) {\n            return Collections.max(set);\n        }\n        PriorityQueue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();\n        for (int num : set) {\n            minHeap.offer(num);\n            if (minHeap.size() &gt; 3) {\n                minHeap.poll();\n            }\n        }\n        return minHeap.peek();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int thirdMax(vector&lt;int&gt;& nums) {\n        set&lt;int&gt; s(nums.begin(), nums.end());\n        if (s.size() &lt; 3) {\n            return *s.rbegin();\n        }\n        auto it = s.rbegin();\n        advance(it, 2);\n        return *it;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar thirdMax = function(nums) {\n    const distinct = new Set(nums);\n    if (distinct.size &lt; 3) {\n        return Math.max(...distinct);\n    }\n    const arr = [...distinct].sort((a, b) =&gt; b - a);\n    return arr[2];\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function thirdMax(nums: number[]): number {\n    const distinct = new Set(nums);\n    if (distinct.size &lt; 3) {\n        return Math.max(...distinct);\n    }\n    const arr = [...distinct].sort((a, b) =&gt; b - a);\n    return arr[2];\n}" },]} />
+
+**Complexity**
+- Time: O(n) or O(n log n) depending on implementation
+- Space: O(n)
+- Notes: Clean approach using set operations, C++ set is already sorted
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Third Maximum Number Solutions","datePublished":"2025-03-08","description":"Given an integer array, return the third distinct maximum number, or the maximum if it doesn't exist.","keywords":"LeetCode, Third Maximum Number, Easy, Array, Sorting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Sorting Approach?","acceptedAnswer":{"@type":"Answer","text":"The Sorting Approach has a time complexity of O(n log n) due to the sorting operation."}},{"@type":"Question","name":"What is the time complexity of the Three Variables Approach?","acceptedAnswer":{"@type":"Answer","text":"The Three Variables Approach has a time complexity of O(n) as it iterates through the array once."}},{"@type":"Question","name":"Which approach uses the least space?","acceptedAnswer":{"@type":"Answer","text":"The Three Variables Approach uses O(1) space, making it the most space-efficient solution."}}]}).replace(/</g,'\u003c')}
+</script>

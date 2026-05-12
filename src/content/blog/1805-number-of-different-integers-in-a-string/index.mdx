@@ -1,0 +1,441 @@
+---
+title: "Number of Different Integers in a String"
+summary: "Count distinct integer values in a string containing digits and letters, ignoring leading zeros."
+date: "Apr 15, 2026"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 40.30% | **Paid:** No
+> **Topics:** Hash Table, String
+
+You are given a string word that consists of digits and lowercase English letters.
+
+You must replace every non-digit character of the string with a space.
+
+For example, "a123bc34d8ef34" becomes " 123  34  8  34".
+
+Return the number of different integers that appear in word after the replacement.
+
+Note that leading zeros are ignored.
+
+For example, "01" and "001" represent the same integer "1".
+
+- Examples
+- Constraints
+- [Regex Extraction](#regex-extraction)
+- [Iterative Parsing](#iterative-parsing)
+- [String Split](#string-split)
+
+## Examples
+
+```text
+Input: word = "a123bc34d8ef34"
+Output: 3
+Explanation: The three different integers are "123", "34", and "8". Note that "34" is counted only once.
+```
+
+```text
+Input: word = "leet1234code234"
+Output: 2
+```
+
+```text
+Input: word = "a1b01c001"
+Output: 1
+Explanation: The three integers "1", "01", and "001" all represent the same integer "1".
+```
+
+## Constraints
+
+```text
+1 <= word.length <= 1000
+word consists of digits and lowercase English letters.
+```
+
+---
+## Regex Extraction
+
+**Intuition**
+Use regular expressions to find all digit sequences, then normalize each by removing leading zeros before adding to a set.
+
+**Steps**
+- Use regex pattern `\d+` to find all consecutive digit sequences
+- For each match, strip leading zeros (keeping at least one digit)
+- Add normalized string to a hash set
+- Return the size of the set
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+
+class Solution:
+    def numDifferentIntegers(self, word: str) -> int:
+        numbers = re.findall(r'\d+', word)
+        unique = set()
+        for num in numbers:
+            stripped = num.lstrip('0')
+            if stripped == '':
+                stripped = '0'
+            unique.add(stripped)
+        return len(unique)
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.util.regex.*;
+
+class Solution {
+    public int numDifferentIntegers(String word) {
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(word);
+        Set<String> unique = new HashSet&lt;&gt;();
+        
+        while (matcher.find()) {
+            String num = matcher.group();
+            String stripped = num.replaceFirst("^0+(?!$)", "");
+            if (stripped.isEmpty()) {
+                stripped = "0";
+            }
+            unique.add(stripped);
+        }
+        
+        return unique.size();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+#include <unordered_set>
+#include <regex>
+
+using namespace std;
+
+class Solution {
+public:
+    int numDifferentIntegers(string word) {
+        regex pattern("\\d+");
+        unordered_set<string> unique;
+        
+        for (sregex_iterator it(word.begin(), word.end(), pattern), end; it != end; ++it) {
+            string num = it->str();
+            size_t start = num.find_first_not_of('0');
+            string stripped = (start == string::npos) ? "0" : num.substr(start);
+            unique.insert(stripped);
+        }
+        
+        return unique.size();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} word
+ * @return {number}
+ */
+var numDifferentIntegers = function(word) {
+    const matches = word.match(/\d+/g) || [];
+    const unique = new Set();
+    
+    for (const num of matches) {
+        const stripped = num.replace(/^0+(?!$)/, '');
+        unique.add(stripped === '' ? '0' : stripped);
+    }
+    
+    return unique.size();
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numDifferentIntegers(word: string): number {
+    const matches = word.match(/\d+/g) || [];
+    const unique = new Set<string>();
+    
+    for (const num of matches) {
+        const stripped = num.replace(/^0+(?!$)/, '');
+        unique.add(stripped === '' ? '0' : stripped);
+    }
+    
+    return unique.size;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of the string
+- Space: O(n) for storing unique numbers
+- Notes: Clean and concise, regex handles the heavy lifting
+
+---
+## Iterative Parsing
+
+**Intuition**
+Scan through the string character by character, collecting consecutive digits into numbers and normalizing them.
+
+**Steps**
+- Iterate through the string with index i
+- When a digit is found, extend j to capture all consecutive digits
+- Extract substring, strip leading zeros, add to set
+- Skip non-digit characters
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def numDifferentIntegers(self, word: str) -> int:
+        unique = set()
+        i = 0
+        n = len(word)
+        
+        while i &lt; n:
+            if word[i].isdigit():
+                j = i
+                while j &lt; n and word[j].isdigit():
+                    j += 1
+                num = word[i:j]
+                stripped = num.lstrip('0')
+                if stripped == '':
+                    stripped = '0'
+                unique.add(stripped)
+                i = j
+            else:
+                i += 1
+        
+        return len(unique)
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int numDifferentIntegers(String word) {
+        Set<String> unique = new HashSet&lt;&gt;();
+        int i = 0;
+        int n = word.length();
+        
+        while (i &lt; n) {
+            if (Character.isDigit(word.charAt(i))) {
+                int j = i;
+                while (j &lt; n && Character.isDigit(word.charAt(j))) {
+                    j++;
+                }
+                String num = word.substring(i, j);
+                int start = 0;
+                while (start &lt; num.length() - 1 && num.charAt(start) == '0') {
+                    start++;
+                }
+                String stripped = num.substring(start);
+                unique.add(stripped);
+                i = j;
+            } else {
+                i++;
+            }
+        }
+        
+        return unique.size();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int numDifferentIntegers(string word) {
+        unordered_set<string> unique;
+        int i = 0;
+        int n = word.size();
+        
+        while (i &lt; n) {
+            if (isdigit(word[i])) {
+                int j = i;
+                while (j &lt; n && isdigit(word[j])) {
+                    j++;
+                }
+                string num = word.substr(i, j - i);
+                size_t start = num.find_first_not_of('0');
+                string stripped = (start == string::npos) ? "0" : num.substr(start);
+                unique.insert(stripped);
+                i = j;
+            } else {
+                i++;
+            }
+        }
+        
+        return unique.size();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} word
+ * @return {number}
+ */
+var numDifferentIntegers = function(word) {
+    const unique = new Set();
+    let i = 0;
+    const n = word.length;
+    
+    while (i &lt; n) {
+        if (/\d/.test(word[i])) {
+            let j = i;
+            while (j &lt; n && /\d/.test(word[j])) {
+                j++;
+            }
+            const num = word.substring(i, j);
+            const stripped = num.replace(/^0+(?!$)/, '');
+            unique.add(stripped === '' ? '0' : stripped);
+            i = j;
+        } else {
+            i++;
+        }
+    }
+    
+    return unique.size;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numDifferentIntegers(word: string): number {
+    const unique = new Set<string>();
+    let i = 0;
+    const n = word.length;
+    
+    while (i &lt; n) {
+        if (/\d/.test(word[i])) {
+            let j = i;
+            while (j &lt; n && /\d/.test(word[j])) {
+                j++;
+            }
+            const num = word.substring(i, j);
+            const stripped = num.replace(/^0+(?!$)/, '');
+            unique.add(stripped === '' ? '0' : stripped);
+            i = j;
+        } else {
+            i++;
+        }
+    }
+    
+    return unique.size;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) single pass through the string
+- Space: O(n) for storing unique numbers
+- Notes: No regex dependency, explicit control over parsing
+
+---
+## String Split
+
+**Intuition**
+Replace all letters with spaces, then split by whitespace to isolate numbers for normalization.
+
+**Steps**
+- Replace all alphabetic characters with spaces
+- Split the resulting string by whitespace
+- Process each non-empty token by stripping leading zeros
+- Add to set and return count
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import re
+
+class Solution:
+    def numDifferentIntegers(self, word: str) -> int:
+        parts = re.split('[a-z]+', word)
+        unique = set()
+        
+        for part in parts:
+            if part:
+                stripped = part.lstrip('0')
+                if stripped == '':
+                    stripped = '0'
+                unique.add(stripped)
+        
+        return len(unique)
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int numDifferentIntegers(String word) {
+        Set<String> unique = new HashSet&lt;&gt;();
+        String[] parts = word.split("[a-z]+");
+        
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                int start = 0;
+                while (start &lt; part.length() - 1 && part.charAt(start) == '0') {
+                    start++;
+                }
+                String stripped = part.substring(start);
+                unique.add(stripped);
+            }
+        }
+        
+        return unique.size();
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `#include <string>
+#include <unordered_set>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+public:
+    int numDifferentIntegers(string word) {
+        unordered_set<string> unique;
+        stringstream ss;
+        
+        for (char c : word) {
+            if (isalpha(c)) {
+                ss &lt;&lt; ' ';
+            } else {
+                ss &lt;&lt; c;
+            }
+        }
+        
+        string token;
+        while (ss &gt;&gt; token) {
+            size_t start = token.find_first_not_of('0');
+            string stripped = (start == string::npos) ? "0" : token.substr(start);
+            unique.insert(stripped);
+        }
+        
+        return unique.size();
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {string} word
+ * @return {number}
+ */
+var numDifferentIntegers = function(word) {
+    const unique = new Set();
+    const parts = word.replace(/[a-z]/g, ' ').split(/\s+/);
+    
+    for (const part of parts) {
+        if (part) {
+            const stripped = part.replace(/^0+(?!$)/, '');
+            unique.add(stripped === '' ? '0' : stripped);
+        }
+    }
+    
+    return unique.size;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function numDifferentIntegers(word: string): number {
+    const unique = new Set<string>();
+    const parts = word.replace(/[a-z]/g, ' ').split(/\s+/);
+    
+    for (const part of parts) {
+        if (part) {
+            const stripped = part.replace(/^0+(?!$)/, '');
+            unique.add(stripped === '' ? '0' : stripped);
+        }
+    }
+    
+    return unique.size;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) for string transformation and splitting
+- Space: O(n) for the transformed string and set
+- Notes: Intuitive approach following the problem description literally
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Different Integers in a String Solutions","datePublished":"2026-04-15","description":"Count distinct integer values in a string containing digits and letters, ignoring leading zeros.","keywords":"LeetCode, Number of Different Integers in a String, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Regex Extraction approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of the string, as regex scans through once and set operations are O(1) average."}},{"@type":"Question","name":"What is the space complexity of Iterative Parsing approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) for storing the unique integer strings in the hash set."}},{"@type":"Question","name":"How are leading zeros handled in all approaches?","acceptedAnswer":{"@type":"Answer","text":"Leading zeros are stripped from each number string before adding to the set, ensuring '01', '001', and '1' are treated as the same value."}},{"@type":"Question","name":"Why use strings instead of converting to integers?","acceptedAnswer":{"@type":"Answer","text":"Numbers can be very long (up to 1000 digits), exceeding standard integer limits. String comparison handles this safely."}}]}).replace(/</g,'\u003c')}
+</script>

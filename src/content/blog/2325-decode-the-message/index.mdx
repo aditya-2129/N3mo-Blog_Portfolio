@@ -1,0 +1,111 @@
+---
+title: "Decode the Message"
+summary: "Decode a message using a substitution cipher derived from the first occurrence of each letter in a given key."
+date: "Jun 15, 2025"
+tags:
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.80% | **Paid:** No
+> **Topics:** Hash Table, String
+
+You are given the strings key and message, which represent a cipher key and a secret message, respectively. The steps to decode the message are as follows:
+
+1. Use the first occurrence of each letter in key to replace the corresponding letter in the English alphabet (a, b, c, ..., z) with that letter.
+2. Replace every letter in message with the letter that it is mapped to in the substitution table.
+3. Return the decoded message.
+
+- Examples
+- Constraints
+- [Hash Map](#hash-map)
+- [Array Mapping](#array-mapping)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: key = "the quick brown fox jumps over the lazy dog", message = "vkbs bs t suepuv"
+Output: "this is a secret"
+Explanation: The substitution table is built based on the key:
+'t' -> 'a', 'h' -> 'b', 'e' -> 'c', ' ' -> ' ', 'q' -> 'd', 'u' -> 'e', ...
+The decoded message is "this is a secret".
+```
+
+**Example 2:**
+
+```text
+Input: key = "eljuxspwnhldybcgmkfqoiuztewvry", message = "zwx hnfx lqantp mnoeius ycgk vcnjrdb"
+Output: "the five boxing wizards jump quickly"
+```
+
+## Constraints
+
+```text
+26 <= key.length <= 2000
+key consists of lowercase English letters and ' '.
+key contains every letter in the English alphabet at least once.
+1 <= message.length <= 2000
+message consists of lowercase English letters and ' '.
+```
+
+---
+## Hash Map
+
+**Intuition**
+We can iterate through the `key` string to build a mapping (dictionary) from each unique character to the corresponding letter in the standard alphabet ('a' to 'z'). Then, we iterate through the `message` and substitute each character using this map.
+
+**Steps**
+- Initialize an empty hash map and a variable representing the current target character starting at 'a'.
+- Iterate through each character in the `key`.
+- If the character is a space, skip it.
+- If the character is not already in the map, add it with the current target character as its value, then increment the target character.
+- Iterate through the `message`. If the character is a space, append it to the result. Otherwise, append the mapped value from the hash map.
+- Return the constructed result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def decodeMessage(self, key: str, message: str) -&gt; str:\n        mapping = {}\n        current_char = 'a'\n        \n        for char in key:\n            if char == ' ':\n                continue\n            if char not in mapping:\n                mapping[char] = current_char\n                current_char = chr(ord(current_char) + 1)\n        \n        result = []\n        for char in message:\n            if char == ' ':\n                result.append(' ')\n            else:\n                result.append(mapping[char])\n                \n        return ''.join(result)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String decodeMessage(String key, String message) {\n        Map&lt;Character, Character&gt; map = new HashMap&lt;&gt;();\n        char current = 'a';\n        \n        for (char c : key.toCharArray()) {\n            if (c == ' ') continue;\n            if (!map.containsKey(c)) {\n                map.put(c, current);\n                current++;\n            }\n        }\n        \n        StringBuilder sb = new StringBuilder();\n        for (char c : message.toCharArray()) {\n            if (c == ' ') {\n                sb.append(' ');\n            } else {\n                sb.append(map.get(c));\n            }\n        }\n        return sb.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string decodeMessage(string key, string message) {\n        unordered_map&lt;char, char&gt; m;\n        char target = 'a';\n        \n        for (char c : key) {\n            if (c == ' ') continue;\n            if (m.find(c) == m.end()) {\n                m[c] = target++;\n            }\n        }\n        \n        string res;\n        for (char c : message) {\n            if (c == ' ') {\n                res += ' ';\n            } else {\n                res += m[c];\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var decodeMessage = function(key, message) {\n    const map = new Map();\n    let current = 'a'.charCodeAt(0);\n    \n    for (let i = 0; i &lt; key.length; i++) {\n        const char = key[i];\n        if (char === ' ') continue;\n        if (!map.has(char)) {\n            map.set(char, String.fromCharCode(current++));\n        }\n    }\n    \n    let res = [];\n    for (let i = 0; i &lt; message.length; i++) {\n        const char = message[i];\n        if (char === ' ') {\n            res.push(' ');\n        } else {\n            res.push(map.get(char));\n        }\n    }\n    return res.join('');\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function decodeMessage(key: string, message: string): string {\n    const map = new Map&lt;string, string&gt;();\n    let currentCode = 'a'.charCodeAt(0);\n    \n    for (let i = 0; i &lt; key.length; i++) {\n        const char = key[i];\n        if (char === ' ') continue;\n        if (!map.has(char)) {\n            map.set(char, String.fromCharCode(currentCode++));\n        }\n    }\n    \n    let res = '';\n    for (let i = 0; i &lt; message.length; i++) {\n        const char = message[i];\n        if (char === ' ') {\n            res += ' ';\n        } else {\n            res += map.get(char);\n        }\n    }\n    return res;\n};\n" },]} />
+
+**Complexity**
+- Time: O(N + M), where N is the length of `key` and M is the length of `message`. We iterate through both strings once.
+- Space: O(1), because the hash map will store at most 26 entries (one for each letter of the alphabet), which is constant space.
+- Notes: Hash map provides O(1) average time complexity for lookups.
+
+---
+## Array Mapping
+
+**Intuition**
+Since the input consists only of lowercase English letters, we can use a fixed-size array of length 26 to store the substitution mapping. This avoids the overhead of a hash map and provides direct index access.
+
+**Steps**
+- Create a character array (or integer array) of size 26 to act as the substitution table.
+- Initialize a boolean array or set to keep track of which letters from the key have been processed.
+- Iterate through the `key`. For each valid character, calculate its index (0-25). If it hasn't been processed, map it to the next character in the alphabet sequence ('a' + index) and mark it as processed.
+- Iterate through the `message`. If the character is a space, append it. Otherwise, use the character's index to look up the decoded character in the substitution array and append it.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def decodeMessage(self, key: str, message: str) -&gt; str:\n        substitution = [''] * 26\n        seen = set()\n        curr = 0\n        \n        for char in key:\n            if char == ' ':\n                continue\n            if char not in seen:\n                seen.add(char)\n                substitution[ord(char) - ord('a')] = chr(ord('a') + curr)\n                curr += 1\n                \n        result = []\n        for char in message:\n            if char == ' ':\n                result.append(' ')\n            else:\n                result.append(substitution[ord(char) - ord('a')])\n                \n        return ''.join(result)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String decodeMessage(String key, String message) {\n        char[] map = new char[26];\n        boolean[] seen = new boolean[26];\n        char current = 'a';\n        \n        for (int i = 0; i &lt; key.length(); i++) {\n            char c = key.charAt(i);\n            if (c == ' ') continue;\n            int idx = c - 'a';\n            if (!seen[idx]) {\n                seen[idx] = true;\n                map[idx] = current++;\n            }\n        }\n        \n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i &lt; message.length(); i++) {\n            char c = message.charAt(i);\n            if (c == ' ') {\n                sb.append(' ');\n            } else {\n                sb.append(map[c - 'a']);\n            }\n        }\n        return sb.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string decodeMessage(string key, string message) {\n        char map[26];\n        bool seen[26] = {false};\n        char target = 'a';\n        \n        for (char c : key) {\n            if (c == ' ') continue;\n            int idx = c - 'a';\n            if (!seen[idx]) {\n                seen[idx] = true;\n                map[idx] = target++;\n            }\n        }\n        \n        string res;\n        for (char c : message) {\n            if (c == ' ') {\n                res += ' ';\n            } else {\n                res += map[c - 'a'];\n            }\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var decodeMessage = function(key, message) {\n    const map = new Array(26);\n    const seen = new Set();\n    let current = 'a'.charCodeAt(0);\n    \n    for (let i = 0; i &lt; key.length; i++) {\n        const char = key[i];\n        if (char === ' ') continue;\n        if (!seen.has(char)) {\n            seen.add(char);\n            map[char.charCodeAt(0) - 97] = String.fromCharCode(current++);\n        }\n    }\n    \n    let res = [];\n    for (let i = 0; i &lt; message.length; i++) {\n        const char = message[i];\n        if (char === ' ') {\n            res.push(' ');\n        } else {\n            res.push(map[char.charCodeAt(0) - 97]);\n        }\n    }\n    return res.join('');\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function decodeMessage(key: string, message: string): string {\n    const map: string[] = new Array(26);\n    const seen = new Set&lt;string&gt;();\n    let currentCode = 'a'.charCodeAt(0);\n    \n    for (let i = 0; i &lt; key.length; i++) {\n        const char = key[i];\n        if (char === ' ') continue;\n        if (!seen.has(char)) {\n            seen.add(char);\n            map[char.charCodeAt(0) - 97] = String.fromCharCode(currentCode++);\n        }\n    }\n    \n    let res = '';\n    for (let i = 0; i &lt; message.length; i++) {\n        const char = message[i];\n        if (char === ' ') {\n            res += ' ';\n        } else {\n            res += map[char.charCodeAt(0) - 97];\n        }\n    }\n    return res;\n};\n" },]} />
+
+**Complexity**
+- Time: O(N + M), where N is the length of `key` and M is the length of `message`.
+- Space: O(1), as we use fixed-size arrays of length 26.
+- Notes: This approach is generally faster than the hash map approach due to lower overhead and direct memory access, though the difference is negligible for small input sizes.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Decode the Message Solutions","datePublished":"2025-06-15","description":"Decode a message using a substitution cipher derived from the first occurrence of each letter in a given key.","keywords":"LeetCode, Decode the Message, Easy, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of decoding the message?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N is the length of the key and M is the length of the message, as we iterate through both strings once."}},{"@type":"Question","name":"What is the space complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the hash map stores at most 26 key-value pairs, corresponding to the letters of the alphabet."}},{"@type":"Question","name":"Why use an Array instead of a Hash Map?","acceptedAnswer":{"@type":"Answer","text":"An array of size 26 is used because the input is limited to lowercase English letters. This provides direct index access (O(1)) with less overhead than a hash map."}}]}).replace(/</g,'\u003c')}
+</script>

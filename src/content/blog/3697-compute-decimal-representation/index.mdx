@@ -1,0 +1,138 @@
+---
+title: "Compute Decimal Representation"
+summary: "Convert a fraction to its decimal string representation, handling repeating decimals with parentheses."
+date: "Jun 01, 2025"
+tags:
+  - Array
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.80% | **Paid:** No
+> **Topics:** Array, Math
+
+Given two integers `numerator` and `denominator`, return the decimal representation of the fraction `numerator / denominator`.
+
+If the decimal part is repeating, enclose the repeating part in parentheses.
+
+If multiple answers are possible, return any of them.
+
+It is guaranteed that the length of the answer will be less than 10⁴ for all given inputs.
+
+- Examples
+- Constraints
+- [Long Division with Hash Map](#long-division-with-hash-map)
+- [Long Division with Cycle Detection (Floyd's Algorithm)](#long-division-with-cycle-detection-floyds-algorithm)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+n = 537
+```
+
+**Output:**
+```text
+[500,30,7]
+```
+
+**Explanation:**
+We can express 537 as 500 + 30 + 7. It is impossible to express 537 as a sum using fewer than 3 base-10 components.
+
+### Example 2
+
+**Input:**
+```text
+n = 102
+```
+
+**Output:**
+```text
+[100,2]
+```
+
+**Explanation:**
+We can express 102 as 100 + 2. 102 is not a base-10 component, which means 2 base-10 components are needed.
+
+### Example 3
+
+**Input:**
+```text
+n = 6
+```
+
+**Output:**
+```text
+[6]
+```
+
+**Explanation:**
+6 is a base-10 component.
+
+## Constraints
+
+```text
+- 1 <= n <= 10^9
+```
+
+---
+## Long Division with Hash Map
+
+**Intuition**
+We simulate the process of long division. The key observation is that a decimal representation repeats if and only if a remainder repeats during the division process. We use a hash map to store the first index where each remainder appears.
+
+**Steps**
+- Handle the sign of the result by checking if the numerator and denominator have different signs.
+- Compute the integer part using absolute values.
+- Initialize a map to store remainders and their corresponding positions in the result string.
+- Perform the long division loop:
+  - If the remainder becomes 0, the division terminates.
+  - If the remainder is seen before, insert a '(' at the previously recorded index and append ')' to the result.
+  - Otherwise, record the current remainder's position, multiply it by 10, and append the resulting digit to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def fractionToDecimal(self, numerator: int, denominator: int) -&gt; str:\n        if numerator == 0:\n            return \"0\"\n        \n        res = []\n        # Determine sign\n        if (numerator &lt; 0) ^ (denominator &lt; 0):\n            res.append(\"-\")\n        \n        # Work with absolute values\n        n, d = abs(numerator), abs(denominator)\n        \n        # Integer part\n        res.append(str(n // d))\n        remainder = n % d\n        \n        if remainder == 0:\n            return \"\".join(res)\n        \n        res.append(\".\")\n        \n        # Map remainder to index in res\n        remainder_map = {}\n        \n        while remainder != 0:\n            if remainder in remainder_map:\n                # Repeating part found\n                res.insert(remainder_map[remainder], \"(\")\n                res.append(\")\")\n                break\n            \n            remainder_map[remainder] = len(res)\n            remainder *= 10\n            res.append(str(remainder // d))\n            remainder %= d\n        \n        return \"\".join(res)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String fractionToDecimal(int numerator, int denominator) {\n        if (numerator == 0) return \"0\";\n        \n        StringBuilder res = new StringBuilder();\n        \n        // Sign\n        if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n            res.append(\"-\");\n        }\n        \n        // Use long to handle Integer.MIN_VALUE\n        long n = Math.abs((long) numerator);\n        long d = Math.abs((long) denominator);\n        \n        // Integer part\n        res.append(n / d);\n        long remainder = n % d;\n        \n        if (remainder == 0) {\n            return res.toString();\n        }\n        \n        res.append(\".\");\n        \n        // Map remainder to index\n        java.util.Map&lt;Long, Integer&gt; map = new java.util.HashMap&lt;&gt;();\n        \n        while (remainder != 0) {\n            if (map.containsKey(remainder)) {\n                res.insert(map.get(remainder), \"(\");\n                res.append(\")\");\n                break;\n            }\n            \n            map.put(remainder, res.length());\n            remainder *= 10;\n            res.append(remainder / d);\n            remainder %= d;\n        }\n        \n        return res.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string fractionToDecimal(int numerator, int denominator) {\n        if (numerator == 0) return \"0\";\n        \n        string res;\n        \n        // Sign\n        if ((numerator &lt; 0) ^ (denominator &lt; 0)) {\n            res += \"-\";\n        }\n        \n        // Use long long to handle INT_MIN\n        long long n = llabs((long long)numerator);\n        long long d = llabs((long long)denominator);\n        \n        // Integer part\n        res += to_string(n / d);\n        long long remainder = n % d;\n        \n        if (remainder == 0) {\n            return res;\n        }\n        \n        res += \".\";\n        \n        // Map remainder to index\n        unordered_map&lt;long long, int&gt; map;\n        \n        while (remainder != 0) {\n            if (map.find(remainder) != map.end()) {\n                res.insert(map[remainder], \"(\");\n                res += \")\";\n                break;\n            }\n            \n            map[remainder] = res.size();\n            remainder *= 10;\n            res += to_string(remainder / d);\n            remainder %= d;\n        }\n        \n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} numerator\n * @param {number} denominator\n * @return {string}\n */\nvar fractionToDecimal = function(numerator, denominator) {\n    if (numerator === 0) return \"0\";\n    \n    let res = [];\n    \n    // Sign\n    if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n        res.push(\"-\");\n    }\n    \n    // Use Math.abs on numbers (safe within 32-bit int range for JS)\n    let n = Math.abs(numerator);\n    let d = Math.abs(denominator);\n    \n    // Integer part\n    res.push(Math.floor(n / d).toString());\n    let remainder = n % d;\n    \n    if (remainder === 0) {\n        return res.join(\"\");\n    }\n    \n    res.push(\".\");\n    \n    // Map remainder to index\n    let map = new Map();\n    \n    while (remainder !== 0) {\n        if (map.has(remainder)) {\n            res.splice(map.get(remainder), 0, \"(\");\n            res.push(\")\");\n            break;\n        }\n        \n        map.set(remainder, res.length);\n        remainder *= 10;\n        res.push(Math.floor(remainder / d).toString());\n        remainder %= d;\n    }\n    \n    return res.join(\"\");\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function fractionToDecimal(numerator: number, denominator: number): string {\n    if (numerator === 0) return \"0\";\n    \n    let res: string[] = [];\n    \n    // Sign\n    if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n        res.push(\"-\");\n    }\n    \n    let n = Math.abs(numerator);\n    let d = Math.abs(denominator);\n    \n    // Integer part\n    res.push(Math.floor(n / d).toString());\n    let remainder = n % d;\n    \n    if (remainder === 0) {\n        return res.join(\"\");\n    }\n    \n    res.push(\".\");\n    \n    let map = new Map&lt;number, number&gt;();\n    \n    while (remainder !== 0) {\n        if (map.has(remainder)) {\n            res.splice(map.get(remainder)!, 0, \"(\");\n            res.push(\")\");\n            break;\n        }\n        \n        map.set(remainder, res.length);\n        remainder *= 10;\n        res.push(Math.floor(remainder / d).toString());\n        remainder %= d;\n    }\n    \n    return res.join(\"\");\n}\n" },]} />
+
+**Complexity**
+- Time: O(D), where D is the number of digits in the result. In the worst case, we iterate until the remainder repeats or becomes 0.
+- Space: O(D), to store the result string and the hash map of remainders.
+- Notes: This approach is straightforward and handles all edge cases, including negative numbers and integer overflow.
+
+---
+## Long Division with Cycle Detection (Floyd's Algorithm)
+
+**Intuition**
+We can optimize space complexity by using Floyd's Cycle-Finding Algorithm (Tortoise and Hare) to detect the repeating cycle in the sequence of remainders without storing all of them. Once a cycle is detected, we can regenerate the string.
+
+**Steps**
+- Calculate the integer part and initial remainder.
+- Use two pointers (slow and fast) to traverse the sequence of remainders. The slow pointer moves one step at a time, while the fast pointer moves two steps.
+- If they meet, a cycle exists. Find the start of the cycle (mu) by resetting one pointer to the beginning and moving both one step at a time.
+- Regenerate the decimal string up to the start of the cycle, then add the repeating part in parentheses.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def fractionToDecimal(self, numerator: int, denominator: int) -&gt; str:\n        if numerator == 0:\n            return \"0\"\n        \n        res = []\n        if (numerator &lt; 0) ^ (denominator &lt; 0):\n            res.append(\"-\")\n        \n        n, d = abs(numerator), abs(denominator)\n        res.append(str(n // d))\n        remainder = n % d\n        \n        if remainder == 0:\n            return \"\".join(res)\n        \n        res.append(\".\")\n        \n        # Helper to get next remainder\n        def get_next(r):\n            return (r * 10) % d\n        \n        # Floyd's Cycle Detection\n        slow = remainder\n        fast = get_next(remainder)\n        \n        while slow != fast and fast != 0:\n            slow = get_next(slow)\n            fast = get_next(get_next(fast))\n        \n        # If fast is 0, no cycle (terminating decimal)\n        if fast == 0:\n            curr = remainder\n            while curr != 0:\n                curr *= 10\n                res.append(str(curr // d))\n                curr %= d\n            return \"\".join(res)\n        \n        # Find start of cycle (mu)\n        mu = 0\n        ptr1 = remainder\n        ptr2 = slow\n        while ptr1 != ptr2:\n            ptr1 = get_next(ptr1)\n            ptr2 = get_next(ptr2)\n            mu += 1\n        \n        # Generate non-repeating part\n        curr = remainder\n        for _ in range(mu):\n            curr *= 10\n            res.append(str(curr // d))\n            curr %= d\n        \n        res.append(\"(\")\n        \n        # Generate repeating part\n        # We know it repeats, so we loop until we see the start remainder again\n        start_rem = curr\n        while True:\n            curr *= 10\n            res.append(str(curr // d))\n            curr %= d\n            if curr == start_rem:\n                break\n                \n        res.append(\")\")\n        return \"\".join(res)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String fractionToDecimal(int numerator, int denominator) {\n        if (numerator == 0) return \"0\";\n        \n        StringBuilder res = new StringBuilder();\n        \n        if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n            res.append(\"-\");\n        }\n        \n        long n = Math.abs((long) numerator);\n        long d = Math.abs((long) denominator);\n        \n        res.append(n / d);\n        long remainder = n % d;\n        \n        if (remainder == 0) return res.toString();\n        \n        res.append(\".\");\n        \n        // Floyd's Cycle Detection\n        long slow = remainder;\n        long fast = ((remainder * 10) % d);\n        \n        while (slow != fast && fast != 0) {\n            slow = (slow * 10) % d;\n            fast = (fast * 10) % d;\n            fast = (fast * 10) % d;\n        }\n        \n        if (fast == 0) {\n            long curr = remainder;\n            while (curr != 0) {\n                curr *= 10;\n                res.append(curr / d);\n                curr %= d;\n            }\n            return res.toString();\n        }\n        \n        // Find mu (start of cycle)\n        int mu = 0;\n        long ptr1 = remainder;\n        long ptr2 = slow;\n        while (ptr1 != ptr2) {\n            ptr1 = (ptr1 * 10) % d;\n            ptr2 = (ptr2 * 10) % d;\n            mu++;\n        }\n        \n        // Generate non-repeating\n        long curr = remainder;\n        for (int i = 0; i &lt; mu; i++) {\n            curr *= 10;\n            res.append(curr / d);\n            curr %= d;\n        }\n        \n        res.append(\"(\");\n        \n        // Generate repeating\n        long startRem = curr;\n        do {\n            curr *= 10;\n            res.append(curr / d);\n            curr %= d;\n        } while (curr != startRem);\n        \n        res.append(\")\");\n        return res.toString();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string fractionToDecimal(int numerator, int denominator) {\n        if (numerator == 0) return \"0\";\n        \n        string res;\n        \n        if ((numerator &lt; 0) ^ (denominator &lt; 0)) {\n            res += \"-\";\n        }\n        \n        long long n = llabs((long long)numerator);\n        long long d = llabs((long long)denominator);\n        \n        res += to_string(n / d);\n        long long remainder = n % d;\n        \n        if (remainder == 0) return res;\n        \n        res += \".\";\n        \n        auto getNext = [&](long long r) { return (r * 10) % d; };\n        \n        // Floyd's\n        long long slow = remainder;\n        long long fast = getNext(remainder);\n        \n        while (slow != fast && fast != 0) {\n            slow = getNext(slow);\n            fast = getNext(getNext(fast));\n        }\n        \n        if (fast == 0) {\n            long long curr = remainder;\n            while (curr != 0) {\n                curr *= 10;\n                res += to_string(curr / d);\n                curr %= d;\n            }\n            return res;\n        }\n        \n        // Find mu\n        int mu = 0;\n        long long ptr1 = remainder;\n        long long ptr2 = slow;\n        while (ptr1 != ptr2) {\n            ptr1 = getNext(ptr1);\n            ptr2 = getNext(ptr2);\n            mu++;\n        }\n        \n        // Non-repeating\n        long long curr = remainder;\n        for (int i = 0; i &lt; mu; i++) {\n            curr *= 10;\n            res += to_string(curr / d);\n            curr %= d;\n        }\n        \n        res += \"(\";\n        \n        // Repeating\n        long long startRem = curr;\n        do {\n            curr *= 10;\n            res += to_string(curr / d);\n            curr %= d;\n        } while (curr != startRem);\n        \n        res += \")\";\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number} numerator\n * @param {number} denominator\n * @return {string}\n */\nvar fractionToDecimal = function(numerator, denominator) {\n    if (numerator === 0) return \"0\";\n    \n    let res = [];\n    \n    if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n        res.push(\"-\");\n    }\n    \n    let n = Math.abs(numerator);\n    let d = Math.abs(denominator);\n    \n    res.push(Math.floor(n / d).toString());\n    let remainder = n % d;\n    \n    if (remainder === 0) return res.join(\"\");\n    \n    res.push(\".\");\n    \n    const getNext = (r) =&gt; (r * 10) % d;\n    \n    // Floyd's\n    let slow = remainder;\n    let fast = getNext(remainder);\n    \n    while (slow !== fast && fast !== 0) {\n        slow = getNext(slow);\n        fast = getNext(getNext(fast));\n    }\n    \n    if (fast === 0) {\n        let curr = remainder;\n        while (curr !== 0) {\n            curr *= 10;\n            res.push(Math.floor(curr / d).toString());\n            curr %= d;\n        }\n        return res.join(\"\");\n    }\n    \n    // Find mu\n    let mu = 0;\n    let ptr1 = remainder;\n    let ptr2 = slow;\n    while (ptr1 !== ptr2) {\n        ptr1 = getNext(ptr1);\n        ptr2 = getNext(ptr2);\n        mu++;\n    }\n    \n    // Non-repeating\n    let curr = remainder;\n    for (let i = 0; i &lt; mu; i++) {\n        curr *= 10;\n        res.push(Math.floor(curr / d).toString());\n        curr %= d;\n    }\n    \n    res.push(\"(\");\n    \n    // Repeating\n    let startRem = curr;\n    do {\n        curr *= 10;\n        res.push(Math.floor(curr / d).toString());\n        curr %= d;\n    } while (curr !== startRem);\n    \n    res.push(\")\");\n    return res.join(\"\");\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function fractionToDecimal(numerator: number, denominator: number): string {\n    if (numerator === 0) return \"0\";\n    \n    let res: string[] = [];\n    \n    if ((numerator &gt; 0) ^ (denominator &gt; 0)) {\n        res.push(\"-\");\n    }\n    \n    let n = Math.abs(numerator);\n    let d = Math.abs(denominator);\n    \n    res.push(Math.floor(n / d).toString());\n    let remainder = n % d;\n    \n    if (remainder === 0) return res.join(\"\");\n    \n    res.push(\".\");\n    \n    const getNext = (r: number): number =&gt; (r * 10) % d;\n    \n    // Floyd's\n    let slow = remainder;\n    let fast = getNext(remainder);\n    \n    while (slow !== fast && fast !== 0) {\n        slow = getNext(slow);\n        fast = getNext(getNext(fast));\n    }\n    \n    if (fast === 0) {\n        let curr = remainder;\n        while (curr !== 0) {\n            curr *= 10;\n            res.push(Math.floor(curr / d).toString());\n            curr %= d;\n        }\n        return res.join(\"\");\n    }\n    \n    // Find mu\n    let mu = 0;\n    let ptr1 = remainder;\n    let ptr2 = slow;\n    while (ptr1 !== ptr2) {\n        ptr1 = getNext(ptr1);\n        ptr2 = getNext(ptr2);\n        mu++;\n    }\n    \n    // Non-repeating\n    let curr = remainder;\n    for (let i = 0; i &lt; mu; i++) {\n        curr *= 10;\n        res.push(Math.floor(curr / d).toString());\n        curr %= d;\n    }\n    \n    res.push(\"(\");\n    \n    // Repeating\n    let startRem = curr;\n    do {\n        curr *= 10;\n        res.push(Math.floor(curr / d).toString());\n        curr %= d;\n    } while (curr !== startRem);\n    \n    res.push(\")\");\n    return res.join(\"\");\n}\n" },]} />
+
+**Complexity**
+- Time: O(D), where D is the number of digits. We traverse the sequence to find the cycle and then again to build the string.
+- Space: O(D) for the result string, but O(1) auxiliary space (excluding the output) since we do not store the remainders in a map.
+- Notes: This approach is more complex to implement but optimizes auxiliary space usage.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Compute Decimal Representation Solutions","datePublished":"2025-06-01","description":"Convert a fraction to its decimal string representation, handling repeating decimals with parentheses.","keywords":"LeetCode, Compute Decimal Representation, Easy, Array, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Long Division with Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(D), where D is the number of digits in the result. In the worst case, we iterate until the remainder repeats or becomes 0."}},{"@type":"Question","name":"What is the space complexity of the Long Division with Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(D) to store the result string and the hash map of remainders."}},{"@type":"Question","name":"How does the Long Division with Cycle Detection approach optimize space?","acceptedAnswer":{"@type":"Answer","text":"It uses Floyd's Cycle-Finding Algorithm to detect cycles in the sequence of remainders without storing all of them, reducing auxiliary space to O(1) excluding the output string."}}]}).replace(/</g,'\u003c')}
+</script>

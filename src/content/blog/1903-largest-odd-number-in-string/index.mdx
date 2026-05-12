@@ -1,0 +1,133 @@
+---
+title: "Largest Odd Number in String"
+summary: "Find the largest odd integer substring in a given numeric string."
+date: "Dec 09, 2025"
+tags:
+  - Math
+  - String
+  - Greedy
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.40% | **Paid:** No
+> **Topics:** Math, String, Greedy
+
+You are given a string num, representing a large integer. Return the largest-valued odd integer (as a string) that is a non-empty substring of num, or an empty string if no odd integer exists.
+
+An integer is odd if it ends in 1, 3, 5, 7, or 9.
+
+- Examples
+- Constraints
+- [Greedy: Rightmost Odd Digit](#greedy-rightmost-odd-digit)
+- [Brute Force: Check All Substrings](#brute-force-check-all-substrings)
+- [Iterative: Track Last Odd](#iterative-track-last-odd)
+
+## Examples
+
+```text
+Input: num = "52"
+Output: "5"
+Explanation: The only non-empty substrings are "5", "2", and "52". "5" is the only odd number.
+```
+
+```text
+Input: num = "4206"
+Output: ""
+Explanation: There are no odd digits in the string, so no odd substring exists.
+```
+
+```text
+Input: num = "35427"
+Output: "35427"
+Explanation: "35427" is already an odd number.
+```
+
+## Constraints
+
+```text
+1 <= num.length <= 10⁵
+num consists of only digits and does not contain any leading zeros.
+```
+
+---
+## Greedy: Rightmost Odd Digit
+
+**Intuition**
+A number is odd if and only if its last digit is odd. To maximize the value of the odd number, we want the longest possible substring starting from the beginning. Therefore, we simply need to find the rightmost odd digit in the string and return the substring from the start up to that digit.
+
+**Steps**
+- Iterate through the string from the end towards the beginning.
+- Check if the current digit is odd (1, 3, 5, 7, 9).
+- If an odd digit is found at index `i`, return the substring `num[0...i]`.
+- If the loop finishes without finding an odd digit, return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestOddNumber(self, num: str) -&gt; str:\n        for i in range(len(num) - 1, -1, -1):\n            if int(num[i]) % 2 != 0:\n                return num[:i + 1]\n        return \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String largestOddNumber(String num) {\n        for (int i = num.length() - 1; i &gt;= 0; i--) {\n            if ((num.charAt(i) - '0') % 2 != 0) {\n                return num.substring(0, i + 1);\n            }\n        }\n        return \"\";\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string largestOddNumber(string num) {\n        for (int i = num.size() - 1; i &gt;= 0; i--) {\n            if ((num[i] - '0') % 2 != 0) {\n                return num.substr(0, i + 1);\n            }\n        }\n        return \"\";\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var largestOddNumber = function(num) {\n    for (let i = num.length - 1; i &gt;= 0; i--) {\n        if (parseInt(num[i]) % 2 !== 0) {\n            return num.substring(0, i + 1);\n        }\n    }\n    return \"\";\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largestOddNumber(num: string): string {\n    for (let i = num.length - 1; i &gt;= 0; i--) {\n        if (parseInt(num[i]) % 2 !== 0) {\n            return num.substring(0, i + 1);\n        }\n    }\n    return \"\";\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. In the worst case, we traverse the whole string.
+- Space: O(1) auxiliary space, though creating the substring takes O(n) space for the output.
+- Notes: This is the optimal approach as it requires a single pass from the end.
+
+---
+## Brute Force: Check All Substrings
+
+**Intuition**
+We can generate every possible substring of `num`, check if it represents an odd integer, and keep track of the largest one found so far.
+
+**Steps**
+- Initialize `result` as an empty string.
+- Use two nested loops to generate all substrings. The outer loop `i` goes from 0 to n-1 (start index), and the inner loop `j` goes from `i` to n-1 (end index).
+- Extract the substring `num[i...j]`.
+- Check if the last character of the substring is an odd digit.
+- If it is odd, compare its length with `result`. If it is longer, or same length but lexicographically larger, update `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestOddNumber(self, num: str) -&gt; str:\n        res = \"\"\n        n = len(num)\n        for i in range(n):\n            for j in range(i, n):\n                sub = num[i:j+1]\n                if int(sub[-1]) % 2 != 0:\n                    if len(sub) &gt; len(res) or (len(sub) == len(res) and sub &gt; res):\n                        res = sub\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String largestOddNumber(String num) {\n        String res = \"\";\n        int n = num.length();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                String sub = num.substring(i, j + 1);\n                int last = sub.charAt(sub.length() - 1) - '0';\n                if (last % 2 != 0) {\n                    if (sub.length() &gt; res.length() || \n                        (sub.length() == res.length() && sub.compareTo(res) &gt; 0)) {\n                        res = sub;\n                    }\n                }\n            }\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string largestOddNumber(string num) {\n        string res = \"\";\n        int n = num.size();\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i; j &lt; n; j++) {\n                string sub = num.substr(i, j - i + 1);\n                int last = sub.back() - '0';\n                if (last % 2 != 0) {\n                    if (sub.size() &gt; res.size() || \n                        (sub.size() == res.size() && sub &gt; res)) {\n                        res = sub;\n                    }\n                }\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var largestOddNumber = function(num) {\n    let res = \"\";\n    const n = num.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            let sub = num.substring(i, j + 1);\n            let last = parseInt(sub[sub.length - 1]);\n            if (last % 2 !== 0) {\n                if (sub.length &gt; res.length || \n                    (sub.length === res.length && sub &gt; res)) {\n                    res = sub;\n                }\n            }\n        }\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largestOddNumber(num: string): string {\n    let res = \"\";\n    const n = num.length;\n    for (let i = 0; i &lt; n; i++) {\n        for (let j = i; j &lt; n; j++) {\n            let sub = num.substring(i, j + 1);\n            let last = parseInt(sub[sub.length - 1]);\n            if (last % 2 !== 0) {\n                if (sub.length &gt; res.length || \n                    (sub.length === res.length && sub &gt; res)) {\n                    res = sub;\n                }\n            }\n        }\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(n²), where n is the length of the string. Generating all substrings takes quadratic time.
+- Space: O(1) auxiliary space.
+- Notes: This approach is inefficient for large inputs (n up to 10⁵) and will result in Time Limit Exceeded (TLE).
+
+---
+## Iterative: Track Last Odd
+
+**Intuition**
+Instead of iterating from the end, we can iterate from the start to the end. We keep track of the index of the last odd digit we have seen. The largest odd number must end at the last odd digit present in the string.
+
+**Steps**
+- Initialize `lastOddIndex` to -1.
+- Iterate through the string from index 0 to n-1.
+- If the current digit is odd, update `lastOddIndex` to the current index `i`.
+- After the loop, if `lastOddIndex` is not -1, return the substring from 0 to `lastOddIndex + 1`.
+- Otherwise, return an empty string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def largestOddNumber(self, num: str) -&gt; str:\n        last_odd = -1\n        for i, ch in enumerate(num):\n            if int(ch) % 2 != 0:\n                last_odd = i\n        return num[:last_odd + 1] if last_odd != -1 else \"\"" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String largestOddNumber(String num) {\n        int lastOdd = -1;\n        for (int i = 0; i &lt; num.length(); i++) {\n            if ((num.charAt(i) - '0') % 2 != 0) {\n                lastOdd = i;\n            }\n        }\n        return lastOdd == -1 ? \"\" : num.substring(0, lastOdd + 1);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string largestOddNumber(string num) {\n        int lastOdd = -1;\n        for (int i = 0; i &lt; num.size(); i++) {\n            if ((num[i] - '0') % 2 != 0) {\n                lastOdd = i;\n            }\n        }\n        return lastOdd == -1 ? \"\" : num.substr(0, lastOdd + 1);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var largestOddNumber = function(num) {\n    let lastOdd = -1;\n    for (let i = 0; i &lt; num.length; i++) {\n        if (parseInt(num[i]) % 2 !== 0) {\n            lastOdd = i;\n        }\n    }\n    return lastOdd === -1 ? \"\" : num.substring(0, lastOdd + 1);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function largestOddNumber(num: string): string {\n    let lastOdd = -1;\n    for (let i = 0; i &lt; num.length; i++) {\n        if (parseInt(num[i]) % 2 !== 0) {\n            lastOdd = i;\n        }\n    }\n    return lastOdd === -1 ? \"\" : num.substring(0, lastOdd + 1);\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the string. We traverse the string once.
+- Space: O(1) auxiliary space.
+- Notes: This is functionally equivalent to the greedy approach but iterates forward. It is also optimal.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Largest Odd Number in String Solutions","datePublished":"2025-12-09","description":"Find the largest odd integer substring in a given numeric string.","keywords":"LeetCode, Largest Odd Number in String, Easy, Math, String, Greedy"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Greedy approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string."}},{"@type":"Question","name":"What is the space complexity of the Iterative approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space required for the output string."}},{"@type":"Question","name":"Why is the Brute Force approach inefficient?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n²) because it generates all possible substrings, which is too slow for the maximum constraint of 10⁵."}}]}).replace(/</g,'\u003c')}
+</script>

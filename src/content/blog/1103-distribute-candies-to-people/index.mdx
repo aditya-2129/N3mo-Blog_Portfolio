@@ -1,0 +1,106 @@
+---
+title: "Distribute Candies to People"
+summary: "We distribute candies to people in turns, giving 1, 2, 3... candies sequentially. Return the final array of candies each person holds."
+date: "Feb 14, 2025"
+tags:
+  - Math
+  - Simulation
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.60% | **Paid:** No
+> **Topics:** Math, Simulation
+
+We distribute candies to people sitting in a circle. We start by giving 1 candy to the first person, 2 candies to the second person, and so on until we give n candies to the nth person. Then, we go back to the start of the circle and give n + 1 candies to the first person, n + 2 candies to the second person, and so on.
+
+This process continues until we run out of candies. The last person may receive fewer candies than required (i.e., if there are fewer candies left than the current turn's amount, they receive all remaining candies).
+
+Given two integers candies and num_people, return an array of length num_people where result[i] is the number of candies the ith person received.
+
+- Examples
+- Constraints
+- [Approach 1: Simulation](#simulation)
+- [Approach 2: Mathematical Formula](#mathematical-formula)
+
+## Examples
+
+```text
+Input: candies = 7, num_people = 4
+Output: [1,2,3,1]
+Explanation: On the first turn, ans[0] += 1, and the array is [1,0,0,0]. On the second turn, ans[1] += 2, and the array is [1,2,0,0]. On the third turn, ans[2] += 3, and the array is [1,2,3,0]. On the fourth turn, ans[3] += min(4,1) = 1, and the array is [1,2,3,1].
+```
+
+```text
+Input: candies = 10, num_people = 3
+Output: [5,2,3]
+Explanation: On the first turn, ans[0] += 1, and the array is [1,0,0]. On the second turn, ans[1] += 2, and the array is [1,2,0]. On the third turn, ans[2] += 3, and the array is [1,2,3]. On the fourth turn, ans[0] += 4, and the array is [5,2,3].
+```
+
+## Constraints
+
+```text
+0 <= candies <= 10^9
+1 <= num_people <= 1000
+```
+
+---
+
+## Simulation
+
+**Intuition**
+We can directly simulate the process of distributing candies. We iterate through the people in a circular fashion, giving the current number of candies to the current person, then decrementing the total candies and incrementing the amount to give in the next turn.
+
+**Steps**
+- Initialize a result array of size `num_people` with zeros.
+- Initialize a variable `current_candy` to 1 and an index `i` to 0.
+- Loop while `candies` is greater than 0.
+- Calculate the amount to give: `give = min(current_candy, candies)`.
+- Add `give` to `result[i % num_people]`.
+- Subtract `give` from `candies`.
+- Increment `current_candy` and `i`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def distributeCandies(self, candies: int, num_people: int) -&gt; list[int]:\n        res = [0] * num_people\n        i = 0\n        cur = 1\n        while candies &gt; 0:\n            give = min(cur, candies)\n            res[i % num_people] += give\n            candies -= give\n            cur += 1\n            i += 1\n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] distributeCandies(int candies, int num_people) {\n        int[] res = new int[num_people];\n        int i = 0;\n        int cur = 1;\n        while (candies &gt; 0) {\n            int give = Math.min(cur, candies);\n            res[i % num_people] += give;\n            candies -= give;\n            cur++;\n            i++;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; distributeCandies(int candies, int num_people) {\n        vector&lt;int&gt; res(num_people, 0);\n        int i = 0;\n        int cur = 1;\n        while (candies &gt; 0) {\n            int give = min(cur, candies);\n            res[i % num_people] += give;\n            candies -= give;\n            cur++;\n            i++;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distributeCandies = function(candies, num_people) {\n    let res = new Array(num_people).fill(0);\n    let i = 0;\n    let cur = 1;\n    while (candies &gt; 0) {\n        let give = Math.min(cur, candies);\n        res[i % num_people] += give;\n        candies -= give;\n        cur++;\n        i++;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distributeCandies(candies: number, num_people: number): number[] {\n    let res = new Array(num_people).fill(0);\n    let i = 0;\n    let cur = 1;\n    while (candies &gt; 0) {\n        let give = Math.min(cur, candies);\n        res[i % num_people] += give;\n        candies -= give;\n        cur++;\n        i++;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(√candies) — The number of turns is proportional to the square root of candies because 1 + 2 + ... + k ≈ k²/2.
+- Space: O(num_people) — To store the result.
+- Notes: Simple to implement and sufficiently fast given the constraints.
+
+---
+
+## Mathematical Formula
+
+**Intuition**
+The distribution follows an arithmetic progression. We can calculate how many complete rounds of distribution happen and how many candies are distributed in those rounds using arithmetic series formulas. Then, we handle the remaining partial round.
+
+**Steps**
+- Find the number of complete rounds `p`. The sum of the first `m` integers is `m(m+1)/2`. We find the largest `m` such that this sum is ≤ `candies`. Then `p = m // num_people`.
+- Calculate the base candies for each person `i` (0-indexed) after `p` full rounds. This is an arithmetic series: `(i+1) + (i+1+num_people) + ...` for `p` terms.
+- Calculate the remaining candies after `p` full rounds.
+- Distribute the remaining candies starting from the next term (`p * num_people + 1`) to the people until candies run out.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import math\n\nclass Solution:\n    def distributeCandies(self, candies: int, num_people: int) -&gt; list[int]:\n        res = [0] * num_people\n        # Find number of complete rounds p\n        # m is the total number of turns if we gave 1, 2, 3... until candies ran out\n        # m(m+1)/2 &lt;= candies\n        m = int((math.sqrt(2 * candies + 0.25) - 0.5))\n        p = m // num_people\n        \n        # Base sum for each person\n        for i in range(num_people):\n            # AP: (i+1), (i+1)+n, ..., (i+1)+(p-1)n\n            # Sum = p * (i+1) + n * p * (p-1) / 2\n            res[i] = p * (i + 1) + num_people * p * (p - 1) // 2\n        \n        # Remaining candies\n        used = p * num_people * (p * num_people + 1) // 2\n        remaining = candies - used\n        \n        # Distribute remaining\n        next_term = p * num_people + 1\n        for i in range(num_people):\n            if remaining &lt;= 0: break\n            give = min(remaining, next_term + i)\n            res[i] += give\n            remaining -= give\n            \n        return res" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] distributeCandies(int candies, int num_people) {\n        int[] res = new int[num_people];\n        // m(m+1)/2 &lt;= candies\n        // m^2 + m - 2c &lt;= 0\n        // m = (-1 + sqrt(1 + 8c)) / 2\n        long c = candies;\n        long m = (long)(Math.sqrt(1 + 8 * c) - 1) / 2;\n        long p = m / num_people;\n        \n        for (int i = 0; i &lt; num_people; i++) {\n            // Sum = p*(i+1) + n * p*(p-1)/2\n            long val = p * (i + 1) + (long)num_people * p * (p - 1) / 2;\n            res[i] = (int)val;\n        }\n        \n        long used = p * num_people * (p * num_people + 1) / 2;\n        long remaining = c - used;\n        long nextTerm = p * num_people + 1;\n        \n        for (int i = 0; i &lt; num_people && remaining &gt; 0; i++) {\n            long give = Math.min(remaining, nextTerm + i);\n            res[i] += (int)give;\n            remaining -= give;\n        }\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;cmath&gt;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; distributeCandies(int candies, int num_people) {\n        vector&lt;int&gt; res(num_people, 0);\n        long long c = candies;\n        long long m = (sqrt(1 + 8 * c) - 1) / 2;\n        long long p = m / num_people;\n        \n        for (int i = 0; i &lt; num_people; ++i) {\n            long long val = p * (i + 1) + (long long)num_people * p * (p - 1) / 2;\n            res[i] = (int)val;\n        }\n        \n        long long used = p * num_people * (p * num_people + 1) / 2;\n        long long remaining = c - used;\n        long long nextTerm = p * num_people + 1;\n        \n        for (int i = 0; i &lt; num_people && remaining &gt; 0; ++i) {\n            long long give = min(remaining, nextTerm + i);\n            res[i] += (int)give;\n            remaining -= give;\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var distributeCandies = function(candies, num_people) {\n    let res = new Array(num_people).fill(0);\n    let c = BigInt(candies);\n    let n = BigInt(num_people);\n    \n    // Calculate m using Number for sqrt, then convert to BigInt\n    let mNum = Math.floor((Math.sqrt(1 + 8 * candies) - 1) / 2);\n    let m = BigInt(mNum);\n    let p = m / n;\n    \n    for (let i = 0; i &lt; num_people; i++) {\n        let idx = BigInt(i + 1);\n        let val = p * idx + n * p * (p - 1n) / 2n;\n        res[i] = Number(val);\n    }\n    \n    let used = p * n * (p * n + 1n) / 2n;\n    let remaining = c - used;\n    let nextTerm = p * n + 1n;\n    \n    for (let i = 0; i &lt; num_people && remaining &gt; 0; i++) {\n        let give = remaining &lt; (nextTerm + BigInt(i)) ? remaining : (nextTerm + BigInt(i));\n        res[i] += Number(give);\n        remaining -= give;\n    }\n    return res;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function distributeCandies(candies: number, num_people: number): number[] {\n    let res = new Array(num_people).fill(0);\n    let c = BigInt(candies);\n    let n = BigInt(num_people);\n    \n    let mNum = Math.floor((Math.sqrt(1 + 8 * candies) - 1) / 2);\n    let m = BigInt(mNum);\n    let p = m / n;\n    \n    for (let i = 0; i &lt; num_people; i++) {\n        let idx = BigInt(i + 1);\n        let val = p * idx + n * p * (p - 1n) / 2n;\n        res[i] = Number(val);\n    }\n    \n    let used = p * n * (p * n + 1n) / 2n;\n    let remaining = c - used;\n    let nextTerm = p * n + 1n;\n    \n    for (let i = 0; i &lt; num_people && remaining &gt; 0; i++) {\n        let give = remaining &lt; (nextTerm + BigInt(i)) ? remaining : (nextTerm + BigInt(i));\n        res[i] += Number(give);\n        remaining -= give;\n    }\n    return res;\n}" },]} />
+
+**Complexity**
+- Time: O(num_people) — We iterate through the people array a constant number of times.
+- Space: O(num_people) — To store the result.
+- Notes: More efficient for very large candy counts, but requires careful handling of integer overflow (using 64-bit integers or BigInt).
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Distribute Candies to People Solutions","datePublished":"2025-02-14","description":"We distribute candies to people in turns, giving 1, 2, 3... candies sequentially. Return the final array of candies each person holds.","keywords":"LeetCode, Distribute Candies to People, Easy, Math, Simulation"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Simulation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(√candies), as the number of turns grows quadratically with the amount of candies."}},{"@type":"Question","name":"What is the time complexity of the Mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(num_people), as we calculate the distribution for each person based on arithmetic series formulas."}},{"@type":"Question","name":"Why use BigInt in JavaScript for the Mathematical approach?","acceptedAnswer":{"@type":"Answer","text":"Because intermediate calculations (like p * n * (p * n + 1)) can exceed the safe integer limit (2⁵³ - 1) in JavaScript when candies is large (up to 10⁹)."}}]}).replace(/</g,'\u003c')}
+</script>

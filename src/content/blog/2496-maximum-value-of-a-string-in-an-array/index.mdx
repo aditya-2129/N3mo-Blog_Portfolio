@@ -1,0 +1,137 @@
+---
+title: "Maximum Value of a String in an Array"
+summary: "Find the maximum value in an array where numeric strings represent their integer value and non-numeric strings represent their length."
+date: "Apr 07, 2024"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 74.20% | **Paid:** No
+> **Topics:** Array, String
+
+The value of an alphanumeric string can be defined as:
+
+The numeric representation of the string in base 10, if the string consists only of digits (leading zeros are allowed).
+The length of the string, otherwise.
+Given an array strs of alphanumeric strings, return the maximum value of any string in strs.
+
+## Examples
+
+### Example 1
+```text
+Input: strs = ["alic3","bob","3","4","00000"]
+Output: 5
+Explanation: 
+- "alic3" consists of both letters and digits, so its value is its length 5.
+- "bob" consists only of letters, so its value is its length 3.
+- "3" consists only of digits, so its value is its numeric value 3.
+- "4" consists only of digits, so its value is its numeric value 4.
+- "00000" consists only of digits, so its value is its numeric value 0.
+The maximum value is 5, which is the value of "alic3".
+```
+
+### Example 2
+```text
+Input: strs = ["1","01","001","0001"]
+Output: 1
+Explanation: 
+Each string consists only of digits, so their values are their numeric values 1, 1, 1, and 1 respectively.
+The maximum value is 1.
+```
+
+## Constraints
+
+```text
+1 <= strs.length <= 100
+2 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters and digits.
+```
+
+---
+
+## Approach 1: Iteration with Character Check
+
+**Intuition**
+We iterate through each string in the array. For each string, we check if every character is a digit. If it is, we convert the string to an integer; otherwise, we use the string's length. We keep track of the maximum value encountered.
+
+**Steps**
+- Initialize `maxVal` to 0.
+- Iterate through each string `s` in `strs`.
+- Initialize a boolean flag `isNumeric` to true.
+- Iterate through each character `c` in `s`. If `c` is not a digit, set `isNumeric` to false and break.
+- If `isNumeric` is true, parse `s` to an integer to get `val`. Otherwise, `val` is the length of `s`.
+- Update `maxVal` with the maximum of `maxVal` and `val`.
+- Return `maxVal`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumValue(self, strs: list[str]) -&gt; int:\n        max_val = 0\n        for s in strs:\n            if s.isdigit():\n                val = int(s)\n            else:\n                val = len(s)\n            max_val = max(max_val, val)\n        return max_val" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumValue(String[] strs) {\n        int maxVal = 0;\n        for (String s : strs) {\n            boolean isNumeric = true;\n            for (char c : s.toCharArray()) {\n                if (!Character.isDigit(c)) {\n                    isNumeric = false;\n                    break;\n                }\n            }\n            int val = isNumeric ? Integer.parseInt(s) : s.length();\n            maxVal = Math.max(maxVal, val);\n        }\n        return maxVal;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maximumValue(vector&lt;string&gt;& strs) {\n        int maxVal = 0;\n        for (const string& s : strs) {\n            bool isNumeric = true;\n            for (char c : s) {\n                if (!isdigit(c)) {\n                    isNumeric = false;\n                    break;\n                }\n            }\n            int val = isNumeric ? stoi(s) : s.length();\n            maxVal = max(maxVal, val);\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} strs\n * @return {number}\n */\nvar maximumValue = function(strs) {\n    let maxVal = 0;\n    for (const s of strs) {\n        let isNumeric = true;\n        for (let i = 0; i &lt; s.length; i++) {\n            const c = s[i];\n            if (c &lt; '0' || c &gt; '9') {\n                isNumeric = false;\n                break;\n            }\n        }\n        const val = isNumeric ? parseInt(s, 10) : s.length;\n        maxVal = Math.max(maxVal, val);\n    }\n    return maxVal;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumValue(strs: string[]): number {\n    let maxVal = 0;\n    for (const s of strs) {\n        let isNumeric = true;\n        for (let i = 0; i &lt; s.length; i++) {\n            const c = s[i];\n            if (c &lt; '0' || c &gt; '9') {\n                isNumeric = false;\n                break;\n            }\n        }\n        const val = isNumeric ? parseInt(s, 10) : s.length;\n        maxVal = Math.max(maxVal, val);\n    }\n    return maxVal;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of strings and L is the maximum length of a string.
+- Space: O(1), excluding the input storage.
+- Notes: This is the most fundamental approach, checking character by character.
+
+---
+
+## Approach 2: Regular Expression
+
+**Intuition**
+We can use a regular expression to determine if a string consists solely of digits. This abstracts the character checking logic into a concise pattern match.
+
+**Steps**
+- Initialize `maxVal` to 0.
+- Iterate through each string `s` in `strs`.
+- Check if `s` matches the regex pattern `^\d+$` (start to end digits).
+- If it matches, parse `s` to integer for `val`. Else, `val` is `s.length`.
+- Update `maxVal`.
+- Return `maxVal`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import re\n\nclass Solution:\n    def maximumValue(self, strs: list[str]) -&gt; int:\n        max_val = 0\n        for s in strs:\n            if re.match(r'^\\d+$', s):\n                val = int(s)\n            else:\n                val = len(s)\n            max_val = max(max_val, val)\n        return max_val" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maximumValue(String[] strs) {\n        int maxVal = 0;\n        for (String s : strs) {\n            boolean isNumeric = s.matches(\"\\\\d+\");\n            int val = isNumeric ? Integer.parseInt(s) : s.length();\n            maxVal = Math.max(maxVal, val);\n        }\n        return maxVal;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;regex&gt;\n\nclass Solution {\npublic:\n    int maximumValue(vector&lt;string&gt;& strs) {\n        int maxVal = 0;\n        regex pattern(\"\\\\d+\");\n        for (const string& s : strs) {\n            bool isNumeric = regex_match(s, pattern);\n            int val = isNumeric ? stoi(s) : s.length();\n            maxVal = max(maxVal, val);\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} strs\n * @return {number}\n */\nvar maximumValue = function(strs) {\n    let maxVal = 0;\n    const regex = /^\\d+$/;\n    for (const s of strs) {\n        const isNumeric = regex.test(s);\n        const val = isNumeric ? parseInt(s, 10) : s.length;\n        maxVal = Math.max(maxVal, val);\n    }\n    return maxVal;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumValue(strs: string[]): number {\n    let maxVal = 0;\n    const regex = /^\\d+$/;\n    for (const s of strs) {\n        const isNumeric = regex.test(s);\n        const val = isNumeric ? parseInt(s, 10) : s.length;\n        maxVal = Math.max(maxVal, val);\n    }\n    return maxVal;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), regex matching typically scans the string.
+- Space: O(1), though regex engines may use auxiliary space.
+- Notes: Cleaner syntax, but regex can have overhead compared to simple character checks.
+
+---
+
+## Approach 3: Functional / One-Liner
+
+**Intuition**
+We utilize functional programming constructs like `map`, `reduce`, or `max` to transform the array of strings into an array of values and find the maximum in a declarative way.
+
+**Steps**
+- Map each string `s` in `strs` to its corresponding value (integer if numeric, else length).
+- Find the maximum value in the resulting mapped array.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maximumValue(self, strs: list[str]) -&gt; int:\n        return max(int(s) if s.isdigit() else len(s) for s in strs)" },
+{ name: "Java", lang: "java", code: "import java.util.stream.*;\n\nclass Solution {\n    public int maximumValue(String[] strs) {\n        return Arrays.stream(strs)\n            .mapToInt(s -&gt; s.matches(\"\\\\d+\") ? Integer.parseInt(s) : s.length())\n            .max()\n            .orElse(0);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;algorithm&gt;\n#include &lt;cctype&gt;\n\nclass Solution {\npublic:\n    int maximumValue(vector&lt;string&gt;& strs) {\n        int maxVal = 0;\n        for (const string& s : strs) {\n            bool isNumeric = all_of(s.begin(), s.end(), ::isdigit);\n            int val = isNumeric ? stoi(s) : s.length();\n            maxVal = max(maxVal, val);\n        }\n        return maxVal;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} strs\n * @return {number}\n */\nvar maximumValue = function(strs) {\n    const getVal = (s) =&gt; /^\\d+$/.test(s) ? parseInt(s, 10) : s.length;\n    return Math.max(...strs.map(getVal));\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function maximumValue(strs: string[]): number {\n    const getVal = (s: string): number =&gt; /^\\d+$/.test(s) ? parseInt(s, 10) : s.length;\n    return Math.max(...strs.map(getVal));\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), as we must process every character to determine the value.
+- Space: O(N) for the mapped array in languages like JavaScript/Python (unless using a generator), or O(1) for streams in Java.
+- Notes: Concise and readable, but may hide the O(N) space complexity in languages that create intermediate arrays.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Value of a String in an Array Solutions","datePublished":"2024-04-07","description":"Find the maximum value in an array where numeric strings represent their integer value and non-numeric strings represent their length.","keywords":"LeetCode, Maximum Value of a String in an Array, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of strings and L is the maximum length of a string."}},{"@type":"Question","name":"What is the space complexity of the Regular Expression approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1), as we only store a few variables, though the regex engine may use some auxiliary stack space."}},{"@type":"Question","name":"How are leading zeros handled in the numeric value?","acceptedAnswer":{"@type":"Answer","text":"Leading zeros are handled naturally by integer parsing functions (e.g., parseInt, stoi), which treat '00000' as 0."}},{"@type":"Question","name":"What is the time complexity of the Functional approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), as we must iterate through every string and character to compute the value."}}]}).replace(/</g,'\u003c')}
+</script>

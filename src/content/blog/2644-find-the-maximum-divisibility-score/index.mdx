@@ -1,0 +1,367 @@
+---
+title: "Find the Maximum Divisibility Score"
+summary: "Find the divisor with the maximum divisibility score from an array of numbers. Return the smallest divisor if there's a tie."
+date: "Mar 19, 2026"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 51.90% | **Paid:** No
+> **Topics:** Array
+
+You are given two 0-indexed integer arrays nums and divisors.
+
+The divisibility score of divisors[i] is the number of indices j such that nums[j] is divisible by divisors[i].
+
+Return the divisor with the maximum divisibility score. If there is a tie, return the smallest one.
+
+- Examples
+- Constraints
+- [Brute Force with Explicit Tie-Breaking](#brute-force-with-explicit-tie-breaking)
+- [Pre-sorting Divisors](#pre-sorting-divisors)
+
+## Examples
+
+**Example 1:**
+
+Input:
+```text
+nums = [4,7,9,3,9], divisors = [5,2,3]
+```
+
+Output:
+```text
+3
+```
+
+Explanation:
+```text
+The divisibility score of 5 is 0 because no number in nums is divisible by 5.
+The divisibility score of 2 is 1 because nums[0] = 4 is divisible by 2.
+The divisibility score of 3 is 3 because nums[2] = 9, nums[3] = 3, and nums[4] = 9 are divisible by 3.
+The divisor with the maximum divisibility score is 3.
+```
+
+**Example 2:**
+
+Input:
+```text
+nums = [20,14,21,10], divisors = [5,7,5]
+```
+
+Output:
+```text
+5
+```
+
+Explanation:
+```text
+The divisibility score of 5 is 2 because nums[0] = 20 and nums[3] = 10 are divisible by 5.
+The divisibility score of 7 is 1 because nums[1] = 14 is divisible by 7.
+The divisibility score of 5 is 2 because nums[0] = 20 and nums[3] = 10 are divisible by 5.
+The divisors 5 and 5 both have the maximum divisibility score of 2. The smallest one is 5.
+```
+
+**Example 3:**
+
+Input:
+```text
+nums = [12], divisors = [10,16]
+```
+
+Output:
+```text
+10
+```
+
+Explanation:
+```text
+The divisibility score of 10 is 0 because no number in nums is divisible by 10.
+The divisibility score of 16 is 0 because no number in nums is divisible by 16.
+Both divisors have the same divisibility score of 0. The smallest one is 10.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length, divisors.length <= 1000
+- 1 <= nums[i], divisors[i] <= 10^9
+```
+
+---
+## Brute Force with Explicit Tie-Breaking
+
+**Intuition**
+For each divisor, count how many numbers in nums are divisible by it. Keep track of the maximum score and the corresponding divisor, handling ties by choosing the smaller divisor.
+
+**Steps**
+- Initialize max_score to -1 and result to infinity
+- For each divisor in divisors:
+  - Count how many numbers in nums are divisible by the divisor
+  - If the score is greater than max_score, or if the score equals max_score and the divisor is smaller than result, update max_score and result
+- Return result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def maxDivScore(self, nums: List[int], divisors: List[int]) -> int:
+        max_score = -1
+        result = float('inf')
+        
+        for d in divisors:
+            score = 0
+            for num in nums:
+                if num % d == 0:
+                    score += 1
+            
+            if score &gt; max_score or (score == max_score and d &lt; result):
+                max_score = score
+                result = d
+        
+        return result` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int maxDivScore(int[] nums, int[] divisors) {
+        int maxScore = -1;
+        int result = Integer.MAX_VALUE;
+        
+        for (int d : divisors) {
+            int score = 0;
+            for (int num : nums) {
+                if (num % d == 0) {
+                    score++;
+                }
+            }
+            
+            if (score &gt; maxScore || (score == maxScore && d &lt; result)) {
+                maxScore = score;
+                result = d;
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <climits>
+
+class Solution {
+public:
+    int maxDivScore(vector<int>& nums, vector<int>& divisors) {
+        int maxScore = -1;
+        int result = INT_MAX;
+        
+        for (int d : divisors) {
+            int score = 0;
+            for (int num : nums) {
+                if (num % d == 0) {
+                    score++;
+                }
+            }
+            
+            if (score &gt; maxScore || (score == maxScore && d &lt; result)) {
+                maxScore = score;
+                result = d;
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number[]} divisors
+ * @return {number}
+ */
+var maxDivScore = function(nums, divisors) {
+    let maxScore = -1;
+    let result = Infinity;
+    
+    for (const d of divisors) {
+        let score = 0;
+        for (const num of nums) {
+            if (num % d === 0) {
+                score++;
+            }
+        }
+        
+        if (score &gt; maxScore || (score === maxScore && d &lt; result)) {
+            maxScore = score;
+            result = d;
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function maxDivScore(nums: number[], divisors: number[]): number {
+    let maxScore = -1;
+    let result = Infinity;
+    
+    for (const d of divisors) {
+        let score = 0;
+        for (const num of nums) {
+            if (num % d === 0) {
+                score++;
+            }
+        }
+        
+        if (score &gt; maxScore || (score === maxScore && d &lt; result)) {
+            maxScore = score;
+            result = d;
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(n × m) where n is the length of nums and m is the length of divisors
+- Space: O(1) for the variables
+- Notes: This is the most straightforward approach and is efficient enough given the constraints.
+
+---
+## Pre-sorting Divisors
+
+**Intuition**
+Sort the divisors in ascending order first. Then, when we find a new maximum score, the corresponding divisor is automatically the smallest one with that score, simplifying the tie-breaking logic.
+
+**Steps**
+- Sort divisors in ascending order
+- Initialize max_score to -1 and result to the first divisor
+- For each divisor in divisors:
+  - Count how many numbers in nums are divisible by the divisor
+  - If the score is greater than max_score, update max_score and result
+- Return result
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def maxDivScore(self, nums: List[int], divisors: List[int]) -> int:
+        divisors.sort()
+        max_score = -1
+        result = divisors[0]
+        
+        for d in divisors:
+            score = 0
+            for num in nums:
+                if num % d == 0:
+                    score += 1
+            
+            if score &gt; max_score:
+                max_score = score
+                result = d
+        
+        return result` },
+{ name: "Java", lang: "java", code: `import java.util.Arrays;
+
+class Solution {
+    public int maxDivScore(int[] nums, int[] divisors) {
+        Arrays.sort(divisors);
+        int maxScore = -1;
+        int result = divisors[0];
+        
+        for (int d : divisors) {
+            int score = 0;
+            for (int num : nums) {
+                if (num % d == 0) {
+                    score++;
+                }
+            }
+            
+            if (score &gt; maxScore) {
+                maxScore = score;
+                result = d;
+            }
+        }
+        
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <algorithm>
+
+class Solution {
+public:
+    int maxDivScore(vector<int>& nums, vector<int>& divisors) {
+        sort(divisors.begin(), divisors.end());
+        int maxScore = -1;
+        int result = divisors[0];
+        
+        for (int d : divisors) {
+            int score = 0;
+            for (int num : nums) {
+                if (num % d == 0) {
+                    score++;
+                }
+            }
+            
+            if (score &gt; maxScore) {
+                maxScore = score;
+                result = d;
+            }
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @param {number[]} divisors
+ * @return {number}
+ */
+var maxDivScore = function(nums, divisors) {
+    divisors.sort((a, b) =&gt; a - b);
+    let maxScore = -1;
+    let result = divisors[0];
+    
+    for (const d of divisors) {
+        let score = 0;
+        for (const num of nums) {
+            if (num % d === 0) {
+                score++;
+            }
+        }
+        
+        if (score &gt; maxScore) {
+            maxScore = score;
+            result = d;
+        }
+    }
+    
+    return result;
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function maxDivScore(nums: number[], divisors: number[]): number {
+    divisors.sort((a, b) =&gt; a - b);
+    let maxScore = -1;
+    let result = divisors[0];
+    
+    for (const d of divisors) {
+        let score = 0;
+        for (const num of nums) {
+            if (num % d === 0) {
+                score++;
+            }
+        }
+        
+        if (score &gt; maxScore) {
+            maxScore = score;
+            result = d;
+        }
+    }
+    
+    return result;
+}` },]} />
+
+**Complexity**
+- Time: O(m log m + n × m) for sorting and the nested loops
+- Space: O(m) in the worst case for sorting
+- Notes: This approach simplifies the tie-breaking logic but adds the overhead of sorting.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Maximum Divisibility Score Solutions","datePublished":"2026-03-19","description":"Find the divisor with the maximum divisibility score from an array of numbers. Return the smallest divisor if there's a tie.","keywords":"LeetCode, Find the Maximum Divisibility Score, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the brute force approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n × m) where n is the length of nums and m is the length of divisors, as we check each number against each divisor."}},{"@type":"Question","name":"What is the space complexity of the brute force approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only use a constant amount of extra space for variables."}},{"@type":"Question","name":"How does the pre-sorting approach handle tie-breaking?","acceptedAnswer":{"@type":"Answer","text":"By sorting divisors in ascending order first, we ensure that when we find a new maximum score, the corresponding divisor is automatically the smallest one with that score."}}]}).replace(/</g,'\u003c')}
+</script>

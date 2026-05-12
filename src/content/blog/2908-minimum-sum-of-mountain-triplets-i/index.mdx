@@ -1,0 +1,138 @@
+---
+title: "Minimum Sum of Mountain Triplets I"
+summary: "Find the minimum sum of a mountain triplet (i, j, k) where i &lt; j &lt; k, nums[i] &lt; nums[j], and nums[k] &lt; nums[j]."
+date: "Dec 23, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 67.40% | **Paid:** No
+> **Topics:** Array
+
+You are given a 0-indexed array nums of integers.
+
+A triplet of indices (i, j, k) is a mountain triplet if the following conditions are met:
+
+i &lt; j &lt; k
+nums[i] &lt; nums[j] and nums[k] &lt; nums[j]
+
+Return the minimum possible sum of a mountain triplet of nums. If no such triplet exists, return -1.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Two-Pass](#two-pass)
+- [Precompute Min Arrays](#precompute-min-arrays)
+
+## Examples
+
+### Example 1
+```text
+Input: nums = [8,6,1,5,3]
+Output: 9
+Explanation: One mountain triplet is (2, 3, 4) with sum 1 + 5 + 3 = 9.
+```
+
+### Example 2
+```text
+Input: nums = [5,4,8,7,10,2]
+Output: 14
+Explanation: One mountain triplet is (1, 2, 5) with sum 4 + 8 + 2 = 14.
+```
+
+### Example 3
+```text
+Input: nums = [6,5,4,3,2,1]
+Output: -1
+Explanation: No mountain triplet exists.
+```
+
+## Constraints
+
+```text
+3 <= nums.length <= 50
+1 <= nums[i] <= 50
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check all possible triplets (i, j, k) where i &lt; j &lt; k and verify if they form a mountain triplet. Track the minimum sum found.
+
+**Steps**
+- Iterate through all possible i, j, k combinations where i &lt; j &lt; k
+- For each triplet, check if nums[i] &lt; nums[j] and nums[k] &lt; nums[j]
+- If valid, update the minimum sum
+- Return the minimum sum or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def minimumSum(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        min_sum = float('inf')\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    if nums[i] &lt; nums[j] and nums[k] &lt; nums[j]:\n                        min_sum = min(min_sum, nums[i] + nums[j] + nums[k])\n        return min_sum if min_sum != float('inf') else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumSum(int[] nums) {\n        int n = nums.length;\n        int minSum = Integer.MAX_VALUE;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[i] &lt; nums[j] && nums[k] &lt; nums[j]) {\n                        minSum = Math.min(minSum, nums[i] + nums[j] + nums[k]);\n                    }\n                }\n            }\n        }\n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumSum(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        int minSum = INT_MAX;\n        for (int i = 0; i &lt; n; i++) {\n            for (int j = i + 1; j &lt; n; j++) {\n                for (int k = j + 1; k &lt; n; k++) {\n                    if (nums[i] &lt; nums[j] && nums[k] &lt; nums[j]) {\n                        minSum = min(minSum, nums[i] + nums[j] + nums[k]);\n                    }\n                }\n            }\n        }\n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minimumSum(nums) {\n        const n = nums.length;\n        let minSum = Infinity;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                for (let k = j + 1; k &lt; n; k++) {\n                    if (nums[i] &lt; nums[j] && nums[k] &lt; nums[j]) {\n                        minSum = Math.min(minSum, nums[i] + nums[j] + nums[k]);\n                    }\n                }\n            }\n        }\n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minimumSum(nums: number[]): number {\n        const n = nums.length;\n        let minSum = Infinity;\n        for (let i = 0; i &lt; n; i++) {\n            for (let j = i + 1; j &lt; n; j++) {\n                for (let k = j + 1; k &lt; n; k++) {\n                    if (nums[i] &lt; nums[j] && nums[k] &lt; nums[j]) {\n                        minSum = Math.min(minSum, nums[i] + nums[j] + nums[k]);\n                    }\n                }\n            }\n        }\n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n³)
+- Space: O(1)
+- Notes: Simple but inefficient for larger arrays
+
+---
+## Two-Pass
+
+**Intuition**
+For each middle element j, find the minimum valid element to its left and right by scanning, then calculate the sum.
+
+**Steps**
+- For each index j from 1 to n-2
+- Scan all elements to the left of j to find the minimum element less than nums[j]
+- Scan all elements to the right of j to find the minimum element less than nums[j]
+- If both exist, update the minimum sum
+- Return the minimum sum or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def minimumSum(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        if n &lt; 3:\n            return -1\n        \n        min_sum = float('inf')\n        \n        for j in range(1, n - 1):\n            left_min = float('inf')\n            for i in range(j):\n                if nums[i] &lt; nums[j]:\n                    left_min = min(left_min, nums[i])\n            \n            right_min = float('inf')\n            for k in range(j + 1, n):\n                if nums[k] &lt; nums[j]:\n                    right_min = min(right_min, nums[k])\n            \n            if left_min != float('inf') and right_min != float('inf'):\n                min_sum = min(min_sum, left_min + nums[j] + right_min)\n        \n        return min_sum if min_sum != float('inf') else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumSum(int[] nums) {\n        int n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        int minSum = Integer.MAX_VALUE;\n        \n        for (int j = 1; j &lt; n - 1; j++) {\n            int leftMin = Integer.MAX_VALUE;\n            for (int i = 0; i &lt; j; i++) {\n                if (nums[i] &lt; nums[j]) {\n                    leftMin = Math.min(leftMin, nums[i]);\n                }\n            }\n            \n            int rightMin = Integer.MAX_VALUE;\n            for (int k = j + 1; k &lt; n; k++) {\n                if (nums[k] &lt; nums[j]) {\n                    rightMin = Math.min(rightMin, nums[k]);\n                }\n            }\n            \n            if (leftMin != Integer.MAX_VALUE && rightMin != Integer.MAX_VALUE) {\n                minSum = Math.min(minSum, leftMin + nums[j] + rightMin);\n            }\n        }\n        \n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumSum(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        int minSum = INT_MAX;\n        \n        for (int j = 1; j &lt; n - 1; j++) {\n            int leftMin = INT_MAX;\n            for (int i = 0; i &lt; j; i++) {\n                if (nums[i] &lt; nums[j]) {\n                    leftMin = min(leftMin, nums[i]);\n                }\n            }\n            \n            int rightMin = INT_MAX;\n            for (int k = j + 1; k &lt; n; k++) {\n                if (nums[k] &lt; nums[j]) {\n                    rightMin = min(rightMin, nums[k]);\n                }\n            }\n            \n            if (leftMin != INT_MAX && rightMin != INT_MAX) {\n                minSum = min(minSum, leftMin + nums[j] + rightMin);\n            }\n        }\n        \n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minimumSum(nums) {\n        const n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        let minSum = Infinity;\n        \n        for (let j = 1; j &lt; n - 1; j++) {\n            let leftMin = Infinity;\n            for (let i = 0; i &lt; j; i++) {\n                if (nums[i] &lt; nums[j]) {\n                    leftMin = Math.min(leftMin, nums[i]);\n                }\n            }\n            \n            let rightMin = Infinity;\n            for (let k = j + 1; k &lt; n; k++) {\n                if (nums[k] &lt; nums[j]) {\n                    rightMin = Math.min(rightMin, nums[k]);\n                }\n            }\n            \n            if (leftMin !== Infinity && rightMin !== Infinity) {\n                minSum = Math.min(minSum, leftMin + nums[j] + rightMin);\n            }\n        }\n        \n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minimumSum(nums: number[]): number {\n        const n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        let minSum = Infinity;\n        \n        for (let j = 1; j &lt; n - 1; j++) {\n            let leftMin = Infinity;\n            for (let i = 0; i &lt; j; i++) {\n                if (nums[i] &lt; nums[j]) {\n                    leftMin = Math.min(leftMin, nums[i]);\n                }\n            }\n            \n            let rightMin = Infinity;\n            for (let k = j + 1; k &lt; n; k++) {\n                if (nums[k] &lt; nums[j]) {\n                    rightMin = Math.min(rightMin, nums[k]);\n                }\n            }\n            \n            if (leftMin !== Infinity && rightMin !== Infinity) {\n                minSum = Math.min(minSum, leftMin + nums[j] + rightMin);\n            }\n        }\n        \n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Better than brute force but still not optimal
+
+---
+## Precompute Min Arrays
+
+**Intuition**
+Precompute the minimum element to the left and right of each index. If the minimum to the left is less than nums[j] and the minimum to the right is less than nums[j], we have a valid triplet.
+
+**Steps**
+- Create left_min array where left_min[i] stores the minimum element from index 0 to i-1
+- Create right_min array where right_min[i] stores the minimum element from index i+1 to n-1
+- For each middle index j, check if left_min[j] &lt; nums[j] and right_min[j] &lt; nums[j]
+- If valid, calculate the sum and track the minimum
+- Return the minimum sum or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def minimumSum(self, nums: List[int]) -&gt; int:\n        n = len(nums)\n        if n &lt; 3:\n            return -1\n        \n        left_min = [float('inf')] * n\n        right_min = [float('inf')] * n\n        \n        for i in range(1, n):\n            left_min[i] = min(left_min[i - 1], nums[i - 1])\n        \n        for i in range(n - 2, -1, -1):\n            right_min[i] = min(right_min[i + 1], nums[i + 1])\n        \n        min_sum = float('inf')\n        for j in range(1, n - 1):\n            if left_min[j] &lt; nums[j] and right_min[j] &lt; nums[j]:\n                min_sum = min(min_sum, left_min[j] + nums[j] + right_min[j])\n        \n        return min_sum if min_sum != float('inf') else -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int minimumSum(int[] nums) {\n        int n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        int[] leftMin = new int[n];\n        int[] rightMin = new int[n];\n        \n        leftMin[0] = Integer.MAX_VALUE;\n        for (int i = 1; i &lt; n; i++) {\n            leftMin[i] = Math.min(leftMin[i - 1], nums[i - 1]);\n        }\n        \n        rightMin[n - 1] = Integer.MAX_VALUE;\n        for (int i = n - 2; i &gt;= 0; i--) {\n            rightMin[i] = Math.min(rightMin[i + 1], nums[i + 1]);\n        }\n        \n        int minSum = Integer.MAX_VALUE;\n        for (int j = 1; j &lt; n - 1; j++) {\n            if (leftMin[j] &lt; nums[j] && rightMin[j] &lt; nums[j]) {\n                minSum = Math.min(minSum, leftMin[j] + nums[j] + rightMin[j]);\n            }\n        }\n        \n        return minSum == Integer.MAX_VALUE ? -1 : minSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int minimumSum(vector&lt;int&gt;& nums) {\n        int n = nums.size();\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        vector&lt;int&gt; leftMin(n, INT_MAX);\n        vector&lt;int&gt; rightMin(n, INT_MAX);\n        \n        for (int i = 1; i &lt; n; i++) {\n            leftMin[i] = min(leftMin[i - 1], nums[i - 1]);\n        }\n        \n        for (int i = n - 2; i &gt;= 0; i--) {\n            rightMin[i] = min(rightMin[i + 1], nums[i + 1]);\n        }\n        \n        int minSum = INT_MAX;\n        for (int j = 1; j &lt; n - 1; j++) {\n            if (leftMin[j] &lt; nums[j] && rightMin[j] &lt; nums[j]) {\n                minSum = min(minSum, leftMin[j] + nums[j] + rightMin[j]);\n            }\n        }\n        \n        return minSum == INT_MAX ? -1 : minSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    minimumSum(nums) {\n        const n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        const leftMin = new Array(n).fill(Infinity);\n        const rightMin = new Array(n).fill(Infinity);\n        \n        for (let i = 1; i &lt; n; i++) {\n            leftMin[i] = Math.min(leftMin[i - 1], nums[i - 1]);\n        }\n        \n        for (let i = n - 2; i &gt;= 0; i--) {\n            rightMin[i] = Math.min(rightMin[i + 1], nums[i + 1]);\n        }\n        \n        let minSum = Infinity;\n        for (let j = 1; j &lt; n - 1; j++) {\n            if (leftMin[j] &lt; nums[j] && rightMin[j] &lt; nums[j]) {\n                minSum = Math.min(minSum, leftMin[j] + nums[j] + rightMin[j]);\n            }\n        }\n        \n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    minimumSum(nums: number[]): number {\n        const n = nums.length;\n        if (n &lt; 3) {\n            return -1;\n        }\n        \n        const leftMin: number[] = new Array(n).fill(Infinity);\n        const rightMin: number[] = new Array(n).fill(Infinity);\n        \n        for (let i = 1; i &lt; n; i++) {\n            leftMin[i] = Math.min(leftMin[i - 1], nums[i - 1]);\n        }\n        \n        for (let i = n - 2; i &gt;= 0; i--) {\n            rightMin[i] = Math.min(rightMin[i + 1], nums[i + 1]);\n        }\n        \n        let minSum = Infinity;\n        for (let j = 1; j &lt; n - 1; j++) {\n            if (leftMin[j] &lt; nums[j] && rightMin[j] &lt; nums[j]) {\n                minSum = Math.min(minSum, leftMin[j] + nums[j] + rightMin[j]);\n            }\n        }\n        \n        return minSum === Infinity ? -1 : minSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Optimal time complexity with trade-off of extra space
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Sum of Mountain Triplets I Solutions","datePublished":"2025-12-23","description":"Find the minimum sum of a mountain triplet (i, j, k) where i &lt; j &lt; k, nums[i] &lt; nums[j], and nums[k] &lt; nums[j].","keywords":"LeetCode, Minimum Sum of Mountain Triplets I, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n³) as it checks all possible triplets."}},{"@type":"Question","name":"What is the time complexity of the Precompute Min Arrays approach?","acceptedAnswer":{"@type":"Answer","text":"The Precompute Min Arrays approach has a time complexity of O(n) with O(n) space complexity."}},{"@type":"Question","name":"What is the optimal approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"The Precompute Min Arrays approach is optimal with O(n) time complexity, though it uses O(n) extra space."}}]}).replace(/</g,'\u003c')}
+</script>

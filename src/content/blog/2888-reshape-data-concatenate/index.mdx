@@ -1,0 +1,126 @@
+---
+title: "Reshape Data: Concatenate"
+summary: "Concatenate two DataFrames into a single DataFrame using Pandas."
+date: "Oct 28, 2024"
+tags:
+  - Pandas
+  - Data
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 90.40% | **Paid:** No
+> **Topics:** N/A
+
+You are given two DataFrames `students` and `courses`.
+
+Write a solution to concatenate these two DataFrames.
+
+The result should contain all rows from `students` followed by all rows from `courses`.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Concatenation](#approach-1-built-in-concatenation)
+- [Approach 2: Iterative Aggregation](#approach-2-iterative-aggregation)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+df1
++------------+---------+-----+
+| student_id | name    | age |
++------------+---------+-----+
+| 1          | Mason   | 8   |
+| 2          | Ava     | 6   |
+| 3          | Taylor  | 15  |
+| 4          | Georgia | 17  |
++------------+---------+-----+
+df2
++------------+------+-----+
+| student_id | name | age |
++------------+------+-----+
+| 5          | Leo  | 7   |
+| 6          | Alex | 7   |
++------------+------+-----+
+```
+
+**Output:**
+```text
++------------+---------+-----+
+| student_id | name    | age |
++------------+---------+-----+
+| 1          | Mason   | 8   |
+| 2          | Ava     | 6   |
+| 3          | Taylor  | 15  |
+| 4          | Georgia | 17  |
+| 5          | Leo     | 7   |
+| 6          | Alex    | 7   |
++------------+---------+-----+
+```
+
+**Explanation:**
+The two DataFramess are stacked vertically, and their rows are combined.
+
+## Constraints
+
+```text
+- The number of rows in both DataFrames can be different.
+- The columns in the two DataFrames can be different.
+- The result should preserve the order of rows (students first, then courses).
+```
+
+## Approach 1: Built-in Concatenation
+
+**Intuition**
+The most efficient way to combine two datasets is to use the built-in concatenation functions provided by the language's standard library or framework. In Python's Pandas, this is `pd.concat`. In other languages, we use native list or array collection methods to merge the data structures.
+
+**Steps**
+- Take the first dataset (students).
+- Append the second dataset (courses) to it.
+- Return the combined result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef concatenateData(students: pd.DataFrame, courses: pd.DataFrame) -&gt; pd.DataFrame:\n    return pd.concat([students, courses])" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; concatenate(List&lt;List&lt;String&gt;&gt; students, List&lt;List&lt;String&gt;&gt; courses) {\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;(students);\n        result.addAll(courses);\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; concatenate(vector&lt;vector&lt;string&gt;&gt; students, vector&lt;vector&lt;string&gt;&gt; courses) {\n        students.insert(students.end(), courses.begin(), courses.end());\n        return students;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&lt;string&gt;&gt;} students\n * @param {Array&lt;Array&lt;string&gt;&gt;} courses\n * @return {Array&lt;Array&lt;string&gt;&gt;}\n */\nvar concatenate = function(students, courses) {\n    return students.concat(courses);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function concatenate(students: any[][], courses: any[][]): any[][] {\n    return students.concat(courses);\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) where n and m are the number of rows in the two DataFrames.
+- Space: O(n + m) to store the resulting DataFrame.
+- Notes: Built-in functions are highly optimized and should be preferred over manual loops.
+
+## Approach 2: Iterative Aggregation
+
+**Intuition**
+If built-in functions are not available or if we need to perform custom logic during the merge (like filtering or transforming rows), we can manually iterate through the second dataset and add each element to the first one.
+
+**Steps**
+- Create a result list initialized with the contents of the first dataset.
+- Iterate through every row in the second dataset.
+- Add each row to the result list.
+- Return the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import pandas as pd\n\ndef concatenateData(students: pd.DataFrame, courses: pd.DataFrame) -&gt; pd.DataFrame:\n    # Create a copy to avoid modifying the original dataframe in place if needed\n    result = students.copy()\n    \n    # Iterate and append rows\n    for index, row in courses.iterrows():\n        result = pd.concat([result, pd.DataFrame([row])], ignore_index=True)\n        \n    return result" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; concatenate(List&lt;List&lt;String&gt;&gt; students, List&lt;List&lt;String&gt;&gt; courses) {\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        \n        // Add all students\n        for (List&lt;String&gt; row : students) {\n            result.add(row);\n        }\n        \n        // Add all courses\n        for (List&lt;String&gt; row : courses) {\n            result.add(row);\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; concatenate(vector&lt;vector&lt;string&gt;&gt;& students, vector&lt;vector&lt;string&gt;&gt;& courses) {\n        vector&lt;vector&lt;string&gt;&gt; result;\n        \n        // Reserve space to reduce reallocations\n        result.reserve(students.size() + courses.size());\n        \n        // Add all students\n        for (const auto& row : students) {\n            result.push_back(row);\n        }\n        \n        // Add all courses\n        for (const auto& row : courses) {\n            result.push_back(row);\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {Array&lt;Array&lt;string&gt;&gt;} students\n * @param {Array&lt;Array&lt;string&gt;&gt;} courses\n * @return {Array&lt;Array&lt;string&gt;&gt;}\n */\nvar concatenate = function(students, courses) {\n    var result = [];\n    \n    for (var i = 0; i &lt; students.length; i++) {\n        result.push(students[i]);\n    }\n    \n    for (var j = 0; j &lt; courses.length; j++) {\n        result.push(courses[j]);\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function concatenate(students: any[][], courses: any[][]): any[][] {\n    const result: any[][] = [];\n    \n    for (let i = 0; i &lt; students.length; i++) {\n        result.push(students[i]);\n    }\n    \n    for (let j = 0; j &lt; courses.length; j++) {\n        result.push(courses[j]);\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + m) as we must visit every element exactly once.
+- Space: O(n + m) to store the result.
+- Notes: This approach is more verbose but offers greater control for complex transformations during the merge process.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Reshape Data: Concatenate Solutions","datePublished":"2024-10-28","description":"Concatenate two DataFrames into a single DataFrame using Pandas.","keywords":"LeetCode, Reshape Data: Concatenate, Easy, N/A"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of concatenating two DataFrames?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the number of rows in the two DataFrames, as we need to process all elements."}},{"@type":"Question","name":"What is the space complexity of the concatenation operation?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the resulting DataFrame containing all rows from both inputs."}},{"@type":"Question","name":"Which method is preferred for concatenating data?","acceptedAnswer":{"@type":"Answer","text":"Using built-in functions like pd.concat in Python or addAll/concat in other languages is preferred for readability and performance."}}]}).replace(/</g,'\u003c')}
+</script>

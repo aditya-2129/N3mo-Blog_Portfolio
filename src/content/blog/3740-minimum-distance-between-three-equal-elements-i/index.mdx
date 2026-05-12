@@ -1,0 +1,450 @@
+---
+title: "Minimum Distance Between Three Equal Elements I"
+summary: "Find the minimum distance between three equal elements in an array."
+date: "Feb 21, 2025"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 73.50% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+You are given a 0-indexed array nums consisting of positive integers.
+
+Find three indices i, j, and k such that i &lt; j &lt; k and nums[i] = nums[j] = nums[k].
+
+The distance of the triplet (i, j, k) is defined as k - i.
+
+Return the minimum possible distance of a valid triplet (i, j, k), or return -1 if there is no such triplet.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Hash Map](#hash-map)
+- [Single Pass](#single-pass)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: nums = [5,2,5,2,5,2]
+Output: 4
+Explanation: The minimum distance is achieved by the triplet (0, 2, 4) or (1, 3, 5).
+```
+
+**Example 2:**
+
+```text
+Input: nums = [1,2,3,1,2,3]
+Output: -1
+Explanation: There is no triplet of equal elements.
+```
+
+**Example 3:**
+
+```text
+Input: nums = [1,1,1,1]
+Output: 2
+Explanation: The minimum distance is achieved by the triplet (0, 1, 2) or (1, 2, 3).
+```
+
+## Constraints
+
+```text
+- 1 <= n == nums.length <= 100
+- 1 <= nums[i] <= n
+```
+
+---
+## Brute Force
+
+**Intuition**
+Check all possible triplets (i, j, k) where i &lt; j &lt; k and find the minimum distance where all three elements are equal.
+
+**Steps**
+- Iterate through all possible starting indices i
+- For each i, iterate through all possible middle indices j &gt; i
+- If nums[i] == nums[j], iterate through all possible ending indices k &gt; j
+- If nums[j] == nums[k], update the minimum distance
+- Return the minimum distance found, or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+
+class Solution:
+    def minimumDistance(self, nums: List[int]) -> int:
+        n = len(nums)
+        min_dist = float('inf')
+        for i in range(n):
+            for j in range(i + 1, n):
+                if nums[i] == nums[j]:
+                    for k in range(j + 1, n):
+                        if nums[j] == nums[k]:
+                            min_dist = min(min_dist, k - i)
+        return min_dist if min_dist != float('inf') else -1
+` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public int minimumDistance(int[] nums) {
+        int n = nums.length;
+        int minDist = Integer.MAX_VALUE;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[i] == nums[j]) {
+                    for (int k = j + 1; k &lt; n; k++) {
+                        if (nums[j] == nums[k]) {
+                            minDist = Math.min(minDist, k - i);
+                        }
+                    }
+                }
+            }
+        }
+        return minDist == Integer.MAX_VALUE ? -1 : minDist;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minimumDistance(vector<int>& nums) {
+        int n = nums.size();
+        int minDist = INT_MAX;
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                if (nums[i] == nums[j]) {
+                    for (int k = j + 1; k &lt; n; k++) {
+                        if (nums[j] == nums[k]) {
+                            minDist = min(minDist, k - i);
+                        }
+                    }
+                }
+            }
+        }
+        return minDist == INT_MAX ? -1 : minDist;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minimumDistance = function(nums) {
+    const n = nums.length;
+    let minDist = Infinity;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (nums[i] === nums[j]) {
+                for (let k = j + 1; k &lt; n; k++) {
+                    if (nums[j] === nums[k]) {
+                        minDist = Math.min(minDist, k - i);
+                    }
+                }
+            }
+        }
+    }
+    return minDist === Infinity ? -1 : minDist;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function minimumDistance(nums: number[]): number {
+    const n = nums.length;
+    let minDist = Infinity;
+    for (let i = 0; i &lt; n; i++) {
+        for (let j = i + 1; j &lt; n; j++) {
+            if (nums[i] === nums[j]) {
+                for (let k = j + 1; k &lt; n; k++) {
+                    if (nums[j] === nums[k]) {
+                        minDist = Math.min(minDist, k - i);
+                    }
+                }
+            }
+        }
+    }
+    return minDist === Infinity ? -1 : minDist;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n³) - Three nested loops
+- Space: O(1) - Only using constant extra space
+- Notes: Simple but inefficient for large inputs
+
+---
+## Hash Map
+
+**Intuition**
+Store all indices for each value in a hash map, then find the minimum distance between any three consecutive occurrences of the same value.
+
+**Steps**
+- Create a hash map to store lists of indices for each value
+- Iterate through the array and populate the hash map
+- For each value with at least 3 occurrences, check all consecutive triplets of indices
+- Track the minimum distance across all values
+- Return the minimum distance found, or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import defaultdict
+
+class Solution:
+    def minimumDistance(self, nums: List[int]) -> int:
+        indices = defaultdict(list)
+        for i, num in enumerate(nums):
+            indices[num].append(i)
+        
+        min_dist = float('inf')
+        for idx_list in indices.values():
+            if len(idx_list) &gt;= 3:
+                for i in range(len(idx_list) - 2):
+                    dist = idx_list[i + 2] - idx_list[i]
+                    min_dist = min(min_dist, dist)
+        
+        return min_dist if min_dist != float('inf') else -1
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int minimumDistance(int[] nums) {
+        Map<Integer, List<Integer>&gt; indices = new HashMap&lt;&gt;();
+        for (int i = 0; i &lt; nums.length; i++) {
+            indices.computeIfAbsent(nums[i], k -> new ArrayList&lt;&gt;()).add(i);
+        }
+        
+        int minDist = Integer.MAX_VALUE;
+        for (List<Integer> idxList : indices.values()) {
+            if (idxList.size() &gt;= 3) {
+                for (int i = 0; i &lt; idxList.size() - 2; i++) {
+                    int dist = idxList.get(i + 2) - idxList.get(i);
+                    minDist = Math.min(minDist, dist);
+                }
+            }
+        }
+        
+        return minDist == Integer.MAX_VALUE ? -1 : minDist;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minimumDistance(vector<int>& nums) {
+        unordered_map<int, vector<int>&gt; indices;
+        for (int i = 0; i &lt; nums.size(); i++) {
+            indices[nums[i]].push_back(i);
+        }
+        
+        int minDist = INT_MAX;
+        for (auto& [num, idxList] : indices) {
+            if (idxList.size() &gt;= 3) {
+                for (int i = 0; i &lt; idxList.size() - 2; i++) {
+                    int dist = idxList[i + 2] - idxList[i];
+                    minDist = min(minDist, dist);
+                }
+            }
+        }
+        
+        return minDist == INT_MAX ? -1 : minDist;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minimumDistance = function(nums) {
+    const indices = new Map();
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (!indices.has(nums[i])) {
+            indices.set(nums[i], []);
+        }
+        indices.get(nums[i]).push(i);
+    }
+    
+    let minDist = Infinity;
+    for (const idxList of indices.values()) {
+        if (idxList.length &gt;= 3) {
+            for (let i = 0; i &lt; idxList.length - 2; i++) {
+                const dist = idxList[i + 2] - idxList[i];
+                minDist = Math.min(minDist, dist);
+            }
+        }
+    }
+    
+    return minDist === Infinity ? -1 : minDist;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function minimumDistance(nums: number[]): number {
+    const indices = new Map<number, number[]&gt;();
+    for (let i = 0; i &lt; nums.length; i++) {
+        if (!indices.has(nums[i])) {
+            indices.set(nums[i], []);
+        }
+        indices.get(nums[i])!.push(i);
+    }
+    
+    let minDist = Infinity;
+    for (const idxList of indices.values()) {
+        if (idxList.length &gt;= 3) {
+            for (let i = 0; i &lt; idxList.length - 2; i++) {
+                const dist = idxList[i + 2] - idxList[i];
+                minDist = Math.min(minDist, dist);
+            }
+        }
+    }
+    
+    return minDist === Infinity ? -1 : minDist;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Single pass to build the map, then linear scan through all indices
+- Space: O(n) - Hash map stores all indices
+- Notes: Efficient and easy to understand
+
+---
+## Single Pass
+
+**Intuition**
+Maintain only the last two indices for each value. When we encounter a third occurrence, we can immediately calculate the distance and update the minimum.
+
+**Steps**
+- Create a hash map to store the last two indices for each value
+- Iterate through the array
+- For each element, if we already have two previous indices, calculate the distance
+- Update the minimum distance and remove the oldest index
+- Add the current index to the map
+- Return the minimum distance found, or -1 if no valid triplet exists
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `from typing import List
+from collections import defaultdict
+
+class Solution:
+    def minimumDistance(self, nums: List[int]) -> int:
+        last_two = defaultdict(list)
+        min_dist = float('inf')
+        
+        for i, num in enumerate(nums):
+            if num in last_two:
+                if len(last_two[num]) == 2:
+                    dist = i - last_two[num][0]
+                    min_dist = min(min_dist, dist)
+                    last_two[num].pop(0)
+                last_two[num].append(i)
+            else:
+                last_two[num].append(i)
+        
+        return min_dist if min_dist != float('inf') else -1
+` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+
+class Solution {
+    public int minimumDistance(int[] nums) {
+        Map<Integer, List<Integer>&gt; lastTwo = new HashMap&lt;&gt;();
+        int minDist = Integer.MAX_VALUE;
+        
+        for (int i = 0; i &lt; nums.length; i++) {
+            int num = nums[i];
+            if (lastTwo.containsKey(num)) {
+                List<Integer> indices = lastTwo.get(num);
+                if (indices.size() == 2) {
+                    int dist = i - indices.get(0);
+                    minDist = Math.min(minDist, dist);
+                    indices.remove(0);
+                }
+                indices.add(i);
+            } else {
+                List<Integer> indices = new ArrayList&lt;&gt;();
+                indices.add(i);
+                lastTwo.put(num, indices);
+            }
+        }
+        
+        return minDist == Integer.MAX_VALUE ? -1 : minDist;
+    }
+}
+` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    int minimumDistance(vector<int>& nums) {
+        unordered_map<int, vector<int>&gt; lastTwo;
+        int minDist = INT_MAX;
+        
+        for (int i = 0; i &lt; nums.size(); i++) {
+            int num = nums[i];
+            if (lastTwo.find(num) != lastTwo.end()) {
+                if (lastTwo[num].size() == 2) {
+                    int dist = i - lastTwo[num][0];
+                    minDist = min(minDist, dist);
+                    lastTwo[num].erase(lastTwo[num].begin());
+                }
+                lastTwo[num].push_back(i);
+            } else {
+                lastTwo[num].push_back(i);
+            }
+        }
+        
+        return minDist == INT_MAX ? -1 : minDist;
+    }
+};
+` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minimumDistance = function(nums) {
+    const lastTwo = new Map();
+    let minDist = Infinity;
+    
+    for (let i = 0; i &lt; nums.length; i++) {
+        const num = nums[i];
+        if (lastTwo.has(num)) {
+            const indices = lastTwo.get(num);
+            if (indices.length === 2) {
+                const dist = i - indices[0];
+                minDist = Math.min(minDist, dist);
+                indices.shift();
+            }
+            indices.push(i);
+        } else {
+            lastTwo.set(num, [i]);
+        }
+    }
+    
+    return minDist === Infinity ? -1 : minDist;
+};
+` },
+{ name: "TypeScript", lang: "typescript", code: `function minimumDistance(nums: number[]): number {
+    const lastTwo = new Map<number, number[]&gt;();
+    let minDist = Infinity;
+    
+    for (let i = 0; i &lt; nums.length; i++) {
+        const num = nums[i];
+        if (lastTwo.has(num)) {
+            const indices = lastTwo.get(num)!;
+            if (indices.length === 2) {
+                const dist = i - indices[0];
+                minDist = Math.min(minDist, dist);
+                indices.shift();
+            }
+            indices.push(i);
+        } else {
+            lastTwo.set(num, [i]);
+        }
+    }
+    
+    return minDist === Infinity ? -1 : minDist;
+}
+` },]} />
+
+**Complexity**
+- Time: O(n) - Single pass through the array
+- Space: O(n) - Hash map stores at most 2 indices per unique value
+- Notes: Most space-efficient approach while maintaining O(n) time complexity
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Minimum Distance Between Three Equal Elements I Solutions","datePublished":"2025-02-21","description":"Find the minimum distance between three equal elements in an array.","keywords":"LeetCode, Minimum Distance Between Three Equal Elements I, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force approach has a time complexity of O(n³) due to three nested loops."}},{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The Hash Map approach has a time complexity of O(n) for building the map and scanning through indices."}},{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach has a time complexity of O(n) as it only requires one iteration through the array."}},{"@type":"Question","name":"What is the space complexity of the optimal approaches?","acceptedAnswer":{"@type":"Answer","text":"Both the Hash Map and Single Pass approaches have a space complexity of O(n) for storing indices."}}]}).replace(/</g,'\u003c')}
+</script>

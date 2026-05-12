@@ -1,0 +1,151 @@
+---
+title: "Button with Longest Push Time"
+summary: "Find the index of the button with the longest push duration in an array. Return the smallest index in case of a tie."
+date: "Mar 24, 2024"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 41.10% | **Paid:** No
+> **Topics:** Array
+
+You are given a 0-indexed integer array `pushTime` of length `n`, where `pushTime[i]` represents the duration (in seconds) that the i-th button is held down. Return the index of the button that was held down for the longest time. If there is a tie, return the smallest index.
+
+- Examples
+- Constraints
+- [Linear Scan](#linear-scan)
+- [Sorting with Index Tracking](#sorting-with-index-tracking)
+- [Max Heap (Priority Queue)](#max-heap-priority-queue)
+
+## Examples
+
+### Example 1
+
+**Input:**
+```text
+events = [[1,2],[2,5],[3,9],[1,15]]
+```
+
+**Output:**
+```text
+1
+```
+
+**Explanation:**
+Button with index 1 is pressed at time 2.
+
+Button with index 2 is pressed at time 5, so it took 5 - 2 = 3 units of time.
+
+Button with index 3 is pressed at time 9, so it took 9 - 5 = 4 units of time.
+
+Button with index 1 is pressed again at time 15, so it took 15 - 9 = 6 units of time.
+
+### Example 2
+
+**Input:**
+```text
+events = [[10,5],[1,7]]
+```
+
+**Output:**
+```text
+10
+```
+
+**Explanation:**
+Button with index 10 is pressed at time 5.
+
+Button with index 1 is pressed at time 7, so it took 7 - 5 = 2 units of time.
+
+## Constraints
+
+```text
+- 1 <= events.length <= 1000
+- events[i] == [indexi, timei]
+- 1 <= indexi, timei <= 10^5
+- The input is generated such that events is sorted in increasing order of timei.
+```
+
+---
+
+## Linear Scan
+
+**Intuition**
+We can iterate through the array once, keeping track of the maximum value found so far and its corresponding index. If we find a value strictly greater than the current maximum, we update both the maximum value and the index. If we find a value equal to the current maximum, we do nothing to preserve the smallest index.
+
+**Steps**
+- Initialize `maxVal` to -1 (or `Integer.MIN_VALUE` / `INT_MIN`) and `maxIdx` to 0.
+- Iterate through the array using a loop.
+- For each element `pushTime[i]`:
+  - If `pushTime[i] &gt; maxVal`, update `maxVal = pushTime[i]` and `maxIdx = i`.
+- Return `maxIdx`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def buttonWithLongestPushTime(self, pushTime: list[int]) -&gt; int:\n        max_val = -1\n        max_idx = 0\n        for i, time in enumerate(pushTime):\n            if time &gt; max_val:\n                max_val = time\n                max_idx = i\n        return max_idx\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int buttonWithLongestPushTime(int[] pushTime) {\n        int maxVal = Integer.MIN_VALUE;\n        int maxIdx = 0;\n        for (int i = 0; i &lt; pushTime.length; i++) {\n            if (pushTime[i] &gt; maxVal) {\n                maxVal = pushTime[i];\n                maxIdx = i;\n            }\n        }\n        return maxIdx;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int buttonWithLongestPushTime(vector&lt;int&gt;& pushTime) {\n        int maxVal = INT_MIN;\n        int maxIdx = 0;\n        for (int i = 0; i &lt; pushTime.size(); i++) {\n            if (pushTime[i] &gt; maxVal) {\n                maxVal = pushTime[i];\n                maxIdx = i;\n            }\n        }\n        return maxIdx;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} pushTime\n * @return {number}\n */\nvar buttonWithLongestPushTime = function(pushTime) {\n    let maxVal = -1;\n    let maxIdx = 0;\n    for (let i = 0; i &lt; pushTime.length; i++) {\n        if (pushTime[i] &gt; maxVal) {\n            maxVal = pushTime[i];\n            maxIdx = i;\n        }\n    }\n    return maxIdx;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function buttonWithLongestPushTime(pushTime: number[]): number {\n    let maxVal: number = -1;\n    let maxIdx: number = 0;\n    for (let i = 0; i &lt; pushTime.length; i++) {\n        if (pushTime[i] &gt; maxVal) {\n            maxVal = pushTime[i];\n            maxIdx = i;\n        }\n    }\n    return maxIdx;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: This is the most optimal approach as it only requires a single pass through the array.
+
+---
+
+## Sorting with Index Tracking
+
+**Intuition**
+We can create an array of pairs (or objects) containing the value and its original index. By sorting this array in descending order based on the value, the first element will hold the maximum value. We then return the index associated with this first element. Since standard sort is stable or we can define a comparator that handles ties by index, we ensure the correct result.
+
+**Steps**
+- Create a list/array of objects/tuples storing `(value, index)`.
+- Sort the list in descending order of `value`. If values are equal, sort by `index` in ascending order.
+- Return the `index` of the first element in the sorted list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def buttonWithLongestPushTime(self, pushTime: list[int]) -&gt; int:\n        # Create list of (value, index)\n        indexed_times = [(val, i) for i, val in enumerate(pushTime)]\n        # Sort by value descending, then index ascending\n        indexed_times.sort(key=lambda x: (-x[0], x[1]))\n        return indexed_times[0][1]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int buttonWithLongestPushTime(int[] pushTime) {\n        int n = pushTime.length;\n        int[][] arr = new int[n][2];\n        for (int i = 0; i &lt; n; i++) {\n            arr[i][0] = pushTime[i];\n            arr[i][1] = i;\n        }\n        // Sort by value descending, then index ascending\n        Arrays.sort(arr, (a, b) -&gt; {\n            if (b[0] != a[0]) return b[0] - a[0];\n            return a[1] - b[1];\n        });\n        return arr[0][1];\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int buttonWithLongestPushTime(vector&lt;int&gt;& pushTime) {\n        vector&lt;pair&lt;int, int&gt;&gt; indexedTimes;\n        for (int i = 0; i &lt; pushTime.size(); i++) {\n            indexedTimes.push_back({pushTime[i], i});\n        }\n        // Sort by value descending, then index ascending\n        sort(indexedTimes.begin(), indexedTimes.end(), [](const pair&lt;int, int&gt;& a, const pair&lt;int, int&gt;& b) {\n            if (a.first != b.first) return a.first &gt; b.first;\n            return a.second &lt; b.second;\n        });\n        return indexedTimes[0].second;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} pushTime\n * @return {number}\n */\nvar buttonWithLongestPushTime = function(pushTime) {\n    let indexedTimes = pushTime.map((val, idx) =&gt; ({ val, idx }));\n    indexedTimes.sort((a, b) =&gt; {\n        if (b.val !== a.val) return b.val - a.val;\n        return a.idx - b.idx;\n    });\n    return indexedTimes[0].idx;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface TimeIndex {\n    val: number;\n    idx: number;\n}\n\nfunction buttonWithLongestPushTime(pushTime: number[]): number {\n    let indexedTimes: TimeIndex[] = pushTime.map((val, idx) =&gt; ({ val, idx }));\n    indexedTimes.sort((a: TimeIndex, b: TimeIndex) =&gt; {\n        if (b.val !== a.val) return b.val - a.val;\n        return a.idx - b.idx;\n    });\n    return indexedTimes[0].idx;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Sorting is slower than a linear scan and requires extra space to store indices.
+
+---
+
+## Max Heap (Priority Queue)
+
+**Intuition**
+We can insert all elements into a Max-Heap (Priority Queue) along with their indices. The element at the top of the heap will be the one with the maximum value. We pop the top element and return its index. To handle ties correctly (smallest index), we ensure that if values are equal, the smaller index is prioritized in the heap ordering.
+
+**Steps**
+- Initialize a Max-Heap.
+- Push all `(value, index)` pairs into the heap. The heap comparator should prioritize higher values, and for equal values, smaller indices.
+- Pop the top element from the heap.
+- Return the index of the popped element.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "import heapq\n\nclass Solution:\n    def buttonWithLongestPushTime(self, pushTime: list[int]) -&gt; int:\n        # Python heapq is a min-heap, so we store (-value, index)\n        heap = []\n        for i, val in enumerate(pushTime):\n            heapq.heappush(heap, (-val, i))\n        \n        # The top of the heap is the max value (smallest negative)\n        # If values are equal, the smaller index comes first naturally in tuple comparison\n        return heap[0][1]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public int buttonWithLongestPushTime(int[] pushTime) {\n        // Max heap based on value, then index\n        PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; {\n            if (b[0] != a[0]) return b[0] - a[0]; // Descending value\n            return a[1] - b[1]; // Ascending index\n        });\n        \n        for (int i = 0; i &lt; pushTime.length; i++) {\n            pq.offer(new int[]{pushTime[i], i});\n        }\n        \n        return pq.poll()[1];\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;queue&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int buttonWithLongestPushTime(vector&lt;int&gt;& pushTime) {\n        // Max heap: pair&lt;value, index&gt;\n        // priority_queue is a max-heap by default for the first element\n        priority_queue&lt;pair&lt;int, int&gt;&gt; pq;\n        \n        for (int i = 0; i &lt; pushTime.size(); i++) {\n            pq.push({pushTime[i], i});\n        }\n        \n        // We need to handle ties manually if we want smallest index first\n        // Since standard PQ doesn't handle secondary sort easily on tie without custom comparator,\n        // we might need to pop if top index is not the smallest for that value.\n        // However, for simplicity in this approach, we assume standard max-heap behavior.\n        // To strictly adhere to 'smallest index on tie', we use a custom comparator.\n        \n        auto cmp = [](const pair&lt;int, int&gt;& a, const pair&lt;int, int&gt;& b) {\n            if (a.first != b.first) return a.first &lt; b.first;\n            return a.second &gt; b.second;\n        };\n        priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, decltype(cmp)&gt; pq2(cmp);\n        \n        for (int i = 0; i &lt; pushTime.size(); i++) {\n            pq2.push({pushTime[i], i});\n        }\n        \n        return pq2.top().second;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "// JS does not have a built-in Heap, but we can simulate the logic\n// or use an array sort approach which is effectively the Sorting approach.\n// For the sake of the 'Heap' approach requirement, we implement a simple MaxHeap class.\n\nclass MaxHeap {\n    constructor() {\n        this.heap = [];\n    }\n\n    push(val) {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n\n    bubbleUp(idx) {\n        while (idx &gt; 0) {\n            let parentIdx = Math.floor((idx - 1) / 2);\n            if (this.compare(this.heap[idx], this.heap[parentIdx]) &gt; 0) {\n                [this.heap[idx], this.heap[parentIdx]] = [this.heap[parentIdx], this.heap[idx]];\n                idx = parentIdx;\n            } else {\n                break;\n            }\n        }\n    }\n\n    pop() {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n\n    sinkDown(idx) {\n        const length = this.heap.length;\n        while (true) {\n            let leftChildIdx = 2 * idx + 1;\n            let rightChildIdx = 2 * idx + 2;\n            let swapIdx = null;\n\n            if (leftChildIdx &lt; length) {\n                if (this.compare(this.heap[leftChildIdx], this.heap[idx]) &gt; 0) {\n                    swapIdx = leftChildIdx;\n                }\n            }\n            if (rightChildIdx &lt; length) {\n                if (\n                    (swapIdx === null && this.compare(this.heap[rightChildIdx], this.heap[idx]) &gt; 0) ||\n                    (swapIdx !== null && this.compare(this.heap[rightChildIdx], this.heap[leftChildIdx]) &gt; 0)\n                ) {\n                    swapIdx = rightChildIdx;\n                }\n            }\n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n\n    // Compare a vs b. Return &gt; 0 if a &gt; b\n    compare(a, b) {\n        if (a.val !== b.val) return a.val - b.val;\n        return b.idx - a.idx; // Smaller index wins on tie\n    }\n}\n\n/**\n * @param {number[]} pushTime\n * @return {number}\n */\nvar buttonWithLongestPushTime = function(pushTime) {\n    const heap = new MaxHeap();\n    for (let i = 0; i &lt; pushTime.length; i++) {\n        heap.push({ val: pushTime[i], idx: i });\n    }\n    return heap.pop().idx;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "interface HeapItem {\n    val: number;\n    idx: number;\n}\n\nclass MaxHeap {\n    private heap: HeapItem[] = [];\n\n    push(val: HeapItem): void {\n        this.heap.push(val);\n        this.bubbleUp(this.heap.length - 1);\n    }\n\n    bubbleUp(idx: number): void {\n        while (idx &gt; 0) {\n            let parentIdx = Math.floor((idx - 1) / 2);\n            if (this.compare(this.heap[idx], this.heap[parentIdx]) &gt; 0) {\n                [this.heap[idx], this.heap[parentIdx]] = [this.heap[parentIdx], this.heap[idx]];\n                idx = parentIdx;\n            } else {\n                break;\n            }\n        }\n    }\n\n    pop(): HeapItem {\n        const max = this.heap[0];\n        const end = this.heap.pop();\n        if (this.heap.length &gt; 0) {\n            this.heap[0] = end!;\n            this.sinkDown(0);\n        }\n        return max;\n    }\n\n    sinkDown(idx: number): void {\n        const length = this.heap.length;\n        while (true) {\n            let leftChildIdx = 2 * idx + 1;\n            let rightChildIdx = 2 * idx + 2;\n            let swapIdx: number | null = null;\n\n            if (leftChildIdx &lt; length) {\n                if (this.compare(this.heap[leftChildIdx], this.heap[idx]) &gt; 0) {\n                    swapIdx = leftChildIdx;\n                }\n            }\n            if (rightChildIdx &lt; length) {\n                if (\n                    (swapIdx === null && this.compare(this.heap[rightChildIdx], this.heap[idx]) &gt; 0) ||\n                    (swapIdx !== null && this.compare(this.heap[rightChildIdx], this.heap[leftChildIdx]) &gt; 0)\n                ) {\n                    swapIdx = rightChildIdx;\n                }\n            }\n            if (swapIdx === null) break;\n            [this.heap[idx], this.heap[swapIdx]] = [this.heap[swapIdx], this.heap[idx]];\n            idx = swapIdx;\n        }\n    }\n\n    compare(a: HeapItem, b: HeapItem): number {\n        if (a.val !== b.val) return a.val - b.val;\n        return b.idx - a.idx; // Smaller index wins on tie\n    }\n}\n\nfunction buttonWithLongestPushTime(pushTime: number[]): number {\n    const heap = new MaxHeap();\n    for (let i = 0; i &lt; pushTime.length; i++) {\n        heap.push({ val: pushTime[i], idx: i });\n    }\n    return heap.pop().idx;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n)
+- Space: O(n)
+- Notes: Using a heap is overkill for this problem as it requires O(n log n) time and O(n) space, whereas a linear scan is O(n) time and O(1) space.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Button with Longest Push Time Solutions","datePublished":"2024-03-24","description":"Find the index of the button with the longest push duration in an array. Return the smallest index in case of a tie.","keywords":"LeetCode, Button with Longest Push Time, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Linear Scan approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the pushTime array."}},{"@type":"Question","name":"What is the space complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) to store the indexed elements for sorting."}},{"@type":"Question","name":"How does the Max Heap approach handle ties?","acceptedAnswer":{"@type":"Answer","text":"The heap comparator is configured to prioritize higher values. If values are equal, it prioritizes the smaller index to satisfy the problem requirements."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,116 @@
+---
+title: "Projection Area of 3D Shapes"
+summary: "Calculate the total projection area of 3D shapes on three orthogonal planes."
+date: "Jul 23, 2025"
+tags:
+  - Array
+  - Math
+  - Geometry
+  - Matrix
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.00% | **Paid:** No
+> **Topics:** Array, Math, Geometry, Matrix
+
+You are given an n x n grid where we place some 1 x 1 x 1 cubes that are axis-aligned with the x, y, and z axes.
+
+Each value v = grid[i][j] represents a tower of v cubes placed on top of the cell (i, j).
+
+We view the "shadow" when looking at the cubes from the top, the front, and the side.
+
+Return the total area of all three projections.
+
+- Examples
+- Constraints
+- [Direct Calculation](#direct-calculation)
+- [Single Pass Optimization](#single-pass-optimization)
+
+## Examples
+
+### Example 1
+```text
+Input: grid = [[1,2],[3,4]]
+Output: 17
+Explanation: 
+Here are the three projections ("shadow") of the shape made with each axis-aligned plane.
+```
+
+### Example 2
+```text
+Input: grid = [[2]]
+Output: 5
+Explanation: 
+The top view has area 1, the front view has area 2, and the side view has area 2.
+```
+
+### Example 3
+```text
+Input: grid = [[1,0],[0,2]]
+Output: 8
+```
+
+## Constraints
+
+```text
+n == grid.length
+n == grid[i].length
+1 <= n <= 50
+0 <= grid[i][j] <= 50
+```
+
+---
+## Direct Calculation
+
+**Intuition**
+The projection area is the sum of three separate projections: top view (xy plane), front view (xz plane), and side view (yz plane). We calculate each independently and sum them.
+
+**Steps**
+- Calculate xy projection by counting all non-zero cells
+- Calculate yz projection by finding the maximum value in each row and summing them
+- Calculate xz projection by finding the maximum value in each column and summing them
+- Return the sum of all three projections
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def projectionArea(self, grid: list[list[int]]) -&gt; int:\n        n = len(grid)\n        xy = 0  # Top view: count of non-zero cells\n        yz = 0  # Side view: sum of max in each row\n        xz = 0  # Front view: sum of max in each column\n        \n        for i in range(n):\n            row_max = 0\n            for j in range(n):\n                if grid[i][j] &gt; 0:\n                    xy += 1\n                row_max = max(row_max, grid[i][j])\n            yz += row_max\n        \n        for j in range(n):\n            col_max = 0\n            for i in range(n):\n                col_max = max(col_max, grid[i][j])\n            xz += col_max\n        \n        return xy + yz + xz\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int projectionArea(int[][] grid) {\n        int n = grid.length;\n        int xy = 0;  // Top view: count of non-zero cells\n        int yz = 0;  // Side view: sum of max in each row\n        int xz = 0;  // Front view: sum of max in each column\n        \n        for (int i = 0; i &lt; n; i++) {\n            int rowMax = 0;\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    xy++;\n                }\n                rowMax = Math.max(rowMax, grid[i][j]);\n            }\n            yz += rowMax;\n        }\n        \n        for (int j = 0; j &lt; n; j++) {\n            int colMax = 0;\n            for (int i = 0; i &lt; n; i++) {\n                colMax = Math.max(colMax, grid[i][j]);\n            }\n            xz += colMax;\n        }\n        \n        return xy + yz + xz;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int projectionArea(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        int xy = 0;  // Top view: count of non-zero cells\n        int yz = 0;  // Side view: sum of max in each row\n        int xz = 0;  // Front view: sum of max in each column\n        \n        for (int i = 0; i &lt; n; i++) {\n            int rowMax = 0;\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    xy++;\n                }\n                rowMax = max(rowMax, grid[i][j]);\n            }\n            yz += rowMax;\n        }\n        \n        for (int j = 0; j &lt; n; j++) {\n            int colMax = 0;\n            for (int i = 0; i &lt; n; i++) {\n                colMax = max(colMax, grid[i][j]);\n            }\n            xz += colMax;\n        }\n        \n        return xy + yz + xz;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number}\n */\nvar projectionArea = function(grid) {\n    const n = grid.length;\n    let xy = 0;  // Top view: count of non-zero cells\n    let yz = 0;  // Side view: sum of max in each row\n    let xz = 0;  // Front view: sum of max in each column\n    \n    for (let i = 0; i &lt; n; i++) {\n        let rowMax = 0;\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                xy++;\n            }\n            rowMax = Math.max(rowMax, grid[i][j]);\n        }\n        yz += rowMax;\n    }\n    \n    for (let j = 0; j &lt; n; j++) {\n        let colMax = 0;\n        for (let i = 0; i &lt; n; i++) {\n            colMax = Math.max(colMax, grid[i][j]);\n        }\n        xz += colMax;\n    }\n    \n    return xy + yz + xz;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function projectionArea(grid: number[][]): number {\n    const n = grid.length;\n    let xy = 0;  // Top view: count of non-zero cells\n    let yz = 0;  // Side view: sum of max in each row\n    let xz = 0;  // Front view: sum of max in each column\n    \n    for (let i = 0; i &lt; n; i++) {\n        let rowMax = 0;\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                xy++;\n            }\n            rowMax = Math.max(rowMax, grid[i][j]);\n        }\n        yz += rowMax;\n    }\n    \n    for (let j = 0; j &lt; n; j++) {\n        let colMax = 0;\n        for (let i = 0; i &lt; n; i++) {\n            colMax = Math.max(colMax, grid[i][j]);\n        }\n        xz += colMax;\n    }\n    \n    return xy + yz + xz;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: We iterate through the grid twice, once for rows and once for columns.
+
+---
+## Single Pass Optimization
+
+**Intuition**
+We can calculate all three projections in a single pass through the grid by maintaining arrays for row maximums and column maximums.
+
+**Steps**
+- Initialize arrays to track maximum values for each row and column
+- Iterate through the grid once, updating row maxes, column maxes, and counting non-zero cells
+- Sum up the xy projection (non-zero count), yz projection (sum of row maxes), and xz projection (sum of column maxes)
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def projectionArea(self, grid: list[list[int]]) -&gt; int:\n        n = len(grid)\n        row_max = [0] * n\n        col_max = [0] * n\n        xy = 0\n        \n        for i in range(n):\n            for j in range(n):\n                if grid[i][j] &gt; 0:\n                    xy += 1\n                row_max[i] = max(row_max[i], grid[i][j])\n                col_max[j] = max(col_max[j], grid[i][j])\n        \n        return xy + sum(row_max) + sum(col_max)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int projectionArea(int[][] grid) {\n        int n = grid.length;\n        int[] rowMax = new int[n];\n        int[] colMax = new int[n];\n        int xy = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    xy++;\n                }\n                rowMax[i] = Math.max(rowMax[i], grid[i][j]);\n                colMax[j] = Math.max(colMax[j], grid[i][j]);\n            }\n        }\n        \n        int yz = 0, xz = 0;\n        for (int i = 0; i &lt; n; i++) {\n            yz += rowMax[i];\n            xz += colMax[i];\n        }\n        \n        return xy + yz + xz;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int projectionArea(vector&lt;vector&lt;int&gt;&gt;& grid) {\n        int n = grid.size();\n        vector&lt;int&gt; rowMax(n, 0);\n        vector&lt;int&gt; colMax(n, 0);\n        int xy = 0;\n        \n        for (int i = 0; i &lt; n; i++) {\n            for (int j = 0; j &lt; n; j++) {\n                if (grid[i][j] &gt; 0) {\n                    xy++;\n                }\n                rowMax[i] = max(rowMax[i], grid[i][j]);\n                colMax[j] = max(colMax[j], grid[i][j]);\n            }\n        }\n        \n        int yz = 0, xz = 0;\n        for (int i = 0; i &lt; n; i++) {\n            yz += rowMax[i];\n            xz += colMax[i];\n        }\n        \n        return xy + yz + xz;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[][]} grid\n * @return {number}\n */\nvar projectionArea = function(grid) {\n    const n = grid.length;\n    const rowMax = new Array(n).fill(0);\n    const colMax = new Array(n).fill(0);\n    let xy = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                xy++;\n            }\n            rowMax[i] = Math.max(rowMax[i], grid[i][j]);\n            colMax[j] = Math.max(colMax[j], grid[i][j]);\n        }\n    }\n    \n    const yz = rowMax.reduce((a, b) =&gt; a + b, 0);\n    const xz = colMax.reduce((a, b) =&gt; a + b, 0);\n    \n    return xy + yz + xz;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function projectionArea(grid: number[][]): number {\n    const n = grid.length;\n    const rowMax: number[] = new Array(n).fill(0);\n    const colMax: number[] = new Array(n).fill(0);\n    let xy = 0;\n    \n    for (let i = 0; i &lt; n; i++) {\n        for (let j = 0; j &lt; n; j++) {\n            if (grid[i][j] &gt; 0) {\n                xy++;\n            }\n            rowMax[i] = Math.max(rowMax[i], grid[i][j]);\n            colMax[j] = Math.max(colMax[j], grid[i][j]);\n        }\n    }\n    \n    const yz = rowMax.reduce((a, b) =&gt; a + b, 0);\n    const xz = colMax.reduce((a, b) =&gt; a + b, 0);\n    \n    return xy + yz + xz;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(n)
+- Notes: Uses O(n) extra space for row and column maximum arrays, but only requires one pass through the grid.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Projection Area of 3D Shapes Solutions","datePublished":"2025-07-23","description":"Calculate the total projection area of 3D shapes on three orthogonal planes.","keywords":"LeetCode, Projection Area of 3D Shapes, Easy, Array, Math, Geometry, Matrix"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Direct Calculation approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n²) where n is the size of the grid, as we iterate through all elements twice."}},{"@type":"Question","name":"What is the space complexity of the Single Pass Optimization approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing row and column maximum arrays."}},{"@type":"Question","name":"How do we calculate the xy projection?","acceptedAnswer":{"@type":"Answer","text":"The xy projection (top view) is simply the count of all non-zero cells in the grid."}},{"@type":"Question","name":"How do we calculate the yz and xz projections?","acceptedAnswer":{"@type":"Answer","text":"The yz projection (side view) is the sum of maximum values in each row. The xz projection (front view) is the sum of maximum values in each column."}}]}).replace(/</g,'\u003c')}
+</script>

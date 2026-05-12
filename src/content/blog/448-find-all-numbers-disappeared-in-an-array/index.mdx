@@ -1,0 +1,120 @@
+---
+title: "Find All Numbers Disappeared in an Array"
+summary: "Given an array of n integers where 1 ≤ nums[i] ≤ n, find all integers in [1, n] that do not appear in the array."
+date: "Oct 14, 2024"
+tags:
+  - Array
+  - Hash Table
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 64.10% | **Paid:** No
+> **Topics:** Array, Hash Table
+
+Given an array nums of n integers where nums[i] is in the range [1, n], return an array of all the integers in the range [1, n] that do not appear in nums.
+
+Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Set](#hash-set)
+- [Approach 2: Negation Marking](#negation-marking)
+- [Approach 3: Cyclic Sort](#cyclic-sort)
+
+## Examples
+
+```text
+Input: nums = [4,3,2,7,8,2,3,1]
+Output: [5,6]
+Explanation: The number 5 does not appear in nums, and the number 6 does not appear in nums.
+```
+
+```text
+Input: nums = [1,1]
+Output: [2]
+```
+
+## Constraints
+
+```text
+n == nums.length
+1 <= n <= 10⁵
+1 <= nums[i] <= n
+```
+
+---
+## Hash Set
+
+**Intuition**
+Use a hash set to store all numbers seen in the array. Then iterate from 1 to n and check which numbers are missing from the set.
+
+**Steps**
+- Insert all elements of `nums` into a `HashSet`.
+- Iterate from `1` to `n` (inclusive).
+- If the current number is not in the set, add it to the result list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findDisappearedNumbers(self, nums: List[int]) -&gt; List[int]:\n        num_set = set(nums)\n        return [i for i in range(1, len(nums) + 1) if i not in num_set]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; findDisappearedNumbers(int[] nums) {\n        Set&lt;Integer&gt; set = new HashSet&lt;&gt;();\n        for (int num : nums) set.add(num);\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (int i = 1; i &lt;= nums.length; i++) {\n            if (!set.contains(i)) result.add(i);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_set&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findDisappearedNumbers(vector&lt;int&gt;& nums) {\n        unordered_set&lt;int&gt; s(nums.begin(), nums.end());\n        vector&lt;int&gt; res;\n        for (int i = 1; i &lt;= nums.size(); ++i) {\n            if (!s.count(i)) res.push_back(i);\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findDisappearedNumbers = function(nums) {\n    const set = new Set(nums);\n    const res = [];\n    for (let i = 1; i &lt;= nums.length; i++) {\n        if (!set.has(i)) res.push(i);\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findDisappearedNumbers(nums: number[]): number[] {\n    const set = new Set(nums);\n    const res: number[] = [];\n    for (let i = 1; i &lt;= nums.length; i++) {\n        if (!set.has(i)) res.push(i);\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses O(n) extra space for the set.
+
+---
+## Negation Marking
+
+**Intuition**
+Since all values are positive and within the range [1, n], we can use the input array itself as a marker by negating the value at the index corresponding to a number.
+
+**Steps**
+- Iterate through the array. For each number `num`, calculate its index `idx = abs(num) - 1`.
+- Mark the number at `idx` as seen by making it negative (if it isn't already).
+- Iterate through the array again. If the value at index `i` is positive, it means the number `i + 1` was never seen, so add it to the result.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findDisappearedNumbers(self, nums: List[int]) -&gt; List[int]:\n        for num in nums:\n            idx = abs(num) - 1\n            if nums[idx] &gt; 0:\n                nums[idx] = -nums[idx]\n        return [i + 1 for i, n in enumerate(nums) if n &gt; 0]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; findDisappearedNumbers(int[] nums) {\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (int num : nums) {\n            int idx = Math.abs(num) - 1;\n            if (nums[idx] &gt; 0) nums[idx] = -nums[idx];\n        }\n        for (int i = 0; i &lt; nums.length; i++) {\n            if (nums[i] &gt; 0) result.add(i + 1);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;cmath&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findDisappearedNumbers(vector&lt;int&gt;& nums) {\n        vector&lt;int&gt; res;\n        for (int num : nums) {\n            int idx = abs(num) - 1;\n            if (nums[idx] &gt; 0) nums[idx] = -nums[idx];\n        }\n        for (int i = 0; i &lt; nums.size(); ++i) {\n            if (nums[i] &gt; 0) res.push_back(i + 1);\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findDisappearedNumbers = function(nums) {\n    for (let i = 0; i &lt; nums.length; i++) {\n        let idx = Math.abs(nums[i]) - 1;\n        if (nums[idx] &gt; 0) nums[idx] = -nums[idx];\n    }\n    const res = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] &gt; 0) res.push(i + 1);\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findDisappearedNumbers(nums: number[]): number[] {\n    for (let i = 0; i &lt; nums.length; i++) {\n        let idx = Math.abs(nums[i]) - 1;\n        if (nums[idx] &gt; 0) nums[idx] = -nums[idx];\n    }\n    const res: number[] = [];\n    for (let i = 0; i &lt; nums.length; i++) {\n        if (nums[i] &gt; 0) res.push(i + 1);\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Modifies the input array in-place.
+
+---
+## Cyclic Sort
+
+**Intuition**
+Place each number in its correct position (index `num - 1`) by swapping. Once sorted, any index `i` that does not contain `i + 1` indicates a missing number.
+
+**Steps**
+- Iterate through the array with index `i`.
+- While `nums[i]` is not at its correct position (`nums[i] != nums[nums[i] - 1]`), swap it with the number at its target index.
+- After the loop, iterate through the array. If `nums[i] != i + 1`, then `i + 1` is missing.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def findDisappearedNumbers(self, nums: List[int]) -&gt; List[int]:\n        i = 0\n        n = len(nums)\n        while i &lt; n:\n            correct_idx = nums[i] - 1\n            if nums[i] != nums[correct_idx]:\n                nums[i], nums[correct_idx] = nums[correct_idx], nums[i]\n            else:\n                i += 1\n        return [i + 1 for i in range(n) if nums[i] != i + 1]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;Integer&gt; findDisappearedNumbers(int[] nums) {\n        int i = 0;\n        while (i &lt; nums.length) {\n            int correct = nums[i] - 1;\n            if (nums[i] != nums[correct]) {\n                int temp = nums[i];\n                nums[i] = nums[correct];\n                nums[correct] = temp;\n            } else {\n                i++;\n            }\n        }\n        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();\n        for (i = 0; i &lt; nums.length; i++) {\n            if (nums[i] != i + 1) result.add(i + 1);\n        }\n        return result;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;int&gt; findDisappearedNumbers(vector&lt;int&gt;& nums) {\n        int i = 0;\n        int n = nums.size();\n        while (i &lt; n) {\n            int correct = nums[i] - 1;\n            if (nums[i] != nums[correct]) {\n                swap(nums[i], nums[correct]);\n            } else {\n                i++;\n            }\n        }\n        vector&lt;int&gt; res;\n        for (i = 0; i &lt; n; ++i) {\n            if (nums[i] != i + 1) res.push_back(i + 1);\n        }\n        return res;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var findDisappearedNumbers = function(nums) {\n    let i = 0;\n    const n = nums.length;\n    while (i &lt; n) {\n        const correct = nums[i] - 1;\n        if (nums[i] !== nums[correct]) {\n            let temp = nums[i];\n            nums[i] = nums[correct];\n            nums[correct] = temp;\n        } else {\n            i++;\n        }\n    }\n    const res = [];\n    for (let j = 0; j &lt; n; j++) {\n        if (nums[j] !== j + 1) res.push(j + 1);\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findDisappearedNumbers(nums: number[]): number[] {\n    let i = 0;\n    const n = nums.length;\n    while (i &lt; n) {\n        const correct = nums[i] - 1;\n        if (nums[i] !== nums[correct]) {\n            let temp = nums[i];\n            nums[i] = nums[correct];\n            nums[correct] = temp;\n        } else {\n            i++;\n        }\n    }\n    const res: number[] = [];\n    for (let j = 0; j &lt; n; j++) {\n        if (nums[j] !== j + 1) res.push(j + 1);\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Modifies the input array in-place.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find All Numbers Disappeared in an Array Solutions","datePublished":"2024-10-14","description":"Given an array of n integers where 1 ≤ nums[i] ≤ n, find all integers in [1, n] that do not appear in the array.","keywords":"LeetCode, Find All Numbers Disappeared in an Array, Easy, Array, Hash Table"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) because we iterate through the array to build the set and then iterate from 1 to n to find missing numbers."}},{"@type":"Question","name":"What is the space complexity of the Negation Marking approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) extra space, as we modify the input array in-place to mark visited numbers."}},{"@type":"Question","name":"How does the Cyclic Sort approach work?","acceptedAnswer":{"@type":"Answer","text":"Cyclic Sort places each number at its correct index (i.e., value x at index x-1). After sorting, any index i that does not hold value i+1 indicates that i+1 is missing from the array."}}]}).replace(/</g,'\u003c')}
+</script>

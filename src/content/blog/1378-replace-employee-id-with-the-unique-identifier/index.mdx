@@ -1,0 +1,390 @@
+---
+title: "Replace Employee ID With The Unique Identifier"
+summary: "Write a SQL query to show the unique_id of each employee along with their name, displaying null if no unique_id exists."
+date: "Jan 14, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.50% | **Paid:** No
+> **Topics:** Database
+
+Table: Employees
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| name          | varchar |
++---------------+---------+
+id is the primary key (column with unique values) for this table.
+Each row of this table contains the id and the name of an employee in a company.
+
+Table: EmployeeUNI
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| unique_id     | int     |
++---------------+---------+
+(id, unique_id) is the primary key (combination of columns with unique values) for this table.
+Each row of this table contains the id and the corresponding unique id of an employee in the company.
+
+Write a solution to show the unique_id of each employee, if they have one. If they do not have one, show null instead.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: LEFT JOIN](#left-join)
+- [Approach 2: Hash Map Lookup](#hash-map-lookup)
+- [Approach 3: INNER JOIN with UNION](#inner-join-with-union)
+
+## Examples
+
+### Example 1:
+
+**Input:**
+
+Employees table:
++----+----------+
+| id | name     |
++----+----------+
+| 1  | Alice    |
+| 7  | Bob      |
+| 11 | Meir     |
+| 90 | Winston  |
+| 3  | Jonathan |
++----+----------+
+
+EmployeeUNI table:
++----+-----------+
+| id | unique_id |
++----+-----------+
+| 3  | 1         |
+| 11 | 2         |
+| 90 | 3         |
++----+-----------+
+
+**Output:**
+
++-----------+----------+
+| unique_id | name     |
++-----------+----------+
+| null      | Alice    |
+| null      | Bob      |
+| 2         | Meir     |
+| 3         | Winston  |
+| 1         | Jonathan |
++-----------+----------+
+
+**Explanation:**
+Alice and Bob do not have a unique ID, so we show null instead of a unique ID.
+Meir's unique ID is 2.
+Winston's unique ID is 3.
+Jonathan's unique ID is 1.
+
+## Constraints
+
+```text
+- 0 <= Employees.id, EmployeeUNI.id <= 1000
+- Employees.name.length <= 50
+- EmployeeUNI.unique_id is between 1 and 1000
+```
+
+---
+
+## Approach 1: LEFT JOIN
+
+**Intuition**
+Use LEFT JOIN to include all employees from the Employees table, matching with their unique IDs from EmployeeUNI table where available.
+
+**Steps**
+- Select unique_id from EmployeeUNI and name from Employees
+- Use LEFT JOIN to connect the two tables on the id column
+- LEFT JOIN ensures all employees are included even if they don't have a unique_id
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def replace_employee_id(employees: pd.DataFrame, employee_uni: pd.DataFrame) -> pd.DataFrame:
+    result = employees.merge(employee_uni, on='id', how='left')
+    return result[['unique_id', 'name']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<String>&gt; replaceEmployeeId(List<List<String>&gt; employees, List<List<String>&gt; employeeUNI) {
+        Map<String, String> uniMap = new HashMap&lt;&gt;();
+        for (List<String> row : employeeUNI) {
+            uniMap.put(row.get(0), row.get(1));
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (List<String> emp : employees) {
+            String id = emp.get(0);
+            String name = emp.get(1);
+            String uniqueId = uniMap.getOrDefault(id, null);
+            result.add(Arrays.asList(uniqueId, name));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; replaceEmployeeId(vector<vector<string>&gt;& employees, vector<vector<string>&gt;& employeeUNI) {
+        unordered_map<string, string> uniMap;
+        for (auto& row : employeeUNI) {
+            uniMap[row[0]] = row[1];
+        }
+        
+        vector<vector<string>&gt; result;
+        for (auto& emp : employees) {
+            string id = emp[0];
+            string name = emp[1];
+            string uniqueId = uniMap.count(id) ? uniMap[id] : "NULL";
+            result.push_back({uniqueId, name});
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function replaceEmployeeId(employees, employeeUNI) {
+    const uniMap = new Map();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniMap.set(id, uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniMap.has(id) ? uniMap.get(id) : null;
+        return [uniqueId, name];
+    });
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function replaceEmployeeId(employees: string[][], employeeUNI: string[][]): string[][] {
+    const uniMap = new Map<string, string>();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniMap.set(id, uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniMap.has(id) ? uniMap.get(id)! : null;
+        return [uniqueId, name];
+    });
+}` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of entries in EmployeeUNI
+- Space: O(m) for storing the hash map
+- Notes: LEFT JOIN is the most straightforward approach for this problem
+
+---
+
+## Approach 2: Hash Map Lookup
+
+**Intuition**
+Build a hash map from employee IDs to unique IDs, then iterate through employees to look up their unique IDs.
+
+**Steps**
+- Create a hash map mapping employee id to unique_id from EmployeeUNI table
+- Iterate through all employees and look up their unique_id in the map
+- Return null if the employee id is not found in the map
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def replace_employee_id(employees: pd.DataFrame, employee_uni: pd.DataFrame) -> pd.DataFrame:
+    uni_dict = dict(zip(employee_uni['id'], employee_uni['unique_id']))
+    employees['unique_id'] = employees['id'].map(uni_dict)
+    return employees[['unique_id', 'name']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<String>&gt; replaceEmployeeId(List<List<String>&gt; employees, List<List<String>&gt; employeeUNI) {
+        Map<Integer, Integer> uniMap = new HashMap&lt;&gt;();
+        for (List<String> row : employeeUNI) {
+            uniMap.put(Integer.parseInt(row.get(0)), Integer.parseInt(row.get(1)));
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (List<String> emp : employees) {
+            int id = Integer.parseInt(emp.get(0));
+            String name = emp.get(1);
+            Integer uniqueId = uniMap.get(id);
+            result.add(Arrays.asList(uniqueId != null ? String.valueOf(uniqueId) : null, name));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; replaceEmployeeId(vector<vector<string>&gt;& employees, vector<vector<string>&gt;& employeeUNI) {
+        unordered_map<int, int> uniMap;
+        for (auto& row : employeeUNI) {
+            uniMap[stoi(row[0])] = stoi(row[1]);
+        }
+        
+        vector<vector<string>&gt; result;
+        for (auto& emp : employees) {
+            int id = stoi(emp[0]);
+            string name = emp[1];
+            string uniqueId;
+            if (uniMap.find(id) != uniMap.end()) {
+                uniqueId = to_string(uniMap[id]);
+            } else {
+                uniqueId = "NULL";
+            }
+            result.push_back({uniqueId, name});
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function replaceEmployeeId(employees, employeeUNI) {
+    const uniMap = new Map();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniMap.set(Number(id), uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniMap.get(Number(id)) ?? null;
+        return [uniqueId, name];
+    });
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function replaceEmployeeId(employees: string[][], employeeUNI: string[][]): string[][] {
+    const uniMap = new Map<number, string>();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniMap.set(Number(id), uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniMap.get(Number(id)) ?? null;
+        return [uniqueId, name];
+    });
+}` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of entries in EmployeeUNI
+- Space: O(m) for storing the hash map
+- Notes: Using integer keys for the map can improve performance
+
+---
+
+## Approach 3: INNER JOIN with UNION
+
+**Intuition**
+Use INNER JOIN for employees with unique IDs and UNION with employees who don't have unique IDs.
+
+**Steps**
+- Find employees who have unique IDs using INNER JOIN
+- Find employees who don't have unique IDs using LEFT JOIN with NULL check
+- Combine both results using UNION
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def replace_employee_id(employees: pd.DataFrame, employee_uni: pd.DataFrame) -> pd.DataFrame:
+    merged = employees.merge(employee_uni, on='id', how='left')
+    merged['unique_id'] = merged['unique_id'].astype('Int64')
+    return merged[['unique_id', 'name']]` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<String>&gt; replaceEmployeeId(List<List<String>&gt; employees, List<List<String>&gt; employeeUNI) {
+        Set<String> uniIds = new HashSet&lt;&gt;();
+        for (List<String> row : employeeUNI) {
+            uniIds.add(row.get(0));
+        }
+        
+        Map<String, String> uniMap = new HashMap&lt;&gt;();
+        for (List<String> row : employeeUNI) {
+            uniMap.put(row.get(0), row.get(1));
+        }
+        
+        List<List<String>&gt; result = new ArrayList&lt;&gt;();
+        for (List<String> emp : employees) {
+            String id = emp.get(0);
+            String name = emp.get(1);
+            String uniqueId = uniIds.contains(id) ? uniMap.get(id) : null;
+            result.add(Arrays.asList(uniqueId, name));
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>&gt; replaceEmployeeId(vector<vector<string>&gt;& employees, vector<vector<string>&gt;& employeeUNI) {
+        unordered_set<string> uniIds;
+        unordered_map<string, string> uniMap;
+        for (auto& row : employeeUNI) {
+            uniIds.insert(row[0]);
+            uniMap[row[0]] = row[1];
+        }
+        
+        vector<vector<string>&gt; result;
+        for (auto& emp : employees) {
+            string id = emp[0];
+            string name = emp[1];
+            string uniqueId = uniIds.count(id) ? uniMap[id] : "NULL";
+            result.push_back({uniqueId, name});
+        }
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `function replaceEmployeeId(employees, employeeUNI) {
+    const uniSet = new Set();
+    const uniMap = new Map();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniSet.add(id);
+        uniMap.set(id, uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniSet.has(id) ? uniMap.get(id) : null;
+        return [uniqueId, name];
+    });
+}` },
+{ name: "TypeScript", lang: "typescript", code: `function replaceEmployeeId(employees: string[][], employeeUNI: string[][]): string[][] {
+    const uniSet = new Set<string>();
+    const uniMap = new Map<string, string>();
+    for (const [id, uniqueId] of employeeUNI) {
+        uniSet.add(id);
+        uniMap.set(id, uniqueId);
+    }
+    
+    return employees.map(([id, name]) =&gt; {
+        const uniqueId = uniSet.has(id) ? uniMap.get(id)! : null;
+        return [uniqueId, name];
+    });
+}` },]} />
+
+**Complexity**
+- Time: O(n + m) where n is the number of employees and m is the number of entries in EmployeeUNI
+- Space: O(m) for storing both the set and map
+- Notes: Using a set for existence check can be slightly faster than map lookup
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Replace Employee ID With The Unique Identifier Solutions","datePublished":"2024-01-14","description":"Write a SQL query to show the unique_id of each employee along with their name, displaying null if no unique_id exists.","keywords":"LeetCode, Replace Employee ID With The Unique Identifier, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of LEFT JOIN approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m) where n is the number of employees and m is the number of entries in EmployeeUNI table."}},{"@type":"Question","name":"What is the space complexity of the hash map approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(m) for storing the hash map of employee IDs to unique IDs."}},{"@type":"Question","name":"Why use LEFT JOIN instead of INNER JOIN?","acceptedAnswer":{"@type":"Answer","text":"LEFT JOIN ensures all employees are included in the result even if they don't have a unique_id, which matches the problem requirement to show null for employees without unique IDs."}}]}).replace(/</g,'\u003c')}
+</script>

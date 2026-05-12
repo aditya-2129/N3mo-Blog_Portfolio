@@ -1,0 +1,130 @@
+---
+title: "Most Frequent Even Element"
+summary: "Find the most frequent even element in an array. If multiple have same frequency, return smallest. Return -1 if no even elements."
+date: "Mar 17, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.60% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+Given an integer array nums, return the most frequent even element.
+
+If there is a tie, return the smallest one. If there is no such element, return -1.
+
+- Examples
+- Constraints
+- [Hash Map Approach](#hash-map-approach)
+- [Sorting Approach](#sorting-approach)
+- [Array Counting Approach](#array-counting-approach)
+
+## Examples
+
+```text
+Input: nums = [0,1,2,2,4,4,4]
+Output: 4
+Explanation: The even elements are 0, 2, 2, 4, 4, 4. The most frequent even element is 4.
+```
+
+```text
+Input: nums = [4,4,4,9,2,4]
+Output: 4
+Explanation: The even elements are 4, 4, 4, 2, 4. The most frequent even element is 4.
+```
+
+```text
+Input: nums = [29,47,21,41,2,2,2,2,2]
+Output: 2
+Explanation: The even elements are 2, 2, 2, 2, 2. The most frequent even element is 2.
+```
+
+## Constraints
+
+```text
+- 1 <= nums.length <= 2000
+- 0 <= nums[i] <= 10^5
+```
+
+---
+## Hash Map Approach
+
+**Intuition**
+Use a hash map to count frequencies of even elements, then find the element with highest frequency (smallest value on tie).
+
+**Steps**
+- Iterate through array and count only even elements using a hash map
+- If no even elements found, return -1
+- Iterate through hash map entries to find element with maximum frequency
+- On tie, keep the smaller element
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostFrequentEven(self, nums: List[int]) -&gt; int:\n        freq = {}\n        for num in nums:\n            if num % 2 == 0:\n                freq[num] = freq.get(num, 0) + 1\n        \n        if not freq:\n            return -1\n        \n        max_freq = -1\n        result = -1\n        for num in sorted(freq.keys()):\n            if freq[num] &gt; max_freq:\n                max_freq = freq[num]\n                result = num\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mostFrequentEven(int[] nums) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : nums) {\n            if (num % 2 == 0) {\n                freq.put(num, freq.getOrDefault(num, 0) + 1);\n            }\n        }\n        \n        if (freq.isEmpty()) {\n            return -1;\n        }\n        \n        int maxFreq = -1;\n        int result = -1;\n        for (int num : freq.keySet()) {\n            int count = freq.get(num);\n            if (count &gt; maxFreq || (count == maxFreq && num &lt; result)) {\n                maxFreq = count;\n                result = num;\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mostFrequentEven(vector&lt;int&gt;& nums) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int num : nums) {\n            if (num % 2 == 0) {\n                freq[num]++;\n            }\n        }\n        \n        if (freq.empty()) {\n            return -1;\n        }\n        \n        int maxFreq = -1;\n        int result = -1;\n        for (auto& [num, count] : freq) {\n            if (count &gt; maxFreq || (count == maxFreq && num &lt; result)) {\n                maxFreq = count;\n                result = num;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar mostFrequentEven = function(nums) {\n    const freq = new Map();\n    for (const num of nums) {\n        if (num % 2 === 0) {\n            freq.set(num, (freq.get(num) || 0) + 1);\n        }\n    }\n    \n    if (freq.size === 0) {\n        return -1;\n    }\n    \n    let maxFreq = -1;\n    let result = -1;\n    for (const [num, count] of freq) {\n        if (count &gt; maxFreq || (count === maxFreq && num &lt; result)) {\n            maxFreq = count;\n            result = num;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequentEven(nums: number[]): number {\n    const freq = new Map&lt;number, number&gt;();\n    for (const num of nums) {\n        if (num % 2 === 0) {\n            freq.set(num, (freq.get(num) || 0) + 1);\n        }\n    }\n    \n    if (freq.size === 0) {\n        return -1;\n    }\n    \n    let maxFreq = -1;\n    let result = -1;\n    for (const [num, count] of freq) {\n        if (count &gt; maxFreq || (count === maxFreq && num &lt; result)) {\n            maxFreq = count;\n            result = num;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + k log k) where k is number of unique even elements
+- Space: O(k) for the hash map
+- Notes: Sorting keys adds log k factor, but can be avoided with careful comparison
+
+---
+## Sorting Approach
+
+**Intuition**
+Sort the array first, then count consecutive occurrences of each even element while tracking the maximum.
+
+**Steps**
+- Sort the array in ascending order
+- Iterate through sorted array, counting consecutive identical even elements
+- Track the element with highest frequency (smaller values naturally come first)
+- Return -1 if no even elements found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostFrequentEven(self, nums: List[int]) -&gt; int:\n        nums.sort()\n        max_freq = 0\n        result = -1\n        i = 0\n        n = len(nums)\n        \n        while i &lt; n:\n            if nums[i] % 2 == 0:\n                j = i\n                while j &lt; n and nums[j] == nums[i]:\n                    j += 1\n                freq = j - i\n                if freq &gt; max_freq:\n                    max_freq = freq\n                    result = nums[i]\n                i = j\n            else:\n                i += 1\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mostFrequentEven(int[] nums) {\n        Arrays.sort(nums);\n        int maxFreq = 0;\n        int result = -1;\n        int n = nums.length;\n        int i = 0;\n        \n        while (i &lt; n) {\n            if (nums[i] % 2 == 0) {\n                int j = i;\n                while (j &lt; n && nums[j] == nums[i]) {\n                    j++;\n                }\n                int freq = j - i;\n                if (freq &gt; maxFreq) {\n                    maxFreq = freq;\n                    result = nums[i];\n                }\n                i = j;\n            } else {\n                i++;\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mostFrequentEven(vector&lt;int&gt;& nums) {\n        sort(nums.begin(), nums.end());\n        int maxFreq = 0;\n        int result = -1;\n        int n = nums.size();\n        int i = 0;\n        \n        while (i &lt; n) {\n            if (nums[i] % 2 == 0) {\n                int j = i;\n                while (j &lt; n && nums[j] == nums[i]) {\n                    j++;\n                }\n                int freq = j - i;\n                if (freq &gt; maxFreq) {\n                    maxFreq = freq;\n                    result = nums[i];\n                }\n                i = j;\n            } else {\n                i++;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar mostFrequentEven = function(nums) {\n    nums.sort((a, b) =&gt; a - b);\n    let maxFreq = 0;\n    let result = -1;\n    const n = nums.length;\n    let i = 0;\n    \n    while (i &lt; n) {\n        if (nums[i] % 2 === 0) {\n            let j = i;\n            while (j &lt; n && nums[j] === nums[i]) {\n                j++;\n            }\n            const freq = j - i;\n            if (freq &gt; maxFreq) {\n                maxFreq = freq;\n                result = nums[i];\n            }\n            i = j;\n        } else {\n            i++;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequentEven(nums: number[]): number {\n    nums.sort((a, b) =&gt; a - b);\n    let maxFreq = 0;\n    let result = -1;\n    const n = nums.length;\n    let i = 0;\n    \n    while (i &lt; n) {\n        if (nums[i] % 2 === 0) {\n            let j = i;\n            while (j &lt; n && nums[j] === nums[i]) {\n                j++;\n            }\n            const freq = j - i;\n            if (freq &gt; maxFreq) {\n                maxFreq = freq;\n                result = nums[i];\n            }\n            i = j;\n        } else {\n            i++;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) due to sorting
+- Space: O(1) or O(n) depending on sorting implementation
+- Notes: Simpler logic but slower due to sorting overhead
+
+---
+## Array Counting Approach
+
+**Intuition**
+Since values are bounded (0 to 10⁵), use a fixed-size array for counting instead of hash map for better performance.
+
+**Steps**
+- Create array of size 100001 initialized to 0
+- Count occurrences of each even element by incrementing at index
+- Iterate through even indices (0, 2, 4, ...) to find maximum frequency
+- Return -1 if no even elements were counted
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def mostFrequentEven(self, nums: List[int]) -&gt; int:\n        MAX_VAL = 100000\n        freq = [0] * (MAX_VAL + 1)\n        \n        for num in nums:\n            if num % 2 == 0:\n                freq[num] += 1\n        \n        max_freq = 0\n        result = -1\n        for i in range(0, MAX_VAL + 1, 2):\n            if freq[i] &gt; max_freq:\n                max_freq = freq[i]\n                result = i\n        \n        return result" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int mostFrequentEven(int[] nums) {\n        int MAX_VAL = 100000;\n        int[] freq = new int[MAX_VAL + 1];\n        \n        for (int num : nums) {\n            if (num % 2 == 0) {\n                freq[num]++;\n            }\n        }\n        \n        int maxFreq = 0;\n        int result = -1;\n        for (int i = 0; i &lt;= MAX_VAL; i += 2) {\n            if (freq[i] &gt; maxFreq) {\n                maxFreq = freq[i];\n                result = i;\n            }\n        }\n        \n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int mostFrequentEven(vector&lt;int&gt;& nums) {\n        const int MAX_VAL = 100000;\n        vector&lt;int&gt; freq(MAX_VAL + 1, 0);\n        \n        for (int num : nums) {\n            if (num % 2 == 0) {\n                freq[num]++;\n            }\n        }\n        \n        int maxFreq = 0;\n        int result = -1;\n        for (int i = 0; i &lt;= MAX_VAL; i += 2) {\n            if (freq[i] &gt; maxFreq) {\n                maxFreq = freq[i];\n                result = i;\n            }\n        }\n        \n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} nums\n * @return {number}\n */\nvar mostFrequentEven = function(nums) {\n    const MAX_VAL = 100000;\n    const freq = new Array(MAX_VAL + 1).fill(0);\n    \n    for (const num of nums) {\n        if (num % 2 === 0) {\n            freq[num]++;\n        }\n    }\n    \n    let maxFreq = 0;\n    let result = -1;\n    for (let i = 0; i &lt;= MAX_VAL; i += 2) {\n        if (freq[i] &gt; maxFreq) {\n            maxFreq = freq[i];\n            result = i;\n        }\n    }\n    \n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function mostFrequentEven(nums: number[]): number {\n    const MAX_VAL = 100000;\n    const freq = new Array(MAX_VAL + 1).fill(0);\n    \n    for (const num of nums) {\n        if (num % 2 === 0) {\n            freq[num]++;\n        }\n    }\n    \n    let maxFreq = 0;\n    let result = -1;\n    for (let i = 0; i &lt;= MAX_VAL; i += 2) {\n        if (freq[i] &gt; maxFreq) {\n            maxFreq = freq[i];\n            result = i;\n        }\n    }\n    \n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(n + MAX_VAL) where MAX_VAL = 10⁵
+- Space: O(MAX_VAL) for the counting array
+- Notes: Most efficient for this specific constraint, but uses more memory
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Most Frequent Even Element Solutions","datePublished":"2025-03-17","description":"Find the most frequent even element in an array. If multiple have same frequency, return smallest. Return -1 if no even elements.","keywords":"LeetCode, Most Frequent Even Element, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + k log k) where n is the array length and k is the number of unique even elements."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to sorting the array."}},{"@type":"Question","name":"What is the time complexity of the Array Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + MAX_VAL) where MAX_VAL is 10⁵, making it O(n) for practical purposes."}},{"@type":"Question","name":"Which approach uses the most space?","acceptedAnswer":{"@type":"Answer","text":"The Array Counting approach uses O(MAX_VAL) space, which is O(10⁵), while Hash Map uses O(k) where k is the number of unique even elements."}}]}).replace(/</g,'\u003c')}
+</script>

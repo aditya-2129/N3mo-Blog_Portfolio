@@ -1,0 +1,138 @@
+---
+title: "Maximum Ascending Subarray Sum"
+summary: "Find the maximum sum of an ascending subarray where each element is strictly greater than the previous element."
+date: "Jan 06, 2025"
+tags:
+  - Array
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 66.30% | **Paid:** No
+> **Topics:** Array
+
+Given an array of positive integers nums, return the maximum sum of an ascending subarray in nums.
+
+A subarray is defined as a contiguous sequence of elements in an array.
+
+A subarray [nums[l], nums[l+1], ..., nums[r-1], nums[r]] is ascending if for all i where l &lt;= i &lt; r, nums[i] &lt; nums[i+1]. Note that a subarray of size 1 is ascending.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [Single Pass (Greedy)](#single-pass-greedy)
+- [Two Pointers](#two-pointers)
+- [Dynamic Programming](#dynamic-programming)
+
+## Examples
+
+```text
+Input: nums = [10,20,30,5,10,50]
+Output: 65
+Explanation: [5,10,50] is the ascending subarray with the maximum sum of 65.
+```
+
+```text
+Input: nums = [10,20,30,40,50]
+Output: 150
+Explanation: [10,20,30,40,50] is the ascending subarray with the maximum sum of 150.
+```
+
+```text
+Input: nums = [12,17,15,3,20,10]
+Output: 20
+Explanation: [20] is the ascending subarray with the maximum sum of 20.
+```
+
+## Constraints
+
+```text
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+---
+## Single Pass (Greedy)
+
+**Intuition**
+Iterate through the array once, maintaining a running sum of the current ascending subarray. When the ascending property breaks, reset the running sum and update the maximum.
+
+**Steps**
+- Initialize max_sum and current_sum to the first element
+- Iterate from index 1 to n-1
+- If current element &gt; previous element, add to current_sum
+- Otherwise, update max_sum and reset current_sum to current element
+- After loop, update max_sum one more time
+- Return max_sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxAscendingSum(self, nums: List[int]) -&gt; int:\n        if not nums:\n            return 0\n        max_sum = nums[0]\n        current_sum = nums[0]\n        for i in range(1, len(nums)):\n            if nums[i] &gt; nums[i-1]:\n                current_sum += nums[i]\n            else:\n                max_sum = max(max_sum, current_sum)\n                current_sum = nums[i]\n        max_sum = max(max_sum, current_sum)\n        return max_sum" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxAscendingSum(int[] nums) {\n        if (nums == null || nums.length == 0) {\n            return 0;\n        }\n        int maxSum = nums[0];\n        int currentSum = nums[0];\n        for (int i = 1; i &lt; nums.length; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                currentSum += nums[i];\n            } else {\n                maxSum = Math.max(maxSum, currentSum);\n                currentSum = nums[i];\n            }\n        }\n        maxSum = Math.max(maxSum, currentSum);\n        return maxSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxAscendingSum(vector&lt;int&gt;& nums) {\n        if (nums.empty()) {\n            return 0;\n        }\n        int maxSum = nums[0];\n        int currentSum = nums[0];\n        for (int i = 1; i &lt; nums.size(); i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                currentSum += nums[i];\n            } else {\n                maxSum = max(maxSum, currentSum);\n                currentSum = nums[i];\n            }\n        }\n        maxSum = max(maxSum, currentSum);\n        return maxSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maxAscendingSum(nums) {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        let maxSum = nums[0];\n        let currentSum = nums[0];\n        for (let i = 1; i &lt; nums.length; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                currentSum += nums[i];\n            } else {\n                maxSum = Math.max(maxSum, currentSum);\n                currentSum = nums[i];\n            }\n        }\n        maxSum = Math.max(maxSum, currentSum);\n        return maxSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maxAscendingSum(nums: number[]): number {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        let maxSum: number = nums[0];\n        let currentSum: number = nums[0];\n        for (let i = 1; i &lt; nums.length; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                currentSum += nums[i];\n            } else {\n                maxSum = Math.max(maxSum, currentSum);\n                currentSum = nums[i];\n            }\n        }\n        maxSum = Math.max(maxSum, currentSum);\n        return maxSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1)
+- Notes: Optimal solution with constant space and single pass
+
+---
+## Two Pointers
+
+**Intuition**
+Use two pointers to identify each ascending subarray and calculate their sums by iterating through the array boundaries.
+
+**Steps**
+- Initialize max_sum to first element
+- Use left pointer at start of current ascending subarray
+- Iterate with right pointer
+- When ascending property breaks, calculate sum from left to right-1, update max_sum, move left to right
+- After loop, calculate final sum and update max_sum
+- Return max_sum
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxAscendingSum(self, nums: List[int]) -&gt; int:\n        if not nums:\n            return 0\n        n = len(nums)\n        max_sum = nums[0]\n        left = 0\n        for right in range(1, n + 1):\n            if right == n or nums[right] &lt;= nums[right - 1]:\n                current_sum = sum(nums[left:right])\n                max_sum = max(max_sum, current_sum)\n                left = right\n        return max_sum" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxAscendingSum(int[] nums) {\n        if (nums == null || nums.length == 0) {\n            return 0;\n        }\n        int n = nums.length;\n        int maxSum = nums[0];\n        int left = 0;\n        for (int right = 1; right &lt;= n; right++) {\n            if (right == n || nums[right] &lt;= nums[right - 1]) {\n                int currentSum = 0;\n                for (int i = left; i &lt; right; i++) {\n                    currentSum += nums[i];\n                }\n                maxSum = Math.max(maxSum, currentSum);\n                left = right;\n            }\n        }\n        return maxSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxAscendingSum(vector&lt;int&gt;& nums) {\n        if (nums.empty()) {\n            return 0;\n        }\n        int n = nums.size();\n        int maxSum = nums[0];\n        int left = 0;\n        for (int right = 1; right &lt;= n; right++) {\n            if (right == n || nums[right] &lt;= nums[right - 1]) {\n                int currentSum = 0;\n                for (int i = left; i &lt; right; i++) {\n                    currentSum += nums[i];\n                }\n                maxSum = max(maxSum, currentSum);\n                left = right;\n            }\n        }\n        return maxSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maxAscendingSum(nums) {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        const n = nums.length;\n        let maxSum = nums[0];\n        let left = 0;\n        for (let right = 1; right &lt;= n; right++) {\n            if (right === n || nums[right] &lt;= nums[right - 1]) {\n                let currentSum = 0;\n                for (let i = left; i &lt; right; i++) {\n                    currentSum += nums[i];\n                }\n                maxSum = Math.max(maxSum, currentSum);\n                left = right;\n            }\n        }\n        return maxSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maxAscendingSum(nums: number[]): number {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        const n: number = nums.length;\n        let maxSum: number = nums[0];\n        let left: number = 0;\n        for (let right = 1; right &lt;= n; right++) {\n            if (right === n || nums[right] &lt;= nums[right - 1]) {\n                let currentSum: number = 0;\n                for (let i = left; i &lt; right; i++) {\n                    currentSum += nums[i];\n                }\n                maxSum = Math.max(maxSum, currentSum);\n                left = right;\n            }\n        }\n        return maxSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n²)
+- Space: O(1)
+- Notes: Less efficient due to nested loop for sum calculation
+
+---
+## Dynamic Programming
+
+**Intuition**
+Use DP where dp[i] represents the maximum ascending subarray sum ending at index i, building the solution from previous states.
+
+**Steps**
+- Initialize dp array with same size as nums
+- Set dp[0] = nums[0]
+- For each i from 1 to n-1:
+  - If nums[i] &gt; nums[i-1], dp[i] = dp[i-1] + nums[i]
+  - Otherwise, dp[i] = nums[i]
+- Return max of dp array
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def maxAscendingSum(self, nums: List[int]) -&gt; int:\n        if not nums:\n            return 0\n        n = len(nums)\n        dp = [0] * n\n        dp[0] = nums[0]\n        for i in range(1, n):\n            if nums[i] &gt; nums[i - 1]:\n                dp[i] = dp[i - 1] + nums[i]\n            else:\n                dp[i] = nums[i]\n        return max(dp)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int maxAscendingSum(int[] nums) {\n        if (nums == null || nums.length == 0) {\n            return 0;\n        }\n        int n = nums.length;\n        int[] dp = new int[n];\n        dp[0] = nums[0];\n        for (int i = 1; i &lt; n; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                dp[i] = dp[i - 1] + nums[i];\n            } else {\n                dp[i] = nums[i];\n            }\n        }\n        int maxSum = dp[0];\n        for (int i = 1; i &lt; n; i++) {\n            maxSum = Math.max(maxSum, dp[i]);\n        }\n        return maxSum;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int maxAscendingSum(vector&lt;int&gt;& nums) {\n        if (nums.empty()) {\n            return 0;\n        }\n        int n = nums.size();\n        vector&lt;int&gt; dp(n);\n        dp[0] = nums[0];\n        for (int i = 1; i &lt; n; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                dp[i] = dp[i - 1] + nums[i];\n            } else {\n                dp[i] = nums[i];\n            }\n        }\n        int maxSum = dp[0];\n        for (int i = 1; i &lt; n; i++) {\n            maxSum = max(maxSum, dp[i]);\n        }\n        return maxSum;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    maxAscendingSum(nums) {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        const n = nums.length;\n        const dp = new Array(n);\n        dp[0] = nums[0];\n        for (let i = 1; i &lt; n; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                dp[i] = dp[i - 1] + nums[i];\n            } else {\n                dp[i] = nums[i];\n            }\n        }\n        let maxSum = dp[0];\n        for (let i = 1; i &lt; n; i++) {\n            maxSum = Math.max(maxSum, dp[i]);\n        }\n        return maxSum;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    maxAscendingSum(nums: number[]): number {\n        if (!nums || nums.length === 0) {\n            return 0;\n        }\n        const n: number = nums.length;\n        const dp: number[] = new Array(n);\n        dp[0] = nums[0];\n        for (let i = 1; i &lt; n; i++) {\n            if (nums[i] &gt; nums[i - 1]) {\n                dp[i] = dp[i - 1] + nums[i];\n            } else {\n                dp[i] = nums[i];\n            }\n        }\n        let maxSum: number = dp[0];\n        for (let i = 1; i &lt; n; i++) {\n            maxSum = Math.max(maxSum, dp[i]);\n        }\n        return maxSum;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n)
+- Notes: Uses extra space for DP array but provides clear state transitions
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Maximum Ascending Subarray Sum Solutions","datePublished":"2025-01-06","description":"Find the maximum sum of an ascending subarray where each element is strictly greater than the previous element.","keywords":"LeetCode, Maximum Ascending Subarray Sum, Easy, Array"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Single Pass approach?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass approach has O(n) time complexity as we iterate through the array once."}},{"@type":"Question","name":"What is the space complexity of the Dynamic Programming approach?","acceptedAnswer":{"@type":"Answer","text":"The Dynamic Programming approach has O(n) space complexity for storing the dp array."}},{"@type":"Question","name":"Which approach is the most optimal?","acceptedAnswer":{"@type":"Answer","text":"The Single Pass (Greedy) approach is the most optimal with O(n) time and O(1) space complexity."}}]}).replace(/</g,'\u003c')}
+</script>

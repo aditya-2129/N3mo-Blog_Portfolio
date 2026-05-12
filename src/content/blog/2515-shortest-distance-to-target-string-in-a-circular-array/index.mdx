@@ -1,0 +1,138 @@
+---
+title: "Shortest Distance to Target String in a Circular Array"
+summary: "Find the minimum moves to reach a target string in a circular array from a starting index."
+date: "Aug 23, 2025"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 65.20% | **Paid:** No
+> **Topics:** Array, String
+
+You are given a 0-indexed circular array words consisting of strings.
+
+The following is a definition of a circular array:
+- If words[i] is followed by words[i + 1] for all i in the range [0, words.length - 2], then words[words.length - 1] is followed by words[0].
+- words[i] is followed by words[(i + 1) % words.length] for all i.
+
+You are also given a string target. Starting from startIndex, you can move to either the next word or the previous word. At each step, you count one move.
+
+Return the minimum number of moves needed to reach target. If it is impossible to reach target, return -1.
+
+- Examples
+- Constraints
+- [Brute Force Search](#brute-force-search)
+- [Single Pass with Distance Calculation](#single-pass-with-distance-calculation)
+- [Collect Indices Then Calculate](#collect-indices-then-calculate)
+
+## Examples
+
+```text
+Input: words = ["hello","i","am","leetcode","hello"], target = "hello", startIndex = 1
+Output: 1
+Explanation: From index 1, we can reach "hello" at index 0 by moving 1 step left.
+```
+
+```text
+Input: words = ["a","b","leetcode"], target = "leetcode", startIndex = 0
+Output: 1
+Explanation: From index 0, we can reach "leetcode" at index 2 by moving 2 steps right.
+```
+
+```text
+Input: words = ["i","eat","leetcode"], target = "ate", startIndex = 0
+Output: -1
+Explanation: Since "ate" is not in words, we return -1.
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] and target consist of lowercase English letters.
+0 <= startIndex < words.length
+```
+
+---
+## Brute Force Search
+
+**Intuition**
+Search outward from the starting index in both directions simultaneously, checking each position at increasing distances until we find the target.
+
+**Steps**
+- Check if the starting position already contains the target
+- For each distance from 1 to n-1, check both clockwise and counter-clockwise positions
+- Return the first distance where target is found
+- Return -1 if target is never found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def closetTarget(self, words: List[str], target: str, startIndex: int) -&gt; int:\n        n = len(words)\n        if words[startIndex] == target:\n            return 0\n        \n        for dist in range(1, n):\n            if words[(startIndex + dist) % n] == target:\n                return dist\n            if words[(startIndex - dist + n) % n] == target:\n                return dist\n        \n        return -1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int closetTarget(String[] words, String target, int startIndex) {\n        int n = words.length;\n        if (words[startIndex].equals(target)) {\n            return 0;\n        }\n        \n        for (int dist = 1; dist &lt; n; dist++) {\n            if (words[(startIndex + dist) % n].equals(target)) {\n                return dist;\n            }\n            if (words[(startIndex - dist + n) % n].equals(target)) {\n                return dist;\n            }\n        }\n        \n        return -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int closetTarget(vector&lt;string&gt;& words, string target, int startIndex) {\n        int n = words.size();\n        if (words[startIndex] == target) {\n            return 0;\n        }\n        \n        for (int dist = 1; dist &lt; n; dist++) {\n            if (words[(startIndex + dist) % n] == target) {\n                return dist;\n            }\n            if (words[(startIndex - dist + n) % n] == target) {\n                return dist;\n            }\n        }\n        \n        return -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    closetTarget(words, target, startIndex) {\n        const n = words.length;\n        if (words[startIndex] === target) {\n            return 0;\n        }\n        \n        for (let dist = 1; dist &lt; n; dist++) {\n            if (words[(startIndex + dist) % n] === target) {\n                return dist;\n            }\n            if (words[(startIndex - dist + n) % n] === target) {\n                return dist;\n            }\n        }\n        \n        return -1;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    closetTarget(words: string[], target: string, startIndex: number): number {\n        const n = words.length;\n        if (words[startIndex] === target) {\n            return 0;\n        }\n        \n        for (let dist = 1; dist &lt; n; dist++) {\n            if (words[(startIndex + dist) % n] === target) {\n                return dist;\n            }\n            if (words[(startIndex - dist + n) % n] === target) {\n                return dist;\n            }\n        }\n        \n        return -1;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of words array
+- Space: O(1)
+- Notes: Early termination possible when target is found close to start
+
+---
+## Single Pass with Distance Calculation
+
+**Intuition**
+Iterate through the array once, and for each occurrence of target, calculate the circular distance from startIndex using modular arithmetic.
+
+**Steps**
+- Initialize minimum distance to infinity
+- Iterate through all indices in the array
+- When target is found, calculate both clockwise and counter-clockwise distances
+- Update minimum distance with the smaller of the two
+- Return minimum distance or -1 if target not found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def closetTarget(self, words: List[str], target: str, startIndex: int) -&gt; int:\n        n = len(words)\n        min_dist = float('inf')\n        \n        for i, word in enumerate(words):\n            if word == target:\n                clockwise_dist = (i - startIndex) % n\n                counter_dist = (startIndex - i) % n\n                min_dist = min(min_dist, clockwise_dist, counter_dist)\n        \n        return min_dist if min_dist != float('inf') else -1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int closetTarget(String[] words, String target, int startIndex) {\n        int n = words.length;\n        int minDist = Integer.MAX_VALUE;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (words[i].equals(target)) {\n                int clockwiseDist = ((i - startIndex) % n + n) % n;\n                int counterDist = ((startIndex - i) % n + n) % n;\n                minDist = Math.min(minDist, Math.min(clockwiseDist, counterDist));\n            }\n        }\n        \n        return minDist == Integer.MAX_VALUE ? -1 : minDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int closetTarget(vector&lt;string&gt;& words, string target, int startIndex) {\n        int n = words.size();\n        int minDist = INT_MAX;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (words[i] == target) {\n                int clockwiseDist = ((i - startIndex) % n + n) % n;\n                int counterDist = ((startIndex - i) % n + n) % n;\n                minDist = min(minDist, min(clockwiseDist, counterDist));\n            }\n        }\n        \n        return minDist == INT_MAX ? -1 : minDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    closetTarget(words, target, startIndex) {\n        const n = words.length;\n        let minDist = Infinity;\n        \n        for (let i = 0; i &lt; n; i++) {\n            if (words[i] === target) {\n                const clockwiseDist = ((i - startIndex) % n + n) % n;\n                const counterDist = ((startIndex - i) % n + n) % n;\n                minDist = Math.min(minDist, clockwiseDist, counterDist);\n            }\n        }\n        \n        return minDist === Infinity ? -1 : minDist;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    closetTarget(words: string[], target: string, startIndex: number): number {\n        const n = words.length;\n        let minDist = Infinity;\n        \n        for (let i = 0; i &lt; n; i++) {\n            if (words[i] === target) {\n                const clockwiseDist = ((i - startIndex) % n + n) % n;\n                const counterDist = ((startIndex - i) % n + n) % n;\n                minDist = Math.min(minDist, clockwiseDist, counterDist);\n            }\n        }\n        \n        return minDist === Infinity ? -1 : minDist;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of words array
+- Space: O(1)
+- Notes: Always iterates through entire array even if target is found early
+
+---
+## Collect Indices Then Calculate
+
+**Intuition**
+First collect all indices where target appears, then find the minimum circular distance from startIndex to any of these indices.
+
+**Steps**
+- Iterate through array and collect all indices where target is found
+- If no indices found, return -1
+- For each collected index, calculate both clockwise and counter-clockwise distances
+- Return the minimum distance found
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def closetTarget(self, words: List[str], target: str, startIndex: int) -&gt; int:\n        n = len(words)\n        target_indices = []\n        \n        for i, word in enumerate(words):\n            if word == target:\n                target_indices.append(i)\n        \n        if not target_indices:\n            return -1\n        \n        min_dist = float('inf')\n        for idx in target_indices:\n            clockwise_dist = (idx - startIndex) % n\n            counter_dist = (startIndex - idx) % n\n            min_dist = min(min_dist, clockwise_dist, counter_dist)\n        \n        return min_dist\n" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public int closetTarget(String[] words, String target, int startIndex) {\n        int n = words.length;\n        List&lt;Integer&gt; targetIndices = new ArrayList&lt;&gt;();\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (words[i].equals(target)) {\n                targetIndices.add(i);\n            }\n        }\n        \n        if (targetIndices.isEmpty()) {\n            return -1;\n        }\n        \n        int minDist = Integer.MAX_VALUE;\n        for (int idx : targetIndices) {\n            int clockwiseDist = ((idx - startIndex) % n + n) % n;\n            int counterDist = ((startIndex - idx) % n + n) % n;\n            minDist = Math.min(minDist, Math.min(clockwiseDist, counterDist));\n        }\n        \n        return minDist;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int closetTarget(vector&lt;string&gt;& words, string target, int startIndex) {\n        int n = words.size();\n        vector&lt;int&gt; targetIndices;\n        \n        for (int i = 0; i &lt; n; i++) {\n            if (words[i] == target) {\n                targetIndices.push_back(i);\n            }\n        }\n        \n        if (targetIndices.empty()) {\n            return -1;\n        }\n        \n        int minDist = INT_MAX;\n        for (int idx : targetIndices) {\n            int clockwiseDist = ((idx - startIndex) % n + n) % n;\n            int counterDist = ((startIndex - idx) % n + n) % n;\n            minDist = min(minDist, min(clockwiseDist, counterDist));\n        }\n        \n        return minDist;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    closetTarget(words, target, startIndex) {\n        const n = words.length;\n        const targetIndices = [];\n        \n        for (let i = 0; i &lt; n; i++) {\n            if (words[i] === target) {\n                targetIndices.push(i);\n            }\n        }\n        \n        if (targetIndices.length === 0) {\n            return -1;\n        }\n        \n        let minDist = Infinity;\n        for (const idx of targetIndices) {\n            const clockwiseDist = ((idx - startIndex) % n + n) % n;\n            const counterDist = ((startIndex - idx) % n + n) % n;\n            minDist = Math.min(minDist, clockwiseDist, counterDist);\n        }\n        \n        return minDist;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    closetTarget(words: string[], target: string, startIndex: number): number {\n        const n = words.length;\n        const targetIndices: number[] = [];\n        \n        for (let i = 0; i &lt; n; i++) {\n            if (words[i] === target) {\n                targetIndices.push(i);\n            }\n        }\n        \n        if (targetIndices.length === 0) {\n            return -1;\n        }\n        \n        let minDist = Infinity;\n        for (const idx of targetIndices) {\n            const clockwiseDist = ((idx - startIndex) % n + n) % n;\n            const counterDist = ((startIndex - idx) % n + n) % n;\n            minDist = Math.min(minDist, clockwiseDist, counterDist);\n        }\n        \n        return minDist;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(n) where n is the length of words array
+- Space: O(k) where k is the number of target occurrences
+- Notes: Uses extra space to store indices but can be useful if multiple queries needed
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Shortest Distance to Target String in a Circular Array Solutions","datePublished":"2025-08-23","description":"Find the minimum moves to reach a target string in a circular array from a starting index.","keywords":"LeetCode, Shortest Distance to Target String in a Circular Array, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force Search approach?","acceptedAnswer":{"@type":"Answer","text":"O(n) where n is the length of words array. In the worst case, we check all positions."}},{"@type":"Question","name":"What is the space complexity of Single Pass with Distance Calculation?","acceptedAnswer":{"@type":"Answer","text":"O(1) as we only use a few variables to track the minimum distance."}},{"@type":"Question","name":"How do we handle circular array indexing?","acceptedAnswer":{"@type":"Answer","text":"We use modulo operation: (index + n) % n ensures positive indices when moving counter-clockwise."}},{"@type":"Question","name":"What is the best approach for this problem?","acceptedAnswer":{"@type":"Answer","text":"Brute Force Search is often best as it can terminate early when the target is found close to the starting position."}}]}).replace(/</g,'\u003c')}
+</script>

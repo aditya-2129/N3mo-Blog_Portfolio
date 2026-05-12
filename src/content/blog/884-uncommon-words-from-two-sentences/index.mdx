@@ -1,0 +1,114 @@
+---
+title: "Uncommon Words from Two Sentences"
+summary: "A sentence is a string of single-space separated words. Find all words that appear exactly once in one of the sentences, and do not appear in the other sentence."
+date: "Nov 24, 2025"
+tags:
+  - Hash Table
+  - String
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.70% | **Paid:** No
+> **Topics:** Hash Table, String, Counting
+
+A sentence is a string of single-space separated words. Each word consists only of lowercase letters.
+
+A sentence can be empty or contain leading/trailing spaces. However, your result should not contain leading/trailing spaces.
+
+You need to return all uncommon words.
+
+A word is uncommon if it appears exactly once in one of the sentences, and does not appear in the other sentence.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Counting](#approach-1-hash-map-counting)
+- [Approach 2: Sorting and Linear Scan](#approach-2-sorting-and-linear-scan)
+
+## Examples
+
+Example 1:
+```text
+Input: s1 = "this apple is sweet", s2 = "this apple is sour"
+Output: ["sweet","sour"]
+Explanation:
+The word "this" appears in both sentences.
+The word "apple" appears in both sentences.
+The word "sweet" appears only in s1.
+The word "sour" appears only in s2.
+```
+
+Example 2:
+```text
+Input: s1 = "apple apple", s2 = "banana"
+Output: ["banana"]
+Explanation:
+The word "apple" appears twice in s1.
+The word "banana" appears once in s2.
+```
+
+## Constraints
+
+```text
+1 <= s1.length, s2.length <= 200
+s1 and s2 consist of lowercase English letters and spaces.
+s1 and s2 do not have leading or trailing spaces.
+All the words in s1 and s2 are separated by a single space.
+```
+
+---
+## Approach 1: Hash Map Counting
+
+**Intuition**
+We can count the frequency of every word across both sentences. A word is "uncommon" if and only if its total frequency is exactly 1.
+
+**Steps**
+- Split both input strings into arrays of words.
+- Use a hash map to count the occurrences of each word from the first sentence.
+- Update the hash map with counts from the second sentence.
+- Iterate through the map and collect all words that have a count of exactly 1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\nimport collections\n\nclass Solution:\n    def uncommonFromSentences(self, s1: str, s2: str) -&gt; List[str]:\n        count = collections.Counter(s1.split())\n        count.update(s2.split())\n        return [word for word, freq in count.items() if freq == 1]\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] uncommonFromSentences(String s1, String s2) {\n        Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();\n        for (String word : s1.split(\" \")) {\n            map.put(word, map.getOrDefault(word, 0) + 1);\n        }\n        for (String word : s2.split(\" \")) {\n            map.put(word, map.getOrDefault(word, 0) + 1);\n        }\n        List&lt;String&gt; result = new ArrayList&lt;&gt;();\n        for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {\n            if (entry.getValue() == 1) {\n                result.add(entry.getKey());\n            }\n        }\n        return result.toArray(new String[0]);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;unordered_map&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; uncommonFromSentences(string s1, string s2) {\n        unordered_map&lt;string, int&gt; count;\n        stringstream ss(s1 + \" \" + s2);\n        string word;\n        while (ss &gt;&gt; word) {\n            count[word]++;\n        }\n        vector&lt;string&gt; ans;\n        for (auto& p : count) {\n            if (p.second == 1) {\n                ans.push_back(p.first);\n            }\n        }\n        return ans;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s1\n * @param {string} s2\n * @return {string[]}\n */\nvar uncommonFromSentences = function(s1, s2) {\n    const map = new Map();\n    const words = (s1 + \" \" + s2).split(\" \");\n    for (const w of words) {\n        map.set(w, (map.get(w) || 0) + 1);\n    }\n    const result = [];\n    for (const [key, val] of map) {\n        if (val === 1) {\n            result.push(key);\n        }\n    }\n    return result;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function uncommonFromSentences(s1: string, s2: string): string[] {\n    const map = new Map&lt;string, number&gt;();\n    const words = (s1 + \" \" + s2).split(\" \");\n    for (const w of words) {\n        map.set(w, (map.get(w) || 0) + 1);\n    }\n    const result: string[] = [];\n    for (const [key, val] of map) {\n        if (val === 1) {\n            result.push(key);\n        }\n    }\n    return result;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N + M), where N and M are the lengths of the two sentences.
+- Space: O(N + M) to store the words and the frequency map.
+- Notes: This is the most optimal approach for time complexity.
+
+---
+## Approach 2: Sorting and Linear Scan
+
+**Intuition**
+If we concatenate the words from both sentences and sort them, duplicate words will be adjacent. We can then scan the sorted list to find words that are not equal to their neighbors.
+
+**Steps**
+- Split both sentences into arrays and combine them.
+- Sort the combined array of words.
+- Iterate through the sorted array. A word is uncommon if it is different from the previous word and different from the next word.
+- Handle edge cases for the first and last elements in the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "from typing import List\n\nclass Solution:\n    def uncommonFromSentences(self, s1: str, s2: str) -&gt; List[str]:\n        words = s1.split() + s2.split()\n        words.sort()\n        res = []\n        n = len(words)\n        for i in range(n):\n            prev = words[i-1] if i &gt; 0 else None\n            next = words[i+1] if i &lt; n - 1 else None\n            if words[i] != prev and words[i] != next:\n                res.append(words[i])\n        return res\n" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public String[] uncommonFromSentences(String s1, String s2) {\n        String[] arr = (s1 + \" \" + s2).split(\" \");\n        Arrays.sort(arr);\n        List&lt;String&gt; res = new ArrayList&lt;&gt;();\n        int n = arr.length;\n        for (int i = 0; i &lt; n; i++) {\n            boolean prevDiff = (i == 0) || !arr[i].equals(arr[i-1]);\n            boolean nextDiff = (i == n - 1) || !arr[i].equals(arr[i+1]);\n            if (prevDiff && nextDiff) {\n                res.add(arr[i]);\n            }\n        }\n        return res.toArray(new String[0]);\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;algorithm&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;string&gt; uncommonFromSentences(string s1, string s2) {\n        vector&lt;string&gt; words;\n        stringstream ss(s1 + \" \" + s2);\n        string word;\n        while (ss &gt;&gt; word) {\n            words.push_back(word);\n        }\n        sort(words.begin(), words.end());\n        vector&lt;string&gt; ans;\n        int n = words.size();\n        for (int i = 0; i &lt; n; ++i) {\n            bool prevDiff = (i == 0) || words[i] != words[i-1];\n            bool nextDiff = (i == n - 1) || words[i] != words[i+1];\n            if (prevDiff && nextDiff) {\n                ans.push_back(words[i]);\n            }\n        }\n        return ans;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} s1\n * @param {string} s2\n * @return {string[]}\n */\nvar uncommonFromSentences = function(s1, s2) {\n    const words = (s1 + \" \" + s2).split(\" \");\n    words.sort();\n    const res = [];\n    const n = words.length;\n    for (let i = 0; i &lt; n; i++) {\n        const prevDiff = (i === 0) || words[i] !== words[i-1];\n        const nextDiff = (i === n - 1) || words[i] !== words[i+1];\n        if (prevDiff && nextDiff) {\n            res.push(words[i]);\n        }\n    }\n    return res;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function uncommonFromSentences(s1: string, s2: string): string[] {\n    const words = (s1 + \" \" + s2).split(\" \");\n    words.sort();\n    const res: string[] = [];\n    const n = words.length;\n    for (let i = 0; i &lt; n; i++) {\n        const prevDiff = (i === 0) || words[i] !== words[i-1];\n        const nextDiff = (i === n - 1) || words[i] !== words[i+1];\n        if (prevDiff && nextDiff) {\n            res.push(words[i]);\n        }\n    }\n    return res;\n}\n" },]} />
+
+**Complexity**
+- Time: O((N + M) log (N + M)) due to the sorting step.
+- Space: O(N + M) to store the list of words.
+- Notes: This approach is slower than the hash map approach due to sorting, but uses a different algorithmic paradigm.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Uncommon Words from Two Sentences Solutions","datePublished":"2025-11-24","description":"A sentence is a string of single-space separated words. Find all words that appear exactly once in one of the sentences, and do not appear in the other sentence.","keywords":"LeetCode, Uncommon Words from Two Sentences, Easy, Hash Table, String, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N + M), where N and M are the lengths of the two sentences."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O((N + M) log (N + M)) due to the sorting step."}},{"@type":"Question","name":"How do we define an uncommon word?","acceptedAnswer":{"@type":"Answer","text":"A word is uncommon if it appears exactly once in one of the sentences, and does not appear in the other sentence."}}]}).replace(/</g,'\u003c')}
+</script>

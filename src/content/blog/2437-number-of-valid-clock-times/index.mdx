@@ -1,0 +1,132 @@
+---
+title: "Number of Valid Clock Times"
+summary: "Count valid times by replacing '?' digits in a 24-hour clock format."
+date: "May 31, 2025"
+tags:
+  - String
+  - Enumeration
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 48.00% | **Paid:** No
+> **Topics:** String, Enumeration
+
+You are given a string time in the form of hh:mm, where some of the digits in the string are hidden (represented by ?).
+
+The valid times are those inclusively between 00:00 and 23:59.
+
+Return the number of valid times you can get by replacing the hidden characters.
+
+- Examples
+- Constraints
+- [Brute Force](#brute-force)
+- [Enumeration by Parts](#enumeration-by-parts)
+- [Mathematical Calculation](#mathematical-calculation)
+
+## Examples
+
+```text
+Input: time = "?5:00"
+Output: 2
+Explanation: We can replace the first ? with 0 or 1 to get valid times: "05:00" and "15:00".
+```
+
+```text
+Input: time = "0?:0?"
+Output: 100
+Explanation: We can replace the first ? with any digit from 0 to 9 and the second ? with any digit from 0 to 9, giving us 10 * 10 = 100 valid times.
+```
+
+```text
+Input: time = "??:??"
+Output: 1440
+Explanation: There are 24 * 60 = 1440 valid times.
+```
+
+## Constraints
+
+```text
+- time is a valid string of length 5 in the format "hh:mm".
+- "00" <= hh <= "23"
+- "00" <= mm <= "59"
+- Some of the digits might be replaced with '?' and need to be replaced with digits from 0 to 9.
+```
+
+---
+## Brute Force
+
+**Intuition**
+Since there are only 24 × 60 = 1440 possible valid times, we can iterate through all of them and count how many match the given pattern.
+
+**Steps**
+- Iterate through all hours from 0 to 23
+- Iterate through all minutes from 0 to 59
+- Format each time as "HH:MM"
+- Check if it matches the input pattern (non-? characters must match)
+- Count matching times
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countTime(self, time: str) -&gt; int:\n        count = 0\n        for h in range(24):\n            for m in range(60):\n                t = f\"{h:02d}:{m:02d}\"\n                valid = True\n                for i in range(5):\n                    if time[i] != '?' and time[i] != t[i]:\n                        valid = False\n                        break\n                if valid:\n                    count += 1\n        return count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countTime(String time) {\n        int count = 0;\n        for (int h = 0; h &lt; 24; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                String t = String.format(\"%02d:%02d\", h, m);\n                boolean valid = true;\n                for (int i = 0; i &lt; 5; i++) {\n                    if (time.charAt(i) != '?' && time.charAt(i) != t.charAt(i)) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countTime(string time) {\n        int count = 0;\n        for (int h = 0; h &lt; 24; h++) {\n            for (int m = 0; m &lt; 60; m++) {\n                char t[6];\n                sprintf(t, \"%02d:%02d\", h, m);\n                bool valid = true;\n                for (int i = 0; i &lt; 5; i++) {\n                    if (time[i] != '?' && time[i] != t[i]) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countTime(time) {\n        let count = 0;\n        for (let h = 0; h &lt; 24; h++) {\n            for (let m = 0; m &lt; 60; m++) {\n                const t = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');\n                let valid = true;\n                for (let i = 0; i &lt; 5; i++) {\n                    if (time[i] !== '?' && time[i] !== t[i]) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countTime(time: string): number {\n        let count = 0;\n        for (let h = 0; h &lt; 24; h++) {\n            for (let m = 0; m &lt; 60; m++) {\n                const t = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');\n                let valid = true;\n                for (let i = 0; i &lt; 5; i++) {\n                    if (time[i] !== '?' && time[i] !== t[i]) {\n                        valid = false;\n                        break;\n                    }\n                }\n                if (valid) {\n                    count++;\n                }\n            }\n        }\n        return count;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed 1440 iterations
+- Space: O(1)
+- Notes: Simple but slightly less efficient than mathematical approach
+
+---
+## Enumeration by Parts
+
+**Intuition**
+Count valid hours and valid minutes separately, then multiply them since they are independent.
+
+**Steps**
+- Count hours from 0-23 that match the hour pattern
+- Count minutes from 0-59 that match the minute pattern
+- Return the product
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countTime(self, time: str) -&gt; int:\n        hour_count = 0\n        for h in range(24):\n            h_str = f\"{h:02d}\"\n            if (time[0] == '?' or time[0] == h_str[0]) and (time[1] == '?' or time[1] == h_str[1]):\n                hour_count += 1\n        \n        minute_count = 0\n        for m in range(60):\n            m_str = f\"{m:02d}\"\n            if (time[3] == '?' or time[3] == m_str[0]) and (time[4] == '?' or time[4] == m_str[1]):\n                minute_count += 1\n        \n        return hour_count * minute_count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countTime(String time) {\n        int hourCount = 0;\n        for (int h = 0; h &lt; 24; h++) {\n            String hStr = String.format(\"%02d\", h);\n            if ((time.charAt(0) == '?' || time.charAt(0) == hStr.charAt(0)) &&\n                (time.charAt(1) == '?' || time.charAt(1) == hStr.charAt(1))) {\n                hourCount++;\n            }\n        }\n        \n        int minuteCount = 0;\n        for (int m = 0; m &lt; 60; m++) {\n            String mStr = String.format(\"%02d\", m);\n            if ((time.charAt(3) == '?' || time.charAt(3) == mStr.charAt(0)) &&\n                (time.charAt(4) == '?' || time.charAt(4) == mStr.charAt(1))) {\n                minuteCount++;\n            }\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countTime(string time) {\n        int hourCount = 0;\n        for (int h = 0; h &lt; 24; h++) {\n            char hStr[3];\n            sprintf(hStr, \"%02d\", h);\n            if ((time[0] == '?' || time[0] == hStr[0]) &&\n                (time[1] == '?' || time[1] == hStr[1])) {\n                hourCount++;\n            }\n        }\n        \n        int minuteCount = 0;\n        for (int m = 0; m &lt; 60; m++) {\n            char mStr[3];\n            sprintf(mStr, \"%02d\", m);\n            if ((time[3] == '?' || time[3] == mStr[0]) &&\n                (time[4] == '?' || time[4] == mStr[1])) {\n                minuteCount++;\n            }\n        }\n        \n        return hourCount * minuteCount;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countTime(time) {\n        let hourCount = 0;\n        for (let h = 0; h &lt; 24; h++) {\n            const hStr = h.toString().padStart(2, '0');\n            if ((time[0] === '?' || time[0] === hStr[0]) &&\n                (time[1] === '?' || time[1] === hStr[1])) {\n                hourCount++;\n            }\n        }\n        \n        let minuteCount = 0;\n        for (let m = 0; m &lt; 60; m++) {\n            const mStr = m.toString().padStart(2, '0');\n            if ((time[3] === '?' || time[3] === mStr[0]) &&\n                (time[4] === '?' || time[4] === mStr[1])) {\n                minuteCount++;\n            }\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countTime(time: string): number {\n        let hourCount = 0;\n        for (let h = 0; h &lt; 24; h++) {\n            const hStr = h.toString().padStart(2, '0');\n            if ((time[0] === '?' || time[0] === hStr[0]) &&\n                (time[1] === '?' || time[1] === hStr[1])) {\n                hourCount++;\n            }\n        }\n        \n        let minuteCount = 0;\n        for (let m = 0; m &lt; 60; m++) {\n            const mStr = m.toString().padStart(2, '0');\n            if ((time[3] === '?' || time[3] === mStr[0]) &&\n                (time[4] === '?' || time[4] === mStr[1])) {\n                minuteCount++;\n            }\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Fixed 84 iterations
+- Space: O(1)
+- Notes: More efficient than brute force by separating hour and minute checks
+
+---
+## Mathematical Calculation
+
+**Intuition**
+Directly compute the count using case analysis based on which positions are wildcards, leveraging the constraints of 24-hour time format.
+
+**Steps**
+- For hours: analyze cases based on whether first/second digit is ?
+- For minutes: analyze cases based on whether first/second digit is ?
+- Multiply the counts
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def countTime(self, time: str) -&gt; int:\n        h1, h2, m1, m2 = time[0], time[1], time[3], time[4]\n        \n        if h1 == '?' and h2 == '?':\n            hour_count = 24\n        elif h1 == '?':\n            hour_count = 3 if h2 in '0123' else 2\n        elif h2 == '?':\n            if h1 == '0' or h1 == '1':\n                hour_count = 10\n            elif h1 == '2':\n                hour_count = 4\n            else:\n                hour_count = 0\n        else:\n            hour_count = 1 if int(h1 + h2) &lt; 24 else 0\n        \n        if m1 == '?' and m2 == '?':\n            minute_count = 60\n        elif m1 == '?':\n            minute_count = 6\n        elif m2 == '?':\n            minute_count = 10 if m1 in '012345' else 0\n        else:\n            minute_count = 1 if int(m1 + m2) &lt; 60 else 0\n        \n        return hour_count * minute_count" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int countTime(String time) {\n        char h1 = time.charAt(0), h2 = time.charAt(1);\n        char m1 = time.charAt(3), m2 = time.charAt(4);\n        \n        int hourCount;\n        if (h1 == '?' && h2 == '?') {\n            hourCount = 24;\n        } else if (h1 == '?') {\n            hourCount = (h2 == '0' || h2 == '1' || h2 == '2' || h2 == '3') ? 3 : 2;\n        } else if (h2 == '?') {\n            if (h1 == '0' || h1 == '1') {\n                hourCount = 10;\n            } else if (h1 == '2') {\n                hourCount = 4;\n            } else {\n                hourCount = 0;\n            }\n        } else {\n            hourCount = (Integer.parseInt(\"\" + h1 + h2) &lt; 24) ? 1 : 0;\n        }\n        \n        int minuteCount;\n        if (m1 == '?' && m2 == '?') {\n            minuteCount = 60;\n        } else if (m1 == '?') {\n            minuteCount = 6;\n        } else if (m2 == '?') {\n            minuteCount = (m1 == '0' || m1 == '1' || m1 == '2' || m1 == '3' || m1 == '4' || m1 == '5') ? 10 : 0;\n        } else {\n            minuteCount = (Integer.parseInt(\"\" + m1 + m2) &lt; 60) ? 1 : 0;\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int countTime(string time) {\n        char h1 = time[0], h2 = time[1];\n        char m1 = time[3], m2 = time[4];\n        \n        int hourCount;\n        if (h1 == '?' && h2 == '?') {\n            hourCount = 24;\n        } else if (h1 == '?') {\n            hourCount = (h2 == '0' || h2 == '1' || h2 == '2' || h2 == '3') ? 3 : 2;\n        } else if (h2 == '?') {\n            if (h1 == '0' || h1 == '1') {\n                hourCount = 10;\n            } else if (h1 == '2') {\n                hourCount = 4;\n            } else {\n                hourCount = 0;\n            }\n        } else {\n            hourCount = ((h1 - '0') * 10 + (h2 - '0') &lt; 24) ? 1 : 0;\n        }\n        \n        int minuteCount;\n        if (m1 == '?' && m2 == '?') {\n            minuteCount = 60;\n        } else if (m1 == '?') {\n            minuteCount = 6;\n        } else if (m2 == '?') {\n            minuteCount = (m1 == '0' || m1 == '1' || m1 == '2' || m1 == '3' || m1 == '4' || m1 == '5') ? 10 : 0;\n        } else {\n            minuteCount = ((m1 - '0') * 10 + (m2 - '0') &lt; 60) ? 1 : 0;\n        }\n        \n        return hourCount * minuteCount;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "class Solution {\n    countTime(time) {\n        const h1 = time[0], h2 = time[1];\n        const m1 = time[3], m2 = time[4];\n        \n        let hourCount;\n        if (h1 === '?' && h2 === '?') {\n            hourCount = 24;\n        } else if (h1 === '?') {\n            hourCount = (h2 === '0' || h2 === '1' || h2 === '2' || h2 === '3') ? 3 : 2;\n        } else if (h2 === '?') {\n            if (h1 === '0' || h1 === '1') {\n                hourCount = 10;\n            } else if (h1 === '2') {\n                hourCount = 4;\n            } else {\n                hourCount = 0;\n            }\n        } else {\n            hourCount = (parseInt(h1 + h2) &lt; 24) ? 1 : 0;\n        }\n        \n        let minuteCount;\n        if (m1 === '?' && m2 === '?') {\n            minuteCount = 60;\n        } else if (m1 === '?') {\n            minuteCount = 6;\n        } else if (m2 === '?') {\n            minuteCount = (m1 === '0' || m1 === '1' || m1 === '2' || m1 === '3' || m1 === '4' || m1 === '5') ? 10 : 0;\n        } else {\n            minuteCount = (parseInt(m1 + m2) &lt; 60) ? 1 : 0;\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },
+{ name: "TypeScript", lang: "typescript", code: "class Solution {\n    countTime(time: string): number {\n        const h1 = time[0], h2 = time[1];\n        const m1 = time[3], m2 = time[4];\n        \n        let hourCount: number;\n        if (h1 === '?' && h2 === '?') {\n            hourCount = 24;\n        } else if (h1 === '?') {\n            hourCount = (h2 === '0' || h2 === '1' || h2 === '2' || h2 === '3') ? 3 : 2;\n        } else if (h2 === '?') {\n            if (h1 === '0' || h1 === '1') {\n                hourCount = 10;\n            } else if (h1 === '2') {\n                hourCount = 4;\n            } else {\n                hourCount = 0;\n            }\n        } else {\n            hourCount = (parseInt(h1 + h2) &lt; 24) ? 1 : 0;\n        }\n        \n        let minuteCount: number;\n        if (m1 === '?' && m2 === '?') {\n            minuteCount = 60;\n        } else if (m1 === '?') {\n            minuteCount = 6;\n        } else if (m2 === '?') {\n            minuteCount = (m1 === '0' || m1 === '1' || m1 === '2' || m1 === '3' || m1 === '4' || m1 === '5') ? 10 : 0;\n        } else {\n            minuteCount = (parseInt(m1 + m2) &lt; 60) ? 1 : 0;\n        }\n        \n        return hourCount * minuteCount;\n    }\n}" },]} />
+
+**Complexity**
+- Time: O(1) - Constant time operations
+- Space: O(1)
+- Notes: Most efficient approach with no loops, but more verbose code
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Number of Valid Clock Times Solutions","datePublished":"2025-05-31","description":"Count valid times by replacing '?' digits in a 24-hour clock format.","keywords":"LeetCode, Number of Valid Clock Times, Easy, String, Enumeration"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Fixed 1440 iterations through all possible times."}},{"@type":"Question","name":"What is the time complexity of Enumeration by Parts approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Fixed 84 iterations (24 for hours + 60 for minutes)."}},{"@type":"Question","name":"What is the time complexity of Mathematical Calculation approach?","acceptedAnswer":{"@type":"Answer","text":"O(1) - Constant time with no loops, just conditional checks."}},{"@type":"Question","name":"What is the space complexity for all approaches?","acceptedAnswer":{"@type":"Answer","text":"O(1) - All approaches use constant extra space."}}]}).replace(/</g,'\u003c')}
+</script>

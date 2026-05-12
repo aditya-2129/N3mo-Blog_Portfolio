@@ -1,0 +1,139 @@
+---
+title: "Find Lucky Integer in an Array"
+summary: "Given an array of integers, a lucky integer is an integer which has a frequency in the array equal to its value. Return the largest lucky integer, or -1 if none exists."
+date: "Feb 10, 2025"
+tags:
+  - Array
+  - Hash Table
+  - Counting
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 75.50% | **Paid:** No
+> **Topics:** Array, Hash Table, Counting
+
+Given an array of integers arr, a lucky integer is an integer which has a frequency in the array equal to its value.
+
+Return a lucky integer in the array. If there are multiple lucky integers return the largest of them. If there is no lucky integer return -1.
+
+- Examples
+- Constraints
+- [Approach 1: Hash Map Frequency Count](#approach-1-hash-map-frequency-count)
+- [Approach 2: Sorting](#approach-2-sorting)
+- [Approach 3: Counting Array](#approach-3-counting-array)
+
+## Examples
+
+```text
+Input: arr = [2,2,3,4]
+Output: 2
+Explanation: The only lucky number in the array is 2 because frequency[2] == 2.
+```
+
+```text
+Input: arr = [1,2,2,3,3,3]
+Output: 3
+Explanation: 1, 2 and 3 are all lucky numbers, return the largest one which is 3.
+```
+
+```text
+Input: arr = [2,2,2,3,3]
+Output: -1
+Explanation: There are no lucky numbers in the array.
+```
+
+## Constraints
+
+```text
+1 <= arr.length <= 500
+1 <= arr[i] <= 500
+```
+
+---
+
+## Approach 1: Hash Map Frequency Count
+
+**Intuition**
+We can iterate through the array to count the frequency of each number using a hash map. Then, we iterate through the map entries to find numbers where the key equals the value, keeping track of the maximum such number.
+
+**Steps**
+- Initialize an empty hash map.
+- Iterate through the input array `arr`, incrementing the count for each number in the map.
+- Initialize a variable `max_lucky` to -1.
+- Iterate through the entries in the map. If the key (number) equals the value (frequency), update `max_lucky` with the maximum of itself and the key.
+- Return `max_lucky`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findLucky(self, arr: list[int]) -&gt; int:\n        freq = {}\n        for num in arr:\n            freq[num] = freq.get(num, 0) + 1\n        \n        max_lucky = -1\n        for num, count in freq.items():\n            if num == count:\n                max_lucky = max(max_lucky, num)\n        \n        return max_lucky\n" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    public int findLucky(int[] arr) {\n        Map&lt;Integer, Integer&gt; freq = new HashMap&lt;&gt;();\n        for (int num : arr) {\n            freq.put(num, freq.getOrDefault(num, 0) + 1);\n        }\n        \n        int maxLucky = -1;\n        for (Map.Entry&lt;Integer, Integer&gt; entry : freq.entrySet()) {\n            if (entry.getKey() == entry.getValue()) {\n                maxLucky = Math.max(maxLucky, entry.getKey());\n            }\n        }\n        return maxLucky;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;unordered_map&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int findLucky(vector&lt;int&gt;& arr) {\n        unordered_map&lt;int, int&gt; freq;\n        for (int num : arr) {\n            freq[num]++;\n        }\n        \n        int maxLucky = -1;\n        for (const auto& pair : freq) {\n            if (pair.first == pair.second) {\n                maxLucky = max(maxLucky, pair.first);\n            }\n        }\n        return maxLucky;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number}\n */\nvar findLucky = function(arr) {\n    const freq = new Map();\n    for (const num of arr) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxLucky = -1;\n    for (const [num, count] of freq) {\n        if (num === count) {\n            maxLucky = Math.max(maxLucky, num);\n        }\n    }\n    return maxLucky;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findLucky(arr: number[]): number {\n    const freq = new Map&lt;number, number&gt;();\n    for (const num of arr) {\n        freq.set(num, (freq.get(num) || 0) + 1);\n    }\n    \n    let maxLucky = -1;\n    for (const [num, count] of freq) {\n        if (num === count) {\n            maxLucky = Math.max(maxLucky, num);\n        }\n    }\n    return maxLucky;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of elements in the array. We iterate through the array once to build the map and once through the map (which has at most n elements).
+- Space: O(n), to store the frequency map in the worst case where all elements are distinct.
+- Notes: This is a standard approach for frequency counting problems.
+
+---
+
+## Approach 2: Sorting
+
+**Intuition**
+If we sort the array, identical numbers will be grouped together. We can then iterate through the sorted array, counting the size of each group. If the group size equals the number itself, it is a lucky integer. Since we process numbers in increasing order, the last lucky integer found will be the largest.
+
+**Steps**
+- Sort the array in non-decreasing order.
+- Initialize `max_lucky` to -1 and `i` to 0.
+- While `i` is less than the length of the array:
+    - Store the current number `curr = arr[i]`.
+    - Initialize `count` to 0.
+    - While `i` is within bounds and `arr[i] == curr`, increment `count` and `i`.
+    - If `count == curr`, update `max_lucky = curr`.
+- Return `max_lucky`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findLucky(self, arr: list[int]) -&gt; int:\n        arr.sort()\n        n = len(arr)\n        i = 0\n        max_lucky = -1\n        \n        while i &lt; n:\n            curr = arr[i]\n            count = 0\n            while i &lt; n and arr[i] == curr:\n                count += 1\n                i += 1\n            \n            if count == curr:\n                max_lucky = curr\n                \n        return max_lucky\n" },
+{ name: "Java", lang: "java", code: "import java.util.Arrays;\n\nclass Solution {\n    public int findLucky(int[] arr) {\n        Arrays.sort(arr);\n        int n = arr.length;\n        int i = 0;\n        int maxLucky = -1;\n        \n        while (i &lt; n) {\n            int curr = arr[i];\n            int count = 0;\n            while (i &lt; n && arr[i] == curr) {\n                count++;\n                i++;\n            }\n            if (count == curr) {\n                maxLucky = curr;\n            }\n        }\n        return maxLucky;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;algorithm&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int findLucky(vector&lt;int&gt;& arr) {\n        sort(arr.begin(), arr.end());\n        int n = arr.size();\n        int i = 0;\n        int maxLucky = -1;\n        \n        while (i &lt; n) {\n            int curr = arr[i];\n            int count = 0;\n            while (i &lt; n && arr[i] == curr) {\n                count++;\n                i++;\n            }\n            if (count == curr) {\n                maxLucky = curr;\n            }\n        }\n        return maxLucky;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number}\n */\nvar findLucky = function(arr) {\n    arr.sort((a, b) =&gt; a - b);\n    const n = arr.length;\n    let i = 0;\n    let maxLucky = -1;\n    \n    while (i &lt; n) {\n        const curr = arr[i];\n        let count = 0;\n        while (i &lt; n && arr[i] === curr) {\n            count++;\n            i++;\n        }\n        if (count === curr) {\n            maxLucky = curr;\n        }\n    }\n    return maxLucky;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findLucky(arr: number[]): number {\n    arr.sort((a, b) =&gt; a - b);\n    const n = arr.length;\n    let i = 0;\n    let maxLucky = -1;\n    \n    while (i &lt; n) {\n        const curr = arr[i];\n        let count = 0;\n        while (i &lt; n && arr[i] === curr) {\n            count++;\n            i++;\n        }\n        if (count === curr) {\n            maxLucky = curr;\n        }\n    }\n    return maxLucky;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n log n) due to the sorting step.
+- Space: O(1) or O(n) depending on the sorting algorithm's space complexity (e.g., heapsort uses O(1), merge sort uses O(n)).
+- Notes: Modifies the input array. Less efficient than the hash map approach for time complexity.
+
+---
+
+## Approach 3: Counting Array
+
+**Intuition**
+The constraints state that `1 &lt;= arr[i] &lt;= 500`. This small range allows us to use a fixed-size array (counting sort style) instead of a hash map. We can count frequencies in an array of size 501. Then, we iterate backwards from 500 down to 1. The first number we find where `count[i] == i` is the largest lucky integer.
+
+**Steps**
+- Initialize an integer array `count` of size 501 with all zeros.
+- Iterate through `arr`, incrementing `count[num]` for each number.
+- Iterate from `i = 500` down to `i = 1`:
+    - If `count[i] == i`, return `i`.
+- If the loop finishes without returning, return -1.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def findLucky(self, arr: list[int]) -&gt; int:\n        count = [0] * 501\n        for num in arr:\n            count[num] += 1\n        \n        for i in range(500, 0, -1):\n            if count[i] == i:\n                return i\n        \n        return -1\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int findLucky(int[] arr) {\n        int[] count = new int[501];\n        for (int num : arr) {\n            count[num]++;\n        }\n        \n        for (int i = 500; i &gt;= 1; i--) {\n            if (count[i] == i) {\n                return i;\n            }\n        }\n        return -1;\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    int findLucky(vector&lt;int&gt;& arr) {\n        int count[501] = {0};\n        for (int num : arr) {\n            count[num]++;\n        }\n        \n        for (int i = 500; i &gt;= 1; i--) {\n            if (count[i] == i) {\n                return i;\n            }\n        }\n        return -1;\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {number[]} arr\n * @return {number}\n */\nvar findLucky = function(arr) {\n    const count = new Array(501).fill(0);\n    for (const num of arr) {\n        count[num]++;\n    }\n    \n    for (let i = 500; i &gt;= 1; i--) {\n        if (count[i] === i) {\n            return i;\n        }\n    }\n    return -1;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function findLucky(arr: number[]): number {\n    const count = new Array(501).fill(0);\n    for (const num of arr) {\n        count[num]++;\n    }\n    \n    for (let i = 500; i &gt;= 1; i--) {\n        if (count[i] === i) {\n            return i;\n        }\n    }\n    return -1;\n}\n" },]} />
+
+**Complexity**
+- Time: O(n), where n is the length of the array. We iterate once to count and once through the fixed 501 size array.
+- Space: O(1), since the count array size is fixed (501) regardless of input size.
+- Notes: This is the most optimal approach for this specific problem due to the constraints.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find Lucky Integer in an Array Solutions","datePublished":"2025-02-10","description":"Given an array of integers, a lucky integer is an integer which has a frequency in the array equal to its value. Return the largest lucky integer, or -1 if none exists.","keywords":"LeetCode, Find Lucky Integer in an Array, Easy, Array, Hash Table, Counting"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of elements in the array."}},{"@type":"Question","name":"What is the time complexity of the Sorting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) due to the sorting step."}},{"@type":"Question","name":"What is the space complexity of the Counting Array approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) because the counting array has a fixed size of 501."}}]}).replace(/</g,'\u003c')}
+</script>

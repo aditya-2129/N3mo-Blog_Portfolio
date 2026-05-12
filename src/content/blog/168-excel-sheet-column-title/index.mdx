@@ -1,0 +1,208 @@
+---
+title: "Excel Sheet Column Title"
+summary: "Convert a given column number to its corresponding Excel column title as it appears in an Excel sheet."
+date: "Feb 02, 2026"
+tags:
+  - Math
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 46.40% | **Paid:** No
+> **Topics:** Math, String
+
+Given an integer columnNumber, return its corresponding column title as it appears in an Excel sheet.
+
+For example:
+
+A -> 1
+B -> 2
+C -> 3
+...
+Z -> 26
+AA -> 27
+AB -> 28 
+...
+
+- Examples
+- Constraints
+- [Iterative Base-26 Conversion](#iterative-base-26-conversion)
+- [Recursive Base-26 Conversion](#recursive-base-26-conversion)
+
+## Examples
+
+Example 1:
+```text
+Input: columnNumber = 1
+Output: "A"
+```
+
+Example 2:
+```text
+Input: columnNumber = 28
+Output: "AB"
+```
+
+Example 3:
+```text
+Input: columnNumber = 701
+Output: "ZY"
+```
+
+## Constraints
+
+```text
+1 <= columnNumber <= 2³¹ - 1
+```
+
+---
+
+## Iterative Base-26 Conversion
+
+**Intuition**
+This is a modified base-26 conversion problem where digits are 1-26 (A-Z) instead of 0-25. We repeatedly divide by 26, adjusting for the 1-indexed system.
+
+**Steps**
+- While columnNumber &gt; 0:
+  - Decrement columnNumber by 1 (to convert from 1-indexed to 0-indexed)
+  - Get remainder = columnNumber % 26
+  - Prepend the corresponding letter (0 -> A, 1 -> B, ..., 25 -> Z)
+  - Divide columnNumber by 26
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def convertToTitle(self, columnNumber: int) -> str:
+        result = []
+        while columnNumber &gt; 0:
+            columnNumber -= 1
+            remainder = columnNumber % 26
+            result.append(chr(ord('A') + remainder))
+            columnNumber //= 26
+        return ''.join(reversed(result))` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String convertToTitle(int columnNumber) {
+        StringBuilder sb = new StringBuilder();
+        while (columnNumber &gt; 0) {
+            columnNumber--;
+            int remainder = columnNumber % 26;
+            sb.append((char)('A' + remainder));
+            columnNumber /= 26;
+        }
+        return sb.reverse().toString();
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string convertToTitle(int columnNumber) {
+        string result;
+        while (columnNumber &gt; 0) {
+            columnNumber--;
+            int remainder = columnNumber % 26;
+            result.push_back('A' + remainder);
+            columnNumber /= 26;
+        }
+        reverse(result.begin(), result.end());
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} columnNumber
+ * @return {string}
+ */
+var convertToTitle = function(columnNumber) {
+    let result = [];
+    while (columnNumber &gt; 0) {
+        columnNumber--;
+        let remainder = columnNumber % 26;
+        result.push(String.fromCharCode(65 + remainder));
+        columnNumber = Math.floor(columnNumber / 26);
+    }
+    return result.reverse().join('');
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function convertToTitle(columnNumber: number): string {
+    let result: string[] = [];
+    while (columnNumber &gt; 0) {
+        columnNumber--;
+        let remainder = columnNumber % 26;
+        result.push(String.fromCharCode(65 + remainder));
+        columnNumber = Math.floor(columnNumber / 26);
+    }
+    return result.reverse().join('');
+}` },]} />
+
+**Complexity**
+- Time: O(log₂₆(n)) - We divide by 26 in each iteration
+- Space: O(log₂₆(n)) - To store the result string
+- Notes: This is the most efficient approach with optimal time and space complexity.
+
+---
+
+## Recursive Base-26 Conversion
+
+**Intuition**
+Same mathematical approach as the iterative solution, but implemented using recursion for cleaner code structure.
+
+**Steps**
+- Base case: if columnNumber is 0, return empty string
+- Decrement columnNumber by 1
+- Get remainder = columnNumber % 26
+- Recursively solve for columnNumber / 26 and append the current letter
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `class Solution:
+    def convertToTitle(self, columnNumber: int) -> str:
+        if columnNumber == 0:
+            return ''
+        columnNumber -= 1
+        return self.convertToTitle(columnNumber // 26) + chr(ord('A') + columnNumber % 26)` },
+{ name: "Java", lang: "java", code: `class Solution {
+    public String convertToTitle(int columnNumber) {
+        if (columnNumber == 0) {
+            return "";
+        }
+        columnNumber--;
+        return convertToTitle(columnNumber / 26) + (char)('A' + columnNumber % 26);
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `class Solution {
+public:
+    string convertToTitle(int columnNumber) {
+        if (columnNumber == 0) {
+            return "";
+        }
+        columnNumber--;
+        return convertToTitle(columnNumber / 26) + string(1, 'A' + columnNumber % 26);
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {number} columnNumber
+ * @return {string}
+ */
+var convertToTitle = function(columnNumber) {
+    if (columnNumber === 0) {
+        return '';
+    }
+    columnNumber--;
+    return convertToTitle(Math.floor(columnNumber / 26)) + String.fromCharCode(65 + columnNumber % 26);
+};` },
+{ name: "TypeScript", lang: "typescript", code: `function convertToTitle(columnNumber: number): string {
+    if (columnNumber === 0) {
+        return '';
+    }
+    columnNumber--;
+    return convertToTitle(Math.floor(columnNumber / 26)) + String.fromCharCode(65 + columnNumber % 26);
+}` },]} />
+
+**Complexity**
+- Time: O(log₂₆(n)) - Same as iterative approach
+- Space: O(log₂₆(n)) - Recursion stack depth plus result string
+- Notes: Cleaner code but uses recursion stack space; iterative approach is preferred for very large inputs.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Excel Sheet Column Title Solutions","datePublished":"2026-02-02","description":"Convert a given column number to its corresponding Excel column title as it appears in an Excel sheet.","keywords":"LeetCode, Excel Sheet Column Title, Easy, Math, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Iterative Base-26 Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(log₂₆(n)) where n is the column number, as we divide by 26 in each iteration."}},{"@type":"Question","name":"What is the space complexity of the Recursive Base-26 Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(log₂₆(n)) for the recursion stack depth plus the result string storage."}},{"@type":"Question","name":"Why do we need to decrement columnNumber by 1 before calculating the remainder?","acceptedAnswer":{"@type":"Answer","text":"We decrement because Excel uses a 1-indexed system (A=1, B=2, ..., Z=26) while modulo operations work with 0-indexed values (0, 1, ..., 25)."}}]}).replace(/</g,'\u003c')}
+</script>

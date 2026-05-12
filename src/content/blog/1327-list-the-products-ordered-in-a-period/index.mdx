@@ -1,0 +1,159 @@
+---
+title: "List the Products Ordered in a Period"
+summary: "Write a solution to list the names and categories of products ordered in February 2020."
+date: "Aug 26, 2024"
+tags:
+  - Database
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 71.70% | **Paid:** No
+> **Topics:** Database
+
+Table: Products
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| product_name  | varchar |
+| product_category | varchar |
++---------------+---------+
+product_id is the primary key for this table.
+This table contains data about the company's products.
+
+Table: Orders
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| order_id      | int     |
+| product_id    | int     |
+| order_date    | date    |
++---------------+---------+
+order_id is the primary key for this table.
+product_id is a foreign key to Products table.
+order_date is in the format 'YYYY-MM-DD'.
+
+Write a solution to list the names of the products and the category they belong to for each of the products ordered in February 2020.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+- Examples
+- Constraints
+- [Approach 1: Brute Force Simulation](#approach-1-brute-force-simulation)
+- [Approach 2: Hash Map Join](#approach-2-hash-map-join)
+
+## Examples
+
+### Example 1
+**Input:**
+
+Products table:
++-------------+-----------------------+------------------+
+| product_id  | product_name          | product_category |
++-------------+-----------------------+------------------+
+| 1           | Leetcode              | Computer         |
+| 2           | GeeksforGeeks         | Computer         |
+| 3           | HackerRank            | Computer         |
+| 4           | InterviewBit         | Computer         |
+| 5           | CodeWars              | Computer         |
++-------------+-----------------------+------------------+
+
+Orders table:
++-------------+-------------+-------------+
+| order_id    | product_id  | order_date  |
++-------------+-------------+-------------+
+| 1           | 1           | 2020-02-05  |
+| 2           | 1           | 2020-02-10  |
+| 3           | 3           | 2020-02-18  |
+| 4           | 4           | 2020-02-28  |
+| 5           | 4           | 2020-03-01  |
+| 6           | 5           | 2020-03-12  |
++-------------+-------------+-------------+
+
+**Output:**
++-----------------------+------------------+
+| product_name          | product_category |
++-----------------------+------------------+
+| Leetcode              | Computer         |
+| HackerRank            | Computer         |
+| InterviewBit          | Computer         |
++-----------------------+------------------+
+
+**Explanation:**
+Products with product_id 1, 3, and 4 were ordered in February 2020.
+Product with product_id 2 was not ordered in February 2020.
+Product with product_id 5 was ordered in March 2020.
+
+## Constraints
+
+```text
+The input tables will contain at least one order in February 2020.
+```
+
+---
+
+## Approach 1: Brute Force Simulation
+
+**Intuition**
+Simulate the database join by iterating through each order, checking if it falls within the date range, and then scanning the entire product list to find the matching product details.
+
+**Steps**
+- Initialize an empty set to store unique product results.
+- Iterate through each order in the `Orders` list.
+- Check if the `order_date` is between '2020-02-01' and '2020-02-29'.
+- If valid, iterate through the `Products` list to find the product with the matching `product_id`.
+- If found, add the `product_name` and `product_category` to the set.
+- Convert the set to a list and sort it by `product_name`.
+- Return the sorted list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def listProducts(self, products: list[list[str]], orders: list[list[str]]) -> list[list[str]]:\n        res_set = set()\n        for o in orders:\n            date = o[2]\n            if \"2020-02-01\" <= date <= \"2020-02-29\":\n                pid = o[1]\n                for p in products:\n                    if p[0] == pid:\n                        res_set.add((p[1], p[2]))\n                        break\n        res = list(res_set)\n        res.sort(key=lambda x: x[0])\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List<List<String>> listProducts(List<List<String>> products, List<List<String>> orders) {\n        Set<List<String>> set = new HashSet<>();\n        for (List<String> o : orders) {\n            String date = o.get(2);\n            if (date.compareTo(\"2020-02-01\") >= 0 && date.compareTo(\"2020-02-29\") <= 0) {\n                String pid = o.get(1);\n                for (List<String> p : products) {\n                    if (p.get(0).equals(pid)) {\n                        set.add(Arrays.asList(p.get(1), p.get(2)));\n                        break;\n                    }\n                }\n            }\n        }\n        List<List<String>> result = new ArrayList<>(set);\n        result.sort((a, b) -> a.get(0).compareTo(b.get(0)));\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\n#include <string>\n#include <set>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>> listProducts(vector<vector<string>>& products, vector<vector<string>>& orders) {\n        set<vector<string>> s;\n        for (auto& o : orders) {\n            string date = o[2];\n            if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n                string pid = o[1];\n                for (auto& p : products) {\n                    if (p[0] == pid) {\n                        s.insert({p[1], p[2]});\n                        break;\n                    }\n                }\n            }\n        }\n        vector<vector<string>> result(s.begin(), s.end());\n        sort(result.begin(), result.end(), [](const vector<string>& a, const vector<string>& b) {\n            return a[0] < b[0];\n        });\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} products\n * @param {string[][]} orders\n * @return {string[][]}\n */\nvar listProducts = function(products, orders) {\n    const set = new Set();\n    for (const o of orders) {\n        const date = o[2];\n        if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n            const pid = o[1];\n            for (const p of products) {\n                if (p[0] === pid) {\n                    set.add(JSON.stringify([p[1], p[2]]));\n                    break;\n                }\n            }\n        }\n    }\n    const result = Array.from(set).map(JSON.parse);\n    result.sort((a, b) => a[0].localeCompare(b[0]));\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function listProducts(products: string[][], orders: string[][]): string[][] {\n    const set = new Set<string>();\n    for (const o of orders) {\n        const date = o[2];\n        if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n            const pid = o[1];\n            for (const p of products) {\n                if (p[0] === pid) {\n                    set.add(JSON.stringify([p[1], p[2]]));\n                    break;\n                }\n            }\n        }\n    }\n    const result = Array.from(set).map((s) => JSON.parse(s));\n    result.sort((a, b) => a[0].localeCompare(b[0]));\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N * M) where N is the number of orders and M is the number of products.
+- Space: O(N) to store the result set.
+- Notes: Simple to implement but inefficient for large datasets due to the nested loop.
+
+## Approach 2: Hash Map Join
+
+**Intuition**
+Optimize the lookup process by using a hash map (dictionary) to store product information, keyed by `product_id`. This allows for O(1) average time complexity when retrieving product details for an order.
+
+**Steps**
+- Create a hash map mapping `product_id` to a list containing `product_name` and `product_category`.
+- Initialize an empty set to store unique product results.
+- Iterate through each order in the `Orders` list.
+- Check if the `order_date` is between '2020-02-01' and '2020-02-29'.
+- If valid, check if the `product_id` exists in the hash map.
+- If it exists, retrieve the details and add them to the set.
+- Convert the set to a list and sort it by `product_name`.
+- Return the sorted list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def listProducts(self, products: list[list[str]], orders: list[list[str]]) -> list[list[str]]:\n        prod_map = {p[0]: (p[1], p[2]) for p in products}\n        res_set = set()\n        for o in orders:\n            date = o[2]\n            if \"2020-02-01\" <= date <= \"2020-02-29\":\n                pid = o[1]\n                if pid in prod_map:\n                    res_set.add((prod_map[pid][0], prod_map[pid][1]))\n        res = list(res_set)\n        res.sort(key=lambda x: x[0])\n        return res" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List<List<String>> listProducts(List<List<String>> products, List<List<String>> orders) {\n        Map<String, String[]> map = new HashMap<>();\n        for (List<String> p : products) {\n            map.put(p.get(0), new String[]{p.get(1), p.get(2)});\n        }\n        Set<List<String>> set = new HashSet<>();\n        for (List<String> o : orders) {\n            String date = o.get(2);\n            if (date.compareTo(\"2020-02-01\") >= 0 && date.compareTo(\"2020-02-29\") <= 0) {\n                String pid = o.get(1);\n                if (map.containsKey(pid)) {\n                    String[] info = map.get(pid);\n                    set.add(Arrays.asList(info[0], info[1]));\n                }\n            }\n        }\n        List<List<String>> result = new ArrayList<>(set);\n        result.sort((a, b) -> a.get(0).compareTo(b.get(0)));\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include <vector>\n#include <string>\n#include <unordered_map>\n#include <set>\n#include <algorithm>\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>> listProducts(vector<vector<string>>& products, vector<vector<string>>& orders) {\n        unordered_map<string, pair<string, string>> map;\n        for (auto& p : products) {\n            map[p[0]] = {p[1], p[2]};\n        }\n        set<vector<string>> s;\n        for (auto& o : orders) {\n            string date = o[2];\n            if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n                string pid = o[1];\n                if (map.find(pid) != map.end()) {\n                    auto& info = map[pid];\n                    s.insert({info.first, info.second});\n                }\n            }\n        }\n        vector<vector<string>> result(s.begin(), s.end());\n        sort(result.begin(), result.end(), [](const vector<string>& a, const vector<string>& b) {\n            return a[0] < b[0];\n        });\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[][]} products\n * @param {string[][]} orders\n * @return {string[][]}\n */\nvar listProducts = function(products, orders) {\n    const map = new Map();\n    for (const p of products) {\n        map.set(p[0], [p[1], p[2]]);\n    }\n    const set = new Set();\n    for (const o of orders) {\n        const date = o[2];\n        if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n            const pid = o[1];\n            if (map.has(pid)) {\n                const info = map.get(pid);\n                set.add(JSON.stringify([info[0], info[1]]));\n            }\n        }\n    }\n    const result = Array.from(set).map(JSON.parse);\n    result.sort((a, b) => a[0].localeCompare(b[0]));\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function listProducts(products: string[][], orders: string[][]): string[][] {\n    const map = new Map<string, [string, string]>();\n    for (const p of products) {\n        map.set(p[0], [p[1], p[2]]);\n    }\n    const set = new Set<string>();\n    for (const o of orders) {\n        const date = o[2];\n        if (date >= \"2020-02-01\" && date <= \"2020-02-29\") {\n            const pid = o[1];\n            if (map.has(pid)) {\n                const info = map.get(pid)!;\n                set.add(JSON.stringify([info[0], info[1]]));\n            }\n        }\n    }\n    const result = Array.from(set).map((s) => JSON.parse(s));\n    result.sort((a, b) => a[0].localeCompare(b[0]));\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N + M) where N is the number of orders and M is the number of products.
+- Space: O(M) to store the hash map of products.
+- Notes: Much faster than the brute force approach for large datasets, trading space for time.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode List the Products Ordered in a Period Solutions","datePublished":"2024-08-26","description":"Write a solution to list the names and categories of products ordered in February 2020.","keywords":"LeetCode, List the Products Ordered in a Period, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Brute Force approach?","acceptedAnswer":{"@type":"Answer","text":"O(N * M) where N is the number of orders and M is the number of products."}},{"@type":"Question","name":"What is the time complexity of the Hash Map approach?","acceptedAnswer":{"@type":"Answer","text":"O(N + M) where N is the number of orders and M is the number of products."}}]}).replace(/</g,'\u003c')}
+</script>

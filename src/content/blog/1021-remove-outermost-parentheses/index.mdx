@@ -1,0 +1,139 @@
+---
+title: "Remove Outermost Parentheses"
+summary: "Remove the outermost parentheses from every primitive string in the decomposition of a valid parentheses string."
+date: "Jun 27, 2025"
+tags:
+  - String
+  - Stack
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 87.00% | **Paid:** No
+> **Topics:** String, Stack
+
+A valid parentheses string is either empty "", "(" + A + ")", or A + B, where A and B are valid parentheses strings, and A and B have no common leading parentheses. The primitive decomposition of a valid parentheses string S is a decomposition: S = P_1 + P_2 + ... + P_k, where P_i are primitive valid parentheses strings.
+
+Return S after removing the outermost parentheses of every primitive string in the primitive decomposition of S.
+
+- Examples
+- Constraints
+- [Approach 1: Counting (Depth Tracking)](#counting-depth-tracking)
+- [Approach 2: Stack](#stack)
+- [Approach 3: Primitive Decomposition](#primitive-decomposition)
+
+## Examples
+
+```text
+Input: s = "(()())(())"
+Output: "()()()"
+Explanation: 
+The input string is "(()())(())", with primitive decomposition "(()())" + "(())".
+After removing outer parentheses of each part, this is "()()" + "()" = "()()()".
+```
+
+```text
+Input: s = "(()())(())(()(()))"
+Output: "()()()()(())"
+Explanation: 
+The input string is "(()())(())(()(()))", with primitive decomposition "(()())" + "(())" + "(()(()))".
+After removing outer parentheses of each part, this is "()()" + "()" + "()(())" = "()()()()(())".
+```
+
+```text
+Input: s = "()()"
+Output: ""
+Explanation: 
+The input string is "()()", with primitive decomposition "()" + "()".
+After removing outer parentheses of each part, this is "" + "" = "".
+```
+
+## Constraints
+
+```text
+1 <= s.length <= 10⁵
+s[i] is either '(' or ')'.
+s is a valid parentheses string.
+```
+
+---
+## Approach 1: Counting (Depth Tracking)
+
+**Intuition**
+We can iterate through the string and maintain a counter representing the current depth of nesting. The outermost parentheses correspond to a depth of 1. We only append characters to the result when the depth is greater than 1.
+
+**Steps**
+- Initialize a counter `opened` to 0 and an empty list/string builder for the result.
+- Iterate through each character in the string.
+- If the character is '(', increment `opened`. If `opened` is greater than 1 after incrementing, append the character to the result.
+- If the character is ')', decrement `opened`. If `opened` is greater than 0 after decrementing, append the character to the result.
+- Return the constructed result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeOuterParentheses(self, s: str) -&gt; str:\n        res = []\n        opened = 0\n        for c in s:\n            if c == '(':\n                if opened &gt; 0:\n                    res.append(c)\n                opened += 1\n            else:\n                opened -= 1\n                if opened &gt; 0:\n                    res.append(c)\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeOuterParentheses(String s) {\n        StringBuilder sb = new StringBuilder();\n        int opened = 0;\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                if (opened &gt; 0) sb.append(c);\n                opened++;\n            } else {\n                opened--;\n                if (opened &gt; 0) sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeOuterParentheses(string s) {\n        string res;\n        int opened = 0;\n        for (char c : s) {\n            if (c == '(') {\n                if (opened &gt; 0) res.push_back(c);\n                opened++;\n            } else {\n                opened--;\n                if (opened &gt; 0) res.push_back(c);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeOuterParentheses = function(s) {\n    let res = [];\n    let opened = 0;\n    for (let c of s) {\n        if (c === '(') {\n            if (opened &gt; 0) res.push(c);\n            opened++;\n        } else {\n            opened--;\n            if (opened &gt; 0) res.push(c);\n        }\n    }\n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeOuterParentheses(s: string): string {\n    let res: string[] = [];\n    let opened = 0;\n    for (let c of s) {\n        if (c === '(') {\n            if (opened &gt; 0) res.push(c);\n            opened++;\n        } else {\n            opened--;\n            if (opened &gt; 0) res.push(c);\n        }\n    }\n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(1) auxiliary space (excluding the space required for the output string).
+- Notes: This is the most space-efficient approach as it only requires a single integer variable for tracking.
+
+---
+## Approach 2: Stack
+
+**Intuition**
+We can use a stack to simulate the nesting of parentheses. We push opening brackets onto the stack. When we encounter a closing bracket, we pop from the stack. If the stack is not empty, it means we are inside a primitive string, and we should add the character to our result.
+
+**Steps**
+- Initialize an empty stack and an empty list/string builder for the result.
+- Iterate through each character in the string.
+- If the character is '(', check if the stack is not empty. If so, append the character to the result. Then push the character onto the stack.
+- If the character is ')', pop from the stack. If the stack is not empty, append the character to the result.
+- Return the constructed result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeOuterParentheses(self, s: str) -&gt; str:\n        res = []\n        stack = []\n        for c in s:\n            if c == '(':\n                if stack:\n                    res.append(c)\n                stack.append(c)\n            else:\n                stack.pop()\n                if stack:\n                    res.append(c)\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeOuterParentheses(String s) {\n        StringBuilder sb = new StringBuilder();\n        java.util.Stack&lt;Character&gt; stack = new java.util.Stack&lt;&gt;();\n        for (char c : s.toCharArray()) {\n            if (c == '(') {\n                if (!stack.isEmpty()) sb.append(c);\n                stack.push(c);\n            } else {\n                stack.pop();\n                if (!stack.isEmpty()) sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeOuterParentheses(string s) {\n        string res;\n        std::stack&lt;char&gt; st;\n        for (char c : s) {\n            if (c == '(') {\n                if (!st.empty()) res.push_back(c);\n                st.push(c);\n            } else {\n                st.pop();\n                if (!st.empty()) res.push_back(c);\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeOuterParentheses = function(s) {\n    let res = [];\n    let stack = [];\n    for (let c of s) {\n        if (c === '(') {\n            if (stack.length &gt; 0) res.push(c);\n            stack.push(c);\n        } else {\n            stack.pop();\n            if (stack.length &gt; 0) res.push(c);\n        }\n    }\n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeOuterParentheses(s: string): string {\n    let res: string[] = [];\n    let stack: string[] = [];\n    for (let c of s) {\n        if (c === '(') {\n            if (stack.length &gt; 0) res.push(c);\n            stack.push(c);\n        } else {\n            stack.pop();\n            if (stack.length &gt; 0) res.push(c);\n        }\n    }\n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n) in the worst case for the stack.
+- Notes: While intuitive, the stack approach uses more memory than the counting approach, though both have linear time complexity.
+
+---
+## Approach 3: Primitive Decomposition
+
+**Intuition**
+We can identify the boundaries of each primitive string by tracking the balance of parentheses. When the balance returns to zero, we have found the end of a primitive. We then extract the substring excluding the first and last characters.
+
+**Steps**
+- Initialize a result list/string builder, a `start` index set to 0, and a `balance` counter set to 0.
+- Iterate through the string with an index.
+- Increment `balance` for '(' and decrement for ')'.
+- If `balance` becomes 0, we have reached the end of a primitive. Append the substring from `start + 1` to the current index (exclusive) to the result. Update `start` to the next index.
+- Return the joined result string.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def removeOuterParentheses(self, s: str) -&gt; str:\n        res = []\n        start = 0\n        bal = 0\n        for i, c in enumerate(s):\n            if c == '(':\n                bal += 1\n            else:\n                bal -= 1\n            if bal == 0:\n                res.append(s[start+1:i])\n                start = i + 1\n        return ''.join(res)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public String removeOuterParentheses(String s) {\n        StringBuilder sb = new StringBuilder();\n        int start = 0;\n        int bal = 0;\n        for (int i = 0; i &lt; s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == '(') {\n                bal++;\n            } else {\n                bal--;\n            }\n            if (bal == 0) {\n                sb.append(s.substring(start + 1, i));\n                start = i + 1;\n            }\n        }\n        return sb.toString();\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    string removeOuterParentheses(string s) {\n        string res;\n        int start = 0;\n        int bal = 0;\n        for (int i = 0; i &lt; s.size(); i++) {\n            if (s[i] == '(') {\n                bal++;\n            } else {\n                bal--;\n            }\n            if (bal == 0) {\n                res.append(s.substr(start + 1, i - start - 1));\n                start = i + 1;\n            }\n        }\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var removeOuterParentheses = function(s) {\n    let res = [];\n    let start = 0;\n    let bal = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '(') {\n            bal++;\n        } else {\n            bal--;\n        }\n        if (bal === 0) {\n            res.push(s.substring(start + 1, i));\n            start = i + 1;\n        }\n    }\n    return res.join('');\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function removeOuterParentheses(s: string): string {\n    let res: string[] = [];\n    let start = 0;\n    let bal = 0;\n    for (let i = 0; i &lt; s.length; i++) {\n        if (s[i] === '(') {\n            bal++;\n        } else {\n            bal--;\n        }\n        if (bal === 0) {\n            res.push(s.substring(start + 1, i));\n            start = i + 1;\n        }\n    }\n    return res.join('');\n}" },]} />
+
+**Complexity**
+- Time: O(n)
+- Space: O(n) for the result string.
+- Notes: This approach directly follows the problem definition of primitive decomposition but involves string slicing which can be slightly less efficient than character-by-character building in some languages.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Remove Outermost Parentheses Solutions","datePublished":"2025-06-27","description":"Remove the outermost parentheses from every primitive string in the decomposition of a valid parentheses string.","keywords":"LeetCode, Remove Outermost Parentheses, Easy, String, Stack"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the length of the string, as we iterate through the string once."}},{"@type":"Question","name":"What is the space complexity of the Counting approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) auxiliary space, excluding the space required for the output string."}},{"@type":"Question","name":"What is the time complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), as we process each character exactly once."}},{"@type":"Question","name":"What is the space complexity of the Stack approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) in the worst case to store the stack."}}]}).replace(/</g,'\u003c')}
+</script>

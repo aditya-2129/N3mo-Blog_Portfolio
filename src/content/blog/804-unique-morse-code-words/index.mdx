@@ -1,0 +1,116 @@
+---
+title: "Unique Morse Code Words"
+summary: "International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes. Given a list of words, translate each word into Morse code and return the number of unique transformations."
+date: "May 05, 2025"
+tags:
+  - Array
+  - Hash Table
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 83.60% | **Paid:** No
+> **Topics:** Array, Hash Table, String
+
+International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as follows:
+
+'a' maps to ".-", 'b' maps to "-...", 'c' maps to "-.-.", and so on.
+For convenience, the full table for the 26 letters of the English alphabet is given below:
+
+[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
+
+Given an array of strings words where each word is written in the English alphabet, return the number of different transformations among all words we have.
+
+- Examples
+- Constraints
+- [Hash Set](#hash-set)
+- [Brute Force List](#brute-force-list)
+
+## Examples
+
+```text
+Input: words = ["gin","zen","gig","msg"]
+Output: 2
+Explanation: 
+The transformation of each word is:
+"gin" -> "--...-."
+"zen" -> "--...-."
+"gig" -> "--...--."
+"msg" -> "--...--."
+There are 2 different transformations: "--...--." and "--...-.".
+```
+
+```text
+Input: words = ["a"]
+Output: 1
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 12
+words[i] consists of lowercase English letters.
+```
+
+---
+## Hash Set
+
+**Intuition**
+We can map each character in a word to its corresponding Morse code string using a predefined array. By concatenating these codes, we form the transformation for the word. To find the number of unique transformations, we can store each generated string in a Hash Set, which automatically handles uniqueness.
+
+**Steps**
+- Define the Morse code array for letters 'a' to 'z'.
+- Initialize an empty Hash Set to store unique transformations.
+- Iterate through each word in the input list.
+- For each word, iterate through its characters, look up the Morse code, and build the transformation string.
+- Add the resulting transformation string to the Set.
+- Return the size of the Set.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def uniqueMorseRepresentations(self, words: list[str]) -&gt; int:\n        morse_codes = [\".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n                        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n                        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n                        \"-.--\", \"--..\"]\n        \n        unique_transformations = set()\n        \n        for word in words:\n            transformation = \"\"\n            for char in word:\n                # Map 'a' to index 0, 'b' to 1, etc.\n                index = ord(char) - ord('a')\n                transformation += morse_codes[index]\n            unique_transformations.add(transformation)\n            \n        return len(unique_transformations)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int uniqueMorseRepresentations(String[] words) {\n        String[] morseCodes = new String[] {\n            \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n            \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n            \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n            \"-.--\", \"--..\"\n        };\n        \n        Set&lt;String&gt; seen = new HashSet&lt;&gt;();\n        \n        for (String word : words) {\n            StringBuilder transformation = new StringBuilder();\n            for (char c : word.toCharArray()) {\n                transformation.append(morseCodes[c - 'a']);\n            }\n            seen.add(transformation.toString());\n        }\n        \n        return seen.size();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int uniqueMorseRepresentations(vector&lt;string&gt;& words) {\n        vector&lt;string&gt; morseCodes = {\n            \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n            \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n            \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n            \"-.--\", \"--..\"\n        };\n        \n        unordered_set&lt;string&gt; seen;\n        \n        for (const string& word : words) {\n            string transformation;\n            for (char c : word) {\n                transformation += morseCodes[c - 'a'];\n            }\n            seen.insert(transformation);\n        }\n        \n        return seen.size();\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var uniqueMorseRepresentations = function(words) {\n    const morseCodes = [\n        \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n        \"-.--\", \"--..\"\n    ];\n    \n    const seen = new Set();\n    \n    for (const word of words) {\n        let transformation = \"\";\n        for (let i = 0; i &lt; word.length; i++) {\n            const charCode = word.charCodeAt(i) - 'a'.charCodeAt(0);\n            transformation += morseCodes[charCode];\n        }\n        seen.add(transformation);\n    }\n    \n    return seen.size;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function uniqueMorseRepresentations(words: string[]): number {\n    const morseCodes: string[] = [\n        \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n        \"-.--\", \"--..\"\n    ];\n    \n    const seen = new Set&lt;string&gt;();\n    \n    for (const word of words) {\n        let transformation = \"\";\n        for (let i = 0; i &lt; word.length; i++) {\n            const charCode = word.charCodeAt(i) - 'a'.charCodeAt(0);\n            transformation += morseCodes[charCode];\n        }\n        seen.add(transformation);\n    }\n    \n    return seen.size;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N * L) where N is the number of words and L is the average length of a word.
+- Space: O(N * L) to store the unique transformations in the set.
+- Notes: This is the most efficient approach for this problem.
+
+---
+## Brute Force List
+
+**Intuition**
+Instead of using a Hash Set, we can use a simple list or array to store the transformations. For each new transformation, we check if it already exists in the list. If it does not, we add it. This simulates the behavior of a Set without using built-in hashing.
+
+**Steps**
+- Define the Morse code array.
+- Initialize an empty list to store unique transformations.
+- Iterate through each word.
+- Build the Morse code string for the word.
+- Check if the string exists in the list.
+- If it does not exist, append it to the list.
+- Return the length of the list.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def uniqueMorseRepresentations(self, words: list[str]) -&gt; int:\n        morse_codes = [\".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n                        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n                        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n                        \"-.--\", \"--..\"]\n        \n        unique_transformations = []\n        \n        for word in words:\n            transformation = \"\"\n            for char in word:\n                index = ord(char) - ord('a')\n                transformation += morse_codes[index]\n            \n            if transformation not in unique_transformations:\n                unique_transformations.append(transformation)\n            \n        return len(unique_transformations)\n" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int uniqueMorseRepresentations(String[] words) {\n        String[] morseCodes = new String[] {\n            \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n            \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n            \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n            \"-.--\", \"--..\"\n        };\n        \n        List&lt;String&gt; seen = new ArrayList&lt;&gt;();\n        \n        for (String word : words) {\n            StringBuilder transformation = new StringBuilder();\n            for (char c : word.toCharArray()) {\n                transformation.append(morseCodes[c - 'a']);\n            }\n            String t = transformation.toString();\n            if (!seen.contains(t)) {\n                seen.add(t);\n            }\n        }\n        \n        return seen.size();\n    }\n}\n" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int uniqueMorseRepresentations(vector&lt;string&gt;& words) {\n        vector&lt;string&gt; morseCodes = {\n            \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n            \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n            \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n            \"-.--\", \"--..\"\n        };\n        \n        vector&lt;string&gt; seen;\n        \n        for (const string& word : words) {\n            string transformation;\n            for (char c : word) {\n                transformation += morseCodes[c - 'a'];\n            }\n            if (find(seen.begin(), seen.end(), transformation) == seen.end()) {\n                seen.push_back(transformation);\n            }\n        }\n        \n        return seen.size();\n    }\n};\n" },
+{ name: "JavaScript", lang: "javascript", code: "var uniqueMorseRepresentations = function(words) {\n    const morseCodes = [\n        \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n        \"-.--\", \"--..\"\n    ];\n    \n    const seen = [];\n    \n    for (const word of words) {\n        let transformation = \"\";\n        for (let i = 0; i &lt; word.length; i++) {\n            const charCode = word.charCodeAt(i) - 'a'.charCodeAt(0);\n            transformation += morseCodes[charCode];\n        }\n        if (!seen.includes(transformation)) {\n            seen.push(transformation);\n        }\n    }\n    \n    return seen.length;\n};\n" },
+{ name: "TypeScript", lang: "typescript", code: "function uniqueMorseRepresentations(words: string[]): number {\n    const morseCodes: string[] = [\n        \".-\", \"-...\", \"-.-.\", \"-..\", \".\", \"..-.\", \"--.\", \"....\", \n        \"..\", \".---\", \"-.-\", \".-..\", \"--\", \"-.\", \"---\", \".--.\", \n        \"--.-\", \".-.\", \"...\", \"-\", \"..-\", \"...-\", \".--\", \"-..-\", \n        \"-.--\", \"--..\"\n    ];\n    \n    const seen: string[] = [];\n    \n    for (const word of words) {\n        let transformation = \"\";\n        for (let i = 0; i &lt; word.length; i++) {\n            const charCode = word.charCodeAt(i) - 'a'.charCodeAt(0);\n            transformation += morseCodes[charCode];\n        }\n        if (!seen.includes(transformation)) {\n            seen.push(transformation);\n        }\n    }\n    \n    return seen.length;\n}\n" },]} />
+
+**Complexity**
+- Time: O(N² * L) in the worst case, where N is the number of words and L is the average length. Checking if a string exists in a list takes O(N) time.
+- Space: O(N * L) to store the transformations.
+- Notes: This approach is less efficient than using a Hash Set due to the linear search time for duplicates.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Unique Morse Code Words Solutions","datePublished":"2025-05-05","description":"International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes. Given a list of words, translate each word into Morse code and return the number of unique transformations.","keywords":"LeetCode, Unique Morse Code Words, Easy, Array, Hash Table, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of words and L is the average length of a word."}},{"@type":"Question","name":"What is the space complexity of the Hash Set approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(N * L) to store the unique transformations in the set."}},{"@type":"Question","name":"Why is the Brute Force List approach slower?","acceptedAnswer":{"@type":"Answer","text":"The Brute Force List approach is slower because checking for duplicates in a list takes O(N) time, leading to an overall complexity of O(N² * L) in the worst case."}}]}).replace(/</g,'\u003c')}
+</script>

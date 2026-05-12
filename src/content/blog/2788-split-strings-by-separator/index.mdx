@@ -1,0 +1,134 @@
+---
+title: "Split Strings by Separator"
+summary: "Given an array of strings and a separator character, split each string by the separator and return a 2D array of non-empty substrings."
+date: "Jan 17, 2025"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 76.10% | **Paid:** No
+> **Topics:** Array, String
+
+You are given an array of strings `words` and a character `separator`.
+
+Split each string in `words` by `separator`.
+
+Return a 2D array `result` containing the generated strings.
+
+If a resulting string is empty, do not include it.
+
+- Examples
+- Constraints
+- [Approach 1: Built-in Split Functions](#approach-1-built-in-split-functions)
+- [Approach 2: Manual Iteration](#approach-2-manual-iteration)
+
+## Examples
+
+**Example 1:**
+
+```text
+Input: words = ["one.two.three","four.five","six"], separator = "."
+Output: [["one","two","three"],["four","five"],["six"]]
+Explanation: 
+"one.two.three" is split by "." into ["one", "two", "three"].
+"four.five" is split by "." into ["four", "five"].
+"six" is split by "." into ["six"].
+```
+
+**Example 2:**
+
+```text
+Input: words = ["$easy$","$problem$"], separator = "$"
+Output: [["easy"],["problem"]]
+Explanation: 
+"$easy$" is split by "$" into ["", "easy", ""]. We only include "easy".
+"$problem$" is split by "$" into ["", "problem", ""]. We only include "problem".
+```
+
+**Example 3:**
+
+```text
+Input: words = ["|||"], separator = "|"
+Output: [[]]
+Explanation: 
+"|||" is split by "|" into ["", "", "", ""]. All strings are empty, so we return an empty array [].
+```
+
+## Constraints
+
+```text
+1 <= words.length <= 100
+1 <= words[i].length <= 20
+words[i] consists of lowercase English letters, uppercase English letters, and separator.
+separator is a character.
+```
+
+---
+
+## Approach 1: Built-in Split Functions
+
+**Intuition**
+Most modern programming languages provide a built-in method to split strings by a delimiter. We can iterate through the input list, apply the split function to each string, and filter out any empty strings that result from the split operation.
+
+**Steps**
+- Initialize an empty list `result` to store the final 2D array.
+- Iterate through each string `word` in the input list `words`.
+- Use the language's built-in split function to divide `word` by the `separator`.
+- Filter the resulting array/list to remove any empty strings.
+- Append the filtered list to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def splitWordsBySeparator(self, words: list[str], separator: str) -&gt; list[list[str]]:\n        result = []\n        for word in words:\n            # Split by separator and filter out empty strings\n            parts = [part for part in word.split(separator) if part]\n            result.append(parts)\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\nimport java.util.regex.Pattern;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; splitWordsBySeparator(List&lt;String&gt; words, char separator) {\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        // Pattern.quote is necessary because split accepts a regex.\n        // If separator is '.', it would split by any char without quoting.\n        String sep = Pattern.quote(String.valueOf(separator));\n        \n        for (String word : words) {\n            String[] parts = word.split(sep);\n            List&lt;String&gt; filtered = new ArrayList&lt;&gt;();\n            for (String part : parts) {\n                if (!part.isEmpty()) {\n                    filtered.add(part);\n                }\n            }\n            result.add(filtered);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n#include &lt;sstream&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; splitWordsBySeparator(vector&lt;string&gt;& words, char separator) {\n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (const string& word : words) {\n            vector&lt;string&gt; parts;\n            stringstream ss(word);\n            string token;\n            // Use getline with the separator as a delimiter\n            while (getline(ss, token, separator)) {\n                if (!token.empty()) {\n                    parts.push_back(token);\n                }\n            }\n            result.push_back(parts);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @param {character} separator\n * @return {string[][]}\n */\nvar splitWordsBySeparator = function(words, separator) {\n    const result = [];\n    for (const word of words) {\n        // Split by separator and filter out empty strings\n        const parts = word.split(separator).filter(part =&gt; part.length &gt; 0);\n        result.push(parts);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function splitWordsBySeparator(words: string[], separator: string): string[][] {\n    const result: string[][] = [];\n    for (const word of words) {\n        // Split by separator and filter out empty strings\n        const parts = word.split(separator).filter(part =&gt; part.length &gt; 0);\n        result.push(parts);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of words and L is the average length of a word. Splitting a string and iterating over its parts takes linear time relative to the string length.
+- Space: O(N * L) to store the resulting 2D array.
+- Notes: This approach is concise and leverages optimized standard library functions. In Java, care must be taken to escape the separator if it is a regex metacharacter.
+
+---
+
+## Approach 2: Manual Iteration
+
+**Intuition**
+We can manually iterate through each character of every string to build the substrings ourselves. This avoids the overhead of regular expressions (in languages like Java) or creating intermediate arrays, offering fine-grained control over the splitting process.
+
+**Steps**
+- Initialize an empty list `result`.
+- Iterate through each string `word` in `words`.
+- Initialize an empty list `currentParts` and an empty string `currentWord`.
+- Iterate through each character `c` in `word`:
+    - If `c` matches the `separator`:
+        - If `currentWord` is not empty, add it to `currentParts`.
+        - Reset `currentWord` to an empty string.
+    - Otherwise, append `c` to `currentWord`.
+- After the loop finishes, check if `currentWord` is not empty. If so, add it to `currentParts` (to handle the last segment).
+- Append `currentParts` to `result`.
+- Return `result`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def splitWordsBySeparator(self, words: list[str], separator: str) -&gt; list[list[str]]:\n        result = []\n        for word in words:\n            current_parts = []\n            current_word = []\n            for char in word:\n                if char == separator:\n                    if current_word:\n                        current_parts.append(''.join(current_word))\n                        current_word = []\n                else:\n                    current_word.append(char)\n            # Add the last segment if it exists\n            if current_word:\n                current_parts.append(''.join(current_word))\n            result.append(current_parts)\n        return result" },
+{ name: "Java", lang: "java", code: "import java.util.*;\n\nclass Solution {\n    public List&lt;List&lt;String&gt;&gt; splitWordsBySeparator(List&lt;String&gt; words, char separator) {\n        List&lt;List&lt;String&gt;&gt; result = new ArrayList&lt;&gt;();\n        \n        for (String word : words) {\n            List&lt;String&gt; currentParts = new ArrayList&lt;&gt;();\n            StringBuilder currentWord = new StringBuilder();\n            \n            for (int i = 0; i &lt; word.length(); i++) {\n                char c = word.charAt(i);\n                if (c == separator) {\n                    if (currentWord.length() &gt; 0) {\n                        currentParts.add(currentWord.toString());\n                        currentWord.setLength(0);\n                    }\n                } else {\n                    currentWord.append(c);\n                }\n            }\n            // Add the last segment if it exists\n            if (currentWord.length() &gt; 0) {\n                currentParts.add(currentWord.toString());\n            }\n            result.add(currentParts);\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\n\nusing namespace std;\n\nclass Solution {\npublic:\n    vector&lt;vector&lt;string&gt;&gt; splitWordsBySeparator(vector&lt;string&gt;& words, char separator) {\n        vector&lt;vector&lt;string&gt;&gt; result;\n        for (const string& word : words) {\n            vector&lt;string&gt; currentParts;\n            string currentWord;\n            \n            for (char c : word) {\n                if (c == separator) {\n                    if (!currentWord.empty()) {\n                        currentParts.push_back(currentWord);\n                        currentWord.clear();\n                    }\n                } else {\n                    currentWord += c;\n                }\n            }\n            // Add the last segment if it exists\n            if (!currentWord.empty()) {\n                currentParts.push_back(currentWord);\n            }\n            result.push_back(currentParts);\n        }\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string[]} words\n * @param {character} separator\n * @return {string[][]}\n */\nvar splitWordsBySeparator = function(words, separator) {\n    const result = [];\n    for (const word of words) {\n        const currentParts = [];\n        let currentWord = '';\n        \n        for (const char of word) {\n            if (char === separator) {\n                if (currentWord.length &gt; 0) {\n                    currentParts.push(currentWord);\n                    currentWord = '';\n                }\n            } else {\n                currentWord += char;\n            }\n        }\n        // Add the last segment if it exists\n        if (currentWord.length &gt; 0) {\n            currentParts.push(currentWord);\n        }\n        result.push(currentParts);\n    }\n    return result;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function splitWordsBySeparator(words: string[], separator: string): string[][] {\n    const result: string[][] = [];\n    for (const word of words) {\n        const currentParts: string[] = [];\n        let currentWord: string = '';\n        \n        for (const char of word) {\n            if (char === separator) {\n                if (currentWord.length &gt; 0) {\n                    currentParts.push(currentWord);\n                    currentWord = '';\n                }\n            } else {\n                currentWord += char;\n            }\n        }\n        // Add the last segment if it exists\n        if (currentWord.length &gt; 0) {\n            currentParts.push(currentWord);\n        }\n        result.push(currentParts);\n    }\n    return result;\n}" },]} />
+
+**Complexity**
+- Time: O(N * L), where N is the number of words and L is the average length of a word. We visit each character exactly once.
+- Space: O(N * L) to store the output. In the worst case (no separators), the output size is proportional to the input size.
+- Notes: This approach is generally more efficient in languages where string splitting involves regex or heavy memory allocation, as it allows for single-pass processing.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Split Strings by Separator Solutions","datePublished":"2025-01-17","description":"Given an array of strings and a separator character, split each string by the separator and return a 2D array of non-empty substrings.","keywords":"LeetCode, Split Strings by Separator, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of splitting strings by separator?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(N * L), where N is the number of words and L is the average length of the words, as we must process every character."}},{"@type":"Question","name":"Why does the Java solution use Pattern.quote?","acceptedAnswer":{"@type":"Answer","text":"Java's String.split() method accepts a regular expression. If the separator is a special regex character (like '.' or '|'), it must be escaped using Pattern.quote to be treated as a literal character."}},{"@type":"Question","name":"How are empty strings handled in the result?","acceptedAnswer":{"@type":"Answer","text":"According to the problem statement, if a resulting string is empty after splitting, it should not be included in the final 2D array."}}]}).replace(/</g,'\u003c')}
+</script>

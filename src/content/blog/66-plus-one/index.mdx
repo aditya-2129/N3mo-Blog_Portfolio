@@ -1,0 +1,139 @@
+---
+title: "Plus One"
+summary: "Increment the large integer represented as an integer array by one and return the resulting array of digits."
+date: "Mar 13, 2024"
+tags:
+  - Array
+  - Math
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 49.90% | **Paid:** No
+> **Topics:** Array, Math
+
+You are given a large integer represented as an integer array digits, where each digits[i] is the ith digit of the integer. The digits are ordered from most significant to least significant in left-to-right order. The large integer does not contain any leading 0's, except for the number 0 itself.
+
+Increment the large integer by one and return the resulting array of digits.
+
+- Examples
+- Constraints
+- [Approach 1: Elementary Math](#approach-1-elementary-math)
+- [Approach 2: Recursive Solution](#approach-2-recursive-solution)
+- [Approach 3: String Conversion](#approach-3-string-conversion)
+
+## Examples
+
+```text
+Input: digits = [1,2,3]
+Output: [1,2,4]
+Explanation: The array represents the integer 123.
+Incrementing by one gives 123 -> 124.
+Thus, the result should be [1,2,4].
+```
+
+```text
+Input: digits = [4,3,2,1]
+Output: [4,3,2,2]
+Explanation: The array represents the integer 4321.
+Incrementing by one gives 4321 -> 4322.
+Thus, the result should be [4,3,2,2].
+```
+
+```text
+Input: digits = [9]
+Output: [1,0]
+Explanation: The array represents the integer 9.
+Incrementing by one gives 9 -> 10.
+Thus, the result should be [1,0].
+```
+
+## Constraints
+
+```text
+1 <= digits.length <= 100
+0 <= digits[i] <= 9
+digits does not contain any leading 0's, except for the number 0 itself.
+```
+
+---
+## Approach 1: Elementary Math
+
+**Intuition**
+We simulate the process of adding one starting from the least significant digit (the end of the array). If a digit becomes 10 after adding one, we set it to 0 and carry the 1 to the next more significant digit.
+
+**Steps**
+- Iterate through the array from the last element to the first.
+- Add 1 to the current digit.
+- If the digit is less than 10, return the array immediately as no further carry is needed.
+- If the digit is 10, set it to 0 and continue the loop to carry the 1 to the next iteration.
+- If the loop completes without returning, it means all digits were 9 (e.g., 99 becomes 100). In this case, insert a 1 at the beginning of the array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def plusOne(self, digits: list[int]) -&gt; list[int]:\n        n = len(digits)\n        for i in range(n - 1, -1, -1):\n            if digits[i] &lt; 9:\n                digits[i] += 1\n                return digits\n            digits[i] = 0\n        return [1] + digits" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] plusOne(int[] digits) {\n        for (int i = digits.length - 1; i &gt;= 0; i--) {\n            if (digits[i] &lt; 9) {\n                digits[i]++;\n                return digits;\n            }\n            digits[i] = 0;\n        }\n        int[] newDigits = new int[digits.length + 1];\n        newDigits[0] = 1;\n        return newDigits;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; plusOne(vector&lt;int&gt;& digits) {\n        for (int i = digits.size() - 1; i &gt;= 0; i--) {\n            if (digits[i] &lt; 9) {\n                digits[i]++;\n                return digits;\n            }\n            digits[i] = 0;\n        }\n        digits.insert(digits.begin(), 1);\n        return digits;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function plusOne(digits) {\n    for (let i = digits.length - 1; i &gt;= 0; i--) {\n        if (digits[i] &lt; 9) {\n            digits[i]++;\n            return digits;\n        }\n        digits[i] = 0;\n    }\n    return [1, ...digits];\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function plusOne(digits: number[]): number[] {\n    for (let i = digits.length - 1; i &gt;= 0; i--) {\n        if (digits[i] &lt; 9) {\n            digits[i]++;\n            return digits;\n        }\n        digits[i] = 0;\n    }\n    return [1, ...digits];\n}" },]} />
+
+**Complexity**
+- Time: O(n), where n is the number of digits. In the worst case (e.g., 999), we iterate through the entire array.
+- Space: O(1) if we modify the array in-place, or O(n) if we create a new array in the case of all 9s (depending on language implementation).
+- Notes: This is the most optimal approach for this problem.
+
+---
+## Approach 2: Recursive Solution
+
+**Intuition**
+We can solve this problem recursively by processing the array from the end towards the beginning. If the last digit is less than 9, we simply increment it. If it is 9, we set it to 0 and recursively call the function on the subarray excluding the last digit.
+
+**Steps**
+- Define a recursive helper function that takes the array (or a reference to it and an index).
+- Base case: If the array is empty (or index is out of bounds), it means we have carried over past the most significant digit (e.g., 99 -> 100). Return a new array starting with 1.
+- Check the last element of the current scope.
+- If it is less than 9, increment it and return the result.
+- If it is 9, set it to 0 and return the result of the recursive call on the rest of the array, appending the 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def plusOne(self, digits: list[int]) -&gt; list[int]:\n        if not digits:\n            return [1]\n        if digits[-1] &lt; 9:\n            digits[-1] += 1\n            return digits\n        else:\n            digits[-1] = 0\n            return self.plusOne(digits[:-1]) + [0]" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int[] plusOne(int[] digits) {\n        return helper(digits, digits.length - 1);\n    }\n    \n    private int[] helper(int[] digits, int index) {\n        if (index &lt; 0) {\n            int[] res = new int[digits.length + 1];\n            res[0] = 1;\n            return res;\n        }\n        if (digits[index] &lt; 9) {\n            digits[index]++;\n            return digits;\n        } else {\n            digits[index] = 0;\n            return helper(digits, index - 1);\n        }\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; plusOne(vector&lt;int&gt;& digits) {\n        return helper(digits, digits.size() - 1);\n    }\n    \n    vector&lt;int&gt; helper(vector&lt;int&gt;& digits, int index) {\n        if (index &lt; 0) {\n            digits.insert(digits.begin(), 1);\n            return digits;\n        }\n        if (digits[index] &lt; 9) {\n            digits[index]++;\n            return digits;\n        } else {\n            digits[index] = 0;\n            return helper(digits, index - 1);\n        }\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function plusOne(digits) {\n    function helper(idx) {\n        if (idx &lt; 0) {\n            digits.unshift(1);\n            return;\n        }\n        if (digits[idx] &lt; 9) {\n            digits[idx]++;\n            return;\n        } else {\n            digits[idx] = 0;\n            helper(idx - 1);\n        }\n    }\n    helper(digits.length - 1);\n    return digits;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function plusOne(digits: number[]): number[] {\n    function helper(idx: number): void {\n        if (idx &lt; 0) {\n            digits.unshift(1);\n            return;\n        }\n        if (digits[idx] &lt; 9) {\n            digits[idx]++;\n            return;\n        } else {\n            digits[idx] = 0;\n            helper(idx - 1);\n        }\n    }\n    helper(digits.length - 1);\n    return digits;\n}" },]} />
+
+**Complexity**
+- Time: O(n), as we may traverse the entire array in the worst case.
+- Space: O(n) for the recursion stack in the worst case (e.g., 999...9).
+- Notes: While elegant, the recursive approach uses more stack memory than the iterative approach and is generally not preferred for simple array iterations in production.
+
+---
+## Approach 3: String Conversion
+
+**Intuition**
+We can convert the array of digits into a string, parse that string into a large integer, add one to it, and then convert the result back into an array of digits. This leverages built-in language features for arithmetic and type conversion.
+
+**Steps**
+- Join the elements of the integer array into a single string.
+- Convert the string to a numeric type capable of handling large integers (e.g., Python int, Java BigInteger, JavaScript BigInt).
+- Add 1 to the numeric value.
+- Convert the resulting number back to a string.
+- Split the string into individual characters and map them back to integers to form the result array.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def plusOne(self, digits: list[int]) -&gt; list[int]:\n        num_str = ''.join(map(str, digits))\n        num = int(num_str) + 1\n        return [int(d) for d in str(num)]" },
+{ name: "Java", lang: "java", code: "import java.math.BigInteger;\n\nclass Solution {\n    public int[] plusOne(int[] digits) {\n        StringBuilder sb = new StringBuilder();\n        for (int digit : digits) {\n            sb.append(digit);\n        }\n        BigInteger num = new BigInteger(sb.toString()).add(BigInteger.ONE);\n        String res = num.toString();\n        int[] result = new int[res.length()];\n        for (int i = 0; i &lt; res.length(); i++) {\n            result[i] = res.charAt(i) - '0';\n        }\n        return result;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    vector&lt;int&gt; plusOne(vector&lt;int&gt;& digits) {\n        string s;\n        for (int d : digits) s += to_string(d);\n        int carry = 1;\n        for (int i = s.size() - 1; i &gt;= 0; i--) {\n            int sum = (s[i] - '0') + carry;\n            s[i] = (sum % 10) + '0';\n            carry = sum / 10;\n        }\n        if (carry &gt; 0) {\n            s.insert(s.begin(), '1');\n        }\n        vector&lt;int&gt; result;\n        for (char c : s) result.push_back(c - '0');\n        return result;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "function plusOne(digits) {\n    const numStr = digits.join('');\n    const num = BigInt(numStr) + 1n;\n    const resultStr = num.toString();\n    return resultStr.split('').map(Number);\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function plusOne(digits: number[]): number[] {\n    const numStr: string = digits.join('');\n    const num: bigint = BigInt(numStr) + 1n;\n    const resultStr: string = num.toString();\n    return resultStr.split('').map((c) =&gt; Number(c));\n}" },]} />
+
+**Complexity**
+- Time: O(n) for joining and splitting strings, though the underlying arithmetic operation may vary in cost depending on the size of the integer (up to 10¹⁰⁰).
+- Space: O(n) to store the string representations of the numbers.
+- Notes: This approach is often slower and uses more memory than the elementary math approach due to string manipulation overhead. It also requires handling large integers (BigInt) to avoid overflow errors.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Plus One Solutions","datePublished":"2024-03-13","description":"Increment the large integer represented as an integer array by one and return the resulting array of digits.","keywords":"LeetCode, Plus One, Easy, Array, Math"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Elementary Math approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n), where n is the number of digits, as we may traverse the entire array in the worst case."}},{"@type":"Question","name":"What is the space complexity of the Recursive Solution?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) due to the recursion stack depth in the worst case (e.g., 999...9)."}},{"@type":"Question","name":"Is the String Conversion approach efficient?","acceptedAnswer":{"@type":"Answer","text":"It is generally less efficient due to string parsing and conversion overhead, and it requires handling large integers (BigInt) to avoid overflow."}}]}).replace(/</g,'\u003c')}
+</script>

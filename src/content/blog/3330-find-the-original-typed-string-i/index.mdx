@@ -1,0 +1,135 @@
+---
+title: "Find the Original Typed String I"
+summary: "Determine if a typed string is a valid expansion of a target string with repeated characters, returning the total key presses or 0."
+date: "Feb 14, 2024"
+tags:
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 72.00% | **Paid:** No
+> **Topics:** String
+
+Alice is trying to type a string target. She might have typed some characters multiple times. Given typed and target, return the maximum number of times she could have pressed a key to get typed from target. If it is impossible to get typed from target, return 0.
+
+- Examples
+- Constraints
+- [Two Pointers](#two-pointers)
+- [Run-Length Encoding](#run-length-encoding)
+- [Recursive Depth First Search](#recursive-depth-first-search)
+
+## Examples
+
+Example 1:
+```text
+Input: target = "abcd", typed = "aaabbbcccddd"
+Output: 12
+Explanation: 'a' pressed 3 times, 'b' pressed 3 times, 'c' pressed 3 times, 'd' pressed 3 times. Total 12.
+```
+
+Example 2:
+```text
+Input: target = "abcd", typed = "aaabbbcccdd"
+Output: 0
+Explanation: 'd' is not pressed enough times to match the target's requirement or structure implies mismatch.
+```
+
+Example 3:
+```text
+Input: target = "a", typed = "aaaaaaaaaaaaa"
+Output: 13
+Explanation: 'a' pressed 13 times.
+```
+
+## Constraints
+
+```text
+1 <= target.length, typed.length <= 1000
+target and typed consist of lowercase English letters.
+```
+
+---
+## Two Pointers
+
+**Intuition**
+We can iterate through both strings simultaneously using two pointers. If characters match, we advance both. If they don't match, we check if the current character in `typed` is a repeat of the previous valid character. If it is, we only advance the `typed` pointer. Otherwise, the strings are incompatible.
+
+**Steps**
+- Initialize pointers `i` for `target` and `j` for `typed`.
+- Loop while `j` is within bounds of `typed`.
+- If `target[i]` matches `typed[j]`, increment both `i` and `j`.
+- Else if `typed[j]` matches `typed[j-1]` (and `j &gt; 0`), increment `j` (it's a long press).
+- Else, return 0 (invalid character).
+- After the loop, if `i` has reached the end of `target`, return `len(typed)`. Otherwise, return 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def possibleStringCount(self, target: str, typed: str) -&gt; int:\n        i = 0\n        for j in range(len(typed)):\n            if i &lt; len(target) and target[i] == typed[j]:\n                i += 1\n            elif j == 0 or typed[j] != typed[j-1]:\n                return 0\n        return len(typed) if i == len(target) else 0" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int possibleStringCount(String target, String typed) {\n        int i = 0;\n        for (int j = 0; j &lt; typed.length(); j++) {\n            if (i &lt; target.length() && target.charAt(i) == typed.charAt(j)) {\n                i++;\n            } else if (j == 0 || typed.charAt(j) != typed.charAt(j - 1)) {\n                return 0;\n            }\n        }\n        return i == target.length() ? typed.length() : 0;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int possibleStringCount(string target, string typed) {\n        int i = 0;\n        for (int j = 0; j &lt; typed.size(); ++j) {\n            if (i &lt; target.size() && target[i] == typed[j]) {\n                i++;\n            } else if (j == 0 || typed[j] != typed[j - 1]) {\n                return 0;\n            }\n        }\n        return i == target.size() ? typed.size() : 0;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} target\n * @param {string} typed\n * @return {number}\n */\nvar possibleStringCount = function(target, typed) {\n    let i = 0;\n    for (let j = 0; j &lt; typed.length; j++) {\n        if (i &lt; target.length && target[i] === typed[j]) {\n            i++;\n        } else if (j === 0 || typed[j] !== typed[j - 1]) {\n            return 0;\n        }\n    }\n    return i === target.length ? typed.length : 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function possibleStringCount(target: string, typed: string): number {\n    let i = 0;\n    for (let j = 0; j &lt; typed.length; j++) {\n        if (i &lt; target.length && target[i] === typed[j]) {\n            i++;\n        } else if (j === 0 || typed[j] !== typed[j - 1]) {\n            return 0;\n        }\n    }\n    return i === target.length ? typed.length : 0;\n}" }]} />
+
+**Complexity**
+- Time: O(n + m), where n and m are the lengths of `target` and `typed`.
+- Space: O(1)
+- Notes: Most efficient approach with constant space.
+
+---
+## Run-Length Encoding
+
+**Intuition**
+We can compress both strings into groups of consecutive characters (Run-Length Encoding). Then, we compare the groups. For the strings to be compatible, they must have the same sequence of characters, and the count in `typed` must be greater than or equal to the count in `target` for each character.
+
+**Steps**
+- Create a helper function to generate a list of `[char, count]` pairs for a string.
+- Generate groups for `target` and `typed`.
+- If the number of groups differs, return 0.
+- Iterate through corresponding groups. If characters differ or `typed` count is less than `target` count, return 0.
+- If all checks pass, return `len(typed)`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def possibleStringCount(self, target: str, typed: str) -&gt; int:\n        def get_groups(s):\n            if not s: return []\n            groups = []\n            curr = s[0]\n            cnt = 1\n            for c in s[1:]:\n                if c == curr:\n                    cnt += 1\n                else:\n                    groups.append((curr, cnt))\n                    curr = c\n                    cnt = 1\n            groups.append((curr, cnt))\n            return groups\n\n        g1 = get_groups(target)\n        g2 = get_groups(typed)\n\n        if len(g1) != len(g2):\n            return 0\n\n        for (c1, n1), (c2, n2) in zip(g1, g2):\n            if c1 != c2 or n2 &lt; n1:\n                return 0\n        return len(typed)" },
+{ name: "Java", lang: "java", code: "import java.util.ArrayList;\nimport java.util.List;\n\nclass Solution {\n    public int possibleStringCount(String target, String typed) {\n        List&lt;int[]&gt; g1 = getGroups(target);\n        List&lt;int[]&gt; g2 = getGroups(typed);\n\n        if (g1.size() != g2.size()) {\n            return 0;\n        }\n\n        for (int i = 0; i &lt; g1.size(); i++) {\n            int[] group1 = g1.get(i);\n            int[] group2 = g2.get(i);\n            if (group1[0] != group2[0] || group2[1] &lt; group1[1]) {\n                return 0;\n            }\n        }\n        return typed.length();\n    }\n\n    private List&lt;int[]&gt; getGroups(String s) {\n        List&lt;int[]&gt; groups = new ArrayList&lt;&gt;();\n        if (s.isEmpty()) return groups;\n        char curr = s.charAt(0);\n        int cnt = 1;\n        for (int i = 1; i &lt; s.length(); i++) {\n            if (s.charAt(i) == curr) {\n                cnt++;\n            } else {\n                groups.add(new int[]{curr, cnt});\n                curr = s.charAt(i);\n                cnt = 1;\n            }\n        }\n        groups.add(new int[]{curr, cnt});\n        return groups;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;vector&gt;\n#include &lt;string&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    int possibleStringCount(string target, string typed) {\n        vector&lt;pair&lt;char, int&gt;&gt; g1 = getGroups(target);\n        vector&lt;pair&lt;char, int&gt;&gt; g2 = getGroups(typed);\n\n        if (g1.size() != g2.size()) return 0;\n\n        for (int i = 0; i &lt; g1.size(); ++i) {\n            if (g1[i].first != g2[i].first || g2[i].second &lt; g1[i].second) {\n                return 0;\n            }\n        }\n        return typed.size();\n    }\n\nprivate:\n    vector&lt;pair&lt;char, int&gt;&gt; getGroups(const string& s) {\n        vector&lt;pair&lt;char, int&gt;&gt; groups;\n        if (s.empty()) return groups;\n        char curr = s[0];\n        int cnt = 1;\n        for (size_t i = 1; i &lt; s.size(); ++i) {\n            if (s[i] == curr) {\n                cnt++;\n            } else {\n                groups.emplace_back(curr, cnt);\n                curr = s[i];\n                cnt = 1;\n            }\n        }\n        groups.emplace_back(curr, cnt);\n        return groups;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} target\n * @param {string} typed\n * @return {number}\n */\nvar possibleStringCount = function(target, typed) {\n    const getGroups = (s) =&gt; {\n        if (!s) return [];\n        const groups = [];\n        let curr = s[0];\n        let cnt = 1;\n        for (let i = 1; i &lt; s.length; i++) {\n            if (s[i] === curr) {\n                cnt++;\n            } else {\n                groups.push([curr, cnt]);\n                curr = s[i];\n                cnt = 1;\n            }\n        }\n        groups.push([curr, cnt]);\n        return groups;\n    };\n\n    const g1 = getGroups(target);\n    const g2 = getGroups(typed);\n\n    if (g1.length !== g2.length) return 0;\n\n    for (let i = 0; i &lt; g1.length; i++) {\n        if (g1[i][0] !== g2[i][0] || g2[i][1] &lt; g1[i][1]) {\n            return 0;\n        }\n    }\n    return typed.length;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "type Group = [string, number];\n\nfunction possibleStringCount(target: string, typed: string): number {\n    const getGroups = (s: string): Group[] =&gt; {\n        if (!s) return [];\n        const groups: Group[] = [];\n        let curr = s[0];\n        let cnt = 1;\n        for (let i = 1; i &lt; s.length; i++) {\n            if (s[i] === curr) {\n                cnt++;\n            } else {\n                groups.push([curr, cnt]);\n                curr = s[i];\n                cnt = 1;\n            }\n        }\n        groups.push([curr, cnt]);\n        return groups;\n    };\n\n    const g1 = getGroups(target);\n    const g2 = getGroups(typed);\n\n    if (g1.length !== g2.length) return 0;\n\n    for (let i = 0; i &lt; g1.length; i++) {\n        if (g1[i][0] !== g2[i][0] || g2[i][1] &lt; g1[i][1]) {\n            return 0;\n        }\n    }\n    return typed.length;\n}" }]} />
+
+**Complexity**
+- Time: O(n + m)
+- Space: O(n + m) to store the groups.
+- Notes: More memory intensive but conceptually simple by breaking down the structure.
+
+---
+## Recursive Depth First Search
+
+**Intuition**
+We can define a recursive function that checks if the remaining suffixes of `target` and `typed` are compatible. At each step, we try to match the current characters or consume a repeated character in `typed`.
+
+**Steps**
+- Define a recursive function `dfs(i, j)` where `i` is index in `target` and `j` is index in `typed`.
+- Base case: if `i` reaches end of `target` and `j` reaches end of `typed`, return true.
+- If `j` reaches end of `typed` but `i` does not, return false.
+- If `target[i] == typed[j]`, recurse with `dfs(i + 1, j + 1)`.
+- If `typed[j] == typed[j-1]` (long press), recurse with `dfs(i, j + 1)`.
+- If neither works, return false.
+- If the top-level call returns true, return `len(typed)`, else 0.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def possibleStringCount(self, target: str, typed: str) -&gt; int:\n        memo = {}\n        def dfs(i, j):\n            if i == len(target) and j == len(typed):\n                return True\n            if j == len(typed):\n                return False\n            \n            if (i, j) in memo:\n                return memo[(i, j)]\n            \n            res = False\n            if i &lt; len(target) and target[i] == typed[j]:\n                res = dfs(i + 1, j + 1)\n            if not res and j &gt; 0 and typed[j] == typed[j-1]:\n                res = dfs(i, j + 1)\n            \n            memo[(i, j)] = res\n            return res\n\n        return len(typed) if dfs(0, 0) else 0" },
+{ name: "Java", lang: "java", code: "import java.util.HashMap;\nimport java.util.Map;\n\nclass Solution {\n    private String target, typed;\n    private Map&lt;String, Boolean&gt; memo = new HashMap&lt;&gt;();\n\n    public int possibleStringCount(String target, String typed) {\n        this.target = target;\n        this.typed = typed;\n        return dfs(0, 0) ? typed.length() : 0;\n    }\n\n    private boolean dfs(int i, int j) {\n        if (i == target.length() && j == typed.length()) return true;\n        if (j == typed.length()) return false;\n\n        String key = i + \",\" + j;\n        if (memo.containsKey(key)) return memo.get(key);\n\n        boolean res = false;\n        if (i &lt; target.length() && target.charAt(i) == typed.charAt(j)) {\n            res = dfs(i + 1, j + 1);\n        }\n        if (!res && j &gt; 0 && typed.charAt(j) == typed.charAt(j - 1)) {\n            res = dfs(i, j + 1);\n        }\n\n        memo.put(key, res);\n        return res;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "#include &lt;string&gt;\n#include &lt;unordered_map&gt;\nusing namespace std;\n\nclass Solution {\npublic:\n    string target, typed;\n    unordered_map&lt;string, bool&gt; memo;\n\n    int possibleStringCount(string target, string typed) {\n        this-&gt;target = target;\n        this-&gt;typed = typed;\n        return dfs(0, 0) ? typed.size() : 0;\n    }\n\n    bool dfs(int i, int j) {\n        if (i == target.size() && j == typed.size()) return true;\n        if (j == typed.size()) return false;\n\n        string key = to_string(i) + \",\" + to_string(j);\n        if (memo.count(key)) return memo[key];\n\n        bool res = false;\n        if (i &lt; target.size() && target[i] == typed[j]) {\n            res = dfs(i + 1, j + 1);\n        }\n        if (!res && j &gt; 0 && typed[j] == typed[j - 1]) {\n            res = dfs(i, j + 1);\n        }\n\n        memo[key] = res;\n        return res;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "/**\n * @param {string} target\n * @param {string} typed\n * @return {number}\n */\nvar possibleStringCount = function(target, typed) {\n    const memo = new Map();\n    \n    const dfs = (i, j) =&gt; {\n        if (i === target.length && j === typed.length) return true;\n        if (j === typed.length) return false;\n        \n        const key = i + \",\" + j;\n        if (memo.has(key)) return memo.get(key);\n        \n        let res = false;\n        if (i &lt; target.length && target[i] === typed[j]) {\n            res = dfs(i + 1, j + 1);\n        }\n        if (!res && j &gt; 0 && typed[j] === typed[j - 1]) {\n            res = dfs(i, j + 1);\n        }\n        \n        memo.set(key, res);\n        return res;\n    };\n    \n    return dfs(0, 0) ? typed.length : 0;\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function possibleStringCount(target: string, typed: string): number {\n    const memo = new Map&lt;string, boolean&gt;();\n    \n    const dfs = (i: number, j: number): boolean =&gt; {\n        if (i === target.length && j === typed.length) return true;\n        if (j === typed.length) return false;\n        \n        const key = i + \",\" + j;\n        if (memo.has(key)) return memo.get(key)!;\n        \n        let res = false;\n        if (i &lt; target.length && target[i] === typed[j]) {\n            res = dfs(i + 1, j + 1);\n        }\n        if (!res && j &gt; 0 && typed[j] === typed[j - 1]) {\n            res = dfs(i, j + 1);\n        }\n        \n        memo.set(key, res);\n        return res;\n    };\n    \n    return dfs(0, 0) ? typed.length : 0;\n}" }]} />
+
+**Complexity**
+- Time: O(n * m) in the worst case without memoization, O(n + m) with memoization.
+- Space: O(n * m) for the recursion stack and memoization table.
+- Notes: Less efficient than the iterative two-pointer approach due to overhead.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Find the Original Typed String I Solutions","datePublished":"2024-02-14","description":"Determine if a typed string is a valid expansion of a target string with repeated characters, returning the total key presses or 0.","keywords":"LeetCode, Find the Original Typed String I, Easy, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the Two Pointers approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n + m), where n and m are the lengths of the target and typed strings."}},{"@type":"Question","name":"What is the space complexity of the Run-Length Encoding approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n + m) to store the character groups for both strings."}},{"@type":"Question","name":"Why is the Recursive approach less efficient?","acceptedAnswer":{"@type":"Answer","text":"The Recursive approach has higher space complexity O(n * m) due to the memoization table and recursion stack overhead compared to the O(1) space of the iterative Two Pointers method."}}]}).replace(/</g,'\u003c')}
+</script>

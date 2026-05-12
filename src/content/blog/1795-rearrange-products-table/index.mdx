@@ -1,0 +1,899 @@
+---
+title: "Rearrange Products Table"
+summary: "Transform a products table with store columns into rows of product-store pairs."
+date: "Apr 21, 2024"
+tags:
+  - Database
+  - SQL
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 85.50% | **Paid:** No
+> **Topics:** Database
+
+## Problem Description
+
+Table: Products
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| product_id  | int     |
+| store1      | int     |
+| store2      | int     |
+| store3      | int     |
++-------------+---------+
+product_id is the primary key (column with unique values) of this table.
+Each row of this table indicates the product's price in 3 different stores: store1, store2, and store3.
+If the product is not available in a store, the price will be null in that store's column.
+
+Write a solution to rearrange the Products table so that each row has (product_id, store, price). If a product is not available in a store, the row should not be included in the result.
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+## Table of Contents
+
+- Examples
+- Constraints
+- [UNION ALL Approach](#union-all-approach)
+- [CASE WHEN with GROUP BY Approach](#case-when-with-group-by-approach)
+- [UNPIVOT Approach](#unpivot-approach)
+- [CROSS JOIN/UNION Approach](#cross-joinunion-approach)
+
+## Examples
+
+### Example 1:
+
+**Input:**
+
+Products table:
++------------+--------+--------+--------+
+| product_id | store1 | store2 | store3 |
++------------+--------+--------+--------+
+| 0          | 95     | 100    | 105    |
+| 1          | 70     | null   | 80     |
++------------+--------+--------+--------+
+
+**Output:**
+
++------------+--------+-------+
+| product_id | store  | price |
++------------+--------+-------+
+| 0          | store1 | 95    |
+| 0          | store2 | 100   |
+| 0          | store3 | 105   |
+| 1          | store1 | 70    |
+| 1          | store3 | 80    |
++------------+--------+-------+
+
+**Explanation:**
+
+Product 0 is available in all three stores with prices 95, 100, and 105 respectively.
+Product 1 is available in store1 with price 70 and store3 with price 80. It is not available in store2.
+
+## Constraints
+
+```text
+- The number of rows in the Products table is in the range [1, 100].
+- The product_id values are unique.
+- The price values are non-negative integers.
+```
+
+---
+## UNION ALL Approach
+
+**Intuition**
+Use UNION ALL to combine three separate SELECT statements, one for each store, filtering out null values.
+
+**Steps**
+- Select product_id, 'store1' as store, and store1 as price from Products where store1 is not null
+- Select product_id, 'store2' as store, and store2 as price from Products where store2 is not null
+- Select product_id, 'store3' as store, and store3 as price from Products where store3 is not null
+- Combine all three results using UNION ALL
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
+    result = []
+    for _, row in products.iterrows():
+        if pd.notna(row['store1']):
+            result.append({'product_id': row['product_id'], 'store': 'store1', 'price': row['store1']})
+        if pd.notna(row['store2']):
+            result.append({'product_id': row['product_id'], 'store': 'store2', 'price': row['store2']})
+        if pd.notna(row['store3']):
+            result.append({'product_id': row['product_id'], 'store': 'store3', 'price': row['store3']})
+    return pd.DataFrame(result)
+
+# SQL version for reference:
+# SELECT product_id, 'store1' AS store, store1 AS price
+# FROM Products
+# WHERE store1 IS NOT NULL
+# UNION ALL
+# SELECT product_id, 'store2' AS store, store2 AS price
+# FROM Products
+# WHERE store2 IS NOT NULL
+# UNION ALL
+# SELECT product_id, 'store3' AS store, store3 AS price
+# FROM Products
+# WHERE store3 IS NOT NULL` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<Object>&gt; rearrangeProductsTable(Connection conn) throws SQLException {
+        String sql = "SELECT product_id, 'store1' AS store, store1 AS price " +
+                     "FROM Products " +
+                     "WHERE store1 IS NOT NULL " +
+                     "UNION ALL " +
+                     "SELECT product_id, 'store2' AS store, store2 AS price " +
+                     "FROM Products " +
+                     "WHERE store2 IS NOT NULL " +
+                     "UNION ALL " +
+                     "SELECT product_id, 'store3' AS store, store3 AS price " +
+                     "FROM Products " +
+                     "WHERE store3 IS NOT NULL";
+        
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                List<Object> row = new ArrayList&lt;&gt;();
+                row.add(rs.getInt("product_id"));
+                row.add(rs.getString("store"));
+                row.add(rs.getInt("price"));
+                result.add(row);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <tuple>
+#include <sqlite3.h>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<tuple<int, string, int>&gt; rearrangeProductsTable(sqlite3* db) {
+        const char* sql = "SELECT product_id, 'store1' AS store, store1 AS price "
+                          "FROM Products "
+                          "WHERE store1 IS NOT NULL "
+                          "UNION ALL "
+                          "SELECT product_id, 'store2' AS store, store2 AS price "
+                          "FROM Products "
+                          "WHERE store2 IS NOT NULL "
+                          "UNION ALL "
+                          "SELECT product_id, 'store3' AS store, store3 AS price "
+                          "FROM Products "
+                          "WHERE store3 IS NOT NULL";
+        
+        vector<tuple<int, string, int>&gt; result;
+        sqlite3_stmt* stmt;
+        
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int product_id = sqlite3_column_int(stmt, 0);
+                const unsigned char* store = sqlite3_column_text(stmt, 1);
+                int price = sqlite3_column_int(stmt, 2);
+                result.emplace_back(product_id, reinterpret_cast<const char*&gt;(store), price);
+            }
+            sqlite3_finalize(stmt);
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array<Object>&gt;} products
+ * @return {Array<Array<Object>&gt;}
+ */
+function rearrangeProductsTable(products) {
+    const result = [];
+    
+    for (const row of products) {
+        const [product_id, store1, store2, store3] = row;
+        
+        if (store1 !== null) {
+            result.push([product_id, 'store1', store1]);
+        }
+        if (store2 !== null) {
+            result.push([product_id, 'store2', store2]);
+        }
+        if (store3 !== null) {
+            result.push([product_id, 'store3', store3]);
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// SELECT product_id, 'store1' AS store, store1 AS price
+// FROM Products
+// WHERE store1 IS NOT NULL
+// UNION ALL
+// SELECT product_id, 'store2' AS store, store2 AS price
+// FROM Products
+// WHERE store2 IS NOT NULL
+// UNION ALL
+// SELECT product_id, 'store3' AS store, store3 AS price
+// FROM Products
+// WHERE store3 IS NOT NULL` },
+{ name: "TypeScript", lang: "typescript", code: `interface ProductRow {
+    product_id: number;
+    store1: number | null;
+    store2: number | null;
+    store3: number | null;
+}
+
+interface ResultRow {
+    product_id: number;
+    store: string;
+    price: number;
+}
+
+function rearrangeProductsTable(products: ProductRow[]): ResultRow[] {
+    const result: ResultRow[] = [];
+    
+    for (const row of products) {
+        const { product_id, store1, store2, store3 } = row;
+        
+        if (store1 !== null) {
+            result.push({ product_id, store: 'store1', price: store1 });
+        }
+        if (store2 !== null) {
+            result.push({ product_id, store: 'store2', price: store2 });
+        }
+        if (store3 !== null) {
+            result.push({ product_id, store: 'store3', price: store3 });
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// SELECT product_id, 'store1' AS store, store1 AS price
+// FROM Products
+// WHERE store1 IS NOT NULL
+// UNION ALL
+// SELECT product_id, 'store2' AS store, store2 AS price
+// FROM Products
+// WHERE store2 IS NOT NULL
+// UNION ALL
+// SELECT product_id, 'store3' AS store, store3 AS price
+// FROM Products
+// WHERE store3 IS NOT NULL` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(n) for storing the result
+- Notes: Simple and readable approach, works across all SQL databases
+
+---
+## CASE WHEN with GROUP BY Approach
+
+**Intuition**
+Use CASE WHEN expressions to create store and price columns, then filter out null values.
+
+**Steps**
+- Use CASE WHEN to determine the store name based on which column has a non-null value
+- Use CASE WHEN to get the corresponding price
+- Group by product_id and iterate through all possible store combinations
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
+    melted = products.melt(
+        id_vars=['product_id'],
+        value_vars=['store1', 'store2', 'store3'],
+        var_name='store',
+        value_name='price'
+    )
+    result = melted[melted['price'].notna()]
+    return result[['product_id', 'store', 'price']].reset_index(drop=True)
+
+# SQL version for reference:
+# SELECT product_id, store, price
+# FROM (
+#     SELECT product_id,
+#            CASE 
+#                WHEN store1 IS NOT NULL THEN 'store1'
+#                WHEN store2 IS NOT NULL THEN 'store2'
+#                WHEN store3 IS NOT NULL THEN 'store3'
+#            END AS store,
+#            COALESCE(store1, store2, store3) AS price
+#     FROM Products
+#     WHERE store1 IS NOT NULL OR store2 IS NOT NULL OR store3 IS NOT NULL
+# ) t` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<Object>&gt; rearrangeProductsTable(Connection conn) throws SQLException {
+        String sql = "SELECT product_id, store, price " +
+                     "FROM ( " +
+                     "    SELECT product_id, " +
+                     "           CASE " +
+                     "               WHEN store1 IS NOT NULL THEN 'store1' " +
+                     "               WHEN store2 IS NOT NULL THEN 'store2' " +
+                     "               WHEN store3 IS NOT NULL THEN 'store3' " +
+                     "           END AS store, " +
+                     "           COALESCE(store1, store2, store3) AS price " +
+                     "    FROM Products " +
+                     "    WHERE store1 IS NOT NULL OR store2 IS NOT NULL OR store3 IS NOT NULL " +
+                     ") t";
+        
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                List<Object> row = new ArrayList&lt;&gt;();
+                row.add(rs.getInt("product_id"));
+                row.add(rs.getString("store"));
+                row.add(rs.getInt("price"));
+                result.add(row);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <tuple>
+#include <sqlite3.h>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<tuple<int, string, int>&gt; rearrangeProductsTable(sqlite3* db) {
+        const char* sql = "SELECT product_id, store, price "
+                          "FROM ( "
+                          "    SELECT product_id, "
+                          "           CASE "
+                          "               WHEN store1 IS NOT NULL THEN 'store1' "
+                          "               WHEN store2 IS NOT NULL THEN 'store2' "
+                          "               WHEN store3 IS NOT NULL THEN 'store3' "
+                          "           END AS store, "
+                          "           COALESCE(store1, store2, store3) AS price "
+                          "    FROM Products "
+                          "    WHERE store1 IS NOT NULL OR store2 IS NOT NULL OR store3 IS NOT NULL "
+                          ") t";
+        
+        vector<tuple<int, string, int>&gt; result;
+        sqlite3_stmt* stmt;
+        
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int product_id = sqlite3_column_int(stmt, 0);
+                const unsigned char* store = sqlite3_column_text(stmt, 1);
+                int price = sqlite3_column_int(stmt, 2);
+                result.emplace_back(product_id, reinterpret_cast<const char*&gt;(store), price);
+            }
+            sqlite3_finalize(stmt);
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array<Object>&gt;} products
+ * @return {Array<Array<Object>&gt;}
+ */
+function rearrangeProductsTable(products) {
+    const result = [];
+    const stores = ['store1', 'store2', 'store3'];
+    
+    for (const row of products) {
+        const product_id = row[0];
+        
+        for (let i = 0; i &lt; stores.length; i++) {
+            const price = row[i + 1];
+            if (price !== null) {
+                result.push([product_id, stores[i], price]);
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// SELECT product_id, store, price
+// FROM (
+//     SELECT product_id,
+//            CASE
+//                WHEN store1 IS NOT NULL THEN 'store1'
+//                WHEN store2 IS NOT NULL THEN 'store2'
+//                WHEN store3 IS NOT NULL THEN 'store3'
+//            END AS store,
+//            COALESCE(store1, store2, store3) AS price
+//     FROM Products
+//     WHERE store1 IS NOT NULL OR store2 IS NOT NULL OR store3 IS NOT NULL
+// ) t` },
+{ name: "TypeScript", lang: "typescript", code: `interface ProductRow {
+    product_id: number;
+    store1: number | null;
+    store2: number | null;
+    store3: number | null;
+}
+
+interface ResultRow {
+    product_id: number;
+    store: string;
+    price: number;
+}
+
+function rearrangeProductsTable(products: ProductRow[]): ResultRow[] {
+    const result: ResultRow[] = [];
+    const stores: (keyof ProductRow)[] = ['store1', 'store2', 'store3'];
+    
+    for (const row of products) {
+        const { product_id } = row;
+        
+        for (const store of stores) {
+            const price = row[store];
+            if (price !== null) {
+                result.push({ product_id, store, price });
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// SELECT product_id, store, price
+// FROM (
+//     SELECT product_id,
+//            CASE
+//                WHEN store1 IS NOT NULL THEN 'store1'
+//                WHEN store2 IS NOT NULL THEN 'store2'
+//                WHEN store3 IS NOT NULL THEN 'store3'
+//            END AS store,
+//            COALESCE(store1, store2, store3) AS price
+//     FROM Products
+//     WHERE store1 IS NOT NULL OR store2 IS NOT NULL OR store3 IS NOT NULL
+// ) t` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(n) for storing the result
+- Notes: More complex query structure, but can be more efficient for certain database engines
+
+---
+## UNPIVOT Approach
+
+**Intuition**
+Use the UNPIVOT operator (available in SQL Server and Oracle) to transform columns into rows.
+
+**Steps**
+- Use UNPIVOT to convert store1, store2, store3 columns into rows
+- Filter out null values automatically
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
+    result = pd.wide_to_long(
+        products,
+        stubnames=['store'],
+        i=['product_id'],
+        j='store_num',
+        sep='',
+        suffix=r'\\d+'
+    ).reset_index()
+    
+    result = result[result['store'].notna()]
+    result['store'] = 'store' + result['store_num'].astype(str)
+    result = result.rename(columns={'store': 'price'})
+    result = result[['product_id', 'store', 'price']]
+    
+    return result.reset_index(drop=True)
+
+# SQL version for reference (SQL Server):
+-- SELECT product_id, store, price
+-- FROM Products
+-- UNPIVOT (
+--     price FOR store IN (store1, store2, store3)
+-- ) AS unpvt
+-- WHERE price IS NOT NULL` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<Object>&gt; rearrangeProductsTable(Connection conn) throws SQLException {
+        String sql = "SELECT product_id, store, price " +
+                     "FROM Products " +
+                     "UNPIVOT ( " +
+                     "    price FOR store IN (store1, store2, store3) " +
+                     ") AS unpvt " +
+                     "WHERE price IS NOT NULL";
+        
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                List<Object> row = new ArrayList&lt;&gt;();
+                row.add(rs.getInt("product_id"));
+                row.add(rs.getString("store"));
+                row.add(rs.getInt("price"));
+                result.add(row);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <tuple>
+#include <sqlite3.h>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<tuple<int, string, int>&gt; rearrangeProductsTable(sqlite3* db) {
+        const char* sql = "SELECT product_id, 'store1' AS store, store1 AS price "
+                          "FROM Products "
+                          "WHERE store1 IS NOT NULL "
+                          "UNION ALL "
+                          "SELECT product_id, 'store2' AS store, store2 AS price "
+                          "FROM Products "
+                          "WHERE store2 IS NOT NULL "
+                          "UNION ALL "
+                          "SELECT product_id, 'store3' AS store, store3 AS price "
+                          "FROM Products "
+                          "WHERE store3 IS NOT NULL";
+        
+        vector<tuple<int, string, int>&gt; result;
+        sqlite3_stmt* stmt;
+        
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int product_id = sqlite3_column_int(stmt, 0);
+                const unsigned char* store = sqlite3_column_text(stmt, 1);
+                int price = sqlite3_column_int(stmt, 2);
+                result.emplace_back(product_id, reinterpret_cast<const char*&gt;(store), price);
+            }
+            sqlite3_finalize(stmt);
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array<Object>&gt;} products
+ * @return {Array<Array<Object>&gt;}
+ */
+function rearrangeProductsTable(products) {
+    const result = [];
+    
+    for (const row of products) {
+        const [product_id, store1, store2, store3] = row;
+        
+        const stores = [
+            { name: 'store1', value: store1 },
+            { name: 'store2', value: store2 },
+            { name: 'store3', value: store3 }
+        ];
+        
+        for (const { name, value } of stores) {
+            if (value !== null) {
+                result.push([product_id, name, value]);
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference (SQL Server):
+// SELECT product_id, store, price
+// FROM Products
+// UNPIVOT (
+//     price FOR store IN (store1, store2, store3)
+// ) AS unpvt
+// WHERE price IS NOT NULL` },
+{ name: "TypeScript", lang: "typescript", code: `interface ProductRow {
+    product_id: number;
+    store1: number | null;
+    store2: number | null;
+    store3: number | null;
+}
+
+interface ResultRow {
+    product_id: number;
+    store: string;
+    price: number;
+}
+
+interface StoreInfo {
+    name: string;
+    value: number | null;
+}
+
+function rearrangeProductsTable(products: ProductRow[]): ResultRow[] {
+    const result: ResultRow[] = [];
+    
+    for (const row of products) {
+        const { product_id, store1, store2, store3 } = row;
+        
+        const stores: StoreInfo[] = [
+            { name: 'store1', value: store1 },
+            { name: 'store2', value: store2 },
+            { name: 'store3', value: store3 }
+        ];
+        
+        for (const { name, value } of stores) {
+            if (value !== null) {
+                result.push({ product_id, store: name, price: value });
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference (SQL Server):
+// SELECT product_id, store, price
+// FROM Products
+// UNPIVOT (
+//     price FOR store IN (store1, store2, store3)
+// ) AS unpvt
+// WHERE price IS NOT NULL` },]} />
+
+**Complexity**
+- Time: O(n) where n is the number of rows in the Products table
+- Space: O(n) for storing the result
+- Notes: Most elegant solution for databases that support UNPIVOT (SQL Server, Oracle), but not portable to all SQL databases
+
+---
+## CROSS JOIN/UNION Approach
+
+**Intuition**
+Use CROSS JOIN with a stores table to generate all possible product-store combinations, then filter for non-null prices.
+
+**Steps**
+- Create a derived table with store names
+- CROSS JOIN with Products to get all combinations
+- Use CASE WHEN to get the price for each store
+- Filter out null values
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: `import pandas as pd
+
+def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
+    stores = pd.DataFrame({'store': ['store1', 'store2', 'store3']})
+    
+    products['key'] = 1
+    stores['key'] = 1
+    merged = pd.merge(products, stores, on='key').drop('key', axis=1)
+    
+    def get_price(row):
+        if row['store'] == 'store1':
+            return row['store1']
+        elif row['store'] == 'store2':
+            return row['store2']
+        else:
+            return row['store3']
+    
+    merged['price'] = merged.apply(get_price, axis=1)
+    result = merged[merged['price'].notna()]
+    
+    return result[['product_id', 'store', 'price']].reset_index(drop=True)
+
+# SQL version for reference:
+-- WITH stores AS (
+--     SELECT 'store1' AS store UNION ALL
+--     SELECT 'store2' UNION ALL
+--     SELECT 'store3'
+-- )
+-- SELECT p.product_id, s.store,
+--        CASE s.store
+--            WHEN 'store1' THEN p.store1
+--            WHEN 'store2' THEN p.store2
+--            WHEN 'store3' THEN p.store3
+--        END AS price
+-- FROM Products p
+-- CROSS JOIN stores s
+-- WHERE CASE s.store
+--           WHEN 'store1' THEN p.store1
+--           WHEN 'store2' THEN p.store2
+--           WHEN 'store3' THEN p.store3
+--       END IS NOT NULL` },
+{ name: "Java", lang: "java", code: `import java.util.*;
+import java.sql.*;
+
+public class Solution {
+    public List<List<Object>&gt; rearrangeProductsTable(Connection conn) throws SQLException {
+        String sql = "WITH stores AS ( " +
+                     "    SELECT 'store1' AS store UNION ALL " +
+                     "    SELECT 'store2' UNION ALL " +
+                     "    SELECT 'store3' " +
+                     ") " +
+                     "SELECT p.product_id, s.store, " +
+                     "       CASE s.store " +
+                     "           WHEN 'store1' THEN p.store1 " +
+                     "           WHEN 'store2' THEN p.store2 " +
+                     "           WHEN 'store3' THEN p.store3 " +
+                     "       END AS price " +
+                     "FROM Products p " +
+                     "CROSS JOIN stores s " +
+                     "WHERE CASE s.store " +
+                     "           WHEN 'store1' THEN p.store1 " +
+                     "           WHEN 'store2' THEN p.store2 " +
+                     "           WHEN 'store3' THEN p.store3 " +
+                     "       END IS NOT NULL";
+        
+        List<List<Object>&gt; result = new ArrayList&lt;&gt;();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                List<Object> row = new ArrayList&lt;&gt;();
+                row.add(rs.getInt("product_id"));
+                row.add(rs.getString("store"));
+                row.add(rs.getInt("price"));
+                result.add(row);
+            }
+        }
+        return result;
+    }
+}` },
+{ name: "C++", lang: "cpp", code: `#include <vector>
+#include <string>
+#include <tuple>
+#include <sqlite3.h>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<tuple<int, string, int>&gt; rearrangeProductsTable(sqlite3* db) {
+        const char* sql = "WITH stores AS ( "
+                          "    SELECT 'store1' AS store UNION ALL "
+                          "    SELECT 'store2' UNION ALL "
+                          "    SELECT 'store3' "
+                          ") "
+                          "SELECT p.product_id, s.store, "
+                          "       CASE s.store "
+                          "           WHEN 'store1' THEN p.store1 "
+                          "           WHEN 'store2' THEN p.store2 "
+                          "           WHEN 'store3' THEN p.store3 "
+                          "       END AS price "
+                          "FROM Products p "
+                          "CROSS JOIN stores s "
+                          "WHERE CASE s.store "
+                          "           WHEN 'store1' THEN p.store1 "
+                          "           WHEN 'store2' THEN p.store2 "
+                          "           WHEN 'store3' THEN p.store3 "
+                          "       END IS NOT NULL";
+        
+        vector<tuple<int, string, int>&gt; result;
+        sqlite3_stmt* stmt;
+        
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int product_id = sqlite3_column_int(stmt, 0);
+                const unsigned char* store = sqlite3_column_text(stmt, 1);
+                int price = sqlite3_column_int(stmt, 2);
+                result.emplace_back(product_id, reinterpret_cast<const char*&gt;(store), price);
+            }
+            sqlite3_finalize(stmt);
+        }
+        
+        return result;
+    }
+};` },
+{ name: "JavaScript", lang: "javascript", code: `/**
+ * @param {Array<Array<Object>&gt;} products
+ * @return {Array<Array<Object>&gt;}
+ */
+function rearrangeProductsTable(products) {
+    const result = [];
+    const stores = ['store1', 'store2', 'store3'];
+    
+    for (const row of products) {
+        const [product_id, store1, store2, store3] = row;
+        const prices = { store1, store2, store3 };
+        
+        for (const store of stores) {
+            const price = prices[store];
+            if (price !== null) {
+                result.push([product_id, store, price]);
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// WITH stores AS (
+//     SELECT 'store1' AS store UNION ALL
+//     SELECT 'store2' UNION ALL
+//     SELECT 'store3'
+// )
+// SELECT p.product_id, s.store,
+//        CASE s.store
+//            WHEN 'store1' THEN p.store1
+//            WHEN 'store2' THEN p.store2
+//            WHEN 'store3' THEN p.store3
+//        END AS price
+// FROM Products p
+// CROSS JOIN stores s
+// WHERE CASE s.store
+//           WHEN 'store1' THEN p.store1
+//           WHEN 'store2' THEN p.store2
+//           WHEN 'store3' THEN p.store3
+//       END IS NOT NULL` },
+{ name: "TypeScript", lang: "typescript", code: `interface ProductRow {
+    product_id: number;
+    store1: number | null;
+    store2: number | null;
+    store3: number | null;
+}
+
+interface ResultRow {
+    product_id: number;
+    store: string;
+    price: number;
+}
+
+function rearrangeProductsTable(products: ProductRow[]): ResultRow[] {
+    const result: ResultRow[] = [];
+    const stores: Array&lt;'store1' | 'store2' | 'store3'> = ['store1', 'store2', 'store3'];
+    
+    for (const row of products) {
+        const { product_id, store1, store2, store3 } = row;
+        const prices: Record<string, number | null> = { store1, store2, store3 };
+        
+        for (const store of stores) {
+            const price = prices[store];
+            if (price !== null) {
+                result.push({ product_id, store, price });
+            }
+        }
+    }
+    
+    return result;
+}
+
+// SQL version for reference:
+// WITH stores AS (
+//     SELECT 'store1' AS store UNION ALL
+//     SELECT 'store2' UNION ALL
+//     SELECT 'store3'
+// )
+// SELECT p.product_id, s.store,
+//        CASE s.store
+//            WHEN 'store1' THEN p.store1
+//            WHEN 'store2' THEN p.store2
+//            WHEN 'store3' THEN p.store3
+//        END AS price
+// FROM Products p
+// CROSS JOIN stores s
+// WHERE CASE s.store
+//           WHEN 'store1' THEN p.store1
+//           WHEN 'store2' THEN p.store2
+//           WHEN 'store3' THEN p.store3
+//       END IS NOT NULL` },]} />
+
+**Complexity**
+- Time: O(n × s) where n is the number of rows and s is the number of stores (3 in this case)
+- Space: O(n × s) for storing intermediate results
+- Notes: More flexible approach that can easily accommodate additional stores, but less efficient than UNION ALL for this specific problem
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Rearrange Products Table Solutions","datePublished":"2024-04-21","description":"Transform a products table with store columns into rows of product-store pairs.","keywords":"LeetCode, Rearrange Products Table, Easy, Database"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the UNION ALL approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) where n is the number of rows in the Products table."}},{"@type":"Question","name":"What is the space complexity of the UNPIVOT approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for storing the result table."}},{"@type":"Question","name":"Which approach is most portable across different SQL databases?","acceptedAnswer":{"@type":"Answer","text":"The UNION ALL approach is most portable as it works across all SQL databases including MySQL, PostgreSQL, SQLite, and SQL Server."}},{"@type":"Question","name":"What is the most elegant solution for databases that support it?","acceptedAnswer":{"@type":"Answer","text":"The UNPIVOT approach is most elegant for SQL Server and Oracle databases that support this operator."}}]}).replace(/</g,'\u003c')}
+</script>

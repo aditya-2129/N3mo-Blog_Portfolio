@@ -1,0 +1,139 @@
+---
+title: "Balanced Binary Tree"
+summary: "Given a binary tree, determine if it is height-balanced. A height-balanced binary tree is defined as a binary tree in which the left and right subtrees of every node differ in height by no more than 1."
+date: "May 12, 2026"
+tags:
+  - Tree
+  - Depth-First Search
+  - Binary Tree
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 58.30% | **Paid:** No
+> **Topics:** Tree, Depth-First Search, Binary Tree
+
+Given a binary tree, determine if it is height-balanced.
+
+For this problem, a height-balanced binary tree is defined as a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
+
+## Examples
+
+### Example 1:
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: true
+```
+
+### Example 2:
+```text
+Input: root = [1,2,2,3,3,null,null,4,4]
+Output: false
+```
+
+### Example 3:
+```text
+Input: root = []
+Output: true
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 5000].
+-10⁴ <= Node.val <= 10⁴
+```
+
+- [Top-Down Depth-First Search](#top-down-depth-first-search)
+- [Bottom-Up Depth-First Search](#bottom-up-depth-first-search)
+
+## Examples
+
+### Example 1:
+```text
+Input: root = [3,9,20,null,null,15,7]
+Output: true
+```
+
+### Example 2:
+```text
+Input: root = [1,2,2,3,3,null,null,4,4]
+Output: false
+```
+
+### Example 3:
+```text
+Input: root = []
+Output: true
+```
+
+## Constraints
+
+```text
+The number of nodes in the tree is in the range [0, 5000].
+-10⁴ <= Node.val <= 10⁴
+```
+
+---
+## Top-Down Depth-First Search
+
+**Intuition**
+We can recursively check if every node in the tree is balanced. A node is balanced if the height difference between its left and right subtrees is at most 1, and both its left and right subtrees are also balanced.
+
+**Steps**
+- Define a helper function `height(node)` that calculates the height of a tree rooted at `node`.
+- In the main function `isBalanced(node)`:
+  - If the node is null, return true (an empty tree is balanced).
+  - Calculate the height of the left and right subtrees.
+  - If the absolute difference between these heights is greater than 1, return false.
+  - Recursively check if the left subtree is balanced.
+  - Recursively check if the right subtree is balanced.
+  - Return true only if all the above conditions are met.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def height(self, root):\n        if not root:\n            return 0\n        return 1 + max(self.height(root.left), self.height(root.right))\n\n    def isBalanced(self, root):\n        if not root:\n            return True\n        left_h = self.height(root.left)\n        right_h = self.height(root.right)\n        return abs(left_h - right_h) &lt;= 1 and self.isBalanced(root.left) and self.isBalanced(root.right)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int height(TreeNode root) {\n        if (root == null) return 0;\n        return 1 + Math.max(height(root.left), height(root.right));\n    }\n    public boolean isBalanced(TreeNode root) {\n        if (root == null) return true;\n        return Math.abs(height(root.left) - height(root.right)) &lt;= 1\n            && isBalanced(root.left)\n            && isBalanced(root.right);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int height(TreeNode* root) {\n        if (!root) return 0;\n        return 1 + max(height(root-&gt;left), height(root-&gt;right));\n    }\n    bool isBalanced(TreeNode* root) {\n        if (!root) return true;\n        return abs(height(root-&gt;left) - height(root-&gt;right)) &lt;= 1\n            && isBalanced(root-&gt;left)\n            && isBalanced(root-&gt;right);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var height = function(root) {\n    if (!root) return 0;\n    return 1 + Math.max(height(root.left), height(root.right));\n}\nvar isBalanced = function(root) {\n    if (!root) return true;\n    return Math.abs(height(root.left) - height(root.right)) &lt;= 1\n        && isBalanced(root.left)\n        && isBalanced(root.right);\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function height(root: TreeNode | null): number {\n    if (!root) return 0;\n    return 1 + Math.max(height(root.left), height(root.right));\n}\nfunction isBalanced(root: TreeNode | null): boolean {\n    if (!root) return true;\n    return Math.abs(height(root.left) - height(root.right)) &lt;= 1\n        && isBalanced(root.left)\n        && isBalanced(root.right);\n}" },]} />
+
+**Complexity**
+- Time: O(n log n) in the best case (balanced tree), O(n²) in the worst case (skewed tree) because we recalculate heights for subtrees repeatedly.
+- Space: O(n) for the recursion stack in the worst case.
+- Notes: Simple to implement but inefficient for skewed trees as it computes the height of the same nodes multiple times.
+
+---
+## Bottom-Up Depth-First Search
+
+**Intuition**
+Instead of calculating height separately, we can check the balance condition while calculating the height from the bottom up. If any subtree is found to be unbalanced, we immediately propagate a failure signal (e.g., -1) up the recursion stack, avoiding further unnecessary calculations.
+
+**Steps**
+- Define a helper function `checkHeight(node)` that returns the height of the tree if it is balanced, or -1 if it is not balanced.
+- In `checkHeight(node)`:
+  - If the node is null, return 0.
+  - Recursively check the height of the left subtree. If it returns -1, propagate -1 immediately.
+  - Recursively check the height of the right subtree. If it returns -1, propagate -1 immediately.
+  - If the absolute difference between left and right heights is greater than 1, return -1.
+  - Otherwise, return `max(left_height, right_height) + 1`.
+- In the main function `isBalanced(root)`, simply return `checkHeight(root) != -1`.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def checkHeight(self, root):\n        if not root:\n            return 0\n        left_h = self.checkHeight(root.left)\n        if left_h == -1:\n            return -1\n        right_h = self.checkHeight(root.right)\n        if right_h == -1:\n            return -1\n        if abs(left_h - right_h) &gt; 1:\n            return -1\n        return 1 + max(left_h, right_h)\n\n    def isBalanced(self, root):\n        return self.checkHeight(root) != -1" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public int checkHeight(TreeNode root) {\n        if (root == null) return 0;\n        int left = checkHeight(root.left);\n        if (left == -1) return -1;\n        int right = checkHeight(root.right);\n        if (right == -1) return -1;\n        if (Math.abs(left - right) &gt; 1) return -1;\n        return 1 + Math.max(left, right);\n    }\n    public boolean isBalanced(TreeNode root) {\n        return checkHeight(root) != -1;\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int checkHeight(TreeNode* root) {\n        if (!root) return 0;\n        int left = checkHeight(root-&gt;left);\n        if (left == -1) return -1;\n        int right = checkHeight(root-&gt;right);\n        if (right == -1) return -1;\n        if (abs(left - right) &gt; 1) return -1;\n        return 1 + max(left, right);\n    }\n    bool isBalanced(TreeNode* root) {\n        return checkHeight(root) != -1;\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var checkHeight = function(root) {\n    if (!root) return 0;\n    var left = checkHeight(root.left);\n    if (left === -1) return -1;\n    var right = checkHeight(root.right);\n    if (right === -1) return -1;\n    if (Math.abs(left - right) &gt; 1) return -1;\n    return 1 + Math.max(left, right);\n}\nvar isBalanced = function(root) {\n    return checkHeight(root) !== -1;\n}" },
+{ name: "TypeScript", lang: "typescript", code: "function checkHeight(root: TreeNode | null): number {\n    if (!root) return 0;\n    const left = checkHeight(root.left);\n    if (left === -1) return -1;\n    const right = checkHeight(root.right);\n    if (right === -1) return -1;\n    if (Math.abs(left - right) &gt; 1) return -1;\n    return 1 + Math.max(left, right);\n}\nfunction isBalanced(root: TreeNode | null): boolean {\n    return checkHeight(root) !== -1;\n}" },]} />
+
+**Complexity**
+- Time: O(n) as we visit each node exactly once.
+- Space: O(n) for the recursion stack in the worst case.
+- Notes: This is the optimal approach as it prunes the recursion tree as soon as an imbalance is found.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Balanced Binary Tree Solutions","datePublished":"2026-05-12","description":"Given a binary tree, determine if it is height-balanced. A height-balanced binary tree is defined as a binary tree in which the left and right subtrees of every node differ in height by no more than 1.","keywords":"LeetCode, Balanced Binary Tree, Easy, Tree, Depth-First Search, Binary Tree"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Time Complexity of the Top-Down Depth-First Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n log n) in the best case and O(n²) in the worst case."}},{"@type":"Question","name":"What is the Time Complexity of the Bottom-Up Depth-First Search approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(n) as each node is visited exactly once."}},{"@type":"Question","name":"What is the Space Complexity of the Bottom-Up Depth-First Search approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(n) for the recursion stack in the worst case."}}]}).replace(/</g,'\u003c')}
+</script>

@@ -1,0 +1,115 @@
+---
+title: "Determine if Two Events Have Conflict"
+summary: "Given two time intervals, check if they overlap or touch at the boundaries."
+date: "Jan 13, 2025"
+tags:
+  - Array
+  - String
+draft: false
+difficulty: "Easy"
+---
+
+import CodeTabs from "@components/CodeTabs"
+
+> **Difficulty:** Easy | **Acceptance:** 53.20% | **Paid:** No
+> **Topics:** Array, String
+
+You are given two arrays of strings `event1` and `event2` where:
+
+`event1 = [startTime1, endTime1]`
+`event2 = [startTime2, endTime2]`
+
+`startTime` is always strictly less than `endTime`.
+
+The format of time is "HH:MM".
+
+Two events have a conflict if the start time of one event is less than or equal to the end time of the other event, and the end time of that event is greater than or equal to the start time of the other event. Basically, if they overlap or touch.
+
+Return `true` if there is a conflict, otherwise `false`.
+
+- Examples
+- Constraints
+- [String Comparison](#string-comparison)
+- [Integer Conversion](#integer-conversion)
+
+## Examples
+
+```text
+Input: event1 = ["01:15","02:00"], event2 = ["02:00","03:00"]
+Output: true
+Explanation: The two events overlap at time 2:00.
+```
+
+```text
+Input: event1 = ["01:00","02:00"], event2 = ["01:20","03:00"]
+Output: true
+Explanation: The two events overlap from 01:20 to 02:00.
+```
+
+```text
+Input: event1 = ["10:00","11:00"], event2 = ["12:00","13:00"]
+Output: false
+Explanation: The two events do not overlap.
+```
+
+## Constraints
+
+```text
+event1.length == event2.length == 2
+event1[i].length == event2[i].length == 5
+startTime1 <= endTime1
+startTime2 <= endTime2
+All the event times follow the HH:MM format.
+```
+
+---
+## String Comparison
+
+**Intuition**
+Since the time format is strictly "HH:MM", lexicographical string comparison works perfectly to determine chronological order (e.g., "01:15" &lt; "02:00"). We can check for non-overlapping conditions and negate the result.
+
+**Steps**
+- Check if `event1` ends before `event2` starts (`event1[1] &lt; event2[0]`).
+- Check if `event2` ends before `event1` starts (`event2[1] &lt; event1[0]`).
+- If neither is true, there is a conflict.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def haveConflict(self, event1: List[str], event2: List[str]) -&gt; bool:\n        return not (event1[1] &lt; event2[0] or event2[1] &lt; event1[0])" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean haveConflict(String[] event1, String[] event2) {\n        return !(event1[1].compareTo(event2[0]) &lt; 0 || event2[1].compareTo(event1[0]) &lt; 0);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    bool haveConflict(vector&lt;string&gt;& event1, vector&lt;string&gt;& event2) {\n        return !(event1[1] &lt; event2[0] || event2[1] &lt; event1[0]);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var haveConflict = function(event1, event2) {\n    return !(event1[1] &lt; event2[0] || event2[1] &lt; event1[0]);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function haveConflict(event1: string[], event2: string[]): boolean {\n    return !(event1[1] &lt; event2[0] || event2[1] &lt; event1[0]);\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Very efficient due to fixed string length and direct comparison.
+
+---
+## Integer Conversion
+
+**Intuition**
+Convert the "HH:MM" time strings into total minutes since midnight. This transforms the problem into a standard integer interval overlap check.
+
+**Steps**
+- Parse hours and minutes for start and end times of both events.
+- Calculate total minutes: `hours * 60 + minutes`.
+- Check if the maximum start time is less than or equal to the minimum end time.
+
+<CodeTabs client:load tabs={[{ name: "Python3", lang: "python", code: "class Solution:\n    def haveConflict(self, event1: List[str], event2: List[str]) -&gt; bool:\n        def get_minutes(t):\n            h, m = map(int, t.split(':'))\n            return h * 60 + m\n        s1, e1 = get_minutes(event1[0]), get_minutes(event1[1])\n        s2, e2 = get_minutes(event2[0]), get_minutes(event2[1])\n        return max(s1, s2) &lt;= min(e1, e2)" },
+{ name: "Java", lang: "java", code: "class Solution {\n    public boolean haveConflict(String[] event1, String[] event2) {\n        int s1 = getMinutes(event1[0]);\n        int e1 = getMinutes(event1[1]);\n        int s2 = getMinutes(event2[0]);\n        int e2 = getMinutes(event2[1]);\n        return Math.max(s1, s2) &lt;= Math.min(e1, e2);\n    }\n    private int getMinutes(String time) {\n        String[] parts = time.split(\":\");\n        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);\n    }\n}" },
+{ name: "C++", lang: "cpp", code: "class Solution {\npublic:\n    int getMinutes(string t) {\n        return stoi(t.substr(0, 2)) * 60 + stoi(t.substr(3, 2));\n    }\n    bool haveConflict(vector&lt;string&gt;& event1, vector&lt;string&gt;& event2) {\n        int s1 = getMinutes(event1[0]), e1 = getMinutes(event1[1]);\n        int s2 = getMinutes(event2[0]), e2 = getMinutes(event2[1]);\n        return max(s1, s2) &lt;= min(e1, e2);\n    }\n};" },
+{ name: "JavaScript", lang: "javascript", code: "var haveConflict = function(event1, event2) {\n    const getMinutes = (t) =&gt; {\n        const [h, m] = t.split(':').map(Number);\n        return h * 60 + m;\n    };\n    const s1 = getMinutes(event1[0]), e1 = getMinutes(event1[1]);\n    const s2 = getMinutes(event2[0]), e2 = getMinutes(event2[1]);\n    return Math.max(s1, s2) &lt;= Math.min(e1, e2);\n};" },
+{ name: "TypeScript", lang: "typescript", code: "function haveConflict(event1: string[], event2: string[]): boolean {\n    const getMinutes = (t: string): number =&gt; {\n        const [h, m] = t.split(':').map(Number);\n        return h * 60 + m;\n    };\n    const s1 = getMinutes(event1[0]), e1 = getMinutes(event1[1]);\n    const s2 = getMinutes(event2[0]), e2 = getMinutes(event2[1]);\n    return Math.max(s1, s2) &lt;= Math.min(e1, e2);\n}" },]} />
+
+**Complexity**
+- Time: O(1)
+- Space: O(1)
+- Notes: Slightly more verbose but conceptually clear for interval arithmetic.
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"TechArticle","headline":"LeetCode Determine if Two Events Have Conflict Solutions","datePublished":"2025-01-13","description":"Given two time intervals, check if they overlap or touch at the boundaries.","keywords":"LeetCode, Determine if Two Events Have Conflict, Easy, Array, String"}).replace(/</g,'\u003c')}
+</script>
+
+<script is:inline type="application/ld+json">
+{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the time complexity of the String Comparison approach?","acceptedAnswer":{"@type":"Answer","text":"The time complexity is O(1) because we perform a constant number of string comparisons on fixed-length strings."}},{"@type":"Question","name":"What is the space complexity of the Integer Conversion approach?","acceptedAnswer":{"@type":"Answer","text":"The space complexity is O(1) as we only store a few integer variables for time conversion."}}]}).replace(/</g,'\u003c')}
+</script>
